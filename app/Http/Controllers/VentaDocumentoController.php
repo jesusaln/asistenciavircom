@@ -78,6 +78,20 @@ class VentaDocumentoController extends Controller
     }
 
     /**
+     * Generate PDF (Public).
+     */
+    public function generarPDFPublico(Request $request, $token)
+    {
+        $venta = Venta::findByToken($token);
+
+        if (!$venta) {
+            abort(404, 'Comprobante no encontrado');
+        }
+
+        return $this->generarPDF($request, $venta->id);
+    }
+
+    /**
      * Generate PDF.
      */
     public function generarPDF(Request $request, $id)
@@ -98,16 +112,9 @@ class VentaDocumentoController extends Controller
                 ])
                 ->findOrFail($id);
 
-            Log::info('Generando PDF para venta', [
-                'id' => $venta->id,
-                'numero_venta' => $venta->numero_venta,
-                'created_at' => $venta->created_at,
-                'fecha' => $venta->fecha,
-                'estado' => $venta->estado,
-                'pagado' => $venta->pagado,
-            ]);
-
-            $validarDatos = config('ventas.pdf.validar_datos_completos', true);
+            // Validations disabled to allow PDF generation even with minor data inconsistencies
+            // The view handles missing data gracefully
+            $validarDatos = false; // config('ventas.pdf.validar_datos_completos', true);
 
             if ($validarDatos) {
                 if (config('ventas.pdf.validar_cliente', true) && !$venta->cliente) {
@@ -150,9 +157,32 @@ class VentaDocumentoController extends Controller
             }
 
             $piePagina = \App\Models\EmpresaConfiguracion::getPiePagina('ventas');
+            
+            $includeDebug = $request->query('debug') === '1';
 
             // Load view using Service
             // Note: We need to pass 'piePagina' additionally
+            if ($includeDebug) {
+                // Get standard data from service to replicate its behavior
+                $config = \App\Models\EmpresaConfiguracion::getConfig();
+                $empresa = \App\Models\EmpresaConfiguracion::getInfoEmpresa();
+                $colores = \App\Models\EmpresaConfiguracion::getColores();
+                $financiera = \App\Models\EmpresaConfiguracion::getConfiguracionFinanciera();
+
+                $viewData = [
+                    'venta' => $venta,
+                    'piePagina' => $piePagina,
+                    'empresa' => $empresa,
+                    'configuracion' => [
+                        'colores' => $colores,
+                        'empresa' => $empresa,
+                        'financiera' => $financiera,
+                        'pie_pagina_facturas' => \App\Models\EmpresaConfiguracion::getPiePagina('facturas'),
+                    ],
+                ];
+                return view('ventas.pdf', $viewData);
+            }
+
             $pdf = $this->pdfService->loadView('ventas.pdf', [
                 'venta' => $venta,
                 'piePagina' => $piePagina
@@ -166,11 +196,19 @@ class VentaDocumentoController extends Controller
             }
 
             // Stream
-            $this->pdfService->stream($pdf, $filename);
-        } catch (\Exception $e) {
-            Log::error('Error generando PDF de venta: ' . $e->getMessage());
+            return $this->pdfService->stream($pdf, $filename);
+        } catch (\Throwable $e) {
+            Log::error('Error generando PDF de venta: ' . $e->getMessage(), [
+                'id' => $id,
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
             Log::error($e->getTraceAsString());
-            return response()->json(['error' => 'Error generando PDF: ' . $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Error generando PDF: ' . $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
     }
 

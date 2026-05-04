@@ -6,11 +6,14 @@ use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class PlanRenta extends Model
 {
     use HasFactory, SoftDeletes, BelongsToEmpresa;
+
+    protected static array $columnExistsCache = [];
 
     protected $table = 'plan_rentas';
 
@@ -24,8 +27,6 @@ class PlanRenta extends Model
         'icono',
         'color',
         'precio_mensual',
-        'precio_venta',
-        'disponible_venta',
         'deposito_garantia',
         'meses_minimos',
         'beneficios',
@@ -38,7 +39,6 @@ class PlanRenta extends Model
 
     protected $casts = [
         'precio_mensual' => 'decimal:2',
-        'precio_venta' => 'decimal:2',
         'deposito_garantia' => 'decimal:2',
         'meses_minimos' => 'integer',
         'beneficios' => 'array',
@@ -46,7 +46,6 @@ class PlanRenta extends Model
         'activo' => 'boolean',
         'destacado' => 'boolean',
         'visible_catalogo' => 'boolean',
-        'disponible_venta' => 'boolean',
         'orden' => 'integer',
     ];
 
@@ -71,7 +70,15 @@ class PlanRenta extends Model
      */
     public function scopePublicos($query)
     {
-        return $query->where('activo', true)->where('visible_catalogo', true);
+        if (self::hasColumn('activo')) {
+            $query->where('activo', true);
+        }
+
+        if (self::hasColumn('visible_catalogo')) {
+            $query->where('visible_catalogo', true);
+        }
+
+        return $query;
     }
 
     /**
@@ -79,6 +86,10 @@ class PlanRenta extends Model
      */
     public function scopeDestacados($query)
     {
+        if (!self::hasColumn('destacado')) {
+            return $query;
+        }
+
         return $query->where('destacado', true);
     }
 
@@ -87,7 +98,11 @@ class PlanRenta extends Model
      */
     public function scopeOrdenado($query)
     {
-        return $query->orderBy('orden')->orderBy('nombre');
+        if (self::hasColumn('orden')) {
+            $query->orderBy('orden');
+        }
+
+        return $query->orderBy('nombre');
     }
 
     /**
@@ -118,5 +133,20 @@ class PlanRenta extends Model
     public function getTipoLabelAttribute()
     {
         return self::tipos()[$this->tipo] ?? ucfirst($this->tipo);
+    }
+
+    protected static function hasColumn(string $column): bool
+    {
+        $key = static::class . ':' . $column;
+
+        if (!array_key_exists($key, self::$columnExistsCache)) {
+            try {
+                self::$columnExistsCache[$key] = Schema::hasColumn((new static())->getTable(), $column);
+            } catch (\Throwable $e) {
+                self::$columnExistsCache[$key] = false;
+            }
+        }
+
+        return self::$columnExistsCache[$key];
     }
 }

@@ -1,13 +1,11 @@
 <script setup>
 import { useForm, Link, Head } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 
 const props = defineProps({
     empresa: Object,
 });
-
-const showPassword = ref(false);
 
 const cssVars = computed(() => ({
     '--color-primary': props.empresa?.color_principal || '#3b82f6',
@@ -34,14 +32,14 @@ const submit = () => {
 <template>
     <Head title="Acceso al Portal" />
 
-    <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
+    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300" :style="cssVars">
         <PublicNavbar :empresa="empresa" activeTab="soporte" />
 
         <div class="flex-grow flex items-center justify-center p-4">
             <div class="w-full max-w-md">
                 
                 <!-- Card Premium -->
-                <div class="bg-white dark:bg-slate-900 dark:bg-gray-900 rounded-[3rem] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 p-10 md:p-12 relative overflow-hidden group transition-colors duration-300">
+                <div class="bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 p-10 md:p-12 relative overflow-hidden group transition-colors duration-300">
                     <!-- Decoración -->
                     <div class="absolute -top-12 -right-12 w-32 h-32 bg-[var(--color-primary-soft)] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
                     <div class="absolute -bottom-12 -left-12 w-24 h-24 bg-[var(--color-terciary-soft)] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
@@ -51,59 +49,44 @@ const submit = () => {
                             <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-[var(--color-primary)] mx-auto mb-6 text-2xl">
                                 🔐
                             </div>
-                            <h2 class="text-3xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">Acceso Clientes</h2>
-                            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium mt-2 transition-colors">Ingrese sus credenciales para gestionar su soporte.</p>
+                            <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight transition-colors">Acceso Clientes</h2>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium mt-2 transition-colors">Ingrese sus credenciales para gestionar su soporte.</p>
                         </div>
 
                         <form @submit.prevent="submit" class="space-y-6">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 ml-1 transition-colors">Correo Electrónico</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 ml-1 transition-colors">Correo Electrónico</label>
                                 <input 
                                     v-model="form.email" 
                                     type="email" 
                                     placeholder="ejemplo@correo.com"
                                     required
-                                    class="w-full px-6 py-4 bg-white dark:bg-slate-900 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
+                                    class="w-full px-6 py-4 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
                                 >
                                 <div v-if="form.errors.email" class="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase tracking-widest">{{ form.errors.email }}</div>
                             </div>
 
                             <div class="space-y-2">
                                 <div class="flex justify-between items-center ml-1">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 transition-colors">Contraseña</label>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 transition-colors">Contraseña</label>
                                     <Link :href="route('portal.password.request')" class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] hover:underline">¿Olvido su Clave?</Link>
                                 </div>
-                                <div class="relative group">
-                                    <input 
-                                        v-model="form.password" 
-                                        :type="showPassword ? 'text' : 'password'" 
-                                        placeholder="••••••••"
-                                        required
-                                        class="w-full px-6 py-4 bg-white dark:bg-slate-900 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500 pr-14"
-                                    >
-                                    <button 
-                                        type="button"
-                                        @click="showPassword = !showPassword"
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-[var(--color-primary)] transition-colors"
-                                    >
-                                        <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 1.225 0 2.378.274 3.411.766M17.618 6.382A10.061 10.061 0 0121.542 12c-1.274 4.057-5.064 7-9.542 7-1.225 0-2.378-.274-3.411-.766M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.9-4.9l13.8 13.8" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                <input 
+                                    v-model="form.password" 
+                                    type="password" 
+                                    placeholder="••••••••"
+                                    required
+                                    class="w-full px-6 py-4 bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-[var(--color-primary-soft)] focus:border-[var(--color-primary)] transition-all font-medium placeholder-gray-400 dark:placeholder-gray-500"
+                                >
                             </div>
 
                             <label class="flex items-center gap-3 cursor-pointer group/check">
                                 <div class="relative flex items-center">
                                     <input v-model="form.remember" type="checkbox" class="peer hidden">
-                                    <div class="w-5 h-5 border-2 border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-lg peer-checked:bg-[var(--color-primary)] peer-checked:border-[var(--color-primary)] transition-all"></div>
+                                    <div class="w-5 h-5 border-2 border-gray-200 dark:border-gray-600 rounded-lg peer-checked:bg-[var(--color-primary)] peer-checked:border-[var(--color-primary)] transition-all"></div>
                                     <svg class="absolute w-3 h-3 text-white left-1 bottom-1 opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 group-hover/check:text-gray-600 dark:text-gray-300 dark:group-hover/check:text-gray-300 transition-colors">Recordarme</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover/check:text-gray-600 dark:group-hover/check:text-gray-300 transition-colors">Recordarme</span>
                             </label>
 
                             <button 
@@ -116,7 +99,7 @@ const submit = () => {
                             </button>
 
                             <div class="text-center pt-4 border-t border-gray-100 dark:border-gray-800 mt-4 transition-colors">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-4 transition-colors">¿No tienes cuenta de cliente?</p>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4 transition-colors">¿No tienes cuenta de cliente?</p>
                                 <Link 
                                     :href="route('portal.register')" 
                                     class="inline-flex w-full items-center justify-center py-4 bg-[var(--color-terciary-soft)] text-[var(--color-primary)] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[var(--color-primary-soft)] transition-all gap-2"
@@ -130,7 +113,7 @@ const submit = () => {
                 </div>
 
                 <!-- Footer del Login -->
-                <p class="text-center mt-8 text-gray-400 dark:text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-[0.2em] transition-colors">
+                <p class="text-center mt-8 text-gray-400 dark:text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] transition-colors">
                     &copy; {{ new Date().getFullYear() }} {{ empresa?.nombre }} &bull; Soporte Seguro
                 </p>
             </div>

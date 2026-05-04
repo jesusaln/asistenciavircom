@@ -15,6 +15,7 @@ class MegaService
     private ?string $email = null;
     private ?string $password = null;
     private bool $isLoggedIn = false;
+    private int $commandTimeout = 60;
 
     public function __construct(?string $email = null, ?string $password = null)
     {
@@ -50,8 +51,7 @@ class MegaService
         }
 
         // Verificar si ya hay sesión activa
-        $sessionOutput = [];
-        exec('mega-whoami 2>&1', $sessionOutput, $sessionCode);
+        [$sessionCode, $sessionOutput] = $this->runCommand('mega-whoami 2>&1');
 
         if ($sessionCode === 0 && !empty($sessionOutput)) {
             $currentSession = implode('', $sessionOutput);
@@ -60,7 +60,7 @@ class MegaService
                 return ['success' => true, 'message' => 'Ya hay una sesión activa'];
             }
             // Cerrar sesión anterior
-            exec('mega-logout 2>&1');
+            $this->runCommand('mega-logout 2>&1');
         }
 
         // Intentar login
@@ -70,8 +70,7 @@ class MegaService
             escapeshellarg($password)
         );
 
-        $output = [];
-        exec($command, $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand($command);
         $outputStr = implode("\n", $output);
 
         if ($returnCode === 0) {
@@ -89,7 +88,7 @@ class MegaService
      */
     public function logout(): array
     {
-        exec('mega-logout 2>&1', $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand('mega-logout 2>&1');
         $this->isLoggedIn = false;
         return ['success' => true, 'message' => 'Sesión cerrada'];
     }
@@ -124,8 +123,7 @@ class MegaService
             escapeshellarg($remotePath)
         );
 
-        $output = [];
-        exec($command, $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand($command);
         $outputStr = implode("\n", $output);
 
         if ($returnCode === 0) {
@@ -161,8 +159,7 @@ class MegaService
             escapeshellarg($localPath)
         );
 
-        $output = [];
-        exec($command, $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand($command);
         $outputStr = implode("\n", $output);
 
         if ($returnCode === 0 && file_exists($localPath)) {
@@ -187,8 +184,7 @@ class MegaService
 
         $command = sprintf('mega-ls -l %s 2>&1', escapeshellarg($remotePath));
 
-        $output = [];
-        exec($command, $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand($command);
 
         if ($returnCode !== 0) {
             return ['success' => false, 'message' => 'Error al listar archivos', 'files' => []];
@@ -225,8 +221,7 @@ class MegaService
 
         $command = sprintf('mega-rm %s 2>&1', escapeshellarg($remotePath));
 
-        $output = [];
-        exec($command, $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand($command);
 
         if ($returnCode === 0) {
             Log::info('MEGA: Archivo eliminado - ' . $remotePath);
@@ -253,8 +248,7 @@ class MegaService
 
         if ($loginResult['success']) {
             // Obtener info de la cuenta
-            $output = [];
-            exec('mega-df 2>&1', $output, $returnCode);
+            [$returnCode, $output] = $this->runCommand('mega-df 2>&1');
 
             $spaceInfo = [];
             if ($returnCode === 0) {
@@ -298,8 +292,7 @@ class MegaService
             }
         }
 
-        $output = [];
-        exec('mega-df 2>&1', $output, $returnCode);
+        [$returnCode, $output] = $this->runCommand('mega-df 2>&1');
 
         $space = [
             'total' => 'N/A',
@@ -320,5 +313,60 @@ class MegaService
         }
 
         return ['success' => true, 'space' => $space];
+    }
+
+    private function runCommand(string $command, ?int $timeoutSeconds = null): array
+    {
+        $timeout = $timeoutSeconds ?? $this->commandTimeout;
+        $descriptorSpec = [
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        $process = proc_open($command, $descriptorSpec, $pipes);
+        if (!is_resource($process)) {
+            return [1, ['Error ejecutando comando']];
+        }
+
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+
+        $output = '';
+        $error = '';
+        $start = microtime(true);
+
+        while (true) {
+            $status = proc_get_status($process);
+            if (!$status['running']) {
+                break;
+            }
+
+            $output .= stream_get_contents($pipes[1]);
+            $error .= stream_get_contents($pipes[2]);
+
+            if ((microtime(true) - $start) > $timeout) {
+                proc_terminate($process);
+                $output .= stream_get_contents($pipes[1]);
+                $error .= stream_get_contents($pipes[2]);
+                foreach ($pipes as $pipe) {
+                    fclose($pipe);
+                }
+                return [1, array_filter(explode("\n", trim($output . "\n" . $error))) ?: ['Timeout excedido']];
+            }
+
+            usleep(100000);
+        }
+
+        $output .= stream_get_contents($pipes[1]);
+        $error .= stream_get_contents($pipes[2]);
+
+        foreach ($pipes as $pipe) {
+            fclose($pipe);
+        }
+
+        $exitCode = proc_close($process);
+        $lines = array_filter(explode("\n", trim($output . "\n" . $error)));
+
+        return [$exitCode, $lines];
     }
 }

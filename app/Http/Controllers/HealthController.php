@@ -32,7 +32,7 @@ class HealthController extends Controller
                 'status' => 'error',
                 'message' => 'Error de conexión: ' . $e->getMessage()
             ];
-            Log::error('Health Check - Database Error: ' . $e->getMessage());
+            Log::error('Health Check - Database Error: No se pudo conectar a la base de datos');
         }
 
         // 2. Verificar storage (escritura/lectura)
@@ -54,9 +54,9 @@ class HealthController extends Controller
             $healthy = false;
             $checks['storage'] = [
                 'status' => 'error',
-                'message' => 'Error de storage: ' . $e->getMessage()
+                'message' => 'Error de storage'
             ];
-            Log::error('Health Check - Storage Error: ' . $e->getMessage());
+            Log::error('Health Check - Storage Error: Fallo en prueba de lectura/escritura');
         }
 
         // 3. Verificar caché

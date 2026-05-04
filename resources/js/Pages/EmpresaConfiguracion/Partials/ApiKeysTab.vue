@@ -7,25 +7,27 @@ const props = defineProps({
 })
 
 const showGroqKey = ref(false)
+const showGeminiKey = ref(false)
 const testingConnection = ref(false)
 const connectionStatus = ref(null)
 
 const aiProviders = [
-    { id: 'gemini', name: 'Google Gemini', description: 'IA de Google (Flash 2.0)', icon: 'brain' },
-    { id: 'groq', name: 'Groq Cloud', description: 'API rápida y gratuita (Recomendado)', icon: 'bolt' },
+    { id: 'gemini', name: 'Google Gemini', description: 'API potente de Google AI (Recomendado)', icon: 'brain' },
+    { id: 'groq', name: 'Groq Cloud', description: 'API rápida y gratuita con modelos open source', icon: 'bolt' },
     { id: 'ollama', name: 'Ollama Local', description: 'Ejecuta modelos localmente', icon: 'server' },
-]
-
-const geminiModels = [
-    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: 'Balance ideal velocidad/calidad' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Rápido y eficiente' },
-    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Máxima calidad y ventana de contexto' },
 ]
 
 const groqModels = [
     { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', description: 'Mejor calidad, ideal para function calling' },
     { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', description: 'Más rápido, menor calidad' },
     { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', description: 'Buen balance calidad/velocidad' },
+]
+
+const geminiModels = [
+    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: 'Más rápido, ideal para chatbot (Recomendado)' },
+    { id: 'gemini-2.0-pro', name: 'Gemini 2.0 Pro', description: 'Mayor calidad, razonamiento avanzado' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Rápido y económico' },
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: 'Contexto largo (1M tokens)' },
 ]
 
 const testConnection = async () => {
@@ -64,30 +66,72 @@ const testConnection = async () => {
     <div class="space-y-8">
         <!-- Header -->
         <div class="border-b border-gray-100 dark:border-gray-700 pb-6">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-gray-100 flex items-center gap-3">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
                 <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
-                    <FontAwesomeIcon icon="robot" class="text-purple-600 dark:text-purple-400" />
+                    <FontAwesomeIcon icon="key" class="text-purple-600 dark:text-purple-400" />
                 </div>
-                Inteligencia Artificial (VircomBot)
+                API Keys & Integraciones
             </h2>
-            <p class="mt-2 text-gray-500 dark:text-gray-400 dark:text-gray-400">Configura el asistente virtual impulsado por IA para atención a clientes</p>
+            <p class="mt-2 text-gray-500 dark:text-gray-400">Administra las llaves de acceso para servicios externos y marketing</p>
+        </div>
+
+        <!-- Meta / WhatsApp Section -->
+        <div class="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl p-6 transition-all">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl shadow-sm">
+                    <FontAwesomeIcon icon="comments" class="text-blue-600 dark:text-blue-400 text-xl" />
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-gray-100">WhatsApp Business Platform (Meta)</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Requerido para el envío de campañas de marketing y notificaciones</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">WhatsApp Business Account ID</label>
+                    <input 
+                        type="text"
+                        v-model="form.whatsapp_business_account_id"
+                        placeholder="123456789012345"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">Usa este ID para listar plantillas de Meta</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number ID</label>
+                    <input 
+                        type="text"
+                        v-model="form.whatsapp_phone_number_id"
+                        placeholder="123456789012345"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">ID del número desde el que se envían mensajes</p>
+                </div>
+            </div>
+
+            <!-- Warning about sensitive keys -->
+            <div class="mt-4 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                <FontAwesomeIcon icon="exclamation-triangle" />
+                <span>Configura el token completo y configuración avanzada en el tab de <b>WhatsApp Business</b></span>
+            </div>
         </div>
 
         <!-- Chatbot Toggle -->
         <div class="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-purple-100 dark:border-purple-700">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="p-3 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-xl shadow-sm">
+                    <div class="p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm">
                         <FontAwesomeIcon icon="comments" class="text-purple-600 dark:text-purple-400 text-xl" />
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100">VircomBot</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Asistente virtual en el portal de clientes</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-gray-100">VircomBot</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Asistente virtual en el portal de clientes</p>
                     </div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" v-model="form.chatbot_enabled" class="sr-only peer">
-                    <div class="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white dark:bg-slate-900 after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
+                    <div class="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
                 </label>
             </div>
         </div>
@@ -105,19 +149,19 @@ const testConnection = async () => {
                         'relative p-4 rounded-xl border-2 text-left transition-all duration-200',
                         form.ai_provider === provider.id 
                             ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/40 ring-2 ring-purple-100 dark:ring-purple-800/40' 
-                            : 'border-gray-200 dark:border-slate-800 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-500 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-700'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                     ]"
                 >
                     <div class="flex items-center gap-3">
                         <div :class="[
                             'p-2 rounded-lg',
-                            form.ai_provider === provider.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400'
+                            form.ai_provider === provider.id ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                         ]">
                             <FontAwesomeIcon :icon="provider.icon" />
                         </div>
                         <div>
-                            <p class="font-semibold text-gray-900 dark:text-white dark:text-gray-100">{{ provider.name }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ provider.description }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-gray-100">{{ provider.name }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ provider.description }}</p>
                         </div>
                     </div>
                     <div v-if="form.ai_provider === provider.id" class="absolute top-2 right-2">
@@ -128,8 +172,8 @@ const testConnection = async () => {
         </div>
 
         <!-- Gemini Configuration -->
-        <div v-if="form.ai_provider === 'gemini'" class="space-y-6 bg-gray-50 dark:bg-slate-950 dark:bg-gray-800 rounded-xl p-6">
-            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100 flex items-center gap-2">
+        <div v-if="form.ai_provider === 'gemini'" class="space-y-6 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <FontAwesomeIcon icon="brain" class="text-blue-500 dark:text-blue-400" />
                 Configuración de Google Gemini
             </h3>
@@ -137,18 +181,25 @@ const testConnection = async () => {
             <!-- API Key -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    API Key de Google AI Studio
+                    API Key de Gemini
                     <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline ml-2 text-xs">
                         <FontAwesomeIcon icon="external-link-alt" /> Obtener API Key
                     </a>
                 </label>
                 <div class="relative">
                     <input 
-                        type="password"
+                        :type="showGeminiKey ? 'text' : 'password'"
                         v-model="form.gemini_api_key"
-                        placeholder="AIzaSy..."
-                        class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                        placeholder="AIzaSyXXXXXXXXXXXXXXXXXXXXXXX"
+                        class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                     >
+                    <button 
+                        type="button" 
+                        @click="showGeminiKey = !showGeminiKey"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                    >
+                        <FontAwesomeIcon :icon="showGeminiKey ? 'eye-slash' : 'eye'" />
+                    </button>
                 </div>
             </div>
 
@@ -157,18 +208,48 @@ const testConnection = async () => {
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Modelo</label>
                 <select 
                     v-model="form.gemini_model"
-                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                 >
                     <option v-for="model in geminiModels" :key="model.id" :value="model.id">
                         {{ model.name }} - {{ model.description }}
                     </option>
                 </select>
             </div>
+
+            <!-- Temperature -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Temperatura: {{ form.gemini_temperature }}
+                </label>
+                <input 
+                    type="range" 
+                    v-model="form.gemini_temperature" 
+                    min="0" 
+                    max="1" 
+                    step="0.1"
+                    class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-500"
+                >
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <span>Preciso (0)</span>
+                    <span>Creativo (1)</span>
+                </div>
+            </div>
+
+            <!-- Gemini Info -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-lg p-4">
+                <div class="flex gap-3 text-sm text-blue-800 dark:text-blue-300">
+                    <FontAwesomeIcon icon="info-circle" class="mt-0.5" />
+                    <div>
+                        <p class="font-medium">Google Gemini</p>
+                        <p class="mt-1">Gemini 2.0 Flash es ideal para chatbot con WhatsApp: rápido, económico y con soporte nativo de Function Calling para agendar citas y consultar precios.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Groq Configuration -->
-        <div v-if="form.ai_provider === 'groq'" class="space-y-6 bg-gray-50 dark:bg-slate-950 dark:bg-gray-800 rounded-xl p-6">
-            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100 flex items-center gap-2">
+        <div v-if="form.ai_provider === 'groq'" class="space-y-6 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <FontAwesomeIcon icon="bolt" class="text-yellow-500 dark:text-yellow-400" />
                 Configuración de Groq
             </h3>
@@ -186,12 +267,12 @@ const testConnection = async () => {
                         :type="showGroqKey ? 'text' : 'password'"
                         v-model="form.groq_api_key"
                         placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx"
-                        class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                        class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                     >
                     <button 
                         type="button" 
                         @click="showGroqKey = !showGroqKey"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-400"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
                     >
                         <FontAwesomeIcon :icon="showGroqKey ? 'eye-slash' : 'eye'" />
                     </button>
@@ -203,7 +284,7 @@ const testConnection = async () => {
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Modelo</label>
                 <select 
                     v-model="form.groq_model"
-                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                 >
                     <option v-for="model in groqModels" :key="model.id" :value="model.id">
                         {{ model.name }} - {{ model.description }}
@@ -224,7 +305,7 @@ const testConnection = async () => {
                     step="0.1"
                     class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600 dark:accent-purple-500"
                 >
-                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                     <span>Preciso (0)</span>
                     <span>Creativo (1)</span>
                 </div>
@@ -232,8 +313,8 @@ const testConnection = async () => {
         </div>
 
         <!-- Ollama Configuration -->
-        <div v-if="form.ai_provider === 'ollama'" class="space-y-6 bg-gray-50 dark:bg-slate-950 dark:bg-gray-800 rounded-xl p-6">
-            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100 flex items-center gap-2">
+        <div v-if="form.ai_provider === 'ollama'" class="space-y-6 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <FontAwesomeIcon icon="server" class="text-blue-500 dark:text-blue-400" />
                 Configuración de Ollama
             </h3>
@@ -245,7 +326,7 @@ const testConnection = async () => {
                         type="text"
                         v-model="form.ollama_base_url"
                         placeholder="http://localhost:11434"
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                     >
                 </div>
                 <div>
@@ -254,7 +335,7 @@ const testConnection = async () => {
                         type="text"
                         v-model="form.ollama_model"
                         placeholder="llama3.1:8b"
-                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                     >
                 </div>
             </div>
@@ -262,7 +343,7 @@ const testConnection = async () => {
 
         <!-- Chatbot Personality -->
         <div class="space-y-4">
-            <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100">Personalidad del Bot</h3>
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Personalidad del Bot</h3>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre del Bot</label>
@@ -270,30 +351,30 @@ const testConnection = async () => {
                     type="text"
                     v-model="form.chatbot_name"
                     placeholder="VircomBot"
-                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                 >
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Prompt del Sistema (Opcional)
-                    <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400 font-normal">- Define la personalidad del bot</span>
+                    <span class="text-gray-400 dark:text-gray-500 font-normal">- Define la personalidad del bot</span>
                 </label>
                 <textarea 
                     v-model="form.chatbot_system_prompt"
                     rows="4"
                     placeholder="Eres un asistente profesional y amable. Tu objetivo es ayudar a los clientes a agendar citas y resolver sus dudas..."
-                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-purple-100 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
                 ></textarea>
             </div>
         </div>
 
         <!-- Test Connection -->
-        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl p-6">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white dark:text-gray-100">Probar Conexión</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Verifica que el servicio de IA esté funcionando correctamente</p>
+                    <h3 class="font-semibold text-gray-900 dark:text-gray-100">Probar Conexión</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Verifica que el servicio de IA esté funcionando correctamente</p>
                 </div>
                 <button
                     type="button"
@@ -334,6 +415,7 @@ const testConnection = async () => {
                         <li>Consultar disponibilidad de horarios</li>
                         <li>Buscar precios de servicios</li>
                         <li>Verificar estado de reparaciones por folio</li>
+                        <li>Consultar saldo de pólizas de servicio</li>
                     </ul>
                 </div>
             </div>

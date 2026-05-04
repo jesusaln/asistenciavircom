@@ -1,7 +1,6 @@
 <script setup>
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
-import { debounce } from 'lodash';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
@@ -9,138 +8,160 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const props = defineProps({
     empresa: Object,
-    posts: Object, // Paginator object
-    categories: Array,
-    filters: Object,
+    posts: Object,
+    categorias: Array,
+    postsPopulares: Array,
+    filtros: Object,
 });
-const search = ref(props.filters.search || '');
-
-const handleSearch = debounce((value) => {
-    router.get(route('public.blog.index'), {
-        search: value,
-        category: props.filters.category
-    }, { preserveState: true, preserveScroll: true, replace: true });
-}, 500);
-
-watch(search, (value) => {
-    handleSearch(value);
-});
-
-const newsletterForm = useForm({
-    email: ''
-});
-
-const subscribeText = ref('Suscribirme');
-const isSuccess = ref(false);
-
-const submitNewsletter = () => {
-    newsletterForm.post(route('newsletter.subscribe'), {
-        preserveScroll: true,
-        onSuccess: () => {
-            newsletterForm.reset('email');
-            subscribeText.value = '¡Suscrito con éxito!';
-            isSuccess.value = true;
-            setTimeout(() => {
-                subscribeText.value = 'Suscribirme';
-                isSuccess.value = false;
-            }, 4000);
-        }
-    });
-};
-
-const selectCategory = (category) => {
-    const newCategory = props.filters.category === category ? null : category;
-    router.get(route('public.blog.index'), {
-        search: props.filters.search,
-        category: newCategory
-    }, { preserveState: true, preserveScroll: true });
-};
 
 const cssVars = computed(() => ({
-    '--color-primary': props.empresa.color_principal || '#3B82F6',
-    '--color-primary-soft': (props.empresa.color_principal || '#3B82F6') + '15',
-    '--color-primary-dark': (props.empresa.color_principal || '#3B82F6') + 'dd',
+    '--color-primary': props.empresa.color_principal || '#FF6B35',
+    '--color-primary-soft': (props.empresa.color_principal || '#FF6B35') + '15',
+    '--color-primary-dark': (props.empresa.color_principal || '#FF6B35') + 'dd',
     '--color-secondary': props.empresa.color_secundario || '#1E40AF',
 }));
 
+const searchQuery = ref(props.filtros?.q || '');
+const selectedCategoria = ref(props.filtros?.categoria || '');
+
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('es-MX', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  })
-}
+    return new Date(date).toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    });
+};
+
+const calcularTiempoLectura = (post) => {
+    // Promedio: 200 palabras por minuto
+    const palabras = (post.resumen?.length || 100) / 5;
+    const minutos = Math.max(1, Math.ceil(palabras / 200));
+    return `${minutos} min lectura`;
+};
+
+const aplicarFiltros = () => {
+    router.get(route('public.blog.index'), {
+        q: searchQuery.value || undefined,
+        categoria: selectedCategoria.value || undefined,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const limpiarFiltros = () => {
+    searchQuery.value = '';
+    selectedCategoria.value = '';
+    router.get(route('public.blog.index'), {}, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+// Aplicar filtros automáticamente cuando cambia categoría
+watch(selectedCategoria, () => {
+    aplicarFiltros();
+});
+
+const whatsappLink = computed(() => {
+    const phone = props.empresa.whatsapp?.replace(/\D/g, '') || '';
+    return `https://wa.me/${phone}?text=Hola, vi su blog y me gustaría obtener más información.`;
+});
+
+const iconoCategoria = (cat) => {
+    const iconos = {
+        'Mantenimiento': 'wrench',
+        'Instalación': 'tools',
+        'Ahorro Energético': 'bolt',
+        'Tecnología': 'microchip',
+        'Consejos': 'lightbulb',
+        'Noticias': 'newspaper',
+    };
+    return iconos[cat] || 'file-alt';
+};
 </script>
 
 <template>
     <Head title="Blog - Noticias y Tecnología">
-        <meta name="description" :content="`Mantente informado con el Blog de ${props.empresa?.nombre_empresa || 'Asistencia Vircom'}. Noticias sobre seguridad electrónica, tutoriales de tecnología y novedades para tu empresa en ${props.empresa?.ciudad || 'Hermosillo'}.`" />
+        <meta name="description" :content="`Mantente informado con el Blog de ${props.empresa?.nombre || 'Climas del Desierto'}. Noticias sobre climatización, consejos de mantenimiento y soluciones para el calor de Sonora.`" />
     </Head>
-    
-    <div :style="cssVars" class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-500">
-        <PublicNavbar :empresa="empresa" activeTab="blog" />
+
+    <div :style="cssVars" class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans">
+        <PublicNavbar :empresa="empresa" />
 
         <main class="flex-grow">
-            <!-- Hero / Header -->
-            <header class="relative py-24 lg:py-32 overflow-hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
-                <!-- Background Decorations -->
-                <div class="absolute inset-0 opacity-40 pointer-events-none">
-                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[120px] opacity-10"></div>
-                    <div class="absolute top-1/2 -left-24 w-72 h-72 bg-[var(--color-secondary)] rounded-full blur-[100px] opacity-5"></div>
+            <!-- Header Mejorado con Barra Integrada -->
+            <header class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-12 overflow-hidden">
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-10 right-20 w-64 h-64 bg-[var(--color-primary)] rounded-full blur-[120px] animate-pulse"></div>
+                    <div class="absolute bottom-10 left-20 w-48 h-48 bg-blue-500 rounded-full blur-[100px]"></div>
                 </div>
 
-                <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
-                    <span class="inline-block px-4 py-1.5 rounded-full bg-[var(--color-primary-soft)] text-[var(--color-primary)] text-[10px] font-black uppercase tracking-[0.2em] mb-6 animate-fade-in">
-                        Insights & Conocimiento
-                    </span>
-                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
-                        Nuestro <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Blog Corporativo</span>
+                <div class="w-full px-4 text-center relative z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-white/20">
+                        <font-awesome-icon icon="newspaper" class="text-[var(--color-primary)]" />
+                        <span class="text-xs font-bold text-white uppercase tracking-wider">Blog de Climatización</span>
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+                        Nuestro <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-amber-400">Blog</span>
                     </h1>
-                    <p class="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-12">
-                        Explora las últimas tendencias en seguridad electrónica, soporte técnico y soluciones de redes para potenciar tu negocio.
+                    <p class="text-lg text-gray-300 max-w-2xl mx-auto font-medium mb-8">
+                        Explora las últimas tendencias en climatización, consejos de mantenimiento y soluciones para el calor de Sonora.
                     </p>
+                </div>
 
-                    <!-- Search and Filter Section -->
-                    <div class="max-w-xl mx-auto mb-16 space-y-8">
-                        <!-- Search Bar -->
-                        <div class="relative group">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-500"></div>
-                            <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center p-2 border border-slate-100 dark:border-slate-700">
-                                <span class="pl-4 text-slate-400">
-                                    <FontAwesomeIcon icon="search" />
-                                </span>
-                                <input 
-                                    v-model="search"
-                                    type="text" 
-                                    placeholder="Buscar artículo..." 
-                                    class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder-slate-400 font-medium h-12"
-                                >
+                <!-- Barra de Búsqueda Integrada en Header -->
+                <div class="w-full px-4 relative z-10">
+                    <div class="max-w-6xl mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl p-4">
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <!-- Buscador -->
+                            <div class="flex-1 relative">
+                                <font-awesome-icon icon="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    v-model="searchQuery"
+                                    @keyup.enter="aplicarFiltros"
+                                    type="text"
+                                    placeholder="Buscar artículos..."
+                                    class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all"
+                                />
                             </div>
+
+                            <!-- Filtro Categoría -->
+                            <select
+                                v-model="selectedCategoria"
+                                class="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent cursor-pointer"
+                            >
+                                <option value="">Todas las categorías</option>
+                                <option v-for="cat in categorias" :key="cat" :value="cat">{{ cat }}</option>
+                            </select>
+
+                            <!-- Botón Buscar -->
+                            <button
+                                @click="aplicarFiltros"
+                                class="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all"
+                            >
+                                <font-awesome-icon icon="filter" class="mr-2" />
+                                Filtrar
+                            </button>
+
+                            <!-- Limpiar (solo si hay filtros) -->
+                            <button
+                                v-if="searchQuery || selectedCategoria"
+                                @click="limpiarFiltros"
+                                class="px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            >
+                                <font-awesome-icon icon="times" />
+                            </button>
                         </div>
 
-                        <!-- Categories -->
-                        <div v-if="categories.length > 0" class="flex flex-wrap justify-center gap-3">
-                            <button 
-                                @click="selectCategory(null)"
-                                :class="[
-                                    'px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border',
-                                    !filters.category 
-                                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-lg shadow-[var(--color-primary)]/30' 
-                                        : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
-                                ]"
-                            >
-                                Todos
-                            </button>
-                            <button 
-                                v-for="cat in categories" 
+                        <!-- Tags de Categorías -->
+                        <div v-if="categorias?.length" class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                            <button
+                                @click="selectedCategoria = cat"
+                                v-for="cat in categorias"
                                 :key="cat"
-                                @click="selectCategory(cat)"
-                                :class="[
-                                    'px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border',
-                                    filters.category === cat
-                                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-lg shadow-[var(--color-primary)]/30' 
-                                        : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
-                                ]"
+                                :class="selectedCategoria === cat ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
+                                class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all"
                             >
                                 {{ cat }}
                             </button>
@@ -149,142 +170,166 @@ const formatDate = (date) => {
                 </div>
             </header>
 
-            <!-- Articles Grid -->
-            <div class="max-w-7xl mx-auto px-4 py-20">
-                <div v-if="posts.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    <article v-for="(post, index) in posts.data" :key="post.id" 
-                        class="group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[var(--color-primary)]/10 transition-all duration-700 hover:-translate-y-3 relative flex flex-col"
-                        :style="{ transitionDelay: `${index * 50}ms` }"
-                    >
-                        <Link :href="route('public.blog.show', post.slug)" class="block h-full flex flex-col">
-                            <!-- Imagen de Portada -->
-                            <div class="relative aspect-video overflow-hidden bg-slate-200 dark:bg-slate-800">
-                                <img v-if="post.imagen_portada_url" 
-                                     :src="post.imagen_portada_url" 
-                                     :alt="post.titulo" 
-                                     class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                                >
-                                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 text-slate-400">
-                                    <FontAwesomeIcon icon="newspaper" size="3x" class="opacity-20" />
-                                </div>
-                                
-                                <!-- Category Badge -->
-                                <div class="absolute top-6 left-6 z-10">
-                                    <span class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-900 dark:text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20 shadow-xl group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors duration-500">
-                                        {{ post.categoria || 'General' }}
-                                    </span>
-                                </div>
+            <!-- Contenido Principal + Sidebar -->
+            <div class="w-full px-4 py-8">
+                <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Grid de Artículos (2/3) -->
+                    <div class="lg:col-span-2">
+                        <div v-if="posts.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <article v-for="post in posts.data" :key="post.id" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                                <Link :href="route('public.blog.show', post.slug)" class="block">
+                                    <!-- Imagen -->
+                                    <div class="relative h-48 overflow-hidden bg-gray-200 dark:bg-gray-700">
+                                        <img v-if="post.imagen_portada_url" :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                        <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-400 dark:text-gray-500">
+                                            <font-awesome-icon :icon="iconoCategoria(post.categoria)" size="3x" />
+                                        </div>
+                                        
+                                        <!-- Badge Categoría -->
+                                        <div class="absolute top-4 left-4">
+                                            <span class="bg-[var(--color-primary)] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5">
+                                                <font-awesome-icon :icon="iconoCategoria(post.categoria)" />
+                                                {{ post.categoria || 'Tecnología' }}
+                                            </span>
+                                        </div>
 
-                                <!-- Reading Time Badge -->
-                                <div class="absolute bottom-6 left-6 z-10 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                                    <span class="bg-slate-900/80 backdrop-blur-md text-white px-3 py-1 rounded-lg text-[10px] font-bold flex items-center gap-2">
-                                        <FontAwesomeIcon icon="clock" class="text-[var(--color-primary)]" />
-                                        {{ post.tiempo_lectura }} lectura
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Contenido -->
-                            <div class="p-8 flex-grow flex flex-col">
-                                <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 transition-colors">
-                                    <span class="flex items-center gap-2">
-                                        <FontAwesomeIcon icon="calendar" class="text-[var(--color-primary)]" />
-                                        {{ formatDate(post.publicado_at) }}
-                                    </span>
-                                    <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                                    <span class="flex items-center gap-2">
-                                        <FontAwesomeIcon icon="eye" class="text-[var(--color-primary)]" />
-                                        {{ post.visitas }} vistas
-                                    </span>
-                                </div>
-
-                                <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-4 line-clamp-2 leading-tight group-hover:text-[var(--color-primary)] transition-colors duration-500">
-                                    {{ post.titulo }}
-                                </h3>
-                                
-                                <p class="text-slate-500 dark:text-slate-400 text-sm line-clamp-3 mb-8 leading-relaxed flex-grow">
-                                    {{ post.resumen }}
-                                </p>
-                                
-                                <div class="inline-flex items-center gap-3 text-[var(--color-primary)] font-black text-xs uppercase tracking-widest group/link">
-                                    Leer Artículo Completo
-                                    <div class="w-8 h-8 rounded-full bg-[var(--color-primary-soft)] flex items-center justify-center group-hover/link:bg-[var(--color-primary)] group-hover/link:text-white transition-all duration-300">
-                                        <FontAwesomeIcon icon="arrow-right" class="transition-transform group-hover/link:translate-x-1" />
+                                        <!-- Tiempo Lectura -->
+                                        <div class="absolute bottom-4 right-4">
+                                            <span class="bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1.5">
+                                                <font-awesome-icon icon="clock" />
+                                                {{ calcularTiempoLectura(post) }}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+
+                                    <!-- Contenido -->
+                                    <div class="p-5">
+                                        <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500 mb-3">
+                                            <span class="flex items-center gap-1.5">
+                                                <font-awesome-icon icon="calendar" />
+                                                {{ formatDate(post.publicado_at) }}
+                                            </span>
+                                            <span class="flex items-center gap-1.5" v-if="post.visitas">
+                                                <font-awesome-icon icon="eye" />
+                                                {{ post.visitas }}
+                                            </span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors leading-tight">
+                                            {{ post.titulo }}
+                                        </h3>
+                                        <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 mb-4 leading-relaxed">
+                                            {{ post.resumen }}
+                                        </p>
+                                        <div class="flex items-center text-[var(--color-primary)] font-bold text-sm">
+                                            Leer más
+                                            <font-awesome-icon icon="arrow-right" class="ml-2 transition-transform group-hover:translate-x-2" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            </article>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div v-else class="py-24 text-center bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 dark:text-gray-600 text-4xl">
+                                <font-awesome-icon icon="inbox" />
                             </div>
-                        </Link>
-                    </article>
-                </div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">No se encontraron artículos</h2>
+                            <p class="text-gray-500 dark:text-gray-400 mb-6">Intenta con otra búsqueda o categoría.</p>
+                            <button @click="limpiarFiltros" class="px-6 py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all">
+                                Ver todos los artículos
+                            </button>
+                        </div>
 
-                <!-- Empty State -->
-                <div v-else class="py-32 text-center max-w-md mx-auto">
-                    <div class="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-slate-300 dark:text-slate-600 text-5xl">
-                        <FontAwesomeIcon icon="inbox" />
+                        <!-- Paginación -->
+                        <div v-if="posts.links.length > 3" class="mt-12 flex justify-center">
+                            <nav class="flex gap-2">
+                                <Link v-for="(link, k) in posts.links" :key="k"
+                                      :href="link.url || '#'"
+                                      v-html="link.label"
+                                      :class="[
+                                          'px-4 py-2 rounded-lg text-sm font-medium transition-colors border',
+                                          link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700',
+                                          !link.url ? 'opacity-50 cursor-not-allowed' : ''
+                                      ]"
+                                />
+                            </nav>
+                        </div>
+
+                        <!-- CTA de Conversión -->
+                        <div v-if="posts.data.length > 0" class="mt-12 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-center relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-48 h-48 bg-[var(--color-primary)] rounded-full blur-[100px] opacity-10"></div>
+                            <div class="relative z-10">
+                                <font-awesome-icon icon="comments" class="text-5xl text-[var(--color-primary)] mb-4" />
+                                <h3 class="text-2xl font-black text-white mb-3">¿Necesitas asesoría personalizada?</h3>
+                                <p class="text-gray-400 mb-6">Nuestros expertos te ayudan a elegir la mejor solución de climatización.</p>
+                                <a :href="whatsappLink" target="_blank" class="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-xl transition-all hover:scale-105">
+                                    <font-awesome-icon :icon="['fab', 'whatsapp']" class="text-xl" />
+                                    Hablar con un Experto
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-3">Aún no hay artículos</h2>
-                    <p class="text-slate-500 dark:text-slate-400 mb-8 font-medium">Estamos preparando contenido de alto valor para ti. ¡Vuelve pronto!</p>
-                    <Link :href="route('landing')" class="text-[var(--color-primary)] font-black uppercase tracking-widest text-xs hover:underline">
-                        Ir al Inicio →
-                    </Link>
-                </div>
 
-                <!-- Pagination -->
-                <div v-if="posts.links.length > 3" class="mt-24 flex justify-center">
-                    <nav class="flex gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                        <Link v-for="(link, k) in posts.links" :key="k" 
-                              :href="link.url || '#'" 
-                              v-html="link.label"
-                              :class="[
-                                  'w-10 h-10 flex items-center justify-center rounded-xl text-xs font-black transition-all duration-300 border',
-                                  link.active ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-lg shadow-[var(--color-primary)]/30' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800',
-                                  !link.url ? 'opacity-30 cursor-not-allowed' : ''
-                              ]"
-                        />
-                    </nav>
+                    <!-- Sidebar (1/3) -->
+                    <aside class="lg:col-span-1 space-y-6">
+                        <!-- Artículos Populares -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+                            <h3 class="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                <font-awesome-icon icon="eye" class="text-orange-500" />
+                                Más Leídos
+                            </h3>
+                            <div class="space-y-4">
+                                <Link v-for="(post, idx) in postsPopulares" :key="post.id"
+                                      :href="route('public.blog.show', post.slug)"
+                                      class="flex gap-4 group hover:bg-gray-50 dark:hover:bg-gray-700/50 p-3 rounded-xl -mx-3 transition-colors"
+                                >
+                                    <span class="text-3xl font-black text-gray-200 dark:text-gray-700 group-hover:text-[var(--color-primary)] transition-colors min-w-[2.5rem]">0{{ idx + 1 }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors leading-tight">{{ post.titulo }}</h4>
+                                        <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                                            <span class="flex items-center gap-1">
+                                                <font-awesome-icon icon="eye" />
+                                                {{ post.visitas || 0 }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            </div>
+                        </div>
+
+                        <!-- Categorías -->
+                        <div v-if="categorias?.length" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
+                            <h3 class="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                <font-awesome-icon icon="list" class="text-[var(--color-primary)]" />
+                                Categorías
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    @click="selectedCategoria = cat"
+                                    v-for="cat in categorias"
+                                    :key="cat"
+                                    :class="selectedCategoria === cat ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'"
+                                    class="px-3 py-2 rounded-lg text-xs font-bold transition-all"
+                                >
+                                    {{ cat }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CTA WhatsApp -->
+                        <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-6 text-center text-white shadow-lg">
+                            <font-awesome-icon :icon="['fab', 'whatsapp']" class="text-5xl mb-4" />
+                            <h3 class="text-lg font-black mb-2">¿Dudas sobre climatización?</h3>
+                            <p class="text-green-100 text-sm mb-6">Te asesoramos sin compromiso. Respuesta inmediata.</p>
+                            <a :href="whatsappLink" target="_blank" class="block w-full py-3 bg-white text-green-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-50 transition-all">
+                                Escríbenos Ahora
+                            </a>
+                        </div>
+                    </aside>
                 </div>
             </div>
-
-            <!-- Newsletter Section Integration -->
-            <section class="max-w-7xl mx-auto px-4 mb-24">
-                <div class="bg-slate-900 dark:bg-slate-800 rounded-[3.5rem] p-10 lg:p-16 relative overflow-hidden text-white shadow-2xl">
-                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[120px] opacity-10"></div>
-                    
-                    <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
-                        <div class="max-w-xl text-center lg:text-left">
-                            <h4 class="text-3xl md:text-4xl font-black mb-4 tracking-tight">Recibe nuestro contenido <span class="text-[var(--color-primary)]">Premium</span></h4>
-                            <p class="text-slate-400 text-lg font-medium leading-relaxed">Suscríbete para recibir noticias, tips de seguridad y ofertas exclusivas directamente en tu bandeja de entrada.</p>
-                        </div>
-                        
-                        <form @submit.prevent="submitNewsletter" class="w-full max-w-md bg-white/5 backdrop-blur-xl p-2 rounded-3xl border border-white/10 flex flex-col sm:flex-row gap-2">
-                            <input 
-                                v-model="newsletterForm.email"
-                                type="email" 
-                                placeholder="tu@email-empresa.com" 
-                                required
-                                :disabled="newsletterForm.processing || isSuccess"
-                                class="flex-grow bg-transparent border-none focus:ring-0 px-6 py-4 placeholder:text-slate-500 font-medium text-slate-100"
-                            >
-                            <button 
-                                type="submit" 
-                                :disabled="newsletterForm.processing || isSuccess"
-                                :class="[
-                                    'px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg',
-                                    isSuccess ? 'bg-green-500 text-white cursor-default' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white hover:shadow-[var(--color-primary)]/50',
-                                    newsletterForm.processing ? 'opacity-70 cursor-wait' : ''
-                                ]"
-                            >
-                                <span v-if="newsletterForm.processing">Enviando...</span>
-                                <span v-else>{{ subscribeText }}</span>
-                            </button>
-                        </form>
-                        <div v-if="newsletterForm.errors.email" class="text-red-400 text-sm mt-2 text-center lg:text-left absolute -bottom-6 w-full">
-                            {{ newsletterForm.errors.email }}
-                        </div>
-
-                    </div>
-                </div>
-            </section>
         </main>
 
         <WhatsAppWidget :telefono="empresa.whatsapp" />
@@ -294,17 +339,15 @@ const formatDate = (date) => {
 
 <style scoped>
 .line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
-  overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  line-clamp: 3;
-  overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 </style>

@@ -22,6 +22,8 @@ class CotizacionAccionController extends Controller
             return DB::transaction(function () use ($original) {
                 $nueva = $original->replicate([
                     'numero_cotizacion',
+                    'sharing_token',
+                    'folio',
                     'created_at',
                     'updated_at',
                     'estado',

@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
-use App\Enums\EstadoVenta; // Ajusta según tu enum
+use App\Enums\EstadoVenta;
+use App\Models\Casts\TimezoneCast;
 
-class Venta extends Model
+use \OwenIt\Auditing\Auditable;
+
+class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use HasFactory, SoftDeletes, BelongsToEmpresa;
+    use HasFactory, SoftDeletes, BelongsToEmpresa, Auditable;
 
     protected $table = 'ventas';
 
@@ -28,6 +31,10 @@ class Venta extends Model
                 if ($user && !empty($user->almacen_venta_id)) {
                     $venta->almacen_id = $user->almacen_venta_id;
                 }
+            }
+
+            if (empty($venta->sharing_token)) {
+                $venta->sharing_token = (string) \Illuminate\Support\Str::uuid();
             }
 
             if (empty($venta->almacen_id)) {
@@ -77,6 +84,9 @@ class Venta extends Model
         'created_by',
         'updated_by',
         'cita_id',
+        'comision_pagada',
+        'comision_pagada_at',
+        'pago_comision_id',
     ];
 
     protected function casts(): array
@@ -90,9 +100,11 @@ class Venta extends Model
             'retencion_isr' => 'decimal:2',
             'isr' => 'decimal:2',
             'total' => 'decimal:2',
-            'fecha' => 'datetime',
-            'fecha_pago' => 'datetime',
+            'fecha' => TimezoneCast::class,  // Normaliza UTC -> America/Hermosillo
+            'fecha_pago' => TimezoneCast::class,
             'pagado' => 'boolean',
+            'comision_pagada' => 'boolean',
+            'comision_pagada_at' => 'datetime',
         ];
     }
 
@@ -127,19 +139,20 @@ class Venta extends Model
         return $this->morphTo();
     }
 
+    public function entregas()
+    {
+        return $this->hasMany(EntregaDinero::class, 'id_origen')
+            ->where('tipo_origen', 'venta');
+    }
+
     // Relaciï¿½n polimï¿½rfica para productos
     // ✅ HIGH PRIORITY FIX #8: Removido scope ->active() para preservar datos históricos
     // Si un producto se desactiva después de la venta, aún debe aparecer en la relación
     public function productos()
     {
-        return $this->morphToMany(
-            Producto::class,
-            'ventable',
-            'venta_items',
-            'venta_id',
-            'ventable_id'
-        )->withPivot('cantidad', 'precio', 'descuento', 'costo_unitario')
-            ->wherePivot('ventable_type', Producto::class);
+        return $this->belongsToMany(Producto::class, 'venta_items', 'venta_id', 'ventable_id')
+            ->wherePivotIn('ventable_type', ['producto', Producto::class])
+            ->withPivot(['cantidad', 'precio', 'descuento', 'subtotal', 'costo_unitario']);
     }
 
     // Relaciï¿½n polimï¿½rfica para servicios
@@ -147,14 +160,9 @@ class Venta extends Model
     // Si un servicio se desactiva después de la venta, aún debe aparecer en la relación
     public function servicios()
     {
-        return $this->morphToMany(
-            Servicio::class,
-            'ventable',
-            'venta_items',
-            'venta_id',
-            'ventable_id'
-        )->withPivot('cantidad', 'precio', 'descuento', 'costo_unitario')
-            ->wherePivot('ventable_type', Servicio::class);
+        return $this->belongsToMany(Servicio::class, 'venta_items', 'venta_id', 'ventable_id')
+            ->wherePivotIn('ventable_type', ['servicio', Servicio::class])
+            ->withPivot(['cantidad', 'precio', 'descuento', 'subtotal']);
     }
 
     // Todos los ï¿½tems (productos + servicios)
@@ -197,6 +205,17 @@ class Venta extends Model
     public function cfdis()
     {
         return $this->hasMany(Cfdi::class);
+    }
+
+    /**
+     * Buscar venta por token de compartición
+     */
+    public static function findByToken(string $token): ?self
+    {
+        if (!\Illuminate\Support\Str::isUuid($token)) {
+            return null;
+        }
+        return self::where('sharing_token', $token)->first();
     }
 
     public function getCfdiActualAttribute()
@@ -345,8 +364,15 @@ class Venta extends Model
             if ($item->ventable_type === \App\Models\Producto::class && $item->ventable) {
                 $producto = $item->ventable;
 
-                // Calcular costo histÃ³rico correcto
-                $nuevoCostoUnitario = $producto->calcularCostoPorLotes($item->cantidad, $this->almacen_id);
+                // Calcular costo histórico correcto
+                if ($producto->esKit()) {
+                    // Para kits, usamos el cálculo recursivo de componentes
+                    $costoTotalKit = $producto->calcularCostoKit($item->cantidad, $this->almacen_id);
+                    $nuevoCostoUnitario = ($item->cantidad > 0) ? ($costoTotalKit / $item->cantidad) : 0;
+                } else {
+                    // Para productos normales, usamos el cálculo por lotes
+                    $nuevoCostoUnitario = $producto->calcularCostoPorLotes($item->cantidad, $this->almacen_id);
+                }
 
                 // Actualizar el costo unitario en el item si es diferente
                 if ($nuevoCostoUnitario != $item->costo_unitario) {

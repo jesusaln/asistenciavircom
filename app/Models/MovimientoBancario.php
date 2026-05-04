@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MovimientoBancario extends Model
 {
-    use HasFactory, BelongsToEmpresa;
+    use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'movimientos_bancarios';
 
@@ -41,6 +42,7 @@ class MovimientoBancario extends Model
         'monto' => 'decimal:2',
         'saldo' => 'decimal:2',
         'conciliado_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // ==================== RELACIONES ====================

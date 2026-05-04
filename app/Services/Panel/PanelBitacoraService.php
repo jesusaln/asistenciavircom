@@ -3,6 +3,7 @@
 namespace App\Services\Panel;
 
 use App\Models\BitacoraActividad;
+use App\Support\EmpresaResolver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -13,9 +14,10 @@ class PanelBitacoraService
      */
     public function getTareasPendientes(int $userId): array
     {
-        $cacheKey = "panel_bitacora_pendientes_{$userId}";
+        $eid = EmpresaResolver::resolveId();
+        $cacheKey = 'panel:bitacora_pendientes:'.($eid ?? 'global').':'.$userId;
 
-        return Cache::remember($cacheKey, 120, function () use ($userId) {
+        return Cache::remember($cacheKey, PanelCacheKeys::ttl('bitacora'), function () use ($userId) {
             try {
                 $tareas = BitacoraActividad::with(['usuario:id,name', 'cliente:id,nombre_razon_social'])
                     ->pendientesParaUsuario($userId)

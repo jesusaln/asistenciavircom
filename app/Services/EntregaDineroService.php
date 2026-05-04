@@ -3,10 +3,220 @@
 namespace App\Services;
 
 use App\Models\EntregaDinero;
+use App\Services\Cobros\MiCorteCobrosCalculator;
 use Carbon\Carbon;
 
 class EntregaDineroService
 {
+    public const TIPO_DECLARACION_MI_CORTE = 'declaracion_mi_corte';
+
+    /**
+     * Calcular total y normalizar montos.
+     */
+    public static function normalizeMontos(array $data): array
+    {
+        $montoEfectivo = (float) ($data['monto_efectivo'] ?? 0);
+        $montoTransferencia = (float) ($data['monto_transferencia'] ?? 0);
+        $montoCheques = (float) ($data['monto_cheques'] ?? 0);
+        $montoTarjetas = (float) ($data['monto_tarjetas'] ?? 0);
+
+        $total = $montoEfectivo + $montoTransferencia + $montoCheques + $montoTarjetas;
+
+        return [
+            'monto_efectivo' => $montoEfectivo,
+            'monto_transferencia' => $montoTransferencia,
+            'monto_cheques' => $montoCheques,
+            'monto_tarjetas' => $montoTarjetas,
+            'total' => $total,
+        ];
+    }
+
+    /**
+     * Crear entrega manual.
+     */
+    public static function crearManual(array $data, int $userId): EntregaDinero
+    {
+        $montos = self::normalizeMontos($data);
+        if ($montos['total'] <= 0) {
+            throw new \InvalidArgumentException('El total debe ser mayor a cero');
+        }
+
+        return EntregaDinero::create([
+            'user_id' => $userId,
+            'fecha_entrega' => $data['fecha_entrega'],
+            'monto_efectivo' => $montos['monto_efectivo'],
+            'monto_transferencia' => $montos['monto_transferencia'],
+            'monto_cheques' => $montos['monto_cheques'],
+            'monto_tarjetas' => $montos['monto_tarjetas'],
+            'total' => $montos['total'],
+            'notas' => $data['notas'] ?? null,
+        ]);
+    }
+
+    /**
+     * Crear entrega desde corte (recibido inmediatamente).
+     */
+    public static function crearDesdeCorte(array $data, int $userId): EntregaDinero
+    {
+        return EntregaDinero::create([
+            'user_id' => $userId,
+            'fecha_entrega' => $data['fecha'],
+            'monto_efectivo' => $data['monto'],
+            'monto_cheques' => 0,
+            'monto_tarjetas' => 0,
+            'total' => $data['monto'],
+            'notas' => $data['notas'] ?? null,
+            'estado' => 'recibido',
+            'recibido_por' => $userId,
+            'fecha_recibido' => now(),
+        ]);
+    }
+
+    /**
+     * Actualizar entrega manual y sincronizar movimientos bancarios si aplica.
+     */
+    public static function actualizarManual(EntregaDinero $entrega, array $data): void
+    {
+        $montos = self::normalizeMontos($data);
+        if ($montos['total'] <= 0) {
+            throw new \InvalidArgumentException('El total debe ser mayor a cero');
+        }
+
+        $totalAnterior = $entrega->total;
+        $diferencia = $montos['total'] - $totalAnterior;
+
+        $entrega->update([
+            'fecha_entrega' => $data['fecha_entrega'],
+            'monto_efectivo' => $montos['monto_efectivo'],
+            'monto_transferencia' => $montos['monto_transferencia'],
+            'monto_cheques' => $montos['monto_cheques'],
+            'monto_tarjetas' => $montos['monto_tarjetas'],
+            'total' => $montos['total'],
+            'notas' => $data['notas'] ?? null,
+        ]);
+
+        if ($entrega->estado === 'recibido' && $diferencia != 0) {
+            $movimiento = \App\Models\MovimientoBancario::where('conciliable_type', \App\Models\EntregaDinero::class)
+                ->where('conciliable_id', $entrega->id)
+                ->first();
+
+            if ($movimiento) {
+                $movimiento->monto = $montos['total'];
+                $movimiento->save();
+
+                if ($movimiento->cuentaBancaria) {
+                    $movimiento->cuentaBancaria->saldo_actual += $diferencia;
+                    $movimiento->cuentaBancaria->save();
+                }
+            } elseif ($entrega->cuenta_bancaria_id) {
+                $cuenta = \App\Models\CuentaBancaria::find($entrega->cuenta_bancaria_id);
+                if ($cuenta) {
+                    $cuenta->saldo_actual += $diferencia;
+                    $cuenta->save();
+                }
+            }
+        }
+    }
+
+    /**
+     * Marcar entrega como recibida y, opcionalmente, crear movimiento bancario (depósito).
+     * Si $registrarMovimientoBancario es false o no hay cuenta, solo queda la confirmación física (tesorería).
+     */
+    public static function marcarComoRecibido(EntregaDinero $entrega, int $userId, ?int $cuentaBancariaId, ?string $notas, bool $registrarMovimientoBancario = true): void
+    {
+        $entrega->update([
+            'estado' => 'recibido',
+            'recibido_por' => $userId,
+            'fecha_recibido' => now(),
+            'notas_recibido' => $notas,
+            'cuenta_bancaria_id' => $cuentaBancariaId,
+        ]);
+
+        if ($entrega->tipo_origen === 'lote') {
+            foreach ($entrega->children as $child) {
+                // Deshabilitar movimiento bancario para hijos para evitar duplicados en el banco
+                self::marcarComoRecibido($child, $userId, $cuentaBancariaId, "Recibido vía Lote #{$entrega->id}", false);
+            }
+        }
+
+        if (! $registrarMovimientoBancario || ! $cuentaBancariaId) {
+            return;
+        }
+
+        $cuenta = \App\Models\CuentaBancaria::find($cuentaBancariaId);
+        if ($cuenta) {
+            $movimiento = $cuenta->registrarMovimiento(
+                'deposito',
+                $entrega->total,
+                "Entrega de dinero #{$entrega->id} - " . ($notas ?? 'Sin notas'),
+                'cobro'
+            );
+
+            $movimiento->update([
+                'conciliable_type' => \App\Models\EntregaDinero::class,
+                'conciliable_id' => $entrega->id,
+                'conciliado_por' => $userId,
+                'conciliado_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Declaración desde la app «Mi corte»: registro pendiente de efectivo que un tesorero debe confirmar.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function declararEntregaMiCortePendiente(
+        int $userId,
+        string $fechaDesdeYmd,
+        string $fechaHastaYmd,
+        float $montoEfectivo,
+        ?string $notasUsuario = null
+    ): EntregaDinero {
+        $tz = config('app.timezone');
+        $desde = Carbon::createFromFormat('Y-m-d', $fechaDesdeYmd, $tz)->startOfDay();
+        $hasta = Carbon::createFromFormat('Y-m-d', $fechaHastaYmd, $tz)->endOfDay();
+
+        $calc = app(MiCorteCobrosCalculator::class);
+        $resumen = $calc->resumenParaUsuario($userId, $desde, $hasta);
+        $maxEfectivo = (float) ($resumen['efectivo_a_entregar'] ?? 0);
+
+        if ($montoEfectivo <= 0) {
+            throw new \InvalidArgumentException('El monto a declarar debe ser mayor a cero.');
+        }
+
+        $tag = 'PERIODO:'.$fechaDesdeYmd.'|'.$fechaHastaYmd;
+        $yaDeclarado = (float) EntregaDinero::query()
+            ->where('user_id', $userId)
+            ->where('tipo_origen', self::TIPO_DECLARACION_MI_CORTE)
+            ->where('notas', 'like', '%'.$tag.'%')
+            ->whereIn('estado', ['pendiente', 'recibido'])
+            ->sum('total');
+
+        $disponible = round($maxEfectivo - $yaDeclarado, 2);
+        if ($montoEfectivo > $disponible + 0.02) {
+            throw new \InvalidArgumentException(
+                'El monto declarado ($'.number_format($montoEfectivo, 2).') supera el efectivo disponible del periodo ($'.number_format($disponible, 2).').'
+            );
+        }
+
+        $bloqueNotas = $tag."\n".($notasUsuario ? trim($notasUsuario)."\n" : '');
+
+        return EntregaDinero::create([
+            'user_id' => $userId,
+            'fecha_entrega' => $hasta->toDateString(),
+            'monto_efectivo' => $montoEfectivo,
+            'monto_transferencia' => 0,
+            'monto_cheques' => 0,
+            'monto_tarjetas' => 0,
+            'monto_otros' => 0,
+            'total' => $montoEfectivo,
+            'estado' => 'pendiente',
+            'notas' => 'Declaración app Mi corte'."\n".$bloqueNotas,
+            'tipo_origen' => self::TIPO_DECLARACION_MI_CORTE,
+            'id_origen' => null,
+        ]);
+    }
     /**
      * Decide estado por método según configuración.
      */
@@ -29,8 +239,15 @@ class EntregaDineroService
         ?string $notas = null,
         ?int $recibidoPor = null,
         ?int $cuentaBancariaId = null // ✅ Nuevo parámetro opcional
-    ): EntregaDinero {
+    ): ?EntregaDinero {
         $estado = self::estadoPorMetodo($metodoPago);
+
+        // ✅ Si es efectivo y no se dirige a una cuenta bancaria específica (ej. depósito directo),
+        // NO creamos el registro de entrega automáticamente. Esto obliga a usar el flujo de "Mi Corte" (Lote)
+        // para dar trazabilidad al dinero físico que el técnico trae en mano.
+        if (strtolower($metodoPago) === 'efectivo' && !$cuentaBancariaId) {
+            return null;
+        }
 
         // ✅ Si se dirige explícitamente a un banco (ej. depósito en efectivo), se considera ingresado/recibido inmediatamente
         if ($cuentaBancariaId) {
@@ -88,7 +305,9 @@ class EntregaDineroService
         $montoTarjetas = 0.0;
         $montoOtros = 0.0;
 
-        switch ($metodoPago) {
+        $metodoLower = strtolower($metodoPago);
+
+        switch ($metodoLower) {
             case 'efectivo':
                 $montoEfectivo = $monto;
                 break;
@@ -101,9 +320,12 @@ class EntregaDineroService
             case 'tarjeta':
             case 'tarjeta_credito':
             case 'tarjeta_debito':
+            case 'tarjeta de crédito':
+            case 'tarjeta de débito':
                 $montoTarjetas = $monto;
                 break;
             case 'otros':
+            case 'otro':
                 $montoOtros = $monto;
                 break;
             default:

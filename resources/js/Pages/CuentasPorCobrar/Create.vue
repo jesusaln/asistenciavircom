@@ -1,153 +1,163 @@
 <template>
     <AppLayout title="Crear Cuenta por Cobrar">
-        <Head title="Crear Cuenta" />
+        <template #header>
+            <div class="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center">
+                <div>
+                    <h2 class="font-semibold text-xl text-zinc-100 leading-tight tracking-tight">
+                        Nueva cuenta por cobrar
+                    </h2>
+                    <p class="text-xs text-zinc-500 mt-0.5">Registra un saldo pendiente vinculado a una venta</p>
+                </div>
+                <Link
+                    :href="route('cuentas-por-cobrar.index')"
+                    class="mt-2 sm:mt-0 inline-flex items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 shadow-sm transition hover:border-zinc-500 hover:bg-zinc-700/90"
+                >
+                    Cancelar
+                </Link>
+            </div>
+        </template>
 
-        <div class="min-h-screen bg-[#0F172A] text-slate-300 pb-12 relative overflow-hidden">
-            <!-- Background Gradients -->
-            <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-emerald-600/10 blur-[120px] rounded-full pointer-events-none"></div>
-
-            <!-- Header Section -->
-            <div class="relative z-10 pt-8 pb-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <Link :href="route('cuentas-por-cobrar.index')" class="flex items-center text-slate-500 hover:text-indigo-400 text-xs font-black uppercase tracking-widest mb-2 transition-colors">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                            Volver a Cuentas
-                        </Link>
-                        <h1 class="text-3xl font-black text-white tracking-tight">Nueva Cuenta por Cobrar</h1>
+        <div class="min-h-[calc(100vh-8rem)] bg-gradient-to-b from-zinc-950 via-zinc-900 to-black py-10 px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-3xl">
+                <!-- Hero strip -->
+                <div class="mb-8 rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/10 via-zinc-900/60 to-zinc-950 p-6 shadow-xl shadow-black/40 backdrop-blur-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-400/30">
+                            <svg class="h-6 w-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80">Cartera</p>
+                            <p class="text-sm text-zinc-400">Los importes se pueden ajustar según acuerdos con el cliente.</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Form Card -->
-                <div class="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl overflow-hidden shadow-2xl relative">
-                    <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-emerald-500 to-indigo-500"></div>
-                    
-                    <form @submit.prevent="submit" class="p-8 space-y-8">
-                        
-                        <!-- Sección Venta Pre-seleccionada -->
-                        <div v-if="venta" class="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                </div>
-                                <h3 class="text-lg font-bold text-white">Información de Origen</h3>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Referencia</label>
-                                    <p class="text-sm font-bold text-slate-200">Venta #{{ venta.numero_venta }}</p>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Cliente</label>
-                                    <p class="text-sm font-bold text-slate-200">{{ venta.cliente?.nombre_razon_social || 'N/A' }}</p>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Monto Original</label>
-                                    <p class="text-sm font-bold text-emerald-400">{{ formatCurrency(venta.total) }}</p>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Fecha Emisión</label>
-                                    <p class="text-sm font-bold text-slate-200">{{ new Date(venta.created_at).toLocaleDateString() }}</p>
+                <div class="rounded-2xl border border-zinc-700/50 bg-zinc-900/60 shadow-2xl shadow-black/50 backdrop-blur-md">
+                    <div class="border-b border-zinc-700/50 px-6 py-5 md:px-8">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-zinc-300">Datos de la cuenta</h3>
+                    </div>
+                    <div class="p-6 md:p-8">
+                        <form @submit.prevent="submit" class="space-y-8">
+                            <div v-if="venta" class="rounded-xl border border-zinc-700/60 bg-zinc-950/50 p-5">
+                                <h4 class="mb-4 text-xs font-semibold uppercase tracking-wider text-amber-200/90">Venta seleccionada</h4>
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <div>
+                                        <span class="text-xs text-zinc-500">Número de venta</span>
+                                        <p class="mt-1 font-mono text-sm text-zinc-100">{{ venta.numero_venta }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-zinc-500">Cliente</span>
+                                        <p class="mt-1 text-sm text-zinc-100">{{ venta.cliente?.nombre_razon_social || 'N/A' }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-zinc-500">Total venta</span>
+                                        <p class="mt-1 text-lg font-semibold tabular-nums text-amber-200">{{ formatCurrency(venta.total) }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-zinc-500">Fecha</span>
+                                        <p class="mt-1 text-sm text-zinc-300">{{ new Date(venta.created_at).toLocaleDateString('es-MX') }}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Selección Manual de Venta -->
-                        <div v-if="!venta" class="space-y-2">
-                            <label for="venta_id" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                Seleccionar Venta Origen
-                            </label>
-                            <select
-                                v-model="form.venta_id"
-                                id="venta_id"
-                                class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-colors"
-                                required
-                            >
-                                <option value="">-- Seleccione una Venta --</option>
-                                <option
-                                    v-for="ventaOption in ventas"
-                                    :key="ventaOption.id"
-                                    :value="ventaOption.id"
+                            <div v-if="!venta">
+                                <label for="venta_id" class="block text-xs font-medium uppercase tracking-wider text-zinc-400">
+                                    Seleccionar venta
+                                </label>
+                                <select
+                                    v-model="form.venta_id"
+                                    id="venta_id"
+                                    class="input-cxc mt-2"
+                                    required
                                 >
-                                    {{ ventaOption.numero_venta }} - {{ ventaOption.cliente?.nombre_razon_social }} ({{ formatCurrency(ventaOption.total) }})
-                                </option>
-                            </select>
-                            <p v-if="form.errors.venta_id" class="text-xs text-red-400 font-bold mt-1">{{ form.errors.venta_id }}</p>
-                        </div>
+                                    <option value="">Seleccione una venta</option>
+                                    <option
+                                        v-for="ventaOption in ventas"
+                                        :key="ventaOption.id"
+                                        :value="ventaOption.id"
+                                    >
+                                        {{ ventaOption.numero_venta }} — {{ ventaOption.cliente?.nombre_razon_social || 'N/A' }} ({{ formatCurrency(ventaOption.total) }})
+                                    </option>
+                                </select>
+                                <p v-if="form.errors.venta_id" class="mt-2 text-sm text-red-400">
+                                    {{ form.errors.venta_id }}
+                                </p>
+                            </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Monto Total -->
-                            <div class="space-y-2">
-                                <label for="monto_total" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Monto a Cobrar ($)
+                            <div>
+                                <label for="monto_total" class="block text-xs font-medium uppercase tracking-wider text-zinc-400">
+                                    Monto total (CXC)
                                 </label>
                                 <input
                                     v-model="form.monto_total"
                                     type="number"
                                     step="0.01"
                                     id="monto_total"
-                                    class="w-full bg-slate-900 border border-slate-700 text-white font-mono text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all"
-                                    :class="{ 'border-red-500 focus:border-red-500': form.errors.monto_total }"
+                                    class="input-cxc mt-2"
+                                    :class="{ 'ring-2 ring-red-500/50': form.errors.monto_total }"
                                     required
                                 />
-                                <p v-if="form.errors.monto_total" class="text-xs text-red-400 font-bold mt-1">{{ form.errors.monto_total }}</p>
+                                <p v-if="form.errors.monto_total" class="mt-2 text-sm text-red-400">
+                                    {{ form.errors.monto_total }}
+                                </p>
                             </div>
 
-                            <!-- Fecha Vencimiento -->
-                            <div class="space-y-2">
-                                <label for="fecha_vencimiento" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Fecha Vencimiento
+                            <div>
+                                <label for="fecha_vencimiento" class="block text-xs font-medium uppercase tracking-wider text-zinc-400">
+                                    Fecha de vencimiento
                                 </label>
                                 <input
                                     v-model="form.fecha_vencimiento"
                                     type="date"
                                     id="fecha_vencimiento"
-                                    class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all placeholder-slate-600"
-                                    :class="{ 'border-red-500 focus:border-red-500': form.errors.fecha_vencimiento }"
+                                    class="input-cxc mt-2"
+                                    :class="{ 'ring-2 ring-red-500/50': form.errors.fecha_vencimiento }"
                                 />
-                                <p class="text-[10px] text-slate-500 font-medium italic">30 días por defecto si se deja vacío</p>
-                                <p v-if="form.errors.fecha_vencimiento" class="text-xs text-red-400 font-bold mt-1">{{ form.errors.fecha_vencimiento }}</p>
+                                <p class="mt-2 text-xs text-zinc-500">
+                                    Opcional. Si no indicas fecha, se usarán 30 días por defecto.
+                                </p>
+                                <p v-if="form.errors.fecha_vencimiento" class="mt-2 text-sm text-red-400">
+                                    {{ form.errors.fecha_vencimiento }}
+                                </p>
                             </div>
-                        </div>
 
-                        <!-- Notas -->
-                        <div class="space-y-2">
-                            <label for="notas" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                Notas Internas
-                            </label>
-                            <textarea
-                                v-model="form.notas"
-                                id="notas"
-                                rows="4"
-                                class="w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all resize-none"
-                                placeholder="Agregar detalles o recordatorios sobre este cobro..."
-                            ></textarea>
-                            <p v-if="form.errors.notas" class="text-xs text-red-400 font-bold mt-1">{{ form.errors.notas }}</p>
-                        </div>
+                            <div>
+                                <label for="notas" class="block text-xs font-medium uppercase tracking-wider text-zinc-400">
+                                    Notas
+                                </label>
+                                <textarea
+                                    v-model="form.notas"
+                                    id="notas"
+                                    rows="4"
+                                    class="input-cxc mt-2 min-h-[100px]"
+                                    :class="{ 'ring-2 ring-red-500/50': form.errors.notas }"
+                                    placeholder="Condiciones de pago, referencias…"
+                                />
+                                <p v-if="form.errors.notas" class="mt-2 text-sm text-red-400">
+                                    {{ form.errors.notas }}
+                                </p>
+                            </div>
 
-                        <!-- Action Buttons -->
-                        <div class="flex items-center justify-end gap-4 pt-4 border-t border-slate-700/50">
-                            <Link
-                                :href="route('cuentas-por-cobrar.index')"
-                                class="px-6 py-3 rounded-xl border border-slate-600 text-slate-400 font-bold uppercase text-xs tracking-widest hover:bg-slate-800 hover:text-white transition-all"
-                            >
-                                Cancelar
-                            </Link>
-                            <button
-                                type="submit"
-                                :disabled="form.processing"
-                                class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black uppercase text-xs tracking-[0.15em] rounded-xl shadow-lg shadow-indigo-900/40 transform active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <span v-if="form.processing" class="flex items-center gap-2">
-                                    <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    Procesando...
-                                </span>
-                                <span v-else>Registrar Cuenta</span>
-                            </button>
-                        </div>
-                    </form>
+                            <div class="flex flex-col-reverse gap-3 border-t border-zinc-700/50 pt-6 sm:flex-row sm:justify-end">
+                                <Link
+                                    :href="route('cuentas-por-cobrar.index')"
+                                    class="inline-flex items-center justify-center rounded-xl border border-zinc-600 bg-transparent px-5 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
+                                >
+                                    Volver al listado
+                                </Link>
+                                <button
+                                    type="submit"
+                                    :disabled="form.processing"
+                                    class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-2.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-900/30 transition hover:from-amber-400 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <span v-if="form.processing">Guardando…</span>
+                                    <span v-else>Crear cuenta por cobrar</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,8 +165,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Link, useForm, Head } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import { Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -186,9 +196,6 @@ const formatCurrency = (value) => currencyFormatter.format(toNumber(value));
 
 const submit = () => {
     form.post(route('cuentas-por-cobrar.store'), {
-        onSuccess: () => {
-            // Redirigir al índice
-        },
         onError: (errors) => {
             console.error('Errores:', errors);
         },
@@ -207,4 +214,9 @@ onMounted(() => {
 });
 </script>
 
-
+<style scoped>
+.input-cxc {
+    @apply block w-full rounded-xl border border-zinc-600/80 bg-zinc-950/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 shadow-inner shadow-black/20 transition;
+    @apply focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/25;
+}
+</style>

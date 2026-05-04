@@ -84,8 +84,7 @@ class PaymentService
         $baseUrl = $config[$mode]['api_url'];
 
         try {
-            $response = Http::withoutVerifying()
-                ->withBasicAuth($config['client_id'], $config['client_secret'])
+            $response = Http::withBasicAuth($config['client_id'], $config['client_secret'])
                 ->asForm()
                 ->post("$baseUrl/v1/oauth2/token", [
                     'grant_type' => 'client_credentials',
@@ -119,8 +118,7 @@ class PaymentService
         $currency = $this->config['currency'] ?? 'MXN';
 
         try {
-            $response = Http::withoutVerifying()
-                ->withToken($accessToken)
+            $response = Http::withToken($accessToken)
                 ->post("$baseUrl/v2/checkout/orders", [
                     'intent' => 'CAPTURE',
                     'purchase_units' => [
@@ -177,8 +175,7 @@ class PaymentService
         $baseUrl = $config[$mode]['api_url'];
 
         try {
-            $response = Http::withoutVerifying()
-                ->withToken($accessToken)
+            $response = Http::withToken($accessToken)
                 ->withBody('', 'application/json')
                 ->post("$baseUrl/v2/checkout/orders/{$orderId}/capture");
 
@@ -246,18 +243,14 @@ class PaymentService
                 $preferenceData['auto_return'] = 'approved';
             }
 
-            // Agregar webhook solo si es URL pública (MercadoPago rechaza localhost en producción)
+            // Agregar webhook solo si hay ruta disponible
             try {
-                $webhookUrl = route('pago.poliza.mercadopago.webhook');
-                if (!str_contains($webhookUrl, 'localhost') && !str_contains($webhookUrl, '127.0.0.1') && !str_contains($webhookUrl, '.test')) {
-                    $preferenceData['notification_url'] = $webhookUrl;
-                }
+                $preferenceData['notification_url'] = route('pago.poliza.mercadopago.webhook');
             } catch (\Exception $e) {
                 // Sin webhook
             }
 
-            $response = Http::withoutVerifying()
-                ->withToken($config['access_token'])
+            $response = Http::withToken($config['access_token'])
                 ->post($config['api_url'] . '/checkout/preferences', $preferenceData);
 
             if ($response->successful()) {
@@ -287,8 +280,7 @@ class PaymentService
         $config = $this->config['mercadopago'];
 
         try {
-            $response = Http::withoutVerifying()
-                ->withToken($config['access_token'])
+            $response = Http::withToken($config['access_token'])
                 ->get($config['api_url'] . '/v1/payments/' . $paymentId);
 
             if ($response->successful()) {
@@ -317,8 +309,7 @@ class PaymentService
             // Stripe usa centavos para MXN
             $amountCents = (int) round($amount * 100);
 
-            $response = Http::withoutVerifying()
-                ->withBasicAuth($config['secret_key'], '')
+            $response = Http::withBasicAuth($config['secret_key'], '')
                 ->asForm()
                 ->post($config['api_url'] . '/v1/payment_intents', [
                     'amount' => $amountCents,
@@ -356,25 +347,19 @@ class PaymentService
         try {
             $amountCents = (int) round($amount * 100);
 
-            $params = [
-                'mode' => 'payment',
-                'success_url' => url($this->config['success_url']) . '?poliza_id=' . $poliza->id . '&session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => url($this->config['cancel_url']) . '?poliza_id=' . $poliza->id,
-                'line_items[0][price_data][currency]' => strtolower($this->config['currency'] ?? 'mxn'),
-                'line_items[0][price_data][product_data][name]' => $description,
-                'line_items[0][price_data][unit_amount]' => $amountCents,
-                'line_items[0][quantity]' => 1,
-                'metadata[poliza_id]' => $poliza->id,
-            ];
-
-            if ($poliza->cliente && !empty($poliza->cliente->email)) {
-                $params['customer_email'] = $poliza->cliente->email;
-            }
-
-            $response = Http::withoutVerifying()
-                ->withBasicAuth($config['secret_key'], '')
+            $response = Http::withBasicAuth($config['secret_key'], '')
                 ->asForm()
-                ->post($config['api_url'] . '/v1/checkout/sessions', $params);
+                ->post($config['api_url'] . '/v1/checkout/sessions', [
+                    'mode' => 'payment',
+                    'success_url' => url($this->config['success_url']) . '?poliza_id=' . $poliza->id . '&session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => url($this->config['cancel_url']) . '?poliza_id=' . $poliza->id,
+                    'line_items[0][price_data][currency]' => strtolower($this->config['currency'] ?? 'mxn'),
+                    'line_items[0][price_data][product_data][name]' => $description,
+                    'line_items[0][price_data][unit_amount]' => $amountCents,
+                    'line_items[0][quantity]' => 1,
+                    'metadata[poliza_id]' => $poliza->id,
+                    'customer_email' => $poliza->cliente->email,
+                ]);
 
             if ($response->successful()) {
                 $session = $response->json();
@@ -401,8 +386,7 @@ class PaymentService
         $config = $this->config['stripe'];
 
         try {
-            $response = Http::withoutVerifying()
-                ->withBasicAuth($config['secret_key'], '')
+            $response = Http::withBasicAuth($config['secret_key'], '')
                 ->get($config['api_url'] . '/v1/payment_intents/' . $paymentIntentId);
 
             if ($response->successful()) {
@@ -424,8 +408,7 @@ class PaymentService
         $config = $this->config['stripe'];
 
         try {
-            $response = Http::withoutVerifying()
-                ->withBasicAuth($config['secret_key'], '')
+            $response = Http::withBasicAuth($config['secret_key'], '')
                 ->get($config['api_url'] . '/v1/checkout/sessions/' . $sessionId);
 
             if ($response->successful()) {
@@ -448,61 +431,64 @@ class PaymentService
      */
     public function markPolizaAsPaid(PolizaServicio $poliza, string $transactionId, string $method, array $metadata = []): void
     {
-        $poliza->update([
-            'estado' => 'activa',
-        ]);
-
-        // Buscar y actualizar la venta asociada
-        $venta = Venta::whereHas('items', function ($q) use ($poliza) {
-            $q->where('ventable_type', PolizaServicio::class)
-                ->where('ventable_id', $poliza->id);
-        })->first();
-
-        if ($venta) {
-            $venta->update([
-                'estado' => 'pagado',
-                'metodo_pago' => $method,
-                'notas' => $venta->notas . "\nPago recibido ID: {$transactionId}",
+        \Illuminate\Support\Facades\DB::transaction(function () use ($poliza, $transactionId, $method) {
+            $poliza->update([
+                'estado' => 'activa',
             ]);
 
-            // Liquidar la Cuenta por Cobrar si existe
-            if ($venta->cuentaPorCobrar) {
-                try {
-                    $venta->cuentaPorCobrar->registrarPago((float) $venta->total, "Pago recibido via {$method} - ID: {$transactionId}");
-                } catch (\Exception $e) {
-                    Log::error("Error liquidando CXC tras pago online: " . $e->getMessage());
-                }
-            }
+            // Buscar y actualizar la venta asociada
+            $venta = Venta::whereHas('items', function ($q) use ($poliza) {
+                $q->where('ventable_type', PolizaServicio::class)
+                    ->where('ventable_id', $poliza->id);
+            })->first();
 
-            // AUTOMATIZACIÓN DE BANCOS:
-            // Registrar movimiento en el banco automáticamente dependiendo del método
-            try {
-                $config = \App\Models\EmpresaConfiguracion::getConfig($poliza->empresa_id);
-                $cuentaId = null;
+            if ($venta) {
+                $venta->update([
+                    'estado' => 'pagado',
+                    'metodo_pago' => $method,
+                    'pagado_por' => \Illuminate\Support\Facades\Auth::id(),
+                    'notas' => trim((string) $venta->notas . "\nPago recibido ID: {$transactionId}"),
+                ]);
 
-                if ($method === 'paypal') {
-                    $cuentaId = $config->cuenta_id_paypal;
-                } elseif ($method === 'mercadopago') {
-                    $cuentaId = $config->cuenta_id_mercadopago;
-                } elseif ($method === 'tarjeta' || $method === 'stripe') {
-                    $cuentaId = $config->cuenta_id_stripe;
-                }
-
-                if ($cuentaId) {
-                    $cuenta = \App\Models\CuentaBancaria::find($cuentaId);
-                    if ($cuenta) {
-                        $cuenta->registrarMovimiento(
-                            'deposito',
-                            (float) $venta->total,
-                            "Pago automático Web ({$method}): Folio Venta {$venta->folio} - Poliza {$poliza->id}",
-                            'venta'
-                        );
+                // Liquidar la Cuenta por Cobrar si existe
+                if ($venta->cuentaPorCobrar) {
+                    try {
+                        $venta->cuentaPorCobrar->registrarPago((float) $venta->total, "Pago recibido via {$method} - ID: {$transactionId}");
+                    } catch (\Exception $e) {
+                        Log::error("Error liquidando CXC tras pago online: " . $e->getMessage());
                     }
                 }
-            } catch (\Exception $e) {
-                Log::error("Error registrando movimiento bancario automático: " . $e->getMessage());
+
+                // AUTOMATIZACIÓN DE BANCOS:
+                // Registrar movimiento en el banco automáticamente dependiendo del método
+                try {
+                    $config = \App\Models\EmpresaConfiguracion::getConfig($poliza->empresa_id);
+                    $cuentaId = null;
+
+                    if ($method === 'paypal') {
+                        $cuentaId = $config->cuenta_id_paypal;
+                    } elseif ($method === 'mercadopago') {
+                        $cuentaId = $config->cuenta_id_mercadopago;
+                    } elseif ($method === 'tarjeta' || $method === 'stripe') {
+                        $cuentaId = $config->cuenta_id_stripe;
+                    }
+
+                    if ($cuentaId) {
+                        $cuenta = \App\Models\CuentaBancaria::find($cuentaId);
+                        if ($cuenta) {
+                            $cuenta->registrarMovimiento(
+                                'deposito',
+                                (float) $venta->total,
+                                "Pago automático Web ({$method}): Folio Venta {$venta->folio} - Poliza {$poliza->id}",
+                                'venta'
+                            );
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error registrando movimiento bancario automático: " . $e->getMessage());
+                }
             }
-        }
+        });
 
         Log::info("Póliza {$poliza->id} marcada como pagada via {$method}. Transaction: {$transactionId}");
     }
@@ -527,10 +513,14 @@ class PaymentService
             // 2. Crear Entrega de Dinero para auditoría y flujo de caja
             $fecha = $fechaPago ? ($fechaPago instanceof \Carbon\Carbon ? $fechaPago->format('Y-m-d') : $fechaPago) : now()->format('Y-m-d');
 
-            // Determinar tipo de origen para la entrega
-            $tipoOrigen = 'venta';
-            if ($cuenta->cobrable_type && str_contains(strtolower($cuenta->cobrable_type), 'renta')) {
-                $tipoOrigen = 'renta';
+            // Determinar tipo de origen para la entrega (usar alias directamente si existe)
+            $tipoOrigen = $cuenta->cobrable_type ?: 'venta';
+            
+            // Si es un FQCN, intentar extraer el alias del MorphMap
+            if (str_contains($tipoOrigen, '\\')) {
+                $map = \Illuminate\Database\Eloquent\Relations\Relation::morphMap();
+                $flipped = array_flip($map);
+                $tipoOrigen = $flipped[$tipoOrigen] ?? 'venta';
             }
 
             \App\Services\EntregaDineroService::crearAutoPorMetodo(
@@ -545,6 +535,14 @@ class PaymentService
                 $cuentaBancariaId
             );
         });
+
+        Log::info('Pago registrado en CxC', [
+            'cuenta_id' => $cuenta->id,
+            'monto' => $monto,
+            'metodo' => $metodoPago,
+            'user_id' => $userId ?: \Illuminate\Support\Facades\Auth::id(),
+            'cuenta_bancaria_id' => $cuentaBancariaId,
+        ]);
     }
 
     /**
@@ -562,12 +560,14 @@ class PaymentService
             return;
         }
 
+        $cobradorId = (int) ($venta->pagado_por ?? \Illuminate\Support\Facades\Auth::id());
+
         $this->registrarPago(
             $venta->cuentaPorCobrar,
             (float) $venta->total,
             $metodoPago,
             $notas ?: "Pago de contado - Venta #{$venta->numero_venta}",
-            $venta->vendedor_id ?: \Illuminate\Support\Facades\Auth::id(),
+            $cobradorId,
             $cuentaBancariaId
         );
     }

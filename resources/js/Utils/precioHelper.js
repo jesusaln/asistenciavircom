@@ -2,15 +2,24 @@
  * Helper para resolver precios de productos según lista de precios
  */
 
+const shouldUsePriceList = (item, options = {}) => {
+    const serviciosUsanListasPrecios = options?.serviciosUsanListasPrecios ?? false;
+    if (item?.tipo === 'servicio') {
+        return serviciosUsanListasPrecios;
+    }
+    return true;
+};
+
 /**
  * Resuelve el precio de un producto según la lista de precios seleccionada
  * @param {Object} producto - Producto con precios_listas
  * @param {Number|null} priceListId - ID de la lista de precios
+ * @param {Object} options - Configuración adicional
  * @returns {Number} - Precio resuelto
  */
-export function resolverPrecio(producto, priceListId) {
-    // Si es un servicio, usar precio base (servicios no usan listas por ahora)
-    if (producto.tipo === 'servicio') {
+export function resolverPrecio(producto, priceListId, options = {}) {
+    // Servicios: aplicar política configurable
+    if (producto.tipo === 'servicio' && !shouldUsePriceList(producto, options)) {
         return parseFloat(producto.precio || producto.precio_venta || 0);
     }
 
@@ -33,11 +42,12 @@ export function resolverPrecio(producto, priceListId) {
  * Resuelve el precio de un producto con información de fallback
  * @param {Object} producto - Producto con precios_listas
  * @param {Number|null} priceListId - ID de la lista de precios
+ * @param {Object} options - Configuración adicional
  * @returns {Object} - { precio: Number, esFallback: Boolean }
  */
-export function resolverPrecioConFallbackInfo(producto, priceListId) {
-    // Si es un servicio, usar precio base (no es fallback para servicios)
-    if (producto.tipo === 'servicio') {
+export function resolverPrecioConFallbackInfo(producto, priceListId, options = {}) {
+    // Servicios: aplicar política configurable
+    if (producto.tipo === 'servicio' && !shouldUsePriceList(producto, options)) {
         return {
             precio: parseFloat(producto.precio || producto.precio_venta || 0),
             esFallback: false
@@ -73,9 +83,10 @@ export function resolverPrecioConFallbackInfo(producto, priceListId) {
  * @param {Array} productos - Lista de productos seleccionados (con id, tipo, nombre)
  * @param {Array} catalogoProductos - Catálogo completo de productos con precios_listas
  * @param {Number|null} priceListId - ID de la lista de precios seleccionada
+ * @param {Object} options - Configuración adicional
  * @returns {Array} - Lista de productos sin precio en la lista [{id, nombre}]
  */
-export function detectarProductosSinPrecioEnLista(productos, catalogoProductos, priceListId) {
+export function detectarProductosSinPrecioEnLista(productos, catalogoProductos, priceListId, options = {}) {
     // Si no hay lista seleccionada, no hay fallbacks que reportar
     if (!priceListId) {
         return [];
@@ -84,8 +95,7 @@ export function detectarProductosSinPrecioEnLista(productos, catalogoProductos, 
     const productosSinPrecio = [];
 
     for (const item of productos) {
-        // Solo aplicar a productos, no a servicios
-        if (item.tipo !== 'producto') {
+        if (!shouldUsePriceList(item, options)) {
             continue;
         }
 

@@ -40,7 +40,7 @@ class PedidoController extends Controller
         private readonly \App\Services\Folio\FolioService $folioService,
         private readonly \App\Services\FinancialService $financialService
     ) {
-        $this->authorizeResource(Pedido::class);
+        // $this->authorizeResource(Pedido::class);
     }
 
     // ... (rest of methods)
@@ -60,6 +60,7 @@ class PedidoController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Pedido::class);
         $perPage = (int) ($request->integer('per_page') ?: 10);
 
         // Validar elementos por página
@@ -84,15 +85,16 @@ class PedidoController extends Controller
         // Aplicar filtros
         if ($search = trim($request->get('search', ''))) {
             $baseQuery->where(function ($query) use ($search) {
-                $query->where('numero_pedido', 'like', "%{$search}%")
-                    ->orWhere('id', 'like', "%{$search}%")
-                    ->orWhereHas('cliente', function ($q) use ($search) {
-                        $q->where('nombre_razon_social', 'like', "%{$search}%")
-                            ->orWhere('rfc', 'like', "%{$search}%");
+                $searchPattern = "%{$search}%";
+                $query->where('numero_pedido', 'ILIKE', $searchPattern)
+                    ->orWhere('id', 'ILIKE', $searchPattern)
+                    ->orWhereHas('cliente', function ($q) use ($searchPattern) {
+                        $q->whereRaw("unaccent(nombre_razon_social) ILIKE unaccent(?)", [$searchPattern])
+                            ->orWhere('rfc', 'ILIKE', $searchPattern);
                     })
-                    ->orWhereHas('items.pedible', function ($q) use ($search) {
-                        $q->where('nombre', 'like', "%{$search}%")
-                            ->orWhere('descripcion', 'like', "%{$search}%");
+                    ->orWhereHas('items.pedible', function ($q) use ($searchPattern) {
+                        $q->where('nombre', 'ILIKE', $searchPattern)
+                            ->orWhere('descripcion', 'ILIKE', $searchPattern);
                     });
             });
         }
@@ -265,6 +267,7 @@ class PedidoController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Pedido::class);
         return Inertia::render('Pedidos/Create', [
             'clientes' => Cliente::activos()
                 ->select('id', 'nombre_razon_social', 'email', 'telefono', 'price_list_id')
@@ -273,6 +276,7 @@ class PedidoController extends Controller
             'productos' => Producto::with(['categoria:id,nombre', 'inventarios', 'precios'])  // ✅ Agregar 'precios'
                 ->select('id', 'nombre', 'codigo', 'categoria_id', 'precio_venta', 'descripcion', 'estado', 'tipo_producto')
                 ->active()
+                ->paraVentaDirectaSegunUsuario(Auth::user())
                 ->get()
                 ->map(function ($producto) {
                     $stockTotal = $producto->stock_total ?? 0;
@@ -336,6 +340,7 @@ class PedidoController extends Controller
                 'isrPorcentaje' => \App\Services\EmpresaConfiguracionService::getIsrPorcentaje(),
                 'retencionIvaDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIvaDefault(),
                 'retencionIsrDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIsrDefault(),
+                'serviciosUsanListasPrecios' => (bool) config('ventas.servicios_usan_listas_precios', false),
             ]
         ]);
     }
@@ -345,6 +350,7 @@ class PedidoController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Pedido::class);
         $validated = $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'price_list_id' => 'nullable|exists:price_lists,id',
@@ -360,6 +366,19 @@ class PedidoController extends Controller
             'aplicar_retencion_iva' => 'boolean',
             'aplicar_retencion_isr' => 'boolean',
         ]);
+
+        foreach ($validated['productos'] as $index => $item) {
+            if ($item['tipo'] !== 'producto') {
+                continue;
+            }
+            $modelo = Producto::find($item['id']);
+            if ($modelo && $modelo->ventaDirectaBloqueadaPara(Auth::user())) {
+                return Redirect::back()
+                    ->withInput()
+                    ->withErrors(["productos.{$index}.id" => "El producto «{$modelo->nombre}» solo se vende como kit. Use el producto kit o permiso «venta componentes sueltos»."])
+                    ->with('error', 'Hay productos que no pueden incluirse sueltos en el pedido.');
+            }
+        }
 
         // Validar márgenes de ganancia
         $marginService = new MarginService();
@@ -389,151 +408,161 @@ class PedidoController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $request, $marginService) {
-            // Obtener cliente para resolver precios
-            $cliente = Cliente::find($validated['cliente_id']);
+            try {
+                // Obtener cliente para resolver precios
+                $cliente = Cliente::find($validated['cliente_id']);
 
-            // Optimización N+1: Cargar todos los modelos necesarios en una sola consulta
-            $productIds = [];
-            $serviceIds = [];
+                // Optimización N+1: Cargar todos los modelos necesarios en una sola consulta
+                $productIds = [];
+                $serviceIds = [];
 
-            foreach ($validated['productos'] as $prod) {
-                if ($prod['tipo'] === 'producto') {
-                    $productIds[] = $prod['id'];
-                } else {
-                    $serviceIds[] = $prod['id'];
-                }
-            }
-
-            $productosColeccion = Producto::whereIn('id', $productIds)->get()->keyBy('id');
-            $serviciosColeccion = Servicio::whereIn('id', $serviceIds)->get()->keyBy('id');
-
-            // Procesar ítems y calcular totales con precios reales
-            $subtotal = 0;
-            $descuentoItems = 0;
-            $itemData = [];
-
-            foreach ($validated['productos'] as $item) {
-                $class = $item['tipo'] === 'producto' ? Producto::class : Servicio::class;
-
-                // Obtener modelo de memoria en lugar de consulta DB
-                if ($item['tipo'] === 'producto') {
-                    $modelo = $productosColeccion->get($item['id']);
-                } else {
-                    $modelo = $serviciosColeccion->get($item['id']);
+                foreach ($validated['productos'] as $prod) {
+                    if ($prod['tipo'] === 'producto') {
+                        $productIds[] = $prod['id'];
+                    } else {
+                        $serviceIds[] = $prod['id'];
+                    }
                 }
 
-                if (!$modelo) {
-                    Log::warning("Ítem no encontrado al crear pedido", [
-                        'tipo' => $class,
-                        'id' => $item['id']
+                $productosColeccion = Producto::whereIn('id', $productIds)->get()->keyBy('id');
+                $serviciosColeccion = Servicio::whereIn('id', $serviceIds)->get()->keyBy('id');
+
+                // Procesar ítems y calcular totales con precios reales
+                $subtotal = 0;
+                $descuentoItems = 0;
+                $itemData = [];
+
+                foreach ($validated['productos'] as $item) {
+                    $class = $item['tipo'] === 'producto' ? Producto::class : Servicio::class;
+
+                    // Obtener modelo de memoria en lugar de consulta DB
+                    if ($item['tipo'] === 'producto') {
+                        $modelo = $productosColeccion->get($item['id']);
+                    } else {
+                        $modelo = $serviciosColeccion->get($item['id']);
+                    }
+
+                    if (!$modelo) {
+                        Log::warning("Ítem no encontrado al crear pedido", [
+                            'tipo' => $class,
+                            'id' => $item['id']
+                        ]);
+                        continue;
+                    }
+
+                    $cantidad = (float) ($item['cantidad'] ?? 0);
+
+                    // ✅ FIX P0-2: Respetar precio del formulario si está presente
+                    if (isset($item['precio']) && $item['precio'] !== null) {
+                        // Usuario especificó precio manualmente, respetarlo
+                        $precio = (float) $item['precio'];
+                        $priceListId = $item['price_list_id'] ?? ($validated['price_list_id'] ?? null);
+                    } else if ($item['tipo'] === 'producto') {
+                        // No hay precio, resolver dinámicamente usando PrecioService
+                        $detallesPrecio = $this->precioService->resolverPrecioConDetalles(
+                            $modelo,
+                            $cliente,
+                            $validated['price_list_id'] ? \App\Models\PriceList::find($validated['price_list_id']) : null
+                        );
+                        $precio = $detallesPrecio['precio'];
+                        $priceListId = $detallesPrecio['price_list_id'];
+                    } else {
+                        // Para servicios, usar precio enviado desde frontend
+                        $precio = (float) ($item['precio'] ?? 0);
+                        $priceListId = null; // Servicios no usan listas de precios
+                    }
+
+                    $cantidad = (float) ($item['cantidad'] ?? 0);
+                    $descuento = (float) ($item['descuento'] ?? 0);
+
+                    // Use FinancialService for items
+                    $itemTotals = $this->financialService->calculateItemTotals($cantidad, $precio, $descuento);
+                    $subtotalItem = $itemTotals['subtotal_final'];
+                    $descuentoMontoItem = $itemTotals['descuento_monto'];
+
+                    // Guardar datos para crear ítems después
+                    $itemData[] = [
+                        'class' => $class,
+                        'modelo' => $modelo,
+                        'cantidad' => $cantidad,
+                        'precio' => $precio,
+                        'descuento' => $descuento,
+                        'subtotal' => $subtotalItem,
+                        'descuento_monto' => $descuentoMontoItem,
+                        'price_list_id' => $priceListId,
+                        'item_id' => $item['id']
+                    ];
+                }
+
+                // Calcular totales finales usando FinancialService
+                $totales = $this->financialService->calculateDocumentTotals(
+                    $itemData,
+                    (float) ($request->descuento_general ?? 0),
+                    $validated['cliente_id'],
+                    [
+                        'aplicar_retencion_iva' => $request->boolean('aplicar_retencion_iva'),
+                        'aplicar_retencion_isr' => $request->boolean('aplicar_retencion_isr'),
+                        'mode' => 'sales'
+                    ]
+                );
+
+                // Generar número de pedido usando el servicio centralizado
+                $numero_pedido = 'PED-TMP';
+
+                // Crear pedido con totales correctos
+                $pedido = Pedido::create([
+                    'cliente_id' => $validated['cliente_id'],
+                    'cotizacion_id' => null, // Puede llenarse si se crea desde una cotización
+                    'numero_pedido' => $numero_pedido,
+                    'subtotal' => $totales['subtotal'],
+                    'descuento_general' => $totales['descuento_general'],
+                    'descuento_items' => $totales['descuento_items'], // Should be sum of item discounts
+                    'iva' => $totales['iva'],
+                    'retencion_iva' => $totales['retencion_iva'],
+                    'retencion_isr' => $totales['retencion_isr'],
+                    'isr' => $totales['isr'],
+                    'total' => $totales['total'],
+                    'fecha' => now(),
+                    'estado' => EstadoPedido::Borrador,
+                    'notas' => $request->notas,
+                ]);
+
+                // Crear ítems con precios resueltos
+                foreach ($itemData as $data) {
+                    PedidoItem::create([
+                        'pedido_id' => $pedido->id,
+                        'pedible_id' => $data['item_id'],
+                        'pedible_type' => $data['class'],
+                        'cantidad' => (int) $data['cantidad'],
+                        'precio' => round($data['precio'], 2),
+                        'descuento' => round($data['descuento'], 2),
+                        'subtotal' => round($data['subtotal'], 2),
+                        'descuento_monto' => round($data['descuento_monto'], 2),
+                        'price_list_id' => $data['price_list_id'],
                     ]);
-                    continue;
+
+                    Log::info("Ítem agregado a pedido exitosamente", [
+                        'pedido_id' => $pedido->id,
+                        'tipo' => $data['class'],
+                        'id' => $data['item_id'],
+                        'nombre' => $data['modelo']->nombre,
+                        'categoria' => $data['class'] === Producto::class ? $data['modelo']->categoria?->nombre : 'Servicio',
+                        'cantidad' => $data['cantidad'],
+                        'precio' => $data['precio'],
+                        'price_list_id' => $data['price_list_id']
+                    ]);
                 }
 
-                $cantidad = (float) ($item['cantidad'] ?? 0);
-
-                // ✅ FIX P0-2: Respetar precio del formulario si está presente
-                if (isset($item['precio']) && $item['precio'] !== null) {
-                    // Usuario especificó precio manualmente, respetarlo
-                    $precio = (float) $item['precio'];
-                    $priceListId = $item['price_list_id'] ?? ($validated['price_list_id'] ?? null);
-                } else if ($item['tipo'] === 'producto') {
-                    // No hay precio, resolver dinámicamente usando PrecioService
-                    $detallesPrecio = $this->precioService->resolverPrecioConDetalles(
-                        $modelo,
-                        $cliente,
-                        $validated['price_list_id'] ? \App\Models\PriceList::find($validated['price_list_id']) : null
-                    );
-                    $precio = $detallesPrecio['precio'];
-                    $priceListId = $detallesPrecio['price_list_id'];
-                } else {
-                    // Para servicios, usar precio enviado desde frontend
-                    $precio = (float) ($item['precio'] ?? 0);
-                    $priceListId = null; // Servicios no usan listas de precios
-                }
-
-                $cantidad = (float) ($item['cantidad'] ?? 0);
-                $descuento = (float) ($item['descuento'] ?? 0);
-
-                // Use FinancialService for items
-                $itemTotals = $this->financialService->calculateItemTotals($cantidad, $precio, $descuento);
-                $subtotalItem = $itemTotals['subtotal_final'];
-                $descuentoMontoItem = $itemTotals['descuento_monto'];
-
-                // Guardar datos para crear ítems después
-                $itemData[] = [
-                    'class' => $class,
-                    'modelo' => $modelo,
-                    'cantidad' => $cantidad,
-                    'precio' => $precio,
-                    'descuento' => $descuento,
-                    'subtotal' => $subtotalItem,
-                    'descuento_monto' => $descuentoMontoItem,
-                    'price_list_id' => $priceListId,
-                    'item_id' => $item['id']
-                ];
-            }
-
-            // Calcular totales finales usando FinancialService
-            $totales = $this->financialService->calculateDocumentTotals(
-                $itemData,
-                (float) ($request->descuento_general ?? 0),
-                $validated['cliente_id'],
-                [
-                    'aplicar_retencion_iva' => $request->boolean('aplicar_retencion_iva'),
-                    'aplicar_retencion_isr' => $request->boolean('aplicar_retencion_isr'),
-                    'mode' => 'sales'
-                ]
-            );
-
-            // Generar número de pedido usando el servicio centralizado
-            $numero_pedido = $this->folioService->getNextFolio('pedido');
-
-            // Crear pedido con totales correctos
-            $pedido = Pedido::create([
-                'cliente_id' => $validated['cliente_id'],
-                'cotizacion_id' => null, // Puede llenarse si se crea desde una cotización
-                'numero_pedido' => $numero_pedido,
-                'subtotal' => $totales['subtotal'],
-                'descuento_general' => $totales['descuento_general'],
-                'descuento_items' => $totales['descuento_items'], // Should be sum of item discounts
-                'iva' => $totales['iva'],
-                'retencion_iva' => $totales['retencion_iva'],
-                'retencion_isr' => $totales['retencion_isr'],
-                'isr' => $totales['isr'],
-                'total' => $totales['total'],
-                'fecha' => now(),
-                'estado' => EstadoPedido::Borrador,
-                'notas' => $request->notas,
-            ]);
-
-            // Crear ítems con precios resueltos
-            foreach ($itemData as $data) {
-                PedidoItem::create([
-                    'pedido_id' => $pedido->id,
-                    'pedible_id' => $data['item_id'],
-                    'pedible_type' => $data['class'],
-                    'cantidad' => (int) $data['cantidad'],
-                    'precio' => round($data['precio'], 2),
-                    'descuento' => round($data['descuento'], 2),
-                    'subtotal' => round($data['subtotal'], 2),
-                    'descuento_monto' => round($data['descuento_monto'], 2),
-                    'price_list_id' => $data['price_list_id'],
+                return redirect()->route('pedidos.index')->with('success', 'Pedido creado con éxito');
+            } catch (\Throwable $e) {
+                // Rollback is automatic with DB::transaction
+                Log::error('Error creating Pedido: ' . $e->getMessage(), [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
                 ]);
-
-                Log::info("Ítem agregado a pedido exitosamente", [
-                    'pedido_id' => $pedido->id,
-                    'tipo' => $data['class'],
-                    'id' => $data['item_id'],
-                    'nombre' => $data['modelo']->nombre,
-                    'categoria' => $data['class'] === Producto::class ? $data['modelo']->categoria?->nombre : 'Servicio',
-                    'cantidad' => $data['cantidad'],
-                    'precio' => $data['precio'],
-                    'price_list_id' => $data['price_list_id']
-                ]);
+                return redirect()->back()->with('error', 'Error al crear pedido: ' . $e->getMessage());
             }
-
-            return redirect()->route('pedidos.index')->with('success', 'Pedido creado con éxito');
         });
     }
 
@@ -549,6 +578,9 @@ class PedidoController extends Controller
             },
             'items.pedible'
         ])->findOrFail($id);
+
+        $this->authorize('view', $pedido);
+
 
         $items = $pedido->items->map(function ($item) {
             $pedible = $item->pedible;
@@ -600,6 +632,7 @@ class PedidoController extends Controller
     public function edit($id)
     {
         $pedido = Pedido::with(['cliente', 'items.pedible'])->findOrFail($id);
+        $this->authorize('update', $pedido);
 
         // Permitir edición solo si está en Borrador o Pendiente
         if (!in_array($pedido->estado, [EstadoPedido::Borrador, EstadoPedido::Pendiente], true)) {
@@ -661,6 +694,7 @@ class PedidoController extends Controller
             'productos' => Producto::with(['categoria:id,nombre', 'inventarios'])
                 ->select('id', 'nombre', 'codigo', 'categoria_id', 'precio_venta', 'descripcion', 'estado', 'tipo_producto')
                 ->active()
+                ->paraVentaDirectaSegunUsuario(Auth::user())
                 ->get()
                 ->map(function ($producto) {
                     $stockTotal = $producto->stock_total ?? 0;
@@ -691,6 +725,7 @@ class PedidoController extends Controller
                 'isrPorcentaje' => \App\Services\EmpresaConfiguracionService::getIsrPorcentaje(),
                 'retencionIvaDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIvaDefault(),
                 'retencionIsrDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIsrDefault(),
+                'serviciosUsanListasPrecios' => (bool) config('ventas.servicios_usan_listas_precios', false),
             ],
         ]);
     }
@@ -701,6 +736,7 @@ class PedidoController extends Controller
     public function update(Request $request, $id)
     {
         $pedido = Pedido::findOrFail($id);
+        $this->authorize('update', $pedido);
 
         // Permitir edición solo si está en Borrador o Pendiente
         if (!in_array($pedido->estado, [EstadoPedido::Borrador, EstadoPedido::Pendiente], true)) {
@@ -723,6 +759,19 @@ class PedidoController extends Controller
             'aplicar_retencion_iva' => 'boolean',
             'aplicar_retencion_isr' => 'boolean',
         ]);
+
+        foreach ($validated['productos'] as $index => $item) {
+            if ($item['tipo'] !== 'producto') {
+                continue;
+            }
+            $modelo = Producto::find($item['id']);
+            if ($modelo && $modelo->ventaDirectaBloqueadaPara(Auth::user())) {
+                return Redirect::back()
+                    ->withInput()
+                    ->withErrors(["productos.{$index}.id" => "El producto «{$modelo->nombre}» solo se vende como kit. Use el producto kit o permiso «venta componentes sueltos»."])
+                    ->with('error', 'Hay productos que no pueden incluirse sueltos en el pedido.');
+            }
+        }
 
         // Validar márgenes de ganancia antes de calcular totales
         $marginService = new MarginService();
@@ -903,9 +952,11 @@ class PedidoController extends Controller
      */
     public function destroy($id)
     {
-        return DB::transaction(function () use ($id) {
+        $pedido = Pedido::with(['cotizacion', 'ordenesCompra'])->findOrFail($id);
+        $this->authorize('delete', $pedido);
+
+        return DB::transaction(function () use ($pedido, $id) {
             try {
-                $pedido = Pedido::with(['cotizacion', 'ordenesCompra'])->findOrFail($id);
 
                 // Verificar que el pedido puede ser eliminado
                 if (!in_array($pedido->estado, [EstadoPedido::Borrador, EstadoPedido::Pendiente, EstadoPedido::Cancelado], true)) {

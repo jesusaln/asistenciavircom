@@ -16,12 +16,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\SatClaveUnidad;
 use App\Models\SatObjetoImp;
 use App\Models\SatClaveProdServ;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
-use App\Support\EmpresaResolver;
 use App\Traits\ImageOptimizerTrait;
 
 class ProductoController extends Controller
@@ -43,14 +43,9 @@ class ProductoController extends Controller
         try {
             $query = Producto::query()->with(['categoria', 'marca', 'proveedor', 'almacen']);
 
-            // Filtros
+            // Búsqueda optimizada usando Trigram Search (pg_trgm)
             if ($search = trim($request->input('search', ''))) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nombre', 'like', "%{$search}%")
-                        ->orWhere('codigo', 'like', "%{$search}%")
-                        ->orWhere('codigo_barras', 'like', "%{$search}%")
-                        ->orWhere('descripcion', 'like', "%{$search}%");
-                });
+                $query->search($search);
             }
 
             if ($estado = $request->input('estado')) {
@@ -74,23 +69,38 @@ class ProductoController extends Controller
 
             $query->orderBy($sortBy, $sortDirection);
 
+            $query->withCount([
+                'cotizacionItems',
+                'pedidoItems',
+                'ventaItems',
+                'compras',
+                'ordenesCompra',
+            ]);
+
             // Paginación
             $perPage = min((int) $request->input('per_page', 25), 50);
             $productos = $query->paginate($perPage);
 
-            // Agregar permisos a cada producto
+            // Agregar permisos a cada producto (sin N+1: usa withCount)
             foreach ($productos->items() as $producto) {
-                $producto->can_delete = $this->canDeleteProducto($producto);
+                $producto->can_delete = $producto->puedeEliminarseSegunConteosDeListado();
                 $producto->can_toggle_in_index = false; // No mostrar botón de cambiar estado en el índice
                 $producto->can_toggle_in_modal = true; // Sí mostrar en el modal
             }
 
-            // Estadísticas basadas en estado del producto
+            // Estadísticas optimizadas en una sola consulta
+            $statsRaw = Producto::selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN estado = 'activo' THEN 1 END) as activos,
+                COUNT(CASE WHEN estado = 'inactivo' THEN 1 END) as inactivos,
+                COUNT(CASE WHEN stock <= 0 THEN 1 END) as agotado
+            ")->first();
+
             $stats = [
-                'total' => Producto::count(),
-                'activos' => Producto::where('estado', 'activo')->count(),
-                'inactivos' => Producto::where('estado', 'inactivo')->count(),
-                'agotado' => Producto::where('stock', '<=', 0)->count(),
+                'total' => (int) $statsRaw->total,
+                'activos' => (int) $statsRaw->activos,
+                'inactivos' => (int) $statsRaw->inactivos,
+                'agotado' => (int) $statsRaw->agotado,
             ];
 
             return Inertia::render('Productos/Index', [
@@ -111,11 +121,11 @@ class ProductoController extends Controller
     public function create()
     {
         return Inertia::render('Productos/Create', [
-            'categorias' => Categoria::select('id', 'nombre')->get(),
-            'marcas' => Marca::select('id', 'nombre')->get(),
-            'proveedores' => Proveedor::select('id', 'nombre_razon_social')->get(),
-            'almacenes' => Almacen::select('id', 'nombre')->get(),
-            'priceLists' => \App\Models\PriceList::where('activa', true)->get(),
+            'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
+            'marcas' => Marca::orderBy('nombre')->get(['id', 'nombre']),
+            'proveedores' => Proveedor::orderBy('nombre_razon_social')->get(['id', 'nombre_razon_social']),
+            'almacenes' => Almacen::orderBy('nombre')->get(['id', 'nombre']),
+            'priceLists' => \App\Models\PriceList::where('activa', true)->orderBy('nombre')->get(['id', 'nombre']),
             'defaults' => [
                 'ivaPorcentaje' => \App\Services\EmpresaConfiguracionService::getIvaPorcentaje(),
             ],
@@ -184,6 +194,10 @@ class ProductoController extends Controller
                 'sat_clave_prod_serv' => 'nullable|string|max:8',
                 'sat_clave_unidad' => 'nullable|string|max:3',
                 'sat_objeto_imp' => 'nullable|string|max:2',
+                'incluye_iva' => 'nullable|boolean',
+                'destacado' => 'nullable|boolean',
+                'catalogo_web' => 'nullable|boolean',
+                'bloquear_venta_directa' => 'nullable|boolean',
                 // Stock y otros opcionales
                 'stock' => 'nullable|numeric|min:0',
                 'precio_venta' => 'nullable|numeric|min:0',
@@ -222,7 +236,7 @@ class ProductoController extends Controller
             if (!empty($validated['codigo']) && !Producto::where('codigo_barras', $validated['codigo'])->exists()) {
                 $validated['codigo_barras'] = $validated['codigo'];
             } else {
-                $validated['codigo_barras'] = 'GEN-' . time() . rand(100, 999);
+                $validated['codigo_barras'] = 'GEN-' . time() . random_int(100, 999);
             }
 
             // 4. Otros defaults (solo si no vienen del request)
@@ -236,6 +250,8 @@ class ProductoController extends Controller
             $validated['almacen_id'] = null;
             $validated['comision_vendedor'] = 0;
             $validated['margen_ganancia'] = 0;
+            $validated['catalogo_web'] = $validated['catalogo_web'] ?? true;
+            $validated['bloquear_venta_directa'] = $validated['bloquear_venta_directa'] ?? false;
 
         } else {
             // Validación estricta para formulario normal
@@ -250,12 +266,16 @@ class ProductoController extends Controller
                 'almacen_id' => 'nullable|exists:almacenes,id',
                 'expires' => 'boolean',
                 'requiere_serie' => 'boolean',
+                'incluye_iva' => 'nullable|boolean',
+                'destacado' => 'nullable|boolean',
+                'catalogo_web' => 'nullable|boolean',
+                'bloquear_venta_directa' => 'nullable|boolean',
                 'precio_compra' => 'required|numeric|min:0',
                 'precio_venta' => 'required|numeric|min:0',
                 'unidad_medida' => 'required|string',
                 'fecha_vencimiento' => 'nullable|date',
                 'tipo_producto' => 'required|in:fisico,digital',
-                'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
                 'estado' => 'required|in:activo,inactivo',
                 'comision_vendedor' => 'nullable|numeric|min:0|max:100',
                 'sat_clave_prod_serv' => 'nullable|string|max:8',
@@ -282,68 +302,69 @@ class ProductoController extends Controller
             $validated['requiere_serie'] = $validated['requiere_serie'] ?? false;
             $validated['margen_ganancia'] = $validated['margen_ganancia'] ?? 0;
             $validated['comision_vendedor'] = $validated['comision_vendedor'] ?? 0;
+            $validated['catalogo_web'] = $validated['catalogo_web'] ?? true;
         }
 
-        $producto = Producto::create($validated);
+        $producto = null;
 
-        // Debug logging after product creation
-        Log::debug('ProductoController@store - Product created', [
-            'producto_id' => $producto->id,
-            'precio_venta_saved' => $producto->precio_venta,
-            'validated_stock_minimo' => $validated['stock_minimo_por_almacen'] ?? 'not set',
-        ]);
+        DB::transaction(function () use ($validated, $isAjax, &$producto) {
+            $producto = Producto::create($validated);
 
-        if (!$isAjax) {
-            // Lógica adicional solo para formulario completo (inventarios, precios extra)
-            // ... (inventarios y precios extra que dependen de inputs del form completo)
+            // Debug logging after product creation
+            Log::debug('ProductoController@store - Product created', [
+                'producto_id' => $producto->id,
+                'precio_venta_saved' => $producto->precio_venta,
+                'validated_stock_minimo' => $validated['stock_minimo_por_almacen'] ?? 'not set',
+            ]);
 
-            // Crear registros de inventario para cada almacén con stock mínimo configurado
-            if (!empty($validated['stock_minimo_por_almacen'])) {
-                Log::debug('ProductoController@store - Creating inventarios', [
-                    'stock_minimo_por_almacen' => $validated['stock_minimo_por_almacen'],
-                ]);
-                foreach ($validated['stock_minimo_por_almacen'] as $almacenId => $stockMinimo) {
-                    Log::debug('Creating inventario record', [
-                        'producto_id' => $producto->id,
-                        'almacen_id' => $almacenId,
-                        'stock_minimo' => $stockMinimo,
+            if (!$isAjax) {
+                // Crear registros de inventario para cada almacén con stock mínimo configurado
+                if (!empty($validated['stock_minimo_por_almacen'])) {
+                    Log::debug('ProductoController@store - Creating inventarios', [
+                        'stock_minimo_por_almacen' => $validated['stock_minimo_por_almacen'],
                     ]);
-                    \App\Models\Inventario::create([
-                        'producto_id' => $producto->id,
-                        'almacen_id' => $almacenId,
-                        'cantidad' => 0,
-                        'stock_minimo' => $stockMinimo,
-                    ]);
-                }
-            } else {
-                Log::debug('ProductoController@store - No stock_minimo_por_almacen in validated data');
-            }
-
-            // Guardar precios por lista si existen
-            if (!empty($validated['prices'])) {
-                foreach ($validated['prices'] as $priceData) {
-                    if (isset($priceData['precio']) && $priceData['precio'] !== null && $priceData['precio'] !== '') {
-                        \App\Models\ProductPrice::create([
+                    foreach ($validated['stock_minimo_por_almacen'] as $almacenId => $stockMinimo) {
+                        Log::debug('Creating inventario record', [
                             'producto_id' => $producto->id,
-                            'price_list_id' => $priceData['price_list_id'],
-                            'precio' => $priceData['precio'],
+                            'almacen_id' => $almacenId,
+                            'stock_minimo' => $stockMinimo,
                         ]);
+                        \App\Models\Inventario::create([
+                            'producto_id' => $producto->id,
+                            'almacen_id' => $almacenId,
+                            'cantidad' => 0,
+                            'stock_minimo' => $stockMinimo,
+                        ]);
+                    }
+                } else {
+                    Log::debug('ProductoController@store - No stock_minimo_por_almacen in validated data');
+                }
+
+                // Guardar precios por lista si existen
+                if (!empty($validated['prices'])) {
+                    foreach ($validated['prices'] as $priceData) {
+                        if (isset($priceData['precio']) && $priceData['precio'] !== null && $priceData['precio'] !== '') {
+                            \App\Models\ProductPrice::create([
+                                'producto_id' => $producto->id,
+                                'price_list_id' => $priceData['price_list_id'],
+                                'precio' => $priceData['precio'],
+                            ]);
+                        }
                     }
                 }
             }
-        }
 
-        // Log initial prices
-        ProductoPrecioHistorial::create([
-            'producto_id' => $producto->id,
-            'precio_compra_anterior' => null,
-            'precio_compra_nuevo' => $producto->precio_compra,
-            'precio_venta_anterior' => null,
-            'precio_venta_nuevo' => $producto->precio_venta,
-            'tipo_cambio' => 'creacion',
-            'notas' => 'Precio inicial al crear el producto',
-            'user_id' => Auth::id(),
-        ]);
+            ProductoPrecioHistorial::create([
+                'producto_id' => $producto->id,
+                'precio_compra_anterior' => null,
+                'precio_compra_nuevo' => $producto->precio_compra,
+                'precio_venta_anterior' => null,
+                'precio_venta_nuevo' => $producto->precio_venta,
+                'tipo_cambio' => 'creacion',
+                'notas' => 'Precio inicial al crear el producto',
+                'user_id' => Auth::id(),
+            ]);
+        });
 
         if ($isAjax && !$request->header('X-Inertia')) {
             return response()->json([
@@ -420,30 +441,34 @@ class ProductoController extends Controller
         Log::debug('ProductoController@update - Request data', [
             'producto_id' => $producto->id,
             'stock_minimo_por_almacen' => $request->input('stock_minimo_por_almacen'),
-            'precio_venta' => $request->input('precio_venta'),
-            'precio_compra' => $request->input('precio_compra'),
-            'has_image_file' => $request->hasFile('imagen'),
-            'image_file_name' => $request->hasFile('imagen') ? $request->file('imagen')->getClientOriginalName() : null,
-            'content_type' => $request->header('Content-Type'),
         ]);
 
-        // FIX: Bloquear para prevenir race conditions
         DB::beginTransaction();
 
         try {
-            // Recargar con lock
-            $producto = Producto::where('id', $producto->id)->lockForUpdate()->firstOrFail();
-            $empresaId = EmpresaResolver::resolveId();
+            // Bloqueo para prevenir race conditions
+            $producto = Producto::withoutGlobalScopes()
+                ->where('id', $producto->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Limpiar campos SAT
+            foreach (['sat_clave_prod_serv', 'sat_clave_unidad', 'sat_objeto_imp'] as $field) {
+                $val = $request->input($field);
+                if (is_array($val) || is_object($val)) {
+                    $val = is_array($val) ? ($val['clave'] ?? null) : null;
+                }
+                $request->merge([$field => is_string($val) ? $val : null]);
+            }
 
             $validated = $request->validate([
-                // Datos requeridos
                 'nombre' => 'required|string|max:255',
                 'descripcion' => 'nullable|string|max:1000',
                 'precio_venta' => 'required|numeric|min:0',
                 'categoria_id' => 'required|exists:categorias,id',
+                'marca_id' => 'required|exists:marcas,id',
                 'proveedor_id' => 'nullable|exists:proveedores,id',
-
-                // Validaciones para editar (permitir mismos códigos del propio producto)
+                'almacen_id' => 'nullable|exists:almacenes,id',
                 'codigo' => [
                     'nullable',
                     'string',
@@ -454,10 +479,12 @@ class ProductoController extends Controller
                     'string',
                     Rule::unique('productos', 'codigo_barras')->ignore($producto->id),
                 ],
-                'marca_id' => 'required|exists:marcas,id',
-                'almacen_id' => 'nullable|exists:almacenes,id',
                 'expires' => 'boolean',
                 'requiere_serie' => 'boolean',
+                'incluye_iva' => 'nullable|boolean',
+                'destacado' => 'nullable|boolean',
+                'catalogo_web' => 'nullable|boolean',
+                'bloquear_venta_directa' => 'nullable|boolean',
                 'precio_compra' => 'nullable|numeric|min:0',
                 'unidad_medida' => 'required|string',
                 'fecha_vencimiento' => 'nullable|date',
@@ -467,61 +494,30 @@ class ProductoController extends Controller
                 'sat_clave_prod_serv' => 'nullable|string|max:8',
                 'sat_clave_unidad' => 'nullable|string|max:3',
                 'sat_objeto_imp' => 'nullable|string|max:2',
-
-                // Imagen
-                'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
-
-                // Stock mínimo por almacén
                 'stock_minimo_por_almacen' => 'nullable|array',
                 'stock_minimo_por_almacen.*' => 'integer|min:0',
             ]);
 
             if ($request->hasFile('imagen')) {
-                // Eliminar imagen anterior si existe
                 if ($producto->imagen) {
                     Storage::disk('public')->delete($producto->imagen);
                 }
-
-                try {
-                    $validated['imagen'] = $this->saveImageAsWebP($request->file('imagen'), 'productos');
-                } catch (\Exception $e) {
-                    Log::error("Error processing image (WebP conversion failed): " . $e->getMessage());
-                    // Fallback to standard storage
-                    $path = $request->file('imagen')->store('productos', 'public');
-                    $validated['imagen'] = $path;
-                }
+                $validated['imagen'] = $this->saveImageAsWebP($request->file('imagen'), 'productos');
             }
 
-            // Stock is managed through purchases, so don't update it from the form
-            // Keep the existing stock value
             unset($validated['stock']);
 
-            // Set default values for missing fillable fields in update
-            $validated['reservado'] = $validated['reservado'] ?? 0;
-            $validated['expires'] = $validated['expires'] ?? false;
-            $validated['requiere_serie'] = $validated['requiere_serie'] ?? false;
-            $validated['margen_ganancia'] = $validated['margen_ganancia'] ?? 0;
-            $validated['comision_vendedor'] = $validated['comision_vendedor'] ?? 0;
-
-            // Actualizar stock mínimo por almacén
+            // Actualizar stock mínimo
             if (!empty($validated['stock_minimo_por_almacen'])) {
                 foreach ($validated['stock_minimo_por_almacen'] as $almacenId => $stockMinimo) {
                     \App\Models\Inventario::updateOrCreate(
-                        [
-                            'producto_id' => $producto->id,
-                            'almacen_id' => $almacenId,
-                        ],
-                        [
-                            'cantidad' => \App\Models\Inventario::where('producto_id', $producto->id)
-                                ->where('almacen_id', $almacenId)
-                                ->value('cantidad') ?? 0,
-                            'stock_minimo' => $stockMinimo,
-                        ]
+                        ['producto_id' => $producto->id, 'almacen_id' => $almacenId],
+                        ['stock_minimo' => $stockMinimo]
                     );
                 }
             }
 
-            // Check for price changes before updating
+            // Historial de precios
             $precioCompraChanged = isset($validated['precio_compra']) && $validated['precio_compra'] != $producto->precio_compra;
             $precioVentaChanged = isset($validated['precio_venta']) && $validated['precio_venta'] != $producto->precio_venta;
 
@@ -542,11 +538,20 @@ class ProductoController extends Controller
 
             DB::commit();
 
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Producto actualizado correctamente.', 'producto' => $producto]);
+            }
+
             return redirect()->route('productos.index')->with('success', 'Producto actualizado correctamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error actualizando producto: ' . $e->getMessage());
+            
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Error al actualizar el producto: ' . $e->getMessage()], 500);
+            }
+            
             return redirect()->back()->with('error', 'Error al actualizar el producto: ' . $e->getMessage());
         }
     }
@@ -575,6 +580,8 @@ class ProductoController extends Controller
      */
     public function updatePrices(Request $request, Producto $producto)
     {
+        $this->authorize('update', $producto);
+
         $validated = $request->validate([
             'prices' => 'required|array',
             'prices.*.price_list_id' => 'required|exists:price_lists,id',
@@ -626,21 +633,26 @@ class ProductoController extends Controller
     /**
      * Elimina un producto de la base de datos.
      */
-    public function destroy(Producto $producto)
+    public function destroy(Request $request, Producto $producto)
     {
-        // FIX: Bloquear para prevenir race conditions
         DB::beginTransaction();
 
         try {
-            // Recargar con lock
-            $producto = Producto::where('id', $producto->id)->lockForUpdate()->firstOrFail();
+            $producto = Producto::withoutGlobalScopes()
+                ->where('id', $producto->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-            // Verificar si puede ser eliminado usando la nueva lógica
+            // Verificar si puede ser eliminado
             if (!$this->canDeleteProducto($producto)) {
                 $razon = $producto->estado === 'activo'
                     ? 'está activo'
                     : 'está siendo utilizado en documentos de negocio';
                 DB::rollBack();
+                
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => "No se puede eliminar el producto porque {$razon}."], 422);
+                }
                 return redirect()->back()->with('error', "No se puede eliminar el producto porque {$razon}.");
             }
 
@@ -648,25 +660,29 @@ class ProductoController extends Controller
                 Storage::disk('public')->delete($producto->imagen);
             }
 
-            // FIX: Resetear stock antes de eliminar para evitar "ghost stock"
+            // Resetear stock e inventarios
             $producto->stock = 0;
             $producto->save();
-
-            // Resetear inventarios asociados
             $producto->inventarios()->update(['cantidad' => 0]);
-
-            // Eliminar series asociadas (soft delete)
             $producto->series()->delete();
 
             $producto->delete();
 
             DB::commit();
 
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => 'Producto eliminado correctamente.']);
+            }
+
             return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error eliminando producto: ' . $e->getMessage());
+            
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Error al eliminar el producto: ' . $e->getMessage()], 500);
+            }
             return redirect()->back()->with('error', 'Error al eliminar el producto: ' . $e->getMessage());
         }
     }
@@ -723,20 +739,30 @@ class ProductoController extends Controller
                 ->orderBy('numero_serie')
                 ->get(['id', 'numero_serie', 'estado', 'almacen_id', 'created_at']);
 
-            // Agregar información de almacén a las series
-            $seriesEnStock = $seriesEnStock->map(function ($serie) {
-                $almacen = $serie->almacen_id ? Almacen::find($serie->almacen_id) : null;
+            // Pre-cargar todos los almacenes necesarios para evitar N+1
+            $almacenIds = $seriesEnStock->pluck('almacen_id')
+                ->merge($seriesVendidas->pluck('almacen_id'))
+                ->unique()
+                ->filter()
+                ->toArray();
+            
+            $almacenesMap = Almacen::whereIn('id', $almacenIds)->get()->keyBy('id');
+
+            // Agregar información de almacén a las series sin consultas extras
+            $seriesEnStock = $seriesEnStock->map(function ($serie) use ($almacenesMap) {
+                $almacen = $almacenesMap->get($serie->almacen_id);
                 $serie->almacen_nombre = $almacen ? $almacen->nombre : 'Sin almacén';
                 return $serie;
             });
 
-            $seriesVendidas = $seriesVendidas->map(function ($serie) {
-                $almacen = $serie->almacen_id ? Almacen::find($serie->almacen_id) : null;
+            $seriesVendidas = $seriesVendidas->map(function ($serie) use ($almacenesMap) {
+                $almacen = $almacenesMap->get($serie->almacen_id);
                 $serie->almacen_nombre = $almacen ? $almacen->nombre : 'Sin almacén';
                 return $serie;
             });
 
             return response()->json([
+                'success' => true,
                 'producto' => [
                     'id' => $producto->id,
                     'nombre' => $producto->nombre,
@@ -769,6 +795,8 @@ class ProductoController extends Controller
      */
     public function storeSeries(Request $request, Producto $producto): JsonResponse
     {
+        $this->authorize('update', $producto);
+
         $validated = $request->validate([
             'series' => 'required|array|min:1',
             'series.*' => 'required|string|max:191|distinct',
@@ -788,14 +816,16 @@ class ProductoController extends Controller
             ], 422);
         }
 
-        foreach ($validated['series'] as $numeroSerie) {
-            ProductoSerie::create([
-                'producto_id' => $producto->id,
-                'almacen_id' => $validated['almacen_id'],
-                'numero_serie' => trim($numeroSerie),
-                'estado' => 'en_stock',
-            ]);
-        }
+        DB::transaction(function () use ($validated, $producto) {
+            foreach ($validated['series'] as $numeroSerie) {
+                ProductoSerie::create([
+                    'producto_id' => $producto->id,
+                    'almacen_id' => $validated['almacen_id'],
+                    'numero_serie' => trim($numeroSerie),
+                    'estado' => 'en_stock',
+                ]);
+            }
+        });
 
         return response()->json([
             'success' => true,
@@ -810,6 +840,8 @@ class ProductoController extends Controller
      */
     public function updateSerie(Request $request, Producto $producto, $serieId): JsonResponse
     {
+        $this->authorize('update', $producto);
+
         try {
             $request->validate([
                 'numero_serie' => 'required|string|max:255',
@@ -904,10 +936,14 @@ class ProductoController extends Controller
         $pricesUpdated = [];
         $valid = true;
 
+        $productoIds = collect($items)->where('tipo', 'producto')->pluck('id')->unique()->values()->all();
+        $servicioIds = collect($items)->where('tipo', 'servicio')->pluck('id')->unique()->values()->all();
+        $productosPorId = Producto::whereIn('id', $productoIds)->get()->keyBy('id');
+        $serviciosPorId = Servicio::whereIn('id', $servicioIds)->get()->keyBy('id');
+
         foreach ($items as $item) {
             if ($item['tipo'] === 'producto') {
-                // Validar stock de productos
-                $producto = Producto::find($item['id']);
+                $producto = $productosPorId->get($item['id']);
 
                 if (!$producto) {
                     $errors[] = [
@@ -936,8 +972,7 @@ class ProductoController extends Controller
                     ];
                 }
             } else {
-                // Servicios: solo verificar existencia
-                $servicio = Servicio::find($item['id']);
+                $servicio = $serviciosPorId->get($item['id']);
 
                 if (!$servicio) {
                     $errors[] = [
@@ -1097,33 +1132,7 @@ class ProductoController extends Controller
      */
     private function canDeleteProducto(Producto $producto): bool
     {
-        // Solo productos inactivos pueden ser eliminados
-        if ($producto->estado === 'activo') {
-            return false;
-        }
-
-        // Verificar si está siendo usado en documentos de negocio
-        if ($producto->cotizacionItems()->count() > 0) {
-            return false; // Tiene cotizaciones
-        }
-
-        if ($producto->pedidoItems()->count() > 0) {
-            return false; // Tiene pedidos
-        }
-
-        if ($producto->ventaItems()->count() > 0) {
-            return false; // Tiene ventas
-        }
-
-        if ($producto->compras()->count() > 0) {
-            return false; // Tiene compras
-        }
-
-        if ($producto->ordenesCompra()->count() > 0) {
-            return false; // Tiene órdenes de compra
-        }
-
-        return true; // Puede ser eliminado
+        return Producto::puedeEliminarse($producto);
     }
 
     /**
@@ -1142,12 +1151,18 @@ class ProductoController extends Controller
         try {
             $precios = [];
             $precioService = app(\App\Services\PrecioService::class);
+            $serviciosUsanListas = (bool) config('ventas.servicios_usan_listas_precios', false);
+
+            $idsProducto = collect($validated['productos'])->where('tipo', 'producto')->pluck('id')->unique()->values()->all();
+            $idsServicio = collect($validated['productos'])->where('tipo', 'servicio')->pluck('id')->unique()->values()->all();
+            $productosMap = Producto::whereIn('id', $idsProducto)->get()->keyBy('id');
+            $serviciosMap = Servicio::whereIn('id', $idsServicio)->get()->keyBy('id');
 
             foreach ($validated['productos'] as $productoData) {
                 $key = $productoData['tipo'] . '-' . $productoData['id'];
 
                 if ($productoData['tipo'] === 'producto') {
-                    $producto = Producto::find($productoData['id']);
+                    $producto = $productosMap->get($productoData['id']);
                     if ($producto) {
                         $precio = $precioService->obtenerPrecio(
                             $producto,
@@ -1157,10 +1172,14 @@ class ProductoController extends Controller
                         $precios[$key] = $precio;
                     }
                 } else {
-                    // Para servicios, usar precio estándar por ahora
-                    $servicio = Servicio::find($productoData['id']);
+                    $servicio = $serviciosMap->get($productoData['id']);
                     if ($servicio) {
-                        $precios[$key] = $servicio->precio;
+                        if ($serviciosUsanListas && method_exists($servicio, 'getPrecioParaLista') && $validated['price_list_id']) {
+                            $precioLista = $servicio->getPrecioParaLista($validated['price_list_id']);
+                            $precios[$key] = $precioLista !== null ? $precioLista : $servicio->precio;
+                        } else {
+                            $precios[$key] = $servicio->precio;
+                        }
                     }
                 }
             }
@@ -1230,8 +1249,30 @@ class ProductoController extends Controller
      */
     public function toggleDestacado(Producto $producto)
     {
+        if (!Schema::hasColumn('productos', 'destacado')) {
+            return back()->with('error', 'Falta aplicar migración para destacado.');
+        }
+
         $producto->update(['destacado' => !$producto->destacado]);
 
         return back()->with('success', 'Visibilidad en index actualizada.');
+    }
+
+    /**
+     * Alternar visibilidad del producto en el catálogo web.
+     */
+    public function toggleCatalogoWeb(Producto $producto)
+    {
+        if (!Schema::hasColumn('productos', 'catalogo_web')) {
+            return back()->with('error', 'Falta aplicar migración para catálogo web.');
+        }
+
+        $producto->update(['catalogo_web' => !$producto->catalogo_web]);
+
+        $mensaje = $producto->catalogo_web
+            ? 'Producto visible en catálogo web.'
+            : 'Producto oculto del catálogo web.';
+
+        return back()->with('success', $mensaje);
     }
 }

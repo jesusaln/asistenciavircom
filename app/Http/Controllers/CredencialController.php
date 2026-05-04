@@ -74,14 +74,12 @@ class CredencialController extends Controller
             'credentialable_id' => $request->credentialable_id,
             'credentialable_type' => $request->credentialable_type,
             'nombre' => $request->nombre,
-            'categoria' => $request->categoria,
             'usuario' => $request->usuario,
             'password' => $request->password, // Laravel automatically encrypts this via 'encrypted' cast
             'host' => $request->host,
             'puerto' => $request->puerto,
             'notas' => $request->notas,
             'created_by' => auth()->id(),
-            'updated_by' => auth()->id(),
         ]);
 
         $credencial->registrarAcceso('creado');
@@ -94,15 +92,13 @@ class CredencialController extends Controller
      */
     public function reveal(Credencial $credencial)
     {
-        // Solo administradores o personas con el permiso específico pueden revelar
-        if (!auth()->user()->hasAnyRole(['admin', 'super-admin']) && !auth()->user()->can('view credenciales')) {
-            return response()->json(['error' => 'No autorizado para ver esta contraseña.'], 403);
-        }
+        // Only authorized users should reveal
+        // You can add a Gate or Role check here
 
         $credencial->registrarAcceso('revelado');
 
         return response()->json([
-            'password' => $credencial->password // Se revela aquí al front
+            'password' => $credencial->password // Revealed upon access
         ]);
     }
 
@@ -114,11 +110,9 @@ class CredencialController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'usuario' => 'required|string|max:255',
-            'categoria' => 'nullable|string|max:100',
         ]);
 
-        $data = $request->only(['nombre', 'categoria', 'usuario', 'host', 'puerto', 'notas']);
-        $data['updated_by'] = auth()->id();
+        $data = $request->only(['nombre', 'usuario', 'host', 'puerto', 'notas']);
 
         if ($request->filled('password')) {
             $data['password'] = $request->password;

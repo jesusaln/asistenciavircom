@@ -249,7 +249,7 @@ class RoleController extends Controller
      */
     private function getGroupedPermissions()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::orderBy('name')->get(['id', 'name', 'guard_name']);
 
         $actions = ['view', 'create', 'edit', 'delete', 'export', 'stats', 'manage'];
 

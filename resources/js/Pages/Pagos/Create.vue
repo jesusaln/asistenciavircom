@@ -186,12 +186,12 @@ const getEstadoLabel = (estado) => {
 
 const getEstadoColor = (estado) => {
    const colors = {
-     'pendiente': 'bg-yellow-100 text-yellow-800',
-     'pagado': 'bg-green-100 text-green-800',
-     'atrasado': 'bg-red-100 text-red-800',
-     'parcial': 'bg-orange-100 text-orange-800'
+     'pendiente': 'text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded',
+     'pagado': 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded',
+     'atrasado': 'text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded',
+     'parcial': 'text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded'
    }
-   return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
+   return colors[estado] || 'text-slate-400 bg-slate-500/10 border border-slate-500/20 px-2 py-0.5 rounded'
  }
 
 /* =========================
@@ -211,15 +211,15 @@ watch(
 
         // Mostrar notificación informativa
         notyf.success(`Monto autocompletado: $${formatearMoneda(montoPendiente)}`)
+        
+        // Clear error if exists
+        if (errors.value.monto_pagado) {
+          delete errors.value.monto_pagado
+        }
       }
     } else {
       // Si se deselecciona el pago, limpiar el monto
       form.value.monto_pagado = 0
-    }
-
-    // Limpiar errores cuando cambia la selección
-    if (errors.value.monto_pagado) {
-      delete errors.value.monto_pagado
     }
   },
   { immediate: false }
@@ -229,96 +229,109 @@ watch(
 <template>
   <Head title="Registrar Pago de Préstamo" />
 
-  <div class="pagos-create min-h-screen bg-white dark:bg-slate-900">
-    <div class="w-full px-6 py-8">
-      <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Registrar Pago de Préstamo</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">Registra el pago recibido de un préstamo</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <Link
-              :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-            >
-              👁 Ver Préstamo
-            </Link>
-            <Link
-              href="/pagos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-            >
-              ← Volver a Pagos
-            </Link>
-          </div>
+  <div class="pagos-create min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <!-- Header Premium -->
+      <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div class="flex items-center gap-6">
+           <div class="relative group">
+              <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+              <div class="relative w-16 h-16 rounded-2xl bg-slate-900 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl">
+                 <svg class="w-8 h-8 text-indigo-400 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                 </svg>
+              </div>
+           </div>
+           <div>
+              <h1 class="text-4xl font-black text-white tracking-tighter mb-1 uppercase">
+                Registrar <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">Pago</span>
+              </h1>
+              <p class="text-slate-500 text-sm font-bold uppercase tracking-widest">Formalización de abonos a préstamos activos</p>
+           </div>
+        </div>
+ 
+        <div class="flex items-center gap-4">
+          <Link
+            :href="`/prestamos/${prestamo.id}`"
+            class="px-5 py-2.5 bg-slate-900/50 border border-white/10 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 hover:text-white transition-all shadow-xl backdrop-blur-md flex items-center gap-2 group"
+          >
+            <svg class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            Ver Préstamo
+          </Link>
+          <Link
+            href="/pagos"
+            class="px-5 py-2.5 bg-slate-900/50 border border-white/10 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 hover:text-white transition-all shadow-xl backdrop-blur-md flex items-center gap-2 group"
+          >
+            <svg class="w-4 h-4 text-slate-500 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Volver
+          </Link>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulario principal -->
         <div class="lg:col-span-2">
-          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información del Pago</h2>
+          <div class="bg-slate-900/50 border border-white/5 rounded-2xl shadow-2xl backdrop-blur-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-white/5 bg-slate-950/30">
+              <h2 class="text-lg font-bold text-white">Información del Pago</h2>
             </div>
 
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
               <!-- Información del préstamo -->
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 class="text-sm font-medium text-blue-900 mb-2">Información del Préstamo</h3>
-                <div class="grid grid-cols-2 gap-4 text-sm">
+              <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-5">
+                <h3 class="text-xs font-black text-indigo-400 uppercase tracking-wider mb-4 flex items-center">
+                   <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   Información del Préstamo
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span class="text-blue-700">Cliente:</span>
-                    <span class="font-semibold text-blue-900 ml-2">{{ prestamo.cliente?.nombre_razon_social }}</span>
+                    <span class="block text-slate-400 text-xs mb-1">Cliente:</span>
+                    <span class="font-bold text-white text-base">{{ prestamo.cliente?.nombre_razon_social }}</span>
                   </div>
                   <div>
-                    <span class="text-blue-700">Monto del préstamo:</span>
-                    <span class="font-semibold text-blue-900 ml-2">${{ formatearMoneda(prestamo.monto_prestado) }}</span>
+                    <span class="block text-slate-400 text-xs mb-1">Monto del préstamo:</span>
+                    <span class="font-bold text-white text-base">${{ formatearMoneda(prestamo.monto_prestado) }}</span>
                   </div>
                   <div>
-                    <span class="text-blue-700">Estado del préstamo:</span>
-                    <span :class="['font-semibold ml-2', getEstadoColor(prestamo.estado)]">
+                    <span class="block text-slate-400 text-xs mb-1">Estado del préstamo:</span>
+                    <span :class="['font-bold text-xs', getEstadoColor(prestamo.estado)]">
                       {{ getEstadoLabel(prestamo.estado) }}
                     </span>
                   </div>
                   <div>
-                    <span class="text-blue-700">Progreso:</span>
-                    <span class="font-semibold text-blue-900 ml-2">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }} pagos</span>
+                    <span class="block text-slate-400 text-xs mb-1">Progreso:</span>
+                    <span class="font-bold text-indigo-300 text-base">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }} pagos</span>
                   </div>
                 </div>
               </div>
 
               <!-- Información del pago seleccionado -->
-              <div v-if="form.pago_id" class="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h3 class="text-sm font-medium text-green-900 mb-2">Información del Pago Seleccionado</h3>
+              <div v-if="form.pago_id" class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                <h3 class="text-xs font-black text-emerald-400 uppercase tracking-wider mb-4 flex items-center">
+                   <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   Detalles del Pago Seleccionado
+                </h3>
                 <div v-for="pago in pagos_pendientes" :key="pago.id">
-                  <div v-if="pago.id == form.pago_id" class="grid grid-cols-2 gap-4 text-sm">
+                  <div v-if="pago.id == form.pago_id" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span class="text-green-700">Número de pago:</span>
-                      <span class="font-semibold text-green-900 ml-2">#{{ pago.numero_pago }}</span>
+                      <span class="block text-slate-400 text-xs mb-1">Número de pago:</span>
+                      <span class="font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded text-xs border border-emerald-500/20">#{{ pago.numero_pago }}</span>
                     </div>
                     <div>
-                      <span class="text-green-700">Fecha programada:</span>
-                      <span class="font-semibold text-green-900 ml-2">{{ formatearFecha(pago.fecha_programada) }}</span>
+                      <span class="block text-slate-400 text-xs mb-1">Fecha programada:</span>
+                      <span class="font-bold text-white">{{ formatearFecha(pago.fecha_programada) }}</span>
                     </div>
                     <div>
-                      <span class="text-green-700">Monto programado:</span>
-                      <span class="font-semibold text-green-900 ml-2">${{ formatearMoneda(pago.monto_programado) }}</span>
+                      <span class="block text-slate-400 text-xs mb-1">Monto programado:</span>
+                      <span class="font-bold text-white">${{ formatearMoneda(pago.monto_programado) }}</span>
                     </div>
-                    <div>
-                      <span class="text-green-700">Monto pagado actual:</span>
-                      <span class="font-semibold text-green-900 ml-2">${{ formatearMoneda(pago.monto_pagado) }}</span>
+                     <div>
+                      <span class="block text-slate-400 text-xs mb-1">Monto pagado al momento:</span>
+                      <span class="font-bold text-emerald-400">${{ formatearMoneda(pago.monto_pagado) }}</span>
                     </div>
-                    <div>
-                      <span class="text-green-700">Estado actual:</span>
-                      <span :class="['font-semibold ml-2', getEstadoColor(pago.estado)]">
-                        {{ getEstadoLabel(pago.estado) }}
-                      </span>
-                    </div>
-                    <div>
-                      <span class="text-green-700">Monto pendiente:</span>
-                      <span class="font-semibold text-orange-600 ml-2">${{ formatearMoneda(pago.monto_programado - pago.monto_pagado) }}</span>
+                     <div>
+                      <span class="block text-slate-400 text-xs mb-1">Monto pendiente:</span>
+                      <span class="font-bold text-amber-400 text-lg">${{ formatearMoneda(pago.monto_programado - pago.monto_pagado) }}</span>
                     </div>
                   </div>
                 </div>
@@ -326,34 +339,42 @@ watch(
 
               <!-- Selección del pago -->
               <div>
-                <label for="pago_id" class="block text-sm font-medium text-gray-700 mb-2">
-                  Seleccionar Pago a Registrar *
+                <label for="pago_id" class="block text-sm font-bold text-slate-300 mb-2">
+                  Seleccionar Pago a Registrar <span class="text-rose-500">*</span>
                 </label>
-                <select
-                  id="pago_id"
-                  v-model="form.pago_id"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  :class="{ 'border-red-300': errors.pago_id }"
-                >
-                  <option value="">Seleccionar pago...</option>
-                  <option v-for="pago in pagos_pendientes" :key="pago.id" :value="pago.id">
-                    Pago #{{ pago.numero_pago }} - ${{ formatearMoneda(pago.monto_programado) }} ({{ formatearFecha(pago.fecha_programada) }})
-                  </option>
-                </select>
-                <p v-if="errors.pago_id" class="mt-1 text-sm text-red-600">{{ errors.pago_id }}</p>
+                <div class="relative">
+                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                   </div>
+                  <select
+                    id="pago_id"
+                    v-model="form.pago_id"
+                    class="block w-full pl-10 pr-10 py-3 bg-slate-950 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-200 transaction-all"
+                    :class="errors.pago_id ? 'border-rose-500/50 focus:ring-rose-500' : 'border-white/10'"
+                  >
+                    <option value="" class="bg-slate-900">Seleccionar pago...</option>
+                    <option v-for="pago in pagos_pendientes" :key="pago.id" :value="pago.id" class="bg-slate-900">
+                      Pago #{{ pago.numero_pago }} - ${{ formatearMoneda(pago.monto_programado) }} ({{ formatearFecha(pago.fecha_programada) }})
+                    </option>
+                  </select>
+                </div>
+                <p v-if="errors.pago_id" class="mt-2 text-sm text-rose-500 flex items-center">
+                   <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                   {{ errors.pago_id }}
+                </p>
               </div>
 
               <!-- Grid de información del pago -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Monto pagado -->
                 <div>
-                  <label for="monto_pagado" class="block text-sm font-medium text-gray-700 mb-2">
-                    Monto Pagado *
-                    <span v-if="form.pago_id" class="text-xs text-blue-600 font-normal">(Autocompletado automáticamente)</span>
+                  <label for="monto_pagado" class="block text-sm font-bold text-slate-300 mb-2">
+                    Monto Pagado <span class="text-rose-500">*</span>
+                    <span v-if="form.pago_id" class="text-xs text-indigo-400 font-normal ml-2">(Autocompletado)</span>
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
+                      <span class="text-slate-500 font-bold">$</span>
                     </div>
                     <input
                       id="monto_pagado"
@@ -363,56 +384,61 @@ watch(
                       min="0"
                       :max="montoMaximo"
                       :placeholder="placeholderMonto"
-                      class="block w-full pl-8 pr-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      class="block w-full pl-8 pr-3 py-3 bg-slate-950 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white font-bold placeholder-slate-600 transition-all"
                       :class="[
-                        form.pago_id ? 'border-green-300 bg-green-50' : 'border-gray-300',
-                        errors.monto_pagado && 'border-red-300'
+                        form.pago_id ? 'border-emerald-500/30' : 'border-white/10',
+                        errors.monto_pagado && 'border-rose-500/50 focus:ring-rose-500'
                       ]"
                     />
                     <div v-if="form.pago_id" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span class="text-green-600 text-xs">✓</span>
+                      <span class="text-emerald-500">✓</span>
                     </div>
                   </div>
-                  <p v-if="errors.monto_pagado" class="mt-1 text-sm text-red-600">{{ errors.monto_pagado }}</p>
-                  <p v-if="form.pago_id && !errors.monto_pagado" class="mt-1 text-xs text-green-600">
-                    ✓ Monto autocompletado con el pago pendiente
+                  <p v-if="errors.monto_pagado" class="mt-2 text-sm text-rose-500 flex items-center">
+                      <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                      {{ errors.monto_pagado }}
                   </p>
                 </div>
 
                 <!-- Fecha de pago -->
                 <div>
-                  <label for="fecha_pago" class="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha de Pago *
+                  <label for="fecha_pago" class="block text-sm font-bold text-slate-300 mb-2">
+                    Fecha de Pago <span class="text-rose-500">*</span>
                   </label>
                   <input
                     id="fecha_pago"
                     v-model="form.fecha_pago"
                     type="date"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    :class="{ 'border-red-300': errors.fecha_pago }"
+                    class="block w-full px-4 py-3 bg-slate-950 border border-white/10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all"
+                    :class="{ 'border-rose-500/50 focus:ring-rose-500': errors.fecha_pago }"
                   />
-                  <p v-if="errors.fecha_pago" class="mt-1 text-sm text-red-600">{{ errors.fecha_pago }}</p>
+                  <p v-if="errors.fecha_pago" class="mt-2 text-sm text-rose-500">{{ errors.fecha_pago }}</p>
                 </div>
 
                 <!-- Método de pago -->
                 <div>
-                  <label for="metodo_pago" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="metodo_pago" class="block text-sm font-bold text-slate-300 mb-2">
                     Método de Pago
                   </label>
-                  <select
-                    id="metodo_pago"
-                    v-model="form.metodo_pago"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option v-for="opcion in opcionesMetodoPago" :key="opcion.value" :value="opcion.value">
-                      {{ opcion.label }}
-                    </option>
-                  </select>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                      </div>
+                      <select
+                        id="metodo_pago"
+                        v-model="form.metodo_pago"
+                        class="block w-full pl-10 pr-10 py-3 bg-slate-950 border border-white/10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all"
+                      >
+                        <option v-for="opcion in opcionesMetodoPago" :key="opcion.value" :value="opcion.value" class="bg-slate-900">
+                          {{ opcion.label }}
+                        </option>
+                      </select>
+                  </div>
                 </div>
 
                 <!-- Referencia -->
                 <div>
-                  <label for="referencia" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="referencia" class="block text-sm font-bold text-slate-300 mb-2">
                     Referencia
                   </label>
                   <input
@@ -420,35 +446,40 @@ watch(
                     v-model="form.referencia"
                     type="text"
                     placeholder="Número de referencia, folio, etc."
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    class="block w-full px-4 py-3 bg-slate-950 border border-white/10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-600 transition-all"
                   />
                 </div>
               </div>
 
               <!-- Cuenta Bancaria -->
               <div v-if="cuentasBancarias && cuentasBancarias.length > 0">
-                <label for="cuenta_bancaria_id" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="cuenta_bancaria_id" class="block text-sm font-bold text-slate-300 mb-2">
                   Cuenta Bancaria de Destino
-                  <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">(Opcional - para registrar movimiento bancario)</span>
+                  <span class="text-xs text-slate-500 font-normal ml-2">(Opcional)</span>
                 </label>
-                <select
-                  id="cuenta_bancaria_id"
-                  v-model="form.cuenta_bancaria_id"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option :value="null">Sin cuenta bancaria</option>
-                  <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id">
-                    {{ cuenta.banco }} - {{ cuenta.nombre }}
-                  </option>
-                </select>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Si selecciona una cuenta, el pago se registrará como depósito en esa cuenta bancaria.
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                       <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
+                    </div>
+                    <select
+                      id="cuenta_bancaria_id"
+                      v-model="form.cuenta_bancaria_id"
+                      class="block w-full pl-10 pr-10 py-3 bg-slate-950 border border-white/10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all"
+                    >
+                      <option :value="null" class="bg-slate-900">Sin cuenta bancaria</option>
+                      <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id" class="bg-slate-900">
+                        {{ cuenta.banco }} - {{ cuenta.nombre }}
+                      </option>
+                    </select>
+                </div>
+                <p class="mt-2 text-xs text-slate-400">
+                  Si selecciona una cuenta, el pago se registrará como depósito.
                 </p>
               </div>
 
               <!-- Notas -->
               <div>
-                <label for="notas" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="notas" class="block text-sm font-bold text-slate-300 mb-2">
                   Notas Adicionales
                 </label>
                 <textarea
@@ -456,22 +487,22 @@ watch(
                   v-model="form.notas"
                   rows="3"
                   placeholder="Notas adicionales sobre el pago (opcional)"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  class="block w-full px-4 py-3 bg-slate-950 border border-white/10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-600 transition-all resize-none"
                 ></textarea>
               </div>
 
               <!-- Botones de acción -->
-              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-slate-800">
+              <div class="flex items-center justify-end space-x-4 pt-8 border-t border-white/5">
                 <Link
                   href="/pagos"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  class="px-6 py-3 border border-white/10 text-slate-300 text-sm font-bold rounded-xl hover:bg-slate-800 hover:text-white transition-all shadow-lg"
                 >
-                  ❌ Cancelar
+                  Cancelar
                 </Link>
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  class="px-8 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105"
                 >
                   <span v-if="loading" class="flex items-center">
                     <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -480,7 +511,7 @@ watch(
                     </svg>
                     Registrando...
                   </span>
-                  <span v-else>💳 Registrar Pago</span>
+                  <span v-else>Confirmar Pago</span>
                 </button>
               </div>
             </form>
@@ -489,66 +520,72 @@ watch(
 
         <!-- Panel de información -->
         <div class="lg:col-span-1">
-          <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Información del Préstamo</h3>
+          <div class="bg-slate-900/50 rounded-2xl shadow-xl border border-white/5 overflow-hidden sticky top-8 backdrop-blur-sm">
+            <div class="px-6 py-5 border-b border-white/5 bg-slate-950/30">
+              <h3 class="text-lg font-bold text-white">Resumen Global</h3>
             </div>
 
             <div class="p-6">
-              <div class="space-y-4">
+              <div class="space-y-6">
                 <!-- Información del préstamo -->
-                <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Resumen del Préstamo</h4>
-                  <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                    <div class="flex justify-between">
-                      <span>Capital:</span>
-                      <span class="font-semibold">${{ formatearMoneda(prestamo.monto_prestado) }}</span>
+                <div class="bg-indigo-500/5 rounded-xl p-5 border border-indigo-500/10">
+                  <h4 class="text-xs font-black text-indigo-400 uppercase tracking-wider mb-4">Datos Financieros</h4>
+                  <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center group">
+                      <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Capital:</span>
+                      <span class="font-bold text-white">${{ formatearMoneda(prestamo.monto_prestado) }}</span>
                     </div>
-                    <div class="flex justify-between">
-                      <span>Tasa mensual:</span>
-                      <span class="font-semibold">{{ prestamo.tasa_interes_mensual }}%</span>
+                    <div class="flex justify-between items-center group">
+                      <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Tasa mensual:</span>
+                      <span class="font-bold text-white bg-indigo-500/10 px-2 py-0.5 rounded text-xs border border-indigo-500/20">{{ prestamo.tasa_interes_mensual }}%</span>
                     </div>
-                    <div class="flex justify-between">
-                      <span>Pago mensual:</span>
-                      <span class="font-semibold">${{ formatearMoneda(prestamo.pago_periodico) }}</span>
+                    <div class="flex justify-between items-center group">
+                      <span class="text-slate-400 group-hover:text-slate-300 transition-colors">Pago periódico:</span>
+                      <span class="font-bold text-white">${{ formatearMoneda(prestamo.pago_periodico) }}</span>
                     </div>
-                    <div class="flex justify-between">
-                      <span>Total a pagar:</span>
-                      <span class="font-semibold">${{ formatearMoneda(prestamo.monto_total_pagar) }}</span>
+                    <div class="h-px bg-indigo-500/10 my-2"></div>
+                    <div class="flex justify-between items-center group">
+                      <span class="text-slate-300 font-bold group-hover:text-white">Total a pagar:</span>
+                      <span class="font-black text-indigo-400 text-lg">${{ formatearMoneda(prestamo.monto_total_pagar) }}</span>
                     </div>
                   </div>
                 </div>
 
                 <!-- Progreso del préstamo -->
-                <div class="bg-white dark:bg-slate-900 rounded-lg p-4">
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Progreso del Préstamo</h4>
-                  <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                    <div class="flex justify-between">
-                      <span>Pagos realizados:</span>
-                      <span class="font-semibold">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</span>
+                <div class="bg-slate-950/50 rounded-xl p-5 border border-white/5">
+                  <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Estado de Cuenta</h4>
+                  <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400">Progreso:</span>
+                      <span class="font-bold text-white">{{ prestamo.pagos_realizados }} <span class="text-slate-500">/</span> {{ prestamo.numero_pagos }}</span>
                     </div>
-                    <div class="flex justify-between">
-                      <span>Monto pagado:</span>
-                      <span class="font-semibold text-green-600">${{ formatearMoneda(prestamo.monto_pagado) }}</span>
+                     <!-- Progress bar -->
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mb-2">
+                       <div class="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" :style="`width: ${(prestamo.pagos_realizados / prestamo.numero_pagos) * 100}%`"></div>
                     </div>
-                    <div class="flex justify-between">
-                      <span>Monto pendiente:</span>
-                      <span class="font-semibold text-orange-600">${{ formatearMoneda(prestamo.monto_pendiente) }}</span>
+
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400">Monto pagado:</span>
+                      <span class="font-bold text-emerald-400">${{ formatearMoneda(prestamo.monto_pagado) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400">Monto pendiente:</span>
+                      <span class="font-bold text-rose-400">${{ formatearMoneda(prestamo.monto_pendiente) }}</span>
                     </div>
                   </div>
                 </div>
 
                 <!-- Próximo pago -->
-                <div v-if="pagos_pendientes.length > 0" class="bg-blue-50 rounded-lg p-4">
-                  <h4 class="text-sm font-medium text-blue-900 mb-3">Próximo Pago Pendiente</h4>
-                  <div class="space-y-2 text-sm text-blue-800">
-                    <div class="flex justify-between">
-                      <span>Pago #{{ pagos_pendientes[0].numero_pago }}</span>
-                      <span class="font-semibold">${{ formatearMoneda(pagos_pendientes[0].monto_programado) }}</span>
+                <div v-if="pagos_pendientes.length > 0" class="bg-gradient-to-br from-indigo-900/40 to-indigo-800/20 rounded-xl p-5 border border-indigo-500/20 shadow-lg">
+                  <h4 class="text-xs font-black text-indigo-200 uppercase tracking-wider mb-3">Próximo Vencimiento</h4>
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                      <span class="text-indigo-300 text-xs uppercase font-bold">Pago #{{ pagos_pendientes[0].numero_pago }}</span>
+                      <span class="font-black text-white text-xl">${{ formatearMoneda(pagos_pendientes[0].monto_programado) }}</span>
                     </div>
-                    <div class="flex justify-between">
-                      <span>Fecha programada:</span>
-                      <span class="font-semibold">{{ formatearFecha(pagos_pendientes[0].fecha_programada) }}</span>
+                    <div class="flex items-center text-indigo-200 border-t border-indigo-500/20 pt-2 mt-2">
+                       <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      <span class="font-bold text-sm">{{ formatearFecha(pagos_pendientes[0].fecha_programada) }}</span>
                     </div>
                   </div>
                 </div>
@@ -566,4 +603,3 @@ watch(
   min-height: 100vh;
 }
 </style>
-

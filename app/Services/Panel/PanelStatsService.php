@@ -15,7 +15,7 @@ class PanelStatsService
 {
     public function getBasicStats(): array
     {
-        return Cache::remember('panel_stats', 300, function () {
+        return Cache::remember(PanelCacheKeys::key('stats'), PanelCacheKeys::ttl('stats'), function () {
             $now = Carbon::now(config('app.timezone', 'America/Hermosillo'));
 
             return [
@@ -31,7 +31,7 @@ class PanelStatsService
 
     public function getProductosBajoStock(int $limit = 20): array
     {
-        return Cache::remember('panel_productos_bajo_stock', 300, function () use ($limit) {
+        return Cache::remember(PanelCacheKeys::key('productos_bajo_stock'), PanelCacheKeys::ttl('stats'), function () use ($limit) {
             $productos = Producto::select('nombre', 'stock', 'stock_minimo')
                 ->whereColumn('stock', '<=', 'stock_minimo')
                 ->where(function ($query) {
@@ -54,7 +54,7 @@ class PanelStatsService
 
     public function getOrdenesCompraStats(): array
     {
-        return Cache::remember('panel_ordenes_compra', 300, function () {
+        return Cache::remember(PanelCacheKeys::key('ordenes_compra'), PanelCacheKeys::ttl('ordenes'), function () {
             $now = Carbon::now();
 
             try {
@@ -133,43 +133,64 @@ class PanelStatsService
 
     public function getCitasHoy(): array
     {
-        return Cache::remember('panel_citas_hoy', 60, function () {
-            $now = Carbon::now();
+        $now = Carbon::now(config('app.timezone', 'America/Hermosillo'));
+        $startOfToday = $now->copy()->startOfDay();
+        $todayStr = $now->toDateString();
 
-            $citas = Cita::with(['cliente', 'tecnico'])
+        return Cache::remember(PanelCacheKeys::keyForDate('citas_hoy', $now), PanelCacheKeys::ttl('citas_hoy'), function () use ($now, $startOfToday, $todayStr) {
+            $maxRows = (int) config('panel.max_citas_hoy', 50);
+
+            $citasBase = Cita::with(['cliente', 'tecnico'])
                 ->select('id', 'tipo_servicio', 'fecha_hora', 'cliente_id', 'tecnico_id', 'estado')
-                ->whereDate('fecha_hora', $now->toDateString())
-                ->whereIn('estado', ['en_proceso', 'pendiente'])
-                ->orderByRaw("
-                    CASE
-                        WHEN estado = 'en_proceso' THEN 1
-                        WHEN estado = 'pendiente' THEN 2
-                        ELSE 999
-                    END ASC
-                ")
-                ->orderBy('fecha_hora')
-                ->get();
+                ->where(function ($query) use ($todayStr) {
+                    $query->whereDate('fecha_hora', '<=', $todayStr)
+                        ->orWhere('estado', 'en_proceso');
+                })
+                ->whereIn('estado', ['en_proceso', 'pendiente', 'programado', 'reprogramado'])
+                ->orderByRaw(
+                    "CASE WHEN estado = ? THEN 1 WHEN estado = ? THEN 2 WHEN estado = ? THEN 3 ELSE 4 END ASC",
+                    ['en_proceso', 'programado', 'reprogramado']
+                )
+                ->orderBy('fecha_hora');
+
+            $totalRows = (clone $citasBase)->count();
+            $citas = $citasBase->limit($maxRows)->get();
 
             return [
-                'citas' => $citas->map(function ($cita) {
+                'citas' => $citas->map(function ($cita) use ($now, $startOfToday, $todayStr) {
+                    $fechaCita = Carbon::parse($cita->fecha_hora);
+                    $esHoy = $fechaCita->toDateString() === $todayStr;
+                    $esVencida = $fechaCita->lt($startOfToday);
+
                     return [
                         'id' => $cita->id,
                         'cliente' => $cita->cliente ? $cita->cliente->nombre_razon_social : 'Desconocido',
-                        'tecnico' => $cita->tecnico ? $cita->tecnico->nombre : 'Sin técnico asignado',
+                        'tecnico' => $cita->tecnico
+                            ? ($cita->tecnico->name ?? $cita->tecnico->nombre ?? 'Sin nombre')
+                            : 'Sin técnico asignado',
                         'titulo' => $cita->tipo_servicio,
-                        'hora' => Carbon::parse($cita->fecha_hora)->format('H:i'),
+                        'hora' => $esHoy ? $fechaCita->format('H:i') : $fechaCita->format('d/m H:i'),
                         'estado' => $cita->estado,
-                        'estado_label' => $cita->estado === 'en_proceso' ? 'En Proceso' : 'Pendiente',
+                        'estado_label' => match($cita->estado) {
+                            'en_proceso' => 'En Proceso',
+                            'programado' => $esVencida ? 'Atrasada' : 'Programada',
+                            'reprogramado' => $esVencida ? 'Atrasada' : 'Reprogramada',
+                            'pendiente' => $esVencida ? 'Atrasada' : 'Pendiente',
+                            default => 'Estado Desconocido',
+                        },
+                        'es_hoy' => $esHoy,
+                        'es_vencida' => $esVencida,
                     ];
                 })->toArray(),
-                'count' => $citas->count(),
+                'count' => $totalRows,
+                'truncated' => $totalRows > $maxRows,
             ];
         });
     }
 
     public function getMantenimientosCriticos(): array
     {
-        return Cache::remember('panel_mantenimientos_criticos', 300, function () {
+        return Cache::remember(PanelCacheKeys::key('mantenimientos_criticos'), PanelCacheKeys::ttl('stats'), function () {
             $now = Carbon::now();
 
             try {

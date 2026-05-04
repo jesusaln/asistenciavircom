@@ -176,7 +176,7 @@ class ContratacionRentaController extends Controller
             if (!empty($validated['firma']) && str_starts_with($validated['firma'], 'data:image')) {
                 $firmaData = substr($validated['firma'], strpos($validated['firma'], ',') + 1);
                 $firmaDecoded = base64_decode($firmaData);
-                $firmaPath = 'contratos/firmas/' . $cliente->id . '_' . time() . '.png';
+                $firmaPath = 'contratos/firmas/' . $cliente->id . '_' . time() . '.webp';
                 \Illuminate\Support\Facades\Storage::disk('public')->put($firmaPath, $firmaDecoded);
             }
 

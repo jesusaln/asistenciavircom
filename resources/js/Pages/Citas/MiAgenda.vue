@@ -4,14 +4,27 @@ import { Head, router, usePage, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Notyf } from 'notyf';
 
+import { watch } from 'vue';
+
 const notyf = new Notyf({ position: { x: 'right', y: 'top' } });
 const page = usePage();
 
-onMounted(() => {
+function handleFlashes() {
     const flash = page.props.flash;
     if (flash?.success) notyf.success(flash.success);
     if (flash?.error) notyf.error(flash.error);
+    if (flash?.whatsapp_url) {
+        window.open(flash.whatsapp_url, '_blank');
+    }
+}
+
+onMounted(() => {
+    handleFlashes();
 });
+
+watch(() => page.props.flash, () => {
+    handleFlashes();
+}, { deep: true });
 
 const props = defineProps({
     citasHoy: { type: Array, default: () => [] },
@@ -25,6 +38,8 @@ const citaActiva = ref(null);
 const showConfirmModal = ref(false);
 const confirmAction = ref(null);
 const showCierreModal = ref(false);
+const showPostVentasModal = ref(false);
+const ultimaCitaCompletadaId = ref(null);
 const procesando = ref(false);
 
 // Formulario de Cierre
@@ -80,14 +95,14 @@ function formatHora(datetime) {
 
 function getEstadoInfo(estado) {
     const estados = {
-        'pendiente': { label: 'Pendiente', bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-400', icon: '⏳' },
-        'pendiente_asignacion': { label: 'Sin Asignar', bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-800 dark:text-orange-400', icon: '📋' },
-        'programado': { label: 'Programado', bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-400', icon: '📅' },
-        'en_proceso': { label: 'En Proceso', bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-800 dark:text-indigo-400', icon: '🔧' },
-        'completado': { label: 'Completado', bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-400', icon: '✅' },
-        'cancelado': { label: 'Cancelado', bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-400', icon: '❌' },
+        'pendiente': { label: 'Pendiente', bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-800 dark:text-yellow-400', icon: 'hourglass-half' },
+        'pendiente_asignacion': { label: 'Sin Asignar', bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-800 dark:text-orange-400', icon: 'clipboard-list' },
+        'programado': { label: 'Programado', bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-400', icon: 'calendar-alt' },
+        'en_proceso': { label: 'En Proceso', bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-800 dark:text-indigo-400', icon: 'tools' },
+        'completado': { label: 'Completado', bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-400', icon: 'check-circle' },
+        'cancelado': { label: 'Cancelado', bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-800 dark:text-red-400', icon: 'times-circle' },
     };
-    return estados[estado] || { label: estado, bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-100 dark:text-gray-300', icon: '❓' };
+    return estados[estado] || { label: estado, bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-800 dark:text-gray-300', icon: 'question-circle' };
 }
 
 function getTipoServicioLabel(tipo) {
@@ -96,6 +111,9 @@ function getTipoServicioLabel(tipo) {
         'mantenimiento': 'Mantenimiento',
         'reparacion': 'Reparación',
         'garantia': 'Garantía',
+        'diagnostico': 'Diagnóstico',
+        'servicio_limpieza': 'Servicio limpieza',
+        'otro': 'Otro',
     };
     return tipos[tipo] || tipo;
 }
@@ -108,6 +126,13 @@ function abrirWhatsApp(telefono) {
 }
 
 function abrirMaps(cita) {
+    // Priorizamos la dirección escrita del servicio si existe
+    if (cita.direccion_servicio && String(cita.direccion_servicio).trim()) {
+        const ds = String(cita.direccion_servicio).trim().replace(/,/g, ' ');
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ds)}`, '_blank');
+        return;
+    }
+
     const direccion = [
         cita.direccion_calle,
         cita.direccion_colonia,
@@ -167,11 +192,18 @@ function enviarReporteCierre() {
     formCierre.post(route('citas.completar', citaActiva.value.id), {
         preserveScroll: true,
         onSuccess: () => {
+            const idCompletada = citaActiva.value?.id;
             showCierreModal.value = false;
             citaActiva.value = null;
             formCierre.reset();
             previewFotos.value = [];
             notyf.success('¡Servicio completado!');
+            if (idCompletada) {
+                ultimaCitaCompletadaId.value = idCompletada;
+                showPostVentasModal.value = true;
+            } else {
+                router.reload({ preserveScroll: true });
+            }
         },
         onError: () => {
             notyf.error('Error al enviar el reporte. Verifica el tamaño de las fotos.');
@@ -179,24 +211,38 @@ function enviarReporteCierre() {
     });
 }
 
+function irAVentasTrasCompletar() {
+    const id = ultimaCitaCompletadaId.value;
+    showPostVentasModal.value = false;
+    ultimaCitaCompletadaId.value = null;
+    if (!id) return;
+    router.visit(route('ventas.create', { cita_id: id }));
+}
+
+function omitirVentasTrasCompletar() {
+    showPostVentasModal.value = false;
+    ultimaCitaCompletadaId.value = null;
+    router.reload({ preserveScroll: true });
+}
+
 function getAccionInfo(accion) {
     const acciones = {
         'iniciar': { 
             label: 'Iniciar Servicio', 
             description: '¿Confirmas que has llegado al domicilio y vas a iniciar el servicio?',
-            icon: '🔧',
+            icon: 'tools',
             btnClass: 'bg-indigo-600 hover:bg-indigo-700'
         },
         'completar': { 
             label: 'Completar Servicio', 
             description: '¿El servicio se ha completado satisfactoriamente?',
-            icon: '✅',
+            icon: 'check-circle',
             btnClass: 'bg-green-600 hover:bg-green-700'
         },
         'cancelar': { 
             label: 'Cancelar Cita', 
             description: '¿Estás seguro de cancelar esta cita? Esta acción no se puede deshacer.',
-            icon: '❌',
+            icon: 'times-circle',
             btnClass: 'bg-red-600 hover:bg-red-700'
         },
     };
@@ -246,48 +292,51 @@ function formatCitaFecha(cita) {
                             {{ tecnico.name?.charAt(0) || 'T' }}
                         </div>
                         <div>
-                            <h1 class="text-xl font-bold text-gray-900 dark:text-white dark:text-white transition-colors">¡Hola, {{ tecnico.name?.split(' ')[0] }}!</h1>
-                            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm transition-colors">{{ new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }) }}</p>
+                            <h1 class="text-xl font-bold text-gray-900 dark:text-white transition-colors">¡Hola, {{ tecnico.name?.split(' ')[0] }}!</h1>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">{{ new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }) }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Resumen del día -->
-                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 p-4 mb-6 transition-colors">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 p-4 mb-6 transition-colors">
                     <div class="grid grid-cols-3 gap-4 text-center">
                         <div>
                             <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ citasHoy.length }}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Citas Hoy</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Citas Hoy</div>
                         </div>
                         <div>
                             <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ citasHoy.filter(c => c.estado === 'completado').length }}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Completadas</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Completadas</div>
                         </div>
                         <div>
                             <div class="text-2xl font-bold text-orange-500 dark:text-orange-400">{{ citasHoy.filter(c => ['programado', 'pendiente'].includes(c.estado)).length }}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">Pendientes</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">Pendientes</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Lista de citas -->
                 <div class="space-y-4">
-                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 dark:text-white flex items-center gap-2 transition-colors">
-                        <span>📋</span> Mis Citas de Hoy
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 transition-colors">
+                        <font-awesome-icon icon="clipboard-list" class="text-indigo-500 dark:text-indigo-400" />
+                        <span>Mis Citas de Hoy</span>
                     </h2>
                     
                     <!-- Sin citas -->
-                    <div v-if="citasOrdenadas.length === 0" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 text-center transition-colors">
-                        <div class="text-5xl mb-4">🎉</div>
+                    <div v-if="citasOrdenadas.length === 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 text-center transition-colors">
+                        <div class="mb-4">
+                            <font-awesome-icon icon="calendar-check" class="text-5xl text-green-500 dark:text-green-400" />
+                        </div>
                         <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">¡Sin citas programadas!</h3>
-                        <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm transition-colors">No tienes citas asignadas para hoy.</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">No tienes citas asignadas para hoy.</p>
                     </div>
                     
                     <!-- Citas -->
                     <div 
                         v-for="cita in citasOrdenadas" 
                         :key="cita.id"
-                        class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors"
+                        class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors"
                     >
                         <!-- Header de la cita -->
                         <div :class="[
@@ -295,16 +344,16 @@ function formatCitaFecha(cita) {
                             isAtrasada(cita) ? 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-b border-red-100 dark:border-red-800' :
                             cita.estado === 'en_proceso' ? 'bg-indigo-500 text-white' :
                             cita.estado === 'completado' ? 'bg-green-500 text-white' :
-                            cita.estado === 'cancelado' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-white dark:bg-slate-900 dark:bg-gray-800'
+                            cita.estado === 'cancelado' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-white dark:bg-gray-800'
                         ]">
                             <div class="flex items-center gap-3">
-                                <span class="text-2xl">{{ isAtrasada(cita) ? '⚠️' : getEstadoInfo(cita.estado).icon }}</span>
+                                <font-awesome-icon :icon="isAtrasada(cita) ? 'triangle-exclamation' : getEstadoInfo(cita.estado).icon" class="text-2xl" />
                                 <div>
                                     <div class="font-bold flex items-center gap-2">
                                         {{ formatHora(cita.hora_confirmada || cita.fecha_hora) }}
                                         <span v-if="isAtrasada(cita)" class="text-[10px] uppercase bg-red-600 text-white px-1.5 py-0.5 rounded">Atrasada</span>
                                     </div>
-                                    <div :class="cita.estado === 'en_proceso' || cita.estado === 'completado' ? 'text-white/80' : 'text-gray-500 dark:text-gray-400 dark:text-gray-400'" class="text-xs transition-colors">
+                                    <div :class="cita.estado === 'en_proceso' || cita.estado === 'completado' ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'" class="text-xs transition-colors">
                                         {{ getTipoServicioLabel(cita.tipo_servicio) }} • <span :class="{'font-bold text-red-600 dark:text-red-400': isAtrasada(cita)}">{{ isAtrasada(cita) ? formatCitaFecha(cita) : cita.tipo_equipo || 'Minisplit' }}</span>
                                     </div>
                                 </div>
@@ -312,8 +361,8 @@ function formatCitaFecha(cita) {
                             <span :class="[
                                 'px-2 py-1 rounded-full text-xs font-medium',
                                 isAtrasada(cita) ? 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-200 border border-red-300 dark:border-red-700' :
-                                cita.estado === 'en_proceso' ? 'bg-white dark:bg-slate-900/20 text-white' :
-                                cita.estado === 'completado' ? 'bg-white dark:bg-slate-900/20 text-white' :
+                                cita.estado === 'en_proceso' ? 'bg-white/20 text-white' :
+                                cita.estado === 'completado' ? 'bg-white/20 text-white' :
                                 getEstadoInfo(cita.estado).bg + ' ' + getEstadoInfo(cita.estado).text
                             ]">
                                 {{ isAtrasada(cita) ? 'Vencida' : getEstadoInfo(cita.estado).label }}
@@ -323,25 +372,26 @@ function formatCitaFecha(cita) {
                         <!-- Banner de aviso para citas atrasadas -->
                         <div v-if="isAtrasada(cita)" class="px-4 py-3 bg-red-600 text-white flex items-center justify-between">
                             <div class="text-xs font-medium flex items-center gap-2">
-                                <span>🗓️ Debió ser el: <strong>{{ formatCitaFecha(cita) }}</strong></span>
+                                <font-awesome-icon icon="calendar-day" />
+                                <span>Debió ser el: <strong>{{ formatCitaFecha(cita) }}</strong></span>
                             </div>
-                            <a :href="route('citas.recordatorio-reprogramacion', cita.id)" 
-                               class="text-[10px] font-bold bg-white dark:bg-slate-900 text-red-600 px-2 py-1 rounded uppercase hover:bg-red-50 transition-colors shadow-sm"
+                            <Link :href="route('citas.recordatorio-reprogramacion', cita.id)" 
+                               class="text-[10px] font-bold bg-white text-red-600 px-2 py-1 rounded uppercase hover:bg-red-50 transition-colors shadow-sm"
                             >
                                 WhatsApp Recordatorio
-                            </a>
+                            </Link>
                         </div>
                         
                         <!-- Contenido -->
                         <div class="p-4 space-y-3">
                             <!-- Cliente -->
                             <div class="flex items-start gap-3">
-                                <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 dark:text-gray-400 transition-colors">
-                                    👤
+                                <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 transition-colors">
+                                    <font-awesome-icon icon="user-circle" />
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-semibold text-gray-900 dark:text-white dark:text-white transition-colors">{{ cita.cliente?.nombre_razon_social || 'Cliente' }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">{{ cita.cliente?.telefono }}</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white transition-colors">{{ cita.cliente?.nombre_razon_social || 'Cliente' }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 transition-colors">{{ cita.cliente?.telefono }}</div>
                                 </div>
                                 <!-- Botones de contacto -->
                                 <div class="flex gap-2">
@@ -350,14 +400,14 @@ function formatCitaFecha(cita) {
                                         class="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                                         title="Llamar"
                                     >
-                                        📞
+                                        <font-awesome-icon icon="phone" />
                                     </button>
                                     <button 
                                         @click="abrirWhatsApp(cita.cliente?.telefono)"
                                         class="w-10 h-10 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
                                         title="WhatsApp"
                                     >
-                                        💬
+                                        <font-awesome-icon :icon="['fab', 'whatsapp']" />
                                     </button>
                                 </div>
                             </div>
@@ -365,24 +415,27 @@ function formatCitaFecha(cita) {
                             <!-- Dirección -->
                             <div 
                                 @click="abrirMaps(cita)"
-                                class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-950 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             >
-                                <span class="text-xl">📍</span>
+                                <font-awesome-icon icon="map-marker-alt" class="text-xl text-blue-500 dark:text-blue-400" />
                                 <div class="flex-1">
-                                    <div class="text-sm text-gray-900 dark:text-white dark:text-white transition-colors">{{ cita.direccion_calle || 'Sin dirección' }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">
+                                    <div class="text-sm text-gray-900 dark:text-white transition-colors">{{ cita.direccion_calle || 'Sin dirección' }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                                         {{ cita.direccion_colonia }}{{ cita.direccion_cp ? `, C.P. ${cita.direccion_cp}` : '' }}
                                     </div>
-                                    <div v-if="cita.direccion_referencias" class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 italic mt-1 transition-colors">
+                                    <div v-if="cita.direccion_referencias" class="text-xs text-gray-400 dark:text-gray-500 italic mt-1 transition-colors">
                                         "{{ cita.direccion_referencias }}"
                                     </div>
                                 </div>
-                                <span class="text-blue-500 dark:text-blue-400 text-sm font-medium transition-colors">Ver mapa →</span>
+                                <span class="text-blue-700 dark:text-blue-300 text-sm font-bold transition-colors">Ver mapa →</span>
                             </div>
                             
                             <!-- Notas/Descripción -->
                             <div v-if="cita.descripcion || cita.problema_reportado" class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-100 dark:border-yellow-800 transition-colors">
-                                <div class="text-xs text-yellow-600 dark:text-yellow-400 font-medium mb-1 transition-colors">📝 Notas</div>
+                                <div class="text-xs text-yellow-600 dark:text-yellow-400 font-medium mb-1 transition-colors flex items-center gap-2">
+                                    <font-awesome-icon icon="sticky-note" />
+                                    <span>Notas</span>
+                                </div>
                                 <div class="text-sm text-gray-700 dark:text-gray-300 transition-colors">{{ cita.descripcion || cita.problema_reportado }}</div>
                             </div>
                         </div>
@@ -394,18 +447,20 @@ function formatCitaFecha(cita) {
                                 @click="confirmarAccion(cita, 'iniciar')"
                                 class="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
                             >
-                                🔧 Iniciar Servicio
+                                <font-awesome-icon icon="tools" />
+                                <span>Iniciar Servicio</span>
                             </button>
                             <button 
                                 v-if="cita.estado === 'en_proceso'"
                                 @click="confirmarAccion(cita, 'completar')"
                                 class="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
                             >
-                                ✅ Completar
+                                <font-awesome-icon icon="check-circle" />
+                                <span>Completar</span>
                             </button>
                             <button 
                                 @click="confirmarAccion(cita, 'cancelar')"
-                                class="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                class="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                             >
                                 Cancelar
                             </button>
@@ -415,7 +470,8 @@ function formatCitaFecha(cita) {
                         <div v-if="cita.estado === 'completado'" class="border-t border-green-100 dark:border-green-800 bg-green-50 dark:bg-green-900/20 transition-colors">
                             <div class="px-4 py-3 text-center border-b border-green-100 dark:border-green-800">
                                 <span class="text-green-600 dark:text-green-400 font-bold flex items-center justify-center gap-2 transition-colors">
-                                    <span>✅</span> Servicio completado
+                                    <font-awesome-icon icon="check-circle" />
+                                    <span>Servicio completado</span>
                                 </span>
                             </div>
                             
@@ -423,7 +479,7 @@ function formatCitaFecha(cita) {
                             <div v-if="cita.trabajo_realizado || cita.fotos_finales" class="p-4 space-y-3">
                                 <div v-if="cita.trabajo_realizado">
                                     <div class="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase mb-1 transition-colors">Trabajo Realizado:</div>
-                                    <p class="text-xs text-gray-700 dark:text-gray-300 italic bg-white dark:bg-slate-900/50 dark:bg-gray-800/50 p-2 rounded-lg border border-green-200/50 dark:border-green-700/50 transition-colors">
+                                    <p class="text-xs text-gray-700 dark:text-gray-300 italic bg-white/50 dark:bg-gray-800/50 p-2 rounded-lg border border-green-200/50 dark:border-green-700/50 transition-colors">
                                         {{ cita.trabajo_realizado }}
                                     </p>
                                 </div>
@@ -443,22 +499,23 @@ function formatCitaFecha(cita) {
                 
                 <!-- Próximas citas -->
                 <div v-if="citasProximas.length > 0" class="mt-8">
-                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 dark:text-white mb-4 flex items-center gap-2 transition-colors">
-                        <span>📆</span> Próximas Citas
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2 transition-colors">
+                        <font-awesome-icon icon="calendar-alt" class="text-indigo-500 dark:text-indigo-400" />
+                        <span>Próximas Citas</span>
                     </h2>
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700 transition-colors">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700 transition-colors">
                         <div 
                             v-for="cita in citasProximas.slice(0, 5)" 
                             :key="cita.id"
                             class="p-4 flex items-center gap-3"
                         >
                             <div class="text-center">
-                                <div class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 transition-colors">{{ new Date(cita.fecha_confirmada || cita.fecha_hora).toLocaleDateString('es-MX', { weekday: 'short' }) }}</div>
-                                <div class="text-lg font-bold text-gray-900 dark:text-white dark:text-white transition-colors">{{ new Date(cita.fecha_confirmada || cita.fecha_hora).getDate() }}</div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500 transition-colors">{{ new Date(cita.fecha_confirmada || cita.fecha_hora).toLocaleDateString('es-MX', { weekday: 'short' }) }}</div>
+                                <div class="text-lg font-bold text-gray-900 dark:text-white transition-colors">{{ new Date(cita.fecha_confirmada || cita.fecha_hora).getDate() }}</div>
                             </div>
                             <div class="flex-1">
-                                <div class="font-medium text-gray-900 dark:text-white dark:text-white transition-colors">{{ cita.cliente?.nombre_razon_social }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 transition-colors">{{ formatHora(cita.hora_confirmada || cita.fecha_hora) }} • {{ getTipoServicioLabel(cita.tipo_servicio) }}</div>
+                                <div class="font-medium text-gray-900 dark:text-white transition-colors">{{ cita.cliente?.nombre_razon_social }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 transition-colors">{{ formatHora(cita.hora_confirmada || cita.fecha_hora) }} • {{ getTipoServicioLabel(cita.tipo_servicio) }}</div>
                             </div>
                             <span :class="[getEstadoInfo(cita.estado).bg, getEstadoInfo(cita.estado).text, 'px-2 py-1 rounded-full text-xs font-medium']">
                                 {{ getEstadoInfo(cita.estado).label }}
@@ -476,11 +533,12 @@ function formatCitaFecha(cita) {
                 <div class="flex min-h-full items-center justify-center">
                     <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showCierreModal = false"></div>
                     
-                    <div class="relative bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300 transition-colors">
+                    <div class="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300 transition-colors">
                         <!-- Header -->
                         <div class="bg-indigo-600 p-6 text-white">
                             <h3 class="text-xl font-bold flex items-center gap-2">
-                                <span>✅</span> Finalizar Servicio
+                                <font-awesome-icon icon="check-circle" />
+                                <span>Finalizar Servicio</span>
                             </h3>
                             <p class="text-indigo-100 text-sm opacity-90">Completa el reporte de trabajo para terminar la cita.</p>
                         </div>
@@ -494,7 +552,7 @@ function formatCitaFecha(cita) {
                                 <textarea 
                                     v-model="formCierre.trabajo_realizado"
                                     rows="4"
-                                    class="w-full bg-white dark:bg-slate-900 dark:bg-gray-900 border-gray-200 dark:border-slate-800 dark:border-gray-700 text-gray-900 dark:text-white dark:text-white rounded-2xl focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 focus:border-indigo-500 transition-all text-sm"
+                                    class="w-full bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 focus:border-indigo-500 transition-all text-sm"
                                     placeholder="Describe detalladamente las reparaciones o mantenimientos hechos..."
                                 ></textarea>
                             </div>
@@ -520,15 +578,15 @@ function formatCitaFecha(cita) {
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider transition-colors">
                                         Evidencias Finales
                                     </label>
-                                    <span class="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400 px-2 py-1 rounded-full font-bold transition-colors">
+                                    <span class="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-1 rounded-full font-bold transition-colors">
                                         {{ formCierre.fotos_finales.length }} FOTOS
                                     </span>
                                 </div>
                                 
                                 <div class="grid grid-cols-3 gap-3">
                                     <!-- Botón de subida -->
-                                    <label class="aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 group">
-                                        <div class="text-2xl group-hover:scale-110 transition-transform">📸</div>
+                                    <label class="aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 group">
+                                        <font-awesome-icon icon="camera" class="text-2xl text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:scale-110 transition-all" />
                                         <span class="text-[10px] font-bold text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 uppercase transition-colors">Añadir</span>
                                         <input type="file" @change="handleFileUpload" multiple accept="image/*" class="hidden">
                                     </label>
@@ -544,21 +602,21 @@ function formatCitaFecha(cita) {
                                             @click="removeFoto(index)"
                                             class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-lg hover:scale-110 transition-transform"
                                         >
-                                            ✕
+                                            <font-awesome-icon icon="times" />
                                         </button>
                                     </div>
                                 </div>
-                                <p class="mt-3 text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 italic transition-colors">
+                                <p class="mt-3 text-[10px] text-gray-400 dark:text-gray-500 italic transition-colors">
                                     Tip: Toma fotos del equipo funcionando o de las piezas reemplazadas.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Footer -->
-                        <div class="p-6 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 flex gap-3 transition-colors">
+                        <div class="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 flex gap-3 transition-colors">
                             <button 
                                 @click="showCierreModal = false"
-                                class="flex-1 py-3 text-gray-600 dark:text-gray-300 dark:text-gray-400 font-bold text-sm uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-800 rounded-2xl transition-all"
+                                class="flex-1 py-3 text-gray-600 dark:text-gray-400 font-bold text-sm uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-800 rounded-2xl transition-all"
                             >
                                 Atrás
                             </button>
@@ -575,6 +633,40 @@ function formatCitaFecha(cita) {
                 </div>
             </div>
         </Teleport>
+
+        <!-- ¿Hubo venta tras completar servicio? -->
+        <Teleport to="body">
+            <div v-if="showPostVentasModal" class="fixed inset-0 z-[60] overflow-y-auto px-4 py-8">
+                <div class="flex min-h-full items-center justify-center">
+                    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="omitirVentasTrasCompletar"></div>
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 text-center border border-gray-100 dark:border-gray-700 transition-colors">
+                        <div class="text-4xl mb-3 text-emerald-600 dark:text-emerald-400">
+                            <font-awesome-icon icon="cart-shopping" />
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">¿Hubo venta en este servicio?</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">
+                            Si cobraste materiales o un servicio adicional al cliente, puedes registrar la venta y vincularla a esta cita.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button
+                                type="button"
+                                class="flex-1 py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                @click="omitirVentasTrasCompletar"
+                            >
+                                No
+                            </button>
+                            <button
+                                type="button"
+                                class="flex-1 py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                                @click="irAVentasTrasCompletar"
+                            >
+                                Sí, ir a ventas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
         
         <!-- Modal de confirmación -->
         <Teleport to="body">
@@ -582,10 +674,10 @@ function formatCitaFecha(cita) {
                 <div class="flex min-h-full items-center justify-center p-4">
                     <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="showConfirmModal = false"></div>
                     
-                    <div class="relative bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transition-colors">
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transition-colors">
                         <div class="text-5xl mb-4">{{ getAccionInfo(confirmAction).icon }}</div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white dark:text-white mb-2 transition-colors">{{ getAccionInfo(confirmAction).label }}</h3>
-                        <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm mb-6 transition-colors">{{ getAccionInfo(confirmAction).description }}</p>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 transition-colors">{{ getAccionInfo(confirmAction).label }}</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 transition-colors">{{ getAccionInfo(confirmAction).description }}</p>
                         
                         <div class="flex gap-3">
                             <button 

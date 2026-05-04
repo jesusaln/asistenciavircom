@@ -17,8 +17,8 @@ class LogVentaUpdated
             VentaAuditLog::logAction(
                 $event->venta->id,
                 'updated',
-                json_encode($event->oldData),
-                json_encode($event->venta->toArray()),
+                $event->oldData['estado'] ?? 'unknown',
+                $event->venta->estado?->value ?? $event->venta->estado,
                 [
                     'total_before' => $event->oldData['total'] ?? null,
                     'total_after' => $event->venta->total,

@@ -33,7 +33,7 @@ class CompraEstadoController extends Controller
         try {
             $compra = Compra::findOrFail($id);
 
-            if ($compra->estado !== EstadoCompra::Procesada) {
+            if ($compra->estado !== EstadoCompra::Procesada->value) {
                 return Redirect::back()->with('error', 'Solo se pueden cancelar compras procesadas');
             }
 
@@ -172,7 +172,7 @@ class CompraEstadoController extends Controller
     {
         $compra = Compra::withTrashed()->findOrFail($id);
 
-        if ($compra->estado !== EstadoCompra::Cancelada) {
+        if ($compra->estado !== EstadoCompra::Cancelada->value) {
             return redirect()->back()->with('error', 'Solo se pueden eliminar definitivamente compras canceladas.');
         }
 

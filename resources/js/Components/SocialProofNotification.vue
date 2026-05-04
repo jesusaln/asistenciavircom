@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed, inject } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const props = defineProps({
     // Productos reales del catálogo
@@ -7,38 +7,33 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
-    // Color corporativo (hex)
-    colorCorporativo: {
-        type: String,
-        default: '#3b82f6' // blue-500 por defecto
-    },
     // Tiempo que dura visible (ms)
     duration: {
         type: Number,
-        default: 4000
+        default: 3000
     },
-    // Delay inicial antes de mostrar primera notificación (ms)
+    // Delay inicial antes de mostrar (ms)
     initialDelay: {
         type: Number,
-        default: 10000 // 10 segundos
+        default: 2000
     },
-    // Intervalo entre notificaciones después de la primera (ms)
+    // Intervalo entre notificaciones (ms)
     interval: {
         type: Number,
-        default: 600000 // 10 minutos
+        default: 300000 // 5 minutos
     }
 })
 
 const isVisible = ref(false)
 const currentNotification = ref(null)
-const notificationCount = ref(0)
 let showTimeout = null
 let hideTimeout = null
 let intervalId = null
 
 // Filtrar productos para mostrar solo los que cuestan más de $1000
 const productosFiltrados = computed(() => {
-    return (props.productos || []).filter(p => {
+    const productsArray = Array.isArray(props.productos) ? props.productos : [];
+    return productsArray.filter(p => {
         const precio = parseFloat(p.precio_venta || p.precio || 0);
         return precio >= 1000;
     });
@@ -78,19 +73,10 @@ const getRandomNotification = () => {
     }
     
     // Fallback si no hay productos que cumplan el criterio
-    const serviciosTI = [
-        'Mantenimiento de Servidor',
-        'Póliza de Soporte Empresarial',
-        'Kit de 4 Cámaras Dahua',
-        'Instalación de Red Estructurada',
-        'Control de Acceso Biométrico',
-        'Reparación Urgente de Laptop',
-        'Configuración de Firewall'
-    ];
     return {
         nombre: getRandom(nombres),
         ciudad: getRandom(ciudades),
-        producto: getRandom(serviciosTI),
+        producto: 'Servicio de Mantenimiento Preventivo',
         tiempo: getRandom(tiempos)
     }
 }
@@ -103,7 +89,6 @@ const showNotification = () => {
     
     currentNotification.value = getRandomNotification()
     isVisible.value = true
-    notificationCount.value++
     
     hideTimeout = setTimeout(() => {
         isVisible.value = false
@@ -113,11 +98,11 @@ const showNotification = () => {
 onMounted(() => {
     if (!shouldShow.value) return
     
-    // Mostrar primera notificación después del delay inicial (10 segundos)
+    // Mostrar primera notificación después del delay inicial
     showTimeout = setTimeout(() => {
         showNotification()
         
-        // Luego mostrar periódicamente cada 10 minutos
+        // Luego mostrar periódicamente
         intervalId = setInterval(showNotification, props.interval)
     }, props.initialDelay)
 })
@@ -127,10 +112,6 @@ onUnmounted(() => {
     if (hideTimeout) clearTimeout(hideTimeout)
     if (intervalId) clearInterval(intervalId)
 })
-
-// Color corporativo en formato CSS
-const corporateColor = computed(() => props.colorCorporativo || '#3b82f6')
-const corporateColorLight = computed(() => `${corporateColor.value}40`) // 25% opacity
 </script>
 
 <template>
@@ -139,73 +120,48 @@ const corporateColorLight = computed(() => `${corporateColor.value}40`) // 25% o
             v-if="isVisible && currentNotification" 
             class="fixed bottom-4 left-4 z-50 max-w-sm"
         >
-            <!-- Notificación con efecto vidrio templado premium -->
-            <div class="notification-glass relative rounded-2xl p-4 overflow-hidden">
+            <!-- Notificación con efecto cristal -->
+            <div class="relative bg-white/70 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 dark:border-white/10 p-4 overflow-hidden transition-colors duration-300">
                 <!-- Efecto de brillo superior -->
-                <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                
-                <!-- Borde brillante -->
-                <div class="absolute inset-0 rounded-2xl border border-white/20 pointer-events-none"></div>
+                <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white dark:via-white/20 to-transparent"></div>
                 
                 <!-- Contenido -->
-                <div class="relative flex items-center gap-4">
-                    <!-- Avatar con color corporativo -->
+                <div class="flex items-center gap-4">
+                    <!-- Avatar -->
                     <div class="relative">
-                        <div 
-                            class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg"
-                            :style="{ background: `linear-gradient(135deg, ${corporateColor}, ${corporateColor}dd)` }"
-                        >
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 dark:from-emerald-600 dark:to-emerald-900 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
                             {{ currentNotification.nombre.charAt(0) }}
                         </div>
-                        <!-- Indicador de verificado con color corporativo -->
-                        <div 
-                            class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white/30"
-                            :style="{ backgroundColor: corporateColor }"
-                        >
+                        <!-- Indicador de verificado -->
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 dark:bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
                             <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
                         </div>
                     </div>
                     
-                    <!-- Info con texto claro -->
+                    <!-- Info -->
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm text-white">
+                        <p class="text-sm text-gray-800 dark:text-gray-200">
                             <span class="font-bold">{{ currentNotification.nombre }}</span>
-                            <span class="text-white/70"> de </span>
-                            <span class="font-medium text-white/90">{{ currentNotification.ciudad }}</span>
+                            <span class="text-gray-500 dark:text-gray-400"> de </span>
+                            <span class="font-medium">{{ currentNotification.ciudad }}</span>
                         </p>
-                        <p class="text-sm text-white/80 truncate">
-                            compró <span class="font-semibold text-white">{{ currentNotification.producto }}</span>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                            compró <span class="font-semibold text-gray-800 dark:text-white">{{ currentNotification.producto }}</span>
                         </p>
-                        <p class="text-xs text-white/50 mt-1 flex items-center gap-1.5">
-                            <span 
-                                class="w-2 h-2 rounded-full animate-pulse"
-                                :style="{ backgroundColor: corporateColor }"
-                            ></span>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
+                            <span class="w-2 h-2 bg-green-400 dark:bg-emerald-500 rounded-full animate-pulse"></span>
                             {{ currentNotification.tiempo }}
                         </p>
                     </div>
-                    
-                    <!-- Botón cerrar -->
-                    <button 
-                        @click="isVisible = false"
-                        class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 </div>
                 
-                <!-- Barra de progreso con color corporativo -->
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                <!-- Barra de progreso -->
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50 dark:bg-gray-800">
                     <div 
-                        class="h-full progress-bar"
-                        :style="{ 
-                            animationDuration: `${duration}ms`,
-                            background: `linear-gradient(90deg, ${corporateColor}, ${corporateColor}cc)`
-                        }"
+                        class="h-full bg-gradient-to-r from-green-400 to-emerald-500 dark:from-emerald-600 dark:to-emerald-400 progress-bar"
+                        :style="{ animationDuration: `${duration}ms` }"
                     ></div>
                 </div>
             </div>
@@ -214,28 +170,17 @@ const corporateColorLight = computed(() => `${corporateColor.value}40`) // 25% o
 </template>
 
 <style scoped>
-/* Efecto vidrio templado premium */
-.notification-glass {
-    background: rgba(15, 23, 42, 0.75); /* slate-900 con transparencia */
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
 .slide-fade-enter-active {
-    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideIn 0.5s ease-out;
 }
 
 .slide-fade-leave-active {
-    animation: fadeOut 0.8s ease-out;
+    animation: fadeOut 1s ease-out;
 }
 
 @keyframes slideIn {
     from {
-        transform: translateX(-120%);
+        transform: translateX(-100%);
         opacity: 0;
     }
     to {
@@ -247,11 +192,11 @@ const corporateColorLight = computed(() => `${corporateColor.value}40`) // 25% o
 @keyframes fadeOut {
     0% {
         opacity: 1;
-        transform: translateX(0) scale(1);
+        transform: translateX(0);
     }
     100% {
         opacity: 0;
-        transform: translateX(-20px) scale(0.95);
+        transform: translateY(10px);
     }
 }
 

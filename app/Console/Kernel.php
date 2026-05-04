@@ -48,28 +48,15 @@ class Kernel extends ConsoleKernel
             ->dailyAt('02:00')
             ->appendOutputTo(storage_path('logs/cron_sync.log'));
 
-        // Sincronizar catálogo CVA automáticamente cada madrugada (02:00 AM)
-        $schedule->command('app:sync-cva-catalog --limit=500')
-            ->dailyAt('02:05')
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/cva_sync_daily.log'));
-
-        // Sincronizar estatus y guías de pedidos CVA cada hora
-        $schedule->command('cva:sync-orders')
-            ->hourly()
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/cva_orders_sync.log'));
-
         // Actualizar cuentas por pagar vencidas cada día a las 06:00
         $schedule->command('cuentas:actualizar-vencidas')
             ->dailyAt('06:00')
             ->appendOutputTo(storage_path('logs/cuentas_vencidas.log'));
 
-        // Archivar prospectos CRM cerrados con mas de 3 meses para no saturar la operacion diaria
-        $schedule->command('crm:archive-old-prospects --months=3')
-            ->dailyAt('03:30')
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/crm_archive_old_prospects.log'));
+        // Alerta si hay jobs fallidos acumulados (backups, SAT, WhatsApp, etc.)
+        $schedule->command('queue:alert-failed --threshold=1')
+            ->hourly()
+            ->appendOutputTo(storage_path('logs/queue_failed_alert.log'));
 
         // =====================================================
         // BACKUPS AUTOMÁTICOS - Configuración dinámica desde empresa
@@ -155,15 +142,12 @@ class Kernel extends ConsoleKernel
 
                     if ($cloudEnabled && $result['success']) {
                         // Intentar subir a Google Cloud si está habilitado
-                        // TODO: Implementar método público uploadToCloud en DatabaseBackupService
-                        /*
                         try {
                             $backupService->uploadToGoogleCloud($result['path']);
                             \Log::info('Backup subido a Google Cloud', ['path' => $result['path']]);
                         } catch (\Exception $e) {
                             \Log::warning('No se pudo subir a Google Cloud: ' . $e->getMessage());
                         }
-                        */
                     }
 
                     \Log::info('Backup completo diario ejecutado', ['tipo' => 'completo']);
@@ -208,7 +192,18 @@ class Kernel extends ConsoleKernel
 
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $commandsPath = __DIR__ . '/Commands';
+
+        if (app()->environment('production')) {
+            $paths = collect(glob($commandsPath . '/*.php'))
+                ->reject(fn($path) => str_starts_with(basename($path), 'Test'))
+                ->values()
+                ->all();
+
+            $this->load($paths);
+        } else {
+            $this->load($commandsPath);
+        }
 
         require base_path('routes/console.php');
     }

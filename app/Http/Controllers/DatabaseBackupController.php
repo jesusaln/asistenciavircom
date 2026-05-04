@@ -9,6 +9,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Helpers\ActivityLogger;
 use Exception;
 
 class DatabaseBackupController extends Controller
@@ -18,6 +19,27 @@ class DatabaseBackupController extends Controller
     public function __construct(DatabaseBackupService $backupService)
     {
         $this->backupService = $backupService;
+    }
+
+    /**
+     * Obtener el estado del respaldo global del VPS
+     */
+    public function vpsStatus()
+    {
+        $path = storage_path('app/backup_status.json');
+
+        if (!file_exists($path)) {
+            return response()->json([
+                'last_backup' => 'Nunca',
+                'status' => 'pending',
+                'size' => '0'
+            ]);
+        }
+
+        $content = file_get_contents($path);
+        $status = json_decode($content, true);
+        
+        return response()->json($status);
     }
 
     /**
@@ -159,7 +181,7 @@ class DatabaseBackupController extends Controller
         } catch (Exception $e) {
             Log::error('Error creating backup: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
-                'request_data' => $request->all()
+                'request_data' => $request->except(['_token', 'password', 'token'])
             ]);
 
             return redirect()->route('backup.index')
@@ -201,7 +223,7 @@ class DatabaseBackupController extends Controller
         } catch (Exception $e) {
             Log::error('Error creating full backup: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
-                'request_data' => $request->all()
+                'request_data' => $request->except(['_token', 'password', 'token'])
             ]);
 
             return redirect()->route('backup.index')
@@ -259,6 +281,7 @@ class DatabaseBackupController extends Controller
             $result = $this->backupService->deleteBackup($path);
 
             if ($result['success']) {
+                ActivityLogger::log("Eliminó el archivo de respaldo: " . $path);
                 return redirect()->route('backup.index')
                     ->with('success', 'Respaldo eliminado exitosamente.');
             }
@@ -374,7 +397,7 @@ class DatabaseBackupController extends Controller
             Log::error('Error in granular restore: ' . $e->getMessage(), [
                 'filename' => $filename,
                 'user_id' => Auth::id(),
-                'request_data' => $request->all()
+                'request_data' => $request->except(['_token', 'password', 'token'])
             ]);
 
             return redirect()->route('backup.index')
@@ -549,7 +572,7 @@ class DatabaseBackupController extends Controller
         } catch (Exception $e) {
             Log::error('Error creating incremental backup: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
-                'request_data' => $request->all()
+                'request_data' => $request->except(['_token', 'password', 'token'])
             ]);
 
             return redirect()->route('backup.index')
@@ -611,7 +634,7 @@ class DatabaseBackupController extends Controller
         } catch (Exception $e) {
             Log::error('Error creating secure backup: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
-                'request_data' => $request->all()
+                'request_data' => $request->except(['_token', 'password', 'token'])
             ]);
 
             return redirect()->route('backup.index')
@@ -772,7 +795,7 @@ class DatabaseBackupController extends Controller
         } catch (Exception $e) {
             Log::error('Error creating remote backup: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
-                'request_data' => $request->all()
+                'request_data' => $request->except(['_token', 'password', 'token'])
             ]);
 
             return redirect()->route('backup.index')
@@ -952,21 +975,24 @@ class DatabaseBackupController extends Controller
 
     private function getOldestBackup(array $backups): ?array
     {
-        if (empty($backups)) return null;
+        if (empty($backups))
+            return null;
 
         return collect($backups)->sortBy('created_at')->first();
     }
 
     private function getNewestBackup(array $backups): ?array
     {
-        if (empty($backups)) return null;
+        if (empty($backups))
+            return null;
 
         return collect($backups)->sortByDesc('created_at')->first();
     }
 
     private function formatFileSize(int $bytes): string
     {
-        if ($bytes === 0) return '0 B';
+        if ($bytes === 0)
+            return '0 B';
 
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $power = floor(log($bytes, 1024));

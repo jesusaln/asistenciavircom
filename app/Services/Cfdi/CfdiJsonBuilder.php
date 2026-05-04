@@ -4,11 +4,12 @@ namespace App\Services\Cfdi;
 
 use App\Models\Venta;
 use App\Models\EmpresaConfiguracion;
+use App\Models\FolioConfig;
 use App\Models\Cliente;
 use App\Models\VentaItem;
 use App\Models\Producto;
 use App\Models\Servicio;
-use Carbon\Carbon;
+use App\Support\FinancialDate;
 
 class CfdiJsonBuilder
 {
@@ -26,7 +27,7 @@ class CfdiJsonBuilder
     {
         $configuracion = EmpresaConfiguracion::getConfig();
         $cliente = $venta->cliente;
-        
+
         // Cargar ítems con sus relaciones para evitar N+1
         $venta->load('items.ventable');
 
@@ -34,26 +35,27 @@ class CfdiJsonBuilder
             "Comprobante" => [
                 "Version" => "4.0",
                 "Serie" => "V", // Serie de Ventas
-                "Folio" => (string)$venta->id,
-                "Fecha" => Carbon::now()->format('Y-m-d\TH:i:s'),
+                "Folio" => $this->getFolioNumerico($venta),
+                "Fecha" => FinancialDate::now()->format('Y-m-d\TH:i:s'),
                 "NoCertificado" => $this->certService->getNoCertificado(),
-                "SubTotal" => number_format($venta->subtotal, 2, '.', ''),
-                "Moneda" => $venta->moneda ?: $configuracion->moneda ?: 'MXN',
-                "Total" => number_format($venta->total, 2, '.', ''),
+                "SubTotal" => number_format((float) ($venta->subtotal ?? 0), 2, '.', ''),
+                "Descuento" => $venta->descuento_general > 0 ? number_format((float) ($venta->descuento_general ?? 0), 2, '.', '') : '0.00',
+                "Moneda" => "MXN",
+                "Total" => number_format((float) ($venta->total ?? 0), 2, '.', ''),
                 "TipoDeComprobante" => "I",
                 "Exportacion" => "01", // No aplica por defecto
-                "LugarExpedicion" => (string)$configuracion->codigo_postal,
+                "LugarExpedicion" => (string) $configuracion->codigo_postal,
                 "MetodoPago" => $venta->metodo_pago_sat ?: ($venta->metodo_pago === 'credito' ? 'PPD' : 'PUE'),
                 "FormaPago" => $venta->forma_pago_sat ?: $this->mapFormaPago($venta->metodo_pago) ?: '99',
-                
+
                 "Emisor" => [
                     "Rfc" => $configuracion->rfc,
                     "Nombre" => $configuracion->razon_social ?: $configuracion->nombre_empresa,
                     "RegimenFiscal" => $this->getRegimenFiscalClave($configuracion->regimen_fiscal)
                 ],
-                
+
                 "Receptor" => $this->buildReceptor($cliente),
-                
+
                 "Conceptos" => [],
             ]
         ];
@@ -66,9 +68,10 @@ class CfdiJsonBuilder
             $json["Comprobante"]["Impuestos"] = $impuestos;
         }
 
-        if ($conceptosData['totals']['descuento_total'] > 0) {
-            $json["Comprobante"]["Descuento"] = number_format($conceptosData['totals']['descuento_total'], 2, '.', '');
-        }
+        // The Descuento field is now added directly in the Comprobante array based on $venta->descuento_general
+        // if ($conceptosData['totals']['descuento_total'] > 0) {
+        //     $json["Comprobante"]["Descuento"] = number_format($conceptosData['totals']['descuento_total'], 2, '.', '');
+        // }
 
         if (!empty($options['cfdi_relacion_tipo']) && !empty($options['cfdi_relacion_uuids'])) {
             $uuids = array_values(array_filter(array_map('trim', $options['cfdi_relacion_uuids'])));
@@ -104,17 +107,17 @@ class CfdiJsonBuilder
             "Cantidad" => "1",
             "ClaveUnidad" => "ACT",
             "Descripcion" => "Anticipo",
-            "ValorUnitario" => number_format($base, 2, '.', ''),
-            "Importe" => number_format($base, 2, '.', ''),
+            "ValorUnitario" => number_format((float) $base, 2, '.', ''),
+            "Importe" => number_format((float) $base, 2, '.', ''),
             "ObjetoImp" => "02",
             "Impuestos" => [
                 "Traslados" => [
                     [
-                        "Base" => number_format($base, 2, '.', ''),
+                        "Base" => number_format((float) $base, 2, '.', ''),
                         "Impuesto" => "002",
                         "TipoFactor" => "Tasa",
-                        "TasaOCuota" => number_format($ivaRateDecimal, 6, '.', ''),
-                        "Importe" => number_format($iva, 2, '.', ''),
+                        "TasaOCuota" => number_format((float) $ivaRateDecimal, 6, '.', ''),
+                        "Importe" => number_format((float) $iva, 2, '.', ''),
                     ]
                 ]
             ]
@@ -124,15 +127,15 @@ class CfdiJsonBuilder
             "Comprobante" => [
                 "Version" => "4.0",
                 "Serie" => "V",
-                "Folio" => (string)$venta->id,
-                "Fecha" => Carbon::now()->format('Y-m-d\TH:i:s'),
+                "Folio" => (string) $venta->id,
+                "Fecha" => FinancialDate::now()->format('Y-m-d\TH:i:s'),
                 "NoCertificado" => $this->certService->getNoCertificado(),
-                "SubTotal" => number_format($base, 2, '.', ''),
+                "SubTotal" => number_format((float) $base, 2, '.', ''),
                 "Moneda" => $venta->moneda ?: $configuracion->moneda ?: 'MXN',
-                "Total" => number_format($montoTotal, 2, '.', ''),
+                "Total" => number_format((float) $montoTotal, 2, '.', ''),
                 "TipoDeComprobante" => "I",
                 "Exportacion" => "01",
-                "LugarExpedicion" => (string)$configuracion->codigo_postal,
+                "LugarExpedicion" => (string) $configuracion->codigo_postal,
                 "MetodoPago" => "PUE",
                 "FormaPago" => $formaPagoSat,
                 "Emisor" => [
@@ -143,14 +146,14 @@ class CfdiJsonBuilder
                 "Receptor" => $this->buildReceptor($cliente),
                 "Conceptos" => [$concepto],
                 "Impuestos" => [
-                    "TotalImpuestosTrasladados" => number_format($iva, 2, '.', ''),
+                    "TotalImpuestosTrasladados" => number_format((float) $iva, 2, '.', ''),
                     "Traslados" => [
                         [
-                            "Base" => number_format($base, 2, '.', ''),
+                            "Base" => number_format((float) $base, 2, '.', ''),
                             "Impuesto" => "002",
                             "TipoFactor" => "Tasa",
-                            "TasaOCuota" => number_format($ivaRateDecimal, 6, '.', ''),
-                            "Importe" => number_format($iva, 2, '.', ''),
+                            "TasaOCuota" => number_format((float) $ivaRateDecimal, 6, '.', ''),
+                            "Importe" => number_format((float) $iva, 2, '.', ''),
                         ]
                     ]
                 ]
@@ -167,13 +170,13 @@ class CfdiJsonBuilder
         if ($venta->retencion_iva > 0) {
             $retenciones[] = [
                 "Impuesto" => "002",
-                "Importe" => number_format($venta->retencion_iva, 2, '.', '')
+                "Importe" => number_format((float) $venta->retencion_iva, 2, '.', '')
             ];
         }
         if ($venta->retencion_isr > 0 || $venta->isr > 0) {
             $retenciones[] = [
                 "Impuesto" => "001",
-                "Importe" => number_format($venta->retencion_isr ?: $venta->isr, 2, '.', '')
+                "Importe" => number_format((float) ($venta->retencion_isr ?: $venta->isr), 2, '.', '')
             ];
         }
 
@@ -182,22 +185,22 @@ class CfdiJsonBuilder
         if ($totals['traslado_importe'] > 0) {
             $ivaRateRaw = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje();
             $ivaRateDec = $ivaRateRaw / 100;
-            $ivaRateStr = number_format($ivaRateDec, 6, '.', '');
+            $ivaRateStr = number_format((float) $ivaRateDec, 6, '.', '');
 
-            $impuestos["TotalImpuestosTrasladados"] = number_format($totals['traslado_importe'], 2, '.', '');
+            $impuestos["TotalImpuestosTrasladados"] = number_format((float) $totals['traslado_importe'], 2, '.', '');
             $impuestos["Traslados"] = [
                 [
-                    "Base" => number_format($totals['traslado_base'], 2, '.', ''),
+                    "Base" => number_format((float) $totals['traslado_base'], 2, '.', ''),
                     "Impuesto" => "002",
                     "TipoFactor" => "Tasa",
                     "TasaOCuota" => $ivaRateStr,
-                    "Importe" => number_format($totals['traslado_importe'], 2, '.', '')
+                    "Importe" => number_format((float) $totals['traslado_importe'], 2, '.', '')
                 ]
             ];
         }
 
         if (!empty($retenciones)) {
-            $impuestos["TotalImpuestosRetenidos"] = number_format($venta->retencion_iva + ($venta->retencion_isr ?: $venta->isr), 2, '.', '');
+            $impuestos["TotalImpuestosRetenidos"] = number_format((float) ($venta->retencion_iva + ($venta->retencion_isr ?: $venta->isr)), 2, '.', '');
             $impuestos["Retenciones"] = $retenciones;
         }
 
@@ -211,7 +214,7 @@ class CfdiJsonBuilder
     {
         $conceptos = [];
         $ivaRateDecimal = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
-        $ivaRateStr = number_format($ivaRateDecimal, 6, '.', '');
+        $ivaRateStr = number_format((float) $ivaRateDecimal, 6, '.', '');
 
         $totals = [
             'descuento_total' => 0.0,
@@ -235,7 +238,7 @@ class CfdiJsonBuilder
 
         foreach ($items as $item) {
             $ventable = $item->ventable;
-            
+
             // Determinar claves SAT
             $claveProdServ = '01010101'; // Default: No existe en catálogo
             $claveUnidad = 'H87'; // Default: Pieza
@@ -261,18 +264,18 @@ class CfdiJsonBuilder
             $globalAllocated += $allocGlobal;
             $descuentoConcepto = $descuentoItem + $allocGlobal;
             $baseConDescuento = $base - $descuentoConcepto;
-            
+
             // Si el objetoImp es '01' (No objeto de impuesto), el IVA es 0
             $iva = ($objetoImp === '01') ? 0 : ($baseConDescuento * $ivaRateDecimal);
 
             $concepto = [
-                "ClaveProdServ" => (string)$claveProdServ,
-                "Cantidad" => (string)$item->cantidad,
-                "ClaveUnidad" => (string)$claveUnidad,
-                "Descripcion" => (string)($ventable->nombre ?? $ventable->descripcion ?? 'Concepto sin nombre'),
-                "ValorUnitario" => number_format($item->precio, 2, '.', ''),
-                "Importe" => number_format($base, 2, '.', ''),
-                "ObjetoImp" => (string)$objetoImp,
+                "ClaveProdServ" => (string) $claveProdServ,
+                "Cantidad" => (string) $item->cantidad,
+                "ClaveUnidad" => (string) $claveUnidad,
+                "Descripcion" => (string) ($ventable->nombre ?? $ventable->descripcion ?? 'Concepto sin nombre'),
+                "ValorUnitario" => number_format((float) $item->precio, 2, '.', ''),
+                "Importe" => number_format((float) $base, 2, '.', ''),
+                "ObjetoImp" => (string) $objetoImp,
             ];
 
             // Solo agregar sección de Impuestos si es objeto de impuesto (02)
@@ -280,11 +283,11 @@ class CfdiJsonBuilder
                 $concepto["Impuestos"] = [
                     "Traslados" => [
                         [
-                            "Base" => number_format($baseConDescuento, 2, '.', ''),
+                            "Base" => number_format((float) $baseConDescuento, 2, '.', ''),
                             "Impuesto" => "002",
                             "TipoFactor" => "Tasa",
                             "TasaOCuota" => $ivaRateStr,
-                            "Importe" => number_format($iva, 2, '.', '')
+                            "Importe" => number_format((float) $iva, 2, '.', '')
                         ]
                     ]
                 ];
@@ -295,7 +298,7 @@ class CfdiJsonBuilder
                 $concepto["Impuestos"] = [
                     "Traslados" => [
                         [
-                            "Base" => number_format($baseConDescuento, 2, '.', ''),
+                            "Base" => number_format((float) $baseConDescuento, 2, '.', ''),
                             "Impuesto" => "002",
                             "TipoFactor" => "Exento"
                         ]
@@ -304,7 +307,7 @@ class CfdiJsonBuilder
             }
 
             if ($descuentoConcepto > 0) {
-                $concepto["Descuento"] = number_format($descuentoConcepto, 2, '.', '');
+                $concepto["Descuento"] = number_format((float) $descuentoConcepto, 2, '.', '');
             }
 
             // Retenciones por concepto si aplican (ej. Fletes, Honorarios)
@@ -343,7 +346,7 @@ class CfdiJsonBuilder
         $receptor = [
             "Rfc" => $cliente->rfc,
             "Nombre" => $cliente->nombre_fiscal,
-            "DomicilioFiscalReceptor" => (string)($cliente->domicilio_fiscal_cp ?: $cliente->codigo_postal),
+            "DomicilioFiscalReceptor" => (string) ($cliente->domicilio_fiscal_cp ?: $cliente->codigo_postal),
             "RegimenFiscalReceptor" => $cliente->regimen_fiscal ?: '616',
             "UsoCFDI" => $cliente->uso_cfdi ?: 'S01'
         ];
@@ -380,19 +383,27 @@ class CfdiJsonBuilder
         if (preg_match('/^(\d{3})/', $regimen, $matches)) {
             return $matches[1];
         }
-        
+
         // Intentar mapear por nombre descriptivo
         $nombre = strtolower($regimen);
-        
-        if (str_contains($nombre, 'simplificado de confianza') || str_contains($nombre, 'resico')) return '626';
-        if (str_contains($nombre, 'personas físicas con actividades empresariales')) return '612';
-        if (str_contains($nombre, 'sueldos y salarios')) return '605';
-        if (str_contains($nombre, 'general de ley personas morales')) return '601';
-        if (str_contains($nombre, 'enajenación o adquisición de bienes')) return '614';
-        if (str_contains($nombre, 'incorporación fiscal')) return '621';
-        if (str_contains($nombre, 'arrendamiento')) return '606';
-        if (str_contains($nombre, 'sin obligaciones')) return '616';
-        
+
+        if (str_contains($nombre, 'simplificado de confianza') || str_contains($nombre, 'resico'))
+            return '626';
+        if (str_contains($nombre, 'personas físicas con actividades empresariales'))
+            return '612';
+        if (str_contains($nombre, 'sueldos y salarios'))
+            return '605';
+        if (str_contains($nombre, 'general de ley personas morales'))
+            return '601';
+        if (str_contains($nombre, 'enajenación o adquisición de bienes'))
+            return '614';
+        if (str_contains($nombre, 'incorporación fiscal'))
+            return '621';
+        if (str_contains($nombre, 'arrendamiento'))
+            return '606';
+        if (str_contains($nombre, 'sin obligaciones'))
+            return '616';
+
         return '601'; // Default
     }
 
@@ -407,13 +418,45 @@ class CfdiJsonBuilder
         }
 
         $mapeo = [
-            'efectivo'      => '01', // Efectivo
+            'efectivo' => '01', // Efectivo
             'transferencia' => '03', // Transferencia electrónica de fondos
-            'cheque'        => '02', // Cheque nominativo
-            'tarjeta'       => '04', // Tarjeta de crédito (o 28 para débito)
-            'otros'         => '99', // Por definir
+            'cheque' => '02', // Cheque nominativo
+            'tarjeta' => '04', // Tarjeta de crédito
+            'creedito' => '99',
+            'credit' => '99',
+            'transfer' => '03',
+            'otros' => '99', // Por definir
         ];
 
         return $mapeo[strtolower($metodoPagoInterno)] ?? '99';
+    }
+
+    /**
+     * Extrae el número del folio de venta eliminando el prefijo.
+     */
+    private function getFolioNumerico(Venta $venta): string
+    {
+        if (empty($venta->numero_venta)) {
+            return (string) $venta->id;
+        }
+
+        // Obtener prefijo de la configuración de folios
+        $config = FolioConfig::where('document_type', 'venta')
+            ->where('empresa_id', $venta->empresa_id)
+            ->first();
+
+        if ($config && !empty($config->prefix)) {
+            // Eliminar prefijo y posibles separadores
+            $numeric = str_replace($config->prefix, '', $venta->numero_venta);
+            $numeric = ltrim($numeric, '-_ ');
+            return $numeric ?: (string) $venta->id;
+        }
+
+        // Si no hay config, intentar extraer sólo números
+        if (preg_match('/(\d+)$/', $venta->numero_venta, $matches)) {
+            return $matches[1];
+        }
+
+        return $venta->numero_venta;
     }
 }

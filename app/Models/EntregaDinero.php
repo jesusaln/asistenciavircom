@@ -29,6 +29,7 @@ class EntregaDinero extends Model
         'notas',
         'tipo_origen',
         'id_origen',
+        'parent_id',
         'recibido_por',
         'fecha_recibido',
         'notas_recibido',
@@ -149,5 +150,21 @@ class EntregaDinero extends Model
                         $q->where('entregado_responsable', false)
                           ->orWhereNull('entregado_responsable');
                     });
+    }
+
+    /**
+     * Relación con el lote padre (si es que pertenece a uno)
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Relación con las entregas hijas (si es que este registro es un lote)
+     */
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 }

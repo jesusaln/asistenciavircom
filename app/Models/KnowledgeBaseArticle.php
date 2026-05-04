@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 use App\Models\Concerns\BelongsToEmpresa;
@@ -11,6 +12,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 class KnowledgeBaseArticle extends Model
 {
     use HasFactory, BelongsToEmpresa;
+
+    protected static array $columnExistsCache = [];
 
     protected $fillable = [
         'empresa_id',
@@ -65,11 +68,19 @@ class KnowledgeBaseArticle extends Model
     // Scopes
     public function scopePublicados($query)
     {
+        if (!self::hasColumn('publicado')) {
+            return $query;
+        }
+
         return $query->where('publicado', true);
     }
 
     public function scopeDestacados($query)
     {
+        if (!self::hasColumn('destacado')) {
+            return $query;
+        }
+
         return $query->where('destacado', true);
     }
 
@@ -81,8 +92,9 @@ class KnowledgeBaseArticle extends Model
     public function scopeBuscar($query, $termino)
     {
         return $query->where(function ($q) use ($termino) {
-            $q->where('titulo', 'ilike', "%{$termino}%")
-                ->orWhere('contenido', 'ilike', "%{$termino}%");
+            $pattern = "%{$termino}%";
+            $q->whereRaw("unaccent(titulo) ILIKE unaccent(?)", [$pattern])
+                ->orWhereRaw("unaccent(contenido) ILIKE unaccent(?)", [$pattern]);
         });
     }
 
@@ -108,5 +120,20 @@ class KnowledgeBaseArticle extends Model
             return 0;
 
         return (int) round(($this->util_si / $total) * 100);
+    }
+
+    protected static function hasColumn(string $column): bool
+    {
+        $key = static::class . ':' . $column;
+
+        if (!array_key_exists($key, self::$columnExistsCache)) {
+            try {
+                self::$columnExistsCache[$key] = Schema::hasColumn((new static())->getTable(), $column);
+            } catch (\Throwable $e) {
+                self::$columnExistsCache[$key] = false;
+            }
+        }
+
+        return self::$columnExistsCache[$key];
     }
 }

@@ -1,51 +1,53 @@
 <template>
     <Head title="Crear Mantenimiento" />
-    <div class="w-full">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-6">
-            <div class="flex items-center mb-6">
-                <div class="bg-blue-500 p-3 rounded-lg mr-4">
-                    <i class="fas fa-wrench text-white text-xl"></i>
+    <div class="min-h-screen w-full bg-gray-50 p-4 transition-colors dark:bg-gray-900 md:p-6" :style="cssVars">
+        <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex items-center gap-4 border-b border-gray-100 px-6 py-5 dark:border-gray-700">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+                    <FontAwesomeIcon icon="wrench" class="text-xl text-white" />
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Crear Mantenimiento</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Registra un nuevo servicio de mantenimiento para tu vehículo</p>
-                    <p class="text-sm text-blue-600 mt-1">
-                        <i class="fas fa-info-circle mr-1"></i>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Crear Mantenimiento</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Registra un nuevo servicio de mantenimiento para tu vehículo</p>
+                    <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
+                        <FontAwesomeIcon icon="info-circle" class="mr-1" />
                         Fecha de hoy: {{ todayFormatted }}
                     </p>
                 </div>
             </div>
 
+            <div class="p-6">
+
             <form @submit.prevent="submit" class="space-y-6">
                 <!-- COMPONENTE: VehicleSelect -->
                 <!-- Selección de Carro -->
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
-                    <label for="carro-select" class="block text-gray-700 text-sm font-semibold mb-3">
-                        <i class="fas fa-car mr-2"></i>Seleccionar Vehículo
+                <div class="rounded-xl border border-gray-200/60 bg-gray-50/50 p-4 dark:border-gray-700/60 dark:bg-slate-900/30">
+                    <label for="carro-select" class="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        <FontAwesomeIcon icon="car" class="mr-2" />Seleccionar Vehículo
                     </label>
                     <select
                         id="carro-select"
                         v-model.number="form.carro_id"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                         required
                         @change="updateKilometraje"
                     >
                         <option value="" disabled>Selecciona un vehículo</option>
                         <option v-for="carro in props.carros" :key="carro.id" :value="carro.id">
-                            {{ carro.marca }} {{ carro.modelo }} {{ carro.año || '' }} - {{ formatNumber(carro.kilometraje) }} km
+                            {{ carro.marca }} {{ carro.modelo }} {{ carro.anio || '' }} - {{ formatNumber(carro.kilometraje) }} km
                         </option>
                     </select>
-                    <div v-if="selectedCarro" class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div class="flex items-center text-sm text-blue-800">
-                            <i class="fas fa-info-circle mr-2"></i>
+                    <div v-if="selectedCarro" class="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+                        <div class="flex items-center text-sm text-blue-800 dark:text-blue-200">
+                            <FontAwesomeIcon icon="info-circle" class="mr-2" />
                             <span>Vehículo seleccionado: <strong>{{ selectedCarro.marca }} {{ selectedCarro.modelo }}</strong></span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-sm text-blue-700 mt-2">
+                        <div class="mt-2 grid grid-cols-2 gap-2 text-sm text-blue-700 dark:text-blue-300">
                             <div>Kilometraje actual: <strong>{{ formatNumber(selectedCarro.kilometraje) }} km</strong></div>
-                            <div v-if="selectedCarro.año">Año: <strong>{{ selectedCarro.año }}</strong></div>
+                            <div v-if="selectedCarro.anio">Año: <strong>{{ selectedCarro.anio }}</strong></div>
                         </div>
-                        <div v-if="selectedCarro.taller_preferido" class="text-sm text-blue-600 mt-1">
-                            <i class="fas fa-wrench mr-1"></i>
+                        <div v-if="selectedCarro.taller_preferido" class="mt-1 text-sm text-blue-600 dark:text-blue-400">
+                            <FontAwesomeIcon icon="wrench" class="mr-1" />
                             Taller preferido: {{ selectedCarro.taller_preferido }}
                         </div>
                     </div>
@@ -55,12 +57,12 @@
                     <!-- COMPONENTE: ServicePicker -->
                     <!-- Tipo de Servicio -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-cogs mr-2"></i>Tipo de Servicio
+                        <label class="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <FontAwesomeIcon icon="cogs" class="mr-2" />Tipo de Servicio
                         </label>
                         <select
                             v-model="form.tipo"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                             required
                             @change="handleServiceChange"
                         >
@@ -76,7 +78,7 @@
                                 v-model="form.otro_servicio"
                                 type="text"
                                 placeholder="Especifica el tipo de servicio..."
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                                 required
                             >
                         </div>
@@ -85,13 +87,13 @@
                     <!-- Fecha del Servicio -->
                     <div>
                         <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-calendar mr-2"></i>Fecha del Servicio
+                            <FontAwesomeIcon icon="calendar" class="mr-2" />Fecha del Servicio
                         </label>
                         <input
                             v-model="form.fecha"
                             type="date"
                             :max="today"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                             required
                         >
                     </div>
@@ -101,25 +103,25 @@
                     <!-- Kilometraje -->
                     <div>
                         <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-tachometer-alt mr-2"></i>Kilometraje del Servicio
+                            <FontAwesomeIcon icon="tachometer-alt" class="mr-2" />Kilometraje del Servicio
                         </label>
                         <input
                             v-model.number="form.kilometraje_actual"
                             type="number"
                             :min="selectedCarro?.kilometraje || 0"
                             placeholder="Ingresa el kilometraje actual"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                             required
                         >
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center">
-                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                        <p class="text-sm text-gray-500 mt-2 flex items-center">
+                            <FontAwesomeIcon icon="exclamation-triangle" class="text-yellow-500 mr-2" />
                             Debe ser mayor o igual al kilometraje actual del vehículo
                         </p>
 
                         <!-- Sugerencias contextuales basadas en kilometraje -->
                         <div v-if="selectedCarro && form.tipo" class="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                             <div class="text-sm text-yellow-800">
-                                <i class="fas fa-lightbulb mr-2"></i>
+                                <FontAwesomeIcon icon="lightbulb" class="mr-2" />
                                 <strong>Sugerencias para {{ selectedCarro.marca }} {{ selectedCarro.modelo }}:</strong>
                             </div>
                             <div class="text-xs text-yellow-700 mt-1">
@@ -131,13 +133,13 @@
                     <!-- Próximo Mantenimiento -->
                     <div>
                         <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-calendar-plus mr-2"></i>Próximo Mantenimiento
+                            <FontAwesomeIcon icon="calendar-plus" class="mr-2" />Próximo Mantenimiento
                         </label>
                         <input
                             v-model="form.proximo_mantenimiento"
                             type="date"
                             :min="form.fecha || today"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                             required
                         >
                         <div class="mt-2 flex space-x-2">
@@ -170,7 +172,7 @@
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-dollar-sign mr-2"></i>Costo del Servicio (Opcional)
+                            <FontAwesomeIcon icon="dollar-sign" class="mr-2" />Costo del Servicio (Opcional)
                         </label>
                         <div class="flex gap-2">
                             <input
@@ -179,7 +181,7 @@
                                 step="0.01"
                                 min="0"
                                 placeholder="0.00"
-                                class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="flex-1 rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                             >
                             <button
                                 v-if="form.tipo && getCostoSugerido() > 0"
@@ -192,7 +194,7 @@
                                 💰 Sugerido
                             </button>
                         </div>
-                        <p v-if="form.tipo && getCostoSugerido() > 0" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p v-if="form.tipo && getCostoSugerido() > 0" class="text-xs text-gray-500 mt-1">
                             Costo sugerido para {{ form.tipo }}: {{ formatMoney(getCostoSugerido()) }}
                         </p>
                     </div>
@@ -200,13 +202,13 @@
                     <!-- Taller/Lugar -->
                     <div>
                         <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-map-marker-alt mr-2"></i>Taller/Lugar (Opcional)
+                            <FontAwesomeIcon icon="map-marker-alt" class="mr-2" />Taller/Lugar (Opcional)
                         </label>
                         <input
                             v-model="form.taller"
                             type="text"
                             placeholder="Nombre del taller o lugar"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                         >
                     </div>
                 </div>
@@ -215,7 +217,7 @@
                 <!-- Configuración de Alertas y Prioridad -->
                 <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <h3 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
-                        <i class="fas fa-bell mr-2"></i>
+                        <FontAwesomeIcon icon="bell" class="mr-2" />
                         Configuración de Alertas y Prioridad
                     </h3>
 
@@ -223,11 +225,11 @@
                         <!-- Prioridad -->
                         <div>
                             <label class="block text-gray-700 text-sm font-semibold mb-3">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>Prioridad
+                                <FontAwesomeIcon icon="exclamation-triangle" class="mr-2" />Prioridad
                             </label>
                             <select
                                 v-model="form.prioridad"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                                 required
                             >
                                 <option value="baja">🟢 Baja</option>
@@ -235,7 +237,7 @@
                                 <option value="alta">🟠 Alta</option>
                                 <option value="critica">🔴 Crítica</option>
                             </select>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <p class="text-xs text-gray-500 mt-1">
                                 {{ getDescripcionPrioridad(form.prioridad) }}
                             </p>
                         </div>
@@ -243,7 +245,7 @@
                         <!-- Días de Anticipación -->
                         <div>
                             <label class="block text-gray-700 text-sm font-semibold mb-3">
-                                <i class="fas fa-clock mr-2"></i>Días de Anticipación
+                                <FontAwesomeIcon icon="clock" class="mr-2" />Días de Anticipación
                             </label>
                             <input
                                 v-model.number="form.dias_anticipacion_alerta"
@@ -251,10 +253,10 @@
                                 min="1"
                                 max="365"
                                 :placeholder="getDiasAnticipacionSugeridos()"
-                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                                 required
                             >
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <p class="text-xs text-gray-500 mt-1">
                                 Días antes para enviar alerta
                             </p>
                         </div>
@@ -262,7 +264,7 @@
                         <!-- Requiere Aprobación -->
                         <div>
                             <label class="block text-gray-700 text-sm font-semibold mb-3">
-                                <i class="fas fa-check-circle mr-2"></i>Requiere Aprobación
+                                <FontAwesomeIcon icon="check-circle" class="mr-2" />Requiere Aprobación
                             </label>
                             <div class="flex items-center">
                                 <label class="relative inline-flex items-center cursor-pointer">
@@ -271,13 +273,13 @@
                                         type="checkbox"
                                         class="sr-only peer"
                                     >
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                     <span class="ml-3 text-sm font-medium text-gray-700">
                                         {{ form.requiere_aprobacion ? 'Sí' : 'No' }}
                                     </span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <p class="text-xs text-gray-500 mt-1">
                                 Si necesita aprobación especial
                             </p>
                         </div>
@@ -286,16 +288,16 @@
                     <!-- Observaciones de Alerta -->
                     <div class="mt-4">
                         <label class="block text-gray-700 text-sm font-semibold mb-3">
-                            <i class="fas fa-sticky-note mr-2"></i>Observaciones de Alerta (Opcional)
+                            <FontAwesomeIcon icon="sticky-note" class="mr-2" />Observaciones de Alerta (Opcional)
                         </label>
                         <textarea
                             v-model="form.observaciones_alerta"
                             rows="2"
                             placeholder="Notas adicionales para la alerta..."
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-y"
+                            class="w-full resize-y rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                             maxlength="500"
                         ></textarea>
-                        <div class="flex justify-end text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <div class="flex justify-end text-sm text-gray-500 mt-1">
                             <span>{{ form.observaciones_alerta.length }}/500 caracteres</span>
                         </div>
                     </div>
@@ -305,7 +307,7 @@
                 <!-- Resumen del Mantenimiento -->
                 <div v-if="form.carro_id && form.tipo && form.fecha" class="bg-green-50 p-4 rounded-lg border border-green-200">
                     <h3 class="text-lg font-semibold text-green-800 mb-3 flex items-center">
-                        <i class="fas fa-clipboard-check mr-2"></i>
+                        <FontAwesomeIcon icon="clipboard-check" class="mr-2" />
                         Resumen del Mantenimiento
                     </h3>
                     <div class="grid md:grid-cols-2 gap-4 text-sm">
@@ -339,7 +341,7 @@
                     </div>
                     <div v-if="form.proximo_mantenimiento" class="mt-3 p-3 bg-green-100 rounded-lg">
                         <div class="text-sm text-green-800">
-                            <i class="fas fa-bell mr-2"></i>
+                            <FontAwesomeIcon icon="bell" class="mr-2" />
                             <strong>Alerta programada:</strong> Se enviará una notificación {{ form.dias_anticipacion_alerta }} días antes del próximo mantenimiento
                             ({{ new Date(form.proximo_mantenimiento).toLocaleDateString('es-MX') }})
                         </div>
@@ -349,28 +351,28 @@
                 <!-- Notas -->
                 <div>
                     <label class="block text-gray-700 text-sm font-semibold mb-3">
-                        <i class="fas fa-sticky-note mr-2"></i>Notas y Observaciones
+                        <FontAwesomeIcon icon="sticky-note" class="mr-2" />Notas y Observaciones
                     </label>
                     <textarea
                         v-model="form.notas"
                         rows="4"
                         placeholder="Describe detalles del servicio, piezas cambiadas, observaciones, etc..."
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-y"
+                        class="w-full resize-y rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                     ></textarea>
-                    <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <div class="flex justify-between text-sm text-gray-500 mt-1">
                         <span>Opcional</span>
                         <span>{{ form.notas.length }}/500 caracteres</span>
                     </div>
                 </div>
 
                 <!-- Botones de Acción -->
-                <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-800">
+                <div class="flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
                     <button
                         type="button"
                         @click="resetForm"
-                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-white dark:bg-slate-900 transition-all duration-200 flex items-center"
+                        class="flex items-center rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700/50"
                     >
-                        <i class="fas fa-undo mr-2"></i>
+                        <FontAwesomeIcon icon="undo" class="mr-2" />
                         Limpiar Formulario
                     </button>
 
@@ -378,16 +380,17 @@
                         <button
                             type="button"
                             @click="router.visit(route('mantenimientos.index'))"
-                            class="px-6 py-3 bg-white dark:bg-slate-9000 text-white rounded-lg hover:bg-gray-600 transition-all duration-200 flex items-center"
+                            class="flex items-center rounded-lg bg-gray-600 px-6 py-3 text-white transition-all duration-200 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
                         >
-                            <i class="fas fa-times mr-2"></i>
+                            <FontAwesomeIcon icon="times" class="mr-2" />
                             Cancelar
                         </button>
 
                         <button
                             type="submit"
                             :disabled="form.processing || !form.carro_id || !form.tipo"
-                            class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 transition-all duration-200 flex items-center min-w-[160px]"
+                            class="flex min-w-[160px] items-center rounded-lg px-6 py-3 text-white shadow-md transition-all duration-200 hover:brightness-105 disabled:opacity-50"
+                            :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }"
                         >
                             <i v-if="!form.processing" class="fas fa-save mr-2"></i>
                             <i v-else class="fas fa-spinner fa-spin mr-2"></i>
@@ -396,6 +399,7 @@
                     </div>
                 </div>
             </form>
+            </div>
         </div>
     </div>
 </template>
@@ -403,38 +407,20 @@
 <script setup>
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { reactive, computed, ref } from 'vue';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+import { notyf } from '@/Utils/notyf';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { useCompanyColors } from '@/Composables/useCompanyColors';
 
 // Define el layout del dashboard
 defineOptions({ layout: AppLayout });
+
+const { cssVars, colors } = useCompanyColors();
 
 const props = defineProps({ carros: Array });
 
 const isSubmitting = ref(false);
 
-const notyf = new Notyf({
-    duration: 4000,
-    position: { x: 'right', y: 'top' },
-    types: [
-        {
-            type: 'success',
-            background: 'linear-gradient(135deg, #4caf50, #45a049)',
-            icon: { className: 'fas fa-check-circle', tagName: 'i', color: '#fff' }
-        },
-        {
-            type: 'error',
-            background: 'linear-gradient(135deg, #f44336, #e53935)',
-            icon: { className: 'fas fa-exclamation-triangle', tagName: 'i', color: '#fff' }
-        },
-        {
-            type: 'warning',
-            background: 'linear-gradient(135deg, #ff9800, #f57c00)',
-            icon: { className: 'fas fa-exclamation-circle', tagName: 'i', color: '#fff' }
-        },
-    ],
-});
+// notyf compartido
 
 // Fecha de hoy compatible con zona horaria (Hermosillo) - definir primero
 const today = computed(() => {
@@ -1001,7 +987,7 @@ const getClasesPrioridad = (prioridad) => {
         'alta': 'bg-orange-100 text-orange-700 border-orange-200',
         'critica': 'bg-red-100 text-red-700 border-red-200'
     };
-    return clases[prioridad] || 'bg-gray-100 text-gray-700 border-gray-200 dark:border-slate-800';
+    return clases[prioridad] || 'bg-gray-100 text-gray-700 border-gray-200';
 };
 
 const getLabelPrioridad = (prioridad) => {
@@ -1221,4 +1207,3 @@ button[type="button"]:hover {
     transform: translateY(-1px);
 }
 </style>
-

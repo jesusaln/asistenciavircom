@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CuentaBancaria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\CuentasPorCobrar;
 use App\Models\Cobranza;
@@ -48,6 +49,55 @@ class CuentaBancariaController extends Controller
             'cuentas' => $cuentas,
             'totales' => $totales,
         ]);
+    }
+
+    /**
+     * Realizar un traspaso entre cuentas bancarias
+     */
+    public function traspaso(Request $request)
+    {
+        $validated = $request->validate([
+            'cuenta_origen_id' => 'required|exists:cuentas_bancarias,id',
+            'cuenta_destino_id' => 'required|exists:cuentas_bancarias,id|different:cuenta_origen_id',
+            'monto' => 'required|numeric|min:0.01',
+            'fecha' => 'required|date',
+            'notas' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::transaction(function () use ($validated) {
+                $origen = CuentaBancaria::findOrFail($validated['cuenta_origen_id']);
+                $destino = CuentaBancaria::findOrFail($validated['cuenta_destino_id']);
+
+                // Validar saldo suficiente
+                if ($origen->saldo_actual < $validated['monto']) {
+                    throw new \Exception("Saldo insuficiente en la cuenta de origen ({$origen->nombre})");
+                }
+
+                $concepto = "Traspaso de {$origen->nombre} a {$destino->nombre}" . ($validated['notas'] ? ": {$validated['notas']}" : "");
+
+                // 1. Registrar retiro en origen
+                $origen->registrarMovimiento(
+                    'retiro',
+                    $validated['monto'],
+                    $concepto,
+                    'traspaso'
+                );
+
+                // 2. Registrar deposito en destino
+                $destino->registrarMovimiento(
+                    'deposito',
+                    $validated['monto'],
+                    $concepto,
+                    'traspaso'
+                );
+            });
+
+            return redirect()->route('cuentas-bancarias.index')->with('success', 'Traspaso realizado exitosamente');
+        } catch (\Exception $e) {
+            Log::error('Error en traspaso bancario: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -100,7 +150,7 @@ class CuentaBancariaController extends Controller
     public function show(CuentaBancaria $cuentas_bancaria)
     {
         $cuenta = $cuentas_bancaria;
-        
+
         $movimientos = $cuenta->movimientos()
             ->with(['conciliable']) // Solo cargar conciliable, cobrable se carga manualmente
             ->orderBy('fecha', 'desc')
@@ -127,7 +177,7 @@ class CuentaBancariaController extends Controller
                         }
                     }
                 }
-                
+
                 $mov->folio_venta = $folio_venta;
                 return $mov;
             });
@@ -157,42 +207,42 @@ class CuentaBancariaController extends Controller
     public function movimientos(Request $request, CuentaBancaria $cuentas_bancaria)
     {
         $cuenta = $cuentas_bancaria;
-        
+
         // Filtros con defaults al mes actual
         $fechaDesde = $request->get('fecha_desde', now()->startOfMonth()->toDateString());
         $fechaHasta = $request->get('fecha_hasta', now()->endOfMonth()->toDateString());
         $tipo = $request->get('tipo'); // deposito/retiro
         $origenTipo = $request->get('origen_tipo'); // venta/renta/prestamo/traspaso/cobro/pago/otro
-        
+
         $query = $cuenta->movimientos()
             ->with(['conciliable', 'usuario'])
             ->whereDate('fecha', '>=', $fechaDesde)
             ->whereDate('fecha', '<=', $fechaHasta)
             ->orderBy('fecha', 'desc')
             ->orderBy('id', 'desc');
-        
+
         if ($tipo) {
             $query->where('tipo', $tipo);
         }
-        
+
         // Filtrar por tipo de origen
         if ($origenTipo) {
             $query->where('origen_tipo', $origenTipo);
         }
-        
+
         $movimientos = $query->paginate(20)->withQueryString();
-        
+
         // Estadísticas del período
         $statsQuery = $cuenta->movimientos()
             ->whereDate('fecha', '>=', $fechaDesde)
             ->whereDate('fecha', '<=', $fechaHasta);
-        
+
         $stats = [
             'total_depositos' => (clone $statsQuery)->where('tipo', 'deposito')->sum('monto'),
             'total_retiros' => abs((clone $statsQuery)->where('tipo', 'retiro')->sum('monto')),
             'cantidad_movimientos' => (clone $statsQuery)->count(),
         ];
-        
+
         // Tipos de origen disponibles para este rango
         $origenesDisponibles = $cuenta->movimientos()
             ->whereDate('fecha', '>=', $fechaDesde)
@@ -201,7 +251,7 @@ class CuentaBancariaController extends Controller
             ->distinct()
             ->pluck('origen_tipo')
             ->toArray();
-        
+
         return Inertia::render('CuentasBancarias/Movimientos', [
             'cuenta' => [
                 'id' => $cuenta->id,
@@ -302,6 +352,14 @@ class CuentaBancariaController extends Controller
     }
 
     /**
+     * Alias de apiCuentasActivas para ruta /admin/cuentas-bancarias/activas
+     */
+    public function activas()
+    {
+        return $this->apiCuentasActivas();
+    }
+
+    /**
      * Bancos disponibles
      */
     protected function getBancosDisponibles(): array
@@ -336,7 +394,7 @@ class CuentaBancariaController extends Controller
         ]);
 
         $origenTipo = $validated['categoria'] ?? 'otro';
-        
+
         $movimiento = $cuentas_bancaria->registrarMovimiento(
             $validated['tipo'],
             $validated['monto'],
@@ -355,7 +413,7 @@ class CuentaBancariaController extends Controller
         }
 
         $tipoTexto = $validated['tipo'] === 'deposito' ? 'Depósito' : 'Retiro';
-        
+
         return back()->with('success', "{$tipoTexto} de \${$validated['monto']} registrado correctamente.");
     }
 }

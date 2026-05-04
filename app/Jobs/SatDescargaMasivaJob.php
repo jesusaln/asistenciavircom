@@ -10,12 +10,14 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class SatDescargaMasivaJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 6;
+    public int $timeout = 120;
 
     private int $descargaId;
     private string $mode;
@@ -151,8 +153,8 @@ class SatDescargaMasivaJob implements ShouldQueue
                 'mensaje_usuario' => null,
             ]);
 
-            // Auto-programar verificación después de 30 segundos
-            self::dispatch($this->descargaId, 'verify')->delay(now()->addSeconds(30));
+            // Auto-programar verificación después de 2 minutos (el SAT tarda)
+            self::dispatch($this->descargaId, 'verify')->delay(now()->addMinutes(2));
 
             return;
         }
@@ -173,9 +175,24 @@ class SatDescargaMasivaJob implements ShouldQueue
 
         $result = $service->verificarYDescargar($descarga);
         if (!$result['success']) {
+            $message = $result['message'] ?? 'Error desconocido';
+
+            // Si es un error de conexión o transitorio, reintentar con backoff
+            if (Str::contains($message, ['conexion', 'timeout', '500', '503', 'intermitencia', 'connection'])) {
+                Log::warning('SAT Descarga: Error transitorio en verificación, reintentando...', [
+                    'descarga_id' => $this->descargaId,
+                    'error' => $message,
+                    'attempt' => $this->attempts()
+                ]);
+
+                // Liberar para reintento con el siguiente backoff
+                $this->release($this->nextBackoff());
+                return;
+            }
+
             $descarga->update([
                 'status' => 'error',
-                'last_error' => $result['message'],
+                'last_error' => $message,
                 'finished_at' => now(),
             ]);
             return;
@@ -206,6 +223,11 @@ class SatDescargaMasivaJob implements ShouldQueue
             'errors' => ($errorsPayload['errors'] || $errorsPayload['duplicates']) ? $errorsPayload : null,
             'finished_at' => now(),
         ]);
+    }
+
+    public function backoff(): array
+    {
+        return [60, 120, 300, 600, 900, 1200];
     }
 
     private function nextBackoff(): int

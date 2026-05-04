@@ -10,11 +10,11 @@ use App\Support\EmpresaResolver;
 
 class EmpresaConfiguracion extends Model
 {
-    use BelongsToEmpresa;
+    use BelongsToEmpresa, Concerns\LogsCredentialRotation;
 
     protected $table = 'empresa_configuracion';
 
-    protected $appends = ['logo_url', 'favicon_url', 'logo_reportes_url', 'direccion_completa'];
+    protected $appends = ['logo_url', 'favicon_url', 'logo_reportes_url', 'direccion_completa', 'firma_digital_url'];
 
     public function __construct(array $attributes = [])
     {
@@ -41,8 +41,6 @@ class EmpresaConfiguracion extends Model
         'pais',
         'logo_path',
         'favicon_path',
-        'images_webp_enabled',
-        'images_webp_quality',
         'descripcion_empresa',
         'color_principal',
         'color_secundario',
@@ -61,6 +59,7 @@ class EmpresaConfiguracion extends Model
         'registro_usuarios',
         'notificaciones_email',
         'logo_reportes',
+        'firma_digital',
         'formato_fecha',
         'formato_hora',
         'backup_automatico',
@@ -80,7 +79,6 @@ class EmpresaConfiguracion extends Model
         'intentos_login',
         'tiempo_bloqueo',
         'dias_gracia_corte',
-        'bloqueo_portal_por_deuda',
         'requerir_2fa',
         // Datos bancarios existentes
         'banco',
@@ -197,44 +195,25 @@ class EmpresaConfiguracion extends Model
         'cuenta_id_paypal',
         'cuenta_id_mercadopago',
         'cuenta_id_stripe',
-        // CVA API
-        'cva_active',
-        'cva_user',
-        'cva_password',
-        'cva_utility_percentage',
-        'cva_utility_tiers',
-        'cva_codigo_sucursal',
-        'cva_paqueteria_envio',
-        'cva_tipo_cambio',
-        'cva_tipo_cambio_buffer',
-        'cva_tipo_cambio_auto',
-        'cva_tipo_cambio_last_update',
-        'cva_auto_pago',
-        'cva_monedero_balance',
-        'cva_monedero_last_update',
         // Shipping
         'shipping_local_cp_prefix',
         'shipping_local_cost',
         'n8n_webhook_blog',
-        'ticket_default_assignee_id',
-        // Biométricos / Checador
-        'biometrics_strict_match',
-        'biometrics_local_match_threshold',
-        'biometrics_local_liveness_threshold',
-        'biometrics_geofence_soft_margin_meters',
-        'biometrics_nearby_match_relax',
-        'biometrics_nearby_liveness_relax',
-        'biometrics_far_match_penalty',
-        'biometrics_far_liveness_penalty',
-        // Asistencia
-        'minutos_tolerancia_retardo',
-        'rustdesk_server_address',
-        'rustdesk_relay_server',
-        'rustdesk_public_key',
-        'rustdesk_api_url',
-        'rustdesk_api_token',
+        // Google Gemini AI
         'gemini_api_key',
         'gemini_model',
+        'gemini_temperature',
+        // AI Configuration (original fields)
+        'ai_provider',
+        'groq_api_key',
+        'groq_model',
+        'groq_temperature',
+        'ollama_base_url',
+        'ollama_model',
+        'chatbot_enabled',
+        'chatbot_system_prompt',
+        'chatbot_name',
+        'pin_auditoria',
     ];
 
     protected $casts = [
@@ -245,8 +224,6 @@ class EmpresaConfiguracion extends Model
         'requerir_2fa' => 'boolean',
         'dkim_enabled' => 'boolean',
         'dark_mode_enabled' => 'boolean',
-        'images_webp_enabled' => 'boolean',
-        'images_webp_quality' => 'integer',
         'iva_porcentaje' => 'decimal:2',
         'isr_porcentaje' => 'decimal:2',
         'intentos_login' => 'integer',
@@ -285,31 +262,14 @@ class EmpresaConfiguracion extends Model
         'gdrive_auto_backup' => 'boolean',
         'gdrive_token_expires_at' => 'datetime',
         'gdrive_last_sync' => 'datetime',
-        'cva_active' => 'boolean',
-        'cva_utility_percentage' => 'decimal:2',
-        'cva_utility_tiers' => 'array',
-        'cva_codigo_sucursal' => 'integer',
-        'cva_paqueteria_envio' => 'integer',
-        'cva_tipo_cambio' => 'decimal:4',
-        'cva_tipo_cambio_buffer' => 'decimal:2',
-        'cva_tipo_cambio_auto' => 'boolean',
-        'cva_tipo_cambio_last_update' => 'datetime',
-        'cva_auto_pago' => 'boolean',
-        'cva_monedero_balance' => 'decimal:2',
-        'cva_monedero_last_update' => 'datetime',
         'shipping_local_cost' => 'decimal:2',
         'dias_gracia_corte' => 'integer',
-        'bloqueo_portal_por_deuda' => 'boolean',
-        // Biométricos
-        'biometrics_strict_match' => 'boolean',
-        'biometrics_local_match_threshold' => 'decimal:4',
-        'biometrics_local_liveness_threshold' => 'decimal:4',
-        'biometrics_geofence_soft_margin_meters' => 'integer',
-        'biometrics_nearby_match_relax' => 'decimal:4',
-        'biometrics_nearby_liveness_relax' => 'decimal:4',
-        'biometrics_far_match_penalty' => 'decimal:4',
-        'biometrics_far_liveness_penalty' => 'decimal:4',
-        'minutos_tolerancia_retardo' => 'integer',
+        // AI
+        'gemini_api_key' => 'encrypted',
+        'gemini_temperature' => 'decimal:2',
+        'groq_api_key' => 'encrypted',
+        'groq_temperature' => 'decimal:2',
+        'chatbot_enabled' => 'boolean',
     ];
 
     /**
@@ -335,8 +295,8 @@ class EmpresaConfiguracion extends Model
         'gdrive_client_secret',
         'gdrive_access_token',
         'gdrive_refresh_token',
-        'cva_password',
         'gemini_api_key',
+        'groq_api_key',
     ];
 
     /**
@@ -348,11 +308,11 @@ class EmpresaConfiguracion extends Model
         // Default config to return when database is unavailable
         $defaultConfig = new self;
         $defaultConfig->forceFill([
-            'nombre_empresa' => 'ASISTENCIA VIRCOM',
-            'rfc' => 'LONJ880321KMA',
-            'razon_social' => 'JESUS ALBERTO LOPEZ NORIEGA',
-            'color_principal' => '#3B82F6',
-            'color_secundario' => '#1E40AF',
+            'nombre_empresa' => 'CLIMAS DEL DESIERTO',
+            'rfc' => 'CDD123456ABC',
+            'razon_social' => 'CLIMAS DEL DESIERTO S.A. DE C.V.',
+            'color_principal' => '#F59E0B',
+            'color_secundario' => '#D97706',
             'iva_porcentaje' => 16.00,
             'moneda' => 'MXN',
             'backup_automatico' => true,
@@ -394,8 +354,6 @@ class EmpresaConfiguracion extends Model
                         'rfc' => $defaultConfig->rfc,
                         'iva_porcentaje' => $defaultConfig->iva_porcentaje,
                         'moneda' => $defaultConfig->moneda,
-                        'backup_automatico' => $defaultConfig->backup_automatico,
-                        'backup_hora_completo' => $defaultConfig->backup_hora_completo,
                     ]);
                 }
             }
@@ -432,7 +390,7 @@ class EmpresaConfiguracion extends Model
      */
     public function getLogoUrlAttribute()
     {
-        if ($this->logo_path) {
+        if ($this->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->logo_path)) {
             return \App\Helpers\UrlHelper::storageUrl($this->logo_path);
         }
         return null;
@@ -443,7 +401,7 @@ class EmpresaConfiguracion extends Model
      */
     public function getFaviconUrlAttribute()
     {
-        if ($this->favicon_path) {
+        if ($this->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->favicon_path)) {
             return \App\Helpers\UrlHelper::storageUrl($this->favicon_path);
         }
         return null;
@@ -458,6 +416,16 @@ class EmpresaConfiguracion extends Model
             return \App\Helpers\UrlHelper::storageUrl($this->logo_reportes);
         } elseif ($this->logo_path) {
             return \App\Helpers\UrlHelper::storageUrl($this->logo_path);
+        }
+        return null;
+    }
+    /**
+     * Obtener URL completa de la firma digital
+     */
+    public function getFirmaDigitalUrlAttribute()
+    {
+        if ($this->firma_digital) {
+            return \App\Helpers\UrlHelper::storageUrl($this->firma_digital);
         }
         return null;
     }
@@ -523,15 +491,83 @@ class EmpresaConfiguracion extends Model
 
             if (file_exists($logoPathAbsolute)) {
                 try {
-                    $type = pathinfo($logoPathAbsolute, PATHINFO_EXTENSION);
+                    $type = strtolower(pathinfo($logoPathAbsolute, PATHINFO_EXTENSION));
                     $data = file_get_contents($logoPathAbsolute);
-                    $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+                    // ✅ FIX: DomPDF no soporta WebP. Convertimos a JPEG o lo omitimos.
+                    if ($type === 'webp') {
+                        $converted = false;
+
+                        // Intentar con GD
+                        if (!$converted && function_exists('imagecreatefromwebp')) {
+                            try {
+                                $img = @imagecreatefromwebp($logoPathAbsolute);
+                                if ($img) {
+                                    ob_start();
+                                    imagejpeg($img, null, 90);
+                                    $data = ob_get_clean();
+                                    imagedestroy($img);
+                                    $type = 'jpeg';
+                                    $converted = true;
+                                }
+                            } catch (\Throwable $e) {
+                                \Log::warning('GD WebP conversion failed: ' . $e->getMessage());
+                            }
+                        }
+
+                        // Intentar con Imagick
+                        if (!$converted && class_exists('Imagick')) {
+                            try {
+                                $imagick = new \Imagick($logoPathAbsolute);
+                                $imagick->setImageFormat('jpeg');
+                                $imagick->setImageCompressionQuality(90);
+                                $data = $imagick->getImageBlob();
+                                $imagick->destroy();
+                                $type = 'jpeg';
+                                $converted = true;
+                            } catch (\Throwable $e) {
+                                \Log::warning('Imagick WebP conversion failed: ' . $e->getMessage());
+                            }
+                        }
+
+                        // Si no se pudo convertir, omitir el logo para evitar crash de DomPDF
+                        if (!$converted) {
+                            \Log::warning('Logo WebP no puede ser convertido. Se omitirá el logo en el PDF. Instale ext-gd con soporte WebP o ext-imagick.');
+                            $logoBase64 = null;
+                            $logoPathAbsolute = null;
+                        }
+                    }
+
+                    // Solo asignar base64 si no fue anulado arriba
+                    if ($logoBase64 === null && $type !== 'webp') {
+                        // Tipo ya fue convertido a jpeg arriba
+                    }
+                    if ($data && $type !== 'webp') {
+                        $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    }
                 } catch (\Exception $e) {
                     \Log::error('Error convirtiendo logo a base64: ' . $e->getMessage());
                     $logoBase64 = null;
                 }
             } else {
                 $logoPathAbsolute = null;
+            }
+        }
+
+        // ✅ FIX: Firma Digital Base64
+        $firmaBase64 = null;
+        if ($config->firma_digital) {
+            $firmaPath = storage_path('app/public/' . $config->firma_digital);
+            if (file_exists($firmaPath)) {
+                try {
+                    $fType = strtolower(pathinfo($firmaPath, PATHINFO_EXTENSION));
+                    $fData = file_get_contents($firmaPath);
+                    if ($fData && $fType !== 'webp') {
+                        $firmaBase64 = 'data:image/' . $fType . ';base64,' . base64_encode($fData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Error convirtiendo firma a base64: ' . $e->getMessage());
+                }
             }
         }
 
@@ -546,6 +582,9 @@ class EmpresaConfiguracion extends Model
             'logo_url' => $config->logo_url,
             'logo_path_absolute' => $logoPathAbsolute,
             'logo_base64' => $logoBase64,
+            'firma_digital' => $config->firma_digital, // El path original
+            'firma_base64' => $firmaBase64,
+            'firma_digital_url' => $config->firma_digital ? \App\Helpers\UrlHelper::storageUrl($config->firma_digital) : null,
         ];
     }
 

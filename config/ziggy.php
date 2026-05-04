@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'url' => env('APP_ENV') === 'production' ? env('APP_URL') : null,
+    'url' => config('app.url'),
 
     'port' => env('APP_PORT', 8000),
 

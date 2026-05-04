@@ -155,12 +155,14 @@ class GarantiaController extends Controller
 
         $seriesVendidas = $query->orderBy('v.created_at', 'desc')->paginate(50);
 
-        // Calcular estadísticas en BD para evitar timeouts y consumo alto de memoria
-        $baseStatsQuery = $this->getSeriesVendidasQuery();
+        // Calcular estadísticas para los cards
+        $statsQuery = $this->getSeriesVendidasQuery();
+        $allSeries = $statsQuery->get();
+
         $stats = [
-            'vigentes' => (clone $baseStatsQuery)->whereRaw('(v.created_at::date + COALESCE(p.dias_garantia, 365)) >= CURRENT_DATE')->count(),
-            'vencidas' => (clone $baseStatsQuery)->whereRaw('(v.created_at::date + COALESCE(p.dias_garantia, 365)) < CURRENT_DATE')->count(),
-            'conCita' => (clone $baseStatsQuery)->whereNotNull('ps.cita_id')->count(),
+            'vigentes' => $allSeries->where('garantia_vigente', 1)->count(),
+            'vencidas' => $allSeries->where('garantia_vigente', 0)->count(),
+            'conCita' => $allSeries->whereNotNull('cita_id')->count(),
         ];
 
         return Inertia::render('Garantias/Index', [
@@ -195,27 +197,6 @@ class GarantiaController extends Controller
             'resultado' => $resultado,
             'seriesVendidas' => $seriesVendidas,
             'filters' => $request->only(['search']),
-        ]);
-    }
-
-    /**
-     * Compatibilidad para rutas legacy garantias.show
-     */
-    public function show(string $garantia)
-    {
-        $serie = trim($garantia);
-        $resultado = $serie !== '' ? $this->getSerieDetailQuery($serie) : null;
-
-        $query = $this->getSeriesVendidasQuery();
-        if ($serie !== '') {
-            $this->addSearchFilter($query, $serie);
-        }
-
-        return Inertia::render('Garantias/BuscarSerie', [
-            'serie' => $serie,
-            'resultado' => $resultado,
-            'seriesVendidas' => $query->orderBy('v.created_at', 'desc')->paginate(20),
-            'filters' => ['search' => $serie],
         ]);
     }
 

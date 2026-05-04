@@ -6,15 +6,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CatalogoController;
-use App\Http\Controllers\Publico\ContactoController;
-use App\Http\Controllers\Publico\SoportePublicoController; // Import Controller
-use App\Http\Controllers\AsistenciaController;
+use App\Http\Controllers\Public\ContactoController;
+use App\Http\Controllers\Public\SoportePublicoController; // Import Controller
+use App\Http\Controllers\Public\FacebookCatalogController;
+use App\Http\Controllers\Public\SitemapController;
 
 Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name('public.soporte'); // Nueva Ruta
-Route::get('/marcar/{token}', [AsistenciaController::class, 'showByToken'])->name('asistencia.token');
-Route::post('/marcar/{token}', [AsistenciaController::class, 'storeByToken'])
-    ->middleware('throttle:10,1')
-    ->name('asistencia.token.store');
+Route::get('/facebook-catalog', [FacebookCatalogController::class, 'index'])->name('public.facebook-catalog');
+Route::get('/feed/facebook-products.xml', \App\Http\Controllers\FacebookProductFeedController::class)->name('public.facebook-feed');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('public.sitemap');
 
 
 // Tienda (Público)
@@ -41,7 +41,7 @@ Route::get('/api/app-version', function () {
     return response()->json(['version' => \App\Support\VersionHelper::getVersion()]);
 });
 
-// GeoIP
+// GeoIP (Público pero con throttle para evitar abuso)
 Route::get('/api/geoip', function (Request $request) {
     try {
         $ip = $request->ip();
@@ -49,29 +49,39 @@ Route::get('/api/geoip', function (Request $request) {
             return response()->json(['city' => 'Hermosillo', 'regionName' => 'Sonora']);
         }
         return \Illuminate\Support\Facades\Cache::remember("geoip_{$ip}", 3600, function () use ($ip) {
-            $response = \Illuminate\Support\Facades\Http::get("http://ip-api.com/json/{$ip}?fields=city,regionName");
+            $response = \Illuminate\Support\Facades\Http::timeout(2)->connectTimeout(1)->get("http://ip-api.com/json/{$ip}?fields=city,regionName");
             return $response->json();
         });
     } catch (\Exception $e) {
         return response()->json([], 200);
     }
-})->name('public.geoip');
+})->name('public.geoip')->middleware(['throttle:30,1']);
 
 // Landing y Páginas Estáticas
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::get('/privacidad', [LandingController::class, 'privacidad'])->name('public.privacidad');
 Route::get('/terminos', [LandingController::class, 'terminos'])->name('public.terminos');
+Route::get('/eliminacion-datos', [LandingController::class, 'eliminacion'])->name('public.eliminacion');
 Route::get('/asesor-climatizacion', [LandingController::class, 'asesor'])->name('public.asesor');
-Route::post('/asesor-lead', [LandingController::class, 'storeLead'])->name('public.asesor.store');
+Route::post('/asesor-lead', [LandingController::class, 'storeLead'])->name('public.asesor.store')->middleware(['throttle:5,1']);
 Route::get('/asesor-pdf', [LandingController::class, 'downloadReport'])->name('public.asesor.pdf');
-Route::get('/quienes-somos', [LandingController::class, 'quienesSomos'])->name('public.quienes-somos');
-Route::get('/curriculum-pdf', [LandingController::class, 'curriculumPdf'])->name('public.curriculum.pdf');
-Route::get('/puntos-de-venta', [LandingController::class, 'puntosVenta'])->name('public.puntos-venta');
+Route::get('/propuesta-sgs', [LandingController::class, 'propuestaSgs'])->name('public.propuesta-sgs');
+Route::get('/life-12-plus', [LandingController::class, 'life12plus'])->name('public.life12plus');
+
+// Servicios (Público)
+Route::get('/reparacion-minisplit', [LandingController::class, 'reparacion'])->name('public.reparacion');
+Route::get('/mantenimiento-preventivo', [LandingController::class, 'mantenimiento'])->name('public.mantenimiento');
+Route::get('/instalacion-minisplit', [LandingController::class, 'instalacion'])->name('public.instalacion');
+Route::get('/instalacion-gratis-mirage', [LandingController::class, 'instalacionMirage'])->name('public.instalacion-mirage');
+Route::get('/instalacion-1500', [LandingController::class, 'instalacion1500'])->name('public.instalacion-con-costo');
+Route::get('/recarga-gas', [LandingController::class, 'gas'])->name('public.gas');
 
 // Contacto y Citas Públicas (Rápido)
 Route::get('/contacto', [ContactoController::class, 'index'])->name('public.contacto');
-Route::post('/contacto', [ContactoController::class, 'store'])->name('public.contacto.store');
-Route::post('/cita', [ContactoController::class, 'storeCita'])->name('public.cita.store');
+Route::post('/contacto', [ContactoController::class, 'store'])->name('public.contacto.store')->middleware(['throttle:5,1']);
+Route::post('/cita', [ContactoController::class, 'storeCita'])->name('public.cita.store')->middleware(['throttle:5,1']);
+Route::get('/agendar-cita', [ContactoController::class, 'agendaRapida'])->name('public.agenda-rapida');
+Route::post('/agendar-cita', [ContactoController::class, 'storeAgendaRapida'])->name('public.agenda-rapida.store')->middleware(['throttle:5,1']);
 
 // Tienda (Público)
 Route::get('/tienda', [CatalogoController::class, 'index'])->name('catalogo.index');
@@ -90,28 +100,24 @@ Route::get('/rentas-equipos', [PlanRentaController::class, 'catalogo'])->name('c
 Route::get('/contratar-renta/{slug}', [ContratacionRentaController::class, 'show'])->name('contratacion.renta.show');
 Route::post('/contratar-renta/{slug}', [ContratacionRentaController::class, 'procesar'])->name('contratacion.renta.procesar');
 
-// Páginas de Servicios Específicos
-Route::get('/servicio/{slug}', [\App\Http\Controllers\PublicServicioController::class, 'show'])->name('public.servicio.show');
-
 // Checkout de Pólizas (Público inicia aquí)
 Route::get('/contratar/{slug}', [ContratacionPolizaController::class, 'show'])->name('contratacion.show');
 Route::post('/contratar/{slug}', [ContratacionPolizaController::class, 'procesar'])->name('contratacion.procesar');
 Route::get('/contratar/{slug}/exito', [ContratacionPolizaController::class, 'exito'])->name('contratacion.exito');
 
 // PDFs Públicos
-Route::get('/share/venta/{id}/pdf', [VentaDocumentoController::class, 'generarPDF'])->name('ventas.pdf.public');
-Route::get('/share/cotizacion/{id}/pdf', [CotizacionDocumentoController::class, 'generarPDF'])->name('cotizaciones.pdf.public');
-Route::get('/share/pedido/{id}/pdf', [PedidoDocumentoController::class, 'generarPDF'])->name('pedidos.pdf.public');
+Route::get('/share/venta/{token}/pdf', [VentaDocumentoController::class, 'generarPDFPublico'])->name('ventas.pdf.public');
+Route::get('/share/cotizacion/{token}/pdf', [CotizacionDocumentoController::class, 'generarPDFPublico'])->name('cotizaciones.pdf.public');
+Route::get('/share/pedido/{token}/pdf', [PedidoDocumentoController::class, 'generarPDFPublico'])->name('pedidos.pdf.public');
 
 // Agendamiento Público Detallado
-Route::prefix('agendar-cita')->name('agendar.')->group(function () {
+Route::prefix('agendar')->name('agendar.')->group(function () {
     Route::get('/', [CitaPublicaController::class, 'index'])->name('index');
     Route::post('/', [CitaPublicaController::class, 'store'])->name('store');
     Route::get('/disponibilidad', [CitaPublicaController::class, 'disponibilidad'])->name('disponibilidad');
     Route::get('/horarios', [CitaPublicaController::class, 'horariosDisponibles'])->name('horarios');
     Route::get('/seguimiento/{uuid}', [CitaPublicaController::class, 'seguimiento'])->name('seguimiento');
 });
-Route::redirect('/agendar', '/agendar-cita', 301);
 Route::get('/mi-cita/{uuid}', [CitaPublicaController::class, 'seguimiento'])->name('mi-cita');
 
 // Placeholder SVG
@@ -131,8 +137,8 @@ SVG;
     return response($svg, 200, ['Content-Type' => 'image/svg+xml', 'Cache-Control' => 'public, max-age=3600']);
 })->name('placeholder');
 
-// Debug y Pruebas (Solo desarrollo o utilidades)
-Route::middleware(['web'])->group(function () {
+// Debug y Pruebas (Protegido)
+Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->group(function () {
     Route::get('/test-utf8', function () {
         $invalidUtf8 = "Valid text " . "\x80\x81\x82" . " more text";
         return response()->json([
@@ -146,30 +152,29 @@ Route::middleware(['web'])->group(function () {
         return response()->json([
             'app_url' => config('app.url'),
             'current_host' => request()->getHost(),
-            'storage_url_example' => \App\Helpers\UrlHelper::storageUrl('profile-photos/test.png'),
+            'storage_url_example' => \App\Helpers\UrlHelper::storageUrl('profile-photos/test.webp'),
             'is_misconfigured' => \App\Helpers\UrlHelper::isAppUrlMisconfigured(),
         ]);
     })->name('debug.urls');
+
+    // Rutas de Imágenes (Movidas aquí para protección)
+    Route::get('/test-images', function () {
+        $profilePhotos = Storage::disk('public')->files('profile-photos');
+        $images = [];
+        foreach ($profilePhotos as $photo) {
+            $images[] = [
+                'filename' => basename($photo),
+                'url' => asset('storage/' . $photo),
+                'size' => Storage::disk('public')->size($photo),
+                'exists' => Storage::disk('public')->exists($photo),
+            ];
+        }
+        return response()->json(['images' => $images]);
+    })->name('test.images.json');
 });
 
-// Rutas de Imágenes
-Route::get('/test-images', function () {
-    $profilePhotos = Storage::disk('public')->files('profile-photos');
-    $images = [];
-    foreach ($profilePhotos as $photo) {
-        $images[] = [
-            'filename' => basename($photo),
-            'url' => asset('storage/' . $photo),
-            'size' => Storage::disk('public')->size($photo),
-            'exists' => Storage::disk('public')->exists($photo),
-        ];
-    }
-    return response()->json(['images' => $images]);
-})->name('test.images.json');
-
 Route::get('/profile-photo/{filename}', [App\Http\Controllers\ImageController::class, 'serveProfilePhoto'])->name('serve-profile-photo');
-Route::get('/blog-cover/{filename}', [App\Http\Controllers\ImageController::class, 'serveBlogCover'])->name('serve-blog-cover');
-Route::get('/api/profile-photos', [App\Http\Controllers\ImageController::class, 'listProfilePhotos'])->name('list-profile-photos');
+Route::get('/api/profile-photos', [App\Http\Controllers\ImageController::class, 'listProfilePhotos'])->name('list-profile-photos')->middleware(['auth:sanctum']);
 
 Route::get('/img/profile-photos/{filename}', function ($filename) {
     $path = 'profile-photos/' . $filename;
@@ -183,8 +188,17 @@ Route::get('/img/profile-photos/{filename}', function ($filename) {
 // Webhook específico para Portal de Clientes (Pagos Ventas)
 Route::post('/webhooks/portal/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'webhookMercadoPago'])
     ->name('portal.pagos.mercadopago.webhook')
+    ->middleware('throttle:60,1')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
-// Newsletter
+// Rutas específicas de Asistencia Vircom
+Route::get('/marcar/{token}', [\App\Http\Controllers\AsistenciaController::class, 'showByToken'])->name('asistencia.token');
+Route::post('/marcar/{token}', [\App\Http\Controllers\AsistenciaController::class, 'storeByToken'])->middleware('throttle:10,1')->name('asistencia.token.store');
+
 Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::get('/newsletter/unsubscribe', [\App\Http\Controllers\NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+// Rutas recuperadas de Vircom original
+Route::get('/quienes-somos', [\App\Http\Controllers\LandingController::class, 'quienesSomos'])->name('public.quienes-somos');
+Route::get('/curriculum-pdf', [\App\Http\Controllers\LandingController::class, 'curriculumPdf'])->name('public.curriculum.pdf');
+Route::get('/puntos-de-venta', [\App\Http\Controllers\LandingController::class, 'puntosVenta'])->name('public.puntos-venta');

@@ -1,21 +1,10 @@
 <template>
-    <FormSection @submitted="updateProfileInformation">
-        <template #title>
-            <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
-                Información del Perfil
-            </h2>
-        </template>
-
-        <template #description>
-            <p class="text-slate-600 dark:text-slate-400">
-                Actualiza la información del perfil y la dirección de correo electrónico de tu cuenta.
-            </p>
-        </template>
-
-        <template #form>
+    <div class="space-y-8">
+        <form @submit.prevent="updateProfileInformation" class="grid grid-cols-6 gap-6">
             <!-- Foto de Perfil -->
-            <div v-if="$page.props.jetstream.managesProfilePhotos" class="col-span-6 sm:col-span-4">
-                <!-- Entrada de Archivo de Foto de Perfil -->
+            <div v-if="$page.props.jetstream.managesProfilePhotos" class="col-span-6 flex flex-col items-center sm:items-start mb-4">
+                <InputLabel for="photo" value="Imagen de Perfil" class="mb-4 text-xs font-black uppercase tracking-widest text-slate-500" />
+                
                 <input
                     id="photo"
                     ref="photoInput"
@@ -24,96 +13,111 @@
                     @change="updatePhotoPreview"
                 >
 
-                <InputLabel for="photo" value="Foto" class="text-slate-700 dark:text-slate-300" />
+                <div class="flex items-center gap-6">
+                    <!-- Foto de Perfil Actual -->
+                    <div v-show="!photoPreview && props.user.profile_photo_url" class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-[#ff6600] to-amber-500 rounded-full blur opacity-20 group-hover:opacity-40 transition"></div>
+                        <img :src="props.user.profile_photo_url" :alt="props.user.name" class="relative rounded-full size-24 object-cover border-2 border-white/10 shadow-2xl">
+                    </div>
 
-                <!-- Foto de Perfil Actual -->
-                <div v-show="!photoPreview && props.user.profile_photo_url" class="mt-2">
-                    <img :src="props.user.profile_photo_url" :alt="props.user.name" class="rounded-full size-20 object-cover">
+                    <!-- Vista Previa de Nueva Foto -->
+                    <div v-show="photoPreview" class="relative">
+                        <span
+                            class="block rounded-full size-24 bg-cover bg-no-repeat bg-center border-2 border-[#ff6600]"
+                            :style="'background-image: url(\'' + photoPreview + '\');'"
+                        />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <button type="button" @click.prevent="selectNewPhoto" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest text-white transition-all shadow-sm">
+                            Subir nueva
+                        </button>
+                        <button
+                            v-if="props.user.profile_photo_path"
+                            type="button"
+                            class="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
+                            @click.prevent="deletePhoto"
+                        >
+                            Quitar foto
+                        </button>
+                    </div>
                 </div>
-
-                <!-- Vista Previa de Nueva Foto de Perfil -->
-                <div v-show="photoPreview" class="mt-2">
-                    <span
-                        class="block rounded-full size-20 bg-cover bg-no-repeat bg-center"
-                        :style="'background-image: url(\'' + photoPreview + '\');'"
-                    />
-                </div>
-
-                <SecondaryButton class="mt-2 me-2 dark:text-white" type="button" @click.prevent="selectNewPhoto">
-                    Seleccionar Nueva Foto
-                </SecondaryButton>
-
-                <SecondaryButton
-                    v-if="props.user.profile_photo_path"
-                    type="button"
-                    class="mt-2 dark:text-white"
-                    @click.prevent="deletePhoto"
-                >
-                    Eliminar Foto
-                </SecondaryButton>
 
                 <InputError :message="form.errors.photo" class="mt-2" />
             </div>
 
             <!-- Nombre -->
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="name" value="Nombre" class="text-slate-700 dark:text-slate-300" />
-                <TextInput
-                    id="name"
-                    v-model="form.name"
-                    type="text"
-                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
-                    required
-                    autocomplete="name"
-                />
+            <div class="col-span-6 sm:col-span-3">
+                <InputLabel for="name" value="Nombre Completo" class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2" />
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-[#ff6600]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                    <input
+                        id="name"
+                        v-model="form.name"
+                        type="text"
+                        class="relative w-full h-12 bg-slate-900/50 border border-white/5 rounded-2xl px-5 text-white focus:border-[#ff6600]/50 focus:ring-0 transition-all outline-none"
+                        required
+                        autocomplete="name"
+                        placeholder="Escribe tu nombre"
+                    />
+                </div>
                 <InputError :message="form.errors.name" class="mt-2" />
             </div>
 
             <!-- Correo Electrónico -->
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="email" value="Correo Electrónico" class="text-slate-700 dark:text-slate-300" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
-                    required
-                    autocomplete="username"
-                />
+            <div class="col-span-6 sm:col-span-3">
+                <InputLabel for="email" value="Correo Electrónico" class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2" />
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-[#ff6600]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                    <input
+                        id="email"
+                        v-model="form.email"
+                        type="email"
+                        class="relative w-full h-12 bg-slate-900/50 border border-white/5 rounded-2xl px-5 text-white focus:border-[#ff6600]/50 focus:ring-0 transition-all outline-none"
+                        required
+                        autocomplete="username"
+                        placeholder="email@ejemplo.com"
+                    />
+                </div>
                 <InputError :message="form.errors.email" class="mt-2" />
 
                 <div v-if="$page.props.jetstream.hasEmailVerification && props.user.email_verified_at === null">
-                    <p class="text-sm mt-2 text-slate-600 dark:text-slate-400">
-                        Tu dirección de correo electrónico no está verificada.
-
-                        <Link
-                            :href="route('verification.send')"
-                            method="post"
-                            as="button"
-                            class="underline text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                    <div class="mt-4 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+                        <p class="text-xs font-medium text-amber-200 uppercase tracking-wide">
+                            Tu email no está verificado.
+                        </p>
+                        <button
+                            type="button"
+                            class="mt-2 text-xs font-black text-amber-500 hover:text-amber-400 uppercase tracking-tighter"
                             @click.prevent="sendEmailVerification"
                         >
-                            Haz clic aquí para reenviar el correo de verificación.
-                        </Link>
-                    </p>
+                            Reenviar enlace de verificación
+                        </button>
+                    </div>
 
-                    <div v-show="verificationLinkSent" class="mt-2 font-medium text-sm text-green-600">
-                        Se ha enviado un nuevo enlace de verificación a tu dirección de correo electrónico.
+                    <div v-show="verificationLinkSent" class="mt-2 text-xs font-bold text-emerald-400 uppercase tracking-widest text-center">
+                        Enlace enviado con éxito.
                     </div>
                 </div>
             </div>
-        </template>
 
-        <template #actions>
-            <ActionMessage :on="form.recentlySuccessful" class="me-3 text-black">
-                Guardado.
-            </ActionMessage>
+            <!-- Botón de Acción -->
+            <div class="col-span-6 flex items-center justify-end mt-4 pt-4 border-t border-white/5">
+                <ActionMessage :on="form.recentlySuccessful" class="me-4 text-emerald-400 font-bold text-xs uppercase tracking-widest animate-pulse">
+                    ¡Actualizado!
+                </ActionMessage>
 
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="dark:text-white">
-                Guardar
-            </PrimaryButton>
-        </template>
-    </FormSection>
+                <button 
+                    type="submit" 
+                    :class="{ 'opacity-25': form.processing }" 
+                    :disabled="form.processing"
+                    class="h-12 px-8 bg-[#ff6600] text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white hover:scale-105 transition-all shadow-xl shadow-[#ff6600]/10"
+                >
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
 </template>
 <script setup>
 import { ref } from 'vue';
@@ -198,4 +202,3 @@ const clearPhotoFileInput = () => {
     }
 };
 </script>
-

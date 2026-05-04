@@ -12,7 +12,7 @@ class PanelAlertsService
 {
     public function getCuentasPorPagarAlerts(): array
     {
-        return Cache::remember("panel_cuentas_por_pagar_alerts", 300, function () {
+        return Cache::remember(PanelCacheKeys::key('alerts_cuentas_pagar'), PanelCacheKeys::ttl('alerts'), function () {
             $now = Carbon::now();
 
             try {
@@ -89,7 +89,7 @@ class PanelAlertsService
 
     public function getCuentasPorCobrarAlerts(): array
     {
-        return Cache::remember("panel_cuentas_por_cobrar_alerts", 300, function () {
+        return Cache::remember(PanelCacheKeys::key('alerts_cuentas_cobrar'), PanelCacheKeys::ttl('alerts'), function () {
             $now = Carbon::now();
 
             try {
@@ -201,7 +201,7 @@ class PanelAlertsService
 
     public function getPrestamosAlerts(): array
     {
-        return Cache::remember("panel_prestamos_alerts", 300, function () {
+        return Cache::remember(PanelCacheKeys::key('alerts_prestamos'), PanelCacheKeys::ttl('alerts'), function () {
             $now = Carbon::now();
 
             try {

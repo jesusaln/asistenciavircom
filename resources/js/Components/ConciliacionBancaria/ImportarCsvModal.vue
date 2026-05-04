@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="$emit('close')">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm" @click.self="$emit('close')">
+    <div class="bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl shadow-[var(--ui-shadow)] w-full max-w-lg mx-4 overflow-hidden border border-[var(--ui-border)]">
       <!-- Header -->
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
         <div class="flex items-center justify-between">
@@ -18,52 +18,52 @@
       <form @submit.prevent="importar" class="p-6">
         <!-- Selección de banco -->
         <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Banco (opcional)</label>
-          <select v-model="form.banco" class="w-full rounded-lg border-gray-300">
+          <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-2">Banco (opcional)</label>
+          <select v-model="form.banco" class="w-full rounded-lg border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)]">
             <option value="">Detectar automáticamente</option>
             <option v-for="banco in bancosSoportados" :key="banco" :value="banco">{{ banco }}</option>
           </select>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">El sistema intentará detectar el formato automáticamente</p>
+          <p class="text-xs text-[var(--ui-text-soft)] mt-1">El sistema intentará detectar el formato automáticamente</p>
         </div>
 
         <!-- Cuenta bancaria -->
         <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Cuenta Bancaria Destino</label>
+          <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-2">Cuenta Bancaria Destino</label>
           <select
             v-model="form.cuenta_bancaria_id"
-            class="w-full rounded-lg border-gray-300"
+            class="w-full rounded-lg border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)]"
           >
             <option value="">Sin vincular a cuenta</option>
             <option v-for="cuenta in cuentasDisponibles" :key="cuenta.id" :value="cuenta.id">
               {{ cuenta.nombre }} - {{ cuenta.banco }} (${{ formatMonto(cuenta.saldo_actual) }})
             </option>
           </select>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-xs text-[var(--ui-text-soft)] mt-1">
             Vincula los movimientos a una cuenta para actualizar su saldo automáticamente
           </p>
         </div>
 
         <!-- Área de drop -->
         <div
-          class="border-2 border-dashed rounded-xl p-8 text-center transition-colors"
-          :class="dragover ? 'border-blue-500 bg-blue-50' : archivo ? 'border-green-500 bg-green-50' : 'border-gray-300'"
+          class="border-2 border-dashed rounded-2xl p-8 text-center transition-colors"
+          :class="dragover ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-900/20' : archivo ? 'border-green-500 bg-green-50/80 dark:bg-green-900/20' : 'border-[var(--ui-border)] bg-[var(--ui-surface-alt)]'"
           @dragover.prevent="dragover = true"
           @dragleave.prevent="dragover = false"
           @drop.prevent="onDrop"
         >
           <div v-if="!archivo">
-            <FontAwesomeIcon :icon="['fas', 'cloud-upload-alt']" class="h-12 w-12 text-gray-400 mb-4" />
-            <p class="text-gray-600 mb-2">Arrastra tu archivo Excel o CSV aquí</p>
-            <p class="text-gray-400 text-sm mb-4">o</p>
+            <FontAwesomeIcon :icon="['fas', 'cloud-upload-alt']" class="h-12 w-12 text-[var(--ui-text-soft)] mb-4" />
+            <p class="text-[var(--ui-text-muted)] mb-2">Arrastra tu archivo Excel o CSV aquí</p>
+            <p class="text-[var(--ui-text-soft)] text-sm mb-4">o</p>
             <label class="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
               Seleccionar archivo
               <input type="file" accept=".csv,.txt,.xls,.xlsx" @change="onFileSelect" class="hidden" />
             </label>
           </div>
-          <div v-else class="text-green-700">
+          <div v-else class="text-green-700 dark:text-green-300">
             <FontAwesomeIcon :icon="['fas', 'file-excel']" class="h-12 w-12 mb-2" />
             <p class="font-medium">{{ archivo.name }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatSize(archivo.size) }}</p>
+            <p class="text-sm text-[var(--ui-text-soft)]">{{ formatSize(archivo.size) }}</p>
             <button type="button" @click="archivo = null" class="mt-2 text-red-600 text-sm hover:underline">
               Cambiar archivo
             </button>
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Formato aceptado -->
-        <div class="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
+        <div class="mt-4 p-3 bg-[var(--ui-surface-alt)] rounded-lg text-xs text-[var(--ui-text-muted)] border border-[var(--ui-border)]">
           <p class="font-medium mb-1">Formatos aceptados:</p>
           <ul class="list-disc list-inside space-y-1">
             <li><strong>Excel (.xls, .xlsx)</strong> - Recomendado para BBVA</li>
@@ -82,7 +82,7 @@
 
         <!-- Botones -->
         <div class="flex justify-end gap-3 mt-6">
-          <button type="button" @click="$emit('close')" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <button type="button" @click="$emit('close')" class="px-4 py-2 border border-[var(--ui-border)] rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
             Cancelar
           </button>
           <button
@@ -180,4 +180,3 @@ onMounted(() => {
   cargarCuentas()
 })
 </script>
-

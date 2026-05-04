@@ -19,10 +19,6 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  empleados: {
-    type: Array,
-    default: () => []
-  },
   puede_editar: {
     type: Boolean,
     default: true
@@ -68,33 +64,17 @@ const loading = ref(false)
 const calculando = ref(false)
 const puedeEditarTerminos = ref(props.puede_editar)
 const clienteSeleccionado = ref(null)
-const tipoBeneficiario = ref(props.prestamo?.empleado_id ? 'empleado' : 'cliente')
 
 /* =========================
    Funciones para manejo del cliente
 ========================= */
 const onClienteSeleccionado = (cliente) => {
-  tipoBeneficiario.value = 'cliente'
   clienteSeleccionado.value = cliente
   form.value.cliente_id = cliente ? cliente.id : null
-  form.value.empleado_id = null
 
   // Limpiar error cuando se selecciona un cliente
   if (cliente && errors.value.cliente_id) {
     delete errors.value.cliente_id
-  }
-}
-
-const onEmpleadoSeleccionado = () => {
-  if (!form.value.empleado_id) return
-  tipoBeneficiario.value = 'empleado'
-  form.value.cliente_id = null
-  clienteSeleccionado.value = null
-  if (buscarClienteRef.value) {
-    buscarClienteRef.value.limpiarBusqueda()
-  }
-  if (errors.value.empleado_id) {
-    delete errors.value.empleado_id
   }
 }
 
@@ -149,36 +129,12 @@ const calcularPagos = async () => {
   }
 }
 
-// Debounce para evitar saturar el servidor
-let timeoutCalculo = null
-const calcularPagosDebounced = () => {
-  if (timeoutCalculo) clearTimeout(timeoutCalculo)
-  timeoutCalculo = setTimeout(() => {
-    calcularPagos()
-  }, 400)
-}
-
 /* =========================
    Watchers para recálculo automático
 ========================= */
-watch(
-  [() => form.value.monto_prestado, () => form.value.tasa_interes_mensual, () => form.value.numero_pagos, () => form.value.frecuencia_pago],
-  () => {
-    if (puedeEditarTerminos.value) {
-      calcularPagosDebounced()
-    }
-  }
-)
-
-watch(tipoBeneficiario, (tipo) => {
-  if (tipo === 'cliente') {
-    form.value.empleado_id = null
-  } else {
-    form.value.cliente_id = null
-    clienteSeleccionado.value = null
-    if (buscarClienteRef.value) {
-      buscarClienteRef.value.limpiarBusqueda()
-    }
+watch([() => form.value.monto_prestado, () => form.value.tasa_interes_mensual, () => form.value.numero_pagos], () => {
+  if (puedeEditarTerminos.value) {
+    calcularPagos()
   }
 })
 
@@ -191,12 +147,8 @@ const buscarClienteRef = ref(null)
 const validateForm = () => {
   errors.value = {}
 
-  if (tipoBeneficiario.value === 'cliente' && !clienteSeleccionado.value) {
+  if (!clienteSeleccionado.value) {
     errors.value.cliente_id = 'Debe seleccionar un cliente'
-  }
-
-  if (tipoBeneficiario.value === 'empleado' && !form.value.empleado_id) {
-    errors.value.empleado_id = 'Debe seleccionar un empleado'
   }
 
   if (!form.value.monto_prestado || form.value.monto_prestado <= 0) {
@@ -232,7 +184,6 @@ const submitForm = () => {
   // Crear objeto solo con los campos necesarios
   const datosPrestamo = {
     cliente_id: form.value.cliente_id,
-    empleado_id: form.value.empleado_id,
     monto_prestado: form.value.monto_prestado,
     tasa_interes_mensual: form.value.tasa_interes_mensual,
     numero_pagos: form.value.numero_pagos,
@@ -250,7 +201,7 @@ const submitForm = () => {
     onSuccess: () => {
       notyf.success('Préstamo actualizado correctamente')
       // Actualizar clienteSeleccionado con el cliente actual del préstamo
-      const clienteActual = props.clientes.find(c => c.id === form.value.cliente_id)
+      const clienteActual = clientes.find(c => c.id === form.value.cliente_id)
       clienteSeleccionado.value = clienteActual || null
     },
     onError: (errors) => {
@@ -310,43 +261,42 @@ const getEstadoColor = (estado) => {
     'completado': 'bg-blue-100 text-blue-800',
     'cancelado': 'bg-red-100 text-red-800'
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100'
+  return colors[estado] || 'bg-gray-100 text-gray-800'
 }
 </script>
 
 <template>
   <Head title="Editar Préstamo" />
 
-  <div class="prestamos-edit min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
+  <div class="prestamos-edit min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header -->
-      <div class="mb-10">
+      <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight">Editar Préstamo</h1>
-            <p class="text-gray-600 dark:text-slate-400 mt-2 flex items-center gap-2">
-              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-              Gestión y re-estructuración de crédito
-              <span v-if="!puedeEditarTerminos" class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400 ring-1 ring-inset ring-orange-500/20">
-                Términos Bloqueados (Tiene Pagos)
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Editar Préstamo</h1>
+            <p class="text-gray-600 mt-2">
+              Modifique la información del préstamo
+              <span v-if="!puedeEditarTerminos" class="text-orange-600 font-medium">
+                (Algunos campos están bloqueados porque ya tiene pagos registrados)
               </span>
             </p>
           </div>
-          <div class="flex items-center space-x-4">
-            <span :class="['inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider shadow-sm', getEstadoColor(prestamo.estado)]">
+          <div class="flex items-center space-x-3">
+            <span :class="['inline-flex items-center px-3 py-1 rounded-full text-sm font-medium', getEstadoColor(prestamo.estado)]">
               {{ getEstadoLabel(prestamo.estado) }}
             </span>
-             <Link
+            <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-slate-800 text-sm font-bold rounded-xl text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
             >
               👁 Ver Detalles
             </Link>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-slate-800 text-sm font-bold rounded-xl text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-200"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
             >
-              ← Volver
+              ← Volver a Préstamos
             </Link>
           </div>
         </div>
@@ -354,35 +304,15 @@ const getEstadoColor = (estado) => {
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulario principal -->
-        <div class="lg:col-span-2 space-y-8">
-          <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-black/5 border border-gray-100 dark:border-slate-800 overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800/60 bg-gray-50/30 dark:bg-slate-900/50">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
-                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                 Formulario de Edición
-              </h2>
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Información del Préstamo</h2>
             </div>
 
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer" :class="tipoBeneficiario === 'cliente' ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-900/10' : 'border-gray-200 dark:border-slate-800'">
-                  <input v-model="tipoBeneficiario" type="radio" value="cliente" class="text-blue-600 focus:ring-blue-500" />
-                  <div>
-                    <p class="text-sm font-bold text-gray-900 dark:text-slate-100">Préstamo a Cliente</p>
-                    <p class="text-xs text-gray-500 dark:text-slate-400">Flujo comercial tradicional</p>
-                  </div>
-                </label>
-                <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer" :class="tipoBeneficiario === 'empleado' ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-900/10' : 'border-gray-200 dark:border-slate-800'">
-                  <input v-model="tipoBeneficiario" type="radio" value="empleado" class="text-blue-600 focus:ring-blue-500" />
-                  <div>
-                    <p class="text-sm font-bold text-gray-900 dark:text-slate-100">Préstamo a Empleado</p>
-                    <p class="text-xs text-gray-500 dark:text-slate-400">Nómina / préstamo interno</p>
-                  </div>
-                </label>
-              </div>
-
               <!-- Cliente -->
-              <div v-if="tipoBeneficiario === 'cliente'">
+              <div>
                 <BuscarCliente
                   ref="buscarClienteRef"
                   :clientes="clientes"
@@ -402,37 +332,18 @@ const getEstadoColor = (estado) => {
                 <p v-if="errors.cliente_id" class="mt-1 text-sm text-red-600">{{ errors.cliente_id }}</p>
               </div>
 
-              <div v-else>
-                <label for="empleado_id" class="block text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">
-                  Empleado beneficiario *
-                </label>
-                <select
-                  id="empleado_id"
-                  v-model="form.empleado_id"
-                  @change="onEmpleadoSeleccionado"
-                  class="block w-full px-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-100 transition-all cursor-pointer"
-                  :class="{ 'border-red-300 dark:border-red-900/50': errors.empleado_id }"
-                >
-                  <option :value="null">Seleccionar empleado...</option>
-                  <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
-                    {{ empleado.name }}{{ empleado.numero_empleado ? ` (${empleado.numero_empleado})` : '' }}
-                  </option>
-                </select>
-                <p v-if="errors.empleado_id" class="mt-1 text-sm text-red-600">{{ errors.empleado_id }}</p>
-              </div>
-
-               <!-- Información de progreso (aviso de bloqueo) -->
-              <div v-if="!puedeEditarTerminos" class="bg-orange-50/30 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-2xl p-6">
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 bg-orange-100 dark:bg-orange-950 rounded-xl flex items-center justify-center flex-shrink-0">
-                         <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-black text-orange-900 dark:text-orange-400 uppercase tracking-widest mb-1">Términos Protegidos</h4>
-                        <p class="text-xs text-orange-800 dark:text-orange-400/80 leading-relaxed font-medium">
-                            Este contrato de préstamo ya cuenta con pagos registrados ({{ prestamo.pagos_realizados }}). Por integridad contable, los campos financieros bases han sido bloqueados. Solo puede editar la descripción y notas.
-                        </p>
-                    </div>
+              <!-- Información de progreso (solo lectura) -->
+              <div v-if="prestamo.pagos_realizados > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="text-sm font-medium text-blue-900 mb-2">Progreso del Préstamo</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="text-blue-700">Pagos realizados:</span>
+                    <span class="font-semibold text-blue-900 ml-2">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</span>
+                  </div>
+                  <div>
+                    <span class="text-blue-700">Monto pagado:</span>
+                    <span class="font-semibold text-blue-900 ml-2">${{ formatearMoneda(prestamo.monto_pagado) }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -440,12 +351,13 @@ const getEstadoColor = (estado) => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Monto prestado -->
                 <div>
-                  <label for="monto_prestado" class="block text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">
-                    Monto a Prestar
+                  <label for="monto_prestado" class="block text-sm font-medium text-gray-700 mb-2">
+                    Monto a Prestar *
+                    <span v-if="!puedeEditarTerminos" class="text-orange-600 text-xs">(Bloqueado)</span>
                   </label>
-                  <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <span class="text-gray-400 font-bold">$</span>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-gray-500 sm:text-sm">$</span>
                     </div>
                     <input
                       id="monto_prestado"
@@ -455,8 +367,8 @@ const getEstadoColor = (estado) => {
                       min="0"
                       placeholder="0.00"
                       :disabled="!puedeEditarTerminos"
-                      class="block w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-100 transition-all font-bold disabled:bg-gray-50 dark:disabled:bg-slate-900/50 disabled:opacity-60"
-                      :class="{ 'border-red-500 ring-red-500/20': errors.monto_prestado }"
+                      class="block w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      :class="{ 'border-red-300': errors.monto_prestado }"
                     />
                   </div>
                   <p v-if="errors.monto_prestado" class="mt-1 text-sm text-red-600">{{ errors.monto_prestado }}</p>
@@ -482,7 +394,7 @@ const getEstadoColor = (estado) => {
                       :class="{ 'border-red-300': errors.tasa_interes_mensual }"
                     />
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 dark:text-gray-400 sm:text-sm">%</span>
+                      <span class="text-gray-500 sm:text-sm">%</span>
                     </div>
                   </div>
                   <p v-if="errors.tasa_interes_mensual" class="mt-1 text-sm text-red-600">{{ errors.tasa_interes_mensual }}</p>
@@ -540,70 +452,57 @@ const getEstadoColor = (estado) => {
                   />
                   <p v-if="errors.fecha_inicio" class="mt-1 text-sm text-red-600">{{ errors.fecha_inicio }}</p>
                 </div>
-
-                <!-- Fecha de primer pago -->
-                <div>
-                  <label for="fecha_primer_pago" class="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha de Primer Pago
-                  </label>
-                  <input
-                    id="fecha_primer_pago"
-                    v-model="form.fecha_primer_pago"
-                    type="date"
-                    :disabled="!puedeEditarTerminos"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    :class="{ 'border-red-300': errors.fecha_primer_pago }"
-                  />
-                  <p v-if="errors.fecha_primer_pago" class="mt-1 text-sm text-red-600">{{ errors.fecha_primer_pago }}</p>
-                </div>
               </div>
 
               <!-- Descripción -->
               <div>
-                <label for="descripcion" class="block text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">
-                  Descripción del Crédito
+                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                  Descripción
                 </label>
                 <textarea
                   id="descripcion"
                   v-model="form.descripcion"
                   rows="3"
-                  placeholder="Detalles sobre el préstamo..."
-                  class="block w-full px-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-100 transition-all resize-none font-medium"
+                  placeholder="Descripción del préstamo (opcional)"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 ></textarea>
               </div>
 
               <!-- Notas -->
               <div>
-                <label for="notas" class="block text-xs font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">
-                  Observaciones Internas
+                <label for="notas" class="block text-sm font-medium text-gray-700 mb-2">
+                  Notas Adicionales
                 </label>
                 <textarea
                   id="notas"
                   v-model="form.notas"
                   rows="3"
-                  placeholder="Notas privadas para administración..."
-                  class="block w-full px-4 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-slate-100 transition-all resize-none font-medium"
+                  placeholder="Notas adicionales (opcional)"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
                 ></textarea>
               </div>
 
               <!-- Botones de acción -->
-              <div class="flex items-center justify-end space-x-4 pt-10 border-t border-gray-100 dark:border-slate-800/80">
+              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
                 <Link
-                   :href="`/prestamos/${prestamo.id}`"
-                  class="px-8 py-3 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 text-sm font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-slate-900 transition-all duration-300"
+                  :href="`/prestamos/${prestamo.id}`"
+                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                 >
-                  Cancelar Edición
+                  ❌ Cancelar
                 </Link>
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="px-10 py-3 bg-blue-600 text-white text-sm font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 hover:scale-[1.02] shadow-lg shadow-blue-500/20 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300"
+                  class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
-                  <span v-if="loading" class="flex items-center gap-2">
-                    <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Procesando...
+                  <span v-if="loading" class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Actualizando...
                   </span>
-                  <span v-else>Guardar Cambios</span>
+                  <span v-else>Actualizar Préstamo</span>
                 </button>
               </div>
             </form>
@@ -611,59 +510,113 @@ const getEstadoColor = (estado) => {
         </div>
 
         <!-- Panel de cálculos e información -->
-        <div class="lg:col-span-1 space-y-8">
-          <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-black/5 border border-gray-100 dark:border-slate-800 overflow-hidden sticky top-8 transition-all duration-300">
-             <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800/60 bg-gray-50/30 dark:bg-slate-900/50">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                  {{ puedeEditarTerminos ? 'Simulador Activo' : 'Resumen Actual' }}
-                </h3>
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ puedeEditarTerminos ? 'Cálculo de Pagos' : 'Información Actual' }}
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">
+                {{ puedeEditarTerminos ? 'Se actualiza automáticamente' : 'Valores actuales del préstamo' }}
+              </p>
             </div>
 
-            <div class="p-8">
-              <div v-if="puedeEditarTerminos && calculando" class="flex flex-col items-center justify-center py-10">
-                <div class="w-12 h-12 border-4 border-blue-500/20 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-                <p class="text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Recalculando...</p>
+            <div class="p-6">
+              <div v-if="puedeEditarTerminos && calculando" class="text-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
+                <p class="text-sm text-gray-600 mt-2">Calculando...</p>
               </div>
 
               <div v-else-if="puedeEditarTerminos && form.monto_prestado > 0 && form.numero_pagos > 0">
-                <div class="space-y-6">
+                <div class="space-y-4">
                   <!-- Pago periódico -->
-                  <div class="bg-gray-50 dark:bg-slate-950 rounded-2xl p-5 border border-gray-100 dark:border-slate-800/50">
-                    <p class="text-[10px] font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">Cuota {{ form.frecuencia_pago }}</p>
-                    <p class="text-3xl font-black text-blue-600 tracking-tight">${{ formatearMoneda(calculos.pago_periodico) }}</p>
+                  <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span class="text-sm font-medium text-gray-700">Pago {{ form.frecuencia_pago }}:</span>
+                    <span class="text-lg font-bold text-green-600">
+                      ${{ formatearMoneda(calculos.pago_periodico) }}
+                    </span>
                   </div>
 
-                  <!-- Detalles en grid -->
-                  <div class="grid grid-cols-1 gap-4">
-                    <div class="flex justify-between items-center py-3 border-b border-gray-100 dark:border-slate-800">
-                      <span class="text-xs font-bold text-gray-500 dark:text-slate-400">INTERÉS TOTAL</span>
-                      <span class="text-sm font-black text-gray-900 dark:text-slate-100">${{ formatearMoneda(calculos.interes_total) }}</span>
-                    </div>
-                    <div class="flex justify-between items-center py-3">
-                      <span class="text-xs font-bold text-gray-500 dark:text-slate-400">VALOR FINAL</span>
-                      <span class="text-lg font-black text-gray-900 dark:text-slate-100 tracking-tight">${{ formatearMoneda(calculos.total_pagar) }}</span>
-                    </div>
+                  <!-- Interés total -->
+                  <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span class="text-sm font-medium text-gray-700">Interés Total:</span>
+                    <span class="text-lg font-semibold text-blue-600">
+                      ${{ formatearMoneda(calculos.interes_total) }}
+                    </span>
+                  </div>
+
+                  <!-- Total a pagar -->
+                  <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
+                    <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
+                    <span class="text-xl font-bold text-gray-900">
+                      ${{ formatearMoneda(calculos.total_pagar) }}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div v-else class="space-y-6">
-                 <div class="bg-gray-50 dark:bg-slate-950 rounded-2xl p-5 border border-gray-100 dark:border-slate-800/50">
-                    <p class="text-[10px] font-black text-gray-500 dark:text-slate-500 uppercase tracking-widest mb-2">Cuota Actual</p>
-                    <p class="text-3xl font-black text-green-600 tracking-tight">${{ formatearMoneda(prestamo.pago_periodico) }}</p>
+              <div v-else class="space-y-4">
+                <!-- Información actual del préstamo -->
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span class="text-sm font-medium text-gray-700">Pago {{ prestamo.frecuencia_texto?.toLowerCase() }}:</span>
+                  <span class="text-lg font-bold text-green-600">
+                    ${{ formatearMoneda(prestamo.pago_periodico) }}
+                  </span>
+                </div>
+
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span class="text-sm font-medium text-gray-700">Interés Total:</span>
+                  <span class="text-lg font-semibold text-blue-600">
+                    ${{ formatearMoneda(prestamo.monto_interes_total) }}
+                  </span>
+                </div>
+
+                <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
+                  <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
+                  <span class="text-xl font-bold text-gray-900">
+                    ${{ formatearMoneda(prestamo.monto_total_pagar) }}
+                  </span>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="bg-white rounded-lg p-4 mt-4">
+                  <h4 class="text-sm font-medium text-gray-900 mb-2">Estado del Préstamo</h4>
+                  <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex justify-between">
+                      <span>Pagos realizados:</span>
+                      <span>{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Monto pagado:</span>
+                      <span>${{ formatearMoneda(prestamo.monto_pagado) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Monto pendiente:</span>
+                      <span>${{ formatearMoneda(prestamo.monto_pendiente) }}</span>
+                    </div>
                   </div>
 
-                  <div class="grid grid-cols-1 gap-3">
-                    <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-slate-800">
-                      <span class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase">Pagado</span>
-                      <span class="text-xs font-black text-green-600">${{ formatearMoneda(prestamo.monto_pagado) }}</span>
+                  <!-- Información del cálculo original -->
+                  <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-xs text-gray-500 mb-2">
+                      <strong>Configuración original:</strong>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-slate-800">
-                      <span class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase">Pendiente</span>
-                      <span class="text-xs font-black text-red-600">${{ formatearMoneda(prestamo.monto_pendiente) }}</span>
+                    <div class="space-y-1 text-xs text-gray-500">
+                      <div class="flex justify-between">
+                        <span>Tasa anual:</span>
+                        <span>{{ prestamo.tasa_interes_mensual }}%</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Frecuencia:</span>
+                        <span>{{ prestamo.frecuencia_texto }}</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Tipo de cálculo:</span>
+                        <span>Amortización francesa</span>
+                      </div>
                     </div>
                   </div>
+                </div>
               </div>
             </div>
           </div>
@@ -678,3 +631,4 @@ const getEstadoColor = (estado) => {
   min-height: 100vh;
 }
 </style>
+

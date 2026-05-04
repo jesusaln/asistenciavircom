@@ -201,6 +201,20 @@ class CotizacionDocumentoController extends Controller
     }
 
     /**
+     * Generar PDF de cotización (Público)
+     */
+    public function generarPDFPublico($token)
+    {
+        $cotizacion = Cotizacion::findByToken($token);
+
+        if (!$cotizacion) {
+            abort(404, 'Cotización no encontrada');
+        }
+
+        return $this->generarPDF($cotizacion->id);
+    }
+
+    /**
      * Generar PDF de cotización usando plantilla Blade
      */
     public function generarPDF($id)
@@ -220,7 +234,7 @@ class CotizacionDocumentoController extends Controller
             }
 
             // Stream Logic
-            $this->pdfService->stream($pdf, $filename);
+            return $this->pdfService->stream($pdf, $filename);
 
         } catch (\Exception $e) {
             Log::error('Error al generar PDF de cotización', [

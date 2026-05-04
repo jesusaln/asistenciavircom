@@ -25,7 +25,6 @@ class CompraCuentasPagarService
         $fechaVencimiento = $fechaInicio->copy()->addDays(30);
 
         $cuenta = CuentasPorPagar::create([
-            'empresa_id' => $compra->empresa_id,
             'compra_id' => $compra->id,
             'proveedor_id' => $compra->proveedor_id,
             'monto_total' => $total,
@@ -73,7 +72,6 @@ class CompraCuentasPagarService
         } else {
             // Crear si no existe
             CuentasPorPagar::create([
-                'empresa_id' => $compra->empresa_id,
                 'compra_id' => $compra->id,
                 'proveedor_id' => $compra->proveedor_id,
                 'monto_total' => $nuevoTotal,
@@ -99,23 +97,12 @@ class CompraCuentasPagarService
             return;
         }
 
-        if ($cuentaPorPagar->monto_pagado > 0) {
-            // Si hay pagos parciales, marcar como cancelada pero mantener registro
-            $cuentaPorPagar->update([
-                'estado' => 'cancelada',
-                'monto_pendiente' => 0,
-                'notas' => ($cuentaPorPagar->notas ? $cuentaPorPagar->notas . " | " : "") . 'Cancelada por cancelación de compra'
-            ]);
+        $cuentaPorPagar->cancelar('Cancelada automáticamente por cancelación de compra');
 
-            Log::info('Cuenta por pagar marcada como cancelada', [
-                'cuenta_id' => $cuentaPorPagar->id,
-                'monto_pagado' => $cuentaPorPagar->monto_pagado
-            ]);
-        } else {
-            // Si no hay pagos, eliminar el registro
-            $cuentaPorPagar->delete();
-
-            Log::info('Cuenta por pagar eliminada', ['compra_id' => $compra->id]);
-        }
+        Log::info('Cuenta por pagar marcada como cancelada', [
+            'cuenta_id' => $cuentaPorPagar->id,
+            'compra_id' => $compra->id,
+            'monto_pagado' => $cuentaPorPagar->monto_pagado,
+        ]);
     }
 }

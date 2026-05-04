@@ -53,7 +53,10 @@ class VentaDeletionService
             throw new \Exception('Esta venta no puede ser eliminada porque tiene un CFDI registrado ante el SAT.');
         }
 
-        if ($venta->cuentaPorCobrar && $venta->cuentaPorCobrar->monto_pagado > 0) {
+        // Reload the relationship from DB (it may have been force-deleted during cancellation)
+        $venta->load('cuentaPorCobrar');
+        $cxc = $venta->cuentaPorCobrar;
+        if ($cxc && $cxc->estado !== 'cancelada' && $cxc->monto_pagado > 0) {
             throw new \Exception('No se puede eliminar una venta con pagos registrados.');
         }
 

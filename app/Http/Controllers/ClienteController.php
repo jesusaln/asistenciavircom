@@ -8,7 +8,6 @@ use App\Models\SatEstado;
 use App\Models\SatRegimenFiscal;
 use App\Models\SatUsoCfdi;
 use App\Models\SatFormaPago;
-use App\Models\EmpresaConfiguracion;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Services\Clientes\ClienteRelationsService;
@@ -24,8 +23,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ClientesExport;
-use App\Exports\ClientesTemplateExport;
-use App\Imports\ClientesImport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClientAccountApprovedMail;
@@ -280,14 +277,8 @@ class ClienteController extends Controller
             $stats = Cliente::selectRaw("
                 COUNT(*) as total,
                 SUM(CASE WHEN activo = true OR activo IS NULL THEN 1 ELSE 0 END) as activos,
-                SUM(CASE 
-                    WHEN LENGTH(rfc) = 12 THEN 1 
-                    ELSE 0 
-                END) as personas_morales,
-                SUM(CASE 
-                    WHEN LENGTH(rfc) != 12 OR rfc IS NULL THEN 1 
-                    ELSE 0 
-                END) as personas_fisicas,
+                SUM(CASE WHEN tipo_persona = 'fisica' THEN 1 ELSE 0 END) as personas_fisicas,
+                SUM(CASE WHEN tipo_persona = 'moral' THEN 1 ELSE 0 END) as personas_morales,
                 SUM(CASE WHEN EXTRACT(MONTH FROM created_at) = ? AND EXTRACT(YEAR FROM created_at) = ? THEN 1 ELSE 0 END) as nuevos_mes
             ", [now()->month, now()->year])->first();
 
@@ -488,14 +479,6 @@ class ClienteController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            $currentUser = Auth::user();
-            $canRemoteSupport = (bool) (
-                $currentUser?->hasAnyRole(['super-admin', 'admin', 'tecnico']) ||
-                $currentUser?->can('view soporte') ||
-                $currentUser?->can('manage soporte')
-            );
-            $empresaConfig = EmpresaConfiguracion::getConfig();
-
             return Inertia::render('Clientes/Show', [
                 'cliente' => $cliente,
                 'historialCompras' => $historialCompras,
@@ -503,12 +486,6 @@ class ClienteController extends Controller
                 'tickets' => $tickets,
                 'citas' => $citas,
                 'polizas' => $polizas,
-                'canRemoteSupport' => $canRemoteSupport,
-                'rustdeskConfig' => [
-                    'id_server' => $empresaConfig->rustdesk_server_address,
-                    'relay_server' => $empresaConfig->rustdesk_relay_server,
-                    'key' => $empresaConfig->rustdesk_public_key,
-                ],
             ]);
         } catch (ModelNotFoundException $e) {
             Log::warning('Cliente no encontrado', ['id' => request()->route('cliente')]);
@@ -877,9 +854,9 @@ class ClienteController extends Controller
 
             $clientes = Cliente::where('activo', true)
                 ->where(function ($q) use ($query) {
-                    $q->where('nombre_razon_social', 'like', "%{$query}%")
-                        ->orWhere('rfc', 'like', "%{$query}%")
-                        ->orWhere('email', 'like', "%{$query}%");
+                    $q->where('nombre_razon_social', 'ilike', "%{$query}%")
+                        ->orWhere('rfc', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%");
                 })
                 ->select('id', 'nombre_razon_social', 'rfc', 'email', 'tipo_persona')
                 ->limit($limit)
@@ -888,6 +865,7 @@ class ClienteController extends Controller
             $resultados = $clientes->map(fn($c) => [
                 'id' => $c->id,
                 'nombre' => $c->nombre_razon_social,
+                'nombre_razon_social' => $c->nombre_razon_social,
                 'rfc' => $c->rfc,
                 'email' => $c->email,
                 'tipo_persona' => $this->getTipoPersonaNombre($c->tipo_persona),
@@ -1084,7 +1062,7 @@ class ClienteController extends Controller
         $empresaId = $cliente->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
         $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
 
-        $logo = $empresa->logo_url ?? asset('images/logo.png');
+        $logo = $empresa->logo_url ?? asset('images/logo.webp');
 
         return view('portal.impresion.solicitud_credito', [
             'cliente' => $cliente,
@@ -1092,50 +1070,6 @@ class ClienteController extends Controller
             'logo' => $logo,
             'fecha' => $cliente->credito_firmado_at ? $cliente->credito_firmado_at->format('d/m/Y') : now()->format('d/m/Y')
         ]);
-    }
-
-    public function downloadTemplate()
-    {
-        try {
-            return Excel::download(new ClientesTemplateExport, 'plantilla_clientes.xlsx');
-        } catch (Exception $e) {
-            Log::error('Error descargando plantilla de clientes: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al generar la plantilla.');
-        }
-    }
-
-    public function import(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:5120' // 5MB max
-        ]);
-
-        try {
-            $import = new ClientesImport;
-            Excel::import($import, $request->file('file'));
-
-            $failures = $import->getFailures();
-            $errors = $import->getErrors();
-
-            if (!empty($failures) || !empty($errors)) {
-                $msg = 'Importación completada con algunos problemas. ';
-                if (!empty($failures)) {
-                    $msg .= 'Validaciones fallidas: ' . implode(' | ', array_slice($failures, 0, 5));
-                    if (count($failures) > 5)
-                        $msg .= ' ... y ' . (count($failures) - 5) . ' más.';
-                }
-                if (!empty($errors)) {
-                    $msg .= ' Errores técnicos: ' . implode(' | ', array_slice($errors, 0, 3));
-                }
-
-                return redirect()->route('clientes.index')->with('warning', $msg);
-            }
-
-            return redirect()->route('clientes.index')->with('success', 'Clientes importados correctamente.');
-        } catch (Exception $e) {
-            Log::error('Error crítico importando clientes: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error crítico al importar: ' . $e->getMessage());
-        }
     }
 
     // Servicios extraidos: ClienteRelationsService

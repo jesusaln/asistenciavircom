@@ -13,38 +13,39 @@ use App\Models\Cliente;
 
 class ProyectoController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(Proyecto::class, 'proyecto');
-    }
-
     /**
      * Listado de Proyectos (Propios y Compartidos)
      */
     public function index()
     {
-        // El constructor ya autoriza 'viewAny'
-
         $user = Auth::user();
+        if (!$user->hasRole('super-admin') && !$user->hasRole('admin') && !\Illuminate\Support\Facades\Gate::allows('view proyectos')) {
+            abort(403);
+        }
+        $maxRows = 500;
 
-        // ... (resto del código igual) ...
+        // Query base dependiendo del rol
+        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
+            $misProyectosQuery = Proyecto::query();
+            $proyectosCompartidos = collect(); // Los admins ven todo en la sección principal
+        } else {
+            $misProyectosQuery = $user->ownedProjects();
+            $proyectosCompartidos = $user->joinedProjects()->with('cliente')->limit($maxRows)->get();
+        }
 
-        // Proyectos propios
-        $misProyectos = $user->ownedProjects;
+        $misProyectosConCliente = $misProyectosQuery->with(['cliente', 'owner'])->limit($maxRows)->get();
 
-        // Proyectos compartidos
-        $proyectosCompartidos = $user->joinedProjects()->with('cliente')->get();
-
-        // Cargar proyectos propios con cliente
-        $misProyectosConCliente = $user->ownedProjects()->with('cliente')->get();
-
-        // Lista de clientes para el formulario
-        $clientes = Cliente::orderBy('nombre_razon_social')->get(['id', 'nombre_razon_social', 'rfc']);
+        // Lista de clientes para el formulario (Limited for performance)
+        $clientes = Cliente::orderBy('nombre_razon_social')->limit(500)->get(['id', 'nombre_razon_social', 'rfc']);
 
         return Inertia::render('Proyecto/Index', [
             'misProyectos' => $misProyectosConCliente,
             'proyectosCompartidos' => $proyectosCompartidos,
             'clientes' => $clientes,
+            'truncated' => [
+                'mis_proyectos' => $misProyectosQuery->count() > $maxRows,
+                'proyectos_compartidos' => $user->joinedProjects()->count() > $maxRows,
+            ],
         ]);
     }
 
@@ -75,17 +76,18 @@ class ProyectoController extends Controller
     /**
      * Ver tablero del proyecto (Roadmap)
      */
-    /**
-     * Ver tablero del proyecto (Roadmap)
-     */
     public function show(Proyecto $proyecto)
     {
         $user = Auth::user();
+        $maxRows = 500;
 
-        // Validar acceso: Manejado por Policy
+        // Validar acceso (Dueño o Miembro)
+        if ($proyecto->owner_id !== $user->id && !$proyecto->members->contains($user->id)) {
+            abort(403, 'No tienes permiso para ver este proyecto.');
+        }
 
         // Cargar tareas agrupadas
-        $tareas = $proyecto->tareas()->orderBy('orden')->get();
+        $tareas = $proyecto->tareas()->orderBy('orden')->limit($maxRows)->get();
 
         $columnas = [
             'sugerencias' => $tareas->where('estado', 'sugerencias')->values(),
@@ -100,17 +102,19 @@ class ProyectoController extends Controller
             ->where('proyecto_id', $proyecto->id)
             ->where('estado', 'procesada')
             ->orderBy('fecha_compra', 'desc')
+            ->limit($maxRows)
             ->get();
 
         $totalGastos = $gastos->sum('total');
 
-        // Lista de usuarios para compartir (excluyendo al dueño)
+        // Lista de usuarios para compartir (excluyendo al dueño) (Limited for performance)
         $usuarios = User::where('id', '!=', $user->id)
             ->orderBy('name')
+            ->limit(100)
             ->get(['id', 'name', 'email']);
 
         // Cargar productos del proyecto con datos del producto
-        $productosProyecto = $proyecto->productos;
+        $productosProyecto = $proyecto->productos()->limit($maxRows)->get();
 
         // Lista de productos disponibles para agregar
         $productosDisponibles = \App\Models\Producto::select('id', 'nombre', 'codigo', 'precio_venta')
@@ -121,13 +125,13 @@ class ProyectoController extends Controller
         $totalProductos = $proyecto->total_productos;
 
         // Lista de categorías de gasto
-        $categoriasGasto = \App\Models\CategoriaGasto::orderBy('nombre')->get(['id', 'nombre']);
+        $categoriasGasto = \App\Models\CategoriaGasto::orderBy('nombre')->limit($maxRows)->get(['id', 'nombre']);
 
         return Inertia::render('Proyecto/Roadmap', [
             'proyecto' => $proyecto,
             'columnas' => $columnas,
             'members' => $proyecto->members,
-            'isOwner' => $proyecto->owner_id === $user->id,
+            'isOwner' => $proyecto->owner_id === $user->id || $user->hasRole('admin') || $user->hasRole('super-admin'),
             'gastos' => $gastos,
             'totalGastos' => $totalGastos,
             'usuarios' => $usuarios,
@@ -135,6 +139,12 @@ class ProyectoController extends Controller
             'productosDisponibles' => $productosDisponibles,
             'totalProductos' => $totalProductos,
             'categoriasGasto' => $categoriasGasto,
+            'truncated' => [
+                'tareas' => $proyecto->tareas()->count() > $maxRows,
+                'gastos' => \App\Models\Compra::where('tipo', 'gasto')->where('proyecto_id', $proyecto->id)->where('estado', 'procesada')->count() > $maxRows,
+                'productos' => $proyecto->productos()->count() > $maxRows,
+                'categorias_gasto' => \App\Models\CategoriaGasto::count() > $maxRows,
+            ],
         ]);
     }
 
@@ -143,7 +153,11 @@ class ProyectoController extends Controller
      */
     public function update(Request $request, Proyecto $proyecto)
     {
-        // Autorización manejada por Policy
+        // $this->authorize('update', $proyecto); // Implementar Policy luego si es necesario simple check aqui
+
+        if ($proyecto->owner_id !== Auth::id()) {
+            abort(403);
+        }
 
         $request->validate([
             'nombre' => 'required|string|max:255',
@@ -161,7 +175,29 @@ class ProyectoController extends Controller
      */
     public function destroy(Proyecto $proyecto)
     {
-        // Autorización manejada por Policy
+        $user = Auth::user();
+        
+        // El dueño o un administrador pueden eliminar
+        if ($proyecto->owner_id !== $user->id && !$user->hasRole('super-admin') && !$user->hasRole('admin')) {
+            abort(403);
+        }
+
+        // Verificar si tiene gastos asociados (registros financieros)
+        if (\App\Models\Compra::where('proyecto_id', $proyecto->id)->exists()) {
+            return redirect()->back()->withErrors(['error' => 'No se puede eliminar el proyecto porque tiene gastos/compras asociadas.']);
+        }
+
+        // Verificar si tiene tareas en progreso o completadas
+        if ($proyecto->tareas()->whereIn('estado', ['en_progreso', 'completado'])->exists()) {
+            return redirect()->back()->withErrors(['error' => 'No se puede eliminar el proyecto con tareas en progreso o terminadas.']);
+        }
+
+        @\Illuminate\Support\Facades\Log::info('Proyecto eliminado', [
+            'proyecto_id' => $proyecto->id,
+            'nombre' => $proyecto->nombre,
+            'eliminado_por' => Auth::id(),
+            'ip' => request()->ip()
+        ]);
 
         $proyecto->delete();
 
@@ -173,7 +209,9 @@ class ProyectoController extends Controller
      */
     public function share(Request $request, Proyecto $proyecto)
     {
-        $this->authorize('update', $proyecto);
+        if ($proyecto->owner_id !== Auth::id()) {
+            abort(403);
+        }
 
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -198,7 +236,9 @@ class ProyectoController extends Controller
      */
     public function removeMember(Proyecto $proyecto, User $user)
     {
-        $this->authorize('update', $proyecto);
+        if ($proyecto->owner_id !== Auth::id()) {
+            abort(403);
+        }
 
         $proyecto->members()->detach($user->id);
 
@@ -210,8 +250,9 @@ class ProyectoController extends Controller
      */
     public function addProducto(Request $request, Proyecto $proyecto)
     {
-        // Usamos 'view' porque cualquier miembro puede agregar productos
-        $this->authorize('view', $proyecto);
+        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+            abort(403);
+        }
 
         $request->validate([
             'producto_id' => 'required|exists:productos,id',
@@ -241,8 +282,9 @@ class ProyectoController extends Controller
      */
     public function removeProducto(Proyecto $proyecto, $productoId)
     {
-        // Usamos 'view' porque cualquier miembro puede quitar productos (o update si quieres ser estricto)
-        $this->authorize('view', $proyecto);
+        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+            abort(403);
+        }
 
         $proyecto->productos()->detach($productoId);
 
@@ -254,7 +296,9 @@ class ProyectoController extends Controller
      */
     public function addGasto(Request $request, Proyecto $proyecto)
     {
-        $this->authorize('view', $proyecto);
+        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+            abort(403);
+        }
 
         $request->validate([
             'total' => 'required|numeric|min:0.01',
@@ -277,6 +321,24 @@ class ProyectoController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Gasto agregado al proyecto.');
+    }
+
+    /**
+     * Eliminar gasto del proyecto
+     */
+    public function removeGasto(Proyecto $proyecto, $gastoId)
+    {
+        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+            abort(403);
+        }
+
+        $gasto = \App\Models\Compra::where('proyecto_id', $proyecto->id)
+            ->where('tipo', 'gasto')
+            ->findOrFail($gastoId);
+
+        $gasto->delete();
+
+        return redirect()->back()->with('success', 'Gasto eliminado del proyecto.');
     }
 
     public function addCategoriaGasto(\Illuminate\Http\Request $request)

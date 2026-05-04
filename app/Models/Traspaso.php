@@ -27,11 +27,6 @@ class Traspaso extends Model
 
     protected $table = 'traspasos';
 
-    protected $appends = [
-        'cantidad_total',
-        'productos_count',
-    ];
-
     protected $fillable = [
         'folio',
         'empresa_id',

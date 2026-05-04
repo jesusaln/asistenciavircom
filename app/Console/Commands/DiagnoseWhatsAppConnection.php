@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Support\EmpresaResolver;
 use App\Services\WhatsAppService;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -102,33 +103,57 @@ class DiagnoseWhatsAppConnection extends Command
         $this->line('🌐 <fg=yellow>PRUEBA DE CONEXIÓN API</>');
 
         try {
+            $accessToken = $this->resolveAccessToken($empresa);
+
             // Crear cliente HTTP directo para pruebas
             $client = new Client([
                 'base_uri' => 'https://graph.facebook.com/v20.0/',
                 'timeout' => 30,
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $empresa->whatsapp_access_token,
+                    'Authorization' => 'Bearer ' . $accessToken,
                     'Content-Type' => 'application/json',
                 ],
             ]);
 
-            // Probar obtener información del número de teléfono
             $this->line('Probando Phone Number ID: ' . $empresa->whatsapp_phone_number_id);
 
-            $response = $client->get($empresa->whatsapp_phone_number_id);
-            $data = json_decode($response->getBody()->getContents(), true);
+            $response = $client->get($empresa->whatsapp_phone_number_id . '?fields=id,display_phone_number,verified_name,account_mode,quality_rating');
+            $data = json_decode($response->getBody()->getContents(), true) ?? [];
 
             if (isset($data['id'])) {
                 $this->line('<fg=green>✅ Phone Number ID válido</>');
-                $this->line('   Nombre: ' . ($data['display_phone_number'] ?? 'No disponible'));
-                $this->line('   Estado: ' . ($data['account_mode'] ?? 'No disponible'));
+                $this->line('   Display Number: ' . ($data['display_phone_number'] ?? 'No disponible'));
+                $this->line('   Verified Name: ' . ($data['verified_name'] ?? 'No disponible'));
+                $this->line('   Modo: ' . ($data['account_mode'] ?? 'No disponible'));
+                $this->line('   Quality Rating: ' . ($data['quality_rating'] ?? 'No disponible'));
             } else {
                 $this->line('<fg=red>❌ Phone Number ID inválido o sin permisos</>');
             }
 
-        } catch (\Exception $e) {
+            if ($empresa->whatsapp_business_account_id) {
+                $this->line('');
+                $this->line('Probando WhatsApp Business Account ID: ' . $empresa->whatsapp_business_account_id);
+
+                $wabaResponse = $client->get($empresa->whatsapp_business_account_id . '?fields=id,name,currency,timezone_id,message_template_namespace');
+                $wabaData = json_decode($wabaResponse->getBody()->getContents(), true) ?? [];
+
+                if (isset($wabaData['id'])) {
+                    $this->line('<fg=green>✅ WABA accesible</>');
+                    $this->line('   Nombre: ' . ($wabaData['name'] ?? 'No disponible'));
+                    $this->line('   Moneda: ' . ($wabaData['currency'] ?? 'No disponible'));
+                    $this->line('   Timezone ID: ' . ($wabaData['timezone_id'] ?? 'No disponible'));
+                } else {
+                    $this->line('<fg=red>❌ WABA no accesible con este token</>');
+                }
+            }
+
+        } catch (RequestException $e) {
+            $body = $e->getResponse() ? (string) $e->getResponse()->getBody() : '';
             $this->line('<fg=red>❌ Error de conexión con la API</>');
             $this->line('   Error: ' . $e->getMessage());
+            if ($body !== '') {
+                $this->line('   Response: ' . $body);
+            }
 
             if (strpos($e->getMessage(), 'Unknown path components') !== false) {
                 $this->line('');
@@ -142,6 +167,10 @@ class DiagnoseWhatsAppConnection extends Command
                 $this->line('   • Asegúrate de que el número esté conectado a tu WABA');
                 $this->line('   • Revisa los permisos en Facebook Developers');
             }
+        } catch (\Exception $e) {
+            $this->line('<fg=red>❌ Error de conexión con la API</>');
+            $this->line('   Error: ' . $e->getMessage());
+            $this->line('   Trace: ' . $e->getTraceAsString());
         }
 
         $this->newLine();
@@ -149,31 +178,71 @@ class DiagnoseWhatsAppConnection extends Command
 
     private function verificarPlantilla(Empresa $empresa): void
     {
-        $this->line('📱 <fg=yellow>VERIFICACIÓN DE PLANTILLA</>');
+        $this->line('📱 <fg=yellow>VERIFICACIÓN DE PLANTILLAS</>');
 
-        if (empty($empresa->whatsapp_template_payment_reminder)) {
-            $this->line('<fg=red>❌ No hay plantilla configurada</>');
-            return;
-        }
-
-        $this->line('Plantilla configurada: <fg=cyan>' . $empresa->whatsapp_template_payment_reminder . '</>');
+        $configuredTemplate = $empresa->whatsapp_template_payment_reminder ?: 'No configurada';
+        $this->line('Plantilla configurada: <fg=cyan>' . $configuredTemplate . '</>');
 
         try {
-            // Crear servicio WhatsApp para verificar plantilla
             $whatsappService = WhatsAppService::fromEmpresa($empresa);
+            $templates = $whatsappService->listTemplates();
 
-            // Intentar obtener información de la plantilla (si existe el método)
-            // Nota: Este método podría no existir en la implementación actual
-            $this->line('<fg=yellow>ℹ️  Para verificar la plantilla completamente:</>');
-            $this->line('   1. Ve a Meta Business Manager');
-            $this->line('   2. Busca tu WhatsApp Business Account');
-            $this->line('   3. Verifica que la plantilla esté creada y aprobada');
-            $this->line('   4. El nombre debe coincidir exactamente');
+            if (empty($templates)) {
+                $this->line('<fg=yellow>⚠️  No se encontraron plantillas visibles con este token</>');
+                $this->newLine();
+                return;
+            }
+
+            $this->line('Plantillas encontradas: <fg=green>' . count($templates) . '</>');
+
+            $configuredExists = false;
+            foreach ($templates as $template) {
+                $name = $template['name'] ?? 'sin_nombre';
+                $status = $template['status'] ?? 'unknown';
+                $category = $template['category'] ?? 'unknown';
+
+                if ($empresa->whatsapp_template_payment_reminder && $name === $empresa->whatsapp_template_payment_reminder) {
+                    $configuredExists = true;
+                }
+
+                $this->line("   • {$name} [{$status}] ({$category})");
+            }
+
+            if ($empresa->whatsapp_template_payment_reminder) {
+                if ($configuredExists) {
+                    $this->line('<fg=green>✅ La plantilla configurada existe en Meta</>');
+                } else {
+                    $this->line('<fg=red>❌ La plantilla configurada no aparece en Meta</>');
+                }
+            } else {
+                $this->line('<fg=yellow>ℹ️  No hay plantilla configurada en empresa; para pruebas puedes usar hello_world</>');
+            }
 
         } catch (\Exception $e) {
             $this->line('<fg=red>❌ Error al verificar plantilla: ' . $e->getMessage() . '</>');
         }
 
         $this->newLine();
+    }
+
+    private function resolveAccessToken(Empresa $empresa): string
+    {
+        $token = $empresa->whatsapp_access_token;
+
+        if (!is_string($token) || trim($token) === '') {
+            throw new \RuntimeException('No hay access token configurado');
+        }
+
+        // El modelo ya usa cast encrypted. Si por compatibilidad histórica se guardó sin cast,
+        // intentamos decrypt solamente cuando parece un payload cifrado de Laravel.
+        if (str_starts_with($token, 'eyJpdiI6')) {
+            try {
+                return decrypt($token);
+            } catch (\Throwable) {
+                // Si falla, devolver el valor tal cual para diagnosticar con el mensaje real de Meta.
+            }
+        }
+
+        return $token;
     }
 }

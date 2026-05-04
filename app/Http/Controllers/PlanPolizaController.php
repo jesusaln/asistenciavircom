@@ -6,6 +6,7 @@ use App\Models\PlanPoliza;
 use App\Models\Servicio;
 use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -76,21 +77,6 @@ class PlanPolizaController extends Controller
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
             'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
             'costo_ticket_extra' => 'nullable|numeric|min:0',
-            'moneda' => 'nullable|string|max:5',
-            'precio_trimestral' => 'nullable|numeric|min:0',
-            'precio_semestral' => 'nullable|numeric|min:0',
-            'iva_tasa' => 'nullable|numeric|min:0',
-            'iva_incluido' => 'nullable|boolean',
-            'limit_dia_pago' => 'nullable|integer|min:1|max:31',
-            'dias_gracia_cobranza' => 'nullable|integer|min:0',
-            'recargo_pago_tardio' => 'nullable|numeric|min:0',
-            'tipo_recargo' => 'nullable|string|in:fijo,porcentaje',
-            'limite_usuarios_soporte' => 'nullable|integer|min:1',
-            'limite_ubicaciones' => 'nullable|integer|min:1',
-            'soporte_remoto_ilimitado' => 'nullable|boolean',
-            'soporte_presencial_incluido' => 'nullable|boolean',
-            'requiere_orden_compra' => 'nullable|boolean',
-            'metodo_pago_sugerido' => 'nullable|string|max:255',
             'clausulas' => 'nullable|string',
             'terminos_pago' => 'nullable|string',
         ]);
@@ -169,21 +155,6 @@ class PlanPolizaController extends Controller
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
             'costo_visita_sitio_extra' => 'nullable|numeric|min:0',
             'costo_ticket_extra' => 'nullable|numeric|min:0',
-            'moneda' => 'nullable|string|max:5',
-            'precio_trimestral' => 'nullable|numeric|min:0',
-            'precio_semestral' => 'nullable|numeric|min:0',
-            'iva_tasa' => 'nullable|numeric|min:0',
-            'iva_incluido' => 'nullable|boolean',
-            'limit_dia_pago' => 'nullable|integer|min:1|max:31',
-            'dias_gracia_cobranza' => 'nullable|integer|min:0',
-            'recargo_pago_tardio' => 'nullable|numeric|min:0',
-            'tipo_recargo' => 'nullable|string|in:fijo,porcentaje',
-            'limite_usuarios_soporte' => 'nullable|integer|min:1',
-            'limite_ubicaciones' => 'nullable|integer|min:1',
-            'soporte_remoto_ilimitado' => 'nullable|boolean',
-            'soporte_presencial_incluido' => 'nullable|boolean',
-            'requiere_orden_compra' => 'nullable|boolean',
-            'metodo_pago_sugerido' => 'nullable|string|max:255',
             'clausulas' => 'nullable|string',
             'terminos_pago' => 'nullable|string',
         ]);
@@ -225,6 +196,10 @@ class PlanPolizaController extends Controller
      */
     public function toggleDestacado(PlanPoliza $planesPoliza)
     {
+        if (!Schema::hasColumn('plan_polizas', 'destacado')) {
+            return back()->with('error', 'Falta aplicar migracion para destacado.');
+        }
+
         $planesPoliza->update(['destacado' => !$planesPoliza->destacado]);
 
         return back()->with('success', 'Visibilidad en index actualizada.');

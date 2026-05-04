@@ -4,7 +4,6 @@ import { Head, Link, useForm, router } from '@inertiajs/vue3';
 
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Modal from '@/Components/Modal.vue';
-
 import SimpleCategoryForm from '@/Components/Soporte/SimpleCategoryForm.vue';
 
 const props = defineProps({
@@ -21,7 +20,7 @@ const form = useForm({
     asignado_id: '',
     producto_id: '',
     origen: 'telefono',
-    tipo_servicio: 'garantia', // <<< NUEVO
+    tipo_servicio: 'garantia',
     telefono_contacto: '',
     email_contacto: '',
     nombre_contacto: '',
@@ -32,7 +31,7 @@ const form = useForm({
 // Popup de búsqueda de cliente
 const terminoBusqueda = ref('');
 const clienteEncontrado = ref(null);
-const resultadosBusqueda = ref([]); // Para múltiples resultados
+const resultadosBusqueda = ref([]);
 const buscando = ref(false);
 const ticketsCliente = ref([]);
 const polizaActiva = ref(null);
@@ -42,7 +41,7 @@ const listaCategorias = ref([...props.categorias]);
 
 const agregarCategoriaNueva = (nuevaCategoria) => {
     listaCategorias.value.push(nuevaCategoria);
-    form.categoria_id = nuevaCategoria.id; // Seleccionar automáticamente
+    form.categoria_id = nuevaCategoria.id;
 };
 
 const buscarCliente = async () => {
@@ -50,22 +49,18 @@ const buscarCliente = async () => {
     
     buscando.value = true;
     resultadosBusqueda.value = [];
-    clienteEncontrado.value = null; // Resetear selección al buscar
+    clienteEncontrado.value = null;
     
     try {
         const response = await fetch(route('soporte.buscar-cliente') + `?query=${encodeURIComponent(terminoBusqueda.value)}`);
         const data = await response.json();
         
         if (data.found) {
-            // Resultado único exacto
             seleccionarClienteEncontrado(data);
         } else if (data.results && data.results.length > 0) {
-            // Múltiples resultados
             resultadosBusqueda.value = data.results;
         } else {
-            // Nada encontrado
             resultadosBusqueda.value = [];
-            // Opcional: mostrar mensaje "no encontrado"
         }
     } catch (error) {
         console.error('Error buscando cliente:', error);
@@ -81,7 +76,7 @@ const seleccionarDeLista = async (cliente) => {
         const data = await response.json();
         if (data.found) {
             seleccionarClienteEncontrado(data);
-            resultadosBusqueda.value = []; // Limpiar lista
+            resultadosBusqueda.value = [];
         }
     } catch (error) {
         console.error('Error seleccionando cliente:', error);
@@ -95,10 +90,9 @@ const seleccionarClienteEncontrado = (data) => {
     ticketsCliente.value = data.tickets_recientes || [];
     
     form.cliente_id = data.cliente.id;
-    // Preferir celular si existe, sino telefono
     form.telefono_contacto = data.cliente.celular || data.cliente.telefono; 
     form.email_contacto = data.cliente.email;
-    form.nombre_contacto = data.cliente.nombre; // Ahora viene nombre_razon_social del backend
+    form.nombre_contacto = data.cliente.nombre; 
     polizaActiva.value = data.poliza_activa;
     form.poliza_id = data.poliza_activa ? data.poliza_activa.id : null;
 };
@@ -130,10 +124,10 @@ const submit = () => {
 };
 
 const prioridades = [
-    { value: 'baja', label: 'Baja', desc: 'Puede esperar', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-    { value: 'media', label: 'Media', desc: 'Normal', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-    { value: 'alta', label: 'Alta', desc: 'Importante', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
-    { value: 'urgente', label: 'Urgente', desc: 'Crítico', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
+    { value: 'baja', label: '🟢 Baja', desc: 'SLA Extendido' },
+    { value: 'media', label: '🟡 Media', desc: 'SLA Estándar' },
+    { value: 'alta', label: '🟠 Alta', desc: 'SLA Prioritario' },
+    { value: 'urgente', label: '🔴 Urgente', desc: 'Intervención Inmediata' },
 ];
 
 const origenes = [
@@ -149,318 +143,382 @@ const origenes = [
     <AppLayout title="Nuevo Ticket">
         <Head title="Nuevo Ticket de Soporte" />
 
-        <div class="min-h-screen bg-[#0F172A] text-slate-300 pb-12">
-            <!-- Hero Header Section -->
-            <div class="relative overflow-hidden bg-slate-900/50 border-b border-slate-800 pt-8 pb-12 mb-8">
-                <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full"></div>
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <Link :href="route('soporte.index')" class="px-2 py-0.5 bg-slate-800 text-slate-400 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-md border border-slate-700 hover:border-slate-500 transition-colors">
-                                    ← Volver al Listado
-                                </Link>
-                                <span class="text-slate-500">•</span>
-                                <span class="text-xs text-slate-400 font-medium">Mesa de Ayuda</span>
+        <div class="min-h-screen bg-slate-950 text-slate-200 py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-[1400px] mx-auto">
+                
+                <!-- Header -->
+                <div class="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <Link :href="route('soporte.index')" class="inline-flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-amber-500 uppercase tracking-[0.2em] mb-8 transition-colors group">
+                        <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                        Regresar a la Gestión de Tickets
+                    </Link>
+                    
+                    <div class="flex items-center gap-6">
+                        <div class="relative group">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl blur-md opacity-25 group-hover:opacity-50 transition duration-500"></div>
+                            <div class="relative w-16 h-16 rounded-2xl bg-slate-900 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl">
+                                <svg class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                             </div>
-                            <h1 class="text-4xl font-black text-white tracking-tighter">
-                                Nuevo <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">Ticket</span>
-                            </h1>
-                            <p class="text-slate-400 mt-2 font-medium">Registra una nueva solicitud de servicio o incidencia técnica.</p>
+                        </div>
+                        <div>
+                            <h1 class="text-4xl font-black text-white tracking-tighter mb-1 uppercase">Generación de <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-400">Expediente</span></h1>
+                            <p class="text-slate-500 text-sm font-bold uppercase tracking-[0.2em] italic">Registro de nueva incidencia técnica</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Formulario principal -->
-                    <div class="lg:col-span-2 space-y-8">
-                        
-                        <!-- Panel de Búsqueda de Cliente -->
-                        <div class="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
-                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-12">
+                    <!-- Left: Creation Form -->
+                    <div class="xl:col-span-8">
+                        <form @submit.prevent="submit" class="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
                             
-                            <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                                <span class="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg">🔍</span>
-                                Identificación del Cliente
-                            </h3>
+                            <!-- Search & Identify Section (Scanner Style) -->
+                            <div class="relative group">
+                                <div class="absolute -inset-0.5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent rounded-[3rem] blur opacity-0 group-focus-within:opacity-100 transition duration-1000"></div>
+                                <div class="relative bg-slate-900/40 backdrop-blur-xl border border-white/5 p-10 rounded-[3rem] shadow-2xl overflow-hidden">
+                                     <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/5 rounded-full blur-[100px]"></div>
+                                     
+                                     <div class="flex items-center justify-between mb-8">
+                                         <h3 class="text-xs font-black text-white uppercase tracking-[0.4em] flex items-center gap-4">
+                                             <div class="w-1 h-8 bg-amber-500"></div>
+                                             Identificación Orbital
+                                         </h3>
+                                         <span v-if="buscando" class="flex gap-1">
+                                             <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce"></div>
+                                             <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce [animation-delay:0.2s]"></div>
+                                             <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce [animation-delay:0.4s]"></div>
+                                         </span>
+                                     </div>
 
-                            <div class="flex gap-3 mb-6">
-                                <input
-                                    v-model="terminoBusqueda"
-                                    type="text"
-                                    placeholder="Buscar por Nombre, Empresa o Teléfono..."
-                                    class="flex-1 bg-slate-900/50 border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20 transition-all font-medium"
-                                    @keyup.enter="buscarCliente"
-                                />
-                                <button 
-                                    type="button"
-                                    @click="buscarCliente"
-                                    :disabled="buscando"
-                                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-indigo-400/20"
-                                >
-                                    {{ buscando ? '...' : 'Buscar' }}
-                                </button>
-                            </div>
-
-                            <!-- Resultados de Búsqueda -->
-                            <div v-if="resultadosBusqueda.length > 0 && !clienteEncontrado" class="bg-slate-900/80 rounded-xl border border-slate-700 overflow-hidden mb-6">
-                                <div class="px-4 py-2 bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-700">
-                                    Resultados encontrados ({{ resultadosBusqueda.length }})
-                                </div>
-                                <ul class="divide-y divide-slate-700/50">
-                                    <li v-for="res in resultadosBusqueda" :key="res.id" 
-                                        @click="seleccionarDeLista(res)"
-                                        class="px-4 py-3 hover:bg-slate-800/50 cursor-pointer flex justify-between items-center transition-colors group/item"
-                                    >
-                                        <div>
-                                            <div class="font-bold text-slate-200 group-hover/item:text-indigo-400 transition-colors">{{ res.nombre }}</div>
-                                            <div class="text-xs text-slate-500 font-mono">{{ res.email }} • {{ res.telefono }}</div>
-                                        </div>
-                                        <span class="text-indigo-500 text-xs font-bold uppercase tracking-widest opacity-0 group-hover/item:opacity-100 transition-opacity">Seleccionar →</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Cliente Seleccionado -->
-                            <div v-if="clienteEncontrado" class="bg-slate-900/60 rounded-2xl p-5 border border-emerald-500/30 relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-4 opacity-50">
-                                    <div class="w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                                </div>
-                                
-                                <div class="flex justify-between items-start relative z-10">
-                                    <div class="flex items-start gap-4">
-                                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-900/30">
-                                            {{ clienteEncontrado.nombre.charAt(0) }}
-                                        </div>
-                                        <div>
-                                            <div class="text-lg font-black text-white leading-tight">{{ clienteEncontrado.nombre }}</div>
-                                            <div class="text-sm text-slate-400 mb-1 flex items-center gap-2">
-                                                <span>{{ clienteEncontrado.email }}</span>
-                                                <span v-if="clienteEncontrado.telefono" class="w-1 h-1 bg-slate-600 rounded-full"></span>
-                                                <span v-if="clienteEncontrado.telefono" class="font-mono text-xs">{{ clienteEncontrado.telefono }}</span>
-                                            </div>
-                                            
-                                            <!-- Badge de Póliza -->
-                                            <div v-if="polizaActiva" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-2 shadow-sm shadow-emerald-900/10">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                </svg>
-                                                Póliza Activa: {{ polizaActiva.nombre }} <span class="font-mono opacity-70">({{ polizaActiva.folio }})</span>
-                                            </div>
-                                            <div v-else class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 mt-2">
-                                                Sin Póliza Activa
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="button" @click="limpiarCliente" class="p-2 text-slate-500 hover:text-white bg-slate-800/50 hover:bg-red-500/20 rounded-lg transition-all">
-                                        ✕
-                                    </button>
-                                </div>
-                                
-                                <!-- Tickets Recientes -->
-                                <div v-if="ticketsCliente.length > 0" class="mt-6 pt-4 border-t border-slate-700/50">
-                                    <div class="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-3">Historial Reciente</div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        <Link v-for="t in ticketsCliente.slice(0,4)" :key="t.id" 
-                                            :href="route('soporte.show', t.id)" target="_blank"
-                                            class="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 transition-colors text-xs group/ticket"
+                                     <div class="relative mb-6">
+                                         <svg class="absolute left-6 top-6 w-7 h-7 text-amber-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                         <input
+                                            v-model="terminoBusqueda"
+                                            type="text"
+                                            placeholder="SCANNER: NOMBRE, EMPRESA O TELÉFONO..."
+                                            class="w-full pl-16 pr-24 py-6 bg-slate-950/60 border border-white/5 rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] text-white placeholder-slate-700 focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-inner"
+                                            @keyup.enter="buscarCliente"
+                                        />
+                                        <button 
+                                            type="button"
+                                            @click="buscarCliente"
+                                            :disabled="buscando || terminoBusqueda.length < 3"
+                                            class="absolute right-3 top-3 bottom-3 px-8 bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] transition-all disabled:opacity-20 active:scale-95 flex items-center gap-2"
                                         >
-                                            <div class="flex items-center gap-2 truncate">
-                                                <span class="font-mono font-bold text-indigo-400">{{ t.numero }}</span>
-                                                <span class="text-slate-300 truncate">{{ t.titulo }}</span>
+                                            {{ buscando ? 'SEARCHING' : 'SCAN' }}
+                                        </button>
+                                     </div>
+
+                                     <!-- Multiple Search Results -->
+                                     <div v-if="resultadosBusqueda.length > 0 && !clienteEncontrado" class="animate-in fade-in zoom-in-95 duration-500 mt-6 space-y-3">
+                                         <div class="px-6 py-2 text-[9px] font-black text-amber-500/80 uppercase tracking-widest italic border-b border-white/5 mb-4">Múltiples coincidencias detectadas • {{ resultadosBusqueda.length }} resultados</div>
+                                         <div 
+                                            v-for="res in resultadosBusqueda" :key="res.id" 
+                                            @click="seleccionarDeLista(res)"
+                                            class="p-6 bg-slate-950/40 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/30 rounded-2xl cursor-pointer transition-all group/item flex items-center justify-between"
+                                        >
+                                            <div class="flex items-center gap-6">
+                                                <div class="w-12 h-12 bg-slate-900 border border-white/5 rounded-xl flex items-center justify-center text-amber-500 font-black text-xs">{{ res.nombre?.charAt(0) }}</div>
+                                                <div>
+                                                    <div class="text-sm font-black text-white uppercase tracking-tight">{{ res.nombre }}</div>
+                                                    <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">{{ res.email }} • {{ res.telefono }}</div>
+                                                </div>
                                             </div>
-                                            <span :class="['px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ml-2 select-none', t.estado === 'abierto' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400']">
-                                                {{ t.estado }}
-                                            </span>
-                                        </Link>
-                                    </div>
+                                            <span class="text-[9px] font-black text-amber-600 group-hover/item:text-amber-400 uppercase tracking-widest opacity-0 group-hover/item:opacity-100 transition-all -translate-x-4 group-hover/item:translate-x-0">Seleccionar Registro →</span>
+                                         </div>
+                                     </div>
+
+                                     <!-- Identified Client -->
+                                     <div v-if="clienteEncontrado" class="animate-in fade-in zoom-in-95 duration-500 bg-emerald-500/5 border border-emerald-500/30 rounded-[2.5rem] p-8 relative overflow-hidden group/success">
+                                         <div class="absolute -right-10 -bottom-10 text-9xl text-emerald-500 opacity-5 transform group-hover/success:rotate-12 transition-transform duration-1000">🛡️</div>
+                                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
+                                             <div class="flex gap-6">
+                                                <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 text-2xl animate-pulse">
+                                                    👤
+                                                </div>
+                                                <div>
+                                                    <div class="text-xl font-black text-white uppercase tracking-tighter mb-1">{{ clienteEncontrado.nombre }}</div>
+                                                    <div class="flex flex-wrap items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest italic">
+                                                        <span>{{ clienteEncontrado.email }}</span>
+                                                        <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                                                        <span>{{ clienteEncontrado.telefono || clienteEncontrado.celular }}</span>
+                                                    </div>
+                                                    
+                                                    <!-- Policy Badge Premium -->
+                                                    <div v-if="polizaActiva" class="mt-4 inline-flex items-center gap-3 px-5 py-2 rounded-full bg-emerald-600 text-white text-[9px] font-black uppercase tracking-widest border border-emerald-400/30 shadow-lg shadow-emerald-600/20">
+                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                                        SISTEMA BAJO PÓLIZA: {{ polizaActiva.nombre }} ({{ polizaActiva.folio }})
+                                                    </div>
+                                                    <div v-else class="mt-4 inline-flex items-center gap-3 px-5 py-2 rounded-full bg-slate-950 text-slate-500 text-[9px] font-black uppercase tracking-widest border border-white/5">
+                                                        SIN COBERTURA ACTIVA
+                                                    </div>
+                                                </div>
+                                             </div>
+                                             <button type="button" @click="limpiarCliente" class="px-6 py-4 bg-slate-950/50 hover:bg-rose-500/10 text-[9px] font-black text-rose-500 uppercase tracking-widest rounded-2xl border border-white/5 hover:border-rose-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                                 RESET SCAN ×
+                                             </button>
+                                         </div>
+                                         
+                                         <!-- Recent Tickets Subpanel -->
+                                         <div v-if="ticketsCliente.length > 0" class="mt-8 pt-8 border-t border-emerald-500/20">
+                                            <div class="text-[9px] font-black text-emerald-500/60 uppercase tracking-widest mb-4 italic">EXPEDIENTES RECIENTES DEL CLIENTE</div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <div v-for="t in ticketsCliente" :key="t.id" class="p-4 bg-black/20 rounded-2xl border border-white/5 flex items-center justify-between group/ticket hover:bg-black/40 transition-all">
+                                                    <div class="flex items-center gap-4">
+                                                        <span class="font-mono text-[10px] text-amber-400">{{ t.numero }}</span>
+                                                        <span class="text-[10px] font-black text-slate-300 uppercase tracking-tight truncate max-w-[120px]">{{ t.titulo }}</span>
+                                                    </div>
+                                                    <Link :href="route('soporte.show', t.id)" target="_blank" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center opacity-0 group-hover/ticket:opacity-100 transition-all text-white">
+                                                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                         </div>
+                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Formulario de Detalles -->
-                        <form @submit.prevent="submit" class="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-xl space-y-8">
-                            
-                            <!-- Titulo y Descripcion -->
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Asunto del Ticket *</label>
-                                    <input
+                            <!-- Main Input Artifacts -->
+                            <div class="grid grid-cols-1 gap-8">
+                                <!-- Title Block -->
+                                <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl overflow-hidden relative group">
+                                     <div class="absolute -left-10 -top-10 w-40 h-40 bg-blue-500/5 rounded-full blur-[60px]"></div>
+                                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-6 px-1 italic">Asunto de la Incidencia *</label>
+                                     <input
                                         v-model="form.titulo"
                                         type="text"
                                         required
-                                        placeholder="Ej: Falla en servidor de archivos"
-                                        class="w-full bg-slate-900 border-slate-700 rounded-xl text-white placeholder-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-inner"
+                                        placeholder="RESUMEN EJECUTIVO DEL PROBLEMA..."
+                                        class="w-full bg-slate-950/60 border-2 border-white/5 focus:border-amber-500/50 rounded-3xl py-6 px-8 text-xl font-black uppercase tracking-tighter text-white placeholder-slate-800 transition-all shadow-inner focus:ring-4 focus:ring-amber-500/10"
                                     />
-                                    <p class="text-red-400 text-xs mt-1" v-if="form.errors.titulo">{{ form.errors.titulo }}</p>
+                                    <p v-if="form.errors.titulo" class="text-rose-500 text-[10px] font-black uppercase tracking-widest mt-4 px-2 italic">{{ form.errors.titulo }}</p>
                                 </div>
 
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Detalles del Problema *</label>
-                                    <textarea
-                                        v-model="form.descripcion"
-                                        rows="5"
-                                        required
-                                        placeholder="Describe paso a paso lo que sucede..."
-                                        class="w-full bg-slate-900 border-slate-700 rounded-xl text-white placeholder-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20 shadow-inner resize-none"
-                                    ></textarea>
-                                    <p class="text-red-400 text-xs mt-1" v-if="form.errors.descripcion">{{ form.errors.descripcion }}</p>
-                                </div>
-                            </div>
-
-                            <!-- Selector de Equipo (Condicional) -->
-                            <div v-if="clienteEncontrado && polizaActiva?.equipos?.length > 0" class="p-5 bg-slate-900/50 rounded-2xl border border-slate-700/50">
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Equipo Relacionado (Opcional)</label>
-                                <select 
-                                    v-model="form.producto_id" 
-                                    class="w-full bg-slate-800 border-slate-700 rounded-xl text-white focus:border-indigo-500 focus:ring-indigo-500/20"
-                                    :class="{'border-emerald-500/50 ring-1 ring-emerald-500/20': estaEquipadoCubierto}"
-                                >
-                                    <option value="">-- Seleccionar Equipo --</option>
-                                    <option v-for="equipo in polizaActiva.equipos" :key="equipo.id" :value="equipo.id">
-                                        📱 {{ equipo.nombre }} [S/N: {{ equipo.serie }}]
-                                    </option>
-                                </select>
-                                
-                                <div v-if="estaEquipadoCubierto" class="mt-3 flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    Equipo cubierto por póliza. Se aplicará garantía de servicio automáticamente.
-                                </div>
-                            </div>
-
-                            <!-- Clasificación del Ticket -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Tipo de Servicio</label>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <button type="button" @click="form.tipo_servicio = 'garantia'" 
-                                            :class="['p-3 rounded-xl border text-left transition-all', form.tipo_servicio === 'garantia' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400' : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-600']">
-                                            <div class="font-bold text-sm">🛡️ Garantía</div>
-                                            <div class="text-[10px] opacity-70">Sin costo (Póliza)</div>
-                                        </button>
-                                        <button type="button" @click="form.tipo_servicio = 'costo'" 
-                                            :class="['p-3 rounded-xl border text-left transition-all', form.tipo_servicio === 'costo' ? 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-600']">
-                                            <div class="font-bold text-sm">💰 Con Costo</div>
-                                            <div class="text-[10px] opacity-70">Facturable</div>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Prioridad</label>
-                                    <div class="grid grid-cols-4 gap-2">
-                                        <button v-for="p in prioridades" :key="p.value" type="button"
-                                            @click="form.prioridad = p.value"
-                                            :class="['p-2 rounded-lg text-center border transition-all', form.prioridad === p.value ? p.color : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-600']">
-                                            <div class="font-bold text-xs">{{ p.label }}</div>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Categoría</label>
-                                    <div class="flex gap-2">
-                                        <select v-model="form.categoria_id" class="w-full bg-slate-900 border-slate-700 rounded-xl text-white focus:border-indigo-500 focus:ring-indigo-500/20 text-sm">
-                                            <option value="">-- General --</option>
-                                            <option v-for="c in listaCategorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
+                                <!-- Product Selection (Scoped to Identified Client) -->
+                                <div v-if="clienteEncontrado" class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group animate-in slide-in-from-left-4 duration-500">
+                                     <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-[60px]"></div>
+                                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-6 px-1 italic">Vínculo con Artefacto / Equipo</label>
+                                     <div class="relative">
+                                         <select 
+                                            v-model="form.producto_id" 
+                                            class="w-full bg-slate-950/60 border-2 border-white/5 rounded-3xl py-6 px-8 text-xs font-black uppercase tracking-widest text-white appearance-none cursor-pointer focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                                            :class="{'border-emerald-500/50 ring-emerald-500/10': estaEquipadoCubierto}"
+                                        >
+                                            <option value="">SELECCIONAR EQUIPO VINCULADO (OPCIONAL)</option>
+                                            <option v-for="equipo in polizaActiva?.equipos" :key="equipo.id" :value="equipo.id">
+                                                🛡️ {{ equipo.nombre }} (S/N: {{ equipo.serie }}) - BAJO PÓLIZA
+                                            </option>
                                         </select>
-                                        <button type="button" @click="showCategoryModal = true" class="px-3 bg-slate-800 text-slate-400 hover:text-white rounded-xl border border-slate-700 hover:bg-slate-700 transition-colors">
-                                            +
+                                        <svg class="absolute right-8 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
+                                     </div>
+                                     
+                                     <div v-if="estaEquipadoCubierto" class="mt-6 flex items-center gap-4 p-5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl animate-pulse">
+                                         <span class="text-2xl">⚡</span>
+                                         <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest italic leading-tight">Hardware autenticado bajo póliza de servicio. Aplicando SLA prioritario de forma automática.</div>
+                                     </div>
+                                </div>
+
+                                <!-- Description Artifact -->
+                                <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[4rem] p-10 md:p-14 shadow-2xl relative group overflow-hidden">
+                                     <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/5 rounded-full blur-[100px]"></div>
+                                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-10 px-1 italic">Reporte Detallado *</label>
+                                     <textarea
+                                        v-model="form.descripcion"
+                                        rows="10"
+                                        required
+                                        placeholder="INICIE EL REPORTE TÉCNICO DETALLADO AQUÍ..."
+                                        class="w-full bg-transparent border-none focus:ring-0 text-slate-200 placeholder-slate-800 text-lg md:text-xl font-medium leading-relaxed resize-none custom-scrollbar"
+                                    ></textarea>
+                                    <p v-if="form.errors.descripcion" class="text-rose-500 text-[10px] font-black uppercase tracking-widest mt-4 px-2 italic">{{ form.errors.descripcion }}</p>
+                                </div>
+
+                                <!-- Service Logic Artifact -->
+                                <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
+                                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-10 px-1 italic">Atribución de Servicio</label>
+                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                         <button 
+                                            type="button"
+                                            @click="form.tipo_servicio = 'garantia'"
+                                            :class="[
+                                                'relative p-8 rounded-[2.5rem] border text-left transition-all duration-500 group overflow-hidden',
+                                                form.tipo_servicio === 'garantia' 
+                                                    ? 'bg-amber-600/10 border-amber-500 shadow-[0_20px_40px_-10px_rgba(245,158,11,0.2)] scale-[1.02]' 
+                                                    : 'bg-slate-950/40 border-white/5 grayscale hover:grayscale-0 hover:border-amber-500/30'
+                                            ]"
+                                        >
+                                            <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 transform group-hover:rotate-12 transition-transform duration-1000">🛡️</div>
+                                            <div class="text-xs font-black uppercase tracking-[0.2em] mb-2" :class="form.tipo_servicio === 'garantia' ? 'text-amber-500' : 'text-slate-500'">GARANTÍA / PÓLIZA</div>
+                                            <p class="text-[9px] font-bold text-slate-600 leading-relaxed uppercase tracking-widest italic">Intervención sin costo comercial directo. Amparado bajo contrato de mantenimiento/póliza.</p>
                                         </button>
-                                    </div>
+                                        <button 
+                                            type="button"
+                                            @click="form.tipo_servicio = 'costo'"
+                                            :class="[
+                                                'relative p-8 rounded-[2.5rem] border text-left transition-all duration-500 group overflow-hidden',
+                                                form.tipo_servicio === 'costo' 
+                                                    ? 'bg-indigo-600/10 border-indigo-500 shadow-[0_20px_40px_-10px_rgba(79,70,229,0.2)] scale-[1.02]' 
+                                                    : 'bg-slate-950/40 border-white/5 grayscale hover:grayscale-0 hover:border-indigo-500/30'
+                                            ]"
+                                        >
+                                            <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 transform group-hover:rotate-12 transition-transform duration-1000">💰</div>
+                                            <div class="text-xs font-black uppercase tracking-[0.2em] mb-2" :class="form.tipo_servicio === 'costo' ? 'text-indigo-400' : 'text-slate-500'">CON COSTO ADICIONAL</div>
+                                            <p class="text-[9px] font-bold text-slate-600 leading-relaxed uppercase tracking-widest italic">Servicio extraordinario fuera de cobertura. Genera nota de venta y proceso de facturación.</p>
+                                        </button>
+                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Origen</label>
-                                    <select v-model="form.origen" class="w-full bg-slate-900 border-slate-700 rounded-xl text-white focus:border-indigo-500 focus:ring-indigo-500/20 text-sm">
-                                        <option v-for="o in origenes" :key="o.value" :value="o.value">{{ o.label }}</option>
-                                    </select>
+
+                                <!-- Configuration Matrix -->
+                                <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
+                                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-10 px-1 italic">Matriz de Configuración</label>
+                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                         <!-- Priority -->
+                                         <div class="p-6 bg-slate-950/50 rounded-[2rem] border border-white/5 group/box hover:border-amber-500/20 transition-all">
+                                             <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4 block italic">Criticidad</label>
+                                             <select v-model="form.prioridad" class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-widest text-white appearance-none cursor-pointer focus:ring-2 focus:ring-amber-500/30 transition-all">
+                                                <option v-for="p in prioridades" :key="p.value" :value="p.value">{{ p.label }}</option>
+                                             </select>
+                                         </div>
+                                         <!-- Category -->
+                                         <div class="p-6 bg-slate-950/50 rounded-[2rem] border border-white/5 group/box hover:border-amber-500/20 transition-all">
+                                             <div class="flex justify-between items-center mb-4">
+                                                 <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Taxonomía</label>
+                                                 <button type="button" @click="showCategoryModal = true" class="text-amber-500 hover:text-amber-400 text-xs transition-colors">⊕ Add</button>
+                                             </div>
+                                             <select v-model="form.categoria_id" class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-widest text-white appearance-none cursor-pointer focus:ring-2 focus:ring-amber-500/30 transition-all">
+                                                <option value="">SIN CATEGORÍA</option>
+                                                <option v-for="c in listaCategorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
+                                             </select>
+                                         </div>
+                                         <!-- Origin -->
+                                         <div class="p-6 bg-slate-950/50 rounded-[2rem] border border-white/5 group/box hover:border-amber-500/20 transition-all">
+                                             <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4 block italic">Fuente / Origen</label>
+                                             <select v-model="form.origen" class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-widest text-white appearance-none cursor-pointer focus:ring-2 focus:ring-amber-500/30 transition-all">
+                                                <option v-for="o in origenes" :key="o.value" :value="o.value">{{ o.label }}</option>
+                                             </select>
+                                         </div>
+                                         <!-- Assignments -->
+                                         <div class="p-6 bg-slate-950/50 rounded-[2rem] border border-white/5 group/box hover:border-amber-500/20 transition-all lg:col-span-2">
+                                             <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4 block italic">Asignar Unidad de Respuesta</label>
+                                             <select v-model="form.asignado_id" class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-widest text-white appearance-none cursor-pointer focus:ring-2 focus:ring-amber-500/30 transition-all">
+                                                <option value="">AUTO-DERIVACIÓN / SIN ASIGNAR</option>
+                                                <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
+                                             </select>
+                                         </div>
+                                         <!-- Folio Manual -->
+                                         <div class="p-6 bg-slate-950/50 rounded-[2rem] border border-white/5 group/box hover:border-amber-500/20 transition-all">
+                                             <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4 block italic">Folio Físico Ext.</label>
+                                             <input v-model="form.folio_manual" type="text" placeholder="ID EXTERNO..." class="w-full bg-slate-900 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-widest text-white placeholder-slate-800 transition-all" />
+                                         </div>
+                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Asignar A</label>
-                                    <select v-model="form.asignado_id" class="w-full bg-slate-900 border-slate-700 rounded-xl text-white focus:border-indigo-500 focus:ring-indigo-500/20 text-sm">
-                                        <option value="">-- Sin Asignar --</option>
-                                        <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
-                                    </select>
+
+                                <!-- Contact Information (If NO client found) -->
+                                <div v-if="!clienteEncontrado" class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group animate-in zoom-in-95 duration-500">
+                                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-10 px-1 italic">Datos de Contacto Directo</label>
+                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                         <div class="space-y-3">
+                                             <label class="text-[9px] font-black text-slate-600 uppercase tracking-widest px-1">Nombre Completo</label>
+                                             <input v-model="form.nombre_contacto" type="text" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-5 px-8 text-sm font-black uppercase tracking-widest text-white placeholder-slate-800 focus:border-amber-500/50 transition-all shadow-inner" />
+                                         </div>
+                                         <div class="space-y-3">
+                                             <label class="text-[9px] font-black text-slate-600 uppercase tracking-widest px-1">Correo Electrónico</label>
+                                             <input v-model="form.email_contacto" type="email" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-5 px-8 text-sm font-black uppercase tracking-widest text-white placeholder-slate-800 focus:border-amber-500/50 transition-all shadow-inner" />
+                                         </div>
+                                     </div>
                                 </div>
                             </div>
 
-                             <!-- Contacto Manual (si no hay cliente) -->
-                             <div v-if="!clienteEncontrado" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-800">
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Nombre Contacto</label>
-                                    <input v-model="form.nombre_contacto" type="text" class="w-full bg-slate-900 border-slate-700 rounded-xl text-white text-sm" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email / Teléfono</label>
-                                    <input v-model="form.email_contacto" type="text" class="w-full bg-slate-900 border-slate-700 rounded-xl text-white text-sm" />
-                                </div>
-                            </div>
-
-                            <!-- Footer Actions -->
-                            <div class="flex items-center justify-end gap-4 pt-4 border-t border-slate-800">
-                                <Link :href="route('soporte.index')" class="px-6 py-3 text-slate-400 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors">
-                                    Cancelar
+                            <!-- Final Actions -->
+                            <div class="flex flex-col sm:flex-row justify-end gap-6 pt-12 border-t border-white/5">
+                                <Link :href="route('soporte.index')" class="px-12 py-6 text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-widest transition-all">
+                                    Abortar Registro
                                 </Link>
                                 <button 
                                     type="submit"
                                     :disabled="form.processing"
-                                    class="px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    class="px-16 py-6 bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-[2rem] transition-all shadow-[0_20px_50px_-10px_rgba(245,158,11,0.3)] flex items-center justify-center gap-4 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed group/submit"
                                 >
-                                    {{ form.processing ? 'Registrando...' : 'Crear Ticket' }}
+                                    <svg v-if="form.processing" class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span v-else class="flex items-center gap-4">
+                                        {{ form.processing ? 'SYNCHRONIZING...' : 'INICIALIZAR EXPEDIENTE' }}
+                                        <svg class="w-5 h-5 transform group-submit:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                    </span>
                                 </button>
                             </div>
-
                         </form>
                     </div>
 
-                    <!-- Sidebar Info -->
-                    <div class="lg:col-span-1 space-y-6">
-                        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 border border-slate-700/50 shadow-xl">
-                            <h3 class="font-bold text-white mb-4 flex items-center gap-2">
-                                <span class="text-xl">💡</span> Tips de Servicio
-                            </h3>
-                            <ul class="space-y-4">
-                                <li class="flex gap-3 text-sm text-slate-400">
-                                    <span class="text-indigo-500 font-bold">•</span>
-                                    <span>Usa el <strong class="text-white">buscador de teléfonos</strong> para encontrar clientes mucho más rápido.</span>
+                    <!-- Right Sidebar: Helpers -->
+                    <div class="xl:col-span-4 space-y-8 animate-in fade-in slide-in-from-right-8 duration-700 delay-300">
+                        
+                        <!-- Intelligence Card -->
+                        <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative group overflow-hidden">
+                             <div class="absolute -left-10 -top-10 w-40 h-40 bg-amber-500/5 rounded-full blur-[60px]"></div>
+                             <h3 class="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-10 flex items-center gap-4">
+                                <span class="text-amber-500 text-lg">💡</span>
+                                Guía Operativa
+                             </h3>
+                             <ul class="space-y-6">
+                                <li v-for="tip in [
+                                    { t: 'VALIDACIÓN DE IDENTIDAD', d: 'Utilice el scanner por teléfono para una detección instantánea del cliente y sus pólizas.' },
+                                    { t: 'ESTRATIFICACIÓN SLA', d: 'Asegúrese de seleccionar el nivel de prioridad correcto para garantizar los tiempos de respuesta orbital.' },
+                                    { t: 'RIQUEZA DE DATOS', d: 'Incluya números de serie y fotos en los comentarios posteriores para una resolución acelerada.' }
+                                ]" :key="tip.t" class="p-6 bg-slate-950/40 border border-white/5 rounded-3xl group/tip hover:border-amber-500/20 transition-all duration-500">
+                                    <div class="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-2 group-hover/tip:translate-x-1 transition-transform">{{ tip.t }}</div>
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest italic leading-relaxed group-hover/tip:text-slate-400 transition-colors">{{ tip.d }}</div>
                                 </li>
-                                <li class="flex gap-3 text-sm text-slate-400">
-                                    <span class="text-indigo-500 font-bold">•</span>
-                                    <span>Clasifica correctamente la <strong class="text-white">prioridad</strong> para no afectar los tiempos de respuesta (SLA).</span>
-                                </li>
-                                <li class="flex gap-3 text-sm text-slate-400">
-                                    <span class="text-indigo-500 font-bold">•</span>
-                                    <span>Verifica siempre si el equipo tiene <strong class="text-emerald-400">garantía vigente</strong> antes de cotizar.</span>
-                                </li>
-                            </ul>
+                             </ul>
                         </div>
 
-                        <div class="bg-slate-900/50 rounded-3xl p-6 border border-slate-800">
-                            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Tiempos de Respuesta (SLA)</h3>
-                            <div class="space-y-3">
-                                <div v-for="c in categorias.slice(0,5)" :key="c.id" class="flex justify-between items-center text-sm">
-                                    <span class="text-slate-300">{{ c.nombre }}</span>
-                                    <span class="font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded text-xs">{{ c.sla_horas }}h</span>
+                        <!-- SLA Matrix Status -->
+                        <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative group overflow-hidden">
+                             <h3 class="text-[10px] font-black text-white uppercase tracking-[0.4em] mb-10 flex items-center gap-4">
+                                <span class="text-amber-500 text-lg">⏱️</span>
+                                SLA por Categoría
+                             </h3>
+                             <div class="space-y-2">
+                                <div v-for="c in categorias" :key="c.id" class="flex justify-between items-center p-4 bg-slate-950/20 hover:bg-slate-950 border border-white/5 rounded-2xl transition-all group/row">
+                                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/row:text-slate-200 transition-colors">{{ c.nombre }}</span>
+                                    <span class="text-[11px] font-mono font-black text-amber-500">{{ c.sla_horas }}H</span>
                                 </div>
-                            </div>
+                             </div>
+                             <div class="mt-8 pt-8 border-t border-white/5">
+                                 <p class="text-[9px] font-bold text-slate-600 uppercase tracking-[0.3em] italic text-center leading-loose">Todos los tiempos están sujetos a la zona horaria del sistema de detección.</p>
+                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal de Gestión de Categorías Simplificado -->
+        <!-- Category Management Modal Premium -->
         <Modal :show="showCategoryModal" @close="showCategoryModal = false" maxWidth="md">
-            <SimpleCategoryForm 
-                @close="showCategoryModal = false" 
-                @created="agregarCategoriaNueva"
-            />
+            <div class="bg-slate-900 border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
+                <div class="p-10 bg-slate-900">
+                    <SimpleCategoryForm 
+                        @close="showCategoryModal = false" 
+                        @created="agregarCategoriaNueva"
+                    />
+                </div>
+            </div>
         </Modal>
     </AppLayout>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+</style>

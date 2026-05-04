@@ -19,7 +19,7 @@ const notyf = new Notyf({
   types: [
     { type: 'success', background: '#10B981', icon: { className: 'notyf__icon--success', tagName: 'i', text: '✓' } },
     { type: 'error', background: '#EF4444', icon: { className: 'notyf__icon--error', tagName: 'i', text: '✗' } },
-    { type: 'info', background: '#3B82F6', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'ℹ' } },
+    { type: 'info', background: '#FF6B35', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'ℹ' } },
   ],
 });
 
@@ -461,7 +461,7 @@ onBeforeUnmount(() => {
 
       <form @submit.prevent="crearVenta" class="space-y-8">
         <!-- Cliente -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -482,7 +482,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Equipos -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -511,7 +511,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Configuración de Renta -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -579,7 +579,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Notas -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

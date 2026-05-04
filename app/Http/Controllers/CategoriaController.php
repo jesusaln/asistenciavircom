@@ -149,6 +149,13 @@ class CategoriaController extends Controller
                 return redirect()->route('categorias.index')->withErrors(['error' => 'No se puede eliminar la categoría porque tiene productos asociados.']);
             }
 
+            Log::info('Categoría eliminada', [
+                'categoria_id' => $categoria->id,
+                'nombre' => $categoria->nombre,
+                'eliminado_por' => auth()->id(),
+                'ip' => request()->ip()
+            ]);
+
             $categoria->delete();
 
             return redirect()->route('categorias.index')->with('success', 'Categoría eliminada correctamente.');

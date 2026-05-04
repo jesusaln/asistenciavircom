@@ -9,22 +9,13 @@ class ImageProxyController extends Controller
     public function proxy(Request $request)
     {
         $url = $request->query('url');
-        $placeholderPath = public_path('images/placeholder-product.svg');
-        $fallbackResponse = function () use ($placeholderPath) {
-            if (file_exists($placeholderPath)) {
-                return response(file_get_contents($placeholderPath))
-                    ->header('Content-Type', 'image/svg+xml')
-                    ->header('Cache-Control', 'public, max-age=86400');
-            }
-            return response('', 404);
-        };
 
         // Soporte para URL codificada en base64 (parametro 'u') para evadir bloqueadores de anuncios
         if (!$url && $request->has('u')) {
             try {
                 $u = $request->query('u');
                 // Asegurarse de quitar espacios o caracteres raros
-                $decoded = base64_decode(trim($u), true);
+                $decoded = base64_decode(trim($u));
                 if ($decoded && (str_starts_with($decoded, 'http://') || str_starts_with($decoded, 'https://'))) {
                     $url = $decoded;
                 }
@@ -35,7 +26,7 @@ class ImageProxyController extends Controller
 
         if (!$url) {
             \Log::warning("Image Proxy: No valid URL found in request", ['u' => $request->query('u')]);
-            return $fallbackResponse();
+            return abort(404);
         }
 
         // Validar que sea una URL de CVA (seguridad básica)
@@ -44,13 +35,23 @@ class ImageProxyController extends Controller
             // Por ahora permitimos todo para pruebas, pero idealmente restringir
         }
 
+        $placeholderPath = public_path('images/placeholder-product.svg');
+        $fallbackResponse = function () use ($placeholderPath) {
+            if (file_exists($placeholderPath)) {
+                return response(file_get_contents($placeholderPath))
+                    ->header('Content-Type', 'image/svg+xml')
+                    ->header('Cache-Control', 'public, max-age=86400');
+            }
+            return response('', 404);
+        };
+
         try {
             $cachedData = \Illuminate\Support\Facades\Cache::remember('img_proxy_' . md5($url), now()->addHours(24), function () use ($url) {
                 // Usar HTTP Client de Laravel con User-Agent para evitar bloqueos
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Referer' => 'https://www.grupocva.com/',
-                ])->withoutVerifying()->retry(2, 200)->timeout(15)->get($url);
+                ])->timeout(15)->get($url);
 
                 if ($response->failed()) {
                     return null;
@@ -80,7 +81,7 @@ class ImageProxyController extends Controller
                         $response = \Illuminate\Support\Facades\Http::withHeaders([
                             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             'Referer' => 'https://www.grupocva.com/',
-                        ])->withoutVerifying()->retry(2, 200)->timeout(10)->get($realImageUrl);
+                        ])->timeout(10)->get($realImageUrl);
 
                         if ($response->successful()) {
                             return [
@@ -114,8 +115,7 @@ class ImageProxyController extends Controller
                 ->header('Cache-Control', 'public, max-age=86400');
 
         } catch (\Exception $e) {
-            $logLevel = str_contains($e->getMessage(), '404') ? 'warning' : 'error';
-            \Log::log($logLevel, "Image Proxy Exception ($logLevel): " . $e->getMessage() . " for URL: " . $url);
+            \Log::error("Image Proxy Exception: " . $e->getMessage() . " for URL: " . $url);
 
             // Si falló por timeout o error de red, intentar el último recurso: resolver por API V2
             if (str_contains($url, 'grupocva.com')) {
@@ -160,8 +160,8 @@ class ImageProxyController extends Controller
                 if (empty($images)) {
                     $clave = $producto->cva_clave;
                     $images = [
-                        "https://www.grupocva.com/articulos_img/{$clave}.jpg",
-                        "https://www.grupocva.com/nuevo/catalogo/product_images/{$clave}.jpg",
+                        "https://www.grupocva.com/articulos_img/{$clave}.webp",
+                        "https://www.grupocva.com/nuevo/catalogo/product_images/{$clave}.webp",
                         "https://www.grupocva.com/articulos_img/{$clave}.JPG",
                     ];
                 }
@@ -171,7 +171,7 @@ class ImageProxyController extends Controller
                         $response = \Illuminate\Support\Facades\Http::withHeaders([
                             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                             'Referer' => 'https://www.grupocva.com/',
-                        ])->withoutVerifying()->timeout(8)->get($realUrl);
+                        ])->timeout(8)->get($realUrl);
 
                         if ($response->successful() && str_contains($response->header('Content-Type'), 'image')) {
                             return [

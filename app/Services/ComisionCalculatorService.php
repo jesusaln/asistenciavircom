@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Models\Venta;
 use App\Models\User;
-use App\Models\Tecnico;
 use App\Models\PagoComision;
+use App\Support\EmpresaResolver;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ComisionCalculatorService
 {
@@ -16,17 +17,28 @@ class ComisionCalculatorService
      */
     public function obtenerVendedoresConVentas(): Collection
     {
-        // Obtener IDs de usuarios con ventas
-        // Ahora todas las ventas deberían apuntar a User::class tras la migración
-        $userIds = Venta::where('vendedor_type', User::class)
+        // Obtener IDs de usuarios con ventas directas
+        $vendedorIds = Venta::where('vendedor_type', User::class)
             ->whereNotNull('vendedor_id')
             ->distinct()
-            ->pluck('vendedor_id');
+            ->pluck('vendedor_id')
+            ->toArray();
+
+        // Obtener IDs de técnicos asignados a citas de ventas
+        $tecnicoIds = Venta::whereNotNull('cita_id')
+            ->join('citas', 'ventas.cita_id', '=', 'citas.id')
+            ->whereNotNull('citas.tecnico_id')
+            ->distinct()
+            ->pluck('citas.tecnico_id')
+            ->toArray();
+
+        // Combinar IDs únicos
+        $userIds = array_unique(array_merge($vendedorIds, $tecnicoIds));
 
         $vendedores = collect();
+        $usuarios = User::whereIn('id', $userIds)->get();
 
-        // Agregar usuarios
-        User::whereIn('id', $userIds)->get()->each(function ($user) use ($vendedores) {
+        foreach ($usuarios as $user) {
             $vendedores->push([
                 'id' => $user->id,
                 'type' => User::class,
@@ -34,40 +46,164 @@ class ComisionCalculatorService
                 'nombre' => $user->name,
                 'email' => $user->email,
             ]);
-        });
+        }
 
         return $vendedores;
     }
 
     /**
-     * Calcular comisiones de un vendedor para un periodo
+     * Calcular comisiones detalladas de un vendedor en un periodo
      */
     public function calcularComisionesVendedor(string $vendedorType, int $vendedorId, Carbon $fechaInicio, Carbon $fechaFin): array
     {
-        $ventas = Venta::with(['cliente', 'productos', 'servicios'])
+        // Ventas donde es el vendedor directo
+        $ventasAsVendedor = Venta::with(['cliente', 'productos', 'servicios', 'cita'])
             ->where('vendedor_type', $vendedorType)
             ->where('vendedor_id', $vendedorId)
-            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
-            ->whereIn('estado', ['completada', 'pagada'])
-            ->orderBy('fecha', 'asc')
+            ->whereIn('estado', ['aprobada', 'enviada', 'facturada', 'pagado'])
+            ->whereBetween('fecha', [$fechaInicio->startOfDay(), $fechaFin->endOfDay()])
             ->get();
 
-        $totalComision = 0;
+        // Ventas donde es el técnico de la cita
+        $ventasAsTecnico = Venta::with(['cliente', 'productos', 'servicios', 'cita'])
+            ->whereHas('cita', function ($q) use ($vendedorId) {
+                $q->where('tecnico_id', $vendedorId);
+            })
+            ->whereIn('estado', ['aprobada', 'enviada', 'facturada', 'pagado'])
+            ->whereBetween('fecha', [$fechaInicio->startOfDay(), $fechaFin->endOfDay()])
+            ->get();
+
+        // Combinar y ordenar por fecha
+        $ventas = $ventasAsVendedor->concat($ventasAsTecnico)->unique('id')->sortBy('fecha');
+
+        $totalComisionBruto = 0;
+        $totalComisionPendiente = 0;
         $detalles = [];
+        $usuario = User::find($vendedorId);
 
         foreach ($ventas as $venta) {
-            $comisionVenta = $this->calcularComisionVenta($venta);
-            $totalComision += $comisionVenta['total'];
+            // Calcular comisión específica para este usuario en esta venta
+            $comisionVenta = $this->calcularComisionVentaParaUsuario($venta, $vendedorId);
+            
+            $totalComisionBruto += $comisionVenta['total'];
+            
+            if (!$venta->comision_pagada) {
+                $totalComisionPendiente += $comisionVenta['total'];
+            }
+
+            // Obtener desglose de items para análisis detallado
+            $itemsBreakdown = [];
+            
+            // Productos (incluyendo Kits)
+            $esVendedorDirecto = ($venta->vendedor_id == $vendedorId);
+            $esTecnicoCita = ($venta->cita && $venta->cita->tecnico_id == $vendedorId);
+            if ($esVendedorDirecto || $esTecnicoCita) {
+                foreach ($venta->productos as $p) {
+                    $pivot = $p->pivot;
+                    
+                    // Si el usuario es el vendedor, gana por el margen del producto/kit
+                    if ($esVendedorDirecto) {
+                        $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
+                        $costo = $pivot->costo_unitario ?? $p->precio_compra ?? 0;
+                        $gananciaBase = ($precioVenta - $costo) * $pivot->cantidad;
+                        
+                        $comisionItem = $gananciaBase * (($p->comision_vendedor ?? 0) / 100);
+                        if ($usuario && $usuario->es_tecnico) {
+                            $comisionItem += $gananciaBase * (($usuario->margen_venta_productos ?? 0) / 100);
+                        }
+
+                        $itemsBreakdown[] = [
+                            'nombre' => $p->nombre,
+                            'tipo' => 'Producto',
+                            'cantidad' => $pivot->cantidad,
+                            'precio' => (float)$pivot->precio,
+                            'descuento' => (float)$pivot->descuento,
+                            'comision' => round($comisionItem, 2)
+                        ];
+                    }
+
+                    // Si el usuario es el técnico Y el producto es un kit, buscar instalaciones dentro del kit
+                    if ($esTecnicoCita && $p->tipo_producto === 'kit') {
+                        $p->load(['kitItems.item']);
+                        foreach ($p->kitItems as $ki) {
+                            if ($ki->item_type === 'servicio' && $ki->item && $ki->item->es_instalacion) {
+                                $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
+                                    ? $usuario->comision_instalacion 
+                                    : 300; // Default de 300 si no está configurado
+
+                                $totalInstalacion = $comisionInstalacion * $ki->cantidad * $pivot->cantidad;
+                                
+                                $itemsBreakdown[] = [
+                                    'nombre' => "Instalación (Kit: {$p->nombre})",
+                                    'tipo' => 'Servicio',
+                                    'cantidad' => $ki->cantidad * $pivot->cantidad,
+                                    'precio' => 0,
+                                    'descuento' => 0,
+                                    'comision' => round($totalInstalacion, 2)
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Servicios (si es el técnico o el vendedor sin técnico asignado)
+            if ($esTecnicoCita || ($esVendedorDirecto && (!$venta->cita || !$venta->cita->tecnico_id))) {
+                foreach ($venta->servicios as $s) {
+                    $pivot = $s->pivot;
+                    $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
+                    $precioConIva = $venta->iva_incluido ? $precioVenta : ($precioVenta * 1.16);
+                    
+                    if ($usuario && $usuario->es_tecnico) {
+                        $tipo = $s->tipo_comision_tecnica;
+                        
+                        if ($tipo === 'refrigeracion') {
+                            // Servicios de refrigeración en 350
+                            $comisionItem = 350 * $pivot->cantidad;
+                        } elseif ($tipo === 'desinstalacion') {
+                            // Desinstalaciones en 100
+                            $comisionItem = 100 * $pivot->cantidad;
+                        } elseif ($tipo === 'tierra') {
+                            // Instalación de tierra en 100 cada una
+                            $comisionItem = 100 * $pivot->cantidad;
+                        } elseif ($tipo === 'instalacion' || $s->es_instalacion) {
+                            // Instalaciones generales en 300
+                            $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
+                                ? $usuario->comision_instalacion 
+                                : 300;
+                            $comisionItem = $comisionInstalacion * $pivot->cantidad;
+                        } else {
+                            // Otros servicios (diagnósticos, preventivos, etc.) al 30% del total
+                            $comisionItem = $precioConIva * (($usuario->margen_venta_servicios ?? 0) / 100) * $pivot->cantidad;
+                        }
+                    } else {
+                        // Para vendedores normales, usamos la comisión fija del catálogo
+                        $comisionItem = ($s->comision_vendedor ?? 0) * $pivot->cantidad;
+                    }
+
+                    $itemsBreakdown[] = [
+                        'nombre' => $s->nombre,
+                        'tipo' => 'Servicio',
+                        'cantidad' => $pivot->cantidad,
+                        'precio' => (float)$precioConIva,
+                        'descuento' => (float)$pivot->descuento,
+                        'comision' => round($comisionItem, 2)
+                    ];
+                }
+            }
 
             $detalles[] = [
                 'venta_id' => $venta->id,
                 'numero_venta' => $venta->numero_venta,
                 'fecha' => $venta->fecha->format('Y-m-d'),
-                'cliente' => $venta->cliente?->nombre ?? 'Sin cliente',
+                'cliente' => $venta->cliente ? $venta->cliente->nombre_razon_social : 'Sin cliente',
                 'total_venta' => (float) $venta->total,
                 'comision_productos' => $comisionVenta['productos'],
                 'comision_servicios' => $comisionVenta['servicios'],
                 'comision_total' => $comisionVenta['total'],
+                'rol' => $venta->vendedor_id == $vendedorId ? 'Vendedor' : 'Técnico',
+                'comision_pagada' => (bool) $venta->comision_pagada,
+                'items' => $itemsBreakdown,
             ];
         }
 
@@ -76,7 +212,8 @@ class ComisionCalculatorService
             'vendedor_id' => $vendedorId,
             'periodo_inicio' => $fechaInicio->format('Y-m-d'),
             'periodo_fin' => $fechaFin->format('Y-m-d'),
-            'total_comision' => round($totalComision, 2),
+            'total_comision_bruto' => round($totalComisionBruto, 2),
+            'total_comision' => round($totalComisionPendiente, 2),
             'num_ventas' => count($ventas),
             'total_ventas' => $ventas->sum('total'),
             'detalles' => $detalles,
@@ -84,46 +221,156 @@ class ComisionCalculatorService
     }
 
     /**
-     * Calcular comisión de una venta específica
+     * Calcular resumen general del periodo para todos los vendedores (o uno específico)
      */
-    public function calcularComisionVenta(Venta $venta): array
+    public function obtenerResumenPeriodo(Carbon $fechaInicio, Carbon $fechaFin, ?int $userId = null): array
     {
-        $comisionProductos = 0;
-        $comisionServicios = 0;
-        $vendedor = $venta->vendedor;
+        if ($userId) {
+            $user = User::find($userId);
+            $vendedores = collect();
+            if ($user) {
+                $vendedores->push([
+                    'id' => $user->id,
+                    'type' => User::class,
+                    'type_label' => $user->es_tecnico ? 'Técnico' : 'Vendedor',
+                    'nombre' => $user->name,
+                ]);
+            }
+        } else {
+            $vendedores = $this->obtenerVendedoresConVentas();
+        }
+        
+        $resumenVendedores = [];
 
-        // Comisión de productos
-        foreach ($venta->productos as $producto) {
-            $pivot = $producto->pivot;
-            $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
-            $costo = $pivot->costo_unitario ?? $producto->precio_compra ?? 0;
-            $gananciaBase = ($precioVenta - $costo) * $pivot->cantidad;
+        foreach ($vendedores as $v) {
+            $detalle = $this->calcularComisionesVendedor($v['type'], $v['id'], $fechaInicio, $fechaFin);
 
-            // Comisión configurada en el producto (% de la ganancia)
-            $comisionProductos += $gananciaBase * (($producto->comision_vendedor ?? 0) / 100);
+            // Determinar estado basado en las ventas reales
+            $detallesCollection = collect($detalle['detalles']);
+            $hasPaid = $detallesCollection->contains('comision_pagada', true);
+            $hasPending = $detallesCollection->contains('comision_pagada', false);
 
-            // Si es técnico, agregar margen adicional
-            // El vendedor siempre es User ahora, verificar flag es_tecnico
-            if ($vendedor && $vendedor->es_tecnico) {
-                $comisionProductos += $gananciaBase * (($vendedor->margen_venta_productos ?? 0) / 100);
+            if ($hasPaid && $hasPending) {
+                $estado = 'parcial';
+            } elseif ($hasPaid && !$hasPending) {
+                $estado = 'pagado';
+            } else {
+                $estado = 'pendiente';
+            }
+
+            // Calcular monto pagado real: bruto - pendiente
+            $montoPagado = $detalle['total_comision_bruto'] - $detalle['total_comision'];
+
+            // Buscar el ID del último pago para el recibo en el dashboard
+            $ultimoPago = PagoComision::where('vendedor_id', $v['id'])
+                ->where('periodo_inicio', $fechaInicio->format('Y-m-d'))
+                ->where('periodo_fin', $fechaFin->format('Y-m-d'))
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($detalle['num_ventas'] > 0) {
+                $resumenVendedores[] = [
+                    'id' => $v['id'],
+                    'type' => $v['type'],
+                    'type_label' => $v['type_label'],
+                    'nombre' => $v['nombre'],
+                    'num_ventas' => $detalle['num_ventas'],
+                    'total_ventas' => $detalle['total_ventas'],
+                    'comision_bruto' => $detalle['total_comision_bruto'],
+                    'comision' => $detalle['total_comision'],
+                    'pagado' => round($montoPagado, 2),
+                    'pendiente' => $detalle['total_comision'],
+                    'estado' => $estado,
+                    'pago_id' => $ultimoPago ? $ultimoPago->id : null,
+                ];
             }
         }
 
-        // Comisión de servicios
-        foreach ($venta->servicios as $servicio) {
-            $pivot = $servicio->pivot;
+        return [
+            'periodo_inicio' => $fechaInicio->format('Y-m-d'),
+            'periodo_fin' => $fechaFin->format('Y-m-d'),
+            'periodo_label' => $fechaInicio->format('d M') . ' - ' . $fechaFin->format('d M Y'),
+            'total_comisiones' => collect($resumenVendedores)->sum('comision_bruto'),
+            'total_pagado' => collect($resumenVendedores)->sum('pagado'),
+            'total_pendiente' => collect($resumenVendedores)->sum('pendiente'),
+            'vendedores' => $resumenVendedores,
+        ];
+    }
 
-            // Comisión configurada en el servicio (monto fijo por unidad)
-            $comisionServicios += ($servicio->comision_vendedor ?? 0) * $pivot->cantidad;
+    /**
+     * Calcular comisión de una venta específica para un usuario concreto
+     */
+    public function calcularComisionVentaParaUsuario(Venta $venta, int $userId): array
+    {
+        $comisionProductos = 0;
+        $comisionServicios = 0;
+        $usuario = User::find($userId);
+        
+        if (!$usuario) return ['productos' => 0, 'servicios' => 0, 'total' => 0];
 
-            // Si es técnico, agregar márgenes adicionales
-            if ($vendedor && $vendedor->es_tecnico) {
+        // Determinar si es vendedor directo o técnico de la cita
+        $esVendedorDirecto = ($venta->vendedor_type === User::class && $venta->vendedor_id == $userId);
+        $esTecnicoCita = ($venta->cita && $venta->cita->tecnico_id == $userId);
+
+        // 1. Comisión de productos
+        if ($esVendedorDirecto) {
+            foreach ($venta->productos as $producto) {
+                $pivot = $producto->pivot;
                 $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
-                $comisionServicios += $precioVenta * (($vendedor->margen_venta_servicios ?? 0) / 100) * $pivot->cantidad;
+                $costo = $pivot->costo_unitario ?? $producto->precio_compra ?? 0;
+                $gananciaBase = ($precioVenta - $costo) * $pivot->cantidad;
 
-                // Comisión extra por instalación
-                if ($servicio->es_instalacion ?? false) {
-                    $comisionServicios += ($vendedor->comision_instalacion ?? 0) * $pivot->cantidad;
+                $comisionProductos += $gananciaBase * (($producto->comision_vendedor ?? 0) / 100);
+
+                if ($usuario->es_tecnico) {
+                    $comisionProductos += $gananciaBase * (($usuario->margen_venta_productos ?? 0) / 100);
+                }
+            }
+        }
+
+        // 2. Comisión de servicios
+        if ($esTecnicoCita || ($esVendedorDirecto && (!$venta->cita || !$venta->cita->tecnico_id))) {
+            foreach ($venta->servicios as $servicio) {
+                $pivot = $servicio->pivot;
+                $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
+                $precioConIva = $venta->iva_incluido ? $precioVenta : ($precioVenta * 1.16);
+
+                if ($usuario && $usuario->es_tecnico) {
+                    $tipo = $servicio->tipo_comision_tecnica;
+                    if ($tipo === 'refrigeracion') {
+                        $comisionServicios += 350 * $pivot->cantidad;
+                    } elseif ($tipo === 'desinstalacion') {
+                        $comisionServicios += 100 * $pivot->cantidad;
+                    } elseif ($tipo === 'tierra') {
+                        $comisionServicios += 100 * $pivot->cantidad;
+                    } elseif ($tipo === 'instalacion' || $servicio->es_instalacion) {
+                        $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
+                            ? $usuario->comision_instalacion 
+                            : 300;
+                        $comisionServicios += $comisionInstalacion * $pivot->cantidad;
+                    } else {
+                        $comisionServicios += $precioConIva * (($usuario->margen_venta_servicios ?? 0) / 100) * $pivot->cantidad;
+                    }
+                } else {
+                    $comisionServicios += ($servicio->comision_vendedor ?? 0) * $pivot->cantidad;
+                }
+            }
+        }
+
+        // 3. Comisión por instalaciones dentro de KITS (para técnicos)
+        if ($esTecnicoCita) {
+            foreach ($venta->productos as $producto) {
+                if ($producto->tipo_producto === 'kit') {
+                    $producto->load(['kitItems.item']);
+                    foreach ($producto->kitItems as $ki) {
+                        if ($ki->item_type === 'servicio' && $ki->item && $ki->item->es_instalacion) {
+                            $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
+                                ? $usuario->comision_instalacion 
+                                : 300;
+                            
+                            $comisionServicios += $comisionInstalacion * $ki->cantidad * $producto->pivot->cantidad;
+                        }
+                    }
                 }
             }
         }
@@ -136,101 +383,12 @@ class ComisionCalculatorService
     }
 
     /**
-     * Obtener resumen de comisiones de la semana actual
-     */
-    public function obtenerResumenSemanal(): array
-    {
-        $inicioSemana = Carbon::now()->startOfWeek();
-        $finSemana = Carbon::now()->endOfWeek();
-
-        return $this->obtenerResumenPeriodo($inicioSemana, $finSemana);
-    }
-
-    /**
-     * Obtener resumen de comisiones del mes actual
-     */
-    public function obtenerResumenMensual(): array
-    {
-        $inicioMes = Carbon::now()->startOfMonth();
-        $finMes = Carbon::now()->endOfMonth();
-
-        return $this->obtenerResumenPeriodo($inicioMes, $finMes);
-    }
-
-    /**
-     * Obtener resumen de comisiones para un periodo
-     */
-    public function obtenerResumenPeriodo(Carbon $fechaInicio, Carbon $fechaFin): array
-    {
-        $vendedores = $this->obtenerVendedoresConVentas();
-        $resumenVendedores = [];
-        $totalComisiones = 0;
-        $totalPagado = 0;
-        $totalPendiente = 0;
-
-        foreach ($vendedores as $vendedor) {
-            $calculo = $this->calcularComisionesVendedor(
-                $vendedor['type'],
-                $vendedor['id'],
-                $fechaInicio,
-                $fechaFin
-            );
-
-            // Verificar si ya hay un pago registrado para este periodo
-            $pagoExistente = PagoComision::where('vendedor_type', $vendedor['type'])
-                ->where('vendedor_id', $vendedor['id'])
-                ->where('periodo_inicio', $fechaInicio->format('Y-m-d'))
-                ->where('periodo_fin', $fechaFin->format('Y-m-d'))
-                ->first();
-
-            $estado = 'pendiente';
-            $montoPagado = 0;
-
-            if ($pagoExistente) {
-                $estado = $pagoExistente->estado;
-                $montoPagado = (float) $pagoExistente->monto_pagado;
-            }
-
-            if ($calculo['total_comision'] > 0) {
-                $resumenVendedores[] = [
-                    'id' => $vendedor['id'],
-                    'type' => $vendedor['type'],
-                    'type_label' => $vendedor['type_label'],
-                    'nombre' => $vendedor['nombre'],
-                    'num_ventas' => $calculo['num_ventas'],
-                    'total_ventas' => $calculo['total_ventas'],
-                    'comision' => $calculo['total_comision'],
-                    'pagado' => $montoPagado,
-                    'pendiente' => $calculo['total_comision'] - $montoPagado,
-                    'estado' => $estado,
-                    'pago_id' => $pagoExistente?->id,
-                ];
-
-                $totalComisiones += $calculo['total_comision'];
-                $totalPagado += $montoPagado;
-                $totalPendiente += ($calculo['total_comision'] - $montoPagado);
-            }
-        }
-
-        // Ordenar por comisión descendente
-        usort($resumenVendedores, fn($a, $b) => $b['comision'] <=> $a['comision']);
-
-        return [
-            'periodo_inicio' => $fechaInicio->format('Y-m-d'),
-            'periodo_fin' => $fechaFin->format('Y-m-d'),
-            'periodo_label' => $fechaInicio->format('d M') . ' - ' . $fechaFin->format('d M Y'),
-            'total_comisiones' => round($totalComisiones, 2),
-            'total_pagado' => round($totalPagado, 2),
-            'total_pendiente' => round($totalPendiente, 2),
-            'vendedores' => $resumenVendedores,
-        ];
-    }
-
-    /**
      * Crear registro de pago de comisión
      */
     public function crearPagoComision(array $data): PagoComision
     {
+        $ventaIds = $data['venta_ids'] ?? [];
+        
         $calculo = $this->calcularComisionesVendedor(
             $data['vendedor_type'],
             $data['vendedor_id'],
@@ -238,8 +396,18 @@ class ComisionCalculatorService
             Carbon::parse($data['periodo_fin'])
         );
 
-        return PagoComision::create([
-            'vendedor_type' => $data['vendedor_type'],
+        // Si se especificaron ventas, filtrar el cálculo y el total
+        if (!empty($ventaIds)) {
+            $detallesFiltrados = collect($calculo['detalles'])->whereIn('venta_id', $ventaIds);
+            $calculo['total_comision'] = $detallesFiltrados->sum('comision_total');
+            $calculo['num_ventas'] = $detallesFiltrados->count();
+            $calculo['total_ventas'] = $detallesFiltrados->sum('total_venta');
+            $calculo['detalles'] = $detallesFiltrados->values()->all();
+        }
+
+        $pago = PagoComision::create([
+            'empresa_id' => $data['empresa_id'] ?? EmpresaResolver::resolveId(),
+            'vendedor_type' => User::class,
             'vendedor_id' => $data['vendedor_id'],
             'periodo_inicio' => $data['periodo_inicio'],
             'periodo_fin' => $data['periodo_fin'],
@@ -257,5 +425,15 @@ class ComisionCalculatorService
             'pagado_por' => auth()->id(),
             'created_by' => auth()->id(),
         ]);
+
+        // Marcar las ventas como pagadas
+        Venta::whereIn('id', collect($calculo['detalles'])->pluck('venta_id'))
+            ->update([
+                'comision_pagada' => true,
+                'comision_pagada_at' => now(),
+                'pago_comision_id' => $pago->id
+            ]);
+
+        return $pago;
     }
 }

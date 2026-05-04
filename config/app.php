@@ -15,6 +15,8 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'business' => env('APP_BUSINESS', 'vircom'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

@@ -5,24 +5,27 @@ namespace App\Services;
 use App\Models\Empresa;
 use App\Support\EmpresaResolver;
 use App\Models\WhatsAppMessage;
+use App\Support\SensitiveDataLog;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
 class WhatsAppService
 {
-    private Client $httpClient;
+    public Client $httpClient;
     private string $graphVersion;
     private string $phoneNumberId;
     private string $accessToken;
+    private ?string $businessAccountId;
 
     /**
      * Constructor del servicio WhatsApp
      */
-    public function __construct(string $phoneNumberId, string $accessToken, string $graphVersion = 'v20.0')
+    public function __construct(string $phoneNumberId, string $accessToken, ?string $businessAccountId = null, string $graphVersion = 'v20.0')
     {
         $this->phoneNumberId = $phoneNumberId;
         $this->accessToken = $accessToken;
+        $this->businessAccountId = $businessAccountId;
         $this->graphVersion = $graphVersion;
 
         $this->httpClient = new Client([
@@ -47,13 +50,13 @@ class WhatsAppService
             throw new \InvalidArgumentException('Configuración de WhatsApp incompleta para esta empresa');
         }
 
-        // El modelo Empresa tiene cast 'encrypted' en whatsapp_access_token,
-        // por lo que ya está desencriptado al acceder via Eloquent.
+        // Manejar token encriptado o no encriptado
         $accessToken = $empresa->whatsapp_access_token;
 
         return new self(
             $empresa->whatsapp_phone_number_id,
             $accessToken,
+            $empresa->whatsapp_business_account_id,
             config('services.whatsapp.graph_version', 'v20.0')
         );
     }
@@ -87,6 +90,12 @@ class WhatsAppService
             ],
         ];
 
+        // Auto-detectar si la plantilla tiene un header IMAGE/VIDEO/DOCUMENT
+        // y agregar el componente automáticamente si no se proporcionaron headerParams
+        if (empty($headerParams)) {
+            $headerParams = $this->resolveTemplateHeaderParams($templateName, $language);
+        }
+
         // Agregar parámetros del body si existen
         if (!empty($bodyParams)) {
             $payload['template']['components'][] = [
@@ -106,12 +115,12 @@ class WhatsAppService
         }
 
         try {
-            Log::info('Enviando plantilla WhatsApp', [
+            Log::info('Enviando plantilla WhatsApp', SensitiveDataLog::redact([
                 'to' => $to,
                 'formatted_to' => $formattedPhone,
                 'template' => $templateName,
                 'payload' => $payload,
-            ]);
+            ]));
 
             $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
                 'headers' => [
@@ -122,11 +131,11 @@ class WhatsAppService
 
             $responseData = json_decode($response->getBody()->getContents(), true);
 
-            Log::info('Plantilla WhatsApp enviada exitosamente', [
+            Log::info('Plantilla WhatsApp enviada exitosamente', SensitiveDataLog::redact([
                 'to' => $to,
                 'message_id' => $responseData['messages'][0]['id'] ?? null,
                 'response' => $responseData,
-            ]);
+            ]));
 
             return $responseData;
 
@@ -135,14 +144,14 @@ class WhatsAppService
             $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
             $errorData = json_decode($errorBody, true);
 
-            Log::error('Error al enviar plantilla WhatsApp', [
+            Log::error('Error al enviar plantilla WhatsApp', SensitiveDataLog::redact([
                 'to' => $to,
                 'formatted_to' => $formattedPhone,
                 'template' => $templateName,
                 'error' => $e->getMessage(),
                 'error_response' => $errorData,
                 'http_status' => $errorResponse ? $errorResponse->getStatusCode() : 'unknown',
-            ]);
+            ]));
 
             // Manejar errores específicos de autenticación
             if ($errorResponse && $errorResponse->getStatusCode() === 401) {
@@ -161,7 +170,7 @@ class WhatsAppService
                 $errorMessage = $errorData['error']['message'] ?? $e->getMessage();
                 if (strpos($errorMessage, 'phone number') !== false || strpos($errorMessage, 'recipient') !== false) {
                     throw new \Exception(
-                        'Número de teléfono inválido para WhatsApp. Verifique que el número esté en formato E.164 y haya interactuado con su WhatsApp Business.',
+                        'Número de teléfono inválido o no autorizado. Meta API devolvió: ' . $errorMessage . '. Verifique que el número esté en formato E.164 y haya interactuado/verificado con su Test Account de Meta.',
                         400,
                         $e
                     );
@@ -211,10 +220,10 @@ class WhatsAppService
         ];
 
         try {
-            Log::info('Enviando mensaje de texto WhatsApp', [
+            Log::info('Enviando mensaje de texto WhatsApp', SensitiveDataLog::redact([
                 'to' => $to,
                 'payload' => $payload,
-            ]);
+            ]));
 
             $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
                 'headers' => [
@@ -233,8 +242,154 @@ class WhatsAppService
     }
 
     /**
-     * Convertir número de teléfono mexicano al formato E.164
+     * Enviar imagen
      */
+    public function sendImage(string $to, string $imageUrl, ?string $caption = null): array
+    {
+        $formattedPhone = self::formatPhoneToE164($to);
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $formattedPhone,
+            'type' => 'image',
+            'image' => [
+                'link' => $imageUrl,
+                'caption' => $caption,
+            ],
+        ];
+
+        try {
+            $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+                'json' => $payload,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error enviando imagen WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al enviar imagen: ' . $errorBody);
+        }
+    }
+
+    /**
+     * Enviar sticker
+     */
+    public function sendSticker(string $to, string $stickerUrlOrId): array
+    {
+        $formattedPhone = self::formatPhoneToE164($to);
+
+        $stickerData = [];
+        if (filter_var($stickerUrlOrId, FILTER_VALIDATE_URL)) {
+            $stickerData['link'] = $stickerUrlOrId;
+        } else {
+            $stickerData['id'] = $stickerUrlOrId;
+        }
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $formattedPhone,
+            'type' => 'sticker',
+            'sticker' => $stickerData,
+        ];
+
+        try {
+            $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+                'json' => $payload,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error enviando sticker WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al enviar sticker: ' . $errorBody);
+        }
+    }
+
+    /**
+     * Subir archivo a Meta para obtener un media_id
+     */
+    public function uploadMedia(string $filePath, string $mimeType): string
+    {
+        try {
+            $response = $this->httpClient->post("{$this->phoneNumberId}/media", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'contents' => fopen($filePath, 'r'),
+                        'filename' => basename($filePath),
+                        'Mime-Type' => $mimeType,
+                    ],
+                    [
+                        'name' => 'messaging_product',
+                        'contents' => 'whatsapp',
+                    ],
+                    [
+                        'name' => 'type',
+                        'contents' => explode('/', $mimeType)[0] === 'image' ? 'image' : 'document',
+                    ],
+                ],
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+            return $data['id'];
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error subiendo media a WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al subir archivo a WhatsApp: ' . $errorBody);
+        }
+    }
+
+    /**
+     * Enviar media por ID
+     */
+    public function sendMediaById(string $to, string $mediaId, string $type, ?string $caption = null): array
+    {
+        $formattedPhone = self::formatPhoneToE164($to);
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $formattedPhone,
+            'type' => $type,
+            $type => [
+                'id' => $mediaId,
+            ],
+        ];
+
+        if ($caption && in_array($type, ['image', 'video', 'document'])) {
+            $payload[$type]['caption'] = $caption;
+        }
+
+        try {
+            $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+                'json' => $payload,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error enviando media ID WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al enviar media: ' . $errorBody);
+        }
+    }
     public static function formatPhoneToE164(string $phone): string
     {
         // Limpiar el número: dejar solo dígitos
@@ -259,16 +414,6 @@ class WhatsAppService
             return '+52' . $digits;
         }
 
-        // - 13 dígitos empezando con 521: celular con '1' extra, quitar el '1'
-        if (preg_match('/^521\d{10}$/', $digits)) {
-            return '+52' . substr($digits, 3);
-        }
-
-        // - 11 dígitos empezando con 1 y 10 dígitos: quitar el '1' y agregar +52
-        if (preg_match('/^1\d{10}$/', $digits)) {
-            return '+52' . substr($digits, 1);
-        }
-
         // - 8 dígitos: número local, asumir código de área común (Hermosillo: 662)
         if (strlen($digits) === 8) {
             return '+52662' . $digits;
@@ -287,6 +432,29 @@ class WhatsAppService
         // Si no podemos determinar el formato, devolver el número con + al inicio
         // Esto permitirá que la validación E.164 lo rechace con un mensaje claro
         return '+' . $digits;
+    }
+
+    /**
+     * wa_id estable para BD y conversaciones: solo dígitos en formato internacional,
+     * alineado con el campo `from` de los webhooks de Meta (sin + ni sufijos).
+     * Así el envío desde CRM/cotización no crea un hilo distinto al del mismo número en la bandeja.
+     */
+    /**
+     * wa_id estable para BD y bandeja. Unifica:
+     * - sufijos tipo @c.us de algunos payloads
+     * - México Meta: "521" + 10 dígitos nacionales (13 chars) vs "52" + 10 (12) o 10 dígitos locales en CRM
+     */
+    public static function canonicalWaId(string $phone): string
+    {
+        $phone = preg_replace('/@.*$/u', '', trim((string) $phone));
+        $digits = preg_replace('/\D+/', '', $phone);
+
+        // +52 1 XX… en formato compacto Meta: 521 + diez dígitos → mismo E.164 que 52 + diez dígitos
+        if (strlen($digits) === 13 && str_starts_with($digits, '521')) {
+            $digits = '52'.substr($digits, 3, 10);
+        }
+
+        return preg_replace('/\D+/', '', self::formatPhoneToE164($digits));
     }
 
     /**
@@ -351,21 +519,63 @@ class WhatsAppService
     }
 
     /**
+     * Auto-detectar y resolver parámetros de header para plantillas con media (IMAGE/VIDEO/DOCUMENT)
+     * Consulta la definición de la plantilla en Meta para obtener la URL del media del ejemplo.
+     */
+    private function resolveTemplateHeaderParams(string $templateName, string $language = 'es_MX'): array
+    {
+        try {
+            $templates = $this->listTemplates();
+
+            foreach ($templates as $template) {
+                if ($template['name'] === $templateName && $template['language'] === $language) {
+                    foreach ($template['components'] ?? [] as $component) {
+                        if ($component['type'] === 'HEADER') {
+                            $format = strtolower($component['format'] ?? 'TEXT');
+
+                            if (in_array($format, ['image', 'video', 'document'])) {
+                                // Obtener la URL del ejemplo del header
+                                $handleUrl = $component['example']['header_handle'][0] ?? null;
+
+                                if ($handleUrl) {
+                                    Log::info('Auto-resolviendo header media para plantilla', [
+                                        'template' => $templateName,
+                                        'format' => $format,
+                                    ]);
+
+                                    return [
+                                        [
+                                            'type' => $format,
+                                            $format => ['link' => $handleUrl],
+                                        ],
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('No se pudo auto-resolver header de plantilla', [
+                'template' => $templateName,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return [];
+    }
+
+    /**
      * Listar plantillas de WhatsApp disponibles
      */
     public function listTemplates(): array
     {
         try {
-            // Nota: Necesitamos el Business Account ID para listar plantillas
-            // Por ahora, devolveremos una lista basada en la configuración de la empresa
-            $empresaId = EmpresaResolver::resolveId();
-            $empresa = $empresaId ? Empresa::find($empresaId) : null;
-
-            if (!$empresa || !$empresa->whatsapp_business_account_id) {
-                throw new \Exception('Business Account ID no configurado');
+            if (!$this->businessAccountId) {
+                throw new \Exception('Business Account ID (WABA ID) no configurado en el servicio');
             }
-
-            $response = $this->httpClient->get("{$empresa->whatsapp_business_account_id}/message_templates", [
+            $response = $this->httpClient->get("{$this->businessAccountId}/message_templates", [
                 'headers' => [
                     'Authorization' => "Bearer {$this->accessToken}",
                 ],

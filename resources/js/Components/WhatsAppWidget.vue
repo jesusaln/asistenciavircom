@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, nextTick, onMounted } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     whatsapp: String,
@@ -8,177 +7,104 @@ const props = defineProps({
 });
 
 const isOpen = ref(false);
-const messages = ref([
-    { id: 1, text: '¡Hola! Soy Vircom Bot. 🤖 Estoy listo para ayudarte. ¿En qué puedo apoyarte hoy?', isBot: true }
-]);
-const newMessage = ref('');
-const isLoading = ref(false);
-const messagesContainer = ref(null);
-const sessionId = ref('web-' + Math.random().toString(36).substring(2, 9));
 
 const cleanPhone = computed(() => {
-    return props.whatsapp ? props.whatsapp.replace(/\D/g, '') : '5216622036840';
+    return props.whatsapp ? props.whatsapp.replace(/\D/g, '') : '';
 });
 
-const scrollToBottom = () => {
-    nextTick(() => {
-        if (messagesContainer.value) {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-        }
-    });
-};
-
-const sendMessage = async () => {
-    if (!newMessage.value.trim() || isLoading.value) return;
-
-    const userText = newMessage.value;
-    messages.value.push({ id: Date.now(), text: userText, isBot: false });
-    newMessage.value = '';
-    isLoading.value = true;
-    scrollToBottom();
-
-    try {
-        const response = await fetch('/chat/message', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                message: userText,
-                session_id: sessionId.value
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            messages.value.push({ id: Date.now() + 1, text: data.message, isBot: true });
-        } else {
-            messages.value.push({ id: Date.now() + 1, text: 'Lo siento, tuve un problema de conexión. ¿Puedes intentar de nuevo?', isBot: true });
-        }
-    } catch (error) {
-        console.error('Error sending message:', error);
-        messages.value.push({ id: Date.now() + 1, text: 'Error de red. Por favor verifica tu conexión.', isBot: true });
-    } finally {
-        isLoading.value = false;
-        scrollToBottom();
+const agents = [
+    {
+        id: 1,
+        name: 'Soporte Técnico',
+        role: 'Atención técnica y garantías',
+        icon: 'user-cog',
+        message: 'Hola, necesito soporte técnico para mi equipo. ¿Me podrían ayudar?',
+        color: 'bg-orange-500'
+    },
+    {
+        id: 2,
+        name: 'Ventas y Cotizaciones',
+        role: 'Equipos nuevos y proyectos',
+        icon: 'dollar-sign',
+        message: 'Hola, me gustaría recibir una cotización para un equipo nuevo.',
+        color: 'bg-green-500'
+    },
+    {
+        id: 3,
+        name: 'Agendar Mantenimiento',
+        role: 'Servicios preventivos',
+        icon: 'calendar-alt',
+        message: 'Hola, quiero agendar un mantenimiento preventivo para mi equipo.',
+        color: 'bg-blue-500'
     }
-};
-
-const quickActions = [
-    { text: 'Ver Promociones', icon: '🏷️' },
-    { text: 'Agendar Cita', icon: '📅' },
-    { text: 'Soporte Técnico', icon: '🛠️' }
 ];
 
-const useQuickAction = (text) => {
-    newMessage.value = text;
-    sendMessage();
+const openWhatsApp = (agent) => {
+    const url = `https://wa.me/${cleanPhone.value}?text=${encodeURIComponent(agent.message)}`;
+    window.open(url, '_blank');
+    isOpen.value = false;
 };
-
-onMounted(() => {
-    if (isOpen.value) scrollToBottom();
-});
 </script>
 
 <template>
-    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end font-sans">
-        <!-- Chat Area -->
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+        <!-- Menu -->
         <Transition name="pop">
-            <div v-if="isOpen" class="mb-4 w-80 md:w-96 bg-white dark:bg-slate-950 rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col h-[500px]">
-                
-                <!-- Chat Header -->
-                <div class="bg-slate-900 p-5 text-white relative overflow-hidden flex-shrink-0">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-purple-600/30 opacity-50"></div>
-                    <div class="relative z-10 flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-xl shadow-lg border border-white/20">
-                            🤖
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold">Vircom Bot</h3>
-                            <div class="flex items-center gap-1.5">
-                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                <span class="text-[9px] uppercase tracking-widest font-bold opacity-70">Soporte Inteligente</span>
-                            </div>
-                        </div>
-                    </div>
+            <div v-if="isOpen" class="mb-4 w-72 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-br from-[#25D366] to-[#128C7E] p-6 text-white text-center">
+                    <p class="text-xs uppercase tracking-widest font-bold opacity-80 mb-1">Centro de Atención</p>
+                    <h3 class="text-xl font-bold">¿Cómo podemos ayudarte?</h3>
+                    <p class="text-xs mt-2 opacity-90">Selecciona el departamento adecuado para una atención más rápida.</p>
                 </div>
 
-                <!-- Messages Container -->
-                <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-slate-900 shadow-inner">
-                    <div v-for="msg in messages" :key="msg.id" :class="['flex w-full', msg.isBot ? 'justify-start' : 'justify-end']">
-                        <div 
-                            :class="[
-                                'max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm',
-                                msg.isBot 
-                                    ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-none border border-gray-100 dark:border-slate-700' 
-                                    : 'bg-blue-600 text-white rounded-br-none font-medium'
-                            ]"
-                        >
-                            {{ msg.text }}
-                        </div>
-                    </div>
-
-                    <!-- Typing Indicator -->
-                    <div v-if="isLoading" class="flex justify-start">
-                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none shadow-sm flex gap-1">
-                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
-                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div v-if="!isLoading" class="px-4 py-2 bg-gray-50/50 dark:bg-slate-900 overflow-x-auto whitespace-nowrap scrollbar-hide flex gap-2 border-t border-gray-100 dark:border-slate-800">
+                <!-- Agents List -->
+                <div class="p-3 bg-gray-50/50">
                     <button 
-                        v-for="action in quickActions" 
-                        :key="action.text"
-                        @click="useQuickAction(action.text)"
-                        class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:border-blue-500 dark:hover:border-blue-500 transition-all flex items-center gap-1.5 active:scale-95 shadow-sm"
+                        v-for="agent in agents" 
+                        :key="agent.id"
+                        @click="openWhatsApp(agent)"
+                        class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-white hover:shadow-md transition-all duration-300 group mb-1 border border-transparent hover:border-gray-100"
                     >
-                        <span>{{ action.icon }}</span>
-                        {{ action.text }}
+                        <div :class="agent.color" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform">
+                            <font-awesome-icon :icon="agent.icon" />
+                        </div>
+                        <div class="text-left">
+                            <p class="font-bold text-gray-900 text-sm">{{ agent.name }}</p>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-tight">{{ agent.role }}</p>
+                        </div>
+                        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg class="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11.944 0a12.016 12.016 0 00-11.944 12.016c0 2.212.57 4.29 1.575 6.105L.014 24l6.082-1.597a11.946 11.946 0 005.848 1.543c6.645 0 12.036-5.391 12.036-12.036S18.589 0 11.944 0z" />
+                            </svg>
+                        </div>
                     </button>
                 </div>
 
-                <!-- Input Area -->
-                <div class="p-4 bg-white dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex-shrink-0">
-                    <form @submit.prevent="sendMessage" class="flex gap-2 relative">
-                        <input 
-                            v-model="newMessage"
-                            type="text" 
-                            placeholder="Escribe un mensaje..."
-                            class="flex-1 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                            :disabled="isLoading"
-                        >
-                        <button 
-                            type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg disabled:opacity-50"
-                            :disabled="isLoading || !newMessage.trim()"
-                        >
-                            <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                        </button>
-                    </form>
+                <!-- Footer -->
+                <div class="p-3 text-center border-t border-gray-100">
+                    <p class="text-[10px] text-gray-400">Atención inmediata vía WhatsApp</p>
                 </div>
             </div>
         </Transition>
 
-        <!-- Launcher Button -->
+        <!-- Main Button -->
         <button 
-            @click="isOpen = !isOpen; scrollToBottom()"
-            class="group relative flex items-center justify-center w-16 h-16 rounded-full shadow-[0_10px_40px_rgba(37,211,102,0.4)] transition-all duration-500 hover:scale-110 active:scale-95"
-            :class="isOpen ? 'bg-slate-900 rotate-90' : 'bg-gradient-to-tr from-[#25D366] to-[#128C7E]'"
+            @click="isOpen = !isOpen"
+            class="group relative flex items-center justify-center w-16 h-16 rounded-full shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95"
+            :class="isOpen ? 'bg-gray-900 rotate-90' : 'bg-[#25D366]'"
         >
+            <!-- Badge Notification -->
+            <div v-if="!isOpen" class="absolute -top-1 -right-1 flex h-6 w-6">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-6 w-6 bg-red-500 text-[10px] text-white font-bold items-center justify-center">1</span>
+            </div>
+
             <Transition name="fade" mode="out-in">
-                <div v-if="!isOpen" class="flex items-center justify-center">
-                   <span class="text-3xl">🤖</span>
-                </div>
-                <svg v-else class="w-8 h-8 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg v-if="!isOpen" key="open" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <svg v-else key="close" class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </Transition>
@@ -188,30 +114,21 @@ onMounted(() => {
 
 <style scoped>
 .pop-enter-active {
-    animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .pop-leave-active {
     animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) reverse;
 }
 
 @keyframes pop-in {
-    0% { transform: scale(0.6) translateY(40px); opacity: 0; filter: blur(10px); }
-    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+    0% { transform: scale(0.5) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .fade-enter-active, .fade-leave-active {
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 .fade-enter-from, .fade-leave-to {
     opacity: 0;
-    transform: scale(0.8);
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
-}
-.scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
 }
 </style>

@@ -39,21 +39,19 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         // Personalizar la autenticación para verificar si el usuario está activo
-        Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('email', $request->email)->first();
+        /* Fortify::authenticateUsing(function (Request $request) {
+            $user = User::withoutGlobalScopes()->where('email', $request->email)->first();
 
             if ($user && Hash::check($request->password, $user->password)) {
                 if (!$user->activo) {
-                    \Illuminate\Support\Facades\Log::warning('Login failed for inactive user: ' . $request->email);
                     throw ValidationException::withMessages([
                         Fortify::username() => ['Tu cuenta está pendiente de aprobación por un administrador.'],
                     ]);
                 }
                 return $user;
             }
-            \Illuminate\Support\Facades\Log::warning('Login failed for user (not found or bad password): ' . $request->email);
             return null;
-        });
+        }); */
 
         // Redirigir después del registro a una página de espera
         $this->app->singleton(RegisterResponse::class, function () {
@@ -68,22 +66,9 @@ class FortifyServiceProvider extends ServiceProvider
             };
         });
 
-        // Rate limiting configurable desde EmpresaConfiguracion
+        // Rate limiting desactivado temporalmente para desarrollo local (evitar 429)
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
-
-            // Obtener configuración de la empresa
-            try {
-                $config = EmpresaConfiguracion::getConfig();
-                $maxAttempts = $config->intentos_login ?? 5;
-                $decayMinutes = $config->tiempo_bloqueo ?? 15;
-            } catch (\Throwable $e) {
-                // Fallback en caso de error de BD
-                $maxAttempts = 5;
-                $decayMinutes = 15;
-            }
-
-            return Limit::perMinutes($decayMinutes, $maxAttempts)->by($throttleKey);
+            return Limit::none();
         });
 
         RateLimiter::for('two-factor', function (Request $request) {

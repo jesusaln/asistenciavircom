@@ -17,18 +17,25 @@ class EntregaDineroController extends Controller
      */
     public function index()
     {
-        // Administradores y usuarios de ventas pueden acceder a esta funcionalidad
-        if (!auth()->user()->hasAnyRole(['admin', 'ventas', 'super-admin'])) {
+        // Administradores, ventas y tesoreros de recepción de efectivo
+        if (! auth()->user()->hasAnyRole(['admin', 'ventas', 'super-admin'])
+            && ! auth()->user()->can('confirmar entrega efectivo')) {
             abort(403, 'No tienes permisos para acceder a esta sección');
         }
 
         $userId = auth()->id();
         $isAdmin = auth()->user()->hasAnyRole(['admin', 'super-admin']);
+        $esTesoreroRecepcion = auth()->user()->can('confirmar entrega efectivo');
 
-        // Entregas manuales - admins ven todas, usuarios normales solo las suyas
-        $query = EntregaDinero::with(['usuario', 'recibidoPor']);
+        // Entregas manuales: admin ve todas; tesorero ve pendientes de todos; el resto solo las propias
+        $query = EntregaDinero::with(['usuario', 'recibidoPor', 'children.origen'])
+                    ->whereNull('parent_id');
 
-        if (!$isAdmin) {
+        if ($isAdmin) {
+            // sin filtro user_id
+        } elseif ($esTesoreroRecepcion) {
+            $query->where('estado', 'pendiente');
+        } else {
             $query->where('user_id', $userId);
         }
 
@@ -84,6 +91,9 @@ class EntregaDineroController extends Controller
                 $venta = Venta::find($entrega->id_origen);
                 $entrega->venta_numero = $venta ? $venta->numero_venta : null;
                 $entrega->venta_cliente = $venta && $venta->cliente ? $venta->cliente->nombre_razon_social : null;
+            } elseif ($entrega->tipo_origen === 'lote') {
+                $entrega->es_lote = true;
+                $entrega->conteo_items = $entrega->children->count();
             }
             return $entrega;
         });
@@ -91,10 +101,9 @@ class EntregaDineroController extends Controller
         // Obtener cobranzas pagadas con saldos pendientes
         $cobranzasQuery = Cobranza::with(['renta.cliente', 'responsableCobro'])
             ->where('estado', 'pagado')
-            ->whereRaw("monto_pagado > COALESCE((SELECT SUM(total) FROM entregas_dinero WHERE tipo_origen = 'cobranza' AND id_origen = cobranzas.id AND estado = 'recibido'), 0)");
+            ->whereRaw("monto_pagado > COALESCE((SELECT SUM(total) FROM entregas_dinero WHERE tipo_origen = 'cobranza' AND id_origen = cobranzas.id AND estado = 'recibido' AND deleted_at IS NULL), 0)");
 
-        // Si no es admin, filtrar solo por el usuario actual
-        if (!$isAdmin) {
+        if (! $isAdmin && ! $esTesoreroRecepcion) {
             $cobranzasQuery->where('responsable_cobro', $userId);
         }
 
@@ -131,12 +140,11 @@ class EntregaDineroController extends Controller
         $ventasQuery = Venta::with(['cliente', 'pagadoPor', 'cuentaPorCobrar.movimientosBancarios'])
             ->where('pagado', true)
             ->whereRaw("total > (
-                COALESCE((SELECT SUM(total) FROM entregas_dinero WHERE tipo_origen = 'venta' AND id_origen = ventas.id AND estado IN ('pendiente', 'recibido')), 0) +
-                COALESCE((SELECT SUM(monto) FROM movimientos_bancarios WHERE conciliable_type = 'App\\\Models\\\CuentasPorCobrar' AND conciliable_id = (SELECT id FROM cuentas_por_cobrar WHERE venta_id = ventas.id LIMIT 1)), 0)
+                COALESCE((SELECT SUM(total) FROM entregas_dinero WHERE tipo_origen = 'venta' AND id_origen = ventas.id AND estado IN ('pendiente', 'recibido') AND deleted_at IS NULL), 0) +
+                COALESCE((SELECT SUM(monto) FROM movimientos_bancarios WHERE conciliable_type = 'App\\\Models\\\CuentasPorCobrar' AND conciliable_id = (SELECT id FROM cuentas_por_cobrar WHERE venta_id = ventas.id LIMIT 1) AND deleted_at IS NULL), 0)
             )");
 
-        // Si no es admin, filtrar solo por el usuario actual
-        if (!$isAdmin) {
+        if (! $isAdmin && ! $esTesoreroRecepcion) {
             $ventasQuery->where('pagado_por', $userId);
         }
 
@@ -178,9 +186,13 @@ class EntregaDineroController extends Controller
         // Combinar todos los registros
         $registrosAutomaticos = collect([...$cobranzasPagadas, ...$ventasPagadas]);
 
-        // Estadísticas - FILTRADAS por usuario si no es admin
+        // Estadísticas (mismo criterio de alcance que la tabla principal)
         $statsQuery = EntregaDinero::query();
-        if (!$isAdmin) {
+        if ($isAdmin) {
+            // todas
+        } elseif ($esTesoreroRecepcion) {
+            $statsQuery->where('estado', 'pendiente');
+        } else {
             $statsQuery->where('user_id', $userId);
         }
 
@@ -220,7 +232,7 @@ class EntregaDineroController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'fecha_entrega' => 'required|date',
             'monto_efectivo' => 'required|numeric|min:0',
             'monto_transferencia' => 'nullable|numeric|min:0',
@@ -229,22 +241,11 @@ class EntregaDineroController extends Controller
             'notas' => 'nullable|string|max:500',
         ]);
 
-        $total = $request->monto_efectivo + ($request->monto_transferencia ?? 0) + $request->monto_cheques + $request->monto_tarjetas;
-
-        if ($total <= 0) {
-            return back()->withErrors(['total' => 'El total debe ser mayor a cero']);
+        try {
+            EntregaDineroService::crearManual($data, auth()->id());
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['total' => $e->getMessage()]);
         }
-
-        EntregaDinero::create([
-            'user_id' => auth()->id(),
-            'fecha_entrega' => $request->fecha_entrega,
-            'monto_efectivo' => $request->monto_efectivo,
-            'monto_transferencia' => $request->monto_transferencia ?? 0,
-            'monto_cheques' => $request->monto_cheques,
-            'monto_tarjetas' => $request->monto_tarjetas,
-            'total' => $total,
-            'notas' => $request->notas,
-        ]);
 
         return redirect()->route('entregas-dinero.index')->with('success', 'Entrega de dinero registrada correctamente');
     }
@@ -264,18 +265,7 @@ class EntregaDineroController extends Controller
 
         $userId = auth()->id();
 
-        EntregaDinero::create([
-            'user_id' => $userId,
-            'fecha_entrega' => $data['fecha'],
-            'monto_efectivo' => $data['monto'],
-            'monto_cheques' => 0,
-            'monto_tarjetas' => 0,
-            'total' => $data['monto'],
-            'notas' => $data['notas'] ?? null,
-            'estado' => 'recibido',
-            'recibido_por' => $userId,
-            'fecha_recibido' => now(),
-        ]);
+        EntregaDineroService::crearDesdeCorte($data, $userId);
 
         return back()->with('success', 'Entrega registrada en el corte');
     }
@@ -341,7 +331,7 @@ class EntregaDineroController extends Controller
             return back()->withErrors(['error' => 'No se pueden editar entregas ya recibidas. Los datos están conciliados.']);
         }
 
-        $request->validate([
+        $data = $request->validate([
             'fecha_entrega' => 'required|date',
             'monto_efectivo' => 'required|numeric|min:0',
             'monto_transferencia' => 'nullable|numeric|min:0',
@@ -350,49 +340,11 @@ class EntregaDineroController extends Controller
             'notas' => 'nullable|string|max:500',
         ]);
 
-        $total = $request->monto_efectivo + ($request->monto_transferencia ?? 0) + $request->monto_cheques + $request->monto_tarjetas;
-
-        if ($total <= 0) {
-            return back()->withErrors(['total' => 'El total debe ser mayor a cero']);
-        }
-
-        DB::transaction(function () use ($entregaDinero, $request, $total) {
-            $totalAnterior = $entregaDinero->total;
-            $diferencia = $total - $totalAnterior;
-
-            $entregaDinero->update([
-                'fecha_entrega' => $request->fecha_entrega,
-                'monto_efectivo' => $request->monto_efectivo,
-                'monto_transferencia' => $request->monto_transferencia ?? 0,
-                'monto_cheques' => $request->monto_cheques,
-                'monto_tarjetas' => $request->monto_tarjetas,
-                'total' => $total,
-                'notas' => $request->notas,
-            ]);
-
-            // ✅ FIX: Si ya estaba recibida y tiene movimiento bancario, actualizar el movimiento
-            if ($entregaDinero->estado === 'recibido' && $diferencia != 0) {
-                $movimiento = \App\Models\MovimientoBancario::where('conciliable_type', \App\Models\EntregaDinero::class)
-                    ->where('conciliable_id', $entregaDinero->id)
-                    ->first();
-
-                if ($movimiento) {
-                    $movimiento->monto = $total; // Deposito es positivo
-                    $movimiento->save();
-
-                    // Actualizar saldo de cuenta bancaria
-                    if ($movimiento->cuentaBancaria) {
-                        $movimiento->cuentaBancaria->saldo_actual += $diferencia;
-                        $movimiento->cuentaBancaria->save();
-                    }
-                } elseif ($entregaDinero->cuenta_bancaria_id) {
-                    // Caso Legacy: No tiene movimiento pero tiene cuenta vinculada
-                    $cuenta = \App\Models\CuentaBancaria::find($entregaDinero->cuenta_bancaria_id);
-                    if ($cuenta) {
-                        $cuenta->saldo_actual += $diferencia;
-                        $cuenta->save();
-                    }
-                }
+        DB::transaction(function () use ($entregaDinero, $data) {
+            try {
+                EntregaDineroService::actualizarManual($entregaDinero, $data);
+            } catch (\InvalidArgumentException $e) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['total' => $e->getMessage()]);
             }
         });
 
@@ -411,9 +363,28 @@ class EntregaDineroController extends Controller
             abort(403);
         }
 
-        // Solo se pueden eliminar entregas pendientes (excepto para admins)
-        if ($entregaDinero->estado !== 'pendiente' && !$isAdmin) {
-            return back()->withErrors(['error' => 'Solo se pueden eliminar entregas pendientes']);
+        // CRÍTICO: No permitir borrar entregas recibidas/conciliadas.
+        // Se debe usar revertirAPendiente primero para deshacer movimientos bancarios de forma segura.
+        if ($entregaDinero->estado !== 'pendiente') {
+            return back()->withErrors(['error' => 'No se pueden eliminar entregas recibidas. Si es necesario, reviértala a pendiente primero.']);
+        }
+
+        \Log::info('Eliminando Entrega de Dinero', [
+            'id' => $entregaDinero->id,
+            'total' => $entregaDinero->total,
+            'usuario_id' => auth()->id(),
+            'estado' => $entregaDinero->estado,
+        ]);
+
+        // CRÍTICO FIX #32: Eliminar movimientos bancarios asociados (aunque esté pendiente, pudo haber sido vinculado)
+        $movs = \App\Models\MovimientoBancario::where('conciliable_type', \App\Models\EntregaDinero::class)
+            ->where('conciliable_id', $entregaDinero->id)
+            ->get();
+
+        foreach ($movs as $mov) {
+            // Si el movimiento está conciliado con esta entrega, lo desvinculamos o eliminamos si fue creado por ella.
+            // Asumimos soft delete en movimientos.
+            $mov->delete();
         }
 
         $entregaDinero->delete();
@@ -428,49 +399,52 @@ class EntregaDineroController extends Controller
     {
         $entrega = EntregaDinero::findOrFail($id);
 
-        if ($entrega->user_id !== auth()->id() && !auth()->user()->hasAnyRole(['admin', 'super-admin'])) {
+        $esPropietario = (int) $entrega->user_id === (int) auth()->id();
+        $esAdmin = auth()->user()->hasAnyRole(['admin', 'super-admin']);
+        $esTesorero = auth()->user()->can('confirmar entrega efectivo');
+
+        if (! $esPropietario && ! $esAdmin && ! $esTesorero) {
             abort(403);
         }
 
-        $request->validate([
-            'notas_recibido' => 'nullable|string|max:500',
-            'cuenta_bancaria_id' => 'required|exists:cuentas_bancarias,id', // ✅ Obligatorio
-        ]);
-
-        $cuentaBancariaId = $request->cuenta_bancaria_id;
-
-        DB::transaction(function () use ($entrega, $request, $cuentaBancariaId) {
-            $entrega->update([
-                'estado' => 'recibido',
-                'recibido_por' => auth()->id(),
-                'fecha_recibido' => now(),
-                'notas_recibido' => $request->notas_recibido,
-                'cuenta_bancaria_id' => $cuentaBancariaId,
+        $soloRecepcionFisica = $request->boolean('solo_recepcion_fisica');
+        if ($esTesorero || $esAdmin) {
+            $request->validate([
+                'notas_recibido' => 'nullable|string|max:500',
+                'cuenta_bancaria_id' => 'nullable|exists:cuentas_bancarias,id',
+                'solo_recepcion_fisica' => 'nullable|boolean',
             ]);
+        } else {
+            $request->validate([
+                'notas_recibido' => 'nullable|string|max:500',
+                'cuenta_bancaria_id' => 'required|exists:cuentas_bancarias,id',
+            ]);
+            $soloRecepcionFisica = false;
+        }
 
-            // ✅ FIX: Crear Movimiento Bancario para trazabilidad
-            if ($cuentaBancariaId) {
-                $cuenta = \App\Models\CuentaBancaria::find($cuentaBancariaId);
-                if ($cuenta) {
-                    // El método registrarMovimiento maneja transacción y bloqueo internamente,
-                    // pero ya estamos dentro de una transacción, lo cual es seguro.
-                    $movimiento = $cuenta->registrarMovimiento(
-                        'deposito',
-                        $entrega->total,
-                        "Entrega de dinero #{$entrega->id} - " . ($request->notas_recibido ?? 'Sin notas'),
-                        'cobro'
-                    );
+        $cuentaBancariaId = $request->filled('cuenta_bancaria_id') ? (int) $request->cuenta_bancaria_id : null;
+        if (! $soloRecepcionFisica && ! $cuentaBancariaId && ($esPropietario && ! $esAdmin && ! $esTesorero)) {
+            return back()->withErrors(['cuenta_bancaria_id' => 'Selecciona la cuenta bancaria de depósito.']);
+        }
 
-                    // Vincular el movimiento con esta entrega para trazabilidad bidireccional
-                    $movimiento->update([
-                        'conciliable_type' => \App\Models\EntregaDinero::class,
-                        'conciliable_id' => $entrega->id,
-                        'conciliado_por' => auth()->id(),
-                        'conciliado_at' => now(),
-                    ]);
-                }
-            }
+        $registrarBanco = ! $soloRecepcionFisica && $cuentaBancariaId;
+
+        DB::transaction(function () use ($entrega, $request, $cuentaBancariaId, $registrarBanco) {
+            EntregaDineroService::marcarComoRecibido(
+                $entrega,
+                auth()->id(),
+                $cuentaBancariaId,
+                $request->notas_recibido,
+                $registrarBanco
+            );
         });
+
+        \Log::info('Entrega marcada como recibida', [
+            'entrega_id' => $entrega->id,
+            'usuario_id' => auth()->id(),
+            'cuenta_bancaria_id' => $cuentaBancariaId,
+            'total' => $entrega->total,
+        ]);
 
         return redirect()->route('entregas-dinero.index')->with('success', 'Entrega marcada como recibida y registrada en banco');
     }
@@ -523,6 +497,12 @@ class EntregaDineroController extends Controller
             ]);
         });
 
+        \Log::info('Entrega revertida a pendiente', [
+            'entrega_id' => $entrega->id,
+            'usuario_id' => auth()->id(),
+            'total' => $entrega->total,
+        ]);
+
         return redirect()->route('entregas-dinero.index')->with('success', 'Entrega revertida a pendiente correctamente');
     }
 
@@ -563,7 +543,9 @@ class EntregaDineroController extends Controller
      */
     public function reportePagosRecibidos(Request $request)
     {
-        $query = EntregaDinero::with(['usuario', 'recibidoPor'])
+        $query = EntregaDinero::with(['usuario', 'recibidoPor', 'children.origen'])
+            ->whereNull('parent_id')
+            ->belongsToEmpresa()
             ->where('estado', 'recibido');
 
         // Filtros
@@ -779,6 +761,122 @@ class EntregaDineroController extends Controller
         });
 
         return redirect()->route('entregas-dinero.index')->with('success', 'Monto registrado correctamente');
+    }
+
+    /**
+     * Crear un "Lote" de Entregas (Carrito de entregas)
+     * Permite agrupar varias ventas o cobranzas en un solo registro de entrega.
+     */
+    public function entregarLote(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.tipo_origen' => 'required|string',
+            'items.*.id_origen' => 'required|integer',
+            'items.*.total' => 'required|numeric|min:0.01',
+            'items.*.metodo_pago' => 'nullable|string',
+            'notas' => 'nullable|string|max:500',
+        ]);
+
+        $userId = auth()->id();
+        $totalLote = 0;
+
+        DB::transaction(function () use ($request, $userId, &$totalLote) {
+            $items = $request->items;
+            
+            // Crear el Lote Padre temporalmente con 0
+            $parentEntrega = EntregaDinero::create([
+                'user_id' => $userId,
+                'fecha_entrega' => now()->toDateString(),
+                'monto_efectivo' => 0,
+                'monto_transferencia' => 0,
+                'monto_cheques' => 0,
+                'monto_tarjetas' => 0,
+                'monto_otros' => 0,
+                'total' => 0,
+                'estado' => 'pendiente',
+                'tipo_origen' => 'lote',
+                'id_origen' => null,
+                'notas' => 'LOTE DE ENTREGAS' . ($request->notas ? "\n" . $request->notas : ''),
+            ]);
+
+            $montoEfectivo = 0;
+            $montoTransferencia = 0;
+            $montoCheques = 0;
+            $montoTarjetas = 0;
+            $montoOtros = 0;
+
+            foreach ($items as $item) {
+                $tipo_origen = $item['tipo_origen'];
+                $id_origen = $item['id_origen'];
+                $monto_recibido = (float)$item['total'];
+                $metodo_pago_entrega = strtolower($item['metodo_pago'] ?? 'efectivo');
+
+                if ($tipo_origen === 'cobranza') {
+                    $registro = Cobranza::where('id', $id_origen)->where('estado', 'pagado')->firstOrFail();
+                    $montoTotal = $registro->monto_pagado;
+                } elseif ($tipo_origen === 'venta') {
+                    $registro = Venta::where('id', $id_origen)->where('pagado', true)->firstOrFail();
+                    $montoTotal = $registro->total;
+                } else {
+                    throw new \Exception('Tipo de registro no válido');
+                }
+
+                $entregasExistentes = EntregaDinero::where('tipo_origen', $tipo_origen)
+                    ->where('id_origen', $id_origen)
+                    ->whereIn('estado', ['pendiente', 'recibido'])
+                    ->lockForUpdate()
+                    ->get();
+
+                $montoYaEntregado = $entregasExistentes->where('estado', 'recibido')->sum('total');
+                $montoPendiente = $montoTotal - $montoYaEntregado;
+                $hayEntregaPendiente = $entregasExistentes->where('estado', 'pendiente')->isNotEmpty();
+
+                if ($hayEntregaPendiente) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'items' => "Ya existe una entrega pendiente para {$tipo_origen} #{$id_origen}."
+                    ]);
+                }
+                
+                if ($monto_recibido > $montoPendiente + 0.01) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['items' => "El monto excede el saldo pendiente en {$tipo_origen} #{$id_origen}"]);
+                }
+
+                switch ($metodo_pago_entrega) {
+                    case 'efectivo': $montoEfectivo += $monto_recibido; break;
+                    case 'transferencia': $montoTransferencia += $monto_recibido; break;
+                    case 'cheque': $montoCheques += $monto_recibido; break;
+                    case 'tarjeta': case 'tarjeta_credito': case 'tarjeta_debito': $montoTarjetas += $monto_recibido; break;
+                    default: $montoOtros += $monto_recibido; break;
+                }
+
+                $child = EntregaDineroService::crearDesdeOrigen(
+                    $tipo_origen,
+                    $id_origen,
+                    $monto_recibido,
+                    $metodo_pago_entrega,
+                    now()->toDateString(),
+                    $userId,
+                    'pendiente',
+                    null,
+                    'Entregado en Lote #' . $parentEntrega->id
+                );
+                
+                $child->update(['parent_id' => $parentEntrega->id]);
+                $totalLote += $monto_recibido;
+            }
+
+            $parentEntrega->update([
+                'monto_efectivo' => $montoEfectivo,
+                'monto_transferencia' => $montoTransferencia,
+                'monto_cheques' => $montoCheques,
+                'monto_tarjetas' => $montoTarjetas,
+                'monto_otros' => $montoOtros,
+                'total' => $totalLote,
+            ]);
+        });
+
+        return redirect()->route('entregas-dinero.index')->with('success', 'Lote de depósitos creado por $' . number_format($totalLote, 2));
     }
 
     /**

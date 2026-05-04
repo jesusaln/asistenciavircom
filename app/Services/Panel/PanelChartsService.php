@@ -12,9 +12,9 @@ class PanelChartsService
     public function getVentasMensuales(): array
     {
         $empresaId = EmpresaResolver::resolveId();
-        $cacheKey = 'panel_ventas_mensuales_' . ($empresaId ?: 'global');
+        $cacheKey = PanelCacheKeys::key('charts_ventas_mensuales');
 
-        return Cache::remember($cacheKey, 300, function () use ($empresaId) {
+        return Cache::remember($cacheKey, PanelCacheKeys::ttl('charts'), function () use ($empresaId) {
             $now = Carbon::now();
             $startDate = $now->copy()->subMonths(6)->startOfMonth();
             $endDate = $now->copy()->endOfMonth();
@@ -27,6 +27,7 @@ class PanelChartsService
                     ->where('created_at', '<=', $endDate)
                     ->groupBy('mes')
                     ->orderBy('mes')
+                    ->limit(24)
                     ->get();
 
                 // Crear array con todos los meses del período
@@ -62,9 +63,9 @@ class PanelChartsService
     public function getProductosMasVendidos(): array
     {
         $empresaId = EmpresaResolver::resolveId();
-        $cacheKey = 'panel_productos_mas_vendidos_' . ($empresaId ?: 'global');
+        $cacheKey = PanelCacheKeys::key('charts_productos_mas_vendidos');
 
-        return Cache::remember($cacheKey, 300, function () use ($empresaId) {
+        return Cache::remember($cacheKey, PanelCacheKeys::ttl('charts'), function () use ($empresaId) {
             $now = Carbon::now();
 
             try {
@@ -99,9 +100,9 @@ class PanelChartsService
     public function getOrdenesEstados(): array
     {
         $empresaId = EmpresaResolver::resolveId();
-        $cacheKey = 'panel_ordenes_estados_' . ($empresaId ?: 'global');
+        $cacheKey = PanelCacheKeys::key('charts_ordenes_estados');
 
-        return Cache::remember($cacheKey, 300, function () use ($empresaId) {
+        return Cache::remember($cacheKey, PanelCacheKeys::ttl('charts'), function () use ($empresaId) {
             try {
                 $estados = DB::table('orden_compras')
                     ->select('estado', DB::raw('COUNT(*) as total'))
@@ -135,9 +136,9 @@ class PanelChartsService
     public function getClientesCrecimiento(): array
     {
         $empresaId = EmpresaResolver::resolveId();
-        $cacheKey = 'panel_clientes_crecimiento_' . ($empresaId ?: 'global');
+        $cacheKey = PanelCacheKeys::key('charts_clientes_crecimiento');
 
-        return Cache::remember($cacheKey, 300, function () use ($empresaId) {
+        return Cache::remember($cacheKey, PanelCacheKeys::ttl('charts'), function () use ($empresaId) {
             $now = Carbon::now();
             $startDate = $now->copy()->subMonths(6)->startOfMonth();
             $endDate = $now->copy()->endOfMonth();
@@ -150,6 +151,7 @@ class PanelChartsService
                     ->where('created_at', '<=', $endDate)
                     ->groupBy('mes')
                     ->orderBy('mes')
+                    ->limit(24)
                     ->get();
 
                 // Crear array con todos los meses del período

@@ -99,9 +99,9 @@ class DatabaseBackupService
                     'path' => env('BACKUP_AZURE_PATH', 'backups/database/'),
                 ]
             ],
-            'sync_local_and_remote' => env('BACKUP_SYNC_BOTH', true),
-            'cleanup_remote' => env('BACKUP_CLEANUP_REMOTE', true),
-            'remote_retention_days' => env('BACKUP_REMOTE_RETENTION', 90)
+            'sync_local_and_remote' => config('backup.sync_both', true),
+            'cleanup_remote' => config('backup.cleanup_remote', true),
+            'remote_retention_days' => config('backup.remote_retention', 90)
         ]);
     }
 
@@ -875,18 +875,31 @@ class DatabaseBackupService
             $tableList = implode(' ', array_map('escapeshellarg', $specificTables));
         }
 
-        $command = sprintf(
-            'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers --no-tablespaces %s %s > %s 2>&1',
-            escapeshellarg($config['host']),
-            escapeshellarg($config['port'] ?? 3306),
-            escapeshellarg($config['username']),
-            escapeshellarg($config['password']),
-            escapeshellarg($config['database']),
-            $tableList,
-            escapeshellarg($storagePath)
-        );
+        $returnCode = -1;
+        $output = [];
+        $cnfPath = null;
+        try {
+            $cnfPath = $this->writeMysqlClientDefaultsFile(
+                (string) ($config['username'] ?? ''),
+                (string) ($config['password'] ?? ''),
+                (string) ($config['host'] ?? '127.0.0.1'),
+                (int) ($config['port'] ?? 3306)
+            );
 
-        exec($command, $output, $returnCode);
+            $command = sprintf(
+                'mysqldump --defaults-extra-file=%s --single-transaction --routines --triggers --no-tablespaces %s %s > %s 2>&1',
+                escapeshellarg($cnfPath),
+                escapeshellarg($config['database']),
+                $tableList,
+                escapeshellarg($storagePath)
+            );
+
+            exec($command, $output, $returnCode);
+        } finally {
+            if ($cnfPath && is_file($cnfPath)) {
+                @unlink($cnfPath);
+            }
+        }
 
         if ($returnCode === 0 && file_exists($storagePath) && filesize($storagePath) > 0) {
             return [
@@ -898,8 +911,38 @@ class DatabaseBackupService
         }
 
         $error = implode("\n", $output);
-        Log::error('mysqldump failed', ['command' => $command, 'output' => $error]);
+        Log::error('mysqldump failed', ['output' => $error, 'return_code' => $returnCode]);
         throw new \Exception("Error en mysqldump: {$error}");
+    }
+
+    /**
+     * Crea un archivo [client] temporal (permisos 600) para no pasar --password= en la línea de comando (visible en ps).
+     */
+    protected function writeMysqlClientDefaultsFile(
+        string $user,
+        string $password,
+        string $host,
+        int $port
+    ): string {
+        $path = @tempnam(sys_get_temp_dir(), 'mydmp');
+        if ($path === false) {
+            throw new \RuntimeException('No se pudo crear archivo temporal de credenciales MySQL.');
+        }
+        @chmod($path, 0600);
+        $esc = static function (string $s): string {
+            return str_replace(['\\', '"', "\n", "\r"], ['\\\\', '\\"', '', ''], $s);
+        };
+        $content = "[client]\n" .
+            'user="' . $esc($user) . "\"\n" .
+            'password="' . $esc($password) . "\"\n" .
+            'host="' . $esc($host) . "\"\n" .
+            'port=' . $port . "\n";
+        if (file_put_contents($path, $content) === false) {
+            @unlink($path);
+            throw new \RuntimeException('No se pudo escribir archivo de opciones MySQL.');
+        }
+
+        return $path;
     }
 
     /**
@@ -939,9 +982,13 @@ class DatabaseBackupService
             $env = 'PGPASSWORD=' . escapeshellarg($password) . ' ';
         }
 
-        // Formato plano (-F p) para coherencia con flujo actual
+        // Formato plano (-F p) para coherencia con flujo actual.
+        // Se agregan banderas críticas:
+        // --clean: Incluye DROP commands antes de create.
+        // --if-exists: Evita errores si se intenta borrar algo que no existe.
+        // --no-owner --no-acl: Evita problemas al restaurar en otro servidor/usuario.
         $command = sprintf(
-            '%spg_dump -h %s -p %s -U %s -n %s%s -F p -f %s %s 2>&1',
+            '%spg_dump -h %s -p %s -U %s -n %s%s --clean --if-exists --no-owner --no-acl -F p -f %s %s 2>&1',
             $env,
             escapeshellarg($host),
             escapeshellarg((string) $port),
@@ -1562,44 +1609,88 @@ class DatabaseBackupService
             }
 
             // Procesar archivo según tipo
-            if (pathinfo($filename, PATHINFO_EXTENSION) === 'zip') {
-                $sqlContent = $this->extractFromZip($storagePath);
-            } else {
-                $rawContent = Storage::disk($this->backupDisk)->get($path);
+            $sqlFileToExecute = null;
+            $tempSqlFile = null;
 
-                // Desencriptar si es necesario
-                if ($this->isEncrypted($rawContent)) {
-                    $rawContent = $this->decryptContent($rawContent);
+            if (pathinfo($filename, PATHINFO_EXTENSION) === 'zip') {
+                // Modificado para obtener la ruta del archivo extraído en lugar de su contenido
+                $tempSqlFile = $this->extractSqlFileFromZip($storagePath);
+                $sqlFileToExecute = $tempSqlFile;
+            } else {
+                $sqlFileToExecute = $storagePath;
+            }
+
+            $driver = config('database.default');
+
+            if ($driver === 'pgsql' && $this->isPsqlAvailable()) {
+                Log::info('Detectado PostgreSQL. Usando psql para la restauración de servicio...');
+
+                $config = config('database.connections.pgsql');
+                $host = $config['host'] ?? '127.0.0.1';
+                $port = $config['port'] ?? 5432;
+                $database = $config['database'];
+                $username = $config['username'];
+                $password = $config['password'] ?? '';
+
+                $env = '';
+                if ($password !== '') {
+                    $env = 'PGPASSWORD=' . escapeshellarg($password) . ' ';
                 }
 
-                $sqlContent = $rawContent;
+                $command = sprintf(
+                    '%spsql -h %s -p %s -U %s -d %s -f %s 2>&1',
+                    $env,
+                    escapeshellarg($host),
+                    escapeshellarg((string) $port),
+                    escapeshellarg($username),
+                    escapeshellarg($database),
+                    escapeshellarg($sqlFileToExecute)
+                );
+
+                exec($command, $restoreOutput, $restoreReturnCode);
+
+                if ($restoreReturnCode !== 0) {
+                    throw new \Exception('Error en restauración con psql: ' . implode("\n", $restoreOutput));
+                }
+            } else {
+                // Fallback a DB::unprepared para otros drivers o si psql no está
+                $sqlContent = file_get_contents($sqlFileToExecute);
+
+                // Desencriptar si es necesario (solo si no es ZIP y no se usó psql)
+                if (pathinfo($filename, PATHINFO_EXTENSION) !== 'zip' && $this->isEncrypted($sqlContent)) {
+                    $sqlContent = $this->decryptContent($sqlContent);
+                }
+
+                // Restauración granular si se especifican tablas
+                if ($options['tables_to_restore']) {
+                    $sqlContent = $this->filterTablesInSql($sqlContent, $options['tables_to_restore']);
+                }
+
+                // Saltar tablas sensibles si está habilitado
+                if ($options['skip_sensitive_tables']) {
+                    $sqlContent = $this->removeSensitiveTables($sqlContent);
+                }
+
+                // Dry run - solo verificar sintaxis sin ejecutar
+                if ($options['dry_run']) {
+                    return [
+                        'success' => true,
+                        'message' => 'Verificación de sintaxis completada (dry run)',
+                        'dry_run' => true,
+                        'sql_preview' => substr($sqlContent, 0, 500) . '...'
+                    ];
+                }
+
+                // Sanitizar SQL para evitar errores con comandos de psql
+                $sqlContent = $this->sanitizeSqlForPdo($sqlContent);
+
+                DB::unprepared($sqlContent);
             }
 
-            // Restauración granular si se especifican tablas
-            if ($options['tables_to_restore']) {
-                $sqlContent = $this->filterTablesInSql($sqlContent, $options['tables_to_restore']);
+            // Cleanup temp file if created
+            if ($tempSqlFile && file_exists($tempSqlFile)) {
+                @unlink($tempSqlFile);
             }
-
-            // Saltar tablas sensibles si está habilitado
-            if ($options['skip_sensitive_tables']) {
-                $sqlContent = $this->removeSensitiveTables($sqlContent);
-            }
-
-            // Dry run - solo verificar sintaxis sin ejecutar
-            if ($options['dry_run']) {
-
-                return [
-                    'success' => true,
-                    'message' => 'Verificación de sintaxis completada (dry run)',
-                    'dry_run' => true,
-                    'sql_preview' => substr($sqlContent, 0, 500) . '...'
-                ];
-            }
-
-            // Sanitizar SQL para evitar errores con comandos de psql (como \unrestrict)
-            $sqlContent = $this->sanitizeSqlForPdo($sqlContent);
-
-            DB::unprepared($sqlContent);
 
             // Automatically fix sequences and data integrity after restore
             try {
@@ -4044,10 +4135,10 @@ class DatabaseBackupService
 
             // También normalizar URLs en la base de datos
             DB::table('cfdis')->whereNotNull('xml_url')->update([
-                'xml_url' => DB::raw('LOWER(xml_url)')
+                'xml_url' => DB::raw('lower(xml_url)')
             ]);
             DB::table('cfdis')->whereNotNull('pdf_url')->update([
-                'pdf_url' => DB::raw('LOWER(pdf_url)')
+                'pdf_url' => DB::raw('lower(pdf_url)')
             ]);
         } catch (\Exception $e) {
             Log::error('Error normalizando archivos CFDI: ' . $e->getMessage());
@@ -4147,13 +4238,31 @@ class DatabaseBackupService
     /**
      * Subir un archivo de respaldo a los proveedores de la nube habilitados
      */
-    protected function uploadToCloud(string $relativePath): void
+    public function uploadToCloud(string $relativePath): void
     {
         try {
             $config = \App\Models\EmpresaConfiguracion::getConfig();
 
             // Caso 1: Google Drive
             if ($config->gdrive_enabled && $config->cloud_provider === 'gdrive') {
+                $clientId = config('services.google_drive.client_id') ?: $config->gdrive_client_id;
+                $clientSecret = config('services.google_drive.client_secret');
+
+                // Si falta el secret en config, intentar desencriptar de la DB
+                if (empty($clientSecret) && !empty($config->gdrive_client_secret)) {
+                    try {
+                        $clientSecret = \Illuminate\Support\Facades\Crypt::decryptString($config->gdrive_client_secret);
+                    } catch (\Exception $e) {
+                        $clientSecret = $config->gdrive_client_secret;
+                    }
+                }
+
+                // Verificar si tenemos las credenciales mínimas antes de intentar
+                if (empty($clientId) || empty($clientSecret)) {
+                    Log::warning("Backup: Google Drive está habilitado pero faltan credenciales de la aplicación (Client ID/Secret).");
+                    return;
+                }
+
                 $fullPath = Storage::disk($this->backupDisk)->path($relativePath);
 
                 if (file_exists($fullPath)) {
@@ -4170,5 +4279,90 @@ class DatabaseBackupService
         } catch (\Exception $e) {
             Log::error("Error al subir respaldo a la nube: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Alias para compatibilidad
+     */
+    public function uploadToGoogleCloud(string $relativePath): void
+    {
+        $this->uploadToCloud($relativePath);
+    }
+
+    /**
+     * Verificar si psql está disponible (PostgreSQL).
+     */
+    public function isPsqlAvailable(): bool
+    {
+        exec('psql --version 2>&1', $output, $returnCode);
+        return $returnCode === 0;
+    }
+
+    /**
+     * Extraer el archivo SQL de un ZIP y restaurar archivos físicos (imágenes, assets).
+     */
+    protected function extractSqlFileFromZip(string $zipPath): string
+    {
+        $zip = new \ZipArchive;
+        if ($zip->open($zipPath) !== true) {
+            throw new \Exception('No se pudo abrir el archivo ZIP');
+        }
+
+        $tempDir = storage_path('app/temp_restore_' . uniqid() . '/');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $zip->extractTo($tempDir);
+        $zip->close();
+
+        // 1. Intentar restaurar archivos físicos encontrados en el ZIP
+        // La estructura típica en el ZIP es storage/app/public/...
+        $internalPaths = [
+            $tempDir . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public',
+            $tempDir . 'public' . DIRECTORY_SEPARATOR . 'uploads',
+        ];
+
+        foreach ($internalPaths as $srcPath) {
+            if (is_dir($srcPath)) {
+                try {
+                    $destPath = storage_path('app/public');
+                    if (str_contains($srcPath, 'public' . DIRECTORY_SEPARATOR . 'uploads')) {
+                        $destPath = public_path('uploads');
+                    }
+
+                    if (!is_dir($destPath)) {
+                        mkdir($destPath, 0755, true);
+                    }
+
+                    \File::copyDirectory($srcPath, $destPath);
+                    Log::info("Archivos físicos restaurados desde ZIP: {$srcPath} -> {$destPath}");
+                } catch (\Exception $e) {
+                    Log::warning("Error restaurando algunos archivos físicos: " . $e->getMessage());
+                }
+            }
+        }
+
+        // 2. Buscar el archivo SQL para devolver su ruta
+        $allFiles = \File::allFiles($tempDir);
+        $sqlFiles = array_filter($allFiles, function ($file) {
+            return $file->getExtension() === 'sql';
+        });
+
+        if (empty($sqlFiles)) {
+            \File::deleteDirectory($tempDir);
+            throw new \Exception('No se encontraron archivos SQL en el ZIP');
+        }
+
+        $sqlFile = reset($sqlFiles);
+        $targetPath = storage_path('app/temp_restore_' . basename($sqlFile->getFilename()));
+
+        // Mover el SQL fuera del tempDir antes de borrarlo
+        rename($sqlFile->getRealPath(), $targetPath);
+
+        // 3. Limpiar directorio temporal
+        \File::deleteDirectory($tempDir);
+
+        return $targetPath;
     }
 }

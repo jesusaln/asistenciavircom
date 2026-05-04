@@ -12,9 +12,14 @@ use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Services\StockValidationService;
+use App\Traits\ImageOptimizerTrait;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class KitController extends Controller
 {
+    use ImageOptimizerTrait;
+
     protected $stockService;
 
     public function __construct(StockValidationService $stockService)
@@ -29,7 +34,10 @@ class KitController extends Controller
 
     public function create(): Response
     {
-        $productosDisponibles = []; // No cargar todos los productos aquí (11k+ registros causan timeout)
+        $productosDisponibles = Producto::where('estado', 'activo')
+            ->where('tipo_producto', '!=', 'kit')
+            ->orderBy('nombre')
+            ->get();
 
         $serviciosDisponibles = \App\Models\Servicio::where('estado', 'activo')
             ->orderBy('nombre')
@@ -46,9 +54,9 @@ class KitController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse|\Illuminate\Http\RedirectResponse
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'codigo' => 'nullable|string|max:50|unique:productos,codigo',
@@ -59,7 +67,17 @@ class KitController extends Controller
             'componentes.*.item_id' => 'required|integer',
             'componentes.*.cantidad' => 'required|integer|min:1',
             'componentes.*.precio_unitario' => 'nullable|numeric|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'destacado' => 'nullable|boolean',
+            'incluye_iva' => 'nullable|boolean',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         try {
             // Validar que los productos no sean kits
@@ -109,7 +127,17 @@ class KitController extends Controller
                 ], 422);
             }
 
-            $kit = DB::transaction(function () use ($request) {
+            $imagenPath = null;
+            if ($request->hasFile('imagen')) {
+                try {
+                    $imagenPath = $this->saveImageAsWebP($request->file('imagen'), 'productos');
+                } catch (\Exception $e) {
+                    Log::error("Error processing kit image: " . $e->getMessage());
+                    $imagenPath = $request->file('imagen')->store('productos', 'public');
+                }
+            }
+
+            $kit = DB::transaction(function () use ($request, $imagenPath) {
                 // Calcular precio de compra (costo) basado en componentes
                 // NOTA: Los servicios tienen costo 0 (100% utilidad)
                 $costoTotal = 0;
@@ -135,10 +163,33 @@ class KitController extends Controller
                     // Los servicios no agregan costo (costo = 0, utilidad 100%)
                 }
 
+                // Para kits, generar un código único con prefijo KIT si no se proporciona uno
+                $codigoKit = $request->codigo;
+                if (empty($codigoKit)) {
+                    // Buscar el último kit creado para generar un código secuencial
+                    $ultimoKit = Producto::where('tipo_producto', 'kit')
+                        ->where('codigo', 'like', 'KIT%')
+                        ->orderByRaw("CAST(SUBSTRING(codigo FROM 4) AS INTEGER) DESC NULLS LAST")
+                        ->first();
+
+                    if ($ultimoKit && preg_match('/^KIT(\d+)$/', $ultimoKit->codigo, $matches)) {
+                        $nextNum = intval($matches[1]) + 1;
+                    } else {
+                        $nextNum = 1;
+                    }
+                    $codigoKit = 'KIT' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
+
+                    // Verificar que no exista (por si acaso)
+                    while (Producto::where('codigo', $codigoKit)->exists()) {
+                        $nextNum++;
+                        $codigoKit = 'KIT' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
+                    }
+                }
+
                 $kit = Producto::create([
                     'nombre' => $request->nombre,
                     'descripcion' => $request->descripcion ?? '',
-                    'codigo' => $request->codigo ?: Producto::generateNextCodigo(),
+                    'codigo' => $codigoKit,
                     'codigo_barras' => '',
                     'marca_id' => Marca::orderBy('id')->first()?->id ?? 1,
                     'precio_compra' => $costoTotal,
@@ -147,6 +198,9 @@ class KitController extends Controller
                     'estado' => 'activo',
                     'categoria_id' => $request->categoria_id ?: \App\Models\Categoria::orderBy('id')->first()?->id ?? 1,
                     'unidad_medida' => 'pieza',
+                    'imagen' => $imagenPath,
+                    'destacado' => $request->boolean('destacado'),
+                    'incluye_iva' => $request->boolean('incluye_iva'),
                 ]);
 
                 foreach ($request->componentes as $componenteData) {
@@ -166,15 +220,11 @@ class KitController extends Controller
                 return $kit;
             });
 
-            if ($request->wantsJson() && !$request->header('X-Inertia')) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Kit creado exitosamente.',
-                    'kit' => $kit->load('kitItems.item')
-                ], 201);
-            }
-
-            return redirect()->route('kits.index')->with('success', 'Kit creado exitosamente.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Kit creado exitosamente.',
+                'kit' => $kit->load('kitItems.item')
+            ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -271,7 +321,10 @@ class KitController extends Controller
             return $item;
         });
 
-        $productosDisponibles = []; // No cargar todos los productos aquí (11k+ registros causan timeout)
+        $productosDisponibles = Producto::where('estado', 'activo')
+            ->where('tipo_producto', '!=', 'kit')
+            ->orderBy('nombre')
+            ->get();
 
         $serviciosDisponibles = \App\Models\Servicio::where('estado', 'activo')
             ->orderBy('nombre')
@@ -279,15 +332,18 @@ class KitController extends Controller
 
         $almacenPrincipal = \App\Models\Almacen::orderBy('id')->first();
 
+        $categorias = \App\Models\Categoria::orderBy('nombre')->get();
+
         return Inertia::render('Kits/Edit', [
             'kit' => $kit,
             'productosDisponibles' => $productosDisponibles,
             'serviciosDisponibles' => $serviciosDisponibles,
+            'categorias' => $categorias,
             'almacenPrincipal' => $almacenPrincipal
         ]);
     }
 
-    public function update(Request $request, Producto $kit): JsonResponse|\Illuminate\Http\RedirectResponse
+    public function update(Request $request, Producto $kit): JsonResponse
     {
         if (!$kit->esKit()) {
             return response()->json([
@@ -296,7 +352,7 @@ class KitController extends Controller
             ], 404);
         }
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'codigo' => 'nullable|string|max:50|unique:productos,codigo,' . $kit->id,
@@ -308,7 +364,17 @@ class KitController extends Controller
             'componentes.*.item_id' => 'required|integer',
             'componentes.*.cantidad' => 'required|integer|min:1',
             'componentes.*.precio_unitario' => 'nullable|numeric|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'incluye_iva' => 'nullable|boolean',
+            'destacado' => 'nullable|boolean',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         try {
             // Validar que los productos no sean kits
@@ -329,7 +395,22 @@ class KitController extends Controller
                 }
             }
 
-            DB::transaction(function () use ($request, $kit) {
+            $imagenPath = $kit->imagen;
+            if ($request->hasFile('imagen')) {
+                // Eliminar imagen anterior si existe
+                if ($kit->imagen) {
+                    Storage::disk('public')->delete($kit->imagen);
+                }
+
+                try {
+                    $imagenPath = $this->saveImageAsWebP($request->file('imagen'), 'productos');
+                } catch (\Exception $e) {
+                    Log::error("Error processing kit image update: " . $e->getMessage());
+                    $imagenPath = $request->file('imagen')->store('productos', 'public');
+                }
+            }
+
+            DB::transaction(function () use ($request, $kit, $imagenPath) {
                 // Recalcular costo (solo productos, servicios tienen costo 0)
                 $costoTotal = 0;
                 $almacenPrincipal = \App\Models\Almacen::orderBy('id')->first();
@@ -363,6 +444,9 @@ class KitController extends Controller
                     'precio_compra' => $costoTotal,
                     'estado' => $request->estado,
                     'categoria_id' => $request->categoria_id ?: \App\Models\Categoria::orderBy('id')->first()?->id ?? 1,
+                    'imagen' => $imagenPath,
+                    'destacado' => $request->boolean('destacado'),
+                    'incluye_iva' => $request->boolean('incluye_iva'),
                 ]);
 
                 $kit->kitItems()->forceDelete();
@@ -382,15 +466,11 @@ class KitController extends Controller
                 }
             });
 
-            if ($request->wantsJson() && !$request->header('X-Inertia')) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Kit actualizado exitosamente.',
-                    'kit' => $kit->fresh()->load('kitItems.item')
-                ], 200);
-            }
-
-            return redirect()->route('kits.index')->with('success', 'Kit actualizado correctamente.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Kit actualizado exitosamente.',
+                'kit' => $kit->fresh()->load('kitItems.item')
+            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -436,10 +516,15 @@ class KitController extends Controller
         if ($request->has('search') && !empty($request->search)) {
             $search = is_array($request->search) ? $request->search['value'] : $request->search;
             if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nombre', 'like', "%{$search}%")
-                        ->orWhere('codigo', 'like', "%{$search}%")
-                        ->orWhere('descripcion', 'like', "%{$search}%");
+                $terms = array_filter(explode(' ', trim($search)));
+                $query->where(function ($q) use ($terms) {
+                    foreach ($terms as $term) {
+                        $q->where(function ($subQ) use ($term) {
+                            $subQ->where('nombre', 'ILIKE', "%{$term}%")
+                                ->orWhere('codigo', 'ILIKE', "%{$term}%")
+                                ->orWhere('descripcion', 'ILIKE', "%{$term}%");
+                        });
+                    }
                 });
             }
         }
@@ -473,6 +558,9 @@ class KitController extends Controller
                 'categoria' => $kit->categoria?->nombre ?? 'Sin categoría',
                 'estado' => $kit->estado,
                 'imagen' => $kit->imagen,
+                'image_url' => $kit->imagen ? (str_starts_with($kit->imagen, 'http') ? $kit->imagen : asset('storage/' . $kit->imagen)) : null,
+                'destacado' => (bool) $kit->destacado,
+                'incluye_iva' => (bool) $kit->incluye_iva,
                 'created_at' => $kit->created_at->format('d/m/Y'),
             ];
         });
@@ -539,11 +627,18 @@ class KitController extends Controller
             ->where('tipo_producto', '!=', 'kit');
 
         if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                    ->orWhere('codigo', 'like', "%{$search}%");
-            });
+            $search = trim($request->search);
+            if (!empty($search)) {
+                $terms = array_filter(explode(' ', $search));
+                $query->where(function ($q) use ($terms) {
+                    foreach ($terms as $term) {
+                        $q->where(function ($subQ) use ($term) {
+                            $subQ->where('nombre', 'ILIKE', "%{$term}%")
+                                ->orWhere('codigo', 'ILIKE', "%{$term}%");
+                        });
+                    }
+                });
+            }
         }
 
         $productos = $query->orderBy('nombre')
@@ -643,5 +738,19 @@ class KitController extends Controller
             'success' => empty($result),
             'errors' => $result,
         ], 200);
+    }
+
+    /**
+     * Alternar el estado de destacado de un kit.
+     */
+    public function toggleDestacado(Producto $kit)
+    {
+        if (!$kit->esKit()) {
+            abort(404);
+        }
+
+        $kit->update(['destacado' => !$kit->destacado]);
+
+        return back()->with('success', 'Visibilidad del kit actualizada correctamente.');
     }
 }

@@ -104,7 +104,7 @@ class PolizaPaymentController extends Controller
      */
     public function paypalWebhook(Request $request)
     {
-        Log::info('PayPal Poliza Webhook received', $request->all());
+        Log::info('PayPal Poliza Webhook received', $request->except(['key', 'token', 'secret']));
 
         $eventType = $request->input('event_type');
         $resource = $request->input('resource');
@@ -177,7 +177,7 @@ class PolizaPaymentController extends Controller
      */
     public function mercadoPagoWebhook(Request $request)
     {
-        Log::info('MercadoPago Poliza Webhook received', $request->all());
+        Log::info('MercadoPago Poliza Webhook received', $request->except(['key', 'token', 'secret']));
 
         $type = $request->input('type');
         $data = $request->input('data');
@@ -327,7 +327,7 @@ class PolizaPaymentController extends Controller
      */
     public function stripeWebhook(Request $request)
     {
-        Log::info('Stripe Poliza Webhook received', $request->all());
+        Log::info('Stripe Poliza Webhook received', $request->except(['key', 'token', 'secret', 'sig']));
 
         $payload = $request->getContent();
         $event = json_decode($payload, true);

@@ -1,214 +1,252 @@
 <template>
-  <Head :title="`Movimientos - ${cuenta.nombre}`" />
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <Head :title="`Movimientos - ${cuenta.nombre}`" />
 
-  <div class="min-h-screen bg-slate-950 text-slate-200 font-outfit pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-      
-      <!-- Premium Header -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 animate-fade-in">
-        <div class="flex items-center gap-5">
-          <Link 
-            :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })" 
-            class="group flex items-center justify-center w-12 h-12 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-slate-800 hover:border-slate-700 transition-all duration-300 shadow-xl"
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Header -->
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
+        <div class="flex items-start gap-3 min-w-0">
+          <Link
+            :href="route('cuentas-bancarias.show', { cuentas_bancaria: cuenta.id })"
+            class="shrink-0 p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
           >
-            <FontAwesomeIcon icon="arrow-left" class="text-slate-400 group-hover:text-white transition-colors" />
+            <FontAwesomeIcon :icon="['fas', 'arrow-left']" />
           </Link>
+          <div class="min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Movimientos bancarios</h1>
+            <p class="text-slate-600 dark:text-slate-400 mt-1">{{ cuenta.nombre }} · {{ cuenta.banco }}</p>
+          </div>
+        </div>
+        <div class="text-left sm:text-right rounded-2xl border px-4 py-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Saldo actual</p>
+          <p class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">${{ formatMonto(cuenta.saldo_actual) }}</p>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div
+        class="rounded-2xl border p-6 mb-6 bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.2)]"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <h1 class="text-4xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-              Movimientos
-            </h1>
-            <p class="text-slate-400 mt-1 flex items-center gap-2">
-              <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
-              {{ cuenta.nombre }} • {{ cuenta.banco }}
-            </p>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Desde</label>
+            <input
+              v-model="filters.fecha_desde"
+              type="date"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-        </div>
-        
-        <div class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 px-8 py-4 rounded-3xl flex flex-col items-end">
-          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Saldo Actualizado</span>
-          <p class="text-3xl font-black text-white leading-none tracking-tighter transition-all hover:scale-110 origin-right cursor-default">
-            ${{ formatMonto(cuenta.saldo_actual) }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Modern Glass Filters -->
-      <div class="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-[2.5rem] p-8 mb-10 animate-fade-in-up" style="animation-delay: 100ms">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Periodo Inicial</label>
-            <input type="date" v-model="filters.fecha_desde" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium" />
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hasta</label>
+            <input
+              v-model="filters.fecha_hasta"
+              type="date"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-          <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Periodo Final</label>
-            <input type="date" v-model="filters.fecha_hasta" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium" />
-          </div>
-          <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Tipo de Flujo</label>
-            <select v-model="filters.tipo" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium">
-              <option value="">Cualquier tipo</option>
-              <option value="deposito">Ingresos (Depósitos)</option>
-              <option value="retiro">Egresos (Retiros)</option>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
+            <select
+              v-model="filters.tipo"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Todos</option>
+              <option value="deposito">Depósitos</option>
+              <option value="retiro">Retiros</option>
             </select>
           </div>
-          <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Módulo Origen</label>
-            <select v-model="filters.origen_tipo" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/20 transition-all font-medium">
-              <option value="">Todas las fuentes</option>
-              <option value="venta">Ventas Directas</option>
-              <option value="renta">Rentas de Equipos</option>
-              <option value="cobro">Gestión de Cobros</option>
-              <option value="prestamo">Cartera Préstamos</option>
-              <option value="traspaso">Transferencias</option>
-              <option value="pago">Mis Pagos</option>
-              <option value="otro">Misceláneos</option>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Origen</label>
+            <select
+              v-model="filters.origen_tipo"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Todos</option>
+              <option value="venta">Ventas</option>
+              <option value="renta">Rentas</option>
+              <option value="cobro">Cobros</option>
+              <option value="prestamo">Préstamos</option>
+              <option value="traspaso">Traspasos</option>
+              <option value="pago">Pagos</option>
+              <option value="otro">Otros</option>
             </select>
           </div>
         </div>
-        <div class="mt-8 flex justify-end gap-4">
-          <button @click="limpiarFiltros" class="px-8 py-3 bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest">
-            Restablecer
+        <div class="mt-4 flex flex-wrap justify-end gap-2">
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium transition-colors"
+            @click="limpiarFiltros"
+          >
+            Limpiar
           </button>
-          <button @click="aplicarFiltros" class="px-10 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl transition-all hover:scale-105 active:scale-95 font-bold text-xs uppercase tracking-widest shadow-xl shadow-blue-900/20">
-            <FontAwesomeIcon icon="search" class="mr-2" />
-            Ejecutar Filtro
+          <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 font-semibold shadow-md transition-colors"
+            @click="aplicarFiltros"
+          >
+            <FontAwesomeIcon :icon="['fas', 'search']" class="mr-2" />
+            Filtrar
           </button>
         </div>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 animate-fade-in-up" style="animation-delay: 200ms">
-        <div class="relative group bg-slate-900/60 p-8 rounded-[2rem] border border-emerald-500/10 hover:border-emerald-500/30 transition-all">
-          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-[2rem]"></div>
+      <!-- Estadísticas del período -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div
+          class="rounded-2xl p-5 text-white border border-white/10 shadow-lg relative overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-900/90 dark:to-emerald-950"
+        >
+          <div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
           <div class="relative">
-             <div class="flex items-center gap-3 mb-4">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                   <FontAwesomeIcon icon="arrow-up" />
-                </div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Ingresos Totales</span>
-             </div>
-             <p class="text-3xl font-black text-emerald-400 tracking-tighter">${{ formatMonto(stats.total_depositos) }}</p>
+            <p class="text-emerald-100 dark:text-emerald-200/90 text-sm font-medium">Total depósitos</p>
+            <p class="text-2xl font-black tabular-nums mt-1">${{ formatMonto(stats.total_depositos) }}</p>
           </div>
         </div>
-        
-        <div class="relative group bg-slate-900/60 p-8 rounded-[2rem] border border-rose-500/10 hover:border-rose-500/30 transition-all">
-          <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent rounded-[2rem]"></div>
+        <div
+          class="rounded-2xl p-5 text-white border border-white/10 shadow-lg relative overflow-hidden bg-gradient-to-br from-rose-600 to-rose-800 dark:from-rose-900/90 dark:to-rose-950"
+        >
+          <div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
           <div class="relative">
-             <div class="flex items-center gap-3 mb-4">
-                <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
-                   <FontAwesomeIcon icon="arrow-down" />
-                </div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Egresos Totales</span>
-             </div>
-             <p class="text-3xl font-black text-rose-400 tracking-tighter">${{ formatMonto(stats.total_retiros) }}</p>
+            <p class="text-rose-100 dark:text-rose-200/90 text-sm font-medium">Total retiros</p>
+            <p class="text-2xl font-black tabular-nums mt-1">${{ formatMonto(stats.total_retiros) }}</p>
           </div>
         </div>
-
-        <div class="relative group bg-slate-900/60 p-8 rounded-[2rem] border border-blue-500/10 hover:border-blue-500/30 transition-all">
-          <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[2rem]"></div>
+        <div
+          class="rounded-2xl p-5 text-white border border-white/10 shadow-lg relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 dark:from-slate-800 dark:to-slate-900"
+        >
+          <div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
           <div class="relative">
-             <div class="flex items-center gap-3 mb-4">
-                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
-                   <FontAwesomeIcon icon="receipt" />
-                </div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Actividad</span>
-             </div>
-             <p class="text-3xl font-black text-white tracking-tighter">{{ stats.cantidad_movimientos }} <span class="text-sm font-medium text-slate-500 ml-1">registros</span></p>
+            <p class="text-blue-100 dark:text-slate-300 text-sm font-medium">Movimientos</p>
+            <p class="text-2xl font-black tabular-nums mt-1">{{ stats.cantidad_movimientos }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Transaction List Premium Table -->
-      <div class="bg-slate-900/60 backdrop-blur-xl border border-slate-800/50 rounded-[2.5rem] overflow-hidden animate-fade-in-up shadow-2xl shadow-black/50" style="animation-delay: 300ms">
-        <div class="px-10 py-8 border-b border-slate-800 flex items-center justify-between">
-          <h3 class="text-xl font-bold text-white flex items-center gap-3">
-             <FontAwesomeIcon icon="list" class="text-blue-500" />
-             Libro de Movimientos
-          </h3>
-          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-            {{ movimientos.from || 0 }} - {{ movimientos.to || 0 }} de {{ movimientos.total || 0 }} resultados
+      <!-- Tabla de movimientos -->
+      <div
+        class="rounded-2xl border overflow-hidden bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+      >
+        <div
+          class="px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 bg-slate-50/80 dark:bg-slate-800/40"
+        >
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Movimientos</h3>
+          <span class="text-sm text-slate-500 dark:text-slate-400">
+            {{ movimientos.from || 0 }} – {{ movimientos.to || 0 }} de {{ movimientos.total || 0 }}
           </span>
         </div>
-        
+
         <div v-if="movimientos.data && movimientos.data.length > 0" class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-950/30">
-                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Fecha</th>
-                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Concepto & Glosa</th>
-                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Procedencia</th>
-                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Naturaleza</th>
-                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Monto</th>
-                <th class="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Estatus</th>
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/60">
+              <tr>
+                <th
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                >
+                  Fecha
+                </th>
+                <th
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                >
+                  Concepto
+                </th>
+                <th
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                >
+                  Origen
+                </th>
+                <th
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                >
+                  Tipo
+                </th>
+                <th
+                  class="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                >
+                  Monto
+                </th>
+                <th
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                >
+                  Estado
+                </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800/50">
-              <tr v-for="mov in movimientos.data" :key="mov.id" class="hover:bg-blue-500/5 transition-colors group/row">
-                <td class="px-10 py-6">
-                   <span class="text-sm font-bold text-white group-hover/row:text-blue-400 transition-colors">{{ formatFecha(mov.fecha) }}</span>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+              <tr
+                v-for="mov in movimientos.data"
+                :key="mov.id"
+                class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                <td class="px-4 sm:px-6 py-4 text-sm text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                  {{ formatFecha(mov.fecha) }}
                 </td>
-                <td class="px-10 py-6">
-                  <div class="flex flex-col">
-                    <span class="text-sm font-medium text-slate-200">{{ mov.concepto || 'Sin descripción' }}</span>
-                    <span v-if="mov.referencia" class="text-[10px] font-bold text-slate-600 mt-1 uppercase tracking-tighter">REF: {{ mov.referencia }}</span>
+                <td class="px-4 sm:px-6 py-4 text-sm text-slate-900 dark:text-slate-100">
+                  <div>{{ mov.concepto || '—' }}</div>
+                  <div v-if="mov.referencia" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Ref: {{ mov.referencia }}
                   </div>
                 </td>
-                <td class="px-10 py-6 text-center">
-                  <span :class="getOrigenClass(mov.origen_tipo)" class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <td class="px-4 sm:px-6 py-4">
+                  <span :class="getOrigenClass(mov.origen_tipo)" class="px-2.5 py-1 rounded-full text-xs font-semibold">
                     {{ getOrigenLabel(mov.origen_tipo) }}
                   </span>
                 </td>
-                <td class="px-10 py-6 text-center">
-                  <span 
-                    class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
-                    :class="mov.tipo === 'deposito' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'"
+                <td class="px-4 sm:px-6 py-4">
+                  <span
+                    :class="
+                      mov.tipo === 'deposito'
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                        : 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'
+                    "
+                    class="px-2.5 py-1 rounded-full text-xs font-semibold"
                   >
-                    {{ mov.tipo === 'deposito' ? 'Ingreso' : 'Egreso' }}
+                    {{ mov.tipo === 'deposito' ? 'Depósito' : 'Retiro' }}
                   </span>
                 </td>
-                <td class="px-10 py-6 text-right">
-                   <span class="text-lg font-black tracking-tight" :class="mov.tipo === 'deposito' ? 'text-emerald-400' : 'text-rose-400'">
-                      {{ mov.tipo === 'deposito' ? '+' : '-' }}${{ formatMonto(mov.monto) }}
-                   </span>
+                <td
+                  class="px-4 sm:px-6 py-4 text-sm text-right font-semibold tabular-nums"
+                  :class="
+                    mov.tipo === 'deposito'
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-rose-600 dark:text-rose-400'
+                  "
+                >
+                  {{ mov.tipo === 'deposito' ? '+' : '−' }}${{ formatMonto(Math.abs(Number(mov.monto))) }}
                 </td>
-                <td class="px-10 py-6 text-center">
-                   <span 
-                    class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border shadow-sm"
-                    :class="getEstadoClass(mov.estado)"
-                   >
-                     {{ getEstadoLabel(mov.estado) }}
-                   </span>
+                <td class="px-4 sm:px-6 py-4">
+                  <span :class="getEstadoClass(mov.estado)" class="px-2.5 py-1 rounded-full text-xs font-semibold">
+                    {{ getEstadoLabel(mov.estado) }}
+                  </span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        
-        <div v-else class="p-40 text-center">
-          <div class="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 opacity-30">
-             <FontAwesomeIcon icon="receipt" class="text-4xl text-slate-400" />
-          </div>
-          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Sin movimientos para este criterio de búsqueda</p>
+
+        <div v-else class="p-12 text-center">
+          <FontAwesomeIcon :icon="['fas', 'receipt']" class="h-12 w-12 text-slate-300 dark:text-slate-600 mb-4 mx-auto" />
+          <p class="text-slate-500 dark:text-slate-400 font-medium">No hay movimientos para el período seleccionado</p>
         </div>
 
-        <!-- Premium Pagination -->
-        <div v-if="movimientos.links && movimientos.links.length > 3" class="px-10 py-10 border-t border-slate-800 flex items-center justify-center gap-3">
+        <!-- Paginación -->
+        <div
+          v-if="movimientos.links && movimientos.links.length > 3"
+          class="px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-center gap-2 bg-slate-50/50 dark:bg-slate-800/30"
+        >
           <template v-for="(link, index) in movimientos.links" :key="index">
             <Link
               v-if="link.url"
               :href="link.url"
               :class="[
-                'px-5 py-2.5 rounded-2xl text-xs font-black transition-all duration-300',
-                link.active ? 'bg-blue-600 text-white shadow-xl shadow-blue-900/20 scale-110' : 'bg-slate-900 text-slate-500 hover:text-white hover:bg-slate-800 border border-slate-800'
+                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                link.active
+                  ? 'bg-blue-600 text-white dark:bg-blue-500'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700',
               ]"
-              v-html="link.label"
               preserve-scroll
-            />
-            <span
-              v-else
-              class="px-5 py-2.5 text-xs font-black text-slate-700 bg-slate-950/20 rounded-2xl cursor-not-allowed uppercase"
               v-html="link.label"
             />
+            <span v-else class="px-3 py-1.5 text-sm text-slate-400 dark:text-slate-500" v-html="link.label" />
           </template>
         </div>
       </div>
@@ -217,10 +255,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ref } from 'vue'
 
 defineOptions({ layout: AppLayout })
 
@@ -250,55 +288,65 @@ const formatFecha = (date) => {
 }
 
 const getEstadoClass = (estado) => {
-  return {
-    pendiente: 'bg-yellow-100 text-yellow-700',
-    conciliado: 'bg-green-100 text-green-700',
-    ignorado: 'bg-gray-100 text-gray-600 dark:text-gray-300',
-  }[estado] || 'bg-gray-100 text-gray-600 dark:text-gray-300'
+  const map = {
+    pendiente: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+    conciliado: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+    ignorado: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+  }
+  return map[estado] || 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
 }
 
 const getEstadoLabel = (estado) => {
-  return {
-    pendiente: 'Pendiente',
-    conciliado: 'Conciliado',
-    ignorado: 'Ignorado',
-  }[estado] || estado
+  return (
+    {
+      pendiente: 'Pendiente',
+      conciliado: 'Conciliado',
+      ignorado: 'Ignorado',
+    }[estado] || estado
+  )
 }
 
 const getOrigenClass = (origen) => {
-  return {
-    venta: 'bg-blue-100 text-blue-700',
-    renta: 'bg-purple-100 text-purple-700',
-    cobro: 'bg-indigo-100 text-indigo-700',
-    prestamo: 'bg-emerald-100 text-emerald-700',
-    traspaso: 'bg-orange-100 text-orange-700',
-    pago: 'bg-pink-100 text-pink-700',
-    otro: 'bg-gray-100 text-gray-600 dark:text-gray-300',
-  }[origen] || 'bg-gray-100 text-gray-600 dark:text-gray-300'
+  const map = {
+    venta: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+    renta: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+    cobro: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
+    prestamo: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+    traspaso: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+    pago: 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300',
+    otro: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+  }
+  return map[origen] || 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
 }
 
 const getOrigenLabel = (origen) => {
-  return {
-    venta: 'Venta',
-    renta: 'Renta',
-    cobro: 'Cobro',
-    prestamo: 'Préstamo',
-    traspaso: 'Traspaso',
-    pago: 'Pago',
-    otro: 'Otro',
-  }[origen] || 'Sin origen'
+  return (
+    {
+      venta: 'Venta',
+      renta: 'Renta',
+      cobro: 'Cobro',
+      prestamo: 'Préstamo',
+      traspaso: 'Traspaso',
+      pago: 'Pago',
+      otro: 'Otro',
+    }[origen] || 'Sin origen'
+  )
 }
 
 const aplicarFiltros = () => {
-  router.get(route('cuentas-bancarias.movimientos', { cuentas_bancaria: props.cuenta.id }), {
-    fecha_desde: filters.value.fecha_desde || undefined,
-    fecha_hasta: filters.value.fecha_hasta || undefined,
-    tipo: filters.value.tipo || undefined,
-    origen_tipo: filters.value.origen_tipo || undefined,
-  }, {
-    preserveState: true,
-    preserveScroll: true,
-  })
+  router.get(
+    route('cuentas-bancarias.movimientos', { cuentas_bancaria: props.cuenta.id }),
+    {
+      fecha_desde: filters.value.fecha_desde || undefined,
+      fecha_hasta: filters.value.fecha_hasta || undefined,
+      tipo: filters.value.tipo || undefined,
+      origen_tipo: filters.value.origen_tipo || undefined,
+    },
+    {
+      preserveState: true,
+      preserveScroll: true,
+    },
+  )
 }
 
 const limpiarFiltros = () => {
@@ -312,4 +360,3 @@ const limpiarFiltros = () => {
   aplicarFiltros()
 }
 </script>
-

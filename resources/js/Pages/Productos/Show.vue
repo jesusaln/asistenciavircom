@@ -19,7 +19,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Head } from '@inertiajs/vue3';
 import ProductModal from '@/Components/ProductoModal.vue'; // Importar el componente del modal
 
 // Recibe el producto como prop

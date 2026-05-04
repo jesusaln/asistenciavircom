@@ -10,7 +10,7 @@
         <div v-if="show" class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <!-- Background overlay -->
-                <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="close"></div>
+                <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="close"></div>
 
                 <!-- Modal panel -->
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -22,7 +22,7 @@
                     leave-from-class="opacity-100 translate-y-0 sm:scale-100"
                     leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                    <div v-if="show" class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-red-100">
+                    <div v-if="show" class="inline-block align-bottom bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl text-left overflow-hidden shadow-[var(--ui-shadow)] transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-red-200/50 dark:border-red-900/30">
                         <!-- Header with gradient icon -->
                         <div class="px-6 pt-8 pb-4 text-center">
                             <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-50 mb-6">
@@ -32,30 +32,30 @@
                                     </svg>
                                 </div>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight" id="modal-title">
+                            <h3 class="text-2xl font-bold leading-tight" id="modal-title">
                                 ¡Ups! Algo no salió como esperábamos
                             </h3>
                             <div class="mt-4">
-                                <p class="text-gray-500 dark:text-gray-400 text-base leading-relaxed">
+                                <p class="text-[var(--ui-text-muted)] text-base leading-relaxed">
                                     Ha ocurrido un error inesperado al procesar tu solicitud. No te preocupes, no es tu culpa.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Error details (optional/collapsed) -->
-                        <div v-if="error" class="px-6 py-4 bg-gray-50/50 border-y border-gray-100 dark:border-slate-800">
+                        <div v-if="error" class="px-6 py-4 bg-[var(--ui-surface-alt)] border-y border-[var(--ui-border)]">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Detalles del Error</span>
+                                <span class="text-xs font-semibold text-[var(--ui-text-soft)] uppercase tracking-wider">Detalles del Error</span>
                                 <button 
                                     @click="copyError" 
-                                    class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
+                                    class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200 font-medium flex items-center gap-1 transition-colors"
                                 >
                                     <svg v-if="!copied" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-width="2"/></svg>
                                     <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2"/></svg>
                                     {{ copied ? '¡Copiado!' : 'Copiar para soporte' }}
                                 </button>
                             </div>
-                            <div class="max-h-32 overflow-y-auto rounded-lg bg-gray-900 p-3 shadow-inner">
+                            <div class="max-h-32 overflow-y-auto rounded-lg bg-slate-900 p-3 shadow-inner">
                                 <code class="text-xs text-green-400 break-all leading-tight font-mono">
                                     {{ error }}
                                 </code>
@@ -63,7 +63,7 @@
                         </div>
 
                         <!-- Footer actions -->
-                        <div class="px-6 py-6 bg-white dark:bg-slate-900 sm:flex sm:flex-row-reverse gap-3">
+                        <div class="px-6 py-6 bg-[var(--ui-surface)] sm:flex sm:flex-row-reverse gap-3">
                             <button 
                                 type="button" 
                                 class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-md px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-semibold text-white hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto transition-all transform hover:scale-[1.02] active:scale-[0.98]"
@@ -73,7 +73,7 @@
                             </button>
                             <button 
                                 type="button" 
-                                class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-200 dark:border-slate-800 px-6 py-3 bg-white dark:bg-slate-900 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto transition-colors"
+                                class="mt-3 w-full inline-flex justify-center rounded-xl border border-[var(--ui-border)] px-6 py-3 bg-[var(--ui-surface)] text-base font-medium text-[var(--ui-text-muted)] hover:bg-black/5 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto transition-colors"
                                 @click="close"
                             >
                                 Entendido
@@ -82,7 +82,7 @@
 
                         <!-- Support message -->
                         <div class="px-6 pb-6 text-center">
-                            <p class="text-xs text-gray-400">
+                            <p class="text-xs text-[var(--ui-text-soft)]">
                                 Tu sesión sigue activa. Puedes intentar actualizar la página o volver al inicio.
                             </p>
                         </div>

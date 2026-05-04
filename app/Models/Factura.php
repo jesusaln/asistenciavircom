@@ -65,22 +65,18 @@ class Factura extends Model
     /**
      * Relación con Pagos
      */
-    /*
     public function pagos()
     {
         return $this->hasMany(Pago::class);
     }
-    */
 
     /**
      * Relación con Items de Factura (si manejas items directamente)
      */
-    /*
     public function items()
     {
         return $this->hasMany(FacturaItem::class);
     }
-    */
 
     /**
      * Obtener todos los items a través de las ventas

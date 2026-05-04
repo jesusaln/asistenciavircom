@@ -31,11 +31,11 @@ const cargarEmpresaConfig = async () => {
 
     EMPRESA_CONFIG = {
       nombre: config.nombre_empresa || "CLIMAS DEL DESIERTO",
-      propietario: "JESUS ALBERTO LOPEZ NORIEGA", // Mantener fijo o agregar a config si es necesario
+      propietario: config.razon_social || config.nombre_empresa || "",
       direccion: direccionCompleta,
-      telefono: config.telefono || "(55) 5555-5555",
-      email: config.email || "jesus@climasdeldesierto.com",
-      web: config.sitio_web || "www.climasdeldesierto.com",
+      telefono: config.telefono || "",
+      email: config.email || "",
+      web: config.sitio_web || "",
       logo: config.logo_reportes_url || config.logo_url, // Usar logo para reportes
       iva_porcentaje: config.iva_porcentaje || 16,
     };
@@ -45,12 +45,12 @@ const cargarEmpresaConfig = async () => {
     console.error('Error al cargar configuración de empresa:', error);
     // Fallback a configuración por defecto
     EMPRESA_CONFIG = {
-      nombre: "CLIMAS DEL DESIERTO",
-      propietario: "JESUS ALBERTO LOPEZ NORIEGA",
-      direccion: "Av. Paseo de la Reina, 2345",
-      telefono: "(55) 5555-5555",
-      email: "jesus@climasdeldesierto.com",
-      web: "www.climasdeldesierto.com",
+      nombre: "Empresa",
+      propietario: "",
+      direccion: "Dirección no configurada",
+      telefono: "",
+      email: "",
+      web: "",
       logo: null,
       iva_porcentaje: 16,
     };

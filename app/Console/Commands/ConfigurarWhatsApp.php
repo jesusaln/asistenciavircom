@@ -59,14 +59,14 @@ class ConfigurarWhatsApp extends Command
 
                     // Crear empresa básica
                     $empresa = Empresa::create([
-                        'nombre_razon_social' => 'Asistencia Vircom',
+                        'nombre_razon_social' => 'Climas del Desierto',
                         'tipo_persona' => 'moral',
                         'tipo_identificacion' => 'rfc',
                         'identificacion' => 'LONJ880321KMA',
                         'rfc' => 'LONJ880321KMA',
                         'regimen_fiscal' => '626', // Régimen simplificado de confianza
                         'uso_cfdi' => 'G03', // Gastos en general
-                        'email' => 'contacto@asistenciavircom.com',
+                        'email' => 'contacto@climasdeldesierto.com',
                         'telefono' => '+526621234567',
                         'calle' => 'Avenida Principal',
                         'numero_exterior' => '123',

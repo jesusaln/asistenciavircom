@@ -158,6 +158,20 @@ class PedidoDocumentoController extends Controller
     }
 
     /**
+     * Generar PDF de pedido (Público)
+     */
+    public function generarPDFPublico($token)
+    {
+        $pedido = Pedido::findByToken($token);
+
+        if (!$pedido) {
+            abort(404, 'Pedido no encontrado');
+        }
+
+        return $this->generarPDF($pedido->id);
+    }
+
+    /**
      * Generar PDF de pedido usando plantilla Blade
      */
     public function generarPDF($id)
@@ -177,9 +191,8 @@ class PedidoDocumentoController extends Controller
             }
 
             // Stream
-            $this->pdfService->stream($pdf, $filename);
+            return $this->pdfService->stream($pdf, $filename);
 
-        } catch (\Exception $e) {
         } catch (\Exception $e) {
             Log::error('Error al generar PDF de pedido', [
                 'pedido_id' => $id,

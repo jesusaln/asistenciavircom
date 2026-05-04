@@ -1,116 +1,3 @@
-<template>
-  <div>
-    <!-- Botón Crear -->
-    <div class="mb-6 flex justify-end">
-      <button @click="openModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm">
-        <font-awesome-icon icon="plus" class="mr-2" />
-        Nueva Categoría
-      </button>
-    </div>
-
-    <!-- Tabla -->
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">SLA</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Color/Icono</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Tickets</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="cat in categorias" :key="cat.id">
-            <td class="px-6 py-4">
-              <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ cat.nombre }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ cat.descripcion }}</div>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ cat.sla_horas }}h</td>
-            <td class="px-6 py-4">
-              <span :class="`badge bg-${cat.color}-100 dark:bg-${cat.color}-900/50 text-${cat.color}-800 dark:text-${cat.color}-300 px-2 py-1 rounded inline-flex items-center text-xs`">
-                <font-awesome-icon :icon="cat.icono" class="mr-1" /> {{ cat.color }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ cat.tickets_count || 0 }}</td>
-            <td class="px-6 py-4">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                :class="cat.activo ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'">
-                {{ cat.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
-              <button @click="openModal(cat)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Editar</button>
-              <button @click="deleteCategory(cat)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Eliminar</button>
-            </td>
-          </tr>
-          <tr v-if="categorias.length === 0">
-              <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm">
-                  No hay categorías registradas.
-              </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Modal Crear/Editar -->
-    <Modal :show="showModal" @close="closeModal">
-      <div class="p-6 bg-white dark:bg-slate-900 dark:bg-gray-800 transition-colors">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-white mb-4">{{ form.id ? 'Editar' : 'Nueva' }} Categoría</h2>
-        <form @submit.prevent="submit">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
-            <input v-model="form.nombre" type="text" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
-            <input v-model="form.descripcion" type="text" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-          </div>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">SLA (Horas)</label>
-              <input v-model="form.sla_horas" type="number" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Orden</label>
-              <input v-model="form.orden" type="number" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono (FontAwesome)</label>
-              <input v-model="form.icono" type="text" placeholder="ej. users" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Color (Tailwind)</label>
-              <select v-model="form.color" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <option value="blue">Azul</option>
-                <option value="green">Verde</option>
-                <option value="red">Rojo</option>
-                <option value="yellow">Amarillo</option>
-                <option value="indigo">Índigo</option>
-                <option value="gray">Gris</option>
-                <option value="purple">Morado</option>
-                <option value="pink">Rosa</option>
-                <option value="orange">Naranja</option>
-              </select>
-            </div>
-          </div>
-          <div class="mb-4 flex items-center">
-            <input type="checkbox" v-model="form.activo" class="mr-2 rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Activo</label>
-          </div>
-          <div class="flex justify-end mt-6">
-            <button type="button" @click="closeModal" class="mr-3 px-4 py-2 text-gray-700 hover:text-gray-900 dark:text-white dark:text-gray-400 dark:hover:text-gray-200">Cancelar</button>
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700" :disabled="form.processing">Guardar</button>
-          </div>
-        </form>
-      </div>
-    </Modal>
-  </div>
-</template>
-
 <script setup>
 import Modal from '@/Components/Modal.vue';
 import { useForm } from '@inertiajs/vue3';
@@ -178,4 +65,141 @@ const deleteCategory = (cat) => {
     });
   }
 };
+
+const getColorBadge = (color) => {
+    const colors = {
+        blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+        green: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        red: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        yellow: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        indigo: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        gray: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+        purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+        pink: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+        orange: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+    };
+    return colors[color] || 'bg-slate-500/10 text-slate-400 border-white/5';
+};
 </script>
+
+<template>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-end">
+      <button @click="openModal()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg flex items-center gap-2 group active:scale-95">
+        <svg class="w-4 h-4 group-hover:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" /></svg>
+        Nueva Categoría
+      </button>
+    </div>
+
+    <!-- Layout Matrix (Table alternative) -->
+    <div class="bg-slate-950/40 border border-white/5 rounded-[2.5rem] overflow-hidden">
+      <table class="min-w-full divide-y divide-white/5">
+        <thead class="bg-white/5">
+          <tr>
+            <th class="px-8 py-6 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Categoría</th>
+            <th class="px-8 py-6 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest italic">SLA</th>
+            <th class="px-8 py-6 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Estilo</th>
+            <th class="px-8 py-6 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Estado</th>
+            <th class="px-8 py-6 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <tr v-for="cat in categorias" :key="cat.id" class="group hover:bg-white/5 transition-colors">
+            <td class="px-8 py-6">
+              <div class="text-sm font-black text-white uppercase tracking-tight">{{ cat.nombre }}</div>
+              <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest italic mt-1">{{ cat.descripcion }}</div>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <span class="text-sm font-black text-slate-300">{{ cat.sla_horas }}H</span>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <div :class="['inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest', getColorBadge(cat.color)]">
+                <font-awesome-icon :icon="cat.icono" />
+                {{ cat.color }}
+              </div>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <span :class="['px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest border', cat.activo ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20']">
+                {{ cat.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="px-8 py-6 text-right">
+                <div class="flex justify-end gap-3">
+                    <button @click="openModal(cat)" class="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 text-indigo-400 hover:text-white hover:bg-indigo-600 transition-all flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </button>
+                    <button @click="deleteCategory(cat)" class="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 text-rose-500 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                </div>
+            </td>
+          </tr>
+          <tr v-if="categorias.length === 0">
+              <td colspan="5" class="px-8 py-12 text-center text-[10px] font-black text-slate-600 uppercase tracking-widest italic">No se detectaron categorías activas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Crear/Editar Premium -->
+    <Modal :show="showModal" @close="closeModal" maxWidth="xl">
+      <div class="bg-slate-900 border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
+        <div class="p-8 border-b border-white/5 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center justify-between">
+            <h2 class="text-xl font-black text-white uppercase tracking-tighter">{{ form.id ? 'Reconfigurar' : 'Nueva' }} Categoría</h2>
+            <button @click="closeModal" class="text-slate-500 hover:text-white transition-colors">×</button>
+        </div>
+        
+        <form @submit.prevent="submit" class="p-8 space-y-8">
+          <div class="space-y-6">
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-1">Nombre</label>
+                <input v-model="form.nombre" type="text" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 px-6 text-sm font-black uppercase text-white placeholder-slate-800 transition-all focus:border-amber-500/50" required />
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-1">Descripción</label>
+                <input v-model="form.descripcion" type="text" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase text-white placeholder-slate-800 transition-all focus:border-amber-500/50" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-1">SLA (Horas)</label>
+                    <input v-model="form.sla_horas" type="number" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase text-white focus:border-amber-500/50" required />
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-1">Orden</label>
+                    <input v-model="form.orden" type="number" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase text-white focus:border-amber-500/50" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-1">Icono (FA)</label>
+                    <input v-model="form.icono" type="text" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black text-white focus:border-amber-500/50" required />
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-1">Gama Cromática</label>
+                    <select v-model="form.color" class="w-full bg-slate-950/60 border border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase text-white appearance-none cursor-pointer focus:border-amber-500/50">
+                        <option v-for="c in ['blue','green','red','yellow','indigo','gray','purple','pink','orange']" :key="c" :value="c">{{ c }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <label class="flex items-center gap-4 p-5 bg-slate-950/40 border border-white/5 rounded-2xl cursor-pointer hover:border-emerald-500/30 transition-all">
+                <input type="checkbox" v-model="form.activo" class="w-5 h-5 rounded border-white/10 text-emerald-500 focus:ring-emerald-500/20 shadow-inner" />
+                <span class="text-[10px] font-black text-white uppercase tracking-widest">Activo en Sistema</span>
+            </label>
+          </div>
+
+          <div class="flex justify-end gap-4 pt-6 mt-6 border-t border-white/5">
+            <button type="button" @click="closeModal" class="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors">Abortar</button>
+            <button type="submit" class="px-10 py-4 bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all disabled:opacity-30 active:scale-95" :disabled="form.processing">
+                {{ form.id ? 'Refactorizar' : 'Inicializar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  </div>
+</template>

@@ -137,11 +137,11 @@ class BitacoraActividad extends Model
         $like = '%' . $term . '%';
 
         return $q->where(function (Builder $w) use ($like) {
-            $w->where('titulo', 'like', $like)
-                ->orWhere('descripcion', 'like', $like)
-                ->orWhere('ubicacion', 'like', $like)
-                ->orWhereHas('cliente', fn($cq) => $cq->where('nombre_razon_social', 'like', $like))
-                ->orWhereHas('usuario', fn($uq) => $uq->where('name', 'like', $like));
+            $w->whereRaw("unaccent(titulo) ILIKE unaccent(?)", [$like])
+                ->orWhereRaw("unaccent(descripcion) ILIKE unaccent(?)", [$like])
+                ->orWhereRaw("unaccent(ubicacion) ILIKE unaccent(?)", [$like])
+                ->orWhereHas('cliente', fn($cq) => $cq->whereRaw("unaccent(nombre_razon_social) ILIKE unaccent(?)", [$like]))
+                ->orWhereHas('usuario', fn($uq) => $uq->whereRaw("unaccent(name) ILIKE unaccent(?)", [$like]));
         });
     }
 

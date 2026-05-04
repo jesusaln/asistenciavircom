@@ -6,7 +6,6 @@ use App\Models\Cita;
 use App\Models\Cliente;
 use App\Models\Servicio;
 use App\Services\AI\GroqService;
-use App\Services\AI\OllamaService;
 use App\Services\AI\GeminiService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -19,12 +18,20 @@ class VircomBotService
 
     public function __construct()
     {
-        $this->provider = config('services.ai_provider', 'groq');
+        // Leer proveedor de IA desde configuración de empresa (BD) con fallback a .env
+        $config = null;
+        try {
+            $config = \App\Models\EmpresaConfiguracion::getConfig();
+        } catch (\Throwable $e) {
+            // Silenciar errores de BD
+        }
+
+        $this->provider = $config->ai_provider ?? config('services.ai_provider', 'groq');
         
         $this->aiService = match($this->provider) {
             'gemini' => app(GeminiService::class),
-            'ollama' => app(OllamaService::class),
-            default  => app(GroqService::class),
+            'groq' => app(GroqService::class),
+            default => app(GroqService::class),
         };
     }
 
@@ -86,24 +93,27 @@ class VircomBotService
         }
 
         // 5. Guardar texto final en historial y caché
-        $finalContent = $aiMessage['content'] ?? 'Entiendo, ¿en qué más puedo ayudarte?';
-
-        if (!empty($aiMessage['content'])) {
+        if (isset($aiMessage['content'])) {
             $history[] = ['role' => 'assistant', 'content' => $aiMessage['content']];
             // Mantener solo los últimos 10 mensajes para no saturar el contexto
             Cache::put($historyKey, array_slice($history, -11), now()->addHours(2));
         }
 
         return [
-            'message' => $finalContent,
+            'message' => $aiMessage['content'] ?? 'Entiendo, ¿en qué más puedo ayudarte?',
             'action' => $functionName ?? null
         ];
     }
 
     protected function getSystemPrompt(array $context = []): string
     {
+        // 1. Usar prompt personalizado de la empresa si existe
+        if (!empty($context['custom_prompt'])) {
+            return $context['custom_prompt'];
+        }
+
         $now = Carbon::now('America/Mexico_City')->format('l d \d\e F Y H:i');
-        $prompt = "Eres VircomBot 🤖, el experto asistente virtual de Asistencia Vircom.
+        $prompt = "Eres VircomBot 🤖, el experto asistente virtual de Climas del Desierto.
         Tu misión es ser el brazo derecho de los clientes para:
         1. Agendar citas de mantenimiento y reparación.
         2. Consultar precios de servicios (minisplits, refrigeración, electricidad).
@@ -327,7 +337,7 @@ class VircomBotService
                     'horas_incluidas' => $poliza->horas_incluidas_mensual,
                     'horas_consumidas' => $poliza->horas_consumidas_mes,
                     'horas_disponibles' => $poliza->horas_disponibles,
-                    'vigencia' => $poliza->fecha_fin ? \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y') : 'Indefinida',
+                    'vigencia' => $poliza->fecha_fin ? $poliza->fecha_fin->format('d/m/Y') : 'Indefinida',
                     'reinicio' => "El día {$poliza->dia_cobro} de cada mes"
                 ];
 

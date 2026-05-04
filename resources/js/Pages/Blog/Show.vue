@@ -5,8 +5,6 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/atom-one-dark.css';
 
 const props = defineProps({
     empresa: Object,
@@ -19,125 +17,6 @@ const toc = ref([]);
 const activeHeadingId = ref(null);
 const markerTop = ref(0);
 const markerHeight = ref(0);
-
-const escapeHtml = (text = '') => {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-};
-
-const applyInlineMarkdown = (text = '') => {
-    return escapeHtml(text)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/`(.+?)`/g, '<code>$1</code>');
-};
-
-const normalizePlainContent = (content = '') => {
-    const normalizedContent = content
-        .replace(/\\n/g, '\n')
-        .replace(/\\r/g, '')
-        .trim();
-
-    const lines = normalizedContent.split(/\r?\n/);
-    const html = [];
-    let paragraph = [];
-    let listItems = [];
-    let orderedItems = [];
-
-    const flushParagraph = () => {
-        if (paragraph.length) {
-            html.push(`<p>${paragraph.join(' ')}</p>`);
-            paragraph = [];
-        }
-    };
-
-    const flushList = () => {
-        if (listItems.length) {
-            html.push(`<ul>${listItems.map(item => `<li>${item}</li>`).join('')}</ul>`);
-            listItems = [];
-        }
-        if (orderedItems.length) {
-            html.push(`<ol>${orderedItems.map(item => `<li>${item}</li>`).join('')}</ol>`);
-            orderedItems = [];
-        }
-    };
-
-    lines.forEach((rawLine) => {
-        const line = rawLine.trim();
-
-        if (!line) {
-            flushParagraph();
-            flushList();
-            return;
-        }
-
-        if (line.startsWith('### ')) {
-            flushParagraph();
-            flushList();
-            html.push(`<h3>${applyInlineMarkdown(line.slice(4))}</h3>`);
-            return;
-        }
-
-        if (line.startsWith('## ')) {
-            flushParagraph();
-            flushList();
-            html.push(`<h2>${applyInlineMarkdown(line.slice(3))}</h2>`);
-            return;
-        }
-
-        if (/^[-*]\s+/.test(line)) {
-            flushParagraph();
-            listItems.push(applyInlineMarkdown(line.replace(/^[-*]\s+/, '')));
-            return;
-        }
-
-        if (/^\d+\.\s+/.test(line)) {
-            flushParagraph();
-            orderedItems.push(applyInlineMarkdown(line.replace(/^\d+\.\s+/, '')));
-            return;
-        }
-
-        flushList();
-        paragraph.push(applyInlineMarkdown(line));
-    });
-
-    flushParagraph();
-    flushList();
-
-    return html.join('');
-};
-
-const renderedContent = computed(() => {
-    const content = props.post?.contenido || '';
-    if (!content) return '<p>Contenido no disponible por el momento.</p>';
-
-    const looksLikeHtml = /<(p|h2|h3|ul|ol|li|img|pre|blockquote|table|iframe|figure|strong|em|a)\b/i.test(content);
-    return looksLikeHtml ? content : normalizePlainContent(content);
-});
-
-const postExcerpt = computed(() => {
-    const summary = props.post?.resumen?.trim();
-    if (summary) return summary;
-
-    const plainText = (props.post?.contenido || '')
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-    if (!plainText) return 'Explora este articulo y descubre recomendaciones practicas para aplicar esta solucion en tu negocio.';
-    return `${plainText.slice(0, 220)}${plainText.length > 220 ? '...' : ''}`;
-});
-
-const whatsappHref = computed(() => {
-    const phone = String(props.empresa?.whatsapp || '').replace(/\D/g, '');
-    if (!phone) return route('public.contacto');
-    const message = `Hola, me intereso el articulo "${props.post?.titulo}". Quiero mas informacion para aplicarlo en mi negocio.`;
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-});
 
 const generateTOC = () => {
     if (!articleContent.value) return;
@@ -173,7 +52,6 @@ const updateActiveHeading = () => {
     if (toc.value.length === 0) return;
 
     // Logic to find which heading is currently in view
-    // We check which heading is closest to the top of the viewport (with some offset)
     let currentId = null;
     const offset = 150; 
 
@@ -187,8 +65,6 @@ const updateActiveHeading = () => {
     }
 
     if (!currentId && toc.value.length > 0) {
-        // If we are at the top, select first? No, maybe none.
-        // Actually if scrollY is 0, none.
         if (window.scrollY > 100) currentId = toc.value[0].id;
     }
 
@@ -204,8 +80,7 @@ const updateMarker = () => {
         return;
     }
     
-    // Find the link element in the DOM (not the heading content)
-    // We can query selector by data-id
+    // Find the link element in the DOM
     const link = document.querySelector(`a[data-id="${activeHeadingId.value}"]`);
     if (link) {
         markerTop.value = link.offsetTop;
@@ -214,37 +89,31 @@ const updateMarker = () => {
 };
 
 const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    // Could add a toast notification here
-};
-
-const ntToken = computed(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('nt_token');
-});
-
-const reportInterest = async () => {
-    if (!ntToken.value) return;
-
-    try {
-        await fetch(route('api.blog.track.interest'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            },
-            body: JSON.stringify({ token: ntToken.value })
-        });
-    } catch (e) {
-        console.error("Error reporting interest", e);
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(window.location.href);
+    } else {
+        // Fallback for non-https/localhost environments where clipboard API is restricted
+        let textArea = document.createElement("textarea");
+        textArea.value = window.location.href;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('No se pudo copiar el enlace', err);
+        }
+        textArea.remove();
     }
 };
 
-
 const cssVars = computed(() => ({
-    '--color-primary': props.empresa.color_principal || '#3B82F6',
-    '--color-primary-soft': (props.empresa.color_principal || '#3B82F6') + '15',
-    '--color-primary-dark': (props.empresa.color_principal || '#3B82F6') + 'dd',
+    '--color-primary': props.empresa.color_principal || '#FF6B35',
+    '--color-primary-soft': (props.empresa.color_principal || '#FF6B35') + '15',
+    '--color-primary-dark': (props.empresa.color_principal || '#FF6B35') + 'dd',
     '--color-secondary': props.empresa.color_secundario || '#1E40AF',
 }));
 
@@ -279,28 +148,11 @@ onMounted(() => {
     window.addEventListener('scroll', updateActiveHeading);
     
     nextTick(() => {
-        // Syntax Highlighting
-        if (articleContent.value) {
-            articleContent.value.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-        }
-        
         // TOC Generation
         generateTOC();
         
         // Initial check for active heading
         updateActiveHeading();
-
-        // Detect interest clicks on dynamically added content (AI posts)
-        if (articleContent.value) {
-            articleContent.value.addEventListener('click', (e) => {
-                const target = e.target.closest('a');
-                if (target && (target.href.includes('mailto') || target.innerText.toLowerCase().includes('experto'))) {
-                    reportInterest();
-                }
-            });
-        }
     });
 });
 
@@ -313,10 +165,74 @@ onUnmounted(() => {
 
 <template>
     <Head :title="post.titulo">
-        <meta name="description" :content="post.meta_descripcion || postExcerpt">
+        <meta name="description" :content="post.meta_descripcion || post.resumen">
         <meta property="og:title" :content="post.titulo">
-        <meta property="og:description" :content="postExcerpt">
+        <meta property="og:description" :content="post.resumen">
         <meta property="og:image" :content="post.imagen_portada_url">
+        <meta property="og:type" content="article">
+
+        <!-- Schema: Article (Rich Results en Google) -->
+        <component is="script" type="application/ld+json">
+            {{
+                JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Article",
+                    "headline": post.titulo,
+                    "description": post.meta_descripcion || post.resumen,
+                    "image": post.imagen_portada_url,
+                    "datePublished": post.publicado_at,
+                    "dateModified": post.updated_at || post.publicado_at,
+                    "author": {
+                        "@type": "Organization",
+                        "name": empresa.nombre_empresa || "Climas del Desierto",
+                        "url": "https://climasdeldesierto.com"
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": empresa.nombre_empresa || "Climas del Desierto",
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": empresa.logo_path ? `https://climasdeldesierto.com/storage/${empresa.logo_path}` : "https://climasdeldesierto.com/images/logo.webp"
+                        }
+                    },
+                    "mainEntityOfPage": {
+                        "@type": "WebPage",
+                        "@id": route('public.blog.show', post.slug)
+                    },
+                    "articleSection": post.categoria || "General",
+                    "wordCount": post.contenido ? post.contenido.replace(/<[^>]*>/g, '').split(/\s+/).length : 0
+                })
+            }}
+        </component>
+
+        <!-- Schema: BreadcrumbList -->
+        <component is="script" type="application/ld+json">
+            {{
+                JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "Inicio",
+                            "item": "https://climasdeldesierto.com"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": "Blog",
+                            "item": route('public.blog.index')
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": post.titulo
+                        }
+                    ]
+                })
+            }}
+        </component>
     </Head>
     
     <div :style="cssVars" class="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans transition-colors duration-500 relative">
@@ -357,10 +273,6 @@ onUnmounted(() => {
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-8 leading-[1.1] tracking-tight">
                         {{ post.titulo }}
                     </h1>
-
-                    <p class="max-w-3xl text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                        {{ postExcerpt }}
-                    </p>
 
                     <div class="flex flex-wrap items-center gap-8 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-8 mt-2">
                         <div class="flex items-center gap-2">
@@ -414,16 +326,8 @@ onUnmounted(() => {
                 <!-- Article Content -->
                 <div class="lg:w-full min-w-0">
                     <!-- Cover Image -->
-                    <div class="relative group rounded-[3rem] overflow-hidden shadow-2xl mb-12 aspect-video bg-slate-200 dark:bg-slate-800">
-                        <img v-if="post.imagen_portada_url" :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]">
-                        <div v-if="!post.imagen_portada_url" class="absolute inset-0 bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center">
-                            <div class="text-center px-8">
-                                <div class="w-20 h-20 mx-auto rounded-[2rem] bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 flex items-center justify-center text-[var(--color-primary)] mb-6 shadow-xl">
-                                    <FontAwesomeIcon icon="newspaper" class="text-3xl" />
-                                </div>
-                                <p class="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Articulo Especializado</p>
-                            </div>
-                        </div>
+                    <div v-if="post.imagen_portada_url" class="relative group rounded-[3rem] overflow-hidden shadow-2xl mb-12 aspect-video bg-slate-200 dark:bg-slate-800">
+                        <img :src="post.imagen_portada_url" :alt="post.titulo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
                     </div>
 
@@ -440,7 +344,7 @@ onUnmounted(() => {
                                prose-strong:text-slate-900 dark:prose-strong:text-white
                                prose-pre:bg-slate-900 prose-pre:scrolbar-hide prose-pre:shadow-2xl prose-pre:rounded-2xl
                                transition-colors" 
-                        v-html="renderedContent"
+                        v-html="post.contenido"
                     >
                     </article>
 
@@ -453,12 +357,11 @@ onUnmounted(() => {
                             <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                                 <div class="text-center md:text-left max-w-md">
                                     <span class="text-[var(--color-primary)] font-black text-[10px] uppercase tracking-[0.3em] mb-4 block">Asesoría Profesional</span>
-                                    <h3 class="text-3xl font-black mb-4 leading-tight">¿Necesitas implementar esto en tu negocio?</h3>
-                                    <p class="text-slate-400 font-medium">Contáctanos hoy mismo y uno de nuestros ingenieros expertos diseñará una solución a tu medida.</p>
+                                    <h3 class="text-3xl font-black mb-4 leading-tight">¿Necesitas asesoría técnica?</h3>
+                                    <p class="text-slate-400 font-medium">Contáctanos hoy mismo y uno de nuestros instaladores expertos te ayudará con tus equipos Inverter.</p>
                                 </div>
                                 
-                                <a :href="whatsappHref" 
-                                   @click="reportInterest"
+                                <a :href="`https://wa.me/${empresa.whatsapp?.replace(/\\D/g, '')}`" 
                                    class="bg-[var(--color-primary)] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[var(--color-primary-dark)] transition-all flex items-center gap-4 shadow-xl shadow-[var(--color-primary)]/20 hover:scale-105 active:scale-95 whitespace-nowrap"
                                 >
                                     <FontAwesomeIcon :icon="['fab', 'whatsapp']" class="text-xl" />

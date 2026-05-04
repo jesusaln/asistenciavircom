@@ -245,8 +245,8 @@ class SatDescargaMasivaService
                     }
                 }
 
-                // Actualización incremental para progreso en tiempo real (cada 5 CFDIs o al final)
-                if ($stats['total'] % 5 === 0) {
+                // Actualización incremental para progreso en tiempo real (cada 100 CFDIs o al final)
+                if ($stats['total'] % 100 === 0) {
                     $descarga->update([
                         'total_cfdis' => $stats['total'],
                         'inserted_cfdis' => $stats['staged'],
@@ -292,10 +292,8 @@ class SatDescargaMasivaService
             ->whereDate('fecha_emision', '>=', $descarga->fecha_inicio)
             ->whereDate('fecha_emision', '<=', $descarga->fecha_fin);
 
-        /** @var \Illuminate\Support\LazyCollection<int, Cfdi> $cfdis */
-        $cfdis = $query->cursor();
-
-        foreach ($cfdis as $cfdi) {
+        foreach ($query->cursor() as $cfdi) {
+            /** @var Cfdi $cfdi */
             $stats['total']++;
             $data = $this->getCfdiDataForSat($cfdi);
             if (!$data) {
@@ -305,6 +303,11 @@ class SatDescargaMasivaService
             try {
                 $this->validarEstadoSat($cfdi, $data);
                 $stats['actualizados']++;
+
+                // Pequeño delay para no saturar el servicio del SAT
+                if ($stats['total'] % 2 === 0) {
+                    usleep(250000); // 250ms
+                }
             } catch (\Throwable $e) {
                 $stats['errores']++;
             }
@@ -354,17 +357,22 @@ class SatDescargaMasivaService
     public function importarDesdeStaging(array $ids): array
     {
         $stats = ['inserted' => 0, 'errors' => 0];
-        /** @var \Illuminate\Database\Eloquent\Collection<int, SatDescargaDetalle> $detalles */
         $detalles = SatDescargaDetalle::whereIn('id', $ids)->where('importado', false)->get();
+        $importedIds = [];
 
         foreach ($detalles as $detalle) {
+            /** @var SatDescargaDetalle $detalle */
             $result = $this->importarXml($detalle->uuid, $detalle->xml_content, $detalle->direccion);
             if ($result === 'inserted' || $result === 'duplicate') {
-                $detalle->update(['importado' => true]);
+                $importedIds[] = $detalle->id;
                 $stats['inserted']++;
             } else {
                 $stats['errors']++;
             }
+        }
+
+        if (!empty($importedIds)) {
+            SatDescargaDetalle::whereIn('id', $importedIds)->update(['importado' => true]);
         }
 
         return $stats;
@@ -682,8 +690,7 @@ class SatDescargaMasivaService
         $year = $date->format('Y');
         $month = $date->format('m');
         $tipo = $direccion === Cfdi::DIRECCION_RECIBIDO ? 'recibidos' : 'emitidos';
-        $empresaId = EmpresaResolver::resolveId();
-        $directory = "empresas/{$empresaId}/cfdis/{$tipo}/{$year}/{$month}";
+        $directory = "cfdis/{$tipo}/{$year}/{$month}";
         Storage::disk('public')->makeDirectory($directory);
         $path = "{$directory}/{$uuid}.xml";
         Storage::disk('public')->put($path, $xmlContent);

@@ -34,109 +34,116 @@ class RevisarAlertasStock extends Command
 
         $resolverAntiguas = $this->option('resolver-antiguas');
 
-        // Obtener todos los inventarios con stock
-        $inventarios = Inventario::with(['producto', 'almacen'])
-            ->where('cantidad', '>', 0)
-            ->get();
+        $inventariosQuery = Inventario::query()
+            ->with(['producto:id,nombre,codigo', 'almacen:id,nombre'])
+            ->select('id', 'producto_id', 'almacen_id', 'cantidad', 'stock_minimo')
+            ->where('cantidad', '>', 0);
+        $inventariosCount = (clone $inventariosQuery)->count();
 
-        $this->info("📊 Revisando {$inventarios->count()} registros de inventario...");
+        $this->info("📊 Revisando {$inventariosCount} registros de inventario...");
 
         $alertasGeneradas = 0;
         $alertasResueltas = 0;
 
-        foreach ($inventarios as $inventario) {
-            $producto = $inventario->producto;
-            $almacen = $inventario->almacen;
-            $stockActual = $inventario->cantidad;
-            $stockMinimo = $inventario->stock_minimo ?? 0;
+        $inventariosQuery->orderBy('id')->chunkById(200, function ($inventarios) use (&$alertasGeneradas, &$alertasResueltas, $resolverAntiguas) {
+            foreach ($inventarios as $inventario) {
+                $producto = $inventario->producto;
+                $almacen = $inventario->almacen;
+                $stockActual = $inventario->cantidad;
+                $stockMinimo = $inventario->stock_minimo ?? 0;
 
-            // Determinar tipo de alerta
-            $tipoAlerta = $this->determinarTipoAlerta($stockActual, $stockMinimo);
+                // Determinar tipo de alerta
+                $tipoAlerta = $this->determinarTipoAlerta($stockActual, $stockMinimo);
 
-            if ($tipoAlerta) {
-                // Verificar si ya existe una alerta activa para este producto/almacén
-                $alertaExistente = AlertaStock::where('producto_id', $producto->id)
-                    ->where('almacen_id', $almacen->id)
-                    ->where('leida', false)
-                    ->first();
-
-                if (!$alertaExistente) {
-                    // Crear nueva alerta
-                    AlertaStock::create([
-                        'producto_id' => $producto->id,
-                        'almacen_id' => $almacen->id,
-                        'tipo' => $tipoAlerta,
-                        'stock_actual' => $stockActual,
-                        'stock_minimo' => $stockMinimo,
-                        'mensaje' => $this->generarMensajeAlerta($tipoAlerta, $producto, $almacen, $stockActual, $stockMinimo),
-                    ]);
-
-                    $alertasGeneradas++;
-                    $this->line("⚠️  Alerta generada: {$producto->nombre} en {$almacen->nombre} - {$tipoAlerta}");
-                } else {
-                    // Actualizar alerta existente si cambió el tipo
-                    if ($alertaExistente->tipo !== $tipoAlerta) {
-                        $alertaExistente->update([
-                            'tipo' => $tipoAlerta,
-                            'stock_actual' => $stockActual,
-                            'mensaje' => $this->generarMensajeAlerta($tipoAlerta, $producto, $almacen, $stockActual, $stockMinimo),
-                        ]);
-
-                        $this->line("🔄 Alerta actualizada: {$producto->nombre} en {$almacen->nombre} - {$tipoAlerta}");
-                    }
-                }
-            } else {
-                // Si no hay alerta pero existía una, marcarla como resuelta
-                if ($resolverAntiguas) {
-                    $alertaAntigua = AlertaStock::where('producto_id', $producto->id)
+                if ($tipoAlerta) {
+                    // Verificar si ya existe una alerta activa para este producto/almacén
+                    $alertaExistente = AlertaStock::where('producto_id', $producto->id)
                         ->where('almacen_id', $almacen->id)
                         ->where('leida', false)
                         ->first();
 
-                    if ($alertaAntigua) {
-                        $alertaAntigua->update([
-                            'leida' => true,
-                            'leida_at' => now(),
+                    if (!$alertaExistente) {
+                        // Crear nueva alerta
+                        AlertaStock::create([
+                            'producto_id' => $producto->id,
+                            'almacen_id' => $almacen->id,
+                            'tipo' => $tipoAlerta,
+                            'stock_actual' => $stockActual,
+                            'stock_minimo' => $stockMinimo,
+                            'mensaje' => $this->generarMensajeAlerta($tipoAlerta, $producto, $almacen, $stockActual, $stockMinimo),
                         ]);
 
-                        $alertasResueltas++;
-                        $this->line("✅ Alerta resuelta: {$producto->nombre} en {$almacen->nombre}");
+                        $alertasGeneradas++;
+                        $this->line("⚠️  Alerta generada: {$producto->nombre} en {$almacen->nombre} - {$tipoAlerta}");
+                    } else {
+                        // Actualizar alerta existente si cambió el tipo
+                        if ($alertaExistente->tipo !== $tipoAlerta) {
+                            $alertaExistente->update([
+                                'tipo' => $tipoAlerta,
+                                'stock_actual' => $stockActual,
+                                'mensaje' => $this->generarMensajeAlerta($tipoAlerta, $producto, $almacen, $stockActual, $stockMinimo),
+                            ]);
+
+                            $this->line("🔄 Alerta actualizada: {$producto->nombre} en {$almacen->nombre} - {$tipoAlerta}");
+                        }
+                    }
+                } else {
+                    // Si no hay alerta pero existía una, marcarla como resuelta
+                    if ($resolverAntiguas) {
+                        $alertaAntigua = AlertaStock::where('producto_id', $producto->id)
+                            ->where('almacen_id', $almacen->id)
+                            ->where('leida', false)
+                            ->first();
+
+                        if ($alertaAntigua) {
+                            $alertaAntigua->update([
+                                'leida' => true,
+                                'leida_at' => now(),
+                            ]);
+
+                            $alertasResueltas++;
+                            $this->line("✅ Alerta resuelta: {$producto->nombre} en {$almacen->nombre}");
+                        }
                     }
                 }
             }
-        }
+        });
 
         // Verificar productos agotados (stock = 0)
-        $productosAgotados = Producto::whereDoesntHave('inventarios', function ($query) {
-            $query->where('cantidad', '>', 0);
-        })->with('inventarios')->get();
+        $productosAgotadosQuery = Producto::query()
+            ->select('id', 'nombre', 'codigo')
+            ->whereDoesntHave('inventarios', function ($query) {
+                $query->where('cantidad', '>', 0);
+            });
 
-        foreach ($productosAgotados as $producto) {
-            // Crear alerta de agotamiento para almacenes activos
-            $almacenes = Almacen::where('estado', 'activo')->get();
+        $almacenesActivos = Almacen::where('estado', 'activo')->select('id', 'nombre')->get();
 
-            foreach ($almacenes as $almacen) {
-                $alertaExistente = AlertaStock::where('producto_id', $producto->id)
-                    ->where('almacen_id', $almacen->id)
-                    ->where('tipo', 'agotado')
-                    ->where('leida', false)
-                    ->first();
+        $productosAgotadosQuery->orderBy('id')->chunkById(200, function ($productosAgotados) use ($almacenesActivos, &$alertasGeneradas) {
+            foreach ($productosAgotados as $producto) {
+                // Crear alerta de agotamiento para almacenes activos
+                foreach ($almacenesActivos as $almacen) {
+                    $alertaExistente = AlertaStock::where('producto_id', $producto->id)
+                        ->where('almacen_id', $almacen->id)
+                        ->where('tipo', 'agotado')
+                        ->where('leida', false)
+                        ->first();
 
-                if (!$alertaExistente) {
-                    AlertaStock::create([
-                        'producto_id' => $producto->id,
-                        'almacen_id' => $almacen->id,
-                        'tipo' => 'agotado',
-                        'stock_actual' => 0,
-                        'stock_minimo' => 0,
-                        'mensaje' => "Producto agotado: {$producto->nombre} (Código: {$producto->codigo}) en almacén {$almacen->nombre}",
-                    ]);
+                    if (!$alertaExistente) {
+                        AlertaStock::create([
+                            'producto_id' => $producto->id,
+                            'almacen_id' => $almacen->id,
+                            'tipo' => 'agotado',
+                            'stock_actual' => 0,
+                            'stock_minimo' => 0,
+                            'mensaje' => "Producto agotado: {$producto->nombre} (Código: {$producto->codigo}) en almacén {$almacen->nombre}",
+                        ]);
 
-                    $alertasGeneradas++;
-                    $this->line("🚨 Alerta de agotamiento: {$producto->nombre} en {$almacen->nombre}");
+                        $alertasGeneradas++;
+                        $this->line("🚨 Alerta de agotamiento: {$producto->nombre} en {$almacen->nombre}");
+                    }
                 }
             }
-        }
+        });
 
         // Estadísticas finales
         $totalAlertasActivas = AlertaStock::where('leida', false)->count();

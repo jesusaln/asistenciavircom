@@ -2,25 +2,47 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use App\Models\Concerns\BelongsToEmpresa;
 
-class Cita extends Model
+use \OwenIt\Auditing\Auditable;
+
+class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use HasFactory, SoftDeletes, BelongsToEmpresa;
+    use HasFactory, SoftDeletes, BelongsToEmpresa, Auditable;
 
     protected static function booted()
     {
         static::creating(function (Cita $cita) {
             if (empty($cita->folio)) {
                 try {
-                    $cita->folio = app(\App\Services\Folio\FolioService::class)->getNextFolio('cita');
+                    $folio = app(\App\Services\Folio\FolioService::class)->getNextFolio('cita');
+                    if (empty($folio)) {
+                        throw new \Exception('El folio generado está vacío.');
+                    }
+                    $cita->folio = $folio;
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Error generating folio for cita: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::critical('CRITICAL: Failed to generate folio for cita. Transaction aborted.', [
+                        'error' => $e->getMessage(),
+                        'tecnico_id' => $cita->tecnico_id,
+                        'cliente_id' => $cita->cliente_id
+                    ]);
+                    // Abortar creación de la cita (Evitar Folio Ghost #609)
+                    return false; 
                 }
+            }
+        });
+
+        // Borrado en cascada para items
+        static::deleting(function (Cita $cita) {
+            if ($cita->isForceDeleting()) {
+                $cita->items()->forceDelete();
+            } else {
+                $cita->items()->delete();
             }
         });
     }
@@ -72,6 +94,7 @@ class Cita extends Model
         'problema_reportado',
         'prioridad',
         'estado',
+        'fecha_hora_fin',
         'evidencias',
         'foto_equipo',
         'foto_hoja_servicio',
@@ -113,8 +136,10 @@ class Cita extends Model
         'fecha_firma',
         'firma_tecnico',
         'poliza_id',
-        'fecha_inicio',
-        'fecha_fin',
+        'microsoft_list_id',
+        'latitud',
+        'longitud',
+        'fecha_gps',
     ];
 
     protected $casts = [
@@ -129,6 +154,7 @@ class Cita extends Model
         'total' => 'decimal:2',
         'inicio_servicio' => 'datetime',
         'fin_servicio' => 'datetime',
+        'fecha_hora_fin' => 'datetime',
         // Casts para campos públicos
         'es_publica' => 'boolean',
         'dias_preferidos' => 'array',
@@ -137,14 +163,9 @@ class Cita extends Model
         'whatsapp_confirmacion_enviado' => 'boolean',
         'whatsapp_recepcion_at' => 'datetime',
         'whatsapp_confirmacion_at' => 'datetime',
+        'evidencias' => 'array',
         'fotos_finales' => 'array',
-        'fecha_inicio' => 'datetime',
-        'fecha_fin' => 'datetime',
-    ];
-
-    protected $appends = [
-        'tiempo_servicio_formateado',
-        'fecha_fin_estimada',
+        'fecha_firma' => 'datetime',
     ];
 
     // Scopes útiles
@@ -166,6 +187,31 @@ class Cita extends Model
     public function scopeCanceladas($query)
     {
         return $query->where('estado', self::ESTADO_CANCELADO);
+    }
+
+    /**
+     * Listado: activas (no completada/cancelada) por fecha de programación ascendente (la más próxima primero);
+     * luego completadas y al final canceladas; dentro de completadas/canceladas, fecha descendente (más recientes primero).
+     */
+    public function scopeOrderDefaultAgenda(Builder $query): Builder
+    {
+        $completado = self::ESTADO_COMPLETADO;
+        $cancelado = self::ESTADO_CANCELADO;
+
+        return $query
+            ->orderByRaw('
+                CASE
+                    WHEN estado = ? THEN 2
+                    WHEN estado = ? THEN 1
+                    ELSE 0
+                END ASC
+            ', [$cancelado, $completado])
+            ->orderByRaw('
+                CASE
+                    WHEN estado NOT IN (?, ?) THEN EXTRACT(EPOCH FROM fecha_hora::timestamptz)
+                    ELSE -EXTRACT(EPOCH FROM fecha_hora::timestamptz)
+                END ASC
+            ', [$completado, $cancelado]);
     }
 
     public function scopePorTecnico($query, $tecnicoId)
@@ -234,7 +280,7 @@ class Cita extends Model
     public function getTiempoServicioFormateadoAttribute()
     {
         if (!$this->tiempo_servicio) {
-            return 'En curso/Pendiente';
+            return 'No registrado';
         }
 
         $horas = floor($this->tiempo_servicio / 60);
@@ -245,11 +291,6 @@ class Cita extends Model
         }
 
         return "{$minutos}m";
-    }
-
-    public function getFechaFinEstimadaAttribute()
-    {
-        return $this->fecha_fin ?? ($this->fecha_hora ? $this->fecha_hora->copy()->addMinutes(60) : null);
     }
 
     public function cliente()
@@ -282,20 +323,19 @@ class Cita extends Model
     }
 
     /**
-     * Ítems de la cita (productos y servicios)
-     */
-    public function items()
-    {
-        return $this->hasMany(CitaItem::class);
-    }
-
-    /**
      * Serie de producto asociada a esta cita de garantía (si aplica)
-     * Esta relación se usa cuando la cita fue creada desde el módulo de garantías
      */
     public function productoSerieGarantia()
     {
         return $this->hasOne(ProductoSerie::class, 'cita_id');
+    }
+
+    /**
+     * Ítems de la cita (Usados para generar la Venta posterior)
+     */
+    public function items()
+    {
+        return $this->hasMany(CitaItem::class);
     }
 
     public function venta()
@@ -304,8 +344,9 @@ class Cita extends Model
     }
 
     /**
-     * Productos en la cita (relación polimórfica a través de cita_items)
+     * Productos en la cita (DESHABILITADO)
      */
+    /*
     public function productos()
     {
         return $this->morphedByMany(
@@ -316,10 +357,12 @@ class Cita extends Model
             'citable_id'
         )->withPivot('cantidad', 'precio', 'descuento', 'subtotal', 'descuento_monto', 'notas');
     }
+    */
 
     /**
-     * Servicios en la cita (relación polimórfica a través de cita_items)
+     * Servicios en la cita (DESHABILITADO)
      */
+    /*
     public function servicios()
     {
         return $this->morphedByMany(
@@ -330,6 +373,7 @@ class Cita extends Model
             'citable_id'
         )->withPivot('cantidad', 'precio', 'descuento', 'subtotal', 'descuento_monto', 'notas');
     }
+    */
 
     /**
      * Verificar si la cita puede ser modificada
@@ -375,7 +419,7 @@ class Cita extends Model
         return match ($this->estado) {
             self::ESTADO_PENDIENTE => [self::ESTADO_PROGRAMADO, self::ESTADO_EN_PROCESO, self::ESTADO_CANCELADO],
             self::ESTADO_PROGRAMADO => [self::ESTADO_EN_PROCESO, self::ESTADO_REPROGRAMADO, self::ESTADO_CANCELADO],
-            self::ESTADO_EN_PROCESO => [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO],
+            self::ESTADO_EN_PROCESO => [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO, self::ESTADO_PROGRAMADO],
             self::ESTADO_COMPLETADO => [], // No se puede cambiar de completado
             self::ESTADO_CANCELADO => [self::ESTADO_PENDIENTE], // Solo se puede reactivar
             self::ESTADO_REPROGRAMADO => [self::ESTADO_PROGRAMADO, self::ESTADO_EN_PROCESO, self::ESTADO_CANCELADO],
@@ -383,12 +427,47 @@ class Cita extends Model
         };
     }
 
+    /**
+     * Impide completar de inmediato tras "Iniciar": exige un tiempo mínimo desde {@see $this->inicio_servicio}.
+     * Los super-administradores omiten esta regla (correcciones / soporte).
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
+     */
+    public function bloqueoMensajePorTiempoMinimoCompletar($user = null): ?string
+    {
+        $minSec = (int) config('citas.min_segundos_servicio_antes_de_completar', 300);
+        if ($minSec <= 0) {
+            return null;
+        }
+
+        if ($user && method_exists($user, 'hasRole') && $user->hasRole('super-admin')) {
+            return null;
+        }
+
+        if (!$this->inicio_servicio) {
+            return 'Primero debes iniciar el servicio (botón Iniciar) y esperar el tiempo mínimo antes de completar.';
+        }
+
+        $elapsed = Carbon::parse($this->inicio_servicio)->diffInSeconds(now());
+        if ($elapsed < $minSec) {
+            $rest = $minSec - $elapsed;
+            $minutosRequeridos = max(1, (int) ceil($minSec / 60));
+            $aproxEsperaMin = max(1, (int) ceil($rest / 60));
+
+            return "Deben transcurrir al menos {$minutosRequeridos} minuto(s) desde el inicio del servicio antes de completar. Espera aproximadamente {$aproxEsperaMin} minuto(s) más (o contacta a un administrador).";
+        }
+
+        return null;
+    }
+
+    protected $appends = ['tiempo_servicio_formateado'];
+
 
 
     /**
-     * Cambiar estado de la cita
+     * Cambiar estado de la cita con auditoría
      */
-    public function cambiarEstado(string $nuevoEstado): bool
+    public function cambiarEstado(string $nuevoEstado, ?string $comentario = null): bool
     {
         $estadosValidos = $this->getSiguientesEstadosValidos();
 
@@ -396,16 +475,21 @@ class Cita extends Model
             return false;
         }
 
+        $estadoAnterior = $this->getOriginal('estado');
+
         // Lógica de Tiempos
         if ($nuevoEstado === self::ESTADO_EN_PROCESO) {
             if (!$this->inicio_servicio) {
                 $this->inicio_servicio = now();
             }
+        } elseif ($nuevoEstado === self::ESTADO_PROGRAMADO && $this->estado === self::ESTADO_EN_PROCESO) {
+            // Resetear el cronómetro si el técnico regresa la cita por error (Fix #1052)
+            $this->inicio_servicio = null;
         } elseif ($nuevoEstado === self::ESTADO_COMPLETADO) {
             $this->fin_servicio = now();
             if ($this->inicio_servicio) {
-                $inicio = Carbon::parse($this->inicio_servicio);
-                $fin = Carbon::parse($this->fin_servicio);
+                $inicio = \Carbon\Carbon::parse($this->inicio_servicio);
+                $fin = \Carbon\Carbon::parse($this->fin_servicio);
                 $this->tiempo_servicio = (int) $inicio->diffInMinutes($fin);
             }
 
@@ -421,6 +505,25 @@ class Cita extends Model
         $this->estado = $nuevoEstado;
         $this->save();
 
+        // Auditoría Automática (History Trail) con DIFF (Fix #720)
+        CitaHistorial::create([
+            'cita_id' => $this->id,
+            'user_id' => auth()->id(),
+            'estado_anterior' => $estadoAnterior,
+            'estado_nuevo' => $nuevoEstado,
+            'comentario' => $comentario,
+            'metadatos' => [
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'diff' => [
+                    'estado' => [
+                        'from' => $estadoAnterior,
+                        'to' => $nuevoEstado
+                    ]
+                ]
+            ],
+        ]);
+
         if ($nuevoEstado === self::ESTADO_COMPLETADO) {
             \App\Events\CitaCompletada::dispatch($this);
         }
@@ -428,15 +531,15 @@ class Cita extends Model
         return true;
     }
 
+    const MAX_CITAS_POR_DIA = 8;
+
     /**
-     * Verificar si hay conflicto de horario
-     * Criterio: (StartA < EndB) AND (EndA > StartB)
-     * Excluye citas canceladas y completadas.
-     * 
-     * @param int $tecnicoId ID del técnico
-     * @param string $fechaHora Fecha y hora de inicio de la nueva cita
-     * @param int|null $excludeId ID de cita a excluir (para edición)
-     * @param int $duracionMin Duración en minutos de la nueva cita
+     * Verificar si hay conflicto de horario (Solapamiento)
+     * @param int $tecnicoId
+     * @param string $fechaHoraInicio (Y-m-d H:i:s)
+     * @param string|null $fechaHoraFin (Y-m-d H:i:s)
+     * @param int|null $excludeId
+     * @return bool
      */
     public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null, int $duracionMin = 60): ?Cita
     {
@@ -449,7 +552,7 @@ class Cita extends Model
             ->where(function ($q) use ($nuevoInicio, $nuevoFin) {
                 // Un traslape ocurre si: (InicioA < FinB) AND (FinA > InicioB)
                 $q->where('fecha_hora', '<', $nuevoFin)
-                  ->whereRaw("COALESCE(fecha_fin, fecha_hora + interval '60 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
+                  ->whereRaw("COALESCE(fecha_hora_fin, fecha_hora + interval '60 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
             });
 
         if ($excludeId) {
@@ -483,13 +586,7 @@ class Cita extends Model
      */
     public function getDireccionCompletaAttribute(): string
     {
-        $partes = array_filter([
-            $this->direccion_calle,
-            $this->direccion_colonia,
-            $this->direccion_cp ? "C.P. {$this->direccion_cp}" : null,
-        ]);
-
-        return implode(', ', $partes);
+        return $this->direccion_calle ?: '';
     }
 
     /**
@@ -561,10 +658,15 @@ class Cita extends Model
     }
 
     /**
-     * Buscar cita por link de seguimiento
+     * Verificar si el enlace de seguimiento sigue siendo válido (Privacidad #905)
      */
-    public static function findByLink(string $uuid): ?self
+    public function getLinkSeguimientoValidoAttribute(): bool
     {
-        return self::where('link_seguimiento', $uuid)->first();
+        if (!$this->link_seguimiento) return false;
+        if ($this->estado !== self::ESTADO_COMPLETADO && $this->estado !== self::ESTADO_CANCELADO) return true;
+
+        // Si está completada o cancelada, expira en 30 días
+        $fechaReferencia = $this->fin_servicio ?? $this->updated_at;
+        return now()->diffInDays($fechaReferencia) < 30;
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Compra;
 use App\Models\CuentasPorPagar;
 use App\Models\Cfdi;
 use App\Models\CuentasPorCobrar;
+use App\Support\DbExpression;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -38,8 +39,7 @@ class PaymentProcessingService
                 $docUuid = strtoupper($docRel['uuid']); // Normalizar a mayúsculas
 
                 // Primero buscar en CFDIs table (facturas recibidas importadas)
-                $cfdi = Cfdi::where('uuid', 'ilike', $docUuid)
-                    ->orWhere('uuid', 'ilike', strtolower($docUuid))
+                $cfdi = Cfdi::where(DbExpression::castText('uuid'), 'ilike', $docUuid)
                     ->first();
 
                 if ($cfdi && $cfdi->compra) {

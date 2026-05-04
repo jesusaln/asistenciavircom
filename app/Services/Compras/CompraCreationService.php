@@ -129,10 +129,9 @@ class CompraCreationService
 
         // Create Compra Item
         CompraItem::create([
-            'empresa_id' => $compra->empresa_id,
             'compra_id' => $compra->id,
             'comprable_id' => $producto->id,
-            'comprable_type' => 'producto',
+            'comprable_type' => $producto->getMorphClass(),
             'cantidad' => $cantidad,
             'precio' => $precio,
             'descuento' => $descuento,
@@ -165,7 +164,6 @@ class CompraCreationService
         if (($producto->requiere_serie ?? false) && !empty($itemData['seriales']) && is_array($itemData['seriales'])) {
             foreach ($itemData['seriales'] as $serie) {
                 ProductoSerie::create([
-                    'empresa_id' => $compra->empresa_id,
                     'producto_id' => $producto->id,
                     'compra_id' => $compra->id,
                     'almacen_id' => $compra->almacen_id,
@@ -182,7 +180,6 @@ class CompraCreationService
         $producto->update(['precio_compra' => $precio]);
 
         ProductoPrecioHistorial::create([
-            'empresa_id' => $compra->empresa_id,
             'producto_id' => $producto->id,
             'precio_compra_anterior' => $oldPrecioCompra,
             'precio_compra_nuevo' => $precio,
@@ -261,9 +258,7 @@ class CompraCreationService
 
     private function generarNumeroCompra(): string
     {
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $ultimaCompra = Compra::where('empresa_id', $empresaId)
-            ->where('numero_compra', 'LIKE', 'C%')
+        $ultimaCompra = Compra::where('numero_compra', 'LIKE', 'C%')
             ->lockForUpdate()
             ->orderBy('id', 'desc')
             ->first();

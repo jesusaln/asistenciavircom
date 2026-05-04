@@ -30,7 +30,6 @@ class FolioService
         'ticket' => \App\Models\Ticket::class,
         'traspaso' => \App\Models\Traspaso::class,
         'vacacion' => \App\Models\Vacacion::class,
-        'poliza' => \App\Models\PolizaServicio::class,
     ];
 
     /**
@@ -48,7 +47,7 @@ class FolioService
             'orden_compra' => 'numero_orden',
             'compra' => 'numero_compra',
             'cliente', 'proveedor', 'producto', 'servicio' => 'codigo',
-            'cita', 'mantenimiento', 'nomina', 'prestamo', 'traspaso', 'vacacion', 'ticket', 'poliza' => 'folio',
+            'cita', 'mantenimiento', 'nomina', 'prestamo', 'traspaso', 'vacacion', 'ticket' => 'folio',
             'herramienta' => 'codigo_inventario',
             'renta' => 'numero_contrato',
             default => 'codigo' // Default fallback
@@ -62,20 +61,19 @@ class FolioService
     public function getNextFolio(string $type): string
     {
         return DB::transaction(function () use ($type) {
-            // Lock the config row for update
-            $config = FolioConfig::where('document_type', $type)->lockForUpdate()->first();
-
-            if (!$config) {
-                // If config doesn't exist, create a default one on the fly (or throw error)
-                // For safety, let's create it with zero start.
-                $config = FolioConfig::create([
+            // Lock the config row for update or create it if missing (Atomic)
+            $config = FolioConfig::firstOrCreate(
+                ['document_type' => $type],
+                [
                     'empresa_id' => \App\Support\EmpresaResolver::resolveId(),
-                    'document_type' => $type,
-                    'prefix' => strtoupper(substr($type, 0, 1)), // Default prefix 'C', 'P', 'V'
+                    'prefix' => strtoupper(substr($type, 0, 1)),
                     'current_number' => 0,
-                    'padding' => 3
-                ]);
-            }
+                    'padding' => 4
+                ]
+            );
+
+            // Re-lock for update specifically to be safe
+            $config = FolioConfig::where('id', $config->id)->lockForUpdate()->first();
 
             // Increment
             $nextNumber = $config->current_number + 1;
@@ -112,20 +110,65 @@ class FolioService
      */
     public function previewNextFolio(string $type): string
     {
-        $config = FolioConfig::where('document_type', $type)->first();
+        try {
+            $config = FolioConfig::where('document_type', $type)->first();
 
-        if (!$config) {
-            // If config doesn't exist, we assume it starts at 1
-            $nextNumber = 1;
-            $prefix = strtoupper(substr($type, 0, 1));
-            $padding = 3;
-        } else {
-            $nextNumber = $config->current_number + 1;
-            $prefix = $config->prefix ?? '';
-            $padding = $config->padding;
+            if (!$config) {
+                // Determine prefix from type
+                $prefix = strtoupper(substr($type, 0, 1));
+                $padding = 3;
+                
+                // Try to find the max in DB as a fallback
+                $maxNum = $this->findMaxInDb($type, $prefix);
+                $nextNumber = $maxNum + 1;
+            } else {
+                $nextNumber = $config->current_number + 1;
+                $prefix = $config->prefix ?? '';
+                $padding = $config->padding;
+                
+                // Periodically verify if the max in DB is higher than our config (Self-healing preview)
+                if (rand(1, 10) === 1) { // 10% chance to check
+                   $realMax = $this->findMaxInDb($type, $prefix);
+                   if ($realMax >= $nextNumber) {
+                       $nextNumber = $realMax + 1;
+                   }
+                }
+            }
+
+            return $prefix . str_pad($nextNumber, $padding, '0', STR_PAD_LEFT);
+        } catch (\Exception $e) {
+            Log::warning("Error in previewNextFolio for {$type}: " . $e->getMessage());
+            return strtoupper(substr($type, 0, 1)) . '001'; // Safe default
+        }
+    }
+
+    /**
+     * Helper to find max number in DB for a specific document type
+     */
+    private function findMaxInDb(string $type, string $prefix): int
+    {
+        if (!isset($this->modelMap[$type])) {
+            return 0;
         }
 
-        return $prefix . str_pad($nextNumber, $padding, '0', STR_PAD_LEFT);
+        $modelClass = $this->modelMap[$type];
+        $fieldName = $this->getFieldNameByType($type);
+        $castType = config('database.default') === 'pgsql' ? 'INTEGER' : 'UNSIGNED';
+        $prefixLength = strlen($prefix);
+
+        try {
+            if (empty($prefix)) {
+                 $maxRecord = $modelClass::selectRaw("MAX(CAST({$fieldName} AS {$castType})) as max_num")->first();
+            } else {
+                 // Sintaxis compatible con Postgres y MySQL: SUBSTRING(campo, posicion)
+                 $maxRecord = $modelClass::where($fieldName, 'LIKE', $prefix . '%')
+                    ->selectRaw("MAX(CAST(SUBSTRING({$fieldName}, ?) AS {$castType})) as max_num", [$prefixLength + 1])
+                    ->first();
+            }
+            return (int) ($maxRecord->max_num ?? 0);
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 
     /**
@@ -178,10 +221,11 @@ class FolioService
         $prefixLength = strlen($prefix);
 
         // This finds the max number part appearing after the prefix
-        // Filtered by empresa automatically via global scope in $modelClass
+        // Filtered by empresa automáticamente via global scope in $modelClass
         $maxRecord = $modelClass::where($fieldName, 'LIKE', $prefix . '%')
-            ->selectRaw("MAX(CAST(SUBSTRING({$fieldName} FROM ?) AS {$castType})) as max_num", [$prefixLength + 1])
+            ->selectRaw("MAX(CAST(SUBSTRING({$fieldName}, ?) AS {$castType})) as max_num", [$prefixLength + 1])
             ->first();
+
 
         $maxNum = $maxRecord ? (int) $maxRecord->max_num : 0;
 

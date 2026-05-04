@@ -15,26 +15,46 @@ class BlogController extends Controller
     public function index(Request $request)
     {
         $config = EmpresaConfiguracion::getConfig();
+
         $query = BlogPost::published()->orderBy('publicado_at', 'desc');
 
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('titulo', 'like', "%{$search}%")
-                    ->orWhere('resumen', 'like', "%{$search}%")
-                    ->orWhere('contenido', 'like', "%{$search}%");
+        // Filtrar por categoría si viene en la request
+        if ($request->filled('categoria')) {
+            $query->where('categoria', $request->categoria);
+        }
+
+        // Buscar por título/resumen si viene búsqueda
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function($q) use ($search) {
+                $q->where('titulo', 'ilike', "%{$search}%")
+                  ->orWhere('resumen', 'ilike', "%{$search}%")
+                  ->orWhere('contenido', 'ilike', "%{$search}%");
             });
         }
 
-        if ($request->has('category') && $request->category) {
-            $query->where('categoria', $request->category);
-        }
+        // Obtener categorías disponibles
+        $categorias = BlogPost::published()
+            ->whereNotNull('categoria')
+            ->groupBy('categoria')
+            ->orderByRaw('COUNT(*) DESC')
+            ->pluck('categoria');
+
+        // Posts populares (por visitas)
+        $postsPopulares = BlogPost::published()
+            ->orderBy('visitas', 'desc')
+            ->take(5)
+            ->get(['id', 'titulo', 'slug', 'imagen_portada', 'visitas']);
 
         return Inertia::render('Blog/Index', [
             'empresa' => $this->getEmpresaData($config),
-            'posts' => $query->paginate(12)->withQueryString(),
-            'categories' => BlogPost::published()->distinct()->pluck('categoria')->filter()->values(),
-            'filters' => $request->only(['search', 'category']),
+            'posts' => $query->paginate(12),
+            'categorias' => $categorias,
+            'postsPopulares' => $postsPopulares,
+            'filtros' => [
+                'categoria' => $request->categoria,
+                'q' => $request->q,
+            ]
         ]);
     }
 
@@ -71,7 +91,7 @@ class BlogController extends Controller
         return [
             'nombre' => $config->nombre_empresa,
             'logo_url' => $config->logo_url,
-            'color_principal' => $config->color_principal ?? '#3B82F6',
+            'color_principal' => $config->color_principal ?? '#FF6B35',
             'color_secundario' => $config->color_secundario ?? '#64748B',
             'telefono' => $config->telefono,
             'email' => $config->email,

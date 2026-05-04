@@ -93,7 +93,7 @@ class MarcaController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nombre' => [
                 'required',
                 'string',
@@ -104,7 +104,7 @@ class MarcaController extends Controller
             'estado' => 'required|in:activo,inactivo',
         ]);
 
-        Marca::create($request->all());
+        Marca::create($validated);
 
         return redirect()->route('marcas.index')->with('success', 'Marca creada correctamente.');
     }
@@ -154,6 +154,13 @@ class MarcaController extends Controller
             if ($marca->productos()->exists()) {
                 return redirect()->route('marcas.index')->withErrors(['error' => 'No se puede eliminar la marca porque tiene productos asociados.']);
             }
+
+            Log::info('Marca eliminada', [
+                'marca_id' => $marca->id,
+                'nombre' => $marca->nombre,
+                'eliminado_por' => auth()->id(),
+                'ip' => request()->ip()
+            ]);
 
             $marca->delete();
 

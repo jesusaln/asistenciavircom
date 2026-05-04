@@ -16,11 +16,10 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'Plus Jakarta Sans', 'Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
                 mono: ['Fira Code', 'Roboto Mono', ...defaultTheme.fontFamily.mono],
             },
             colors: {
-                // REEMPLAZO MASIVO: Gray ahora es Slate (Dark Premium)
                 gray: {
                     50: '#f8fafc',
                     100: '#f1f5f9',
@@ -32,9 +31,8 @@ export default {
                     700: '#334155',
                     800: '#1e293b',
                     900: '#0f172a',
-                    950: '#020617', // Clave para fondos profundos
+                    950: '#020617',
                 },
-                // Definimos 'slate' explícitamente también por si acaso se usa directamente
                 slate: {
                     50: '#f8fafc',
                     100: '#f1f5f9',
@@ -49,16 +47,16 @@ export default {
                     950: '#020617',
                 },
                 brand: {
-                    50: '#eff6ff',
-                    100: '#dbeafe',
-                    200: '#bfdbfe',
-                    300: '#93c5fd',
-                    400: '#60a5fa',
-                    500: '#3b82f6',
-                    600: '#2563eb',
-                    700: '#1d4ed8',
-                    800: '#1e40af',
-                    900: '#1e3a8a',
+                    50: '#FFFBEB',
+                    100: '#FEF3C7',
+                    200: '#FDE68A',
+                    300: '#FCD34D',
+                    400: '#FBBF24',
+                    500: '#F59E0B',
+                    600: '#D97706',
+                    700: '#B45309',
+                    800: '#92400E',
+                    900: '#78350F',
                 }
             }
         },

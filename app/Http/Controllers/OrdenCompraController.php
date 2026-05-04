@@ -110,7 +110,7 @@ class OrdenCompraController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         return Inertia::render('OrdenesCompra/Create', [
             'proveedores' => Proveedor::select('id', 'nombre_razon_social', 'email', 'telefono')->get(),
@@ -125,13 +125,14 @@ class OrdenCompraController extends Controller
                 'retencionIvaDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIvaDefault(),
                 'retencionIsrDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIsrDefault(),
             ],
+            'preselected' => [
+                'producto_id' => $request->integer('producto_id'),
+            ]
         ]);
     }
 
     public function store(Request $request)
     {
-        Log::info('OrdenCompraController@store - Datos recibidos:', $request->all());
-
         DB::beginTransaction();
         try {
             $req = $request->all();
@@ -166,6 +167,14 @@ class OrdenCompraController extends Controller
                 'items.*.cantidad' => 'required|integer|min:1',
                 'items.*.precio' => 'required|numeric|min:0',
                 'items.*.descuento' => 'required|numeric|min:0|max:100',
+            ]);
+
+            Log::info('OrdenCompra store validado', [
+                'user_id' => auth()->id(),
+                'proveedor_id' => $validated['proveedor_id'],
+                'almacen_id' => $validated['almacen_id'] ?? null,
+                'items_count' => is_array($validated['items'] ?? null) ? count($validated['items']) : null,
+                'total' => $validated['total'] ?? null,
             ]);
 
             // Recalculate totals on backend for integrity

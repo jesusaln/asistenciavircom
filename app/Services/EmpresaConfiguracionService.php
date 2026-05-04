@@ -370,7 +370,7 @@ class EmpresaConfiguracionService
                 'ciudad' => 'Ciudad de México',
                 'estado' => 'CDMX',
                 'pais' => 'México',
-                'color_principal' => '#3B82F6',
+                'color_principal' => '#FF6B35',
                 'color_secundario' => '#1E40AF',
                 'iva_porcentaje' => 16.00,
                 'moneda' => 'MXN',

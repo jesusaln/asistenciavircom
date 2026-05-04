@@ -264,7 +264,7 @@ class PedidoVentaController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => 'Error interno al procesar la conversión a venta',
-                'details' => app()->environment('local') ? $e->getMessage() : null
+                'details' => $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine()
             ], 500);
         }
     }

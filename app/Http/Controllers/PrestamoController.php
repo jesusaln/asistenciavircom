@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Prestamo;
 use App\Models\Cliente;
-use App\Models\User;
 use App\Models\Empresa;
 use App\Jobs\SendWhatsAppTemplate;
 use App\Support\EmpresaResolver;
+use App\Traits\Formatters\NumeroALetras;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PrestamoController extends Controller
 {
+    use NumeroALetras;
     private const ITEMS_PER_PAGE = 10;
 
     // Columnas permitidas para ordenamiento
@@ -43,20 +44,13 @@ class PrestamoController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Prestamo::query()->with(['cliente', 'empleado']);
+            $query = Prestamo::query()->with(['cliente']);
 
             // Filtros
             if ($search = $request->input('search')) {
-                $query->where(function ($q) use ($search) {
-                    $q->whereHas('cliente', function ($clienteQ) use ($search) {
-                        $clienteQ->where('nombre_razon_social', 'like', "%{$search}%")
-                            ->orWhere('rfc', 'like', "%{$search}%");
-                    })->orWhereHas('empleado', function ($empleadoQ) use ($search) {
-                        $empleadoQ->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
-                            ->orWhere('curp', 'like', "%{$search}%")
-                            ->orWhere('rfc', 'like', "%{$search}%");
-                    });
+                $query->whereHas('cliente', function ($q) use ($search) {
+                    $q->where('nombre_razon_social', 'like', "%{$search}%")
+                        ->orWhere('rfc', 'like', "%{$search}%");
                 });
             }
 
@@ -66,10 +60,6 @@ class PrestamoController extends Controller
 
             if ($cliente_id = $request->input('cliente_id')) {
                 $query->where('cliente_id', $cliente_id);
-            }
-
-            if ($empleado_id = $request->input('empleado_id')) {
-                $query->where('empleado_id', $empleado_id);
             }
 
             // Ordenamiento seguro
@@ -94,28 +84,31 @@ class PrestamoController extends Controller
 
             $prestamos = $query->paginate($perPage)->appends($request->query());
 
-            // Estadísticas (forzar números para evitar props String en Vue)
-            $estadisticas = [
-                'total' => Prestamo::count(),
-                'activos' => Prestamo::where('estado', 'activo')->count(),
-                'completados' => Prestamo::where('estado', 'completado')->count(),
-                'cancelados' => Prestamo::where('estado', 'cancelado')->count(),
-                'monto_total_prestado' => (float) Prestamo::sum('monto_prestado'),
-                'monto_total_pagado' => (float) Prestamo::sum('monto_pagado'),
-                'monto_total_pendiente' => (float) Prestamo::sum('monto_pendiente'),
-            ];
+            // Estadísticas optimizadas en una sola consulta
+            $estadisticasRaw = Prestamo::selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN estado = 'activo' THEN 1 END) as activos,
+                COUNT(CASE WHEN estado = 'completado' THEN 1 END) as completados,
+                COUNT(CASE WHEN estado = 'cancelado' THEN 1 END) as cancelados,
+                COALESCE(SUM(monto_prestado), 0) as monto_total_prestado,
+                COALESCE(SUM(monto_pagado), 0) as monto_total_pagado,
+                COALESCE(SUM(monto_pendiente), 0) as monto_total_pendiente
+            ")->first();
 
-            // Obtener clientes activos para los filtros del header
-            $clientes = Cliente::active()
-                ->orderBy('nombre_razon_social')
-                ->get(['id', 'nombre_razon_social']);
+            $estadisticas = [
+                'total' => (int) $estadisticasRaw->total,
+                'activos' => (int) $estadisticasRaw->activos,
+                'completados' => (int) $estadisticasRaw->completados,
+                'cancelados' => (int) $estadisticasRaw->cancelados,
+                'monto_total_prestado' => (float) $estadisticasRaw->monto_total_prestado,
+                'monto_total_pagado' => (float) $estadisticasRaw->monto_total_pagado,
+                'monto_total_pendiente' => (float) $estadisticasRaw->monto_total_pendiente,
+            ];
 
             return Inertia::render('Prestamos/Index', [
                 'prestamos' => $prestamos,
                 'estadisticas' => $estadisticas,
-                'clientes' => $clientes,
-                'empleados' => User::empleados()->activos()->orderBy('name')->get(['id', 'name', 'email', 'numero_empleado']),
-                'filters' => $request->only(['search', 'estado', 'cliente_id', 'empleado_id']),
+                'filters' => $request->only(['search', 'estado', 'cliente_id']),
                 'sorting' => ['sort_by' => $sortBy, 'sort_direction' => $sortDirection],
                 'pagination' => [
                     'current_page' => $prestamos->currentPage(),
@@ -150,21 +143,10 @@ class PrestamoController extends Controller
                     'estado'
                 ]);
 
-            $empleados = User::empleados()->activos()
-                ->orderBy('name')
-                ->get(['id', 'name', 'email', 'numero_empleado']);
-
-            $empleadoId = (int) request()->query('empleado_id', 0);
-            if ($empleadoId > 0 && !$empleados->contains('id', $empleadoId)) {
-                $empleadoId = 0;
-            }
-
             return Inertia::render('Prestamos/Create', [
                 'clientes' => $clientes,
-                'empleados' => $empleados,
                 'prestamo' => [
                     'cliente_id' => null,
-                    'empleado_id' => $empleadoId ?: null,
                     'monto_prestado' => 0,
                     'tasa_interes_mensual' => 0,
                     'numero_pagos' => 12,
@@ -190,8 +172,7 @@ class PrestamoController extends Controller
 
         try {
             $validated = $request->validate([
-                'cliente_id' => 'nullable|required_without:empleado_id|exists:clientes,id',
-                'empleado_id' => 'nullable|required_without:cliente_id|exists:users,id',
+                'cliente_id' => 'required|exists:clientes,id',
                 'monto_prestado' => 'required|numeric|min:0.01|max:999999999.99',
                 'tasa_interes_mensual' => 'required|numeric|min:0|max:100',
                 'numero_pagos' => 'required|integer|min:1|max:1200',
@@ -202,26 +183,14 @@ class PrestamoController extends Controller
                 'notas' => 'nullable|string|max:2000',
             ]);
 
-            if (!empty($validated['empleado_id'])) {
-                $empleado = User::find($validated['empleado_id']);
-                if (!$empleado || !$empleado->es_empleado) {
-                    throw ValidationException::withMessages([
-                        'empleado_id' => 'El beneficiario seleccionado no es un empleado válido.'
-                    ]);
-                }
-                $validated['cliente_id'] = null;
-            } else {
-                $validated['empleado_id'] = null;
-            }
-
             // FIX Error #5: Validación adicional de fecha_primer_pago
             if (isset($validated['fecha_primer_pago'])) {
                 $fechaInicio = \Carbon\Carbon::parse($validated['fecha_inicio']);
                 $fechaPrimerPago = \Carbon\Carbon::parse($validated['fecha_primer_pago']);
 
-                if ($fechaPrimerPago->lt($fechaInicio)) {
+                if ($fechaPrimerPago->lte($fechaInicio)) {
                     throw ValidationException::withMessages([
-                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior o igual a la fecha de inicio.'
+                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior a la fecha de inicio.'
                     ]);
                 }
             }
@@ -255,7 +224,7 @@ class PrestamoController extends Controller
             throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error al crear préstamo: ' . $e->getMessage(), ['data' => $request->all()]);
+            Log::error('Error al crear préstamo: ' . $e->getMessage(), ['data' => $request->except(['_token', 'password', 'password_confirmation', 'secret', 'key', 'token'])]);
             return redirect()->back()->with('error', 'Error al crear el préstamo: ' . $e->getMessage())->withInput();
         }
     }
@@ -266,7 +235,7 @@ class PrestamoController extends Controller
     public function show(Prestamo $prestamo)
     {
         try {
-            $prestamo->load(['cliente', 'empleado']);
+            $prestamo->load(['cliente']);
 
             return Inertia::render('Prestamos/Show', [
                 'prestamo' => $prestamo,
@@ -285,7 +254,7 @@ class PrestamoController extends Controller
     public function edit(Prestamo $prestamo)
     {
         try {
-            $prestamo->load(['cliente', 'empleado']);
+            $prestamo->load(['cliente']);
 
             // Obtener clientes activos para el componente de búsqueda
             $clientes = Cliente::where('activo', true)
@@ -299,14 +268,9 @@ class PrestamoController extends Controller
                     'estado'
                 ]);
 
-            $empleados = User::empleados()->activos()
-                ->orderBy('name')
-                ->get(['id', 'name', 'email', 'numero_empleado']);
-
             return Inertia::render('Prestamos/Edit', [
                 'prestamo' => $prestamo,
                 'clientes' => $clientes,
-                'empleados' => $empleados,
                 'puede_editar' => $prestamo->puedeSerEditado(),
             ]);
         } catch (ModelNotFoundException $e) {
@@ -328,38 +292,25 @@ class PrestamoController extends Controller
 
         try {
             $validated = $request->validate([
-                'cliente_id' => 'nullable|required_without:empleado_id|exists:clientes,id',
-                'empleado_id' => 'nullable|required_without:cliente_id|exists:users,id',
+                'cliente_id' => 'required|exists:clientes,id',
                 'monto_prestado' => 'required|numeric|min:0.01|max:999999999.99',
                 'tasa_interes_mensual' => 'required|numeric|min:0|max:100',
                 'numero_pagos' => 'required|integer|min:1|max:1200',
                 'frecuencia_pago' => 'required|in:semanal,quincenal,mensual',
                 'fecha_inicio' => 'required|date', // FIX Error #5: Permitir fechas pasadas en edición
-                'fecha_primer_pago' => 'nullable|date|after_or_equal:fecha_inicio',
+                'fecha_primer_pago' => 'nullable|date|after:fecha_inicio',
                 'descripcion' => 'nullable|string|max:1000',
                 'notas' => 'nullable|string|max:2000',
             ]);
-
-            if (!empty($validated['empleado_id'])) {
-                $empleado = User::find($validated['empleado_id']);
-                if (!$empleado || !$empleado->es_empleado) {
-                    throw ValidationException::withMessages([
-                        'empleado_id' => 'El beneficiario seleccionado no es un empleado válido.'
-                    ]);
-                }
-                $validated['cliente_id'] = null;
-            } else {
-                $validated['empleado_id'] = null;
-            }
 
             // FIX Error #5: Validación adicional de fecha_primer_pago
             if (isset($validated['fecha_primer_pago'])) {
                 $fechaInicio = \Carbon\Carbon::parse($validated['fecha_inicio']);
                 $fechaPrimerPago = \Carbon\Carbon::parse($validated['fecha_primer_pago']);
 
-                if ($fechaPrimerPago->lt($fechaInicio)) {
+                if ($fechaPrimerPago->lte($fechaInicio)) {
                     throw ValidationException::withMessages([
-                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior o igual a la fecha de inicio.'
+                        'fecha_primer_pago' => 'La fecha del primer pago debe ser posterior a la fecha de inicio.'
                     ]);
                 }
             }
@@ -486,7 +437,7 @@ class PrestamoController extends Controller
      */
     private function calcularFechasYPagos(Prestamo $prestamo): void
     {
-        $fechaInicio = $prestamo->fecha_inicio;
+        $fechaInicio = \Carbon\Carbon::parse($prestamo->fecha_inicio);
 
         // Si no hay fecha de primer pago, calcular según frecuencia
         if (!$prestamo->fecha_primer_pago) {
@@ -497,7 +448,7 @@ class PrestamoController extends Controller
                 default => 30,
             };
 
-            $prestamo->setAttribute('fecha_primer_pago', \Carbon\Carbon::parse($fechaInicio)->addDays($diasSumar));
+            $prestamo->fecha_primer_pago = $fechaInicio->copy()->addDays($diasSumar);
         }
     }
 
@@ -508,7 +459,7 @@ class PrestamoController extends Controller
     {
         try {
             Log::info('Solicitud de cálculo de pagos recibida', [
-                'data' => $request->all(),
+                'data' => $request->except(['_token', 'password', 'password_confirmation', 'secret', 'key', 'token']),
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'has_session' => $request->session()->isStarted(),
@@ -543,7 +494,7 @@ class PrestamoController extends Controller
         } catch (ValidationException $e) {
             Log::warning('Error de validación en cálculo de pagos', [
                 'errors' => $e->errors(),
-                'data' => $request->all()
+                'data' => $request->except(['_token', 'password', 'password_confirmation', 'secret', 'key', 'token'])
             ]);
             return response()->json([
                 'success' => false,
@@ -553,7 +504,7 @@ class PrestamoController extends Controller
         } catch (\Exception $e) {
             Log::error('Error calculando pagos: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
-                'data' => $request->all()
+                'data' => $request->except(['_token', 'password', 'password_confirmation', 'secret', 'key', 'token'])
             ]);
             return response()->json([
                 'success' => false,
@@ -632,12 +583,53 @@ class PrestamoController extends Controller
     }
 
     /**
+     * Generar constancia de liquidación en PDF
+     */
+    public function generarLiquidacion(Prestamo $prestamo)
+    {
+        try {
+            // Verificar que el préstamo esté completado
+            if ($prestamo->estado !== 'completado') {
+                return redirect()->back()->with('error', 'Solo se puede generar la constancia de liquidación para préstamos completados.');
+            }
+
+            $prestamo->load(['cliente', 'pagos.historialPagos']);
+
+            // Obtener datos de la empresa
+            $empresa = \App\Models\EmpresaConfiguracion::getConfig();
+
+            // Buscar la fecha real de liquidación (fecha del último abono)
+            $fechaLiquidacion = DB::table('historial_pagos_prestamos')
+                ->where('prestamo_id', $prestamo->id)
+                ->max('fecha_pago');
+
+            if (!$fechaLiquidacion) {
+                $fechaLiquidacion = $prestamo->updated_at ? $prestamo->updated_at->toIso8601String() : now()->toIso8601String();
+            }
+
+            $datos = [
+                'prestamo' => $prestamo,
+                'cliente' => $prestamo->cliente,
+                'empresa' => $empresa,
+                'fecha_actual' => now()->toIso8601String(),
+                'fecha_liquidacion' => $fechaLiquidacion,
+                'monto_total_letras' => $this->numeroALetras($prestamo->monto_total_pagar),
+            ];
+
+            return Inertia::render('Prestamos/Liquidacion', $datos);
+        } catch (\Exception $e) {
+            Log::error('Error generando constancia de liquidación: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al generar la constancia.');
+        }
+    }
+
+    /**
      * Generar pagaré en PDF
      */
     public function generarPagare(Prestamo $prestamo)
     {
         try {
-            $prestamo->load(['cliente', 'empleado']);
+            $prestamo->load(['cliente']);
 
             // Obtener datos de la empresa
             $empresa = \App\Models\EmpresaConfiguracion::getConfig();
@@ -646,19 +638,9 @@ class PrestamoController extends Controller
             $empresaDireccion = $empresa ? $empresa->direccion_completa : 'Hermosillo, Sonora, México';
 
             // Datos para el pagaré
-            $deudorNombre = $prestamo->cliente?->nombre_razon_social ?: $prestamo->empleado?->name;
-            $deudorRfc = $prestamo->cliente?->rfc ?: $prestamo->empleado?->rfc;
-            $deudorDireccion = $prestamo->cliente?->direccion_completa ?: $prestamo->empleado?->direccion;
-
-            $deudor = (object) [
-                'nombre_razon_social' => $deudorNombre,
-                'rfc' => $deudorRfc,
-                'direccion_completa' => $deudorDireccion,
-            ];
-
             $datosPagare = [
                 'prestamo' => $prestamo,
-                'cliente' => $deudor,
+                'cliente' => $prestamo->cliente,
                 'empresa' => [
                     'nombre' => $empresaNombre,
                     'rfc' => $empresaRfc,
@@ -678,94 +660,6 @@ class PrestamoController extends Controller
         }
     }
 
-    /**
-     * Convertir número a letras (función mejorada)
-     */
-    private function numeroALetras($numero)
-    {
-        $unidades = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-        $decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
-        $centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
-        $especiales = [
-            11 => 'once',
-            12 => 'doce',
-            13 => 'trece',
-            14 => 'catorce',
-            15 => 'quince',
-            16 => 'dieciséis',
-            17 => 'diecisiete',
-            18 => 'dieciocho',
-            19 => 'diecinueve',
-            21 => 'veintiuno',
-            22 => 'veintidós',
-            23 => 'veintitrés',
-            24 => 'veinticuatro',
-            25 => 'veinticinco',
-            26 => 'veintiséis',
-            27 => 'veintisiete',
-            28 => 'veintiocho',
-            29 => 'veintinueve'
-        ];
-
-        $entero = intval($numero);
-        $decimales = intval(round(($numero - $entero) * 100));
-
-        if ($entero == 0)
-            return 'cero';
-
-        $letras = '';
-
-        // Miles (si es necesario)
-        if ($entero >= 1000) {
-            $miles = intval($entero / 1000);
-            if ($miles == 1) {
-                $letras = 'mil';
-            } else {
-                $letras = $this->numeroALetras($miles) . ' mil';
-            }
-            $entero %= 1000;
-        }
-
-        // Centenas
-        if ($entero >= 100) {
-            if ($entero == 100) {
-                $letras .= ' cien';
-            } else {
-                $letras .= ' ' . $centenas[intval($entero / 100)];
-            }
-            $entero %= 100;
-        }
-
-        // Decenas y unidades
-        if ($entero > 0) {
-            if ($letras != '')
-                $letras .= ' ';
-
-            if (isset($especiales[$entero])) {
-                $letras .= $especiales[$entero];
-            } elseif ($entero >= 10) {
-                if ($entero < 30) {
-                    $letras .= $decenas[$entero - 10];
-                } else {
-                    $letras .= $decenas[intval($entero / 10)];
-                    if ($entero % 10 > 0) {
-                        $letras .= ' y ' . $unidades[$entero % 10];
-                    }
-                }
-            } else {
-                $letras .= $unidades[$entero];
-            }
-        }
-
-        $resultado = trim($letras) . ' pesos';
-
-        // Agregar centavos si los hay
-        if ($decimales > 0) {
-            $resultado .= ' con ' . $decimales . '/100';
-        }
-
-        return $resultado;
-    }
 
     /**
      * Enviar recordatorio por WhatsApp

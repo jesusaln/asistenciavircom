@@ -52,21 +52,23 @@ class FinancialService
         $totalIva = 0.0;
         $totalRetIva = 0.0;
         $totalRetIsr = 0.0;
-        $ivaRate = EmpresaConfiguracionService::getIvaPorcentaje() / 100;
+        
+        // Use provided rates or fallback to current configuration
+        $ivaRate = ($config['iva_rate'] ?? EmpresaConfiguracionService::getIvaPorcentaje()) / 100;
 
         // Determinar tasas de retención
         $retIvaRate = 0.0;
-        if (($config['aplicar_retencion_iva'] ?? false) && EmpresaConfiguracionService::isRetencionIvaEnabled()) {
-            $retIvaRate = EmpresaConfiguracionService::getRetencionIvaDefault() / 100;
+        if ($config['aplicar_retencion_iva'] ?? false) {
+            $retIvaRate = ($config['retencion_iva_rate'] ?? EmpresaConfiguracionService::getRetencionIvaDefault()) / 100;
         }
 
         $retIsrRate = 0.0;
-        if (($config['aplicar_retencion_isr'] ?? false) && EmpresaConfiguracionService::isRetencionIsrEnabled()) {
-            $retIsrRate = EmpresaConfiguracionService::getRetencionIsrDefault() / 100;
+        if ($config['aplicar_retencion_isr'] ?? false) {
+            $retIsrRate = ($config['retencion_isr_rate'] ?? EmpresaConfiguracionService::getRetencionIsrDefault()) / 100;
         } elseif (($config['mode'] ?? 'sales') === 'sales' && EmpresaConfiguracionService::isIsrEnabled() && $clienteId) {
             $cliente = Cliente::find($clienteId);
             if ($cliente && $cliente->tipo_persona === 'moral') {
-                $retIsrRate = EmpresaConfiguracionService::getIsrPorcentaje() / 100;
+                $retIsrRate = ($config['isr_rate'] ?? EmpresaConfiguracionService::getIsrPorcentaje()) / 100;
             }
         }
 

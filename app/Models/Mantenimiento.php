@@ -33,11 +33,13 @@ class Mantenimiento extends Model
         'descripcion',
         'notas',
         'costo',
+        'taller',
         'estado',
         'kilometraje_actual',
         'prioridad',
         'dias_anticipacion_alerta',
         'requiere_aprobacion',
+        'observaciones_alerta',
     ];
 
     protected $casts = [
@@ -144,14 +146,12 @@ class Mantenimiento extends Model
     /**
      * Scope para mantenimientos con alertas pendientes (próximos a vencer o vencidos)
      */
-    public function scopeConAlertasPendientes($query)
+    public function scopeConAlertasPendientes($query, $dias = 30)
     {
-        // Reutilizamos la lógica de próximos a vencer con un default de 30 días
-        // Idealmente debería usar la columna dias_anticipacion_alerta, pero para compatibilidad DB simplificamos.
-        return $query->where(function ($q) {
+        return $query->where(function ($q) use ($dias) {
             $q->where('estado', '!=', self::ESTADO_COMPLETADO)
                 ->whereNotNull('proximo_mantenimiento')
-                ->where('proximo_mantenimiento', '<=', now()->addDays(30));
+                ->where('proximo_mantenimiento', '<=', now()->addDays($dias));
         });
     }
 
@@ -245,5 +245,58 @@ class Mantenimiento extends Model
         }
 
         $this->update(['estado' => $nuevoEstado]);
+    }
+
+    /**
+     * Marcar alerta como enviada
+     */
+    public function marcarAlertaEnviada()
+    {
+        $this->update(['alerta_enviada' => true]);
+    }
+
+    /**
+     * Agregar registro de recordatorio enviado
+     */
+    public function agregarRecordatorioEnviado($tipo)
+    {
+        $recordatorios = $this->recordatorios_enviados ?? [];
+        $recordatorios[] = [
+            'tipo' => $tipo,
+            'fecha' => now()->format('Y-m-d H:i:s'),
+            'timestamp' => now()->timestamp
+        ];
+        $this->update(['recordatorios_enviados' => $recordatorios]);
+    }
+
+    /**
+     * Accessor para kilómetros restantes
+     */
+    public function getKmRestantesAttribute()
+    {
+        if (!$this->proximo_kilometraje || !$this->carro) {
+            return null;
+        }
+
+        // Asumimos que el carro tiene un kilometraje actual o lo obtenemos del último mantenimiento
+        $kmActual = $this->carro->kilometraje ?? $this->kilometraje_actual ?? 0;
+        return $this->proximo_kilometraje - $kmActual;
+    }
+
+    /**
+     * Estadísticas de alertas (para el servicio)
+     */
+    public static function getEstadisticasAlertas()
+    {
+        return [
+            'pendientes_vencidos' => self::where(function ($q) {
+                $q->where('proximo_mantenimiento', '<', now())
+                    ->orWhereRaw('proximo_kilometraje <= (SELECT kilometraje FROM carros WHERE id = mantenimientos.carro_id)');
+            })
+                ->where('estado', '!=', self::ESTADO_COMPLETADO)
+                ->count(),
+            'proximos_30_dias' => self::conAlertasPendientes(30)->count(),
+            'alertas_enviadas_hoy' => self::whereDate('updated_at', now())->where('alerta_enviada', true)->count(),
+        ];
     }
 }

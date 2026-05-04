@@ -11,18 +11,16 @@ use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
-use Illuminate\Support\Facades\Storage; // Asegúrate de agregar esta línea
+use Illuminate\Support\Facades\Storage;
+use App\Helpers\UrlHelper;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
-class User extends Authenticatable
-{
-    use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, \App\Models\Concerns\BelongsToEmpresa;
+use \OwenIt\Auditing\Auditable;
 
-    /**
-     * Variable para cachear los registros de vacaciones durante el ciclo de vida de la petición.
-     */
-    protected $vacacionesCache = null;
+class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditable
+{
+    use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, \App\Models\Concerns\BelongsToEmpresa, Auditable;
 
     /**
      * The attributes that are mass assignable.
@@ -30,7 +28,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'empresa_id',
         'name',
         'email',
         'password',
@@ -40,12 +37,9 @@ class User extends Authenticatable
         'rfc',
         'direccion',
         'nss',
-        'ine',
-        'imss',
         'puesto',
         'departamento',
         'fecha_contratacion',
-        'salario',
         'tipo_contrato',
         'numero_empleado',
         'contacto_emergencia_nombre',
@@ -62,12 +56,8 @@ class User extends Authenticatable
         // Campos unificados de Técnico/Vendedor
         'es_tecnico',
         'es_vendedor',
-        'margen_venta_productos',
-        'margen_venta_servicios',
         'comision_instalacion',
         // Campos unificados de Empleado (RRHH)
-        'salario_base',
-        'costo_hora_interno',
         'tipo_jornada',
         'horas_jornada',
         'hora_entrada',
@@ -75,17 +65,8 @@ class User extends Authenticatable
         'trabaja_sabado',
         'hora_entrada_sabado',
         'hora_salida_sabado',
-        'dias_trabajo',
-        'dias_descanso',
         'frecuencia_pago',
         'contrato_adjunto',
-        'face_reference_path',
-        'face_enrolled_at',
-        'face_last_verified_at',
-        'face_provider',
-        'face_descriptor',
-        'rustdesk_id',
-        'rustdesk_alias',
     ];
 
     /**
@@ -136,7 +117,6 @@ class User extends Authenticatable
             'fecha_contratacion' => 'date:Y-m-d',
             'salario' => 'decimal:2',
             'salario_base' => 'decimal:2',
-            'costo_hora_interno' => 'decimal:2',
             'es_empleado' => 'boolean',
             'activo' => 'boolean',
             // Campos unificados
@@ -147,11 +127,9 @@ class User extends Authenticatable
             'comision_instalacion' => 'decimal:2',
             'trabaja_sabado' => 'boolean',
             'horas_jornada' => 'integer',
-            'dias_trabajo' => 'array',
-            'dias_descanso' => 'array',
-            'face_enrolled_at' => 'datetime',
-            'face_last_verified_at' => 'datetime',
-            'face_descriptor' => 'array',
+            // Seguridad: Cifrar tokens de terceros (Fix #702)
+            'microsoft_token' => 'encrypted',
+            'microsoft_refresh_token' => 'encrypted',
         ];
     }
 
@@ -179,13 +157,37 @@ class User extends Authenticatable
      */
     public function getProfilePhotoUrlAttribute()
     {
-        if ($this->profile_photo_path) {
-            // Retornar URL relativa para evitar problemas con APP_URL o dominios no resueltos
-            // Usamos basename para evitar que se duplique "profile-photos/" si ya viene en el path
-            return "/profile-photo/" . basename($this->profile_photo_path);
+        if (!$this->profile_photo_path) {
+            return $this->defaultProfilePhotoUrl();
         }
 
-        return $this->defaultProfilePhotoUrl();
+        $path = $this->profile_photo_path;
+
+        // Datos antiguos: ruta guardada como URL absoluta (p. ej. dev nip.io) → usar solo el path
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            $parsedPath = parse_url($path, PHP_URL_PATH);
+            if (is_string($parsedPath) && str_contains($parsedPath, '/storage/')) {
+                return $parsedPath;
+            }
+        }
+
+        $disk = $this->profilePhotoDisk();
+        // Disco local public: siempre URL relativa al dominio actual (evita mixed content y APP_URL erróneo)
+        if ($disk === 'public') {
+            return UrlHelper::storageUrl($path);
+        }
+
+        return Storage::disk($disk)->url($path);
+    }
+
+    /**
+     * Get the disk that profile photos should be stored on.
+     *
+     * @return string
+     */
+    protected function profilePhotoDisk()
+    {
+        return isset($_ENV['VAPOR_ARTIFACT_NAME']) ? 's3' : config('jetstream.profile_photo_disk', 'public');
     }
 
     /**
@@ -201,7 +203,7 @@ class User extends Authenticatable
      */
     private function generateCorrectStorageUrl($path)
     {
-        return "/storage/" . ltrim($path, '/');
+        return Storage::url($path);
     }
 
     // Citas asignadas al usuario como técnico
@@ -219,11 +221,6 @@ class User extends Authenticatable
     public function nominas()
     {
         return $this->hasMany(Nomina::class, 'empleado_id');
-    }
-
-    public function prestamos()
-    {
-        return $this->hasMany(Prestamo::class, 'empleado_id');
     }
 
     // Ventas realizadas por este usuario
@@ -291,14 +288,9 @@ class User extends Authenticatable
             return 0;
         }
 
-        if ($this->relationLoaded('registroVacacionesActual')) {
-            $registro = $this->registroVacacionesActual;
-        } else {
-            $registro = $this->registroVacacionesActual()->first();
-            if (!$registro) {
-                $registro = \App\Models\RegistroVacaciones::actualizarRegistroAnual($this->id);
-            }
-        }
+        $registro = $this->registroVacacionesActual()->first();
+        // NOTA: Se eliminó la actualización automática aquí para evitar efectos secundarios en accessors.
+        // Los registros de vacaciones deben ser generados por el seeder o procesos dedicados.
         return $registro?->dias_correspondientes ?? 0;
     }
 
@@ -309,17 +301,10 @@ class User extends Authenticatable
             return 0;
         }
 
-        if ($this->relationLoaded('registroVacacionesActual')) {
-            $registro = $this->registroVacacionesActual;
-        } else {
-            $registro = $this->registroVacacionesActual()->first();
-            if (!$registro) {
-                $registro = \App\Models\RegistroVacaciones::actualizarRegistroAnual($this->id);
-            }
-        }
-
-        if (!$registro)
+        $registro = $this->registroVacacionesActual()->first();
+        if (!$registro) {
             return 0;
+        }
 
         return max(0, ($registro->dias_disponibles ?? 0) - ($registro->dias_utilizados ?? 0));
     }
@@ -340,34 +325,6 @@ class User extends Authenticatable
     public function scopeEmpleadosActivos($query)
     {
         return $query->where('es_empleado', true)->where('activo', true);
-    }
-
-    // Scope unificado para filtrado (utilizado en index y export)
-    public function scopeFilter($query, array $filters)
-    {
-        $query->when($filters['search'] ?? null, function ($query, $search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('telefono', 'like', "%{$search}%");
-            });
-        });
-
-        $query->when($filters['activo'] ?? null, function ($query, $activo) {
-            if ($activo === '1') {
-                $query->where(function ($q) {
-                    $q->where('activo', true)->orWhereNull('activo');
-                });
-            } elseif ($activo === '0') {
-                $query->where('activo', false);
-            }
-        });
-
-        $query->when($filters['role'] ?? null, function ($query, $role) {
-            $query->role($role);
-        });
-
-        return $query;
     }
 
     // ==================== Scopes Unificados ====================
@@ -477,3 +434,4 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 }
+

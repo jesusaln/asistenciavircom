@@ -16,8 +16,8 @@ class WhatsAppMessage extends Model
 
     protected $fillable = [
         'empresa_id',
-        'cliente_id',
-        'campania_id',
+        'marketing_campana_id',
+        'marketing_destinatario_id',
         'to',
         'template_name',
         'template_params',
@@ -47,20 +47,14 @@ class WhatsAppMessage extends Model
         return $this->belongsTo(Empresa::class);
     }
 
-    /**
-     * Relación con el cliente
-     */
-    public function cliente(): BelongsTo
+    public function campana(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(MarketingCampana::class, 'marketing_campana_id');
     }
 
-    /**
-     * Relación con la campaña
-     */
-    public function campania(): BelongsTo
+    public function destinatario(): BelongsTo
     {
-        return $this->belongsTo(CrmCampania::class, 'campania_id');
+        return $this->belongsTo(MarketingDestinatario::class, 'marketing_destinatario_id');
     }
 
     /**

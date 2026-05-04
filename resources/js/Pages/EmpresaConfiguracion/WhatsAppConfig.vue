@@ -20,6 +20,9 @@ const props = defineProps({
       whatsapp_webhook_verify_token: '',
       whatsapp_default_language: 'es_MX',
       whatsapp_template_payment_reminder: '',
+      whatsapp_chatbot_enabled: false,
+      whatsapp_chatbot_mode: 'off_hours',
+      whatsapp_chatbot_prompt: '',
     })
   }
 })
@@ -56,7 +59,7 @@ const testing = ref(false)
 ========================= */
 const errors = ref({})
 
-const validateForm = () => {
+const validateForm = (strict = true) => {
   errors.value = {}
 
   if (form.value.whatsapp_enabled) {
@@ -78,7 +81,7 @@ const validateForm = () => {
       errors.value.whatsapp_access_token = 'El token de acceso es requerido'
     }
 
-    if (!form.value.whatsapp_app_secret) {
+    if (strict && !form.value.whatsapp_app_secret) {
       errors.value.whatsapp_app_secret = 'El secreto de la aplicación es requerido'
     }
 
@@ -86,7 +89,7 @@ const validateForm = () => {
       errors.value.whatsapp_webhook_verify_token = 'El token de verificación del webhook es requerido'
     }
 
-    if (!form.value.whatsapp_template_payment_reminder) {
+    if (strict && !form.value.whatsapp_template_payment_reminder) {
       errors.value.whatsapp_template_payment_reminder = 'La plantilla de recordatorio de pago es requerida'
     }
   }
@@ -131,24 +134,31 @@ const testConfiguration = async () => {
     return
   }
 
-  if (!validateForm()) {
+  if (!validateForm(false)) {
     notyf.error('Corrija los errores antes de probar')
     return
   }
 
+  const testPhone = window.prompt("Ingrese el número destino para la prueba (con código de país ej: +526621234567):\n\nNOTA: Si usas entorno de pruebas de Meta, este número debe estar en tu lista de 'To' (Destinatarios Autorizados) en Facebook Developers.", form.value.whatsapp_sender_phone)
+  
+  if (!testPhone) return
+
   testing.value = true
 
   try {
-    const response = await fetch('/admin/whatsapp/test', {
+    const response = await fetch(route('whatsapp.test'), {
       method: 'POST',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
       },
       body: JSON.stringify({
-        telefono: form.value.whatsapp_sender_phone,
-        mensaje: 'Mensaje de prueba - Configuración de WhatsApp funcionando correctamente'
+        telefono: testPhone,
+        mensaje: 'Mensaje de prueba - Configuración de WhatsApp funcionando correctamente',
+        template_name: form.value.whatsapp_template_payment_reminder || 'hello_world'
       })
     })
 
@@ -186,29 +196,36 @@ const opcionesIdioma = [
 ]
 
 const opcionesPlantilla = [
+  { value: 'servicios', label: 'Servicios de Climatización' },
   { value: 'recordarorio_de_instalacion', label: 'Recordatorio de Instalación' },
   { value: 'saludo', label: 'Mensaje de Bienvenida (Saludo)' },
-  { value: 'mensaje_de_bienvenida_asistencia_vircom', label: 'Bienvenida Asistencia Vircom' },
+  { value: 'mensaje_de_bienvenida_asistencia_vircom', label: 'Bienvenida Climas del Desierto' },
   { value: 'hello_world', label: 'Hello World (Prueba)' },
   { value: 'payment_reminder', label: 'Recordatorio de Pago (Nueva)' },
+]
+
+const opcionesModoChatbot = [
+  { value: 'always', label: 'Siempre (24/7)' },
+  { value: 'off_hours', label: 'Fuera de Horario Laboral' },
+  { value: 'off', label: 'Desactivado' },
 ]
 </script>
 
 <template>
   <Head title="Configuración de WhatsApp" />
 
-  <div class="whatsapp-config min-h-screen bg-white dark:bg-slate-900">
+  <div class="whatsapp-config min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Configuración de WhatsApp Business</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">Configure la integración con WhatsApp Business API para envío de recordatorios automáticos</p>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Configuración de WhatsApp Business</h1>
+            <p class="text-gray-600 mt-2">Configure la integración con WhatsApp Business API para envío de recordatorios automáticos</p>
           </div>
           <router-link
             :to="route('empresa-configuracion.index')"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             ← Volver a Configuración
           </router-link>
@@ -217,9 +234,9 @@ const opcionesPlantilla = [
 
       <div class="grid grid-cols-1 gap-8">
         <!-- Formulario principal -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Configuración de WhatsApp</h2>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Configuración de WhatsApp</h2>
           </div>
 
           <form @submit.prevent="submitForm" class="p-6 space-y-6">
@@ -236,15 +253,15 @@ const opcionesPlantilla = [
                   Habilitar WhatsApp Business
                 </label>
               </div>
-              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-sm text-gray-500">
                 Active esta opción para habilitar el envío automático de recordatorios por WhatsApp
               </p>
             </div>
 
             <!-- Información de la API -->
             <div v-if="form.whatsapp_enabled" class="space-y-6">
-              <div class="border-t border-gray-200 dark:border-slate-800 pt-6">
-                <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4">Configuración de la API</h3>
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-md font-medium text-gray-900 mb-4">Configuración de la API</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Business Account ID -->
@@ -261,7 +278,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_business_account_id }"
                     />
                     <p v-if="errors.whatsapp_business_account_id" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_business_account_id }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Obtenible en Facebook Business Manager</p>
+                    <p class="mt-1 text-xs text-gray-500">Obtenible en Facebook Business Manager</p>
                   </div>
 
                   <!-- Phone Number ID -->
@@ -278,7 +295,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_phone_number_id }"
                     />
                     <p v-if="errors.whatsapp_phone_number_id" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_phone_number_id }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">ID del número de WhatsApp Business</p>
+                    <p class="mt-1 text-xs text-gray-500">ID del número de WhatsApp Business</p>
                   </div>
 
                   <!-- Número de teléfono -->
@@ -295,7 +312,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_sender_phone }"
                     />
                     <p v-if="errors.whatsapp_sender_phone" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_sender_phone }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Formato E.164 con código de país</p>
+                    <p class="mt-1 text-xs text-gray-500">Formato E.164 con código de país</p>
                   </div>
 
                   <!-- Idioma por defecto -->
@@ -317,8 +334,8 @@ const opcionesPlantilla = [
               </div>
 
               <!-- Credenciales de seguridad -->
-              <div class="border-t border-gray-200 dark:border-slate-800 pt-6">
-                <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4">Credenciales de Seguridad</h3>
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-md font-medium text-gray-900 mb-4">Credenciales de Seguridad</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Access Token -->
@@ -335,7 +352,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_access_token }"
                     ></textarea>
                     <p v-if="errors.whatsapp_access_token" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_access_token }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Token de acceso permanente de Facebook</p>
+                    <p class="mt-1 text-xs text-gray-500">Token de acceso permanente de Facebook</p>
                   </div>
 
                   <!-- App Secret -->
@@ -352,7 +369,7 @@ const opcionesPlantilla = [
                       :class="{ 'border-red-300': errors.whatsapp_app_secret }"
                     ></textarea>
                     <p v-if="errors.whatsapp_app_secret" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_app_secret }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Secreto de la aplicación de Facebook</p>
+                    <p class="mt-1 text-xs text-gray-500">Secreto de la aplicación de Facebook</p>
                   </div>
 
                   <!-- Webhook Verify Token -->
@@ -378,7 +395,7 @@ const opcionesPlantilla = [
                       </button>
                     </div>
                     <p v-if="errors.whatsapp_webhook_verify_token" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_webhook_verify_token }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Token personalizado para verificar webhooks</p>
+                    <p class="mt-1 text-xs text-gray-500">Token personalizado para verificar webhooks</p>
                   </div>
 
                   <!-- Plantilla de recordatorio -->
@@ -398,7 +415,58 @@ const opcionesPlantilla = [
                       </option>
                     </select>
                     <p v-if="errors.whatsapp_template_payment_reminder" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_template_payment_reminder }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Plantilla aprobada por Meta para recordatorios</p>
+                    <p class="mt-1 text-xs text-gray-500">Plantilla aprobada por Meta para recordatorios</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configuración del Chatbot -->
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-md font-medium text-gray-900 mb-4">Configuración del Chatbot (IA)</h3>
+                
+                <div class="space-y-6">
+                  <div class="flex items-center">
+                    <input
+                      id="whatsapp_chatbot_enabled"
+                      v-model="form.whatsapp_chatbot_enabled"
+                      type="checkbox"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label for="whatsapp_chatbot_enabled" class="ml-2 block text-sm font-medium text-gray-700">
+                      Habilitar Asistente de IA (VircomBot)
+                    </label>
+                  </div>
+
+                  <div v-if="form.whatsapp_chatbot_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label for="whatsapp_chatbot_mode" class="block text-sm font-medium text-gray-700 mb-2">
+                        Modo de Respuesta
+                      </label>
+                      <select
+                        id="whatsapp_chatbot_mode"
+                        v-model="form.whatsapp_chatbot_mode"
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option v-for="opcion in opcionesModoChatbot" :key="opcion.value" :value="opcion.value">
+                          {{ opcion.label }}
+                        </option>
+                      </select>
+                      <p class="mt-1 text-xs text-gray-500">Determine cuándo debe responder el bot automáticamente</p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                      <label for="whatsapp_chatbot_prompt" class="block text-sm font-medium text-gray-700 mb-2">
+                        Instrucciones Personalizadas (Prompt)
+                      </label>
+                      <textarea
+                        id="whatsapp_chatbot_prompt"
+                        v-model="form.whatsapp_chatbot_prompt"
+                        rows="4"
+                        placeholder="Ej: Eres un asistente de ventas para Climas del Desierto. Sé amable y ayuda con citas..."
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm font-sans"
+                      ></textarea>
+                      <p class="mt-1 text-xs text-gray-500">Personalice la personalidad y reglas de su asistente virtual</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -416,7 +484,7 @@ const opcionesPlantilla = [
             </div>
 
             <!-- Botones de acción -->
-            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-800">
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
               <button
                 v-if="form.whatsapp_enabled"
                 type="button"
@@ -438,7 +506,7 @@ const opcionesPlantilla = [
                 <button
                   type="button"
                   @click="$inertia.get(route('empresa-configuracion.index'))"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </button>

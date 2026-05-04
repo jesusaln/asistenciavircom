@@ -70,6 +70,13 @@ class GraphService
             ->patch($this->baseUrl . $endpoint, $data);
     }
 
+    public function delete($endpoint, $params = [])
+    {
+        $this->ensureTokenIsValid();
+        return Http::withToken($this->user->microsoft_token)
+            ->delete($this->baseUrl . $endpoint, $params);
+    }
+
     // To Do Methods
 
     public function getTaskLists()

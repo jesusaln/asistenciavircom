@@ -35,7 +35,6 @@ class Prestamo extends Model implements AuditableContract
         'folio',
         'empresa_id',
         'cliente_id',
-        'empleado_id',
         'monto_prestado',
         'tasa_interes_mensual',
         'numero_pagos',
@@ -68,6 +67,13 @@ class Prestamo extends Model implements AuditableContract
         'activo' => 'boolean',
     ];
 
+    protected $appends = [
+        'progreso',
+        'estado_texto',
+        'frecuencia_texto',
+        'proximo_pago',
+    ];
+
     protected $attributes = [
         'estado' => 'activo',
         'pagos_realizados' => 0,
@@ -87,11 +93,6 @@ class Prestamo extends Model implements AuditableContract
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class);
-    }
-
-    public function empleado(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'empleado_id');
     }
 
     public function pagos(): HasMany
@@ -271,7 +272,7 @@ class Prestamo extends Model implements AuditableContract
         }
 
         $this->pagos_pendientes = max(0, $this->numero_pagos - $this->pagos_realizados);
-        $this->setAttribute('monto_pendiente', max(0, $this->monto_total_pagar - $this->monto_pagado));
+        $this->monto_pendiente = max(0, $this->monto_total_pagar - $this->monto_pagado);
 
         $this->save();
     }
@@ -323,7 +324,7 @@ class Prestamo extends Model implements AuditableContract
 
             $fechaProgramada = match ($this->frecuencia_pago) {
                 'semanal' => $fechaActual->copy()->addWeeks($i - 1),
-                'quincenal' => $fechaActual->copy()->addDays(($i - 1) * 15),
+                'quincenal' => $fechaActual->copy()->addWeeks(($i - 1) * 2),
                 'mensual' => $fechaActual->copy()->addMonths($i - 1),
                 default => $fechaActual->copy()->addMonths($i - 1),
             };

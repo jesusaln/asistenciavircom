@@ -2,13 +2,16 @@
 
 namespace App\Services\Ventas;
 
+use App\Models\User;
 use App\Models\Venta;
 use App\Models\VentaAuditLog;
 use App\Services\PaymentService;
 use App\Services\EntregaDineroService;
+use App\Support\EmpresaResolver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use App\Enums\MetodoPago;
 
 class VentaPaymentService
@@ -29,6 +32,8 @@ class VentaPaymentService
     public function markAsPaid(Venta $venta, array $data): Venta
     {
         return DB::transaction(function () use ($venta, $data) {
+            $data['notas_pago'] = $data['notas_pago'] ?? $data['notas'] ?? null;
+
             $metodoPagoInput = $data['metodo_pago'] ?? $venta->metodo_pago;
 
             // Normalize payment method
@@ -51,10 +56,12 @@ class VentaPaymentService
                 throw new \Exception('El campo cuenta bancaria es obligatorio cuando el método de pago es ' . $metodoPagoString);
             }
 
+            $pagadoPorId = $this->resolvePagadoPorUserId($venta, $data);
+
             // 1. Update Venta basic payment info
             $venta->update([
                 'fecha_pago' => now(),
-                'pagado_por' => Auth::id(),
+                'pagado_por' => $pagadoPorId,
                 'metodo_pago' => $metodoPagoString,
                 'cuenta_bancaria_id' => $cuentaBancariaId,
                 'notas_pago' => $data['notas_pago'] ?? null,
@@ -63,14 +70,18 @@ class VentaPaymentService
 
             // 2. Process financial payment via PaymentService
             if ($venta->cuentaPorCobrar) {
-                $this->paymentService->registrarPago(
-                    $venta->cuentaPorCobrar,
-                    (float) $venta->total,
-                    $metodoPagoString,
-                    $data['notas_pago'] ?? 'Pago registrado manualmente',
-                    Auth::id(),
-                    $cuentaBancariaId
-                );
+                $montoAPagar = round($venta->cuentaPorCobrar->calcularPendiente(), 2);
+                
+                if ($montoAPagar > 0) {
+                    $this->paymentService->registrarPago(
+                        $venta->cuentaPorCobrar,
+                        $montoAPagar,
+                        $metodoPagoString,
+                        $data['notas_pago'] ?? 'Pago registrado manualmente',
+                        $pagadoPorId,
+                        $cuentaBancariaId
+                    );
+                }
             } else {
                 // Rare case: sale without CxC (possibly old migration)
                 Log::warning("Venta #{$venta->id} marked as paid without CxC. Creating automated EntregaDinero.");
@@ -80,7 +91,7 @@ class VentaPaymentService
                     (float) $venta->total,
                     $metodoPagoString,
                     now()->format('Y-m-d'),
-                    Auth::id(),
+                    $pagadoPorId,
                     $data['notas_pago'] ?? 'Pago directo (sin CxC)',
                     null,
                     $cuentaBancariaId
@@ -103,5 +114,27 @@ class VentaPaymentService
 
             return $venta->fresh();
         });
+    }
+
+    /**
+     * Quién figurará como receptor del cobro (corte / entregas). Por defecto el usuario autenticado.
+     */
+    private function resolvePagadoPorUserId(Venta $venta, array $data): int
+    {
+        $authId = (int) Auth::id();
+        if (empty($data['pagado_por_user_id'])) {
+            return $authId;
+        }
+
+        $uid = (int) $data['pagado_por_user_id'];
+        $empresaId = (int) ($venta->empresa_id ?? EmpresaResolver::resolveId() ?? 0);
+        $user = User::withoutGlobalScopes()->find($uid);
+        if (! $user || (int) ($user->empresa_id ?? 0) !== $empresaId) {
+            throw ValidationException::withMessages([
+                'pagado_por_user_id' => ['El usuario seleccionado no puede registrar este cobro para esta empresa.'],
+            ]);
+        }
+
+        return $uid;
     }
 }

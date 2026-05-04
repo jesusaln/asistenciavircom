@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BlogPost extends Model
@@ -26,7 +25,6 @@ class BlogPost extends Model
         'visitas',
         'meta_titulo',
         'meta_descripcion',
-        'newsletter_enviado_at',
     ];
 
     protected $appends = ['imagen_portada_url', 'tiempo_lectura'];
@@ -34,7 +32,6 @@ class BlogPost extends Model
     protected $casts = [
         'publicado_at' => 'datetime',
         'visitas' => 'integer',
-        'newsletter_enviado_at' => 'datetime',
     ];
 
     /**
@@ -46,30 +43,11 @@ class BlogPost extends Model
             return null;
         }
 
-        if (str_starts_with($this->imagen_portada, 'http')) {
+        if (str_starts_with($this->imagen_portada, 'http') || str_starts_with($this->imagen_portada, '/images')) {
             return $this->imagen_portada;
         }
 
-        // Local public images (e.g., /images/blog/...)
-        if (str_starts_with($this->imagen_portada, '/images/')) {
-            return url($this->imagen_portada);
-        }
-
-        $normalizedPath = ltrim($this->imagen_portada, '/');
-        if (str_starts_with($normalizedPath, 'storage/')) {
-            $normalizedPath = substr($normalizedPath, strlen('storage/'));
-        }
-
-        if (str_starts_with($normalizedPath, 'blog-covers/')) {
-            $filename = basename($normalizedPath);
-            return route('serve-blog-cover', ['filename' => $filename]);
-        }
-
-        if (Storage::disk('public')->exists($normalizedPath)) {
-            return url(Storage::url($normalizedPath));
-        }
-
-        return url('/images/placeholder-400x400.svg');
+        return \Illuminate\Support\Facades\Storage::url($this->imagen_portada);
     }
 
     /**

@@ -23,4 +23,9 @@ class Inventario extends Model
     {
         return $this->belongsTo(Almacen::class);
     }
+
+    public function series()
+    {
+        return $this->hasMany(ProductoSerie::class, 'producto_id', 'producto_id');
+    }
 }

@@ -12,6 +12,7 @@ use App\Services\InventarioService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use App\Support\DbExpression;
 
 class TraspasoController extends Controller
 {
@@ -36,7 +37,7 @@ class TraspasoController extends Controller
         // Aplicar filtros
         if ($search = trim($request->get('search', ''))) {
             $baseQuery->where(function ($query) use ($search) {
-                $query->where('id', 'like', "%{$search}%")
+                $query->where(DbExpression::castText('id'), 'like', "%{$search}%")
                     ->orWhereHas('producto', function ($q) use ($search) {
                         $q->where('nombre', 'like', "%{$search}%");
                     })
@@ -132,26 +133,20 @@ class TraspasoController extends Controller
             ['path' => $request->url(), 'pageName' => 'page']
         );
 
-        // Estadísticas Globales (Independientes de la paginación)
+        // Estadísticas
         $stats = [
             'total' => Traspaso::count(),
             'pendientes' => Traspaso::where('estado', 'pendiente')->count(),
             'en_transito' => Traspaso::where('estado', 'en_transito')->count(),
             'completados' => Traspaso::where('estado', 'completado')->count(),
-            'unidades' => Traspaso::sum('cantidad'),
+            'productos_trasladados' => Traspaso::distinct('producto_id')->count('producto_id'),
             'almacenes_origen' => Traspaso::distinct('almacen_origen_id')->count('almacen_origen_id'),
             'almacenes_destino' => Traspaso::distinct('almacen_destino_id')->count('almacen_destino_id'),
         ];
 
-        // Datos para filtros (Optimización: Solo cargar productos involucrados o activos si son pocos)
-        // Por ahora, solo cargamos los almacenes activos ya que suelen ser pocos (<100)
-        // Para productos, si hay un filtro activo, cargamos ese producto, si no, lo dejamos vacío
-        // para que el frontend use búsqueda dinámica si es necesario.
+        // Datos para filtros
+        $productos = Producto::select('id', 'nombre', 'requiere_serie')->orderBy('nombre')->get();
         $almacenes = Almacen::select('id', 'nombre')->where('estado', 'activo')->orderBy('nombre')->get();
-        $productos = [];
-        if ($request->filled('producto_id')) {
-            $productos = Producto::where('id', $request->producto_id)->select('id', 'nombre')->get();
-        }
 
         return Inertia::render('Traspasos/Index', [
             'traspasos' => $paginator,
@@ -175,14 +170,21 @@ class TraspasoController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $productos = []; // No cargar miles de productos aquí (timeout)
-        $almacenes = Almacen::where('estado', 'activo')->orderBy('nombre')->get();
+        $productos = Producto::select('id', 'nombre', 'requiere_serie')->get();
+        $almacenes = Almacen::select('id', 'nombre')->get();
+        $inventarios = Inventario::with(['producto', 'almacen'])->get();
 
         return Inertia::render('Traspasos/Create', [
             'productos' => $productos,
             'almacenes' => $almacenes,
+            'inventarios' => $inventarios,
+            'preselected' => [
+                'producto_id' => $request->integer('producto_id'),
+                'almacen_origen_id' => $request->integer('almacen_origen_id'),
+                'almacen_destino_id' => $request->integer('almacen_destino_id'),
+            ]
         ]);
     }
 
@@ -221,7 +223,6 @@ class TraspasoController extends Controller
                     'usuario_envia' => auth()->id(),
                     'fecha_envio' => now(),
                     'fecha_recepcion' => now(),
-                    'cantidad' => collect($items)->sum('cantidad'), // Guardar total para reportes/vistas rápidas
                     'observaciones' => $request->observaciones,
                     'referencia' => $request->referencia,
                     'costo_transporte' => $request->costo_transporte,
@@ -281,7 +282,6 @@ class TraspasoController extends Controller
                     if ($producto->requiere_serie && !empty($seriesIds)) {
                         // Mover series usando Eloquent para disparar el Observer
                         $seriesModelos = \App\Models\ProductoSerie::whereIn('id', $seriesIds)->get();
-                        /** @var \App\Models\ProductoSerie $serie */
                         foreach ($seriesModelos as $serie) {
                             $serie->update(['almacen_id' => $almacenDestinoId]);
                         }
@@ -489,7 +489,6 @@ class TraspasoController extends Controller
                             throw new \RuntimeException("No hay series del producto '{$producto->nombre}' disponibles en el almacén destino para revertir.");
                         }
 
-                        /** @var \App\Models\ProductoSerie $serie */
                         foreach ($seriesDisponibles as $serie) {
                             $serie->update(['almacen_id' => $almacenOrigenId]);
                         }
@@ -564,4 +563,3 @@ class TraspasoController extends Controller
         }
     }
 }
-

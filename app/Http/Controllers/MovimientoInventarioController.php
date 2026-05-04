@@ -13,12 +13,10 @@ class MovimientoInventarioController extends Controller
 {
     public function index(Request $request)
     {
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
         $perPage = (int) ($request->integer('per_page') ?: 15);
 
         // Obtener movimientos de inventario
-        $query = InventarioMovimiento::where('empresa_id', $empresaId)
-            ->select(
+        $query = InventarioMovimiento::select(
                 'id',
                 'tipo',
                 'cantidad',
@@ -51,10 +49,10 @@ class MovimientoInventarioController extends Controller
                 $q->whereHas('producto', function ($subQ) use ($search) {
                     $subQ->where('nombre', 'like', "%{$search}%");
                 })
-                    ->orWhereHas('almacen', function ($subQ) use ($search) {
-                        $subQ->where('nombre', 'like', "%{$search}%");
-                    })
-                    ->orWhere('motivo', 'like', "%{$search}%");
+                ->orWhereHas('almacen', function ($subQ) use ($search) {
+                    $subQ->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhere('motivo', 'like', "%{$search}%");
             });
         }
 
@@ -77,17 +75,17 @@ class MovimientoInventarioController extends Controller
 
         // Estadísticas
         $stats = [
-            'total_movimientos' => InventarioMovimiento::where('empresa_id', $empresaId)->count(),
-            'entradas' => InventarioMovimiento::where('empresa_id', $empresaId)->where('tipo', 'entrada')->count(),
-            'salidas' => InventarioMovimiento::where('empresa_id', $empresaId)->where('tipo', 'salida')->count(),
-            'traspasos' => InventarioMovimiento::where('empresa_id', $empresaId)->where('motivo', 'like', '%traspaso%')->count(),
+            'total_movimientos' => InventarioMovimiento::count(),
+            'entradas' => InventarioMovimiento::where('tipo', 'entrada')->count(),
+            'salidas' => InventarioMovimiento::where('tipo', 'salida')->count(),
+            'traspasos' => InventarioMovimiento::where('motivo', 'like', '%traspaso%')->count(),
         ];
 
         return Inertia::render('MovimientosInventario/Index', [
             'movimientos' => $movimientos,
             'stats' => $stats,
-            'productos' => Producto::where('empresa_id', $empresaId)->select('id', 'nombre')->get(),
-            'almacenes' => Almacen::where('empresa_id', $empresaId)->select('id', 'nombre')->get(),
+            'productos' => Producto::select('id', 'nombre')->get(),
+            'almacenes' => Almacen::select('id', 'nombre')->get(),
             'filters' => $request->only(['search', 'producto_id', 'almacen_id', 'tipo']),
         ]);
     }
@@ -98,53 +96,42 @@ class MovimientoInventarioController extends Controller
     public function limpiarHuérfanos()
     {
         try {
-            $empresaId = \App\Support\EmpresaResolver::resolveId();
-            if (!$empresaId) {
-                return response()->json(['success' => false, 'message' => 'No se pudo identificar la empresa'], 400);
-            }
-
             $movimientosEliminados = 0;
 
-            // Eliminar movimientos con productos inexistentes (LIMITADO A LA EMPRESA ACTUAL)
+            // Eliminar movimientos con productos inexistentes
             $productosInexistentes = DB::table('inventario_movimientos')
-                ->where('empresa_id', $empresaId)
                 ->leftJoin('productos', 'inventario_movimientos.producto_id', '=', 'productos.id')
                 ->whereNull('productos.id')
                 ->pluck('inventario_movimientos.id');
 
             if ($productosInexistentes->count() > 0) {
                 DB::table('inventario_movimientos')
-                    ->where('empresa_id', $empresaId)
                     ->whereIn('id', $productosInexistentes)
                     ->delete();
                 $movimientosEliminados += $productosInexistentes->count();
             }
 
-            // Eliminar movimientos con almacenes inexistentes (LIMITADO A LA EMPRESA ACTUAL)
+            // Eliminar movimientos con almacenes inexistentes
             $almacenesInexistentes = DB::table('inventario_movimientos')
-                ->where('empresa_id', $empresaId)
-                ->leftJoin('almacenes', 'inventario_movimientos.almacen_id', '=', 'almacenes.id')
-                ->whereNull('almacenes.id')
+                ->leftJoin('almacens', 'inventario_movimientos.almacen_id', '=', 'almacens.id')
+                ->whereNull('almacens.id')
                 ->pluck('inventario_movimientos.id');
 
             if ($almacenesInexistentes->count() > 0) {
                 DB::table('inventario_movimientos')
-                    ->where('empresa_id', $empresaId)
                     ->whereIn('id', $almacenesInexistentes)
                     ->delete();
                 $movimientosEliminados += $almacenesInexistentes->count();
             }
 
-            // Eliminar movimientos con usuarios inexistentes (LIMITADO A LA EMPRESA ACTUAL)
+            // Eliminar movimientos con usuarios inexistentes
             $usuariosInexistentes = DB::table('inventario_movimientos')
-                ->where('empresa_id', $empresaId)
                 ->leftJoin('users', 'inventario_movimientos.user_id', '=', 'users.id')
                 ->whereNull('users.id')
                 ->pluck('inventario_movimientos.id');
 
             if ($usuariosInexistentes->count() > 0) {
                 DB::table('inventario_movimientos')
-                    ->where('empresa_id', $empresaId)
                     ->whereIn('id', $usuariosInexistentes)
                     ->delete();
                 $movimientosEliminados += $usuariosInexistentes->count();

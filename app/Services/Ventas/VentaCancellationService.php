@@ -60,7 +60,7 @@ class VentaCancellationService
             // 5. Dispatch VentaCancelled event
             event(new \App\Events\VentaCancelled($venta, $motivo));
 
-            return $venta->fresh();
+            return $venta->fresh() ?? $venta;
         });
     }
 
@@ -91,7 +91,6 @@ class VentaCancellationService
     protected function deleteVentaPayments(Venta $venta): void
     {
         // 1. Delete EntregaDinero records (Cash/Mixed)
-        // ✅ Observer now handles this but we keep forceDelete here for double-safety
         $deletedEntregas = EntregaDinero::where('tipo_origen', 'venta')
             ->where('id_origen', $venta->id)
             ->forceDelete();
@@ -104,64 +103,50 @@ class VentaCancellationService
             ]);
         }
 
-        // 2. ✅ Delete MovimientoBancario records (Transfer/Card/Direct Deposit)
-        // Search by reference OR concept pattern used in EntregaDineroService/PaymentService/CuentaBancaria
-        $movimientos = \App\Models\MovimientoBancario::where(function ($query) use ($venta) {
-            $query->where('referencia', 'ilike', "%venta #{$venta->id}%")
-                ->orWhere('referencia', 'ilike', "%{$venta->numero_venta}%")
-                ->orWhere('concepto', 'ilike', "%venta #{$venta->id}%")
-                ->orWhere('concepto', 'ilike', "%Cobro Venta {$venta->numero_venta}%")
-                ->orWhere('concepto', 'ilike', "%{$venta->numero_venta}%")
-                // Add fallback for conciliable relation
-                ->orWhere(function ($q) use ($venta) {
-                    $q->where('conciliable_type', Venta::class)
-                        ->where('conciliable_id', $venta->id);
-                })
-                // Add fallback for CxC relation
-                ->orWhere(function ($q) use ($venta) {
-                    $q->where('conciliable_type', CuentasPorCobrar::class)
-                        ->whereIn('conciliable_id', function ($sub) use ($venta) {
-                            $sub->select('id')->from('cuentas_por_cobrar')
-                                ->where('cobrable_type', Venta::class)
-                                ->where('cobrable_id', $venta->id);
-                        });
-                })
-                ->orWhereHasMorph('conciliable', [Venta::class], function ($q) use ($venta) {
-                    $q->where('id', $venta->id);
-                });
-        })->get();
-
-        foreach ($movimientos as $movimiento) {
-            // Revert balance on the bank account
-            if ($movimiento->cuentaBancaria) {
-                $movimiento->cuentaBancaria->revertirSaldoPorMovimiento($movimiento);
-            }
-
-            // Delete the movement
-            $movimiento->delete();
-        }
-
-        if ($movimientos->count() > 0) {
-            Log::info('Deleted MovimientoBancario records for cancelled venta', [
-                'venta_id' => $venta->id,
-                'records_deleted' => $movimientos->count(),
-                'user_id' => auth()->id(),
-            ]);
-        }
-
-        // 3. Delete CuentasPorCobrar if exists
-        $cxc = CuentasPorCobrar::where('cobrable_type', Venta::class)
+        // 2. Identify and Delete MovimientoBancario records
+        // Structured approach: Find CxC first, then movements linked to it
+        $cxc = CuentasPorCobrar::where('cobrable_type', 'venta') // Using alias/map if available, or direct class
             ->where('cobrable_id', $venta->id)
             ->first();
 
         if ($cxc) {
-            $cuentaId = $cxc->id;
-            $cxc->forceDelete();
+            // Find all bank movements linked to this CxC via polymorphic relation
+            $movimientos = \App\Models\MovimientoBancario::where('conciliable_type', get_class($cxc))
+                ->where('conciliable_id', $cxc->id)
+                ->get();
 
-            Log::info('Deleted CuentasPorCobrar for cancelled venta', [
-                'venta_id' => $venta->id,
-                'cuenta_id' => $cuentaId,
-            ]);
+            foreach ($movimientos as $movimiento) {
+                // Revert balance on the bank account if it was already updated
+                if ($movimiento->cuentaBancaria && $movimiento->estado === 'conciliado') {
+                    $movimiento->cuentaBancaria->revertirSaldoPorMovimiento($movimiento);
+                }
+
+                // Force delete the movement to clean up financial history for this cancelled sale
+                $movimiento->forceDelete();
+            }
+
+            if ($movimientos->count() > 0) {
+                Log::info('Deleted MovimientoBancario records via CxC for cancelled venta', [
+                    'venta_id' => $venta->id,
+                    'cxc_id' => $cxc->id,
+                    'records_deleted' => $movimientos->count(),
+                ]);
+            }
+
+            // 3. Finally delete the CuentasPorCobrar
+            $cxc->forceDelete();
+        }
+
+        // Fallback: If for some reason CxC didn't exist or movements were linked directly to Venta
+        $movimientosDirectos = \App\Models\MovimientoBancario::where('conciliable_type', get_class($venta))
+            ->where('conciliable_id', $venta->id)
+            ->get();
+            
+        foreach ($movimientosDirectos as $mov) {
+            if ($mov->cuentaBancaria && $mov->estado === 'conciliado') {
+                $mov->cuentaBancaria->revertirSaldoPorMovimiento($mov);
+            }
+            $mov->forceDelete();
         }
     }
 

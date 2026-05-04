@@ -229,7 +229,7 @@ class ProveedorController extends Controller
         $request->merge($sanitizedData);
 
         Log::info('ID del proveedor a actualizar: ' . $proveedor->id);
-        Log::info('Datos recibidos para actualización:', $request->all());
+        // Log::info('Datos recibidos para actualización:', $request->all());
 
         $validated = $request->validate([
             'nombre_razon_social' => 'required|string|max:255',

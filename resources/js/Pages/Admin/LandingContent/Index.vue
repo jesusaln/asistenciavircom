@@ -163,9 +163,8 @@ const saveLogo = () => {
     };
     
     if (editingLogo.value) {
-        logoForm
-            .transform((data) => ({ ...data, _method: 'PUT' }))
-            .post(route('empresa-configuracion.landing-content.logos.update', editingLogo.value.id), options);
+        // La ruta ya es POST, no necesita _method
+        logoForm.post(route('empresa-configuracion.landing-content.logos.update', editingLogo.value.id), options);
     } else {
         logoForm.post(route('empresa-configuracion.landing-content.logos.store'), options);
     }
@@ -214,9 +213,8 @@ const saveMarca = () => {
     };
     
     if (editingMarca.value) {
-        marcaForm
-            .transform((data) => ({ ...data, _method: 'PUT' }))
-            .post(route('empresa-configuracion.landing-content.marcas.update', editingMarca.value.id), options);
+        // La ruta ya es POST, no necesita _method
+        marcaForm.post(route('empresa-configuracion.landing-content.marcas.update', editingMarca.value.id), options);
     } else {
         marcaForm.post(route('empresa-configuracion.landing-content.marcas.store'), options);
     }
@@ -238,7 +236,7 @@ const procesoForm = useForm({
     titulo: '',
     descripcion: '',
     tipo: 'reparacion',
-    icono: '⚙️',
+    icono: 'cogs',
     orden: 0,
     activo: true,
 });
@@ -249,7 +247,7 @@ const openProcesoModal = (proceso = null) => {
         procesoForm.titulo = proceso.titulo;
         procesoForm.descripcion = proceso.descripcion || '';
         procesoForm.tipo = proceso.tipo || 'reparacion';
-        procesoForm.icono = proceso.icono || '⚙️';
+        procesoForm.icono = proceso.icono || 'cogs';
         procesoForm.orden = proceso.orden;
         procesoForm.activo = proceso.activo;
     } else {
@@ -281,7 +279,7 @@ const deleteProceso = (proceso) => {
 const showOfertaModal = Vue.ref(false);
 const editingOferta = Vue.ref(null);
 const ofertaForm = useForm({
-    titulo: '🔥 OFERTA ESPECIAL',
+    titulo: 'OFERTA ESPECIAL',
     subtitulo: '',
     descripcion: '',
     descuento_porcentaje: 20,
@@ -312,7 +310,7 @@ const openOfertaModal = (oferta = null) => {
         ofertaForm.activo = oferta.activo;
     } else {
         ofertaForm.reset();
-        ofertaForm.titulo = '🔥 OFERTA ESPECIAL';
+        ofertaForm.titulo = 'OFERTA ESPECIAL';
         ofertaForm.descuento_porcentaje = 20;
         ofertaForm.caracteristica_1 = 'Instalación profesional incluida';
         ofertaForm.caracteristica_2 = 'Garantía extendida de 3 años';
@@ -343,6 +341,12 @@ const deleteOferta = (oferta) => {
 const formatPrice = (price) => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0 }).format(price);
 };
+
+const normalizeIcon = (icono, fallback = 'circle-dot') => {
+    if (!icono) return fallback;
+    const containsEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(icono);
+    return containsEmoji ? fallback : icono;
+};
 </script>
 
 <template>
@@ -350,7 +354,7 @@ const formatPrice = (price) => {
 
     <AppLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 dark:text-gray-100 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
                 Contenido de Landing Page
             </h2>
         </template>
@@ -358,57 +362,50 @@ const formatPrice = (price) => {
         <div class="py-8">
             <div class="w-full px-4 sm:px-6 lg:px-8">
                 <!-- Tabs -->
-                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6 overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6 overflow-hidden">
                     <div class="border-b border-gray-100 dark:border-gray-700 overflow-x-auto custom-scrollbar">
                         <nav class="flex -mb-px min-w-max">
                             <button 
                                 @click="activeTab = 'hero'"
-                                :class="activeTab === 'hero' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                :class="activeTab === 'hero' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                🚀 Hero Principal
+                                Hero Principal
                             </button>
                             <button 
                                 @click="activeTab = 'faqs'"
-                                :class="activeTab === 'faqs' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                :class="activeTab === 'faqs' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                ❓ Preguntas Frecuentes ({{ faqs?.length || 0 }})
+                                Preguntas Frecuentes ({{ faqs?.length || 0 }})
                             </button>
                             <button 
                                 @click="activeTab = 'testimonios'"
-                                :class="activeTab === 'testimonios' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                :class="activeTab === 'testimonios' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                💬 Testimonios ({{ testimonios?.length || 0 }})
-                            </button>
-                            <button 
-                                @click="activeTab = 'logos'"
-                                :class="activeTab === 'logos' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
-                                class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
-                            >
-                                🏢 Logos Clientes ({{ logos?.length || 0 }})
+                                Testimonios ({{ testimonios?.length || 0 }})
                             </button>
                             <button 
                                 @click="activeTab = 'marcas'"
-                                :class="activeTab === 'marcas' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                :class="activeTab === 'marcas' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                🛡️ Marcas / Proveedores ({{ marcas?.length || 0 }})
+                                Marcas CSAM ({{ marcas?.length || 0 }})
                             </button>
                             <button 
                                 @click="activeTab = 'procesos'"
-                                :class="activeTab === 'procesos' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                :class="activeTab === 'procesos' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                🛠️ Proceso ({{ procesos?.length || 0 }})
+                                Proceso ({{ procesos?.length || 0 }})
                             </button>
                             <button 
                                 @click="activeTab = 'ofertas'"
-                                :class="activeTab === 'ofertas' ? 'border-orange-500 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+                                :class="activeTab === 'ofertas' ? 'border-orange-500 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                                 class="px-6 py-4 text-sm font-medium border-b-2 transition-colors"
                             >
-                                🔥 Ofertas ({{ ofertas?.length || 0 }})
+                                Ofertas ({{ ofertas?.length || 0 }})
                             </button>
                         </nav>
                     </div>
@@ -416,41 +413,41 @@ const formatPrice = (price) => {
                     <!-- Content: Hero -->
                     <div v-if="activeTab === 'hero'" class="p-8 w-full">
                         <div class="mb-8">
-                            <h3 class="text-xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Personalización del Hero</h3>
-                            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm">Cambia los textos principales que ven tus clientes al entrar a la página.</p>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Personalización del Hero</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">Cambia los textos principales que ven tus clientes al entrar a la página.</p>
                         </div>
 
                         <form @submit.prevent="saveHero" class="space-y-6">
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="col-span-2">
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Título Principal (Hero)</label>
-                                    <input v-model="heroForm.hero_titulo" type="text" class="w-full rounded-xl border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="Ej: Climatización Inteligente para tu Hogar" />
-                                    <p class="text-[10px] text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-1 italic">* El título se divide automáticamente para resaltar la palabra central.</p>
+                                    <input v-model="heroForm.hero_titulo" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="Ej: Climatización Inteligente para tu Hogar" />
+                                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1 italic">* El título se divide automáticamente para resaltar la palabra central.</p>
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Palabra Resaltada (Subtítulo)</label>
-                                    <input v-model="heroForm.hero_subtitulo" type="text" class="w-full rounded-xl border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="Ej: Inteligente" />
+                                    <input v-model="heroForm.hero_subtitulo" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="Ej: Inteligente" />
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Texto del Badge superior</label>
-                                    <input v-model="heroForm.hero_badge_texto" type="text" class="w-full rounded-xl border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="Ej: Servicio Disponible hoy" />
+                                    <input v-model="heroForm.hero_badge_texto" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="Ej: Servicio Disponible hoy" />
                                 </div>
 
                                 <div class="col-span-2">
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Descripción (Párrafo)</label>
-                                    <textarea v-model="heroForm.hero_descripcion" rows="3" class="w-full rounded-xl border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="Describe brevemente lo que haces..."></textarea>
+                                    <textarea v-model="heroForm.hero_descripcion" rows="3" class="w-full rounded-xl border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="Describe brevemente lo que haces..."></textarea>
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Texto Botón Primario</label>
-                                    <input v-model="heroForm.hero_cta_primario" type="text" class="w-full rounded-xl border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="Ej: Ver Servicios" />
+                                    <input v-model="heroForm.hero_cta_primario" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="Ej: Ver Servicios" />
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Texto Botón Secundario</label>
-                                    <input v-model="heroForm.hero_cta_secundario" type="text" class="w-full rounded-xl border-gray-200 dark:border-slate-800 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200" placeholder="Ej: Contáctanos" />
+                                    <input v-model="heroForm.hero_cta_secundario" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" placeholder="Ej: Contáctanos" />
                                 </div>
                             </div>
 
@@ -465,29 +462,29 @@ const formatPrice = (price) => {
                     <!-- Content: FAQs -->
                     <div v-if="activeTab === 'faqs'" class="p-6">
                         <div class="flex justify-between items-center mb-6">
-                            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Gestiona las preguntas frecuentes de tu landing page</p>
+                            <p class="text-gray-500 dark:text-gray-400">Gestiona las preguntas frecuentes de tu landing page</p>
                             <button @click="openFaqModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
                                 + Agregar FAQ
                             </button>
                         </div>
                         
                         <div v-if="faqs?.length" class="space-y-3">
-                            <div v-for="faq in faqs" :key="faq.id" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-between">
+                            <div v-for="faq in faqs" :key="faq.id" class="bg-white dark:bg-gray-800 rounded-lg p-4 flex items-center justify-between">
                                 <div class="flex-1">
-                                    <p class="font-medium text-gray-900 dark:text-white dark:text-gray-100">{{ faq.pregunta }}</p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1 line-clamp-2">{{ faq.respuesta }}</p>
+                                    <p class="font-medium text-gray-900 dark:text-gray-100">{{ faq.pregunta }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ faq.respuesta }}</p>
                                 </div>
                                 <div class="flex items-center gap-2 ml-4">
-                                    <span :class="faq.activo ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400'" class="px-2 py-1 rounded text-xs font-medium">
+                                    <span :class="faq.activo ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'" class="px-2 py-1 rounded text-xs font-medium">
                                         {{ faq.activo ? 'Activo' : 'Inactivo' }}
                                     </span>
-                                    <button @click="openFaqModal(faq)" class="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">✏️</button>
-                                    <button @click="deleteFaq(faq)" class="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400">🗑️</button>
+                                    <button @click="openFaqModal(faq)" class="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"><font-awesome-icon icon="pen" /></button>
+                                    <button @click="deleteFaq(faq)" class="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"><font-awesome-icon icon="trash-can" /></button>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
-                            <p class="text-4xl mb-2">❓</p>
+                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500">
+                            <p class="text-4xl mb-2"><font-awesome-icon icon="question-circle" /></p>
                             <p>No hay preguntas frecuentes. Se mostrarán las predeterminadas.</p>
                         </div>
                     </div>
@@ -495,38 +492,38 @@ const formatPrice = (price) => {
                     <!-- Content: Testimonios -->
                     <div v-if="activeTab === 'testimonios'" class="p-6">
                         <div class="flex justify-between items-center mb-6">
-                            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Gestiona los testimonios de clientes</p>
+                            <p class="text-gray-500 dark:text-gray-400">Gestiona los testimonios de clientes</p>
                             <button @click="openTestimonioModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
                                 + Agregar Testimonio
                             </button>
                         </div>
                         
                         <div v-if="testimonios?.length" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div v-for="t in testimonios" :key="t.id" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-4">
+                            <div v-for="t in testimonios" :key="t.id" class="bg-white dark:bg-gray-800 rounded-lg p-4">
                                 <div class="flex items-center gap-3 mb-3">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center overflow-hidden">
                                         <img v-if="t.foto_url" :src="t.foto_url" class="w-full h-full object-cover" />
                                         <span v-else class="text-blue-600 dark:text-blue-400 font-bold text-sm">{{ t.iniciales }}</span>
                                     </div>
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-white dark:text-gray-100 text-sm">{{ t.nombre }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">{{ t.cargo || t.empresa_cliente }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100 text-sm">{{ t.nombre }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ t.cargo || t.empresa_cliente }}</p>
                                     </div>
                                 </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-300 line-clamp-3 mb-3">"{{ t.comentario }}"</p>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex">
-                                        <span v-for="i in t.calificacion" :key="i" class="text-yellow-400 text-sm">⭐</span>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-3">"{{ t.comentario }}"</p>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex">
+                                        <span v-for="i in t.calificacion" :key="i" class="text-yellow-400 text-sm"><font-awesome-icon icon="star" /></span>
                                     </div>
                                     <div class="flex gap-1">
-                                        <button @click="openTestimonioModal(t)" class="p-1 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm">✏️</button>
-                                        <button @click="deleteTestimonio(t)" class="p-1 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 text-sm">🗑️</button>
+                                        <button @click="openTestimonioModal(t)" class="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm"><font-awesome-icon icon="pen" /></button>
+                                        <button @click="deleteTestimonio(t)" class="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 text-sm"><font-awesome-icon icon="trash-can" /></button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
-                            <p class="text-4xl mb-2">💬</p>
+                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500">
+                            <p class="text-4xl mb-2"><font-awesome-icon icon="comments" /></p>
                             <p>No hay testimonios. Se mostrarán los predeterminados.</p>
                         </div>
                     </div>
@@ -534,24 +531,24 @@ const formatPrice = (price) => {
                     <!-- Content: Logos -->
                     <div v-if="activeTab === 'logos'" class="p-6">
                         <div class="flex justify-between items-center mb-6">
-                            <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Logos de empresas que confían en ti</p>
+                            <p class="text-gray-500 dark:text-gray-400">Logos de empresas que confían en ti</p>
                             <button @click="openLogoModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
                                 + Agregar Logo
                             </button>
                         </div>
                         
                         <div v-if="logos?.length" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                            <div v-for="logo in logos" :key="logo.id" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-lg p-4 text-center relative group">
+                            <div v-for="logo in logos" :key="logo.id" class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center relative group">
                                 <img v-if="logo.logo_url" :src="logo.logo_url" :alt="logo.nombre_empresa" class="h-12 mx-auto object-contain mb-2" />
-                                <p class="text-xs text-gray-600 dark:text-gray-300 dark:text-gray-300 truncate">{{ logo.nombre_empresa }}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-300 truncate">{{ logo.nombre_empresa }}</p>
                                 <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    <button @click="openLogoModal(logo)" class="p-1 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded shadow text-xs dark:text-gray-200">✏️</button>
-                                    <button @click="deleteLogo(logo)" class="p-1 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded shadow text-xs dark:text-gray-200">🗑️</button>
+                                    <button @click="openLogoModal(logo)" class="p-1 bg-white dark:bg-gray-700 rounded shadow text-xs dark:text-gray-200"><font-awesome-icon icon="pen" /></button>
+                                    <button @click="deleteLogo(logo)" class="p-1 bg-white dark:bg-gray-700 rounded shadow text-xs dark:text-gray-200"><font-awesome-icon icon="trash-can" /></button>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
-                            <p class="text-4xl mb-2">🏢</p>
+                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500">
+                            <p class="text-4xl mb-2"><font-awesome-icon icon="building" /></p>
                             <p>No hay logos. La sección no se mostrará en la landing.</p>
                         </div>
                     </div>
@@ -560,8 +557,8 @@ const formatPrice = (price) => {
                     <div v-if="activeTab === 'marcas'" class="p-6">
                         <div class="flex justify-between items-center mb-6">
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-gray-100">Centro de Servicio Autorizado (CSAM)</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Gestiona las marcas de las cuales eres centro oficial (Mirage, LG, etc.)</p>
+                                <h3 class="font-bold text-gray-900 dark:text-gray-100">Centro de Servicio Autorizado (CSAM)</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona las marcas de las cuales eres centro oficial (Mirage, LG, etc.)</p>
                             </div>
                             <button @click="openMarcaModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
                                 + Agregar Marca
@@ -569,15 +566,15 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="marcas?.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div v-for="marca in marcas" :key="marca.id" class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 group relative">
+                            <div v-for="marca in marcas" :key="marca.id" class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 group relative">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-20 h-20 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-xl shadow-sm flex items-center justify-center p-2">
+                                    <div class="w-20 h-20 bg-white dark:bg-gray-700 rounded-xl shadow-sm flex items-center justify-center p-2">
                                         <img v-if="marca.logo_url" :src="marca.logo_url" :alt="marca.nombre" class="max-h-full max-w-full object-contain" />
-                                        <span v-else class="text-2xl pt-1">🛡️</span>
+                                        <span v-else class="text-2xl pt-1"><font-awesome-icon icon="shield-halved" /></span>
                                     </div>
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2">
-                                            <h4 class="font-bold text-gray-900 dark:text-white dark:text-gray-100">{{ marca.nombre }}</h4>
+                                            <h4 class="font-bold text-gray-900 dark:text-gray-100">{{ marca.nombre }}</h4>
                                             <span 
                                                 class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
                                                 :class="{
@@ -589,17 +586,17 @@ const formatPrice = (price) => {
                                                 {{ marca.tipo }}
                                             </span>
                                         </div>
-                                        <p class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 font-bold mt-1 uppercase tracking-tighter">{{ marca.texto_auxiliar }}</p>
+                                        <p class="text-xs text-gray-400 dark:text-gray-500 font-bold mt-1 uppercase tracking-tighter">{{ marca.texto_auxiliar }}</p>
                                     </div>
                                 </div>
                                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                    <button @click="openMarcaModal(marca)" class="p-2 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg shadow-md text-sm hover:text-blue-600 dark:hover:text-blue-400">✏️</button>
-                                    <button @click="deleteMarca(marca)" class="p-2 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg shadow-md text-sm hover:text-red-600 dark:hover:text-red-400">🗑️</button>
+                                    <button @click="openMarcaModal(marca)" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-md text-sm hover:text-blue-600 dark:hover:text-blue-400"><font-awesome-icon icon="pen" /></button>
+                                    <button @click="deleteMarca(marca)" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-md text-sm hover:text-red-600 dark:hover:text-red-400"><font-awesome-icon icon="trash-can" /></button>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
-                            <p class="text-4xl mb-2">🛡️</p>
+                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500">
+                            <p class="text-4xl mb-2"><font-awesome-icon icon="shield-halved" /></p>
                             <p>No hay marcas configuradas. Agrega Mirage como prioridad.</p>
                         </div>
                     </div>
@@ -608,8 +605,8 @@ const formatPrice = (price) => {
                     <div v-if="activeTab === 'procesos'" class="p-6">
                         <div class="flex justify-between items-center mb-6">
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-gray-100">Proceso de Servicio</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Define los pasos que sigue tu empresa para atender a un cliente.</p>
+                                <h3 class="font-bold text-gray-900 dark:text-gray-100">Proceso de Servicio</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Define los pasos que sigue tu empresa para atender a un cliente.</p>
                             </div>
                             <button @click="openProcesoModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
                                 + Agregar Paso
@@ -617,26 +614,26 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="procesos?.length" class="space-y-4">
-                            <div v-for="(p, index) in procesos" :key="p.id" class="flex gap-4 items-start bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 group">
-                                <div class="w-12 h-12 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-xl shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
-                                    {{ p.icono || '⚙️' }}
+                            <div v-for="(p, index) in procesos" :key="p.id" class="flex gap-4 items-start bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 group">
+                                <div class="w-12 h-12 bg-white dark:bg-gray-700 rounded-xl shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+                                    <font-awesome-icon :icon="normalizeIcon(p.icono, 'cogs')" />
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex items-center gap-3">
                                         <span class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 rounded uppercase">Paso {{ index + 1 }}</span>
-                                        <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded uppercase">{{ p.tipo }}</span>
-                                        <h4 class="font-bold text-gray-900 dark:text-white dark:text-gray-100 text-lg">{{ p.titulo }}</h4>
+                                        <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded uppercase">{{ p.tipo }}</span>
+                                        <h4 class="font-bold text-gray-900 dark:text-gray-100 text-lg">{{ p.titulo }}</h4>
                                     </div>
-                                    <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1 text-sm leading-relaxed">{{ p.descripcion }}</p>
+                                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm leading-relaxed">{{ p.descripcion }}</p>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button @click="openProcesoModal(p)" class="p-2 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg shadow-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">✏️</button>
-                                    <button @click="deleteProceso(p)" class="p-2 bg-white dark:bg-slate-900 dark:bg-gray-700 rounded-lg shadow-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400">🗑️</button>
+                                    <button @click="openProcesoModal(p)" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"><font-awesome-icon icon="pen" /></button>
+                                    <button @click="deleteProceso(p)" class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"><font-awesome-icon icon="trash-can" /></button>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
-                            <p class="text-4xl mb-2">🛠️</p>
+                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500">
+                            <p class="text-4xl mb-2"><font-awesome-icon icon="tools" /></p>
                             <p>No hay pasos definidos. Agrega los pasos de tu servicio (Solicitud, Visita, Solución, etc.)</p>
                         </div>
                     </div>
@@ -645,8 +642,8 @@ const formatPrice = (price) => {
                     <div v-if="activeTab === 'ofertas'" class="p-6">
                         <div class="flex justify-between items-center mb-6">
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-gray-100">🔥 Banner de Ofertas con Countdown</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-1">Gestiona las ofertas especiales que se muestran en el banner de la landing page.</p>
+                                <h3 class="font-bold text-gray-900 dark:text-gray-100">Banner de Ofertas con Countdown</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona las ofertas especiales que se muestran en el banner de la landing page.</p>
                             </div>
                             <button @click="openOfertaModal()" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700">
                                 + Nueva Oferta
@@ -665,23 +662,23 @@ const formatPrice = (price) => {
                                         </div>
                                         <h4 class="text-xl font-bold">{{ oferta.subtitulo }}</h4>
                                         <div class="flex items-center gap-4 mt-2">
-                                            <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400 line-through">{{ formatPrice(oferta.precio_original) }}</span>
+                                            <span class="text-gray-400 dark:text-gray-500 line-through">{{ formatPrice(oferta.precio_original) }}</span>
                                             <span class="text-2xl font-black text-orange-400 dark:text-orange-300">{{ formatPrice(oferta.precio_original * (1 - oferta.descuento_porcentaje / 100)) }}</span>
                                             <span class="px-2 py-1 bg-green-500 text-white text-sm font-bold rounded">-{{ oferta.descuento_porcentaje }}%</span>
                                         </div>
-                                        <p v-if="oferta.fecha_fin" class="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-2">
-                                            ⏰ Termina: {{ new Date(oferta.fecha_fin).toLocaleString('es-MX') }}
+                                        <p v-if="oferta.fecha_fin" class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                                            <font-awesome-icon icon="clock" class="mr-1" /> Termina: {{ new Date(oferta.fecha_fin).toLocaleString('es-MX') }}
                                         </p>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button @click="openOfertaModal(oferta)" class="p-3 bg-white dark:bg-slate-900/10 rounded-lg hover:bg-white dark:bg-slate-900/20 transition">✏️</button>
-                                        <button @click="deleteOferta(oferta)" class="p-3 bg-white dark:bg-slate-900/10 rounded-lg hover:bg-red-500/50 transition">🗑️</button>
+                                        <button @click="openOfertaModal(oferta)" class="p-3 bg-white/10 rounded-lg hover:bg-white/20 transition"><font-awesome-icon icon="pen" /></button>
+                                        <button @click="deleteOferta(oferta)" class="p-3 bg-white/10 rounded-lg hover:bg-red-500/50 transition"><font-awesome-icon icon="trash-can" /></button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
-                            <p class="text-4xl mb-2">🔥</p>
+                        <div v-else class="text-center py-12 text-gray-400 dark:text-gray-500">
+                            <p class="text-4xl mb-2"><font-awesome-icon icon="fire" /></p>
                             <p>No hay ofertas configuradas.</p>
                             <p class="text-sm dark:text-gray-400">El banner de ofertas no se mostrará hasta que agregues una.</p>
                         </div>
@@ -695,7 +692,7 @@ const formatPrice = (price) => {
         <!-- Modal FAQ -->
         <Teleport to="body">
             <div v-if="showFaqModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50" @click.self="showFaqModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-lg w-full p-6">
+                <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
                     <h3 class="text-lg font-bold mb-4">{{ editingFaq ? 'Editar' : 'Nueva' }} Pregunta Frecuente</h3>
                     <form @submit.prevent="saveFaq" class="space-y-4">
                         <div>
@@ -717,7 +714,7 @@ const formatPrice = (price) => {
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" @click="showFaqModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                            <button type="button" @click="showFaqModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                             <button type="submit" :disabled="faqForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                                 Guardar
                             </button>
@@ -730,7 +727,7 @@ const formatPrice = (price) => {
         <!-- Modal Testimonio -->
         <Teleport to="body">
             <div v-if="showTestimonioModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50" @click.self="showTestimonioModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+                <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
                     <h3 class="text-lg font-bold mb-4">{{ editingTestimonio ? 'Editar' : 'Nuevo' }} Testimonio</h3>
                     <form @submit.prevent="saveTestimonio" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
@@ -755,9 +752,9 @@ const formatPrice = (price) => {
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Calificación</label>
                                 <select v-model="testimonioForm.calificacion" class="w-full rounded-lg border-gray-300">
-                                    <option :value="5">⭐⭐⭐⭐⭐ (5)</option>
-                                    <option :value="4">⭐⭐⭐⭐ (4)</option>
-                                    <option :value="3">⭐⭐⭐ (3)</option>
+                                    <option :value="5">5 estrellas</option>
+                                    <option :value="4">4 estrellas</option>
+                                    <option :value="3">3 estrellas</option>
                                 </select>
                             </div>
                             <div>
@@ -776,7 +773,7 @@ const formatPrice = (price) => {
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" @click="showTestimonioModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                            <button type="button" @click="showTestimonioModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                             <button type="submit" :disabled="testimonioForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                                 Guardar
                             </button>
@@ -789,7 +786,7 @@ const formatPrice = (price) => {
         <!-- Modal Logo -->
         <Teleport to="body">
             <div v-if="showLogoModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50" @click.self="showLogoModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6">
+                <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
                     <h3 class="text-lg font-bold mb-4">{{ editingLogo ? 'Editar' : 'Nuevo' }} Logo de Cliente</h3>
                     <form @submit.prevent="saveLogo" class="space-y-4">
                         <div>
@@ -815,7 +812,7 @@ const formatPrice = (price) => {
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" @click="showLogoModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                            <button type="button" @click="showLogoModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                             <button type="submit" :disabled="logoForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                                 Guardar
                             </button>
@@ -828,7 +825,7 @@ const formatPrice = (price) => {
         <!-- Modal Marca CSAM -->
         <Teleport to="body">
             <div v-if="showMarcaModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50" @click.self="showMarcaModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6">
+                <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
                     <h3 class="text-lg font-bold mb-4">{{ editingMarca ? 'Editar' : 'Nueva' }} Marca CSAM</h3>
                     <form @submit.prevent="saveMarca" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
@@ -865,7 +862,7 @@ const formatPrice = (price) => {
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" @click="showMarcaModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                            <button type="button" @click="showMarcaModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                             <button type="submit" :disabled="marcaForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                 Guardar Configuración
                             </button>
@@ -878,20 +875,20 @@ const formatPrice = (price) => {
         <!-- Modal Proceso -->
         <Teleport to="body">
             <div v-if="showProcesoModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50" @click.self="showProcesoModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-lg w-full p-6">
+                <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
                     <h3 class="text-lg font-bold mb-4">{{ editingProceso ? 'Editar' : 'Nuevo' }} Paso del Proceso</h3>
                     <form @submit.prevent="saveProceso" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Proceso</label>
                                 <select v-model="procesoForm.tipo" class="w-full rounded-lg border-gray-300">
-                                    <option value="reparacion">🛠️ Reparación</option>
-                                    <option value="instalacion">📦 Instalación</option>
+                                    <option value="reparacion">Reparación</option>
+                                    <option value="instalacion">Instalación</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Icono/Emoji</label>
-                                <input v-model="procesoForm.icono" type="text" class="w-full rounded-lg border-gray-300 text-center" placeholder="🔍" />
+                                <input v-model="procesoForm.icono" type="text" class="w-full rounded-lg border-gray-300 text-center" placeholder="cogs" />
                             </div>
                         </div>
                         <div>
@@ -913,7 +910,7 @@ const formatPrice = (price) => {
                             </div>
                         </div>
                         <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" @click="showProcesoModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                            <button type="button" @click="showProcesoModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                             <button type="submit" :disabled="procesoForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                 Guardar Paso
                             </button>
@@ -926,13 +923,13 @@ const formatPrice = (price) => {
         <!-- Modal Oferta -->
         <Teleport to="body">
             <div v-if="showOfertaModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50" @click.self="showOfertaModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+                <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
                     <h3 class="text-lg font-bold mb-4">{{ editingOferta ? 'Editar' : 'Nueva' }} Oferta</h3>
                     <form @submit.prevent="saveOferta" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Título del Badge</label>
-                                <input v-model="ofertaForm.titulo" type="text" class="w-full rounded-lg border-gray-300" required placeholder="🔥 OFERTA ESPECIAL" />
+                                <input v-model="ofertaForm.titulo" type="text" class="w-full rounded-lg border-gray-300" required placeholder="OFERTA ESPECIAL" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Producto/Servicio</label>
@@ -952,7 +949,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div v-if="ofertaForm.precio_original > 0" class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Vista previa del precio:</p>
+                            <p class="text-sm text-gray-600">Vista previa del precio:</p>
                             <div class="flex items-center gap-4 mt-1">
                                 <span class="text-gray-400 line-through">{{ formatPrice(ofertaForm.precio_original) }}</span>
                                 <span class="text-2xl font-black text-green-600">{{ formatPrice(ofertaForm.precio_original * (1 - ofertaForm.descuento_porcentaje / 100)) }}</span>
@@ -970,14 +967,14 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div class="border-t pt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">⏰ Vigencia de la oferta (opcional)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Vigencia de la oferta (opcional)</label>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Fecha/Hora de inicio</label>
+                                    <label class="block text-xs text-gray-500 mb-1">Fecha/Hora de inicio</label>
                                     <input v-model="ofertaForm.fecha_inicio" type="datetime-local" class="w-full rounded-lg border-gray-300" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Fecha/Hora de fin (countdown)</label>
+                                    <label class="block text-xs text-gray-500 mb-1">Fecha/Hora de fin (countdown)</label>
                                     <input v-model="ofertaForm.fecha_fin" type="datetime-local" class="w-full rounded-lg border-gray-300" />
                                 </div>
                             </div>
@@ -996,7 +993,7 @@ const formatPrice = (price) => {
                         </div>
                         
                         <div class="flex justify-end gap-2 pt-4">
-                            <button type="button" @click="showOfertaModal = false" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                            <button type="button" @click="showOfertaModal = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                             <button type="submit" :disabled="ofertaForm.processing" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50">
                                 Guardar Oferta
                             </button>

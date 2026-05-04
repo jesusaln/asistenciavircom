@@ -8,6 +8,7 @@ use App\Models\EmpresaConfiguracion;
 use App\Models\Empresa;
 use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 
 class KnowledgeBaseController extends Controller
@@ -32,7 +33,10 @@ class KnowledgeBaseController extends Controller
             $query->buscar($request->buscar);
         }
 
-        $articulos = $query->orderByDesc('destacado')
+        $tieneDestacado = Schema::hasColumn('knowledge_base_articles', 'destacado');
+
+        $articulos = $query
+            ->when($tieneDestacado, fn ($builder) => $builder->orderByDesc('destacado'))
             ->orderByDesc('vistas')
             ->paginate(12)
             ->appends($request->all());

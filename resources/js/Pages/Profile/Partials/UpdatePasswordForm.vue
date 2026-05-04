@@ -38,68 +38,78 @@ const updatePassword = () => {
 </script>
 
 <template>
-    <FormSection @submitted="updatePassword">
-        <template #title>
-            <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
-                Actualizar Contraseña
-            </h2>
-        </template>
+    <div class="space-y-8">
+        <p class="text-sm text-slate-500 font-medium leading-relaxed">Protege tu cuenta utilizando una contraseña robusta. Recomendamos el uso de gestores de contraseñas para mayor seguridad.</p>
 
-        <template #description>
-            <p class="text-slate-600 dark:text-slate-400">
-                Asegúrate de que tu cuenta utilice una contraseña larga y aleatoria para mantenerla segura.
-            </p>
-        </template>
-
-        <template #form>
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="current_password" value="Contraseña Actual" class="text-slate-700 dark:text-slate-300" />
-                <TextInput
-                    id="current_password"
-                    ref="currentPasswordInput"
-                    v-model="form.current_password"
-                    type="password"
-                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
-                    autocomplete="current-password"
-                />
+        <form @submit.prevent="updatePassword" class="space-y-6">
+            <!-- Contraseña Actual -->
+            <div class="group">
+                <InputLabel for="current_password" value="Contraseña Actual" class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2" />
+                <div class="relative">
+                    <div class="absolute -inset-0.5 bg-[#ff6600]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                    <input
+                        id="current_password"
+                        ref="currentPasswordInput"
+                        v-model="form.current_password"
+                        type="password"
+                        class="relative w-full h-12 bg-slate-900/50 border border-white/5 rounded-2xl px-5 text-white focus:border-[#ff6600]/50 focus:ring-0 transition-all outline-none"
+                        autocomplete="current-password"
+                        placeholder="••••••••"
+                    />
+                </div>
                 <InputError :message="form.errors.current_password" class="mt-2" />
             </div>
 
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="password" value="Nueva Contraseña" class="text-slate-700 dark:text-slate-300" />
-                <TextInput
-                    id="password"
-                    ref="passwordInput"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
-                    autocomplete="new-password"
-                />
+            <!-- Nueva Contraseña -->
+            <div class="group">
+                <InputLabel for="password" value="Nueva Contraseña" class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2" />
+                <div class="relative">
+                    <div class="absolute -inset-0.5 bg-[#ff6600]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                    <input
+                        id="password"
+                        ref="passwordInput"
+                        v-model="form.password"
+                        type="password"
+                        class="relative w-full h-12 bg-slate-900/50 border border-white/5 rounded-2xl px-5 text-white focus:border-[#ff6600]/50 focus:ring-0 transition-all outline-none"
+                        autocomplete="new-password"
+                        placeholder="Mínimo 8 caracteres"
+                    />
+                </div>
                 <InputError :message="form.errors.password" class="mt-2" />
             </div>
 
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="password_confirmation" value="Confirmar Contraseña" class="text-slate-700 dark:text-slate-300" />
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full dark:text-white dark:bg-slate-800 dark:border-slate-700"
-                    autocomplete="new-password"
-                />
+            <!-- Confirmar Contraseña -->
+            <div class="group">
+                <InputLabel for="password_confirmation" value="Confirmar Nueva Contraseña" class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2" />
+                <div class="relative">
+                    <div class="absolute -inset-0.5 bg-[#ff6600]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                    <input
+                        id="password_confirmation"
+                        v-model="form.password_confirmation"
+                        type="password"
+                        class="relative w-full h-12 bg-slate-900/50 border border-white/5 rounded-2xl px-5 text-white focus:border-[#ff6600]/50 focus:ring-0 transition-all outline-none"
+                        autocomplete="new-password"
+                        placeholder="Repite la contraseña"
+                    />
+                </div>
                 <InputError :message="form.errors.password_confirmation" class="mt-2" />
             </div>
-        </template>
 
-        <template #actions>
-            <ActionMessage :on="form.recentlySuccessful" class="me-3 text-slate-600 dark:text-slate-400">
-                Guardado.
-            </ActionMessage>
+            <!-- Acciones -->
+            <div class="flex items-center justify-end pt-4 border-t border-white/5">
+                <ActionMessage :on="form.recentlySuccessful" class="me-4 text-emerald-400 font-bold text-xs uppercase tracking-widest animate-pulse">
+                    ¡Seguridad actualizada!
+                </ActionMessage>
 
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing" class="dark:text-white">
-                Guardar
-            </PrimaryButton>
-        </template>
-    </FormSection>
+                <button 
+                    type="submit" 
+                    :class="{ 'opacity-25': form.processing }" 
+                    :disabled="form.processing"
+                    class="h-12 px-8 bg-[#ff6600] text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white hover:scale-105 transition-all shadow-xl shadow-[#ff6600]/10"
+                >
+                    Actualizar Contraseña
+                </button>
+            </div>
+        </form>
+    </div>
 </template>
-

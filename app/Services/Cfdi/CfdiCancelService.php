@@ -7,7 +7,7 @@ use App\Models\EmpresaConfiguracion;
 use App\Models\Venta;
 use App\Services\ContpaqiService;
 use App\Services\Cfdi\CertService;
-use App\Services\VentaCancellationService;
+use App\Services\Ventas\VentaCancellationService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -58,7 +58,7 @@ class CfdiCancelService
             // Usar CertService para obtener los certificados en el formato correcto
             $keyB64 = $this->certService->getCsdKeyB64();
             $cerB64 = $this->certService->getCsdCerB64();
-            $passCsd = $config->csd_password ?? env('CSD_PASSWORD');
+            $passCsd = $config->csd_password ?? config('services.sat.csd_password');
 
             Log::info('CSD usando CertService:', [
                 'keyB64_length' => strlen($keyB64 ?? ''),

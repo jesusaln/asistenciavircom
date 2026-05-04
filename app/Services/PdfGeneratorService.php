@@ -19,6 +19,10 @@ class PdfGeneratorService
      */
     public function loadView(string $view, array $data = [], string|array $paperSize = 'letter', string $orientation = 'portrait')
     {
+        // Fix #49: Aumentar límites para reportes grandes
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', '180');
+
         // 1. Standardize Company Data Loading
         $config = EmpresaConfiguracion::getConfig();
         $empresa = EmpresaConfiguracion::getInfoEmpresa();
@@ -47,6 +51,7 @@ class PdfGeneratorService
             'defaultFont' => 'sans-serif',
             'isHtml5ParserEnabled' => true,
             'isPhpEnabled' => true,
+            'isRemoteEnabled' => true, // Importante para cargar imágenes desde storage/rutas absolutas
         ];
 
         // Ticket specific options if needed (detected by paper size array usually)
@@ -82,29 +87,18 @@ class PdfGeneratorService
 
     /**
      * Stream the PDF inline (browser view).
-     * Handles output buffer cleaning to prevent corrupt PDFs.
      *
      * @param \Barryvdh\DomPDF\PDF $pdf
      * @param string $filename
-     * @return void Ends execution and outputs content
+     * @return \Illuminate\Http\Response
      */
     public function stream($pdf, string $filename)
     {
-        $pdfContent = $pdf->output();
-
-        // Clean output buffer to remove any accidental whitespace/logs
-        while (ob_get_level()) {
+        // Clean output buffer to remove any accidental whitespace/logs before streaming
+        if (ob_get_length()) {
             ob_end_clean();
         }
 
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="' . $filename . '"');
-        header('Content-Length: ' . strlen($pdfContent));
-        header('Cache-Control: private, max-age=0, must-revalidate');
-        header('Pragma: public');
-        header('Accept-Ranges: bytes');
-
-        echo $pdfContent;
-        exit;
+        return $pdf->stream($filename);
     }
 }

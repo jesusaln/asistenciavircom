@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm rounded-xl border border-gray-100 dark:border-slate-800 hover:shadow-md transition-shadow duration-300">
+    <div class="bg-[var(--ui-surface)] text-[var(--ui-text)] overflow-hidden shadow-sm rounded-2xl border border-[var(--ui-border)] hover:shadow-md transition-shadow duration-300">
         <div class="p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -9,15 +9,15 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{{ title }}</dt>
+                        <dt class="text-sm font-medium text-[var(--ui-text-muted)] truncate">{{ title }}</dt>
                         <dd>
-                            <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ value }}</div>
+                            <div class="text-2xl font-bold">{{ value }}</div>
                         </dd>
                     </dl>
                 </div>
             </div>
         </div>
-        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 dark:border-slate-800">
+        <div class="bg-[var(--ui-surface-alt)] px-5 py-3 border-t border-[var(--ui-border)]">
             <div class="text-sm">
                 <span class="font-medium text-blue-600 hover:text-blue-500 transition-colors cursor-pointer" @click="$emit('click')">
                     Ver detalles <span aria-hidden="true">&rarr;</span>
@@ -57,4 +57,3 @@ const colorClass = computed(() => {
     return colors[props.color] || colors.blue;
 });
 </script>
-

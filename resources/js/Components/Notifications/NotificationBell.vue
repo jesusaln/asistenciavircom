@@ -93,6 +93,8 @@ import Swal from 'sweetalert2'
 export default {
   name: 'NotificationBell',
 
+  emits: ['notification-clicked'],
+
   data() {
     return {
       notifications: [],
@@ -164,7 +166,8 @@ export default {
     async loadUnreadCount() {
       try {
         const response = await axios.get('/notifications/unread-count', {
-          timeout: 20000 // Aumentado a 20s para mayor resiliencia
+          timeout: 10000,
+          skipGlobalErrorHandler: true
         });
         const newCount = response.data.unread_count || 0;
         
@@ -211,6 +214,11 @@ export default {
     },
 
     async markAsRead(notificationId) {
+      const notification = this.notifications.find(n => n.id === notificationId)
+      if (notification?.action_url) {
+        this.$emit('notification-clicked', notification)
+      }
+
       try {
         await axios.post('/notifications/mark-as-read', { ids: [notificationId] });
 

@@ -18,6 +18,99 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppConfigService
 {
     /**
+     * Token de Graph API para descargar medios (imagen, audio, etc.).
+     * No exige business_account_id ni phone_number_id.
+     *
+     * Orden: WHATSAPP_ACCESS_TOKEN (config) → columna empresa (encriptada) → whatsapp.dev.json (solo entorno local).
+     */
+    public static function resolveGraphAccessToken(?Empresa $empresa): ?string
+    {
+        $fromConfig = config('whatsapp.access_token');
+        if (is_string($fromConfig) && trim($fromConfig) !== '') {
+            return trim($fromConfig);
+        }
+
+        if ($empresa) {
+            try {
+                $fromDb = $empresa->whatsapp_access_token;
+                if (is_string($fromDb) && trim($fromDb) !== '') {
+                    return trim($fromDb);
+                }
+            } catch (\Throwable $e) {
+                Log::channel('whatsapp')->warning('WhatsApp token: error al leer o desencriptar', [
+                    'empresa_id' => $empresa->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $fromDev = self::readDevFileAccessToken($empresa);
+        if ($fromDev !== null) {
+            return $fromDev;
+        }
+
+        Log::channel('whatsapp')->warning('WhatsApp resolveGraphAccessToken: sin token (configura WHATSAPP_ACCESS_TOKEN o token en empresa)', [
+            'empresa_id' => $empresa?->id,
+        ]);
+
+        return null;
+    }
+
+    /**
+     * Misma fuente que loadConfigFromDevFile: empresa_1.access_token si env y BD están vacíos.
+     */
+    private static function readDevFileAccessToken(?Empresa $empresa): ?string
+    {
+        if (! app()->environment('local')) {
+            return null;
+        }
+
+        if (! empty(config('whatsapp.access_token'))) {
+            return null;
+        }
+
+        $empresaTokenEmpty = true;
+        if ($empresa) {
+            try {
+                $empresaTokenEmpty = empty(trim((string) $empresa->whatsapp_access_token));
+            } catch (\Throwable $e) {
+                $empresaTokenEmpty = true;
+            }
+        }
+
+        if (! $empresaTokenEmpty) {
+            return null;
+        }
+
+        $relative = config('whatsapp.dev_config_file', 'whatsapp.dev.json');
+        $paths = array_unique(array_filter([
+            base_path($relative),
+            $relative,
+        ]));
+
+        $contents = null;
+        foreach ($paths as $path) {
+            if ($path && is_readable($path)) {
+                $contents = @file_get_contents($path);
+                break;
+            }
+        }
+
+        if ($contents === false || $contents === null) {
+            return null;
+        }
+
+        $devConfig = json_decode($contents, true);
+        if (! is_array($devConfig) || ! isset($devConfig['empresa_1']['access_token'])) {
+            return null;
+        }
+
+        $tok = $devConfig['empresa_1']['access_token'];
+
+        return is_string($tok) && trim($tok) !== '' ? trim($tok) : null;
+    }
+
+    /**
      * Obtener configuración completa de WhatsApp para una empresa
      */
     public static function getConfig(?int $empresaId = null): array
@@ -46,13 +139,13 @@ class WhatsAppConfigService
     private static function loadConfigFromEnv(): array
     {
         return [
-            'graph_version' => env('WHATSAPP_GRAPH_VERSION', 'v20.0'),
-            'default_language' => env('WHATSAPP_DEFAULT_LANGUAGE', 'es_MX'),
-            'request_timeout' => env('WHATSAPP_REQUEST_TIMEOUT', 30),
-            'business_account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
-            'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
-            'access_token' => env('WHATSAPP_ACCESS_TOKEN'),
-            'default_template' => env('WHATSAPP_DEFAULT_TEMPLATE', 'saludo'),
+            'graph_version' => config('whatsapp.graph_version', 'v20.0'),
+            'default_language' => config('whatsapp.default_language', 'es_MX'),
+            'request_timeout' => config('whatsapp.request_timeout', 30),
+            'business_account_id' => config('whatsapp.business_account_id'),
+            'phone_number_id' => config('whatsapp.phone_number_id'),
+            'access_token' => config('whatsapp.access_token'),
+            'default_template' => config('whatsapp.default_template', 'saludo'),
         ];
     }
 
@@ -64,28 +157,20 @@ class WhatsAppConfigService
         $config = [];
 
         // Solo usar valores de BD si no están en env (prioridad a env)
-        if (empty(env('WHATSAPP_BUSINESS_ACCOUNT_ID')) && $empresa->whatsapp_business_account_id) {
+        if (empty(config('whatsapp.business_account_id')) && $empresa->whatsapp_business_account_id) {
             $config['business_account_id'] = $empresa->whatsapp_business_account_id;
         }
 
-        if (empty(env('WHATSAPP_PHONE_NUMBER_ID')) && $empresa->whatsapp_phone_number_id) {
+        if (empty(config('whatsapp.phone_number_id')) && $empresa->whatsapp_phone_number_id) {
             $config['phone_number_id'] = $empresa->whatsapp_phone_number_id;
         }
 
-        if (empty(env('WHATSAPP_ACCESS_TOKEN')) && $empresa->whatsapp_access_token) {
-            // Desencriptar token si es necesario
-            try {
-                $config['access_token'] = decrypt($empresa->whatsapp_access_token);
-            } catch (\Exception $e) {
-                // Si falla la desencriptación, usar el token tal cual
-                $config['access_token'] = $empresa->whatsapp_access_token;
-                Log::info('Usando token sin encriptar desde BD', [
-                    'empresa_id' => $empresa->id,
-                ]);
-            }
+        if (empty(config('whatsapp.access_token')) && $empresa->whatsapp_access_token) {
+            $raw = $empresa->whatsapp_access_token;
+            $config['access_token'] = is_string($raw) ? trim($raw) : (string) $raw;
         }
 
-        if (empty(env('WHATSAPP_DEFAULT_TEMPLATE')) && $empresa->whatsapp_template_payment_reminder) {
+        if (empty(config('whatsapp.default_template')) && $empresa->whatsapp_template_payment_reminder) {
             $config['default_template'] = $empresa->whatsapp_template_payment_reminder;
         }
 
@@ -98,77 +183,75 @@ class WhatsAppConfigService
     private static function loadConfigFromDevFile(): array
     {
         // Solo cargar en desarrollo y si no hay configuración en env o BD
-        if (env('APP_ENV') !== 'local') {
-            return [];
-        }
+        if (app()->environment('local')) {
+            $configFile = config('whatsapp.dev_config_file', 'whatsapp.dev.json');
 
-        $configFile = env('WHATSAPP_DEV_CONFIG_FILE', 'whatsapp.dev.json');
-
-        if (!file_exists($configFile)) {
-            return [];
-        }
-
-        try {
-            $devConfig = json_decode(file_get_contents($configFile), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::warning('Error al leer archivo de configuración de desarrollo', [
-                    'file' => $configFile,
-                    'error' => json_last_error_msg(),
-                ]);
+            if (!file_exists($configFile)) {
                 return [];
             }
 
-            // Usar configuración de desarrollo solo si no está en env o BD
-            $config = [];
+            try {
+                $devConfig = json_decode(file_get_contents($configFile), true);
 
-            if (isset($devConfig['empresa_1'])) {
-                $empresa1 = $devConfig['empresa_1'];
-                $empresaId = EmpresaResolver::resolveId();
-                $empresa = $empresaId ? Empresa::find($empresaId) : null;
-                $empresa = $empresa ?: new Empresa();
-
-                if (
-                    empty(env('WHATSAPP_BUSINESS_ACCOUNT_ID')) &&
-                    empty($empresa->whatsapp_business_account_id) &&
-                    isset($empresa1['business_account_id'])
-                ) {
-                    $config['business_account_id'] = $empresa1['business_account_id'];
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    Log::warning('Error al leer archivo de configuración de desarrollo', [
+                        'file' => $configFile,
+                        'error' => json_last_error_msg(),
+                    ]);
+                    return [];
                 }
 
-                if (
-                    empty(env('WHATSAPP_PHONE_NUMBER_ID')) &&
-                    empty($empresa->whatsapp_phone_number_id) &&
-                    isset($empresa1['phone_number_id'])
-                ) {
-                    $config['phone_number_id'] = $empresa1['phone_number_id'];
+                // Usar configuración de desarrollo solo si no está en env o BD
+                $config = [];
+
+                if (isset($devConfig['empresa_1'])) {
+                    $empresa1 = $devConfig['empresa_1'];
+                    $empresaId = EmpresaResolver::resolveId();
+                    $empresa = $empresaId ? Empresa::find($empresaId) : null;
+                    $empresa = $empresa ?: new Empresa();
+
+                    if (
+                        empty(config('whatsapp.business_account_id')) &&
+                        empty($empresa->whatsapp_business_account_id) &&
+                        isset($empresa1['business_account_id'])
+                    ) {
+                        $config['business_account_id'] = $empresa1['business_account_id'];
+                    }
+
+                    if (
+                        empty(config('whatsapp.phone_number_id')) &&
+                        empty($empresa->whatsapp_phone_number_id) &&
+                        isset($empresa1['phone_number_id'])
+                    ) {
+                        $config['phone_number_id'] = $empresa1['phone_number_id'];
+                    }
+
+                    if (
+                        empty(config('whatsapp.access_token')) &&
+                        empty($empresa->whatsapp_access_token) &&
+                        isset($empresa1['access_token'])
+                    ) {
+                        $config['access_token'] = $empresa1['access_token'];
+                    }
+
+                    if (
+                        empty(config('whatsapp.default_template')) &&
+                        empty($empresa->whatsapp_template_payment_reminder) &&
+                        isset($empresa1['default_template'])
+                    ) {
+                        $config['default_template'] = $empresa1['default_template'];
+                    }
                 }
 
-                if (
-                    empty(env('WHATSAPP_ACCESS_TOKEN')) &&
-                    empty($empresa->whatsapp_access_token) &&
-                    isset($empresa1['access_token'])
-                ) {
-                    $config['access_token'] = $empresa1['access_token'];
-                }
-
-                if (
-                    empty(env('WHATSAPP_DEFAULT_TEMPLATE')) &&
-                    empty($empresa->whatsapp_template_payment_reminder) &&
-                    isset($empresa1['default_template'])
-                ) {
-                    $config['default_template'] = $empresa1['default_template'];
-                }
+                return $config;
+            } catch (\Exception $e) {
+                Log::warning('Error al cargar configuración de desarrollo', [
+                    'error' => $e->getMessage(),
+                ]);
             }
-
-            return $config;
-
-        } catch (\Exception $e) {
-            Log::warning('Error al cargar configuración de desarrollo', [
-                'error' => $e->getMessage(),
-            ]);
-            return [];
         }
+
+        return [];
     }
 
     /**
@@ -241,7 +324,7 @@ class WhatsAppConfigService
         return [
             'env_file' => app()->environmentFilePath(),
             'database' => 'empresa.whatsapp_* fields',
-            'dev_file' => env('WHATSAPP_DEV_CONFIG_FILE', 'whatsapp.dev.json'),
+            'dev_file' => config('whatsapp.dev_config_file', 'whatsapp.dev.json'),
             'cache_enabled' => true,
             'cache_ttl' => config('whatsapp.security.token_cache_ttl', 3600),
         ];

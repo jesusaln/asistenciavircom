@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class PlanPoliza extends Model
 {
     use HasFactory, SoftDeletes, BelongsToEmpresa;
+
+    protected static array $columnExistsCache = [];
 
     protected $table = 'plan_polizas';
 
@@ -52,21 +55,6 @@ class PlanPoliza extends Model
         'visitas_sitio_mensuales',
         'costo_visita_sitio_extra',
         'costo_ticket_extra',
-        'moneda',
-        'precio_trimestral',
-        'precio_semestral',
-        'iva_tasa',
-        'iva_incluido',
-        'limit_dia_pago',
-        'dias_gracia_cobranza',
-        'recargo_pago_tardio',
-        'tipo_recargo',
-        'limite_usuarios_soporte',
-        'limite_ubicaciones',
-        'soporte_remoto_ilimitado',
-        'soporte_presencial_incluido',
-        'requiere_orden_compra',
-        'metodo_pago_sugerido',
     ];
 
     protected $casts = [
@@ -85,18 +73,6 @@ class PlanPoliza extends Model
         'destacado' => 'boolean',
         'visible_catalogo' => 'boolean',
         'generar_cita_automatica' => 'boolean',
-        'precio_trimestral' => 'decimal:2',
-        'precio_semestral' => 'decimal:2',
-        'iva_tasa' => 'decimal:2',
-        'iva_incluido' => 'boolean',
-        'limit_dia_pago' => 'integer',
-        'dias_gracia_cobranza' => 'integer',
-        'recargo_pago_tardio' => 'decimal:2',
-        'limite_usuarios_soporte' => 'integer',
-        'limite_ubicaciones' => 'integer',
-        'soporte_remoto_ilimitado' => 'boolean',
-        'soporte_presencial_incluido' => 'boolean',
-        'requiere_orden_compra' => 'boolean',
     ];
 
     /**
@@ -118,7 +94,15 @@ class PlanPoliza extends Model
      */
     public function scopePublicos($query)
     {
-        return $query->where('activo', true)->where('visible_catalogo', true);
+        if (self::hasColumn('activo')) {
+            $query->where('activo', true);
+        }
+
+        if (self::hasColumn('visible_catalogo')) {
+            $query->where('visible_catalogo', true);
+        }
+
+        return $query;
     }
 
     /**
@@ -126,6 +110,10 @@ class PlanPoliza extends Model
      */
     public function scopeActivos($query)
     {
+        if (!self::hasColumn('activo')) {
+            return $query;
+        }
+
         return $query->where('activo', true);
     }
 
@@ -134,6 +122,10 @@ class PlanPoliza extends Model
      */
     public function scopeDestacados($query)
     {
+        if (!self::hasColumn('destacado')) {
+            return $query;
+        }
+
         return $query->where('destacado', true);
     }
 
@@ -142,7 +134,11 @@ class PlanPoliza extends Model
      */
     public function scopeOrdenado($query)
     {
-        return $query->orderBy('orden')->orderBy('nombre');
+        if (self::hasColumn('orden')) {
+            $query->orderBy('orden');
+        }
+
+        return $query->orderBy('nombre');
     }
 
     /**
@@ -212,8 +208,6 @@ class PlanPoliza extends Model
      */
     public function getTipoLabelAttribute()
     {
-        if (!$this->tipo)
-            return 'General';
         return self::tipos()[$this->tipo] ?? ucfirst($this->tipo);
     }
 
@@ -257,5 +251,20 @@ class PlanPoliza extends Model
         }
 
         return $cache[$this->id];
+    }
+
+    protected static function hasColumn(string $column): bool
+    {
+        $key = static::class . ':' . $column;
+
+        if (!array_key_exists($key, self::$columnExistsCache)) {
+            try {
+                self::$columnExistsCache[$key] = Schema::hasColumn((new static())->getTable(), $column);
+            } catch (\Throwable $e) {
+                self::$columnExistsCache[$key] = false;
+            }
+        }
+
+        return self::$columnExistsCache[$key];
     }
 }

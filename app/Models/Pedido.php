@@ -32,6 +32,8 @@ class Pedido extends Model
         'email_enviado',
         'email_enviado_fecha',
         'email_enviado_por',
+        // Token para compartir pedido
+        'sharing_token',
     ];
 
     protected $casts = [
@@ -112,6 +114,26 @@ class Pedido extends Model
     public function deletedBy()
     {
         return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    protected static function booted()
+    {
+        static::creating(function (Pedido $pedido) {
+            if (empty($pedido->sharing_token)) {
+                $pedido->sharing_token = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    /**
+     * Buscar pedido por token
+     */
+    public static function findByToken(string $token): ?self
+    {
+        if (!\Illuminate\Support\Str::isUuid($token)) {
+            return null;
+        }
+        return self::where('sharing_token', $token)->first();
     }
 
     // Relación con el usuario que envió el email

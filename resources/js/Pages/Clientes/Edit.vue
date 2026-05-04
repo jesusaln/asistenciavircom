@@ -1,113 +1,187 @@
 <template>
   <Head title="Editar Cliente" />
-  <div class="w-full p-4" :style="cssVars">
-    <!-- Card principal con glassmorphism -->
-    <div class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl dark:shadow-none rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
-      <!-- Header moderno -->
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
+
+  <div class="w-full p-4 md:p-6" :style="cssVars">
+    <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+
+      <!-- Header compacto -->
+      <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 dark:text-gray-100">Editar Cliente</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-0.5">Modifique los datos del cliente seleccionado</p>
+            <h1 class="text-lg font-black tracking-tight text-gray-900 dark:text-white">Editar Cliente: {{ cliente.nombre_razon_social }}</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Paso {{ wizard.currentStepIndex + 1 }} de {{ wizard.steps.length }} · {{ wizard.progress }}%</p>
           </div>
         </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 flex items-center gap-1">
-          <span class="w-2 h-2 rounded-full bg-red-500"></span>
-          Campos obligatorios marcados con <span class="text-red-500 ml-1">*</span>
+        <div class="hidden items-center gap-2 sm:flex">
+          <div class="h-2 w-32 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+            <div class="h-full rounded-full transition-all duration-500 ease-out" :style="{ width: `${wizard.progress}%`, background: `linear-gradient(90deg, ${colors.principal}, ${colors.secundario})` }" />
+          </div>
+          <span class="text-xs font-bold text-gray-400">{{ wizard.progress }}%</span>
         </div>
       </div>
 
-      <!-- Resumen de errores -->
-      <div v-if="hasGlobalErrors" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
-        <div class="flex">
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">Error en el formulario</h3>
-            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
-              <ul class="list-disc list-inside space-y-1">
-                <li v-for="(error, key) in form.errors" :key="key">
-                  {{ Array.isArray(error) ? error[0] : error }}
-                </li>
-              </ul>
+      <!-- Navegacion de pasos tipo stepper -->
+      <div class="flex border-b border-gray-100 dark:border-gray-700 overflow-x-auto scrollbar-hide">
+        <button
+          v-for="(step, index) in wizard.steps"
+          :key="step.key"
+          type="button"
+          :disabled="!wizard.canVisitStep(index)"
+          @click="wizard.goToStep(index)"
+          class="group relative flex min-w-[140px] flex-1 items-center gap-2.5 px-4 py-3 text-left transition-all disabled:cursor-not-allowed disabled:opacity-40"
+          :class="[
+            wizard.currentStepIndex === index
+              ? 'bg-gray-50 dark:bg-gray-750'
+              : wizard.hasServerErrorsForStep(step)
+                ? 'bg-rose-50/50 dark:bg-rose-950/20'
+                : 'hover:bg-gray-50/50 dark:hover:bg-gray-750/50'
+          ]"
+        >
+          <!-- Indicador activo -->
+          <div
+            v-if="wizard.currentStepIndex === index"
+            class="absolute inset-x-0 bottom-0 h-0.5 rounded-full"
+            :style="{ background: `linear-gradient(90deg, ${colors.principal}, ${colors.secundario})` }"
+          />
+
+          <!-- Numero/check del paso -->
+          <div
+            class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-xs font-black transition-all"
+            :class="[
+              wizard.currentStepIndex === index
+                ? 'text-white shadow-sm'
+                : index < wizard.currentStepIndex
+                  ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                  : wizard.hasServerErrorsForStep(step)
+                    ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
+                    : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+            ]"
+            :style="wizard.currentStepIndex === index ? { background: `linear-gradient(135deg, ${colors.principal}, ${colors.secundario})` } : {}"
+          >
+            <svg v-if="index < wizard.currentStepIndex" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+            <span v-else>{{ index + 1 }}</span>
+          </div>
+
+          <!-- Titulo del paso -->
+          <div class="min-w-0">
+            <div
+              class="truncate text-sm font-bold"
+              :class="[
+                wizard.currentStepIndex === index
+                  ? 'text-gray-900 dark:text-white'
+                  : wizard.hasServerErrorsForStep(step)
+                    ? 'text-rose-700 dark:text-rose-400'
+                    : 'text-gray-600 dark:text-gray-300'
+              ]"
+            >{{ step.title }}</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="relative p-6">
+
+        <div v-if="hasGlobalErrors" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">
+          <h3 class="text-sm font-black uppercase tracking-[0.2em]">Errores del formulario</h3>
+          <ul class="mt-3 space-y-1 text-sm">
+            <li v-for="(error, key) in form.errors" :key="key">{{ Array.isArray(error) ? error[0] : error }}</li>
+          </ul>
+        </div>
+
+        <div
+          v-if="wizard.currentStepHasClientIssues"
+          class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100"
+        >
+          <h3 class="text-sm font-black uppercase tracking-[0.2em]">Completa este paso antes de continuar</h3>
+          <ul class="mt-3 space-y-1 text-sm">
+            <li v-for="issue in wizard.currentStepIssues" :key="issue">{{ issue }}</li>
+          </ul>
+        </div>
+
+        <div
+          v-if="showSuccessMessage"
+          class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200"
+        >
+          Cliente actualizado exitosamente.
+        </div>
+
+        <div
+          v-if="showAutoCompleteMessage"
+          class="mb-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-800 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-200"
+        >
+          La direccion se autocompleto con estado y municipio a partir del codigo postal.
+        </div>
+
+        <form @submit.prevent="submit" autocomplete="off">
+          <div class="rounded-2xl border border-gray-200 bg-gray-50/80 p-6 dark:border-gray-700 dark:bg-slate-900/60">
+            <div class="mb-5 flex items-center gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+              <div class="text-lg font-black tracking-tight text-slate-900 dark:text-white">
+                {{ wizard.currentStep?.title || 'Cargando...' }}
+              </div>
+              <span class="text-sm text-slate-500 dark:text-slate-400">—</span>
+              <div class="text-sm text-slate-500 dark:text-slate-400">
+                {{ wizard.currentStep?.description || '' }}
+              </div>
+            </div>
+
+            <ClientForm
+              v-if="wizard.currentStep.key !== 'expediente'"
+              :form="form"
+              :catalogs="catalogs"
+              :is-edit="true"
+              :available-colonias="availableColonias"
+              :is-loading-cp="isLoadingCp"
+              :visible-sections="wizard.currentVisibleSections"
+              @factura-change="onFacturaChange"
+              @tipo-persona-change="onTipoPersonaChange"
+              @cp-input="onCpInput"
+            />
+
+            <div v-else class="space-y-6">
+              <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 text-indigo-900 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-indigo-100">
+                Centraliza los documentos del cliente dentro del mismo flujo de edicion.
+              </div>
+              <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Mensaje de éxito -->
-      <div
-        v-if="showSuccessMessage"
-        class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-md"
-        aria-live="polite"
-      >
-        <p class="text-sm font-medium text-green-800 dark:text-green-300">Cliente actualizado exitosamente</p>
-      </div>
+          <div class="mt-6 flex flex-col gap-4 border-t border-gray-200 pt-5 dark:border-gray-700 md:flex-row md:items-center md:justify-between">
+            <div class="flex flex-wrap gap-3">
+              <button
+                v-if="wizard.currentStepIndex > 0"
+                type="button"
+                @click="wizard.goPrevious"
+                class="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                ← Anterior
+              </button>
+            </div>
 
-      <!-- Mensaje de autocompletado -->
-      <div
-        v-if="showAutoCompleteMessage"
-        class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md"
-        aria-live="polite"
-      >
-        <div class="flex">
-           <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-blue-400 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-            </svg>
+            <div class="flex items-center gap-3">
+              <button
+                type="submit"
+                :disabled="form.processing || !form.nombre_razon_social"
+                class="rounded-xl border-2 px-5 py-2.5 text-sm font-bold transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                :style="{ borderColor: colors.principal, color: colors.principal }"
+              >
+                <span v-if="form.processing">Guardando...</span>
+                <span v-else>Guardar cambios</span>
+              </button>
+              <button
+                v-if="!wizard.isLastStep"
+                type="button"
+                @click="goNextStep"
+                class="rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-95"
+                :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }"
+              >
+                Siguiente →
+              </button>
+            </div>
           </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-blue-800 dark:text-blue-300">Dirección autocompletada</p>
-            <p class="text-sm text-blue-700 dark:text-blue-200">Los campos de estado y municipio se han completado automáticamente.</p>
-          </div>
-        </div>
+        </form>
       </div>
-
-      <form @submit.prevent="submit" class="space-y-8" autocomplete="off">
-        <ClientForm
-          :form="form"
-          :catalogs="catalogs"
-          :is-edit="true"
-          :available-colonias="availableColonias"
-          :is-loading-cp="isLoadingCp"
-          @factura-change="onFacturaChange"
-          @tipo-persona-change="onTipoPersonaChange"
-          @cp-input="onCpInput"
-        />
-
-        <!-- Sección de Expediente de Crédito (Solo en Edit) -->
-        <div class="mt-12 pt-12 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
-             <ExpedienteCredito :cliente="cliente" :documentos="cliente.documentos" />
-        </div>
-
-        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-slate-800 dark:border-gray-700">
-            <button
-              type="button"
-              @click="resetForm"
-              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Restaurar
-            </button>
-            <button
-              type="submit"
-              :disabled="form.processing"
-              class="px-6 py-2.5 text-sm font-semibold text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
-              :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }"
-            >
-              <span v-if="form.processing" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Guardando...
-              </span>
-              <span v-else>Guardar Cambios</span>
-            </button>
-          </div>
-      </form>
     </div>
   </div>
 </template>
@@ -115,15 +189,15 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3'
 import axios from 'axios'
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ClientForm from './Partials/ClientForm.vue'
 import ExpedienteCredito from './Partials/ExpedienteCredito.vue'
+import { useClientWizard } from './Partials/useClientWizard'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
 
 defineOptions({ layout: AppLayout })
 
-// Colores de empresa
 const { cssVars, colors } = useCompanyColors()
 
 const props = defineProps({
@@ -137,20 +211,18 @@ const showAutoCompleteMessage = ref(false)
 const availableColonias = ref([])
 const isLoadingCp = ref(false)
 
-// Mapeo de estados mexicanos con códigos SAT (Case Insensitive)
 const estadoMapping = {
   'AGUASCALIENTES': 'AGU', 'BAJA CALIFORNIA': 'BCN', 'BAJA CALIFORNIA SUR': 'BCS', 'CAMPECHE': 'CAM',
-  'CHIAPAS': 'CHP', 'CHIHUAHUA': 'CHH', 'CIUDAD DE MÉXICO': 'DIF', 'COAHUILA': 'COA', 'COLIMA': 'COL',
+  'CHIAPAS': 'CHP', 'CHIHUAHUA': 'CHH', 'CIUDAD DE MEXICO': 'DIF', 'COAHUILA': 'COA', 'COLIMA': 'COL',
   'DURANGO': 'DUR', 'GUANAJUATO': 'GUA', 'GUERRERO': 'GRO', 'HIDALGO': 'HID', 'JALISCO': 'JAL',
-  'MÉXICO': 'MEX', 'MICHOACÁN': 'MIC', 'MORELOS': 'MOR', 'NAYARIT': 'NAY', 'NUEVO LEÓN': 'NLE',
-  'OAXACA': 'OAX', 'PUEBLA': 'PUE', 'QUERÉTARO': 'QUE', 'QUINTANA ROO': 'ROO', 'SAN LUIS POTOSÍ': 'SLP',
+  'MEXICO': 'MEX', 'MICHOACAN': 'MIC', 'MORELOS': 'MOR', 'NAYARIT': 'NAY', 'NUEVO LEON': 'NLE',
+  'OAXACA': 'OAX', 'PUEBLA': 'PUE', 'QUERETARO': 'QUE', 'QUINTANA ROO': 'ROO', 'SAN LUIS POTOSI': 'SLP',
   'SINALOA': 'SIN', 'SONORA': 'SON', 'TABASCO': 'TAB', 'TAMAULIPAS': 'TAM', 'TLAXCALA': 'TLA',
-  'VERACRUZ': 'VER', 'YUCATÁN': 'YUC', 'ZACATECAS': 'ZAC'
+  'VERACRUZ': 'VER', 'YUCATAN': 'YUC', 'ZACATECAS': 'ZAC'
 }
 
 const form = useForm({
   cliente_id: props.cliente.id,
-  // Información General
   requiere_factura: props.cliente.requiere_factura ?? false,
   nombre_razon_social: props.cliente.nombre_razon_social ?? '',
   email: props.cliente.email ?? '',
@@ -158,13 +230,8 @@ const form = useForm({
   password_confirmation: '',
   telefono: props.cliente.telefono ?? '',
   whatsapp_optin: !!props.cliente.whatsapp_optin,
-  rustdesk_id: props.cliente.rustdesk_id ?? '',
-  rustdesk_alias: props.cliente.rustdesk_alias ?? '',
-
-  // Lista de Precios
+  marketing_optin: !!props.cliente.marketing_optin,
   price_list_id: props.cliente.price_list_id ?? '',
-
-  // Dirección
   mostrar_direccion: props.cliente.mostrar_direccion ?? (!!props.cliente.calle || !!props.cliente.codigo_postal),
   calle: props.cliente.calle ?? '',
   numero_exterior: props.cliente.numero_exterior ?? '',
@@ -174,16 +241,12 @@ const form = useForm({
   municipio: props.cliente.municipio ?? '',
   estado: props.cliente.estado ?? '',
   pais: props.cliente.pais ?? 'MX',
-
-  // Estado y Crédito
   activo: !!props.cliente.activo,
   credito_activo: !!props.cliente.credito_activo,
   estado_credito: props.cliente.estado_credito ?? 'sin_credito',
   limite_credito: props.cliente.limite_credito ?? '',
   dias_credito: props.cliente.dias_credito ?? 30,
   dias_gracia: props.cliente.dias_gracia ?? '',
-
-  // Información Fiscal
   tipo_persona: props.cliente.tipo_persona ?? 'fisica',
   rfc: props.cliente.rfc ?? '',
   curp: props.cliente.curp ?? '',
@@ -193,144 +256,155 @@ const form = useForm({
   forma_pago_default: props.cliente.forma_pago_default ?? '',
 })
 
-const hasGlobalErrors = computed(() => {
-  return Object.keys(form.errors).length > 0
-})
+const wizard = useClientWizard(form, { isEdit: true })
 
-// === Watchers ===
+const hasGlobalErrors = computed(() => Object.keys(form.errors).length > 0)
+
 watch(() => form.tipo_persona, (newVal, oldVal) => {
-  if (newVal !== oldVal && oldVal) { 
-     // Solo resetear si cambia explícitamente y había valor previo (no inicialización)
-     // Pero en Edit, form.tipo_persona se inicializa.
-     // Si cambiamos tipo, deberíamos limpiar?
-     if (newVal === 'moral') {
-        form.curp = ''
-        form.clearErrors('curp')
-     }
+  if (newVal !== oldVal && oldVal && newVal === 'moral') {
+    form.curp = ''
+    form.clearErrors('curp')
   }
 })
 
 watch(() => form.mostrar_direccion, (val) => {
-   if (!val) {
-     form.calle = ''; form.numero_exterior = ''; form.numero_interior = '';
-     form.colonia = ''; form.codigo_postal = ''; form.municipio = '';
-     form.estado = ''; form.pais = '';
-     form.clearErrors(['calle', 'numero_exterior', 'codigo_postal', 'municipio'])
-   }
+  if (!val) {
+    form.calle = ''
+    form.numero_exterior = ''
+    form.numero_interior = ''
+    form.colonia = ''
+    form.codigo_postal = ''
+    form.municipio = ''
+    form.estado = ''
+    form.pais = ''
+    form.clearErrors(['calle', 'numero_exterior', 'codigo_postal', 'municipio'])
+  }
 })
 
-// === Lifecycle ===
 onMounted(() => {
-    if (form.codigo_postal && form.codigo_postal.length === 5) {
-        loadColonias(form.codigo_postal)
-    }
+  if (form.codigo_postal && form.codigo_postal.length === 5) {
+    loadColonias(form.codigo_postal)
+  }
 })
 
-// === Handlers ===
 const onFacturaChange = () => {
-    if (!form.requiere_factura) {
-        form.tipo_persona = ''; form.rfc = ''; form.curp = '';
-        form.regimen_fiscal = ''; form.uso_cfdi = 'G03';
-        form.clearErrors(['tipo_persona', 'rfc', 'regimen_fiscal'])
-    }
+  if (!form.requiere_factura) {
+    form.tipo_persona = ''
+    form.rfc = ''
+    form.curp = ''
+    form.regimen_fiscal = ''
+    form.uso_cfdi = 'G03'
+    form.domicilio_fiscal_cp = ''
+    form.forma_pago_default = ''
+    form.clearErrors(['tipo_persona', 'rfc', 'regimen_fiscal', 'domicilio_fiscal_cp'])
+  } else if (!form.tipo_persona) {
+    form.tipo_persona = props.cliente?.tipo_persona || 'fisica'
+  }
 }
 
 const onTipoPersonaChange = () => {
-   // En edición, si el usuario cambia el tipo, limpiamos los campos dependientes
-   const originalTipo = props.cliente?.tipo_persona
-   if (form.tipo_persona !== originalTipo) {
-       form.rfc = ''
-       form.regimen_fiscal = ''
-       form.clearErrors(['rfc', 'regimen_fiscal'])
-   }
+  const originalTipo = props.cliente?.tipo_persona
+  if (form.tipo_persona !== originalTipo) {
+    form.rfc = ''
+    form.regimen_fiscal = ''
+    form.clearErrors(['rfc', 'regimen_fiscal'])
+  }
+}
+
+const normalizeStateName = (value) => {
+  return value
+    .trim()
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
 }
 
 const loadColonias = async (cp) => {
-    isLoadingCp.value = true
-    try {
-        const response = await axios.get(`/api/cp/${cp}`)
-        const data = response.data
-        availableColonias.value = data.colonias || []
-        
-        // Si la colonia actual no está en la lista (e.g. cambió CP), manejarlo? 
-        // O si está cargando inicial, mantener la que viene del modelo.
-    } catch (e) {
-        console.warn('Error fetching colonias', e)
-        availableColonias.value = []
-    } finally {
-        isLoadingCp.value = false
-    }
+  isLoadingCp.value = true
+  try {
+    const response = await axios.get(`/api/cp/${cp}`)
+    availableColonias.value = response.data.colonias || []
+  } catch (error) {
+    console.warn('Error fetching colonias', error)
+    availableColonias.value = []
+  } finally {
+    isLoadingCp.value = false
+  }
 }
 
 const onCpInput = async (val) => {
-    const digits = String(val).replace(/\D/g, '').slice(0, 5)
-    
-    if (digits.length === 5) {
-        isLoadingCp.value = true
-        try {
-            const response = await axios.get(`/api/cp/${digits}`)
-            const data = response.data
-            
-            if (data.estado) {
-                const nombre = data.estado.trim().toUpperCase()
-                const code = estadoMapping[nombre] || Object.entries(estadoMapping).find(([k,v]) => k.includes(nombre))?.[1] || data.estado
-                form.estado = code
-            }
-            if (data.municipio) form.municipio = data.municipio
-            if (!form.pais) form.pais = data.pais
-            
-            availableColonias.value = data.colonias || []
-            
-            // Lógica de selección inteligente
-            if (availableColonias.value.length === 1) {
-                form.colonia = availableColonias.value[0]
-            } else if (!availableColonias.value.includes(form.colonia)) {
-                 form.colonia = '' // Limpiar si la anterior no es válida para el nuevo CP
-            }
-            
-            form.clearErrors(['estado', 'municipio', 'pais'])
-            
-            if (data.estado || data.municipio) {
-                 showAutoCompleteMessage.value = true
-                 setTimeout(() => showAutoCompleteMessage.value = false, 3000)
-            }
-        } catch (e) {
-            console.warn('Error CP', e)
-            availableColonias.value = []
-        } finally {
-            isLoadingCp.value = false
-        }
-    } else {
-        availableColonias.value = []
+  const digits = String(val).replace(/\D/g, '').slice(0, 5)
+
+  if (digits.length === 5) {
+    isLoadingCp.value = true
+    try {
+      const response = await axios.get(`/api/cp/${digits}`)
+      const data = response.data
+
+      if (data.estado) {
+        const nombre = normalizeStateName(data.estado)
+        const code = estadoMapping[nombre] || data.estado
+        form.estado = code
+      }
+      if (data.municipio) form.municipio = data.municipio
+      if (!form.pais) form.pais = data.pais
+
+      availableColonias.value = data.colonias || []
+      if (availableColonias.value.length === 1) {
+        form.colonia = availableColonias.value[0]
+      }
+
+      form.clearErrors(['estado', 'municipio', 'pais'])
+
+      if (data.estado || data.municipio) {
+        showAutoCompleteMessage.value = true
+        setTimeout(() => {
+          showAutoCompleteMessage.value = false
+        }, 3000)
+      }
+    } catch (error) {
+      console.warn('Error CP', error)
+      availableColonias.value = []
+    } finally {
+      isLoadingCp.value = false
     }
+  } else {
+    availableColonias.value = []
+  }
+}
+
+const goNextStep = () => {
+  if (!wizard.goNext()) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 
 const resetForm = () => {
-    form.reset()
-    form.clearErrors()
-    showSuccessMessage.value = false
-    // Recargar colonias del CP original
-    if (form.codigo_postal && form.codigo_postal.length === 5) {
-        loadColonias(form.codigo_postal)
-    }
+  form.reset()
+  form.clearErrors()
+  showSuccessMessage.value = false
+  if (form.codigo_postal && form.codigo_postal.length === 5) {
+    loadColonias(form.codigo_postal)
+  } else {
+    availableColonias.value = []
+  }
+  wizard.resetWizard()
 }
 
 const submit = () => {
-    form.put(route('clientes.update', props.cliente.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-            showSuccessMessage.value = true
-            form.reset('password', 'password_confirmation') // Solo limpiar password
-            setTimeout(() => showSuccessMessage.value = false, 3000)
-        },
-        onError: () => {
-             const firstError = Object.keys(form.errors)[0];
-             if (firstError) {
-                 // Intentar scroll al error?
-                 // No tenemos refs fáciles a los inputs dentro del componente hijo sin expose.
-                 window.scrollTo({ top: 0, behavior: 'smooth' })
-             }
-        }
-    })
+  form.put(route('clientes.update', props.cliente.id), {
+    preserveScroll: true,
+    onSuccess: () => {
+      showSuccessMessage.value = true
+      form.reset('password', 'password_confirmation')
+      wizard.resetWizard()
+      setTimeout(() => {
+        showSuccessMessage.value = false
+      }, 3000)
+    },
+    onError: () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  })
 }
 </script>

@@ -63,9 +63,10 @@ class SatClaveUnidad extends Model
     public function scopeBuscar($query, $termino)
     {
         return $query->where(function($q) use ($termino) {
-            $q->where('clave', 'LIKE', "%{$termino}%")
-              ->orWhere('nombre', 'LIKE', "%{$termino}%")
-              ->orWhere('descripcion', 'LIKE', "%{$termino}%");
+            $pattern = "%{$termino}%";
+            $q->where('clave', 'ILIKE', $pattern)
+              ->orWhereRaw("unaccent(nombre) ILIKE unaccent(?)", [$pattern])
+              ->orWhereRaw("unaccent(descripcion) ILIKE unaccent(?)", [$pattern]);
         });
     }
 

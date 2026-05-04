@@ -34,6 +34,7 @@ class EnviarRecordatoriosWhatsApp extends Command
     {
         $diasAnticipacion = (int) $this->option('dias');
         $empresaId = $this->option('empresa_id');
+        $maxEmpresas = 500;
 
         $this->info("Enviando recordatorios de WhatsApp {$diasAnticipacion} días antes del vencimiento...");
 
@@ -45,16 +46,15 @@ class EnviarRecordatoriosWhatsApp extends Command
             $empresasQuery->where('id', $empresaId);
         }
 
-        $empresas = $empresasQuery->get();
-
-        if ($empresas->isEmpty()) {
+        if (!(clone $empresasQuery)->exists()) {
             $this->warn('No se encontraron empresas con WhatsApp habilitado');
             return 0;
         }
 
         $totalEnviados = 0;
 
-        foreach ($empresas as $empresa) {
+        $empresasQuery->orderBy('id')->limit($maxEmpresas)->chunkById(100, function ($empresas) use ($diasAnticipacion, &$totalEnviados) {
+            foreach ($empresas as $empresa) {
             $this->info("Procesando empresa: {$empresa->nombre_razon_social}");
 
             try {
@@ -63,7 +63,7 @@ class EnviarRecordatoriosWhatsApp extends Command
                 // =====================================================
                 $fechaRecordatorio = now()->addDays($diasAnticipacion);
 
-                $cuentasPorCobrar = CuentasPorCobrar::where('empresa_id', $empresa->id)
+                $cuentasBase = CuentasPorCobrar::where('empresa_id', $empresa->id)
                     ->where('fecha_vencimiento', '<=', $fechaRecordatorio)
                     ->where('fecha_vencimiento', '>', now())
                     ->where('estado', 'pendiente')
@@ -71,40 +71,43 @@ class EnviarRecordatoriosWhatsApp extends Command
                         $query->where('whatsapp_optin', true)
                               ->whereNotNull('whatsapp_consent_date');
                     })
-                    ->with(['cliente'])
-                    ->get();
+                    ->with(['cliente']);
 
-                if ($cuentasPorCobrar->isNotEmpty()) {
-                    $this->line("  [Cuentas por Cobrar] Encontradas {$cuentasPorCobrar->count()} cuentas");
+                $cuentasCount = (clone $cuentasBase)->count();
 
-                    foreach ($cuentasPorCobrar as $cuenta) {
-                        if ($this->verificarLimiteMensajes($empresa->id, $cuenta->cliente->telefono)) {
-                            $this->line("  Saltando {$cuenta->cliente->nombre_razon_social} - límite alcanzado");
-                            continue;
+                if ($cuentasCount > 0) {
+                    $this->line("  [Cuentas por Cobrar] Encontradas {$cuentasCount} cuentas");
+
+                    $cuentasBase->orderBy('id')->chunkById(200, function ($cuentasPorCobrar) use ($empresa, $diasAnticipacion, &$totalEnviados) {
+                        foreach ($cuentasPorCobrar as $cuenta) {
+                            if ($this->verificarLimiteMensajes($empresa->id, $cuenta->cliente->telefono)) {
+                                $this->line("  Saltando {$cuenta->cliente->nombre_razon_social} - límite alcanzado");
+                                continue;
+                            }
+
+                            $templateParams = [
+                                $cuenta->cliente->nombre_razon_social,
+                                '$' . number_format($cuenta->monto_total, 2),
+                                $cuenta->fecha_vencimiento->format('d/m/Y'),
+                            ];
+
+                            SendWhatsAppTemplate::dispatch(
+                                $empresa->id,
+                                $cuenta->cliente->telefono,
+                                $empresa->whatsapp_template_payment_reminder,
+                                $empresa->whatsapp_default_language,
+                                $templateParams,
+                                [
+                                    'tipo' => 'recordatorio_pago',
+                                    'cuenta_id' => $cuenta->id,
+                                    'dias_anticipacion' => $diasAnticipacion,
+                                ]
+                            );
+
+                            $totalEnviados++;
+                            $this->line("  ✓ Recordatorio CxC para {$cuenta->cliente->nombre_razon_social}");
                         }
-
-                        $templateParams = [
-                            $cuenta->cliente->nombre_razon_social,
-                            '$' . number_format($cuenta->monto_total, 2),
-                            $cuenta->fecha_vencimiento->format('d/m/Y'),
-                        ];
-
-                        SendWhatsAppTemplate::dispatch(
-                            $empresa->id,
-                            $cuenta->cliente->telefono,
-                            $empresa->whatsapp_template_payment_reminder,
-                            $empresa->whatsapp_default_language,
-                            $templateParams,
-                            [
-                                'tipo' => 'recordatorio_pago',
-                                'cuenta_id' => $cuenta->id,
-                                'dias_anticipacion' => $diasAnticipacion,
-                            ]
-                        );
-
-                        $totalEnviados++;
-                        $this->line("  ✓ Recordatorio CxC para {$cuenta->cliente->nombre_razon_social}");
-                    }
+                    });
                 }
 
                 // =====================================================
@@ -112,7 +115,7 @@ class EnviarRecordatoriosWhatsApp extends Command
                 // =====================================================
                 $fechaManana = now()->addDays($diasAnticipacion)->toDateString();
 
-                $pagosPrestamo = PagoPrestamo::with(['prestamo.cliente'])
+                $pagosBase = PagoPrestamo::with(['prestamo.cliente'])
                     ->whereHas('prestamo', function ($query) {
                         $query->where('estado', 'activo');
                     })
@@ -122,47 +125,50 @@ class EnviarRecordatoriosWhatsApp extends Command
                         $query->where('whatsapp_optin', true)
                               ->whereNotNull('whatsapp_consent_date')
                               ->whereNotNull('telefono');
-                    })
-                    ->get();
+                    });
 
-                if ($pagosPrestamo->isNotEmpty()) {
-                    $this->line("  [Préstamos] Encontrados {$pagosPrestamo->count()} pagos de préstamo");
+                $pagosCount = (clone $pagosBase)->count();
 
-                    foreach ($pagosPrestamo as $pago) {
-                        $cliente = $pago->prestamo->cliente;
+                if ($pagosCount > 0) {
+                    $this->line("  [Préstamos] Encontrados {$pagosCount} pagos de préstamo");
 
-                        if ($this->verificarLimiteMensajes($empresa->id, $cliente->telefono)) {
-                            $this->line("  Saltando {$cliente->nombre_razon_social} - límite alcanzado");
-                            continue;
+                    $pagosBase->orderBy('id')->chunkById(200, function ($pagosPrestamo) use ($empresa, $diasAnticipacion, &$totalEnviados) {
+                        foreach ($pagosPrestamo as $pago) {
+                            $cliente = $pago->prestamo->cliente;
+
+                            if ($this->verificarLimiteMensajes($empresa->id, $cliente->telefono)) {
+                                $this->line("  Saltando {$cliente->nombre_razon_social} - límite alcanzado");
+                                continue;
+                            }
+
+                            $montoPendiente = $pago->monto_programado - ($pago->monto_pagado ?? 0);
+                            $templateParams = [
+                                $cliente->nombre_razon_social,
+                                '$' . number_format($montoPendiente, 2),
+                                $pago->fecha_programada->format('d/m/Y'),
+                            ];
+
+                            SendWhatsAppTemplate::dispatch(
+                                $empresa->id,
+                                $cliente->telefono,
+                                $empresa->whatsapp_template_payment_reminder,
+                                $empresa->whatsapp_default_language,
+                                $templateParams,
+                                [
+                                    'tipo' => 'recordatorio_prestamo',
+                                    'pago_id' => $pago->id,
+                                    'prestamo_id' => $pago->prestamo_id,
+                                    'dias_anticipacion' => $diasAnticipacion,
+                                ]
+                            );
+
+                            $totalEnviados++;
+                            $this->line("  ✓ Recordatorio préstamo #{$pago->numero_pago} para {$cliente->nombre_razon_social}");
                         }
-
-                        $montoPendiente = $pago->monto_programado - ($pago->monto_pagado ?? 0);
-                        $templateParams = [
-                            $cliente->nombre_razon_social,
-                            '$' . number_format($montoPendiente, 2),
-                            $pago->fecha_programada->format('d/m/Y'),
-                        ];
-
-                        SendWhatsAppTemplate::dispatch(
-                            $empresa->id,
-                            $cliente->telefono,
-                            $empresa->whatsapp_template_payment_reminder,
-                            $empresa->whatsapp_default_language,
-                            $templateParams,
-                            [
-                                'tipo' => 'recordatorio_prestamo',
-                                'pago_id' => $pago->id,
-                                'prestamo_id' => $pago->prestamo_id,
-                                'dias_anticipacion' => $diasAnticipacion,
-                            ]
-                        );
-
-                        $totalEnviados++;
-                        $this->line("  ✓ Recordatorio préstamo #{$pago->numero_pago} para {$cliente->nombre_razon_social}");
-                    }
+                    });
                 }
 
-                if ($cuentasPorCobrar->isEmpty() && $pagosPrestamo->isEmpty()) {
+                if ($cuentasCount === 0 && $pagosCount === 0) {
                     $this->line("  No hay pagos próximos a vencer para esta empresa");
                 }
 
@@ -173,7 +179,8 @@ class EnviarRecordatoriosWhatsApp extends Command
                     'error' => $e->getMessage(),
                 ]);
             }
-        }
+            }
+        });
 
         $this->info("Proceso completado. Total de recordatorios programados: {$totalEnviados}");
 

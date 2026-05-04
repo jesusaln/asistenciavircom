@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Illuminate\Database\QueryException;
 use Spatie\Permission\Models\Role;
@@ -16,15 +15,17 @@ use App\Models\Almacen;
 use App\Models\RegistroVacaciones;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Auth\Access\AuthorizationException;
-use App\Traits\ImageOptimizerTrait;
+use Illuminate\Support\Facades\Cache;
+use App\Support\SystemRoles;
 
 class UserController extends Controller
 {
-    use ImageOptimizerTrait;
     public function __construct()
     {
-        // $this->authorizeResource(User::class); // Deshabilitado para permitir manejo manual de excepciones
-        $this->middleware(['auth:sanctum', 'verified'])->except(['index', 'show']);
+        // El parámetro del resource route es {usuario}; se debe indicar aquí
+        // para que authorizeResource aplique correctamente las policies.
+        $this->authorizeResource(User::class, 'usuario');
+        // Autenticación y verificación: las aplica el grupo de rutas en routes/admin.php
     }
 
     public function profile()
@@ -51,6 +52,28 @@ class UserController extends Controller
         }
 
         try {
+            $query = User::with('roles');
+
+            // Filtros de búsqueda
+            if ($s = trim((string) $request->input('search', ''))) {
+                $query->where(function ($w) use ($s) {
+                    $w->where('name', 'like', "%{$s}%")
+                        ->orWhere('email', 'like', "%{$s}%");
+                });
+            }
+
+            // Filtrar por estado activo/inactivo
+            if ($request->query->has('activo')) {
+                $val = (string) $request->query('activo');
+                if ($val === '1') {
+                    $query->where(function ($query) {
+                        $query->where('activo', true)->orWhereNull('activo');
+                    });
+                } elseif ($val === '0') {
+                    $query->where('activo', false);
+                }
+            }
+
             // Ordenamiento
             $sortBy = $request->get('sort_by', 'created_at');
             $sortDirection = $request->get('sort_direction', 'desc');
@@ -61,17 +84,19 @@ class UserController extends Controller
             if (!in_array($sortDirection, ['asc', 'desc']))
                 $sortDirection = 'desc';
 
-            $usuarios = User::with(['roles', 'registroVacacionesActual'])
-                ->filter($request->only(['search', 'activo', 'role']))
-                ->orderBy($sortBy, $sortDirection)
-                ->paginate($request->input('per_page', 10))
-                ->appends($request->query());
+            $query->orderBy($sortBy, $sortDirection);
 
-            // Estadísticas
-            $usuariosCount = User::count();
-            $usuariosActivos = User::where(function ($q) {
-                $q->where('activo', true)->orWhereNull('activo');
-            })->count();
+            // Paginación
+            $usuarios = $query->paginate(10)->appends($request->query());
+
+            // Estadísticas optimizadas
+            $statsRaw = User::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN activo = true OR activo IS NULL THEN 1 ELSE 0 END) as activos
+            ")->first();
+
+            $usuariosCount = (int) $statsRaw->total;
+            $usuariosActivos = (int) $statsRaw->activos;
 
             return Inertia::render('Usuarios/Index', [
                 'usuarios' => $usuarios,
@@ -89,7 +114,7 @@ class UserController extends Controller
         }
     }
 
-    public function create(Request $request)
+    public function create()
     {
         try {
             $this->authorize('create', User::class);
@@ -101,70 +126,23 @@ class UserController extends Controller
         }
 
         $currentUser = Auth::user();
-        $roles = Role::with('permissions')->get()->filter(function ($role) use ($currentUser) {
-            // Solo super-admin puede ver/asignar el rol super-admin
-            if ($role->name === 'super-admin' && !$currentUser->hasRole('super-admin')) {
-                return false;
-            }
-            return true;
-        })->map(function ($role) {
-            // Group permissions by action for summary
-            $permissionSummary = $role->permissions->groupBy(function ($perm) {
-                $parts = explode(' ', $perm->name);
-                return $parts[0] ?? 'otros';
-            })->map(function ($group) {
-                return $group->count();
-            });
-
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'label' => ucfirst(str_replace(['_', '-'], ' ', $role->name)),
-                'permissions_count' => $role->permissions->count(),
-                'permissions_summary' => $permissionSummary,
-                'permissions_list' => $role->permissions->take(5)->pluck('name')->map(fn($p) => ucfirst(str_replace('_', ' ', $p)))->toArray(),
-            ];
-        })->values(); // Reindexar array
+        $roles = $this->getRolesForUser($currentUser);
         $almacenes = Almacen::where('estado', 'activo')->orderBy('nombre', 'asc')->get();
 
         return Inertia::render('Usuarios/Create', [
             'roles' => $roles,
-            'almacenes' => $almacenes,
-            'initialEsEmpleado' => $request->boolean('es_empleado'),
+            'almacenes' => $almacenes
         ]);
     }
 
-    public function edit($id)
+    public function edit(User $usuario)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = $usuario;
             $this->authorize('update', $user);
 
             $currentUser = Auth::user();
-            $roles = Role::with('permissions')->get()->filter(function ($role) use ($currentUser) {
-                // Solo super-admin puede ver/asignar el rol super-admin
-                if ($role->name === 'super-admin' && !$currentUser->hasRole('super-admin')) {
-                    return false;
-                }
-                return true;
-            })->map(function ($role) {
-                // Group permissions by action for summary
-                $permissionSummary = $role->permissions->groupBy(function ($perm) {
-                    $parts = explode(' ', $perm->name);
-                    return $parts[0] ?? 'otros';
-                })->map(function ($group) {
-                    return $group->count();
-                });
-
-                return [
-                    'id' => $role->id,
-                    'name' => $role->name,
-                    'label' => ucfirst(str_replace(['_', '-'], ' ', $role->name)),
-                    'permissions_count' => $role->permissions->count(),
-                    'permissions_summary' => $permissionSummary,
-                    'permissions_list' => $role->permissions->take(5)->pluck('name')->map(fn($p) => ucfirst(str_replace('_', ' ', $p)))->toArray(),
-                ];
-            })->values();
+            $roles = $this->getRolesForUser($currentUser);
 
             $almacenes = Almacen::where('estado', 'activo')
                 ->orderBy('nombre')
@@ -199,6 +177,50 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Solo permite asignar nombres de rol que el operador puede gestionar (evita elevar a super-admin vía POST).
+     *
+     * @param  array<int, string>  $roleNames
+     * @return array<int, string>
+     */
+    private function filterAssignableRoleNames(array $roleNames, User $operator): array
+    {
+        $assignable = collect($this->getRolesForUser($operator))->pluck('name')->all();
+
+        return array_values(array_intersect($roleNames, $assignable));
+    }
+
+    private function getRolesForUser(User $currentUser): array
+    {
+        $roles = Cache::remember('roles_permissions_full', 300, function () {
+            return Role::with('permissions')->get();
+        });
+
+        return $roles->filter(function ($role) use ($currentUser) {
+            if (SystemRoles::roleNameIsSuperAdmin($role->name) && ! SystemRoles::userIsSuperAdmin($currentUser)) {
+                return false;
+            }
+            return true;
+        })->map(function ($role) {
+            // Group permissions by action for summary
+            $permissionSummary = $role->permissions->groupBy(function ($perm) {
+                $parts = explode(' ', $perm->name);
+                return $parts[0] ?? 'otros';
+            })->map(function ($group) {
+                return $group->count();
+            });
+
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+                'label' => ucfirst(str_replace(['_', '-'], ' ', $role->name)),
+                'permissions_count' => $role->permissions->count(),
+                'permissions_summary' => $permissionSummary,
+                'permissions_list' => $role->permissions->take(5)->pluck('name')->map(fn($p) => ucfirst(str_replace('_', ' ', $p)))->toArray(),
+            ];
+        })->values()->toArray();
+    }
+
     public function store(Request $request)
     {
         try {
@@ -214,13 +236,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'telefono' => 'nullable|string|max:20',
-            'es_empleado' => 'nullable|boolean',
             'password' => 'required|string|min:8|confirmed',
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
-            'costo_hora_interno' => 'nullable|numeric|min:0',
             'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,name',
+            'roles.*' => 'string|exists:roles,name',
+            'es_tecnico' => 'nullable|boolean',
         ]);
 
         $userData = [
@@ -228,31 +249,30 @@ class UserController extends Controller
             'email' => $validated['email'],
             'telefono' => $validated['telefono'] ?? null,
             'activo' => true,
-            'es_empleado' => (bool) ($validated['es_empleado'] ?? false),
+            'es_tecnico' => $validated['es_tecnico'] ?? false,
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
-            'costo_hora_interno' => $validated['costo_hora_interno'] ?? 0,
             'password' => Hash::make($validated['password']),
         ];
 
         $user = User::create($userData);
 
-        if ($request->has('roles')) {
-            $user->syncRoles($validated['roles']);
+        if (!empty($validated['roles'])) {
+            $user->syncRoles($this->filterAssignableRoleNames($validated['roles'], Auth::user()));
         }
-
-        if ($user->es_empleado) {
-            return redirect()->route('empleados.edit', $user->id)
-                ->with('success', 'Usuario creado como empleado. Completa su expediente laboral.');
-        }
+        Log::info('Usuario creado', [
+            'user_id' => $user->id,
+            'created_by' => Auth::id(),
+            'empresa_id' => $user->empresa_id ?? null,
+        ]);
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado exitosamente.');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, User $usuario)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = $usuario;
             $this->authorize('update', $user);
         } catch (AuthorizationException $e) {
             return redirect()->route('usuarios.index')->with('error', 'No tienes permisos para editar este usuario.');
@@ -262,7 +282,7 @@ class UserController extends Controller
         }
 
         Log::debug('UserController@update - Request data', [
-            'user_id' => $id,
+            'user_id' => $user->id,
             'es_empleado' => $request->input('es_empleado'),
             'has_password' => !empty($request->input('password')),
         ]);
@@ -271,63 +291,42 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'telefono' => 'nullable|string|max:20',
-            'es_empleado' => 'nullable|boolean',
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
-            'costo_hora_interno' => 'nullable|numeric|min:0',
             'password' => 'nullable|string|min:8|confirmed',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,name',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'string|exists:permissions,name',
+            'roles.*' => 'string|exists:roles,name',
+            'es_tecnico' => 'nullable|boolean',
         ]);
 
-        // Manejar la foto de perfil si se envió una nueva
-        if ($request->hasFile('photo')) {
-            // Eliminar la foto anterior si existe
-            if ($user->profile_photo_path) {
-                Storage::disk('public')->delete($user->profile_photo_path);
-            }
-            // Guardar la nueva foto
-            $photoPath = $this->saveImageAsWebP($request->file('photo'), 'profile-photos');
-            $user->forceFill(['profile_photo_path' => $photoPath])->save();
-        }
-
         // Actualizar los datos del usuario
-        $wasEmpleado = (bool) $user->es_empleado;
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'telefono' => $validated['telefono'] ?? null,
-            'es_empleado' => (bool) ($validated['es_empleado'] ?? false),
+            'es_tecnico' => $validated['es_tecnico'] ?? false,
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
-            'costo_hora_interno' => $validated['costo_hora_interno'] ?? $user->costo_hora_interno,
             'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
         ]);
 
         if ($request->has('roles')) {
-            $user->syncRoles($validated['roles']);
+            $user->syncRoles($this->filterAssignableRoleNames($validated['roles'] ?? [], Auth::user()));
         }
-
-        if ($request->has('permissions')) {
-            $user->syncPermissions($validated['permissions']);
-        }
-
-        if (!$wasEmpleado && $user->es_empleado) {
-            return redirect()->route('empleados.edit', $user->id)
-                ->with('success', 'Usuario marcado como empleado. Completa los datos de RRHH.');
-        }
+        Log::info('Usuario actualizado', [
+            'user_id' => $user->id,
+            'updated_by' => Auth::id(),
+            'empresa_id' => $user->empresa_id ?? null,
+        ]);
 
         $tipo = $user->es_empleado ? 'empleado' : 'usuario';
         return redirect()->route('usuarios.index')->with('success', ucfirst($tipo) . ' actualizado exitosamente.');
     }
 
-    public function show($id)
+    public function show(User $usuario)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = $usuario;
             $this->authorize('view', $user);
             return Inertia::render('Usuarios/Profile', ['usuario' => $user]);
         } catch (AuthorizationException $e) {
@@ -338,10 +337,10 @@ class UserController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(User $usuario)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = $usuario;
             $this->authorize('delete', $user);
         } catch (AuthorizationException $e) {
             return redirect()->route('usuarios.index')->with('error', 'No tienes permisos para eliminar este usuario.');
@@ -352,6 +351,11 @@ class UserController extends Controller
 
         try {
             $user->delete();
+            Log::info('Usuario eliminado', [
+                'user_id' => $user->id,
+                'deleted_by' => Auth::id(),
+                'empresa_id' => $user->empresa_id ?? null,
+            ]);
             return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado correctamente.');
         } catch (QueryException $e) {
             return redirect()->route('usuarios.index')->with('error', 'No se pudo eliminar el usuario debido a restricciones de la base de datos.');
@@ -378,25 +382,6 @@ class UserController extends Controller
             Log::error('Error cambiando estado del usuario: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Hubo un problema al cambiar el estado del usuario.');
         }
-    }
-
-    /**
-     * Eliminar la foto de perfil de un usuario (solo admin)
-     */
-    public function deleteUserPhoto(User $user)
-    {
-        try {
-            $this->authorize('update', $user);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', 'No tienes permisos para modificar este usuario.');
-        }
-
-        if ($user->profile_photo_path) {
-            Storage::disk('public')->delete($user->profile_photo_path);
-            $user->forceFill(['profile_photo_path' => null])->save();
-        }
-
-        return redirect()->back()->with('success', 'Foto de perfil eliminada correctamente.');
     }
 
     public function updateAlmacenVenta(Request $request)
@@ -448,18 +433,14 @@ class UserController extends Controller
     /**
      * Actualizar almacén de venta de un usuario (solo admin)
      */
-    public function updateUserAlmacenVenta(Request $request, $userId)
+    public function updateUserAlmacenVenta(Request $request, User $user)
     {
-        $authUser = Auth::user();
-        if (!$authUser->hasAnyRole(['admin', 'super-admin'])) {
-            return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
-        }
+        $this->authorize('update', $user);
 
         $request->validate([
             'almacen_venta_id' => 'nullable|exists:almacenes,id',
         ]);
 
-        $user = User::findOrFail($userId);
         $user->update([
             'almacen_venta_id' => $request->almacen_venta_id ?: null,
         ]);
@@ -479,18 +460,14 @@ class UserController extends Controller
     /**
      * Actualizar almacén de compra de un usuario (solo admin)
      */
-    public function updateUserAlmacenCompra(Request $request, $userId)
+    public function updateUserAlmacenCompra(Request $request, User $user)
     {
-        $authUser = Auth::user();
-        if (!$authUser->hasAnyRole(['admin', 'super-admin'])) {
-            return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
-        }
+        $this->authorize('update', $user);
 
         $request->validate([
             'almacen_compra_id' => 'nullable|exists:almacenes,id',
         ]);
 
-        $user = User::findOrFail($userId);
         $user->update([
             'almacen_compra_id' => $request->almacen_compra_id ?: null,
         ]);
@@ -512,9 +489,28 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         try {
-            $usuarios = User::with('roles')
-                ->filter($request->only(['search', 'activo', 'role']))
-                ->get();
+            $query = User::with('roles');
+
+            // Aplicar los mismos filtros que en index
+            if ($s = trim((string) $request->input('search', ''))) {
+                $query->where(function ($w) use ($s) {
+                    $w->where('name', 'like', "%{$s}%")
+                        ->orWhere('email', 'like', "%{$s}%");
+                });
+            }
+
+            if ($request->query->has('activo')) {
+                $val = (string) $request->query('activo');
+                if ($val === '1') {
+                    $query->where(function ($query) {
+                        $query->where('activo', true)->orWhereNull('activo');
+                    });
+                } elseif ($val === '0') {
+                    $query->where('activo', false);
+                }
+            }
+
+            $usuarios = $query->get();
 
             $filename = 'usuarios_' . date('Y-m-d_H-i-s') . '.csv';
 
@@ -558,10 +554,9 @@ class UserController extends Controller
     /**
      * Sync user direct permissions
      */
-    public function syncPermissions(Request $request, $id)
+    public function syncPermissions(Request $request, User $user)
     {
         try {
-            $user = User::findOrFail($id);
             $this->authorize('update', $user);
         } catch (AuthorizationException $e) {
             return response()->json(['success' => false, 'message' => 'No autorizado'], 403);
@@ -595,7 +590,7 @@ class UserController extends Controller
      */
     private function getGroupedPermissions()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::orderBy('name')->get(['id', 'name', 'guard_name']);
 
         $actions = ['view', 'create', 'edit', 'delete', 'export', 'stats', 'manage'];
 

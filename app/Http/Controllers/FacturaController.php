@@ -35,8 +35,11 @@ class FacturaController extends Controller
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
-                $q->where('numero_factura', 'like', "%{$buscar}%")
-                    ->orWhereHas('cliente', fn($c) => $c->where('nombre_razon_social', 'like', "%{$buscar}%"));
+                $searchPattern = "%{$buscar}%";
+                $q->where('numero_factura', 'ILIKE', $searchPattern)
+                    ->orWhereHas('cliente', function ($c) use ($searchPattern) {
+                        $c->whereRaw("unaccent(nombre_razon_social) ILIKE unaccent(?)", [$searchPattern]);
+                    });
             });
         }
 
@@ -101,9 +104,6 @@ class FacturaController extends Controller
                 ];
             }
         }
-
-        $clienteSeleccionado = null;
-        $ventasPendientes = collect();
 
         if ($request->filled('cliente_id')) {
             $clienteSeleccionado = Cliente::with(['regimen', 'uso'])->find($request->cliente_id);
@@ -242,6 +242,7 @@ class FacturaController extends Controller
 
             // Vincular ventas a la factura
             foreach ($ventas as $venta) {
+                /** @var \App\Models\Venta $venta */
                 $venta->factura_id = $factura->id;
                 $venta->forma_pago_sat = $validated['forma_pago'];
                 $venta->metodo_pago_sat = $validated['metodo_pago'];
@@ -369,7 +370,7 @@ class FacturaController extends Controller
         }
 
         // Timbrar
-        $passCSD = config('services.contpaqi.csd_pass') ?: env('CONTPAQI_CSD_PASS');
+        $passCSD = config('services.contpaqi.csd_pass');
         $timbradoExitoso = false;
 
         $timbradoErrorMsg = null;
@@ -628,8 +629,7 @@ class FacturaController extends Controller
 
         // Si no está timbrada o falló el servicio profesional, usar el PDF básico
         $pdf = $this->pdfService->loadView('factura', [
-            'factura' => $factura,
-            'configuracion' => $this->getConfiguracionEmpresa()
+            'factura' => $factura
         ]);
 
         return $pdf->stream("factura-{$factura->numero_factura}.pdf");
@@ -651,8 +651,7 @@ class FacturaController extends Controller
             }
         }
 
-        $configuracion = $this->getConfiguracionEmpresa();
-        return view('factura', compact('factura', 'configuracion'));
+        return view('factura', compact('factura'));
     }
 
     /**

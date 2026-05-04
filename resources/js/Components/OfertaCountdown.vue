@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     empresa: Object,
@@ -26,17 +27,17 @@ const isExpired = ref(false);
 let intervalId = null;
 
 // Datos de la oferta (desde backend o fallback)
-const titulo = computed(() => props.oferta?.titulo || '💼 VENTA O RENTA POS');
-const subtitulo = computed(() => props.oferta?.subtitulo || 'Kit de Punto de Venta - Equipamiento Completo');
-const descuento = computed(() => props.oferta?.descuento || 20);
-const precioOriginal = computed(() => props.oferta?.precio_original || 15500);
+const titulo = computed(() => props.oferta?.titulo || 'MINISPLIT DESTACADO');
+const subtitulo = computed(() => props.oferta?.subtitulo || 'Minisplit Mirage Nex - 1 Ton | Solo Frío | 220 V (Instalado)');
+const descuento = computed(() => props.oferta?.descuento || 0);
+const precioOriginal = computed(() => props.oferta?.precio_original || 7000);
 
 // Calcular precio con descuento
 const precioDescuento = computed(() => {
     if (props.oferta?.precio_oferta) {
         return props.oferta.precio_oferta;
     }
-    return 12500; // Precio de compra solicitado
+    return 5650; // Precio de compra solicitado
 });
 
 const ahorro = computed(() => {
@@ -49,9 +50,9 @@ const caracteristicas = computed(() => {
         return props.oferta.caracteristicas;
     }
     return [
-        'COMPRA: $12,500 (¡Incluye Báscula!)',
-        'RENTA COMPLETA: $1,500 (Con báscula)',
-        'CPU, Monitor, Teclado, Cajón e Impresora'
+        'KIT COMPLETO: $5,650 (¡Ya instalado!)',
+        'SOLO EQUIPO: $5,500 (Sin instalación)',
+        'Evaporador, Condensador e Instalación Básica'
     ];
 });
 
@@ -70,11 +71,6 @@ const calculateTimeLeft = () => {
     if (props.oferta?.fecha_fin) {
         endTime = new Date(props.oferta.fecha_fin);
     } else {
-        if (!props.oferta) {
-            isExpired.value = true;
-            timeLeft.value = { hours: 0, minutes: 0, seconds: 0 };
-            return;
-        }
         // Fallback: usar localStorage o crear nueva
         let stored = localStorage.getItem('oferta_end_time');
         
@@ -119,7 +115,7 @@ const padZero = (num) => String(num).padStart(2, '0');
 </script>
 
 <template>
-    <section v-if="oferta && !isExpired" class="py-6 relative overflow-hidden" :style="cssVars">
+    <section v-if="oferta || true" class="py-6 relative overflow-hidden" :style="cssVars">
         <!-- Background con gradiente premium -->
         <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"></div>
         
@@ -143,14 +139,15 @@ const padZero = (num) => String(num).padStart(2, '0');
                     <!-- Badge animado -->
                     <div class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] rounded-full mb-4 animate-bounce-gentle">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white dark:bg-slate-900 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-white dark:bg-slate-900"></span>
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                         </span>
                         <span class="text-white text-xs font-black uppercase tracking-wider">{{ titulo }}</span>
                     </div>
                     
                     <!-- Título de la oferta -->
                     <h2 class="text-2xl lg:text-3xl font-black text-white mb-3">
+                        <font-awesome-icon icon="snowflake" class="mr-2 text-[var(--color-primary)]" />
                         {{ subtitulo }}
                     </h2>
                     
@@ -170,32 +167,29 @@ const padZero = (num) => String(num).padStart(2, '0');
                     
                     <!-- Precios -->
                     <div class="flex items-center justify-center lg:justify-start gap-4 mb-2">
-                        <span class="text-gray-500 dark:text-gray-400 line-through text-lg">${{ formatPrice(precioOriginal) }}</span>
+                        <span class="text-gray-500 line-through text-lg">${{ formatPrice(7000) }}</span>
                         <div class="flex flex-col items-start leading-none">
-                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(precioDescuento) }}</span>
+                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(5650) }} <span class="text-lg font-bold text-gray-400">ya instalado</span></span>
                         </div>
                         <span class="px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-bold rounded-full animate-pulse shadow-lg shadow-[var(--color-primary)]/40">
-                            ¡Con Báscula!
+                            ¡Instalación Incluida!
                         </span>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="text-green-400 text-sm font-semibold">
-                            Ahorras ${{ formatPrice(ahorro) }}
-                        </p>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400 italic">* Aplica restricciones</p>
+                        <p class="text-[10px] text-gray-500 italic">* Aplica restricciones según área de instalación</p>
                     </div>
                 </div>
                 
                 <!-- Centro: Countdown -->
                 <div class="flex flex-col items-center">
                     <p class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] mb-3">
-                        ⏰ La oferta termina en:
+                        <font-awesome-icon icon="clock" class="mr-1" /> La oferta termina en:
                     </p>
                     
                     <div class="flex items-center gap-2 lg:gap-3">
                         <!-- Horas -->
                         <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
                                 <span class="text-2xl lg:text-3xl font-black text-white tabular-nums">
                                     {{ padZero(timeLeft.hours) }}
                                 </span>
@@ -207,7 +201,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                         
                         <!-- Minutos -->
                         <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
                                 <span class="text-2xl lg:text-3xl font-black text-white tabular-nums">
                                     {{ padZero(timeLeft.minutes) }}
                                 </span>
@@ -232,7 +226,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                 <!-- Lado derecho: CTA -->
                 <div class="flex flex-col items-center lg:items-end gap-3">
                     <a 
-                        :href="`https://wa.me/${empresa?.whatsapp?.replace(/\\D/g, '')}?text=${encodeURIComponent('🔥 Hola! Me interesa la oferta: ' + subtitulo + ' a ' + formatPrice(precioDescuento) + ' (Ahorro de ' + formatPrice(ahorro) + '). ¿Está disponible?')}`"
+                        :href="`https://wa.me/${empresa?.whatsapp?.replace(/\\D/g, '')}?text=${encodeURIComponent('Hola, me interesa la oferta: ' + subtitulo + ' a ' + formatPrice(precioDescuento) + ' (Ahorro de ' + formatPrice(ahorro) + '). ¿Está disponible?')}`"
                         target="_blank"
                         class="group relative px-8 py-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 overflow-hidden"
                     >
@@ -246,7 +240,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                         </span>
                     </a>
                     
-                    <p class="text-[10px] text-gray-500 dark:text-gray-400">
+                    <p class="text-[10px] text-gray-500">
                         *Oferta válida hasta agotar existencias
                     </p>
                 </div>

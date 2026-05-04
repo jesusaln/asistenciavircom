@@ -1,6 +1,6 @@
 <!-- /resources/js/Pages/Rentas/Index.vue -->
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
@@ -29,12 +29,6 @@ onMounted(() => {
   if (flash?.success) notyf.success(flash.success)
   if (flash?.error) notyf.error(flash.error)
 })
-
-watch(() => page.props.flash, (flash) => {
-  if (flash?.success) notyf.success(flash.success)
-  if (flash?.error) notyf.error(flash.error)
-  if (flash?.warning) notyf.warning(flash.warning)
-}, { deep: true })
 
 // Props
 const props = defineProps({
@@ -213,9 +207,7 @@ const eliminarRenta = () => {
       router.reload()
     },
     onError: (errors) => {
-      // Si hay un error específico en 'error' (que mandamos desde el controlador)
-      const msg = errors.error || Object.values(errors)[0] || 'No se pudo eliminar la renta'
-      notyf.error(msg)
+      notyf.error('No se pudo eliminar la renta')
     }
   })
 }
@@ -312,22 +304,6 @@ const renovarRenta = async (renta) => {
   }
 }
 
-const anularRenta = async (renta) => {
-  if (!confirm(`¿Anular la renta #${renta.numero_contrato}? Esto liberará los equipos y eliminará los cobros pendientes que no hayan sido pagados.`)) return
-  try {
-    const response = await axios.post(route('rentas.anular', renta.id))
-    if (response.data.success) {
-      notyf.success(response.data.message || 'Renta anulada correctamente')
-      router.reload()
-    } else {
-      notyf.error(response.data.error || 'Error al anular la renta')
-    }
-  } catch (error) {
-    const msg = error.response?.data?.error || 'Error al anular la renta'
-    notyf.error(msg)
-  }
-}
-
 // Paginación
 const paginationData = computed(() => {
   const p = rentasPaginator.value || {}
@@ -380,8 +356,8 @@ const obtenerClasesEstado = (estado) => {
     'vencido': 'bg-red-100 text-red-700',
     'moroso': 'bg-red-200 text-red-800',
     'suspendido': 'bg-yellow-100 text-yellow-700',
-    'finalizado': 'bg-gray-100 text-gray-600 dark:text-gray-300',
-    'anulado': 'bg-gray-100 text-gray-500 dark:text-gray-400'
+    'finalizado': 'bg-gray-100 text-gray-600',
+    'anulado': 'bg-gray-100 text-gray-500'
   }
   return clases[estado] || 'bg-gray-100 text-gray-700'
 }
@@ -402,7 +378,7 @@ const obtenerLabelEstado = (estado) => {
 
 <template>
   <Head title="Rentas" />
-  <div class="rentas-index min-h-screen bg-white dark:bg-slate-900">
+  <div class="rentas-index min-h-screen bg-white">
     <div class="w-full px-6 py-8">
       <!-- Header específico de rentas -->
       <RentasHeader
@@ -424,7 +400,7 @@ const obtenerLabelEstado = (estado) => {
       />
 
       <!-- Sección de Cobros Próximos -->
-      <div v-if="proximosCobros.length > 0" class="mt-6 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div v-if="proximosCobros.length > 0" class="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-amber-50">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -434,8 +410,8 @@ const obtenerLabelEstado = (estado) => {
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Cobros Próximos</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Próximos vencimientos de mensualidades</p>
+                <h3 class="text-lg font-semibold text-gray-900">Cobros Próximos</h3>
+                <p class="text-sm text-gray-500">Próximos vencimientos de mensualidades</p>
               </div>
             </div>
             <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
@@ -444,7 +420,7 @@ const obtenerLabelEstado = (estado) => {
           </div>
         </div>
         <div class="divide-y divide-gray-100">
-          <div v-for="cobro in proximosCobros" :key="cobro.id" class="px-6 py-4 hover:bg-white dark:bg-slate-900 transition-colors duration-150">
+          <div v-for="cobro in proximosCobros" :key="cobro.id" class="px-6 py-4 hover:bg-white transition-colors duration-150">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-4">
                 <div 
@@ -457,12 +433,12 @@ const obtenerLabelEstado = (estado) => {
                   :title="cobro.dias_restantes <= 0 ? 'Vencido' : `${cobro.dias_restantes} días restantes`"
                 ></div>
                 <div>
-                  <p class="font-medium text-gray-900 dark:text-white">{{ cobro.cliente }}</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ cobro.numero_contrato }} • {{ cobro.notas }}</p>
+                  <p class="font-medium text-gray-900">{{ cobro.cliente }}</p>
+                  <p class="text-sm text-gray-500">{{ cobro.numero_contrato }} • {{ cobro.notas }}</p>
                 </div>
               </div>
               <div class="text-right">
-                <p class="font-semibold text-gray-900 dark:text-white">${{ formatNumber(cobro.monto) }}</p>
+                <p class="font-semibold text-gray-900">${{ formatNumber(cobro.monto) }}</p>
                 <p class="text-sm" :class="{
                   'text-green-600': cobro.dias_restantes > 7,
                   'text-orange-600': cobro.dias_restantes >= 3 && cobro.dias_restantes <= 7,
@@ -483,32 +459,32 @@ const obtenerLabelEstado = (estado) => {
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
-            <thead class="bg-white dark:bg-slate-900">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-white">
               <tr>
-                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Contrato</th>
-                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Cliente</th>
-                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Mensualidad</th>
-                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Próximo Venc.</th>
-                <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Cobranza</th>
-                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-                <th class="px-4 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contrato</th>
+                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
+                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Mensualidad</th>
+                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Próximo Venc.</th>
+                <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Cobranza</th>
+                <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+                <th class="px-4 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
-              <tr v-for="renta in rentasDocumentos" :key="renta.id" class="hover:bg-white dark:bg-slate-900 transition-colors duration-150">
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="renta in rentasDocumentos" :key="renta.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-4 py-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ renta.titulo }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatearFecha(renta.fecha) }}</div>
+                  <div class="text-sm font-medium text-gray-900">{{ renta.titulo }}</div>
+                  <div class="text-xs text-gray-500">{{ formatearFecha(renta.fecha) }}</div>
                 </td>
                 <td class="px-4 py-4">
                   <div class="text-sm text-gray-700">{{ renta.subtitulo }}</div>
                 </td>
                 <td class="px-4 py-4">
-                  <div class="text-sm font-semibold text-gray-900 dark:text-white">${{ formatNumber(renta.pago) }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">IVA incluido</div>
+                  <div class="text-sm font-semibold text-gray-900">${{ formatNumber(renta.pago) }}</div>
+                  <div class="text-xs text-gray-500">IVA incluido</div>
                 </td>
                 <td class="px-4 py-4">
                   <div v-if="renta.proximoVencimiento" class="text-sm">
@@ -630,18 +606,6 @@ const obtenerLabelEstado = (estado) => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                           </svg>
                         </button>
-
-                        <!-- Anular -->
-                        <button
-                          v-if="['activo', 'proximo_vencimiento', 'vencido', 'suspendido'].includes(renta.raw.estado)"
-                          @click="anularRenta(renta.raw)"
-                          class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all duration-200"
-                          title="Anular renta y borrar cobros"
-                        >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
                       </div>
                     </div>
                     
@@ -668,7 +632,7 @@ const obtenerLabelEstado = (estado) => {
                     </div>
                     <div class="space-y-1">
                       <p class="text-gray-700 font-medium">No hay rentas</p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Las rentas aparecerán aquí cuando se creen</p>
+                      <p class="text-sm text-gray-500">Las rentas aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -678,7 +642,7 @@ const obtenerLabelEstado = (estado) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <p class="text-sm text-gray-700">
@@ -687,7 +651,7 @@ const obtenerLabelEstado = (estado) => {
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white dark:bg-slate-900"
+                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -700,7 +664,7 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -717,7 +681,7 @@ const obtenerLabelEstado = (estado) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white dark:bg-slate-900 border-gray-300 text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900'"
+                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -726,7 +690,7 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-slate-900 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -745,13 +709,13 @@ const obtenerLabelEstado = (estado) => {
 
       <!-- Modal mejorado -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">
               {{ modalMode === 'details' ? 'Detalles de la Renta' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors">
+            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -765,19 +729,19 @@ const obtenerLabelEstado = (estado) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Número de Contrato</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedRenta.numero_contrato || 'N/A' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedRenta.numero_contrato || 'N/A' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Cliente</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedRenta.cliente?.nombre || 'Sin cliente' }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedRenta.cliente?.nombre || 'Sin cliente' }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_inicio) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_inicio) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_fin) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.fecha_fin) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Estado</label>
@@ -789,15 +753,15 @@ const obtenerLabelEstado = (estado) => {
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Equipos Rentados</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ selectedRenta.equipos?.length || 0 }} equipos</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedRenta.equipos?.length || 0 }} equipos</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.created_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.created_at) }}</p>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-slate-900 px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.updated_at) }}</p>
+                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedRenta.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
@@ -811,8 +775,8 @@ const obtenerLabelEstado = (estado) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">¿Eliminar Renta?</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">¿Eliminar Renta?</h3>
+                <p class="text-sm text-gray-500 mb-4">
                   ¿Estás seguro de que deseas eliminar la renta <strong>{{ selectedRenta?.numero_contrato }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
@@ -821,7 +785,7 @@ const obtenerLabelEstado = (estado) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
             <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>

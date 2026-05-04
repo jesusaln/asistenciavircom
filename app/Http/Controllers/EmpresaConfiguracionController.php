@@ -8,6 +8,7 @@ use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class EmpresaConfiguracionController extends Controller
@@ -80,6 +81,45 @@ class EmpresaConfiguracionController extends Controller
                 'success' => false,
                 'message' => 'Solo el Super Administrador puede ejecutar esta acción.'
             ], 403);
+        }
+
+        if (app()->environment('production') && !config('app.danger_zone_enabled')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Danger Zone está deshabilitado en producción.'
+            ], 403);
+        }
+
+        if (in_array($modulo, ['todo', 'reinicio'], true) && !app()->isDownForMaintenance()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'PELIGRO CRÍTICO: Debes poner el servidor en modo mantenimiento real (`php artisan down`) antes de ejecutar esta acción global.'
+            ], 423);
+        }
+
+        $request->validate([
+            'confirm' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, auth()->user()->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contraseña incorrecta.'
+            ], 422);
+        }
+
+        $expected = match ($modulo) {
+            'todo' => 'ELIMINAR TODO',
+            'reinicio' => 'REINICIAR',
+            default => Str::upper($modulo),
+        };
+
+        if (Str::upper(trim($request->input('confirm'))) !== $expected) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Confirmación inválida.'
+            ], 422);
         }
 
         $count = 0;

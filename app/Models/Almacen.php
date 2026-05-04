@@ -7,9 +7,11 @@ use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Almacen extends Model
+use \OwenIt\Auditing\Auditable;
+
+class Almacen extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use HasFactory, BelongsToEmpresa;
+    use HasFactory, BelongsToEmpresa, Auditable;
 
     protected $table = 'almacenes';
 
@@ -22,9 +24,6 @@ class Almacen extends Model
         'telefono',
         'responsable',
         'estado',
-        'latitud',
-        'longitud',
-        'geocerca_radio',
     ];
 
     protected $casts = [

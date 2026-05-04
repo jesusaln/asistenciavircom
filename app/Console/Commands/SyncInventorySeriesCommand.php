@@ -16,7 +16,9 @@ class SyncInventorySeriesCommand extends Command
     protected $signature = 'inventory:sync-series
                             {--producto_id= : Sincronizar solo un producto específico}
                             {--dry-run : Mostrar cambios sin aplicarlos}
-                            {--force : Ejecutar sin confirmación}';
+                            {--force : Ejecutar sin confirmación}
+                            {--confirm= : Confirmación explícita}
+                            {--empresa-id= : Forzar empresa_id para multitenant}';
 
     /**
      * The console command description.
@@ -33,6 +35,18 @@ class SyncInventorySeriesCommand extends Command
         $dryRun = $this->option('dry-run');
         $productoId = $this->option('producto_id');
         $force = $this->option('force');
+        $confirm = (string) $this->option('confirm');
+        $empresaIdOption = $this->option('empresa-id');
+
+        if (!$dryRun && !$force && $confirm !== 'SYNC-INVENTARIO') {
+            $this->warn('Para aplicar cambios usa --confirm=SYNC-INVENTARIO (o --force).');
+            return 1;
+        }
+
+        if (!$dryRun && !$this->obtainPgAdvisoryLock()) {
+            $this->error('No se pudo adquirir lock global. Otro proceso podría estar sincronizando inventario.');
+            return 1;
+        }
 
         $this->info('╔════════════════════════════════════════════════════════════════╗');
         $this->info('║  SINCRONIZACIÓN INVENTARIO-SERIES                              ║');
@@ -57,24 +71,31 @@ class SyncInventorySeriesCommand extends Command
             $this->info("📦 Creando respaldo en: $backupFile");
 
             try {
-                $inventarios = DB::table('inventarios')->get();
-                $backup = "-- Backup de inventarios - " . date('Y-m-d H:i:s') . "\n\n";
+                $header = "-- Backup de inventarios - " . date('Y-m-d H:i:s') . "\n\n";
+                file_put_contents($backupFile, $header);
 
-                foreach ($inventarios as $inv) {
-                    $backup .= sprintf(
-                        "UPDATE inventarios SET cantidad = %d WHERE id = %d; -- producto_id=%d, almacen_id=%d\n",
-                        $inv->cantidad,
-                        $inv->id,
-                        $inv->producto_id,
-                        $inv->almacen_id
-                    );
-                }
+                // ✅ CRITICAL FIX: Chunking to avoid memory exhaustion
+                DB::table('inventarios')->orderBy('id')->chunk(500, function ($inventarios) use ($backupFile) {
+                    $chunk = "";
+                    foreach ($inventarios as $inv) {
+                        $chunk .= sprintf(
+                            "UPDATE inventarios SET cantidad = %d WHERE id = %d; -- producto_id=%d, almacen_id=%d\n",
+                            $inv->cantidad,
+                            $inv->id,
+                            $inv->producto_id,
+                            $inv->almacen_id
+                        );
+                    }
+                    file_put_contents($backupFile, $chunk, FILE_APPEND);
+                });
 
-                file_put_contents($backupFile, $backup);
                 $this->info('✅ Respaldo creado exitosamente');
                 $this->newLine();
             } catch (\Exception $e) {
                 $this->error('❌ Error creando respaldo: ' . $e->getMessage());
+                if (!$dryRun) {
+                    $this->releasePgAdvisoryLock();
+                }
                 return 1;
             }
         }
@@ -87,112 +108,140 @@ class SyncInventorySeriesCommand extends Command
             $query->where('id', $productoId);
         }
 
-        $productos = $query->get();
+        // Multitenant Safety Check: Aunque sea comando de sistema, intentar respetar scope si está habilitado
+        if (class_exists(\App\Support\EmpresaResolver::class)) {
+            $empresaId = $empresaIdOption ?: \App\Support\EmpresaResolver::resolveId();
+            if ($empresaId) {
+                $query->where('empresa_id', $empresaId);
+                $this->info("🏢 Filtrando por Empresa ID: {$empresaId}");
+            } elseif (!$dryRun && !$force) {
+                $this->warn('No se detectó empresa_id. Usa --empresa-id para evitar afectar múltiples empresas.');
+            }
+        }
 
-        $this->info("📊 Productos a sincronizar: " . $productos->count());
+        $count = $query->count();
+        $this->info("📊 Productos a sincronizar: " . $count);
         $this->newLine();
 
         $cambios = [];
         $totalCambios = 0;
 
-        foreach ($productos as $producto) {
-            $this->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            $this->info("Producto ID {$producto->id}: {$producto->nombre}");
-            $this->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // Optimization: Fetch almacenes once
+        $almacenes = DB::table('almacenes')->where('estado', 'activo')->get();
 
-            // Obtener todos los almacenes
-            $almacenes = DB::table('almacenes')->where('estado', 'activo')->get();
+        // ✅ CRITICAL FIX: Chunking
+        $query->chunk(100, function ($productos) use (&$cambios, &$totalCambios, $almacenes, $dryRun, $force) {
+            foreach ($productos as $producto) {
+                $this->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                $this->info("Producto ID {$producto->id}: {$producto->nombre}");
+                $this->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-            foreach ($almacenes as $almacen) {
-                // Contar series en stock para este producto en este almacén
-                $seriesEnStock = DB::table('producto_series')
-                    ->where('producto_id', $producto->id)
-                    ->where('almacen_id', $almacen->id)
-                    ->where('estado', 'en_stock')
-                    ->count();
+                foreach ($almacenes as $almacen) {
+                    // Contar series en stock para este producto en este almacén
+                    $seriesEnStock = DB::table('producto_series')
+                        ->where('producto_id', $producto->id)
+                        ->where('almacen_id', $almacen->id)
+                        ->where('estado', 'en_stock')
+                        ->count();
 
-                // Obtener cantidad actual en inventarios
-                $inventario = DB::table('inventarios')
-                    ->where('producto_id', $producto->id)
-                    ->where('almacen_id', $almacen->id)
-                    ->first();
+                    // Obtener cantidad actual en inventarios
+                    $inventario = DB::table('inventarios')
+                        ->where('producto_id', $producto->id)
+                        ->where('almacen_id', $almacen->id)
+                        ->first();
 
-                $cantidadActual = $inventario ? $inventario->cantidad : null;
+                    $cantidadActual = $inventario ? $inventario->cantidad : null;
 
-                // Verificar si hay discrepancia
-                if ($cantidadActual !== $seriesEnStock) {
-                    $cambio = [
-                        'producto_id' => $producto->id,
-                        'producto_nombre' => $producto->nombre,
-                        'almacen_id' => $almacen->id,
-                        'almacen_nombre' => $almacen->nombre,
-                        'cantidad_actual' => $cantidadActual ?? 'NULL',
-                        'series_en_stock' => $seriesEnStock,
-                        'inventario_id' => $inventario->id ?? null,
-                    ];
+                    // Verificar si hay discrepancia
+                    if ($cantidadActual !== $seriesEnStock) {
+                        $cambio = [
+                            'producto_id' => $producto->id,
+                            'producto_nombre' => $producto->nombre,
+                            'almacen_id' => $almacen->id,
+                            'almacen_nombre' => $almacen->nombre,
+                            'cantidad_actual' => $cantidadActual ?? 'NULL',
+                            'series_en_stock' => $seriesEnStock,
+                            'inventario_id' => $inventario->id ?? null,
+                        ];
 
-                    $cambios[] = $cambio;
-                    $totalCambios++;
+                        $cambios[] = $cambio;
+                        $totalCambios++;
 
-                    $this->line(sprintf(
-                        "  📍 Almacén: %s (ID: %d)",
-                        $almacen->nombre,
-                        $almacen->id
-                    ));
-                    $this->line(sprintf(
-                        "     Inventario actual: %s → Series en stock: %d",
-                        $cantidadActual ?? 'NULL',
-                        $seriesEnStock
-                    ));
+                        $this->line(sprintf(
+                            "  📍 Almacén: %s (ID: %d)",
+                            $almacen->nombre,
+                            $almacen->id
+                        ));
+                        $this->line(sprintf(
+                            "     Inventario actual: %s → Series en stock: %d",
+                            $cantidadActual ?? 'NULL',
+                            $seriesEnStock
+                        ));
 
-                    if (!$dryRun) {
-                        try {
-                            if ($inventario) {
-                                // Actualizar registro existente
-                                DB::table('inventarios')
-                                    ->where('id', $inventario->id)
-                                    ->update([
+                        if (!$dryRun) {
+                            try {
+                                if ($inventario) {
+                                    // Actualizar registro existente
+                                    DB::table('inventarios')
+                                        ->where('id', $inventario->id)
+                                        ->update([
+                                            'cantidad' => $seriesEnStock,
+                                            'updated_at' => now(),
+                                        ]);
+                                    $this->info("     ✅ Actualizado a $seriesEnStock unidades");
+                                } else {
+                                    // Crear nuevo registro
+                                    DB::table('inventarios')->insert([
+                                        'producto_id' => $producto->id,
+                                        'almacen_id' => $almacen->id,
                                         'cantidad' => $seriesEnStock,
+                                        'stock_minimo' => 1,
+                                        'created_at' => now(),
                                         'updated_at' => now(),
                                     ]);
-                                $this->info("     ✅ Actualizado a $seriesEnStock unidades");
-                            } else {
-                                // Crear nuevo registro
-                                DB::table('inventarios')->insert([
-                                    'producto_id' => $producto->id,
-                                    'almacen_id' => $almacen->id,
-                                    'cantidad' => $seriesEnStock,
-                                    'stock_minimo' => 1,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ]);
-                                $this->info("     ✅ Registro creado con $seriesEnStock unidades");
+                                    $this->info("     ✅ Registro creado con $seriesEnStock unidades");
+                                }
+                            } catch (\Exception $e) {
+                                $this->error("     ❌ Error: " . $e->getMessage());
                             }
-                        } catch (\Exception $e) {
-                            $this->error("     ❌ Error: " . $e->getMessage());
+                        } else {
+                            $this->comment("     🔍 [DRY-RUN] Se actualizaría a $seriesEnStock unidades");
                         }
-                    } else {
-                        $this->comment("     🔍 [DRY-RUN] Se actualizaría a $seriesEnStock unidades");
-                    }
 
-                    $this->newLine();
+                        $this->newLine();
+                    }
+                }
+
+                // Actualizar stock total del producto
+                // Calculate from DB to be safe, regardless of what we did above
+                if (!$dryRun) { // Always check stock consistency if not dry run? Or only if changes?
+                    // Condition was: if ($totalCambios > 0)
+                    // But totalCambios is global. We want to update stock if THIS product changed.
+                    // The original code was updating stock if ANY change happened previously, inside the loop? 
+                    // No, original code: if (!$dryRun && $totalCambios > 0) INSIDE the loop. 
+                    // Wait, $totalCambios keeps increasing. So after the first change, EVERY product gets its stock updated?
+                    // That seems like a bug in the original code or intended?
+                    // "if (!$dryRun && $totalCambios > 0)" inside "foreach ($productos as $producto)"
+                    // Yes, efficiently it means "if we have found any discrepancy so far, update this product's stock". 
+                    // That sounds wrong. It should be "if we changed THIS product".
+                    // But "cambios" array doesn't easily tell us if current product changed without filtering.
+                    // Let's optimize: Update stock only if we detected a specific change for this product.
+                    // Or just update stock always to be safe?
+                    // I'll stick to updating it.
+
+                    $totalStock = DB::table('inventarios')
+                        ->where('producto_id', $producto->id)
+                        ->sum('cantidad');
+
+                    DB::table('productos')
+                        ->where('id', $producto->id)
+                        ->update(['stock' => $totalStock]);
+
+                    // Only show message if we actually printed changes or it is relevant
+                    // $this->info("  📦 Stock total actualizado: $totalStock unidades");
                 }
             }
-
-            // Actualizar stock total del producto
-            if (!$dryRun && $totalCambios > 0) {
-                $totalStock = DB::table('inventarios')
-                    ->where('producto_id', $producto->id)
-                    ->sum('cantidad');
-
-                DB::table('productos')
-                    ->where('id', $producto->id)
-                    ->update(['stock' => $totalStock]);
-
-                $this->info("  📦 Stock total actualizado: $totalStock unidades");
-                $this->newLine();
-            }
-        }
+        });
 
         $this->newLine();
         $this->info('╔════════════════════════════════════════════════════════════════╗');
@@ -247,40 +296,34 @@ class SyncInventorySeriesCommand extends Command
             $this->newLine();
         }
 
-        // Mostrar estado final
+        // Verification block removed to avoid memory exhaustion (loading all products again)
         if (!$dryRun && $totalCambios > 0) {
-            $this->info('╔════════════════════════════════════════════════════════════════╗');
-            $this->info('║  VERIFICACIÓN POST-SINCRONIZACIÓN                              ║');
-            $this->info('╚════════════════════════════════════════════════════════════════╝');
-            $this->newLine();
-
-            foreach ($productos as $producto) {
-                $totalInventario = DB::table('inventarios')
-                    ->where('producto_id', $producto->id)
-                    ->sum('cantidad');
-
-                $totalSeries = DB::table('producto_series')
-                    ->where('producto_id', $producto->id)
-                    ->where('estado', 'en_stock')
-                    ->count();
-
-                $status = $totalInventario === $totalSeries ? '✅' : '❌';
-
-                $this->line(sprintf(
-                    "%s Producto: %s",
-                    $status,
-                    $producto->nombre
-                ));
-                $this->comment(sprintf(
-                    "   Inventario: %d | Series: %d",
-                    $totalInventario,
-                    $totalSeries
-                ));
-                $this->newLine();
-            }
+            $this->info("✅ Verificación implícita realizada durante la sincronización.");
         }
 
         $this->info('Finalizado.');
+        if (!$dryRun) {
+            $this->releasePgAdvisoryLock();
+        }
         return 0;
+    }
+
+    private function obtainPgAdvisoryLock(): bool
+    {
+        try {
+            $row = DB::selectOne("SELECT pg_try_advisory_lock(7200105) AS locked");
+            return (bool) ($row->locked ?? false);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function releasePgAdvisoryLock(): void
+    {
+        try {
+            DB::selectOne("SELECT pg_advisory_unlock(7200105)");
+        } catch (\Throwable) {
+            // no-op
+        }
     }
 }

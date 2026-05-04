@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Reporte;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 use App\Models\Venta;
 use App\Models\Compra;
 use App\Models\Producto;
@@ -30,6 +31,7 @@ use App\Services\Reports\FinanceReportService;
 use App\Services\Reports\ClientReportService;
 use App\Services\Reports\ServiceReportService;
 use App\Services\Reports\OperationReportService;
+use Illuminate\Support\Facades\Log;
 
 class ReporteController extends Controller
 {
@@ -41,8 +43,25 @@ class ReporteController extends Controller
         private readonly OperationReportService $operationReportService
     ) {
     }
+
+    private function logReportAccess(Request $request, string $action, array $context = []): void
+    {
+        $user = $request->user();
+        Log::info('Reporte acceso', array_merge([
+            'action' => $action,
+            'user_id' => $user?->id,
+            'empresa_id' => $user?->empresa_id,
+            'ip' => $request->ip(),
+        ], $context));
+    }
     public function index(Request $request)
     {
+        $this->logReportAccess($request, 'index', [
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'fecha_fin' => $request->get('fecha_fin'),
+            'cliente_id' => $request->get('cliente_id'),
+            'pagado' => $request->get('pagado'),
+        ]);
         // Filtros para ventas
         $fechaInicio = $request->get('fecha_inicio', now()->startOfMonth()->format('Y-m-d'));
         $fechaFin = $request->get('fecha_fin', now()->endOfMonth()->format('Y-m-d'));
@@ -153,13 +172,13 @@ class ReporteController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'fecha' => 'required|date',
         ]);
 
-        Reporte::create($request->all());
+        Reporte::create($validated);
 
         return redirect()->route('reportes.index')->with('success', 'Reporte creado exitosamente.');
     }
@@ -176,13 +195,13 @@ class ReporteController extends Controller
 
     public function update(Request $request, Reporte $reporte)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'fecha' => 'required|date',
         ]);
 
-        $reporte->update($request->all());
+        $reporte->update($validated);
 
         return redirect()->route('reportes.index')->with('success', 'Reporte actualizado exitosamente.');
     }
@@ -198,6 +217,11 @@ class ReporteController extends Controller
      */
     public function corteDiario(Request $request)
     {
+        $this->logReportAccess($request, 'corte_diario', [
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'fecha_fin' => $request->get('fecha_fin'),
+            'periodo' => $request->get('periodo'),
+        ]);
         $data = $this->financeReportService->getCorteDiarioData($request->all());
         return Inertia::render('Reportes/CorteDiario', $data);
     }
@@ -207,6 +231,11 @@ class ReporteController extends Controller
      */
     public function exportarCorteDiario(Request $request)
     {
+        $this->logReportAccess($request, 'exportar_corte_diario', [
+            'periodo' => $request->get('periodo'),
+            'fecha' => $request->get('fecha'),
+            'tipo' => $request->get('tipo'),
+        ]);
         $periodo = $request->get('periodo', 'diario');
         $fecha = $request->get('fecha', now()->format('Y-m-d'));
         $tipo = $request->get('tipo', 'excel'); // excel, csv, pdf
@@ -232,6 +261,8 @@ class ReporteController extends Controller
             $fecha_inicio = $request->get('fecha_inicio', $fecha);
             $fecha_fin = $request->get('fecha_fin', $fecha);
         }
+
+        $this->assertExportRange($fecha_inicio, $fecha_fin, 90);
 
         // Obtener ventas pagadas en el período
         $ventasPagadas = Venta::with(['cliente', 'items.ventable'])
@@ -368,6 +399,38 @@ class ReporteController extends Controller
     }
 
     /**
+     * Citas detalladas por técnico (agenda, inicio/fin de servicio, cliente, importes). Solo citas, sin tickets.
+     */
+    public function citasPorTecnicoDetalle(Request $request)
+    {
+        $this->logReportAccess($request, 'citas_por_tecnico_detalle', $request->only([
+            'fecha_inicio', 'fecha_fin', 'tecnico_id', 'estado', 'solo_con_tecnico',
+        ]));
+        $data = $this->serviceReportService->getCitasPorTecnicoDetallado(
+            $request->all(),
+            $request->user()?->empresa_id
+        );
+
+        return Inertia::render('Reportes/CitasPorTecnico', $data);
+    }
+
+    /**
+     * Ventas del periodo: vendedor, líneas, importes (corte) y cita vinculada.
+     */
+    public function ventasSemanaOperativo(Request $request)
+    {
+        $this->logReportAccess($request, 'ventas_periodo_vendedor_cita', $request->only([
+            'fecha_inicio', 'fecha_fin', 'vendedor_id', 'solo_pagadas',
+        ]));
+        $data = $this->serviceReportService->getVentasPeriodoVendedorCita(
+            $request->all(),
+            $request->user()?->empresa_id
+        );
+
+        return Inertia::render('Reportes/VentasSemana', $data);
+    }
+
+    /**
      * Reporte de ganancias generales
      */
     public function ganancias(Request $request)
@@ -450,6 +513,51 @@ class ReporteController extends Controller
                 'fecha_inicio' => $fechaInicio,
                 'fecha_fin' => $fechaFin,
             ],
+        ]);
+    }
+
+    /**
+     * Reporte de productos para comprar (bajo stock o priorizando más ventas)
+     */
+    public function productosParaComprar(Request $request)
+    {
+        $this->logReportAccess($request, 'productos_para_comprar');
+
+        // Productos que tienen stock <= a su stock_minimo (o <= 5 si no tienen stock_minimo)
+        // Y además priorizando los que han vendido más unidades
+        $productos = \Illuminate\Support\Facades\DB::table('productos')
+            ->selectRaw('
+                productos.id,
+                productos.nombre,
+                productos.codigo,
+                productos.stock,
+                productos.stock_minimo,
+                productos.precio_compra,
+                productos.precio_venta,
+                COALESCE(SUM(venta_items.cantidad), 0) as total_vendido
+            ')
+            ->leftJoin('venta_items', function ($join) {
+                $join->on('productos.id', '=', 'venta_items.ventable_id')
+                     ->where('venta_items.ventable_type', '=', 'App\Models\Producto');
+            })
+            ->where('productos.estado', 'activo')
+            ->where('productos.tipo_producto', '!=', 'kit')
+            ->whereRaw('productos.stock <= COALESCE(productos.stock_minimo, 5)')
+            ->groupBy(
+                'productos.id',
+                'productos.nombre',
+                'productos.codigo',
+                'productos.stock',
+                'productos.stock_minimo',
+                'productos.precio_compra',
+                'productos.precio_venta'
+            )
+            ->orderByDesc('total_vendido')
+            ->orderBy('productos.stock')
+            ->get();
+
+        return Inertia::render('Reportes/ProductosParaComprar', [
+            'productos' => $productos
         ]);
     }
 
@@ -569,6 +677,18 @@ class ReporteController extends Controller
                 'metodo_pago' => $metodoPago,
             ],
         ]);
+    }
+
+    /**
+     * Reporte de saldos de efectivo por usuario (quién tiene qué)
+     */
+    public function efectivoUsuarios(Request $request)
+    {
+        $this->logReportAccess($request, 'efectivo_usuarios', $request->only(['fecha_inicio', 'fecha_fin']));
+        
+        $data = $this->financeReportService->getEfectivoPorUsuarioData($request->all());
+        
+        return Inertia::render('Reportes/EfectivoUsuarios', $data);
     }
 
     /**
@@ -828,9 +948,17 @@ class ReporteController extends Controller
      */
     public function exportarClientes(Request $request)
     {
+        $this->logReportAccess($request, 'exportar_clientes', [
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'fecha_fin' => $request->get('fecha_fin'),
+            'tipo' => $request->get('tipo'),
+        ]);
         $fechaInicio = $request->get('fecha_inicio', now()->startOfMonth()->format('Y-m-d'));
         $fechaFin = $request->get('fecha_fin', now()->endOfMonth()->format('Y-m-d'));
         $tipo = $request->get('tipo', 'todos');
+        $limit = min((int) $request->get('limit', 5000), 5000);
+
+        $this->assertExportRange($fechaInicio, $fechaFin, 90);
 
         $clientesQuery = Cliente::with([
             'ventas' => function ($q) use ($fechaInicio, $fechaFin) {
@@ -845,7 +973,7 @@ class ReporteController extends Controller
             $clientesQuery->whereBetween('created_at', [$fechaInicio, $fechaFin]);
         }
 
-        $clientes = $clientesQuery->get()->map(function ($cliente) {
+        $clientes = $clientesQuery->limit($limit)->get()->map(function ($cliente) {
             $totalVentas = $cliente->ventas->sum('total');
             $totalCobranzas = $cliente->rentas->flatMap->cobranzas->sum('monto_pagado');
             $deudaPendiente = $cliente->rentas->where('estado', 'activa')->sum('monto_total') - $totalCobranzas;
@@ -885,9 +1013,15 @@ class ReporteController extends Controller
      */
     public function exportarInventario(Request $request)
     {
+        $this->logReportAccess($request, 'exportar_inventario', [
+            'categoria_id' => $request->get('categoria_id'),
+            'marca_id' => $request->get('marca_id'),
+            'tipo' => $request->get('tipo'),
+        ]);
         $categoriaId = $request->get('categoria_id');
         $marcaId = $request->get('marca_id');
         $tipo = $request->get('tipo', 'todos');
+        $limit = min((int) $request->get('limit', 5000), 5000);
 
         $productosQuery = Producto::with(['categoria', 'marca', 'proveedor']);
 
@@ -899,7 +1033,7 @@ class ReporteController extends Controller
             $productosQuery->where('marca_id', $marcaId);
         }
 
-        $productos = $productosQuery->get()->map(function ($producto) {
+        $productos = $productosQuery->limit($limit)->get()->map(function ($producto) {
             return [
                 'Nombre' => $producto->nombre,
                 'Código' => $producto->codigo,
@@ -997,10 +1131,19 @@ class ReporteController extends Controller
      */
     public function exportarProductos(Request $request)
     {
+        $this->logReportAccess($request, 'exportar_productos', [
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'fecha_fin' => $request->get('fecha_fin'),
+            'categoria_id' => $request->get('categoria_id'),
+            'marca_id' => $request->get('marca_id'),
+        ]);
         $fechaInicio = $request->get('fecha_inicio', now()->subYear()->format('Y-m-d'));
         $fechaFin = $request->get('fecha_fin', now()->format('Y-m-d'));
         $categoriaId = $request->get('categoria_id');
         $marcaId = $request->get('marca_id');
+        $limit = min((int) $request->get('limit', 5000), 5000);
+
+        $this->assertExportRange($fechaInicio, $fechaFin, 365);
 
         $productosQuery = Producto::with(['categoria', 'marca']);
 
@@ -1012,7 +1155,7 @@ class ReporteController extends Controller
             $productosQuery->where('marca_id', $marcaId);
         }
 
-        $productos = $productosQuery->get()->map(function ($producto) use ($fechaInicio, $fechaFin) {
+        $productos = $productosQuery->limit($limit)->get()->map(function ($producto) use ($fechaInicio, $fechaFin) {
             // Obtener estadísticas de ventas para este producto en el período
             $ventaItemsQuery = VentaItem::with('venta')
                 ->where('ventable_type', Producto::class)
@@ -1057,6 +1200,24 @@ class ReporteController extends Controller
             'data' => $productos->toArray(),
             'filename' => 'reporte_productos_' . now()->format('Y-m-d_H-i-s') . '.json'
         ]);
+    }
+
+    private function assertExportRange(?string $fechaInicio, ?string $fechaFin, int $maxDays): void
+    {
+        if (!$fechaInicio || !$fechaFin) {
+            return;
+        }
+
+        try {
+            $start = Carbon::parse($fechaInicio)->startOfDay();
+            $end = Carbon::parse($fechaFin)->endOfDay();
+        } catch (\Exception $e) {
+            return;
+        }
+
+        if ($start->diffInDays($end) > $maxDays) {
+            abort(422, "Rango de fechas demasiado amplio. Máximo {$maxDays} días.");
+        }
     }
 
     /**
@@ -1232,10 +1393,19 @@ class ReporteController extends Controller
      */
     public function exportarPrestamosPorCliente(Request $request)
     {
+        $this->logReportAccess($request, 'exportar_prestamos_cliente', [
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'fecha_fin' => $request->get('fecha_fin'),
+            'cliente_id' => $request->get('cliente_id'),
+            'estado' => $request->get('estado'),
+        ]);
         $fechaInicio = $request->get('fecha_inicio', now()->startOfMonth()->format('Y-m-d'));
         $fechaFin = $request->get('fecha_fin', now()->endOfMonth()->format('Y-m-d'));
         $clienteId = $request->get('cliente_id');
         $estado = $request->get('estado', 'todos');
+        $limit = min((int) $request->get('limit', 5000), 5000);
+
+        $this->assertExportRange($fechaInicio, $fechaFin, 90);
 
         // Obtener préstamos con relaciones necesarias
         $prestamosQuery = Prestamo::with(['cliente', 'pagos.historialPagos'])
@@ -1249,7 +1419,7 @@ class ReporteController extends Controller
             $prestamosQuery->where('estado', $estado);
         }
 
-        $prestamos = $prestamosQuery->get();
+        $prestamos = $prestamosQuery->limit($limit)->get();
 
         // Formatear datos para exportación
         $datosExportacion = $prestamos->map(function ($prestamo) {

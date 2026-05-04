@@ -85,14 +85,8 @@ class SyncCvaOrders extends Command
                         ['guia' => $guia, 'paqueteria' => $paqueteria, 'origen' => 'CVA']
                     );
 
-                    // Enviar notificación al cliente
-                    try {
-                        \Illuminate\Support\Facades\Notification::route('mail', $pedido->email)
-                            ->notify(new \App\Notifications\PedidoEnviadoNotification($pedido));
-                        $this->info("Notificación enviada a {$pedido->email}");
-                    } catch (\Exception $e) {
-                        $this->error("Error al enviar notificación: " . $e->getMessage());
-                    }
+                    // Aquí se podría enviar notificación al cliente
+                    // Notification::route('mail', $pedido->email)->notify(new OrderShipped($pedido));
                 }
             } elseif ($estatusCva === 'FACTURADO' || $estatusCva === 'SURTIDO') {
                 // Si ya está facturado pero aún sin guía, podríamos actualizar notas

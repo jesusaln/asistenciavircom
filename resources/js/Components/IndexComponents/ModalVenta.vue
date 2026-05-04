@@ -7,7 +7,7 @@
     >
       <div
         v-if="selected"
-        class="bg-slate-900 rounded-3xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col border border-slate-800 outline-none transform transition-all"
+        class="bg-slate-900 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col border border-slate-800 outline-none transform transition-all"
         role="dialog"
         aria-modal="true"
         aria-label="Modal de Detalles de Venta"
@@ -18,11 +18,22 @@
         <!-- Header Principal -->
         <div class="px-8 py-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white relative overflow-hidden">
           <!-- Efecto de brillo de fondo -->
-          <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white dark:bg-slate-900/10 rounded-full blur-3xl"></div>
+          <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+          
+          <!-- Botón de Cerrar (Header) -->
+          <button 
+            @click="onClose"
+            class="absolute top-4 right-4 p-2.5 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-2xl transition-all border border-white/10 hover:border-white/30 backdrop-blur-md z-30 group"
+            aria-label="Cerrar modal"
+          >
+            <svg class="w-5 h-5 transition-transform group-hover:rotate-90 group-active:scale-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
           
           <div class="flex justify-between items-start relative z-10">
             <div class="flex items-center gap-4">
-              <div class="bg-white dark:bg-slate-900/10 p-3 rounded-2xl backdrop-blur-md border border-white/20">
+              <div class="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/20">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -160,6 +171,12 @@
                                 <p class="text-white font-black text-sm leading-snug group-hover:text-indigo-300 transition-colors">{{ item.nombre }}</p>
                                 <div class="flex flex-wrap items-center gap-2 mt-1.5">
                                   <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">{{ item.codigo || 'S/C' }}</span>
+                                  <div class="flex gap-1">
+                                    <span v-for="tag in getTrazabilidadTags(item.nombre)" :key="tag"
+                                          class="px-1.5 py-0.5 rounded text-[8px] font-black border bg-slate-900 border-slate-700 text-slate-400">
+                                      {{ tag }}
+                                    </span>
+                                  </div>
                                   <span v-if="item.pivot?.descuento > 0" class="text-[9px] font-black bg-rose-500/10 text-rose-400 px-1.5 py-0.5 rounded border border-rose-500/20 uppercase tracking-widest">
                                     DTO {{ item.pivot.descuento }}%
                                   </span>
@@ -188,14 +205,27 @@
                                    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
                                    <span class="text-[9px] font-black text-indigo-300 uppercase tracking-[0.2em]">Identificadores de Serie (IMEI/SN)</span>
                                 </div>
-                                <div class="flex flex-wrap gap-2">
-                                   <span v-for="(serie, sIdx) in item.series" :key="sIdx" 
-                                         class="bg-slate-900/80 border border-indigo-500/30 text-indigo-200 px-3 py-1.5 rounded-xl font-mono text-xs font-black shadow-sm group-hover:border-indigo-500/50 transition-all flex items-center gap-2">
-                                      <span class="w-1.5 h-1.5 rounded-full bg-indigo-500/50"></span>
-                                      {{ serie.numero_serie }}
-                                      <span v-if="serie.almacen" class="text-[9px] text-slate-500 font-bold ml-1 uppercase">[{{ serie.almacen }}]</span>
-                                   </span>
-                                </div>
+                                <div class="space-y-4">
+                                    <div v-for="(series, compName) in groupedSeries(item.series)" :key="compName" class="space-y-2">
+                                       <div v-if="compName !== 'General'" class="flex items-center gap-2">
+                                          <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">{{ compName }}</span>
+                                          <div class="flex gap-1">
+                                            <span v-for="tag in getTrazabilidadTags(compName)" :key="tag"
+                                                  class="px-1 py-0.5 rounded text-[7px] font-black border bg-slate-950 border-slate-800 text-slate-500">
+                                              {{ tag }}
+                                            </span>
+                                          </div>
+                                       </div>
+                                       <div class="flex flex-wrap gap-2">
+                                          <span v-for="(serie, sIdx) in series" :key="sIdx" 
+                                                class="bg-slate-900/80 border border-indigo-500/20 text-indigo-200 px-3 py-1.5 rounded-xl font-mono text-[10px] font-black shadow-sm transition-all flex items-center gap-2">
+                                             <span class="w-1 h-1 rounded-full bg-indigo-500/50"></span>
+                                             {{ serie.numero_serie }}
+                                             <span v-if="serie.almacen" class="text-[8px] text-slate-500 font-bold ml-1 uppercase">[{{ serie.almacen }}]</span>
+                                          </span>
+                                       </div>
+                                    </div>
+                                 </div>
                              </div>
                            </td>
                         </tr>
@@ -223,11 +253,11 @@
               <div class="bg-indigo-600 rounded-3xl p-8 flex flex-col justify-between shadow-[0_20px_50px_rgba(79,70,229,0.3)] border border-indigo-400/30 relative overflow-hidden group">
                 <!-- Efecto lumínico -->
                 <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent"></div>
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white dark:bg-slate-900/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
                 
                 <div class="relative z-10">
                   <div class="flex items-center gap-2 mb-2">
-                    <span class="w-2 h-2 rounded-full bg-white dark:bg-slate-900 animate-pulse"></span>
+                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                     <h3 class="text-[10px] font-black text-indigo-100 uppercase tracking-[0.3em]">Cifra Total</h3>
                   </div>
                   <div class="flex items-baseline gap-1">
@@ -270,7 +300,7 @@
                   <div class="grid grid-cols-2 gap-4">
                     <div class="p-3 bg-slate-900/40 rounded-2xl border border-slate-800/50">
                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Medio</p>
-                       <p class="text-[10px] font-black text-white uppercase truncate">{{ selected.metodo_pago || 'Electrónico' }}</p>
+                       <p class="text-[10px] font-black text-white uppercase truncate">{{ labelMetodoPagoVenta(selected.metodo_pago) || '—' }}</p>
                     </div>
                     <div class="p-3 bg-slate-900/40 rounded-2xl border border-slate-800/50 text-right">
                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Fecha</p>
@@ -285,9 +315,18 @@
                     </p>
                   </div>
                 </div>
-                <div v-else class="flex items-center gap-4">
+                <div v-else class="space-y-3">
+                  <div class="p-3 bg-slate-900/40 rounded-2xl border border-slate-800/50">
+                    <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Forma de pago</p>
+                    <p class="text-[11px] font-black text-white uppercase tracking-tight">{{ textoFormaPagoModal }}</p>
+                    <p v-if="selected.forma_pago_sat || selected.metodo_pago_sat" class="text-[9px] font-bold text-slate-400 mt-1">
+                      SAT:
+                      {{ selected.forma_pago_sat ? String(selected.forma_pago_sat).padStart(2, '0') : '—' }}
+                      <template v-if="selected.metodo_pago_sat"> · {{ selected.metodo_pago_sat }}</template>
+                    </p>
+                  </div>
                   <p class="text-xs font-bold text-amber-500/70 leading-relaxed italic">
-                    Esta venta se encuentra registrada como cuenta por cobrar.
+                    Cuenta por cobrar pendiente de liquidar.
                   </p>
                 </div>
               </div>
@@ -387,6 +426,7 @@ import { Notyf } from 'notyf'
 import axios from 'axios'
 import 'notyf/notyf.min.css'
 import Swal from 'sweetalert2'
+import { labelMetodoPagoVenta, labelFormaPagoSat, textoFormaPagoClienteCatalogo } from '@/Utils/ventaPagoLabels'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -395,6 +435,22 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'edit', 'print', 'marcar-pagado', 'cancelar', 'eliminar'])
+
+const textoFormaPagoModal = computed(() => {
+  const s = props.selected
+  if (!s) return '—'
+  const m = labelMetodoPagoVenta(s.metodo_pago)
+  if (m) {
+    return m
+  }
+  if (s.forma_pago_sat) {
+    return labelFormaPagoSat(s.forma_pago_sat)
+  }
+  if (s.cliente?.forma_pago_default) {
+    return textoFormaPagoClienteCatalogo(s.cliente.forma_pago_default)
+  }
+  return 'No registrada'
+})
 
 const notyf = new Notyf({ 
   duration: 4000, 
@@ -467,6 +523,28 @@ const getEstadoLabel = (estado) => {
     cancelada: 'Cancelada'
   }
   return map[estado?.toLowerCase()] || estado
+}
+
+const getTrazabilidadTags = (nombre) => {
+  if (!nombre) return []
+  const tags = []
+  const lower = nombre.toLowerCase()
+  if (lower.includes('condensador')) tags.push('C')
+  if (lower.includes('manejadora') || lower.includes('evaporador')) tags.push('M')
+  if (lower.includes('solo frío')) tags.push('S/F')
+  if (lower.includes('calor') || lower.includes('calefacción')) tags.push('C/H')
+  return tags
+}
+
+const groupedSeries = (series) => {
+  if (!series || !series.length) return {}
+  const groups = {}
+  series.forEach(s => {
+    const name = s.componente_nombre || 'General'
+    if (!groups[name]) groups[name] = []
+    groups[name].push(s)
+  })
+  return groups
 }
 
 // Items desde backend

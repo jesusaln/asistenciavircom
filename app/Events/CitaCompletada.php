@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Cita;
 
-class CitaCompletada
+class CitaCompletada implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,7 +27,7 @@ class CitaCompletada
      */
     public function __construct(Cita $cita)
     {
-        $this->cita = $cita;
+        $this->cita = $cita->load('tecnico', 'cliente');
     }
 
     /**
@@ -38,7 +38,7 @@ class CitaCompletada
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('notificaciones'),
         ];
     }
 }

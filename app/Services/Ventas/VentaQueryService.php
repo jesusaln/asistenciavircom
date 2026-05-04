@@ -3,6 +3,7 @@
 namespace App\Services\Ventas;
 
 use App\Models\Venta;
+use App\Models\Cita;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\Servicio;
@@ -21,9 +22,30 @@ use Illuminate\Support\Facades\Auth;
 
 class VentaQueryService
 {
+    /**
+     * Empresa para listas (usuarios, cuentas): resolver + fallback al usuario web.
+     */
+    private function empresaIdParaListas(): ?int
+    {
+        $id = \App\Support\EmpresaResolver::resolveId();
+        if ($id) {
+            return (int) $id;
+        }
+
+        $uid = Auth::id();
+        if ($uid) {
+            $eid = User::query()->whereKey($uid)->value('empresa_id');
+            if ($eid) {
+                return (int) $eid;
+            }
+        }
+
+        return null;
+    }
+
     public function getVentasList(Request $request): array
     {
-        $query = Venta::with(['cliente', 'almacen', 'items.ventable', 'items.series.almacen', 'createdBy', 'updatedBy', 'cuentaBancaria', 'entregaDinero.cuentaBancaria', 'cfdis']);
+        $query = Venta::with(['cliente', 'almacen', 'items.ventable', 'items.series.almacen', 'items.series.productoSerie.producto', 'vendedor', 'createdBy', 'updatedBy', 'cuentaBancaria', 'entregaDinero.cuentaBancaria', 'cfdis']);
 
         // Aplicar filtros
         if ($request->has('cliente_id')) {
@@ -31,12 +53,13 @@ class VentaQueryService
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $searchPattern = '%' . $search . '%';
-                $q->whereHas('cliente', function ($clienteQuery) use ($searchPattern) {
-                    $clienteQuery->where('nombre_razon_social', 'LIKE', $searchPattern);
-                })->orWhere('numero_venta', 'LIKE', $searchPattern);
+                $q->whereHas('cliente', function ($clienteQuery) use ($search, $searchPattern) {
+                    // Accent-insensitive search for client name
+                    $clienteQuery->whereRaw("unaccent(nombre_razon_social) ILIKE unaccent(?)", [$searchPattern]);
+                })->orWhere('numero_venta', 'ILIKE', $searchPattern);
             });
         }
 
@@ -65,9 +88,20 @@ class VentaQueryService
 
         $estadisticas = $this->getVentasSummaryStats();
 
+        $empresaId = $this->empresaIdParaListas();
+        $usuariosCobro = $empresaId
+            ? User::query()
+                ->where('empresa_id', $empresaId)
+                ->where('activo', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+            : collect();
+
         return [
             'ventas' => $ventas,
             'estadisticas' => $estadisticas,
+            'cuentasBancarias' => \App\Models\CuentaBancaria::activas()->orderBy('banco')->orderBy('nombre')->get(['id', 'nombre', 'banco']),
+            'usuariosCobro' => $usuariosCobro,
             'pagination' => [
                 'current_page' => $ventas->currentPage(),
                 'last_page' => $ventas->lastPage(),
@@ -91,21 +125,25 @@ class VentaQueryService
                 if ($item->series && $item->series->count() > 0) {
                     $series = $item->series->map(fn($s) => [
                         'numero_serie' => $s->numero_serie,
-                        'almacen' => $s->almacen ? $s->almacen->nombre : 'N/A'
+                        'almacen' => $s->almacen ? $s->almacen->nombre : 'N/A',
+                        'componente_nombre' => $s->productoSerie?->producto?->nombre
                     ])->toArray();
                 }
 
                 $items->push([
                     'id' => $item->ventable_id,
                     'nombre' => $ventable->nombre ?? $ventable->descripcion ?? 'N/A',
-                    'tipo' => $item->ventable_type === Producto::class ? 'producto' : 'servicio',
+                    'tipo' => ($item->ventable_type === 'producto' || $item->ventable_type === Producto::class) ? 'producto' : 'servicio',
                     'requiere_serie' => $ventable->requiere_serie ?? false,
                     'cantidad' => $item->cantidad,
                     'precio' => $item->precio,
+                    'descuento' => $item->descuento ?? 0,
                     'series' => $series,
                 ]);
             }
         }
+
+        $cuentaBancaria = $venta->cuentaBancaria;
 
         return [
             'id' => $venta->id,
@@ -118,66 +156,155 @@ class VentaQueryService
             'almacen' => $venta->almacen,
             'items' => $items,
             'total' => $venta->total,
+            'subtotal' => $venta->subtotal,
+            'iva' => $venta->iva,
             'estado' => $venta->estado?->value ?? 'desconocido',
             'pagado' => $venta->pagado ?? false,
-            'fecha' => $venta->fecha->toISOString(),
+            'metodo_pago' => $venta->metodo_pago,
+            'forma_pago_sat' => $venta->forma_pago_sat,
+            'metodo_pago_sat' => $venta->metodo_pago_sat,
+            'cuenta_bancaria' => $cuentaBancaria ? [
+                'id' => $cuentaBancaria->id,
+                'nombre' => $cuentaBancaria->nombre,
+                'banco' => $cuentaBancaria->banco,
+            ] : null,
+            'vendedor' => $venta->vendedor ? [
+                'id' => $venta->vendedor_id,
+                'name' => $venta->vendedor->name ?? $venta->vendedor->nombre ?? 'N/A',
+                'type' => $venta->vendedor_type
+            ] : null,
+            'fecha' => $venta->fecha ? $venta->fecha->toISOString() : null,
+            'fecha_pago' => $venta->fecha_pago ? $venta->fecha_pago->toISOString() : null,
+            'created_at' => $venta->created_at ? $venta->created_at->toISOString() : null,
+            'updated_at' => $venta->updated_at ? $venta->updated_at->toISOString() : null,
+            'created_by_user_name' => $venta->createdBy->name ?? 'N/A',
+            'updated_by_user_name' => $venta->updatedBy->name ?? 'N/A',
             'esta_facturada' => $venta->cfdis->whereIn('estatus', ['timbrado', 'vigente'])->isNotEmpty(),
             'cfdi_cancelado' => $venta->cfdis->where('estatus', 'cancelado')->isNotEmpty(),
             'factura_uuid' => $venta->cfdis->whereIn('estatus', ['timbrado', 'vigente'])->last()?->uuid,
+            'sharing_token' => $venta->sharing_token,
         ];
     }
 
     private function getVentasSummaryStats(): array
     {
-        $stats = Venta::selectRaw("
-            COUNT(*) as total,
-            COUNT(CASE WHEN estado = 'borrador' THEN 1 END) as borrador,
-            COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
-            COUNT(CASE WHEN estado = 'aprobada' THEN 1 END) as aprobadas,
-            COUNT(CASE WHEN estado = 'enviada' THEN 1 END) as enviadas,
-            COUNT(CASE WHEN estado = 'facturada' THEN 1 END) as facturadas,
-            COUNT(CASE WHEN estado = 'pagado' THEN 1 END) as pagadas,
-            COUNT(CASE WHEN estado = 'cancelada' THEN 1 END) as cancelada
-        ")->first();
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $cacheKey = "ventas_summary_stats_empresa_{$empresaId}";
 
-        return [
-            'total' => (int) $stats->total,
-            'borrador' => (int) $stats->borrador,
-            'pendientes' => (int) $stats->pendientes,
-            'aprobadas' => (int) $stats->aprobadas,
-            'enviadas' => (int) $stats->enviadas,
-            'facturadas' => (int) $stats->facturadas,
-            'pagadas' => (int) $stats->pagadas,
-            'cancelada' => (int) $stats->cancelada,
-        ];
+        return Cache::remember($cacheKey, 300, function () {
+            $stats = Venta::selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN estado = 'borrador' THEN 1 END) as borrador,
+                COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
+                COUNT(CASE WHEN estado = 'aprobada' THEN 1 END) as aprobadas,
+                COUNT(CASE WHEN estado = 'enviada' THEN 1 END) as enviadas,
+                COUNT(CASE WHEN estado = 'facturada' THEN 1 END) as facturadas,
+                COUNT(CASE WHEN estado = 'pagado' THEN 1 END) as pagadas,
+                COUNT(CASE WHEN estado = 'cancelada' THEN 1 END) as cancelada
+            ")->first();
+
+            return [
+                'total' => (int) $stats->total,
+                'borrador' => (int) $stats->borrador,
+                'pendientes' => (int) $stats->pendientes,
+                'aprobadas' => (int) $stats->aprobadas,
+                'enviadas' => (int) $stats->enviadas,
+                'facturadas' => (int) $stats->facturadas,
+                'pagadas' => (int) $stats->pagadas,
+                'cancelada' => (int) $stats->cancelada,
+            ];
+        });
+    }
+
+    /**
+     * Ventas recientes del mismo cliente que la cita (modal en reportes, etc.).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getVentasClienteCandidatasForCita(Cita $cita): array
+    {
+        if (! $cita->cliente_id) {
+            return [];
+        }
+
+        return Venta::query()
+            ->where('cliente_id', $cita->cliente_id)
+            ->orderByDesc('fecha')
+            ->orderByDesc('id')
+            ->limit(80)
+            ->get(['id', 'numero_venta', 'total', 'fecha', 'cita_id', 'metodo_pago', 'pagado', 'estado'])
+            ->map(function (Venta $v) {
+                $estado = $v->estado;
+                if ($estado instanceof \BackedEnum) {
+                    $estado = $estado->value;
+                }
+
+                return [
+                    'id' => $v->id,
+                    'numero_venta' => $v->numero_venta,
+                    'total' => (float) $v->total,
+                    'fecha' => $v->fecha?->toIso8601String(),
+                    'cita_id' => $v->cita_id,
+                    'metodo_pago' => $v->metodo_pago,
+                    'pagado' => (bool) $v->pagado,
+                    'estado' => $estado,
+                ];
+            })
+            ->all();
     }
 
     public function getCreateData(Request $request): array
     {
-        $clientes = Cliente::select('id', 'nombre_razon_social', 'rfc', 'email', 'price_list_id', 'tipo_persona', 'credito_activo', 'limite_credito')
+        $clienteSelect = ['id', 'nombre_razon_social', 'rfc', 'email', 'price_list_id', 'tipo_persona', 'credito_activo', 'limite_credito'];
+
+        $citaParaVenta = $request->filled('cita_id')
+            ? \App\Models\Cita::with(['cliente', 'items.citable', 'venta:id,cita_id,numero_venta,total,fecha,cliente_id'])->find($request->cita_id)
+            : null;
+
+        $clientes = Cliente::select($clienteSelect)
             ->whereNotNull('nombre_razon_social')
             ->orderBy('created_at', 'desc')
             ->limit(500)
             ->with('priceList:id,nombre,clave')
             ->get();
 
-        $productos = Producto::select('id', 'nombre', 'codigo', 'precio_venta', 'stock', 'categoria_id', 'marca_id', 'requiere_serie', 'tipo_producto')
-            ->with(['categoria:id,nombre', 'marca:id,nombre', 'precios', 'kitItems.item:id,nombre,codigo'])
+        if ($citaParaVenta?->cliente_id && ! $clientes->contains(fn ($c) => (int) $c->id === (int) $citaParaVenta->cliente_id)) {
+            $clienteCita = Cliente::select($clienteSelect)
+                ->whereKey($citaParaVenta->cliente_id)
+                ->with('priceList:id,nombre,clave')
+                ->first();
+            if ($clienteCita) {
+                $clientes = $clientes->prepend($clienteCita)->values();
+            }
+        }
+
+        $productos = Producto::select('id', 'nombre', 'codigo', 'precio_venta', 'stock', 'categoria_id', 'marca_id', 'requiere_serie', 'tipo_producto', 'unidad_medida', 'sat_clave_unidad', 'reservado', 'bloquear_venta_directa')
+            ->with(['categoria:id,nombre', 'marca:id,nombre', 'precios', 'kitItems.item', 'inventarios.almacen'])
             ->where('estado', 'activo')
-            ->where(fn($q) => $q->where('stock', '>', 0)->orWhere('tipo_producto', 'kit'))
+            // Removido el filtro de stock > 0 para que aparezcan todos los productos activos del catálogo
+            ->paraVentaDirectaSegunUsuario(Auth::user())
             ->orderBy('nombre')
-            ->limit(1000)
+            ->limit(500)
             ->get()
             ->map(function ($p) {
+                // Mapear precios por lista
                 $p->precios_listas = $p->precios->mapWithKeys(fn($pr) => [$pr->price_list_id => (float) $pr->precio]);
+
+                // Mapear stock por almacén (restando reservas globales de forma proporcional o simple)
+                // Para simplificar, enviaremos la cantidad física por almacén
+                $p->stock_almacenes = $p->inventarios->mapWithKeys(fn($inv) => [
+                    $inv->almacen_id => max(0, (float) $inv->cantidad - (float) ($p->reservado ?? 0))
+                ]);
+
                 unset($p->precios);
+                unset($p->inventarios);
                 return $p;
             });
 
-        $servicios = Servicio::select('id', 'nombre', 'descripcion', 'precio', 'comision_vendedor')
+        $servicios = Servicio::select('id', 'nombre', 'descripcion', 'precio', 'comision_vendedor', 'estado')
             ->where('estado', 'activo')
             ->orderBy('nombre')
-            ->limit(500)
+            ->limit(200)
             ->get();
 
         $almacenes = Almacen::select('id', 'nombre', 'descripcion', 'ubicacion', 'estado')
@@ -191,12 +318,31 @@ class VentaQueryService
             'estados' => SatEstado::select('clave', 'nombre')->get(),
         ]);
 
-        $vendedores = User::select('id', 'name', 'email')
+        $vendedores = User::select('id', 'name', 'email', 'almacen_venta_id', 'almacen_compra_id')
             ->where('activo', true)
-            ->whereHas('roles', fn($q) => $q->whereIn('name', ['ventas', 'admin']))
+            ->where(function ($q) {
+                $q->whereHas('roles', fn ($r) => $r->whereIn('name', [
+                    'ventas',
+                    'admin',
+                    'tecnico',
+                    'vendedor',
+                    'cajero',
+                    'cobranza',
+                    'almacenista',
+                    'super-admin',
+                ]))
+                    ->orWhere('es_tecnico', true)
+                    ->orWhere('es_vendedor', true);
+            })
             ->orderBy('name')
             ->get()
-            ->map(fn($u) => ['id' => $u->id, 'type' => 'user', 'nombre' => $u->name]);
+            ->map(fn ($u) => [
+                'id' => $u->id, 
+                'type' => 'user', 
+                'nombre' => $u->name,
+                'almacen_venta_id' => $u->almacen_venta_id,
+                'almacen_compra_id' => $u->almacen_compra_id,
+            ]);
 
         return [
             'clientes' => $clientes,
@@ -207,8 +353,9 @@ class VentaQueryService
             'catalogs' => $catalogs,
             'user' => Auth::user(),
             'pedido' => $request->has('pedido_id') ? Pedido::with(['cliente', 'items.pedible'])->find($request->pedido_id) : null,
-            'cita' => $request->has('cita_id') ? \App\Models\Cita::with(['cliente', 'items.citable'])->find($request->cita_id) : null,
+            'cita' => $citaParaVenta,
             'vendedores' => $vendedores,
+            'puedeVenderComponentesSueltos' => Auth::user()?->can('venta componentes sueltos') ?? false,
             'defaults' => [
                 'ivaPorcentaje' => (float) EmpresaConfiguracionService::getIvaPorcentaje(),
                 'isrPorcentaje' => EmpresaConfiguracionService::getIsrPorcentaje(),
@@ -217,13 +364,14 @@ class VentaQueryService
                 'enableRetencionIsr' => EmpresaConfiguracionService::isRetencionIsrEnabled(),
                 'retencionIvaDefault' => EmpresaConfiguracionService::getRetencionIvaDefault(),
                 'retencionIsrDefault' => EmpresaConfiguracionService::getRetencionIsrDefault(),
+                'serviciosUsanListasPrecios' => (bool) config('ventas.servicios_usan_listas_precios', false),
             ],
         ];
     }
 
     public function getVentaDetails(Venta $venta): array
     {
-        $venta->load(['cliente', 'almacen', 'items.ventable', 'items.series.almacen', 'vendedor', 'createdBy', 'updatedBy', 'cuentaPorCobrar', 'cfdis']);
+        $venta->load(['cliente', 'almacen', 'items.ventable', 'items.series.almacen', 'items.series.productoSerie.producto', 'vendedor', 'createdBy', 'updatedBy', 'cuentaPorCobrar', 'cfdis', 'entregaDinero', 'cuentaBancaria']);
 
         $productos = [];
         foreach ($venta->items as $item) {
@@ -236,6 +384,7 @@ class VentaQueryService
                 'id' => $ventable->id,
                 'nombre' => $ventable->nombre ?? $ventable->descripcion ?? 'N/A',
                 'tipo' => $isProducto ? 'producto' : 'servicio',
+                'almacen_nombre' => $venta->almacen?->nombre ?? 'N/A',
                 'requiere_serie' => $isProducto ? ($ventable->requiere_serie ?? false) : false,
                 'pivot' => [
                     'cantidad' => $item->cantidad,
@@ -246,7 +395,8 @@ class VentaQueryService
                 ],
                 'series' => $item->series ? $item->series->map(fn($s) => [
                     'numero_serie' => $s->numero_serie,
-                    'almacen' => $s->almacen ? $s->almacen->nombre : 'N/A'
+                    'almacen' => $s->almacen ? $s->almacen->nombre : 'N/A',
+                    'componente_nombre' => $s->productoSerie?->producto?->nombre
                 ])->toArray() : []
             ];
         }
@@ -270,6 +420,13 @@ class VentaQueryService
                 'estado' => $venta->estado?->value ?? 'desconocido',
                 'pagado' => $venta->pagado ?? false,
                 'metodo_pago' => $venta->metodo_pago,
+                'forma_pago_sat' => $venta->forma_pago_sat,
+                'metodo_pago_sat' => $venta->metodo_pago_sat,
+                'cuenta_bancaria' => $venta->cuentaBancaria ? [
+                    'id' => $venta->cuentaBancaria->id,
+                    'nombre' => $venta->cuentaBancaria->nombre,
+                    'banco' => $venta->cuentaBancaria->banco,
+                ] : null,
                 'fecha_pago' => $venta->fecha_pago,
                 'notas_pago' => $venta->notas_pago,
                 'notas' => $venta->notas,
@@ -279,18 +436,22 @@ class VentaQueryService
                 'esta_facturada' => $venta->cfdis()->timbrados()->exists(),
                 'factura_uuid' => $venta->cfdis()->timbrados()->latest()->first()?->uuid,
                 'factura' => $venta->cfdis()->timbrados()->latest()->first(),
+                'tiene_entrega_dinero' => $venta->entregaDinero !== null,
             ],
-            'canEdit' => !$venta->pagado && $venta->estado?->value !== 'cancelada',
+            'canEdit' => $venta->estado?->value !== 'cancelada' && $venta->entregaDinero === null,
             'canDelete' => $venta->estado?->value === 'cancelada',
-            'canCancel' => $venta->estado?->value !== 'cancelada' && (!$venta->pagado || $isAdmin),
+            'canCancel' => $venta->estado?->value !== 'cancelada',
             'isAdmin' => $isAdmin,
             'cuentasBancarias' => \App\Models\CuentaBancaria::activas()->orderBy('banco')->orderBy('nombre')->get(['id', 'nombre', 'banco']),
+            'usuariosCobro' => ($eid = $this->empresaIdParaListas())
+                ? User::query()->where('empresa_id', $eid)->where('activo', true)->orderBy('name')->get(['id', 'name'])
+                : collect(),
         ];
     }
 
     public function getVentaEditData(Venta $venta): array
     {
-        $venta->load(['cliente']);
+        $venta->load(['cliente', 'vendedor', 'cuentaBancaria']);
         $productosItems = $venta->items()->where('ventable_type', Producto::class)->with(['ventable', 'series'])->get();
         $serviciosItems = $venta->items()->where('ventable_type', Servicio::class)->with('ventable')->get();
 
@@ -312,6 +473,7 @@ class VentaQueryService
         $createData = $this->getCreateData(request());
 
         return array_merge($createData, [
+            'cuentasBancarias' => \App\Models\CuentaBancaria::activas()->orderBy('banco')->orderBy('nombre')->get(['id', 'nombre', 'banco']),
             'venta' => [
                 'id' => $venta->id,
                 'numero_venta' => $venta->numero_venta,
@@ -322,6 +484,15 @@ class VentaQueryService
                 'pagado' => $venta->pagado ?? false,
                 'fecha' => $venta->fecha->toISOString(),
                 'almacen_id' => $venta->almacen_id,
+                'metodo_pago' => $venta->metodo_pago ?? 'efectivo',
+                'forma_pago_sat' => $venta->forma_pago_sat,
+                'metodo_pago_sat' => $venta->metodo_pago_sat,
+                'cuenta_bancaria_id' => $venta->cuenta_bancaria_id,
+                'descuento_general' => $venta->descuento_general ?? 0,
+                'notas' => $venta->notas ?? '',
+                'tiene_entrega_dinero' => $venta->entregaDinero()->exists(),
+                'vendedor_id' => $venta->vendedor_id,
+                'vendedor_type' => $venta->vendedor_type,
             ]
         ]);
     }

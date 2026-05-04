@@ -1,5 +1,5 @@
 <template>
-  <div class="buscar-producto">
+  <div ref="root" class="buscar-producto">
     <!-- Campo de búsqueda -->
     <div class="mb-6">
       <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
@@ -10,14 +10,17 @@
           ref="inputBusqueda"
           type="text"
           v-model="busqueda"
-          @input="filtrarItems"
+          @input="handleInput"
           @focus="mostrarLista = true"
           :placeholder="placeholder"
-          class="w-full px-4 py-3 bg-white dark:bg-slate-900 dark:bg-slate-950 border-2 border-gray-200 dark:border-slate-800 dark:border-slate-800 rounded-xl focus:ring-0 focus:border-indigo-500 dark:focus:border-indigo-500 text-sm font-medium text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-slate-600 transition-all shadow-sm"
+          class="w-full px-4 py-3 bg-white dark:bg-slate-950 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:ring-0 focus:border-indigo-500 dark:focus:border-indigo-500 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 transition-all shadow-sm"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-gray-400 dark:text-slate-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-if="!cargando" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </div>
       </div>
@@ -31,7 +34,7 @@
             'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
             filtroActivo === 'todos'
               ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-800 dark:border-slate-100 shadow-md transform scale-105'
-              : 'bg-white dark:bg-slate-900 dark:bg-slate-900 text-gray-500 dark:text-gray-400 dark:text-slate-500 border-gray-200 dark:border-slate-800 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
+              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
           ]"
         >
           {{ textoTodos }} ({{ itemsFiltrados.length }})
@@ -43,7 +46,7 @@
             'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
             filtroActivo === 'productos'
               ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20 transform scale-105'
-              : 'bg-white dark:bg-slate-900 dark:bg-slate-900 text-gray-500 dark:text-gray-400 dark:text-slate-500 border-gray-200 dark:border-slate-800 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 hover:text-blue-500'
+              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 hover:text-blue-500'
           ]"
         >
           {{ textoProductos }} ({{ productosCount }})
@@ -56,7 +59,7 @@
             'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
             filtroActivo === 'servicios'
               ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-500/20 transform scale-105'
-              : 'bg-white dark:bg-slate-900 dark:bg-slate-900 text-gray-500 dark:text-gray-400 dark:text-slate-500 border-gray-200 dark:border-slate-800 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-900 hover:text-purple-500'
+              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-900 hover:text-purple-500'
           ]"
         >
           {{ textoServicios }} ({{ serviciosCount }})
@@ -64,40 +67,35 @@
       </div>
     </div>
 
-    <!-- Usar Teleport para renderizar fuera del componente -->
-    <Teleport to="#app">
-      <div
-        v-if="mostrarLista && itemsFiltrados.length > 0"
-        class="z-[100] mt-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 dark:border-slate-800 rounded-2xl shadow-2xl max-h-96 overflow-y-auto ring-1 ring-black/5 dark:ring-white/10"
-        :style="{
-          position: 'absolute',
-          width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
-          left: inputPosition.left + 'px'
-        }"
-      >
-        <!-- Encabezados -->
-        <div class="sticky top-0 bg-gray-50/95 dark:bg-slate-950/95 backdrop-blur-sm border-b border-gray-100 dark:border-slate-800 dark:border-slate-800 px-4 py-3 z-10">
-          <div class="grid grid-cols-12 gap-3 text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">
-            <div class="col-span-1 text-center">Tipo</div>
-            <div class="col-span-3">Descripción</div>
-            <div class="col-span-2">Código</div>
-            <div class="col-span-2">Categoría</div>
-            <div class="col-span-2 text-right">Precio</div>
-            <div class="col-span-1 text-center">Stock</div>
-            <div class="col-span-1 text-center">Acción</div>
-          </div>
+    <SearchDropdown
+      :show="mostrarLista"
+      :items="itemsFiltrados"
+      :width="inputWidth"
+      :position="inputPosition"
+      max-height="24rem"
+      :empty="!!busqueda"
+      empty-title="No encontramos coincidencias"
+      empty-subtitle="Intenta buscar con otro nombre o código"
+      :item-key="item => `${item.tipo}-${item.id}`"
+    >
+      <template #header>
+        <div class="grid grid-cols-12 gap-3 text-[10px] font-black uppercase tracking-wider text-[var(--ui-text-soft)]">
+          <div class="col-span-1 text-center">Tipo</div>
+          <div class="col-span-3">Descripción</div>
+          <div class="col-span-2">Código</div>
+          <div class="col-span-2">Categoría</div>
+          <div class="col-span-2 text-right">Precio</div>
+          <div class="col-span-1 text-center">Stock</div>
+          <div class="col-span-1 text-center">Acción</div>
         </div>
-        
-        <!-- Items -->
+      </template>
+
+      <template #item="{ item }">
         <div
-          v-for="item in itemsFiltrados"
-          :key="`${item.tipo}-${item.id}`"
           @mousedown.prevent="agregarItem(item)"
-          class="group px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 dark:border-slate-800/50 last:border-b-0 transition-colors cursor-pointer"
+          class="group px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 border-b border-[var(--ui-border)] last:border-b-0 transition-colors cursor-pointer"
         >
           <div class="grid grid-cols-12 gap-3 items-center">
-            <!-- Tipo Badge -->
             <div class="col-span-1 flex justify-center">
               <span :class="[
                 'w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black shadow-sm',
@@ -108,39 +106,37 @@
                 {{ item.tipo === 'producto' ? 'P' : 'S' }}
               </span>
             </div>
-            
-            <!-- Nombre y Desc -->
+
             <div class="col-span-3">
-              <div class="font-bold text-gray-900 dark:text-white dark:text-white text-xs leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              <div class="font-bold text-xs leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   {{ item.nombre }}
               </div>
-              <div v-if="item.descripcion" class="text-[10px] text-gray-400 dark:text-slate-500 truncate mt-0.5">
+              <div v-if="item.descripcion" class="text-[10px] text-[var(--ui-text-soft)] truncate mt-0.5">
                   {{ item.descripcion }}
               </div>
+              <div v-if="getStock(item) <= 0 && getAvailabilityInfo(item)" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1 animate-pulse">
+                {{ getAvailabilityInfo(item) }}
+              </div>
             </div>
-            
-            <!-- Código -->
+
             <div class="col-span-2">
-              <span class="text-xs font-mono text-gray-500 dark:text-gray-400 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+              <span class="text-xs font-mono text-[var(--ui-text-muted)] bg-[var(--ui-surface-alt)] px-1.5 py-0.5 rounded border border-[var(--ui-border)]">
                   {{ item.codigo || '---' }}
               </span>
             </div>
-            
-            <!-- Categoría -->
+
             <div class="col-span-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--ui-text-soft)]">
                   {{ typeof item.categoria === 'string' ? item.categoria : (item.categoria?.nombre || 'General') }}
               </span>
             </div>
-            
-            <!-- Precio -->
+
             <div class="col-span-2 text-right">
               <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">
                 ${{ formatearPrecio(getPrecioMostrar(item)) }}
               </span>
             </div>
-            
-            <!-- Stock -->
+
             <div class="col-span-1 flex justify-center">
               <div v-if="item.tipo === 'producto'">
                 <span v-if="item.tipo_producto === 'kit'" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 uppercase">
@@ -157,10 +153,9 @@
                   </span>
                 </template>
               </div>
-              <span v-else class="text-xs text-gray-300 dark:text-slate-600">∞</span>
+              <span v-else class="text-xs text-[var(--ui-text-soft)]">∞</span>
             </div>
-            
-            <!-- Botón agregar -->
+
             <div class="col-span-1 flex justify-center">
               <button
                 type="button"
@@ -180,30 +175,31 @@
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
-      <!-- Sin resultados -->
-      <div v-if="busqueda && itemsFiltrados.length === 0" class="z-50 px-4 py-12 text-center bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 dark:border-slate-800 rounded-2xl shadow-xl" :style="{
-          position: 'absolute',
-          width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
-          left: inputPosition.left + 'px'
-        }">
-        <div class="w-16 h-16 mx-auto bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-             <svg class="w-8 h-8 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-             </svg>
+      <template #empty>
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto bg-[var(--ui-surface-alt)] rounded-full flex items-center justify-center mb-3 border border-[var(--ui-border)]">
+            <svg class="w-8 h-8 text-[var(--ui-text-soft)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <p class="text-sm font-bold text-[var(--ui-text)]">No encontramos coincidencias</p>
+          <p class="text-xs text-[var(--ui-text-soft)] mt-1">Intenta buscar con otro nombre o código</p>
         </div>
-        <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-white">No encontramos coincidencias</p>
-        <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Intenta buscar con otro nombre o código</p>
-      </div>
-    </Teleport>
+      </template>
+    </SearchDropdown>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import { resolverPrecio } from '@/Utils/precioHelper';
+import axios from 'axios';
+import debounce from 'lodash/debounce';
+import { useClickOutside } from '@/Composables/useClickOutside';
+import { useDropdownPosition } from '@/Composables/useDropdownPosition';
+import SearchDropdown from '@/Components/CreateComponents/SearchDropdown.vue';
 
 const props = defineProps({
   productos: {
@@ -250,6 +246,10 @@ const props = defineProps({
     type: [Number, String, null],
     default: null,
   },
+  serviciosUsanListasPrecios: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['agregar-producto']);
@@ -260,8 +260,11 @@ const mostrarLista = ref(false);
 const filtroActivo = ref(props.soloProductos ? 'productos' : 'todos');
 const productosRecientes = ref([]);
 const inputBusqueda = ref(null);
-const inputWidth = ref(0);
-const inputPosition = ref({ top: 0, left: 0, height: 0 });
+const root = ref(null);
+const cargando = ref(false);
+const resultadosApi = ref([]);
+const ultimaBusquedaApi = ref('');
+const { inputWidth, inputPosition, updatePosition } = useDropdownPosition(inputBusqueda);
 
 // Exponer el método focus
 defineExpose({
@@ -282,7 +285,16 @@ const todosLosItems = computed(() => {
     ...servicio,
     tipo: 'servicio'
   }));
-  return [...productosConTipo, ...serviciosConTipo];
+  
+  // Combinar con resultados de API, evitando duplicados
+  const combinados = [...productosConTipo, ...serviciosConTipo];
+  
+  resultadosApi.value.forEach(itemApi => {
+      const existe = combinados.some(c => c.id === itemApi.id && c.tipo === itemApi.tipo);
+      if (!existe) combinados.push(itemApi);
+  });
+  
+  return combinados;
 });
 
 // Filtrar items según búsqueda y filtro activo
@@ -294,21 +306,21 @@ const itemsFiltrados = computed(() => {
   } else if (filtroActivo.value === 'servicios') {
     items = items.filter(item => item.tipo === 'servicio');
   }
-  // Filtrar por búsqueda
+  // Filtrar por búsqueda local si ya tenemos resultados
   if (busqueda.value) {
     const termino = busqueda.value.toLowerCase();
     items = items.filter(item =>
-      item.nombre.toLowerCase().includes(termino) ||
+      (item.nombre && item.nombre.toLowerCase().includes(termino)) ||
       (item.codigo && item.codigo.toLowerCase().includes(termino)) ||
       (item.categoria && (
         typeof item.categoria === 'string'
           ? item.categoria.toLowerCase().includes(termino)
-          : item.categoria.nombre.toLowerCase().includes(termino)
+          : (item.categoria.nombre && item.categoria.nombre.toLowerCase().includes(termino))
       )) ||
       (item.descripcion && item.descripcion.toLowerCase().includes(termino))
     );
   }
-  return items.slice(0, 50); // Limitar a 50 resultados
+  return items.slice(0, 150); // Limitar a 150 resultados
 });
 
 // Contadores para los filtros
@@ -322,9 +334,61 @@ const serviciosCount = computed(() => {
 });
 
 // Funciones
+const handleInput = () => {
+    mostrarLista.value = true;
+    updatePosition();
+    buscarEnApi();
+};
+
+const buscarEnApi = debounce(async () => {
+    const q = busqueda.value.trim();
+    if (q.length < 3 || q === ultimaBusquedaApi.value) return;
+    
+    ultimaBusquedaApi.value = q;
+    cargando.value = true;
+    
+    try {
+        const promises = [];
+        
+        // Buscar productos
+        if (filtroActivo.value === 'todos' || filtroActivo.value === 'productos') {
+            promises.push(axios.get('/api/productos', { params: { search: q, per_page: 20 } }));
+        }
+        
+        // Buscar servicios
+        if (!props.soloProductos && (filtroActivo.value === 'todos' || filtroActivo.value === 'servicios')) {
+            promises.push(axios.get('/api/servicios', { params: { search: q, per_page: 20 } }));
+        }
+        
+        const responses = await Promise.all(promises);
+        let nuevosResultados = [];
+        
+        responses.forEach((res, index) => {
+            const data = res.data.data || res.data || [];
+            const items = Array.isArray(data) ? data : (data.items || data.data || []);
+            
+            // Determinar si es producto o servicio según el orden de las promesas
+            const esProducto = (filtroActivo.value === 'todos' && index === 0) || (filtroActivo.value === 'productos');
+            
+            items.forEach(item => {
+                nuevosResultados.push({
+                    ...item,
+                    tipo: esProducto ? 'producto' : 'servicio'
+                });
+            });
+        });
+        
+        resultadosApi.value = nuevosResultados;
+    } catch (error) {
+        console.error('Error buscando en API:', error);
+    } finally {
+        cargando.value = false;
+    }
+}, 400);
+
 const filtrarItems = () => {
   mostrarLista.value = true;
-  actualizarPosicionLista();
+  updatePosition();
 };
 
 const agregarItem = (item) => {
@@ -359,30 +423,8 @@ const formatearPrecio = (precio) => {
   });
 };
 
-const actualizarPosicionLista = () => {
-  if (!inputBusqueda.value) return;
-  const rect = inputBusqueda.value.getBoundingClientRect();
-  inputWidth.value = rect.width;
-  inputPosition.value = {
-    top: rect.top + window.scrollY,
-    left: rect.left + window.scrollX,
-    height: rect.height
-  };
-};
-
-// Cerrar lista cuando se hace clic fuera
-const cerrarLista = (event) => {
-  if (!event.target.closest('.buscar-producto')) {
-    mostrarLista.value = false;
-  }
-};
-
-onMounted(() => {
-  document.addEventListener('click', cerrarLista);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', cerrarLista);
+useClickOutside([root], () => {
+  mostrarLista.value = false;
 });
 
 const getStock = (item) => {
@@ -412,10 +454,7 @@ const getAvailabilityInfo = (item) => {
 };
 
 const getPrecioMostrar = (item) => {
-  if (item.tipo === 'producto') {
-    return resolverPrecio(item, props.priceListId);
-  }
-  return item.precio || item.precio_venta || 0;
+  return resolverPrecio(item, props.priceListId, { serviciosUsanListasPrecios: props.serviciosUsanListasPrecios });
 };
 </script>
 

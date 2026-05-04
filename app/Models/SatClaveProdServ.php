@@ -53,9 +53,10 @@ class SatClaveProdServ extends Model
     public function scopeBuscar($query, $termino)
     {
         return $query->where(function($q) use ($termino) {
-            $q->where('clave', 'LIKE', "%{$termino}%")
-              ->orWhere('descripcion', 'LIKE', "%{$termino}%")
-              ->orWhere('palabras_similares', 'LIKE', "%{$termino}%");
+            $pattern = "%{$termino}%";
+            $q->where('clave', 'ILIKE', $pattern)
+              ->orWhereRaw("unaccent(descripcion) ILIKE unaccent(?)", [$pattern])
+              ->orWhereRaw("unaccent(palabras_similares) ILIKE unaccent(?)", [$pattern]);
         });
     }
 

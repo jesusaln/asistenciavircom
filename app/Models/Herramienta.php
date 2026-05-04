@@ -112,6 +112,11 @@ class Herramienta extends Model
         return $this->hasMany(HistorialHerramienta::class);
     }
 
+    public function mantenimientos()
+    {
+        return $this->hasMany(MantenimientoHerramienta::class);
+    }
+
     // Scopes
     public function scopeDisponibles($query)
     {

@@ -1,348 +1,516 @@
 <template>
   <Head title="Editar Usuario" />
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
-    <div class="max-w-6xl mx-auto">
-      
-      <!-- Header Area -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-        <div class="flex items-center gap-6">
-          <div class="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-3xl shadow-2xl shadow-blue-500/20 transition-transform hover:rotate-6">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-              {{ isAdmin ? `Gestionar Usuario` : `Perfil de Usuario` }}
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400 font-medium text-lg mt-1 group">
-              Identificador: <span class="bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg text-slate-900 dark:text-white font-bold text-sm">#{{ props.usuario.id }}</span>
-            </p>
-          </div>
+  <div class="usuarios-premium min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
         </div>
-        
-        <div v-if="isAdmin" class="flex gap-4">
-           <Link :href="route('usuarios.index')" class="px-8 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
-             Volver al Listado
-           </Link>
-        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          {{ canEditUsers ? `Editar Usuario #${props.usuario.id}` : `Ver Usuario #${props.usuario.id}` }}
+        </h1>
+        <p class="text-gray-600">
+          {{ canEditUsers ? 'Actualiza la información del usuario' : 'Información del usuario (solo lectura)' }}
+        </p>
       </div>
 
-      <!-- Main Form Container -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Left Column: Vital Info & Security -->
-        <div class="lg:col-span-2 space-y-8">
-          <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden backdrop-blur-3xl transition-all duration-500">
-             <div class="h-1.5 bg-slate-100 dark:bg-slate-800 relative">
-               <div class="h-full bg-[var(--color-primary)] shadow-[0_0_15px_var(--color-primary)] transition-all duration-700" :style="{ width: formProgress + '%' }"></div>
-             </div>
-
-             <form @submit.prevent="submit" class="p-10 lg:p-14 space-y-12">
-               <!-- Profile Photo Section -->
-               <div class="space-y-8">
-                 <div class="flex items-center gap-4 border-b border-slate-50 dark:border-slate-800 pb-6">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-sm">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Foto de Perfil</h2>
-                      <p class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest italic">Imagen del empleado/usuario</p>
-                    </div>
-                 </div>
-
-                 <div class="flex flex-col sm:flex-row items-center gap-8">
-                    <!-- Avatar Preview -->
-                    <div class="relative group">
-                      <div class="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-slate-100 dark:border-slate-800 shadow-xl transition-all group-hover:border-[var(--color-primary)]/40">
-                        <img v-if="photoPreview" :src="photoPreview" class="w-full h-full object-cover" />
-                        <img v-else-if="props.usuario.profile_photo_url" :src="props.usuario.profile_photo_url" :alt="props.usuario.name" class="w-full h-full object-cover" />
-                        <div v-else class="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
-                          <span class="text-4xl font-black text-slate-400 dark:text-slate-500">{{ props.usuario.name?.charAt(0)?.toUpperCase() }}</span>
-                        </div>
-                      </div>
-                      <!-- Camera overlay -->
-                      <button type="button" @click="selectNewPhoto" class="absolute inset-0 w-full h-full rounded-[2rem] bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-all cursor-pointer">
-                        <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                      </button>
-                    </div>
-
-                    <!-- Photo Actions -->
-                    <div class="flex flex-col gap-3">
-                      <input ref="photoInput" type="file" class="hidden" accept="image/jpeg,image/png,image/webp" @change="updatePhotoPreview" />
-                      <button type="button" @click="selectNewPhoto" class="px-6 py-3 rounded-2xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[var(--color-primary)]/20 transition-all active:scale-95">
-                        📸 Seleccionar Foto
-                      </button>
-                      <button v-if="props.usuario.profile_photo_path || photoPreview" type="button" @click="deletePhoto" class="px-6 py-3 rounded-2xl bg-red-500/10 text-red-500 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-500/20 transition-all active:scale-95">
-                        🗑️ Eliminar Foto
-                      </button>
-                      <p class="text-[9px] font-bold text-slate-400 italic">JPG, PNG o WebP • Máx. 2MB</p>
-                      <InputError :message="form.errors.photo" />
-                    </div>
-                 </div>
-               </div>
-
-               <!-- Basic Section -->
-               <div class="space-y-8">
-                 <div class="flex items-center gap-4 border-b border-slate-50 dark:border-slate-800 pb-6">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shadow-sm">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Información General</h2>
-                      <p class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest italic">Detalles de identidad y contacto</p>
-                    </div>
-                 </div>
-
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Name -->
-                    <div class="space-y-3">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Nombre Completo</label>
-                      <input
-                        v-model="form.name"
-                        type="text"
-                        :readonly="!isAdmin"
-                        class="block w-full px-6 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-[var(--color-primary)]/10 focus:border-[var(--color-primary)] transition-all font-bold"
-                        :class="{'opacity-60 cursor-not-allowed': !isAdmin}"
-                      />
-                      <InputError :message="form.errors.name" />
-                    </div>
-
-                    <!-- Email -->
-                    <div class="space-y-3">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Correo Electrónico</label>
-                      <input
-                        v-model="form.email"
-                        type="email"
-                        :readonly="!isAdmin"
-                        class="block w-full px-6 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-[var(--color-primary)]/10 focus:border-[var(--color-primary)] transition-all font-bold"
-                        :class="{'opacity-60 cursor-not-allowed': !isAdmin}"
-                      />
-                      <InputError :message="form.errors.email" />
-                    </div>
-                 </div>
-
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <!-- Phone -->
-                   <div class="space-y-3">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Teléfono</label>
-                      <input
-                        v-model="form.telefono"
-                        type="tel"
-                        :readonly="!isAdmin"
-                        class="block w-full px-6 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-[var(--color-primary)]/10 focus:border-[var(--color-primary)] transition-all font-bold"
-                        :class="{'opacity-60 cursor-not-allowed': !isAdmin}"
-                      />
-                      <InputError :message="form.errors.telefono" />
-                    </div>
-
-                    <!-- Internal Cost -->
-                    <div v-if="isAdmin" class="space-y-3">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Costo Hora Interno</label>
-                      <div class="relative group">
-                         <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-black">$</span>
-                         <input
-                           v-model="form.costo_hora_interno"
-                           type="number"
-                           step="0.01"
-                           class="block w-full pl-10 pr-6 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
-                         />
-                      </div>
-                      <InputError :message="form.errors.costo_hora_interno" />
-                    </div>
-                 </div>
-
-                 <div v-if="isAdmin" class="rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/60 p-6">
-                   <label class="flex items-start gap-4 cursor-pointer">
-                     <input v-model="form.es_empleado" type="checkbox" class="mt-1 h-5 w-5 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
-                     <div>
-                       <p class="text-sm font-black uppercase tracking-[0.15em] text-slate-900 dark:text-white">Usuario es empleado</p>
-                       <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                         Activa esta opción para que aparezca en el módulo de empleados y completar su expediente laboral.
-                       </p>
-                     </div>
-                   </label>
-                 </div>
-               </div>
-
-               <!-- Security Section -->
-               <div class="space-y-8 border-t border-slate-50 dark:border-slate-800 pt-12">
-                 <div class="flex items-center gap-4 border-b border-slate-50 dark:border-slate-800 pb-6">
-                    <div class="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center shadow-sm">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Cambio de Credenciales</h2>
-                      <p class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest italic">Solo si desea actualizar la contraseña</p>
-                    </div>
-                 </div>
-
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-3">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Nueva Contraseña</label>
-                      <div class="relative">
-                         <input
-                           v-model="form.password"
-                           :type="showPassword ? 'text' : 'password'"
-                           class="block w-full px-8 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-red-500/10 focus:border-red-500 transition-all font-bold tracking-widest"
-                           placeholder="••••••••"
-                         />
-                         <button type="button" @click="showPassword = !showPassword" class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors">
-                            <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/></svg>
-                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                         </button>
-                      </div>
-                      <InputError :message="form.errors.password" />
-                    </div>
-
-                    <div class="space-y-3">
-                      <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Confirmar Nueva Contraseña</label>
-                      <input
-                        v-model="form.password_confirmation"
-                        :type="showPassword ? 'text' : 'password'"
-                        class="block w-full px-8 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-red-500/10 focus:border-red-500 transition-all font-bold tracking-widest"
-                        placeholder="••••••••"
-                      />
-                      <InputError :message="form.errors.password_confirmation" />
-                    </div>
-                 </div>
-               </div>
-
-               <!-- Bottom Actions -->
-               <div class="pt-12 border-t border-slate-50 dark:border-slate-800 flex justify-end">
-                  <button
-                    v-if="isAdmin"
-                    type="submit"
-                    :disabled="form.processing || !isFormValid"
-                    class="px-12 py-5 rounded-[1.5rem] bg-[var(--color-primary)] text-white font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-[var(--color-primary)]/20 hover:scale-[1.03] active:scale-95 transition-all text-center flex items-center gap-3 disabled:opacity-50"
-                  >
-                    <svg v-if="form.processing" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>{{ form.processing ? 'Guardando Cambios...' : 'Actualizar Información' }}</span>
-                  </button>
-               </div>
-             </form>
-          </div>
-
-          <!-- Roles Selection Grid (Below main form for better space) -->
-          <div v-if="isAdmin" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 lg:p-14 border border-slate-100 dark:border-slate-800 shadow-2xl transition-all duration-500">
-             <div class="flex items-center gap-4 border-b border-slate-50 dark:border-slate-800 pb-6 mb-8">
-                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-sm">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Niveles de Acceso</h2>
-                  <p class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest italic">Selección de roles corporativos</p>
-                </div>
-             </div>
-
-             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="role in props.roles" :key="role.id" 
-                     @click="toggleRole(role.name)"
-                     class="group relative bg-slate-50 dark:bg-slate-950 border-2 rounded-[2.5rem] p-8 cursor-pointer transition-all duration-300 hover:-translate-y-2"
-                     :class="form.roles.includes(role.name) ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'">
-                  
-                  <div class="flex justify-between items-start mb-6">
-                     <div class="p-3 rounded-2xl" :class="form.roles.includes(role.name) ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                     </div>
-                     <div v-if="form.roles.includes(role.name)" class="w-6 h-6 rounded-full bg-[var(--color-primary)] border-4 border-white dark:border-slate-900 shadow-sm animate-bounce"></div>
-                  </div>
-
-                  <h3 class="text-xl font-black text-slate-900 dark:text-white mb-1 leading-tight">{{ role.label }}</h3>
-                  <p class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6">{{ role.permissions_count }} PERMISOS RELEVANTE(S)</p>
-                  
-                  <div class="space-y-2 pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
-                     <div v-for="(count, action) in role.permissions_summary" :key="action" class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                        <span class="text-slate-400 italic">{{ action }}</span>
-                        <span class="text-slate-900 dark:text-white">{{ count }}</span>
-                     </div>
-                  </div>
-                </div>
-             </div>
-          </div>
+      <!-- Form Card -->
+      <div class="bg-white/90 dark:bg-slate-900/70 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-slate-200/60 dark:border-slate-800/70 overflow-hidden">
+        <!-- Progress Bar -->
+        <div class="h-1 bg-gray-100">
+          <div class="h-1 bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300"
+               :style="`width: ${formProgress}%`"></div>
         </div>
 
-        <!-- Right Column: Settings, Matrix and Stats -->
-        <div class="space-y-8">
-           <!-- Preferences Card -->
-            <div v-if="isAdmin" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl transition-all duration-500">
-               <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-8">Almacenes</h3>
-               
-               <div class="space-y-8">
-                  <div class="space-y-3">
-                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Para Ventas</label>
-                     <select v-model="form.almacen_venta_id" class="block w-full px-5 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none">
-                        <option :value="null">SIN PREDETERMINADO</option>
-                        <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
-                     </select>
-                  </div>
-
-                  <div class="space-y-3">
-                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Para Compras</label>
-                     <select v-model="form.almacen_compra_id" class="block w-full px-5 py-5 border-slate-100 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none">
-                        <option :value="null">SIN PREDETERMINADO</option>
-                        <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">{{ almacen.nombre }}</option>
-                     </select>
-                  </div>
-               </div>
+        <form @submit.prevent="submit" class="p-8 space-y-8">
+          <!-- Personal Information Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Información Personal
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">Actualiza los datos básicos del usuario</p>
             </div>
 
-           <!-- Permissions Matrix Card -->
-           <div v-if="isAdmin && props.permissionGroups" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl transition-all duration-500">
-              <div class="flex items-center justify-between mb-8">
-                <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Micro-Permisos</h3>
-                <div v-if="permissionsChanged" class="px-3 py-1 bg-amber-500/10 text-amber-500 text-[9px] font-bold rounded-full uppercase tracking-widest animate-pulse">Pendiente de guardar</div>
+            <!-- Nombre -->
+            <div class="form-group">
+              <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+                Nombre Completo *
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+                <input
+                  v-model="form.name"
+                  type="text"
+                  id="name"
+                  :readonly="!canEditUsers"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  :class="{
+                    'border-red-300 bg-red-50 focus:ring-red-500': form.errors.name,
+                    'border-green-300 bg-green-50': form.name && !form.errors.name,
+                    'bg-gray-100 cursor-not-allowed': !canEditUsers
+                  }"
+                  :placeholder="canEditUsers ? 'Ingresa el nombre completo' : 'Nombre del usuario'"
+                  autocomplete="name"
+                />
+                <div v-if="form.name && !form.errors.name" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+              <InputError class="mt-2" :message="form.errors.name" />
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                Correo Electrónico *
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                  </svg>
+                </div>
+                <input
+                  v-model="form.email"
+                  type="email"
+                  id="email"
+                  :readonly="!canEditUsers"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  :class="{
+                    'border-red-300 bg-red-50 focus:ring-red-500': form.errors.email,
+                    'border-green-300 bg-green-50': form.email && !form.errors.email && isValidEmail,
+                    'bg-gray-100 cursor-not-allowed': !canEditUsers
+                  }"
+                  :placeholder="canEditUsers ? 'correo@ejemplo.com' : 'Email del usuario'"
+                  autocomplete="email"
+                />
+                <div v-if="form.email && !form.errors.email && isValidEmail" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+              <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label for="telefono" class="block text-sm font-semibold text-gray-700 mb-2">
+                Teléfono
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                </div>
+                <input
+                  v-model="form.telefono"
+                  type="tel"
+                  id="telefono"
+                  :readonly="!canEditUsers"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  :class="{
+                    'bg-gray-100 cursor-not-allowed': !canEditUsers
+                  }"
+                  :placeholder="canEditUsers ? 'Número de teléfono' : 'Teléfono del usuario'"
+                />
+              </div>
+              <InputError class="mt-2" :message="form.errors.telefono" />
+            </div>
+          </div>
+
+          <!-- Almacenes Predeterminados (Solo para admins) -->
+          <div v-if="canEditUsers" class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                Almacenes Predeterminados
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">Asigna almacenes por defecto para ventas y compras</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Almacén de Venta -->
+              <div class="form-group">
+                <label for="almacen_venta_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                  Almacén de Venta
+                </label>
+                <select
+                  v-model="selectedAlmacenVenta"
+                  @change="updateAlmacenVenta"
+                  id="almacen_venta_id"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white appearance-none"
+                >
+                  <option value="">Sin almacén predeterminado</option>
+                  <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">
+                    {{ almacen.nombre }}
+                  </option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Este almacén se usará por defecto al crear ventas</p>
               </div>
 
-              <div class="space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                 <div v-for="group in props.permissionGroups" :key="group.module" class="space-y-3 p-4 rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{{ group.label }}</h4>
-                    <div class="grid grid-cols-4 gap-2">
-                       <div v-for="action in actions" :key="action" class="flex flex-col items-center">
-                          <template v-if="group.permissions[action]">
-                             <button 
-                                type="button" 
-                                @click="togglePermission(group.permissions[action].name)"
-                                :disabled="isRolePermission(group.permissions[action].name)"
-                                :class="[
-                                   'w-10 h-10 rounded-xl flex items-center justify-center transition-all border-2 text-[10px] font-black uppercase',
-                                   isRolePermission(group.permissions[action].name) ? 'bg-purple-500/20 border-purple-500/40 text-purple-600' :
-                                   isDirectPermission(group.permissions[action].name) ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg' :
-                                   'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-300'
-                                ]"
-                                :title="actionLabels[action] + ': ' + (isRolePermission(group.permissions[action].name) ? 'Heredado' : 'Manual')"
-                             >
-                               {{ action.charAt(0).toUpperCase() }}
-                             </button>
-                          </template>
-                       </div>
-                    </div>
-                 </div>
+              <!-- Almacén de Compra -->
+              <div class="form-group">
+                <label for="almacen_compra_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                  Almacén de Compra
+                </label>
+                <select
+                  v-model="selectedAlmacenCompra"
+                  @change="updateAlmacenCompra"
+                  id="almacen_compra_id"
+                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white appearance-none"
+                >
+                  <option value="">Sin almacén predeterminado</option>
+                  <option v-for="almacen in props.almacenes" :key="almacen.id" :value="almacen.id">
+                    {{ almacen.nombre }}
+                  </option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Este almacén se usará por defecto al recibir compras</p>
               </div>
-              <p class="text-[9px] font-bold text-slate-400 mt-6 text-center italic">C = CREAR | V = VER | E = EDITAR | D = BORRAR</p>
-           </div>
-        </div>
+            </div>
+          </div>
+
+          <!-- Asignación de Roles (Solo para admins) -->
+          <div v-if="canEditUsers" class="space-y-6 border-t pt-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Roles del Usuario
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">Selecciona los roles que tendrá el usuario. Cada rol incluye permisos predefinidos.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div v-for="role in props.roles" :key="role.id" 
+                   class="relative border rounded-xl p-4 hover:shadow-md transition-all duration-200 cursor-pointer"
+                   :class="form.roles.includes(role.name) ? 'border-purple-400 bg-purple-50 ring-2 ring-purple-200' : 'border-gray-200 hover:border-purple-200'"
+                   @click="toggleRole(role.name)">
+                
+                <!-- Checkbox visual -->
+                <div class="absolute top-3 right-3">
+                  <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                       :class="form.roles.includes(role.name) ? 'border-purple-600 bg-purple-600' : 'border-gray-300 bg-white'">
+                    <svg v-if="form.roles.includes(role.name)" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Rol Header -->
+                <div class="mb-3">
+                  <h3 class="text-base font-bold text-gray-900">{{ role.label }}</h3>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    {{ role.permissions_count }} permisos
+                  </span>
+                </div>
+
+                <!-- Permisos Summary -->
+                <div class="space-y-1">
+                  <div v-for="(count, action) in role.permissions_summary" :key="action" class="flex items-center justify-between text-xs">
+                    <span class="text-gray-500 capitalize">{{ action }}</span>
+                    <span class="font-semibold text-gray-700">{{ count }}</span>
+                  </div>
+                </div>
+
+                <!-- Ejemplo de Permisos -->
+                <div v-if="role.permissions_list && role.permissions_list.length > 0" class="mt-3 pt-3 border-t border-gray-100">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Incluye:</p>
+                  <div class="flex flex-wrap gap-1">
+                    <span v-for="perm in role.permissions_list.slice(0, 3)" :key="perm" class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium">
+                      {{ perm }}
+                    </span>
+                    <span v-if="role.permissions_count > 3" class="inline-block px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px] font-medium">
+                      +{{ role.permissions_count - 3 }} más
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <InputError :message="form.errors.roles" class="mt-2" />
+          </div>
+
+          <!-- Atributos Especiales (Técnico/Vendedor) -->
+          <div v-if="canEditUsers" class="space-y-6 border-t pt-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Atributos Especiales
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">Configura atributos adicionales para el usuario</p>
+            </div>
+
+            <div class="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors" @click="form.es_tecnico = !form.es_tecnico">
+              <div class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                   :class="form.es_tecnico ? 'bg-blue-600' : 'bg-gray-200'">
+                <span class="sr-only">Es técnico</span>
+                <span aria-hidden="true" 
+                      class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                      :class="form.es_tecnico ? 'translate-x-5' : 'translate-x-0'"></span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-bold text-gray-900">Marcar como Técnico</span>
+                <span class="text-xs text-gray-600">Permite que este usuario sea asignado a citas y reciba órdenes de servicio.</span>
+              </div>
+            </div>
+            <InputError :message="form.errors.es_tecnico" class="mt-2" />
+          </div>
+
+          <!-- Permisos Personalizados (Solo para admins) -->
+          <div v-if="canEditUsers && props.permissionGroups" class="space-y-6 border-t pt-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+                Permisos Personalizados
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">Asigna permisos específicos además de los heredados por roles</p>
+            </div>
+
+            <!-- Leyenda -->
+            <div class="flex gap-4 text-xs mb-4">
+              <span class="flex items-center gap-1">
+                <span class="w-4 h-4 bg-purple-100 border border-purple-300 rounded"></span>
+                Del rol
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="w-4 h-4 bg-green-100 border border-green-300 rounded"></span>
+                Personalizado
+              </span>
+            </div>
+
+            <!-- Matrix Table -->
+            <div class="overflow-x-auto border rounded-xl">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-white">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Módulo</th>
+                    <th v-for="action in actions" :key="action" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {{ actionLabels[action] || action }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr v-for="group in props.permissionGroups" :key="group.module" class="hover:bg-white">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ group.label }}</td>
+                    <td v-for="action in actions" :key="action" class="px-3 py-3 text-center">
+                      <template v-if="group.permissions[action]">
+                        <input
+                          type="checkbox"
+                          :checked="hasPermission(group.permissions[action].name)"
+                          :disabled="isRolePermission(group.permissions[action].name)"
+                          @change="togglePermission(group.permissions[action].name)"
+                          class="h-4 w-4 rounded transition-all duration-200"
+                          :class="{
+                            'text-purple-500 bg-purple-100 border-purple-300 cursor-not-allowed': isRolePermission(group.permissions[action].name),
+                            'text-green-600 border-gray-300 focus:ring-green-500 cursor-pointer': !isRolePermission(group.permissions[action].name) && isDirectPermission(group.permissions[action].name),
+                            'border-gray-300 focus:ring-indigo-500 cursor-pointer': !isRolePermission(group.permissions[action].name) && !isDirectPermission(group.permissions[action].name)
+                          }"
+                          :title="isRolePermission(group.permissions[action].name) ? 'Heredado del rol' : 'Permiso personalizado'"
+                        />
+                      </template>
+                      <span v-else class="text-gray-300">—</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Save Permissions Button -->
+            <div class="flex justify-end">
+              <button
+                type="button"
+                @click="savePermissions"
+                :disabled="savingPermissions || !permissionsChanged"
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg v-if="savingPermissions" class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ savingPermissions ? 'Guardando...' : 'Guardar Permisos' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Security Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                Seguridad (Opcional)
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">Deja en blanco si no deseas cambiar la contraseña</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Contraseña -->
+              <div class="form-group">
+                <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                  Nueva Contraseña
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                  </div>
+                  <input
+                    v-model="form.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    id="password"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                    placeholder="Mínimo 8 caracteres"
+                    :class="{
+                      'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password,
+                      'border-green-300 bg-green-50': form.password && form.password.length >= 8 && !form.errors.password
+                    }"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                    </svg>
+                    <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="mt-2">
+                  <div class="flex items-center space-x-2" v-if="form.password">
+                    <div class="flex space-x-1">
+                      <div v-for="i in 4" :key="i"
+                           class="h-1 w-6 rounded-full transition-all duration-200"
+                           :class="passwordStrength >= i ? 'bg-green-500' : 'bg-gray-200'"></div>
+                    </div>
+                    <span class="text-xs text-gray-600">{{ passwordStrengthText }}</span>
+                  </div>
+                </div>
+                <InputError class="mt-2" :message="form.errors.password" />
+              </div>
+
+              <!-- Confirmar Contraseña -->
+              <div class="form-group">
+                <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-2">
+                  Confirmar Nueva Contraseña
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <input
+                    v-model="form.password_confirmation"
+                    :type="showPasswordConfirmation ? 'text' : 'password'"
+                    id="password_confirmation"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                    placeholder="Repite la contraseña"
+                    :class="{
+                      'border-red-300 bg-red-50 focus:ring-red-500': form.errors.password_confirmation || (form.password_confirmation && form.password !== form.password_confirmation),
+                      'border-green-300 bg-green-50': form.password_confirmation && form.password === form.password_confirmation && !form.errors.password_confirmation
+                    }"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    @click="showPasswordConfirmation = !showPasswordConfirmation"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    <svg v-if="showPasswordConfirmation" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                    </svg>
+                    <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                </div>
+                <div v-if="form.password_confirmation && form.password !== form.password_confirmation" class="mt-2 text-sm text-red-600 flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  Las contraseñas no coinciden
+                </div>
+                <div v-else-if="form.password_confirmation && form.password === form.password_confirmation" class="mt-2 text-sm text-green-600 flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  Las contraseñas coinciden
+                </div>
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-6 border-t border-slate-200/70 dark:border-slate-700/70">
+            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+              <Link :href="route('usuarios.index')"
+                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-white font-semibold transition-all duration-200 hover:shadow-md">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Cancelar
+              </Link>
+              <button
+                v-if="canEditUsers"
+                type="submit"
+                class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+                :disabled="form.processing || !isFormValid"
+              >
+                <div v-if="form.processing" class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Guardando...</span>
+                </div>
+                <div v-else class="flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>Guardar Cambios</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { Head, useForm, Link, router } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
@@ -350,10 +518,6 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { computed, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
-
-// Photo upload state
-const photoInput = ref(null);
-const photoPreview = ref(null);
 
 const props = defineProps({
   usuario: Object,
@@ -365,177 +529,355 @@ const props = defineProps({
   rolePermissions: Array,
 });
 
+// Reactive variables
 const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
 
+// Variables para almacenes (separadas del form)
+const selectedAlmacenVenta = ref(props.usuario.almacen_venta_id || '');
+const selectedAlmacenCompra = ref(props.usuario.almacen_compra_id || '');
+
+// Permission management
 const actions = ['view', 'create', 'edit', 'delete', 'export', 'stats', 'manage'];
 const actionLabels = {
-  view: 'Ver', create: 'Crear', edit: 'Editar', delete: 'Borrar',
-  export: 'Export', stats: 'Stats', manage: 'Admin'
+  view: 'Ver',
+  create: 'Crear',
+  edit: 'Editar',
+  delete: 'Eliminar',
+  export: 'Exportar',
+  stats: 'Stats',
+  manage: 'Gestionar'
 };
 
 const directPermissions = ref([...(props.userDirectPermissions || [])]);
 const savingPermissions = ref(false);
 
+const permissionsChanged = computed(() => {
+  const original = [...(props.userDirectPermissions || [])].sort();
+  const current = [...directPermissions.value].sort();
+  return JSON.stringify(original) !== JSON.stringify(current);
+});
+
+const isRolePermission = (permName) => {
+  return (props.rolePermissions || []).includes(permName);
+};
+
+const isDirectPermission = (permName) => {
+  return directPermissions.value.includes(permName);
+};
+
+const hasPermission = (permName) => {
+  return isRolePermission(permName) || isDirectPermission(permName);
+};
+
+const togglePermission = (permName) => {
+  if (isRolePermission(permName)) return; // Can't toggle role permissions
+  
+  const index = directPermissions.value.indexOf(permName);
+  if (index === -1) {
+    directPermissions.value.push(permName);
+  } else {
+    directPermissions.value.splice(index, 1);
+  }
+};
+
+const savePermissions = async () => {
+  savingPermissions.value = true;
+  try {
+    const response = await fetch(`/usuarios/${props.usuario.id}/sync-permissions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        permissions: directPermissions.value
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      notyf.success('Permisos actualizados correctamente');
+      // Update local state with server response
+      directPermissions.value = data.userDirectPermissions || [];
+    } else {
+      throw new Error(data.message || 'Error al actualizar permisos');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    notyf.error(error.message || 'Error al actualizar permisos');
+  } finally {
+    savingPermissions.value = false;
+  }
+};
+
+// Funciones para actualizar almacenes vía fetch
+const updateAlmacenVenta = async () => {
+  try {
+    const response = await fetch(`/usuarios/${props.usuario.id}/update-almacen-venta`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        almacen_venta_id: selectedAlmacenVenta.value || null
+      })
+    });
+
+    if (response.ok) {
+      notyf.success('Almacén de venta actualizado');
+    } else {
+      throw new Error('Error al actualizar');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    notyf.error('Error al actualizar el almacén de venta');
+    selectedAlmacenVenta.value = props.usuario.almacen_venta_id || '';
+  }
+};
+
+const updateAlmacenCompra = async () => {
+  try {
+    const response = await fetch(`/usuarios/${props.usuario.id}/update-almacen-compra`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        almacen_compra_id: selectedAlmacenCompra.value || null
+      })
+    });
+
+    if (response.ok) {
+      notyf.success('Almacén de compra actualizado');
+    } else {
+      throw new Error('Error al actualizar');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    notyf.error('Error al actualizar el almacén de compra');
+    selectedAlmacenCompra.value = props.usuario.almacen_compra_id || '';
+  }
+};
+
+// Form con valores iniciales
+const form = useForm({
+  name: props.usuario.name,
+  email: props.usuario.email,
+  telefono: props.usuario.telefono || '',
+  roles: props.usuario.roles.map(r => r.name),
+  es_tecnico: props.usuario.es_tecnico,
+  password: '',
+  password_confirmation: '',
+});
+
+// Notificación
 const notyf = new Notyf({
-  duration: 4000,
+  duration: 3000,
   position: { x: 'right', y: 'top' },
   ripple: true,
   dismissible: true
 });
 
-const permissionsChanged = computed(() => {
-  const original = [...(props.userDirectPermissions || [])].sort();
-  const current = [...form.permissions].sort();
-  return JSON.stringify(original) !== JSON.stringify(current);
+const canEditUsers = computed(() => {
+  const authUser = props.auth?.user;
+  if (!authUser) return false;
+
+  const roles = (authUser.roles || []).map((role) => (typeof role === 'string' ? role : role.name));
+  if (roles.includes('admin') || roles.includes('super-admin') || authUser.is_admin) {
+    return true;
+  }
+
+  const permissions = authUser.permissions || [];
+  return permissions.includes('edit usuarios');
 });
 
-const isRolePermission = (permName) => (props.rolePermissions || []).includes(permName);
-const isDirectPermission = (permName) => form.permissions.includes(permName);
-const togglePermission = (permName) => {
-  if (isRolePermission(permName)) return;
-  const index = form.permissions.indexOf(permName);
-  if (index === -1) form.permissions.push(permName);
-  else form.permissions.splice(index, 1);
-};
-
-// Los métodos de guardado parcial han sido reemplazados por el formulario unificado
-
-const form = useForm({
-  _method: 'PUT',
-  name: props.usuario.name,
-  email: props.usuario.email,
-  telefono: props.usuario.telefono || '',
-  es_empleado: props.usuario.es_empleado ?? false,
-  roles: props.usuario.roles.map(r => r.name),
-  permissions: [...(props.userDirectPermissions || [])],
-  password: '',
-  password_confirmation: '',
-  costo_hora_interno: props.usuario.costo_hora_interno || 0,
-  almacen_venta_id: props.usuario.almacen_venta_id || null,
-  almacen_compra_id: props.usuario.almacen_compra_id || null,
-  photo: null,
+// Validar email
+const isValidEmail = computed(() => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(form.email);
 });
 
-// Photo methods
-const selectNewPhoto = () => {
-  photoInput.value.click();
-};
+// Fortaleza de contraseña
+const passwordStrength = computed(() => {
+  const password = form.password;
+  if (!password) return 0;
 
-const updatePhotoPreview = () => {
-  const photo = photoInput.value.files[0];
-  if (!photo) return;
-  
-  // Validate size (2MB)
-  if (photo.size > 2 * 1024 * 1024) {
-    notyf.error('La imagen no debe superar los 2MB');
-    photoInput.value.value = null;
-    return;
+  let strength = 0;
+  if (password.length >= 8) strength++;
+  if (/\d/.test(password)) strength++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+  return strength;
+});
+
+const passwordStrengthText = computed(() => {
+  switch (passwordStrength.value) {
+    case 0: case 1: return 'Débil';
+    case 2: return 'Regular';
+    case 3: return 'Buena';
+    case 4: return 'Excelente';
+    default: return '';
   }
-  
-  form.photo = photo;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    photoPreview.value = e.target.result;
-  };
-  reader.readAsDataURL(photo);
-};
+});
 
-const deletePhoto = () => {
-  if (photoPreview.value) {
-    // Just clear local preview
-    photoPreview.value = null;
-    form.photo = null;
-    if (photoInput.value) photoInput.value.value = null;
-    return;
-  }
-  // Delete from server
-  router.delete(route('usuarios.delete-photo', props.usuario.id), {
-    preserveScroll: true,
-    onSuccess: () => {
-      notyf.success('Foto de perfil eliminada');
-      photoPreview.value = null;
-    },
-    onError: () => {
-      notyf.error('Error al eliminar la foto');
-    }
-  });
-};
-
-const isAdmin = computed(() => props.auth.user?.roles.some(role => ['admin', 'super-admin'].includes(role.name)));
-
+// Formulario válido (solo si hay cambios o contraseña)
 const isFormValid = computed(() => {
-  const hasChanges = form.name !== props.usuario.name || 
-                     form.email !== props.usuario.email || 
-                     form.telefono !== (props.usuario.telefono || '') || 
-                     form.es_empleado !== !!props.usuario.es_empleado ||
-                     form.costo_hora_interno != (props.usuario.costo_hora_interno || 0) || 
-                     form.almacen_venta_id !== props.usuario.almacen_venta_id ||
-                     form.almacen_compra_id !== props.usuario.almacen_compra_id ||
-                     form.password || 
-                     JSON.stringify([...form.roles].sort()) !== JSON.stringify(props.usuario.roles.map(r => r.name).sort()) ||
-                     permissionsChanged.value;
-  const validPassword = !form.password || (form.password.length >= 8 && form.password === form.password_confirmation);
-  return hasChanges && validPassword;
+  const hasChanges = form.name !== props.usuario.name ||
+                     form.email !== props.usuario.email ||
+                     form.telefono !== (props.usuario.telefono || '') ||
+                     form.es_tecnico !== props.usuario.es_tecnico ||
+                     form.password ||
+                     JSON.stringify([...form.roles].sort()) !== JSON.stringify(props.usuario.roles.map(r => r.name).sort());
+
+  const validPassword = !form.password ||
+                        (form.password.length >= 8 &&
+                         form.password === form.password_confirmation);
+
+  return hasChanges && isValidEmail.value && validPassword;
 });
 
+// Progreso visual
 const formProgress = computed(() => {
-  let p = 0; if (form.name) p++; if (form.email) p++; if (form.roles.length > 0) p++; return (p / 3) * 100;
+  let progress = 0;
+  const totalFields = 3; // nombre, email, contraseña (opcional)
+
+  if (form.name) progress++;
+  if (form.email && isValidEmail.value) progress++;
+  if (form.password && form.password.length >= 8) progress++;
+
+  return (progress / totalFields) * 100;
 });
 
+// Toggle role selection
 const toggleRole = (roleName) => {
   const index = form.roles.indexOf(roleName);
-  if (index > -1) form.roles.splice(index, 1);
-  else form.roles.push(roleName);
+  if (index > -1) {
+    form.roles.splice(index, 1);
+  } else {
+    form.roles.push(roleName);
+  }
 };
 
+// Enviar formulario
 const submit = () => {
-  form.post(route('usuarios.update', props.usuario.id), {
-    forceFormData: true,
-    preserveScroll: true,
+  form.put(route('usuarios.update', props.usuario.id), {
     onSuccess: () => {
-      notyf.success('Registro de usuario actualizado íntegramente.');
+      const tipo = props.usuario.es_empleado ? 'empleado' : 'usuario';
+      notyf.success(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)} actualizado exitosamente.`);
       form.reset('password', 'password_confirmation');
-      form.photo = null;
-      photoPreview.value = null;
-      if (photoInput.value) photoInput.value.value = null;
     },
     onError: (errors) => {
-      notyf.error('Error al procesar la actualización.');
+      notyf.error('Error al actualizar el usuario.');
       const firstError = Object.keys(errors)[0];
       const el = document.getElementById(firstError);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    },
+    onFinish: () => console.log('Actualización finalizada'),
   });
 };
 </script>
 
 <style scoped>
-div, button, input, select, span {
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease;
+.usuarios-premium {
+  color: #0f172a;
+}
+
+.dark .usuarios-premium {
+  color: #e2e8f0;
+}
+
+.usuarios-premium .text-gray-900 {
+  color: #0f172a !important;
+}
+
+.dark .usuarios-premium .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.usuarios-premium .text-gray-700,
+.usuarios-premium .text-gray-600,
+.usuarios-premium .text-gray-500 {
+  color: #475569 !important;
+}
+
+.dark .usuarios-premium .text-gray-700,
+.dark .usuarios-premium .text-gray-600,
+.dark .usuarios-premium .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.usuarios-premium .border-gray-200,
+.usuarios-premium .border-gray-300,
+.usuarios-premium .border-gray-100 {
+  border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+.dark .usuarios-premium .border-gray-200,
+.dark .usuarios-premium .border-gray-300,
+.dark .usuarios-premium .border-gray-100 {
+  border-color: rgba(51, 65, 85, 0.9) !important;
+}
+
+.usuarios-premium .bg-white {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.dark .usuarios-premium .bg-white {
+  background-color: rgba(15, 23, 42, 0.7) !important;
+}
+
+.dark .usuarios-premium .bg-gray-100,
+.dark .usuarios-premium .bg-gray-50 {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+.usuarios-premium input,
+.usuarios-premium select,
+.usuarios-premium textarea {
+  backdrop-filter: blur(8px);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+input:focus-visible, select:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
 }
 
 select {
-  background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"%3e%3cpath stroke="%2364748b" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 8l4 4 4-4"/%3e%3c/svg%3e');
-  background-position: right 1.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
+  background-image: none;
 }
 
-.dark select {
-  background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"%3e%3cpath stroke="%2394a3b8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 8l4 4 4-4"/%3e%3c/svg%3e');
+.transition-all {
+  transition: all 0.2s ease-in-out;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+input:hover:not(:focus), select:hover:not(:focus) {
+  border-color: #9ca3af;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
-}
+
+.border-green-300 { border-color: #86efac; }
+.bg-green-50 { background-color: #f0fdf4; }
+.border-red-300 { border-color: #fca5a5; }
+.bg-red-50 { background-color: #fef2f2; }
 </style>

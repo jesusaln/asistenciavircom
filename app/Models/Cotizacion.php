@@ -167,6 +167,9 @@ class Cotizacion extends Model
             if (empty($cot->numero_cotizacion)) {
                 $cot->numero_cotizacion = static::generarNumero();
             }
+            if (empty($cot->sharing_token)) {
+                $cot->sharing_token = (string) \Illuminate\Support\Str::uuid();
+            }
             if (empty($cot->estado)) {
                 $cot->estado = EstadoCotizacion::Pendiente;
             }
@@ -191,6 +194,17 @@ class Cotizacion extends Model
             Log::error("Error generando folio de cotización: " . $e->getMessage());
             return 'COT-' . date('Ymd-His'); // Fallback de emergencia
         }
+    }
+
+    /**
+     * Buscar cotización por token
+     */
+    public static function findByToken(string $token): ?self
+    {
+        if (!\Illuminate\Support\Str::isUuid($token)) {
+            return null;
+        }
+        return self::where('sharing_token', $token)->first();
     }
 
     /**

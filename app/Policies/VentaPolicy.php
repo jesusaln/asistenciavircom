@@ -22,7 +22,6 @@ class VentaPolicy
 
     public function create(User $user): bool
     {
-        \Illuminate\Support\Facades\DB::select('SELECT 1');
         return $user->hasRole(['super-admin', 'admin']) || $user->can('create ventas');
     }
 
@@ -36,9 +35,6 @@ class VentaPolicy
 
     public function delete(User $user, Venta $venta): bool
     {
-        if ($user->hasRole(['super-admin', 'admin'])) {
-            return true;
-        }
-        return $user->can('delete ventas') && $user->empresa_id === $venta->empresa_id;
+        return $user->hasRole('super-admin');
     }
 }

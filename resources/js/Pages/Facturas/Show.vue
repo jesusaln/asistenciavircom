@@ -332,7 +332,16 @@ const retryStampingFromModal = () => {
                                 </div>
                                 <div v-if="motivoCancelacion === '01'">
                                     <label class="block text-sm font-medium text-slate-400 mb-1">UUID Sustitución</label>
-                                    <input type="text" v-model="uuidSustitucion" class="block w-full pl-3 pr-3 py-2 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+                                    <input
+                                        type="text"
+                                        v-model="uuidSustitucion"
+                                        class="block w-full pl-3 pr-3 py-2 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl"
+                                        placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                                        maxlength="36"
+                                        pattern="[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}"
+                                        title="UUID válido (36 caracteres con guiones)"
+                                    >
+                                    <p class="mt-1 text-xs text-slate-500">Formato esperado: 8-4-4-4-12.</p>
                                 </div>
                             </div>
                         </div>

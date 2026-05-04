@@ -10,6 +10,7 @@ use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Services\Compras\CompraCuentasPagarService;
 use App\Services\InventarioService;
+use App\Support\DbExpression;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class CompraCfdiController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('serie', 'ilike', "%{$search}%")
                     ->orWhere('folio', 'ilike', "%{$search}%")
-                    ->orWhere('uuid', 'ilike', "%{$search}%")
+                    ->orWhere(DbExpression::castText('uuid'), 'ilike', "%{$search}%")
                     ->orWhere('nombre_emisor', 'ilike', "%{$search}%")
                     ->orWhere('rfc_emisor', 'ilike', "%{$search}%");
             });

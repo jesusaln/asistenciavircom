@@ -30,61 +30,62 @@ class PaymentController extends Controller
         }
 
         try {
-            // Configurar MercadoPago SDK
-            \MercadoPago\SDK::setAccessToken(config('services.mercadopago.access_token'));
-
-            // Crear preferencia
-            $preference = new \MercadoPago\Preference();
+            // Configurar MercadoPago
+            $accessToken = config('services.mercadopago.access_token');
+            $isSandbox = config('services.mercadopago.sandbox', true);
+            $apiUrl = 'https://api.mercadopago.com';
 
             // Items del pedido
             $items = [];
             foreach ($pedido->items as $item) {
-                $mpItem = new \MercadoPago\Item();
-                $mpItem->title = $item['nombre'];
-                $mpItem->quantity = $item['cantidad'];
-                $mpItem->unit_price = floatval($item['precio']);
-                $items[] = $mpItem;
+                $items[] = [
+                    'title' => $item['nombre'],
+                    'quantity' => (int) $item['cantidad'],
+                    'unit_price' => (float) $item['precio'],
+                    'currency_id' => 'MXN',
+                ];
             }
 
             // Agregar costo de envío si aplica
             if ($pedido->costo_envio > 0) {
-                $envioItem = new \MercadoPago\Item();
-                $envioItem->title = 'Costo de envío';
-                $envioItem->quantity = 1;
-                $envioItem->unit_price = floatval($pedido->costo_envio);
-                $items[] = $envioItem;
+                $items[] = [
+                    'title' => 'Costo de envío',
+                    'quantity' => 1,
+                    'unit_price' => (float) $pedido->costo_envio,
+                    'currency_id' => 'MXN',
+                ];
             }
 
-            $preference->items = $items;
-
-            // URLs de retorno
-            $preference->back_urls = [
-                'success' => route('pago.mercadopago.exito', ['pedido' => $pedido->numero_pedido]),
-                'failure' => route('pago.mercadopago.error', ['pedido' => $pedido->numero_pedido]),
-                'pending' => route('pago.mercadopago.pendiente', ['pedido' => $pedido->numero_pedido]),
+            $preferenceData = [
+                'items' => $items,
+                'back_urls' => [
+                    'success' => route('pago.mercadopago.exito', ['pedido' => $pedido->numero_pedido]),
+                    'failure' => route('pago.mercadopago.error', ['pedido' => $pedido->numero_pedido]),
+                    'pending' => route('pago.mercadopago.pendiente', ['pedido' => $pedido->numero_pedido]),
+                ],
+                'auto_return' => 'approved',
+                'payer' => [
+                    'name' => $pedido->nombre,
+                    'email' => $pedido->email,
+                ],
+                'external_reference' => $pedido->numero_pedido,
+                'notification_url' => route('pago.mercadopago.webhook'),
             ];
-            $preference->auto_return = 'approved';
 
-            // Datos del comprador
-            $preference->payer = [
-                'name' => $pedido->nombre,
-                'email' => $pedido->email,
-            ];
+            $response = \Illuminate\Support\Facades\Http::withToken($accessToken)
+                ->post("$apiUrl/checkout/preferences", $preferenceData);
 
-            // Referencia externa
-            $preference->external_reference = $pedido->numero_pedido;
+            if ($response->successful()) {
+                $preference = $response->json();
+                return response()->json([
+                    'success' => true,
+                    'preference_id' => $preference['id'],
+                    'init_point' => $preference['init_point'],
+                    'sandbox_init_point' => $preference['sandbox_init_point'],
+                ]);
+            }
 
-            // Webhook para notificaciones
-            $preference->notification_url = route('pago.mercadopago.webhook');
-
-            $preference->save();
-
-            return response()->json([
-                'success' => true,
-                'preference_id' => $preference->id,
-                'init_point' => $preference->init_point,
-                'sandbox_init_point' => $preference->sandbox_init_point,
-            ]);
+            throw new \Exception('Error al crear preferencia en MP: ' . $response->body());
 
         } catch (\Exception $e) {
             Log::error('MercadoPago error: ' . $e->getMessage());
@@ -100,32 +101,35 @@ class PaymentController extends Controller
      */
     public function mercadoPagoWebhook(Request $request)
     {
-        Log::info('MercadoPago Webhook received', $request->all());
+        Log::info('MercadoPago Webhook received', $request->except(['key', 'token', 'secret', 'access_token']));
 
         $type = $request->input('type');
         $data = $request->input('data');
 
-        if ($type === 'payment') {
+        if ($type === 'payment' && isset($data['id'])) {
             try {
-                \MercadoPago\SDK::setAccessToken(config('services.mercadopago.access_token'));
+                $accessToken = config('services.mercadopago.access_token');
+                $apiUrl = 'https://api.mercadopago.com';
 
-                $payment = \MercadoPago\Payment::find_by_id($data['id']);
+                $response = \Illuminate\Support\Facades\Http::withToken($accessToken)
+                    ->get("$apiUrl/v1/payments/{$data['id']}");
 
-                if ($payment) {
-                    $pedido = PedidoOnline::where('numero_pedido', $payment->external_reference)->first();
+                if ($response->successful()) {
+                    $payment = $response->json();
+                    $pedido = PedidoOnline::where('numero_pedido', $payment['external_reference'] ?? null)->first();
 
-                    if ($pedido && $payment->status === 'approved') {
+                    if ($pedido && ($payment['status'] === 'approved' || $payment['status'] === 'authorized')) {
                         $pedido->marcarComoPagado(
-                            $payment->id,
-                            $payment->status,
+                            (string) $payment['id'],
+                            $payment['status'],
                             [
-                                'payment_type' => $payment->payment_type_id,
-                                'payment_method' => $payment->payment_method_id,
-                                'transaction_amount' => $payment->transaction_amount,
+                                'payment_type' => $payment['payment_type_id'] ?? null,
+                                'payment_method' => $payment['payment_method_id'] ?? null,
+                                'transaction_amount' => $payment['transaction_amount'] ?? 0,
                             ]
                         );
 
-                        Log::info("Pedido {$pedido->numero_pedido} marcado como pagado");
+                        Log::info("Pedido {$pedido->numero_pedido} marcado como pagado vía webhook");
                     }
                 }
             } catch (\Exception $e) {
@@ -148,7 +152,20 @@ class PaymentController extends Controller
         if ($numeroPedido && $paymentId && $status === 'approved') {
             $pedido = PedidoOnline::where('numero_pedido', $numeroPedido)->first();
             if ($pedido && $pedido->estado === 'pendiente') {
-                $pedido->marcarComoPagado($paymentId, $status, $request->all());
+                $paymentData = $request->only([
+                    'collection_id',
+                    'collection_status',
+                    'payment_id',
+                    'status',
+                    'external_reference',
+                    'payment_type',
+                    'merchant_order_id',
+                    'preference_id',
+                    'site_id',
+                    'processing_mode',
+                    'merchant_account_id'
+                ]);
+                $pedido->marcarComoPagado($paymentId, $status, $paymentData);
             }
         }
 
@@ -230,7 +247,7 @@ class PaymentController extends Controller
                         'reference_id' => $pedido->numero_pedido,
                         'amount' => [
                             'currency_code' => 'MXN',
-                            'value' => number_format($pedido->total, 2, '.', ''),
+                            'value' => number_format((float) $pedido->total, 2, '.', ''),
                         ],
                         'description' => "Pedido {$pedido->numero_pedido}",
                     ],
@@ -353,7 +370,7 @@ class PaymentController extends Controller
      */
     public function paypalWebhook(Request $request)
     {
-        Log::info('PayPal Webhook received', $request->all());
+        Log::info('PayPal Webhook received', $request->except(['key', 'token', 'secret']));
 
         // Procesar webhook de PayPal
         // Aquí se manejarían las notificaciones de PayPal

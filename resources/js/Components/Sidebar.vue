@@ -1,641 +1,753 @@
 <template>
   <aside
-    ref="sidebarRef"
     :class="{
-      'w-64': !props.isSidebarCollapsed,
-      'w-20': props.isSidebarCollapsed
+      'w-[272px]': !props.isSidebarCollapsed,
+      'w-[72px]': props.isSidebarCollapsed
     }"
-    class="bg-slate-950 text-white fixed left-0 top-0 bottom-0 z-20 transition-all duration-300 ease-in-out overflow-y-auto shadow-2xl border-r border-slate-800 flex flex-col"
+    class="sidebar-root bg-[#0a0e1a] text-white fixed left-0 top-0 bottom-0 z-20 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden shadow-[8px_0_32px_rgba(0,0,0,0.5)] border-r border-white/[0.04] flex flex-col"
     role="navigation"
     aria-label="Barra lateral"
   >
     <!-- Header -->
-    <div class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm flex-shrink-0">
+    <div class="flex items-center justify-between px-6 py-6 border-b border-white/[0.05] bg-white/[0.01] backdrop-blur-xl flex-shrink-0 relative overflow-hidden group">
+      <!-- Animated Background Accents -->
+      <div class="absolute -top-16 -left-16 w-32 h-32 bg-amber-500/[0.08] rounded-full blur-[60px] group-hover:bg-amber-500/[0.15] transition-all duration-1000 animate-pulse"></div>
+      <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-blue-500/[0.05] rounded-full blur-[40px] animate-pulse" style="animation-delay: 1s"></div>
+
       <Link
         href="/panel"
-        class="flex items-center group overflow-hidden"
+        class="flex items-center group/logo overflow-hidden relative z-10 transition-transform duration-500 hover:scale-[1.02]"
         :class="{'justify-center w-full': props.isSidebarCollapsed}"
         :title="props.isSidebarCollapsed ? 'Ir al Panel' : null"
       >
-        <img
-          :src="empresaConfig?.logo_url || '/images/logo.png'"
-          alt="Logo"
-          class="h-10 w-auto transition-transform duration-200 group-hover:scale-105 object-contain"
-          :class="{'mx-auto': props.isSidebarCollapsed}"
-        />
-        <span
-          v-if="!props.isSidebarCollapsed"
-          class="ml-3 text-xl font-semibold whitespace-nowrap overflow-hidden"
-        >
-        </span>
+        <div class="relative flex-shrink-0">
+          <div class="absolute inset-0 bg-amber-500/20 blur-xl opacity-0 group-hover/logo:opacity-100 transition-opacity duration-500"></div>
+          <img
+            :src="empresaConfig?.logo_url || fallbackLogo"
+            alt="Logo"
+            class="h-10 w-auto transition-all duration-700 group-hover/logo:rotate-[360deg] group-hover/logo:scale-110 object-contain relative z-10"
+            :class="{'mx-auto': props.isSidebarCollapsed}"
+            @error="onLogoImgError"
+          />
+        </div>
+        <div v-if="!props.isSidebarCollapsed" class="ml-4 flex flex-col">
+          <span class="text-[14px] font-black uppercase tracking-[0.2em] text-white/95 leading-none">CLIMAS</span>
+          <span class="text-[9px] font-bold uppercase tracking-[0.3em] text-amber-500/80 mt-1.5 flex items-center">
+            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1.5 animate-pulse"></span>
+            SISTEMA ERP
+          </span>
+        </div>
       </Link>
 
       <button
         v-if="!isMobile"
         @click="toggleSidebar"
-        class="p-2 rounded-lg hover:bg-slate-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand ml-auto"
-        :title="props.isSidebarCollapsed ? 'Expandir sidebar' : 'Contraer sidebar'"
-        :aria-label="props.isSidebarCollapsed ? 'Expandir sidebar' : 'Contraer sidebar'"
+        class="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.15] transition-all duration-500 focus:outline-none focus:ring-1 focus:ring-amber-500/40 ml-auto group/btn relative z-10 overflow-hidden"
+        :title="props.isSidebarCollapsed ? 'Expandir' : 'Contraer'"
       >
+        <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
         <FontAwesomeIcon
           :icon="props.isSidebarCollapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left'"
-          class="text-slate-300 hover:text-white transition-colors duration-200"
+          class="text-white/60 group-hover/btn:text-white transition-all duration-300 text-[11px] relative z-10"
+          :class="{'rotate-180': props.isSidebarCollapsed}"
         />
       </button>
     </div>
 
+    <!-- Search / Quick Nav -->
+    <div v-if="!props.isSidebarCollapsed" class="px-4 py-3 border-b border-white/[0.03] bg-black/20">
+      <div class="relative group/search">
+        <FontAwesomeIcon :icon="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within/search:text-amber-500/80 transition-colors text-xs" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Buscar en el menú…"
+          title="Al escribir se muestran coincidencias y se abren todas las secciones"
+          class="w-full rounded-xl border border-white/[0.05] bg-white/[0.03] py-2 pl-9 pr-4 text-[11px] font-medium text-white/80 placeholder:text-white/40 transition-all duration-300 focus:border-amber-500/30 focus:bg-white/[0.06] focus:outline-none"
+        >
+      </div>
+    </div>
+
     <!-- Navegación -->
-    <nav class="flex-1 overflow-y-auto pt-4">
-      <div class="px-2 pb-4">
-        <!-- ========================================= -->
+    <nav ref="navScrollRef" class="flex-1 overflow-y-auto sidebar-scroll">
+      <div class="px-3 py-4 space-y-1">
+
         <!-- 🏠 Panel Principal -->
-        <!-- ========================================= -->
-        <div class="mb-4">
+        <div class="mb-3" v-if="matchesSearch('panel principal dashboard inicio')">
           <NavLink href="/panel" icon="tachometer-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Panel' : null">
             Panel
           </NavLink>
         </div>
 
-        <!-- ========================================= -->
-        <!-- 🛒 CRM y Ventas -->
-        <!-- ========================================= -->
-        <div v-if="$can('view clientes') || $can('view citas') || $can('view cotizaciones') || $can('view pedidos') || $can('view ventas') || $can('view garantias') || $can('view crm')" class="mb-4">
-          <div
-            @click="toggleAccordion('ventas')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.ventas }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="shopping-cart" class="w-4 h-4 text-blue-400" />
-              <div class="leading-tight">
-                <span>CRM y Ventas</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Prospectos, citas, cotizaciones y facturación</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.ventas ? 'rotate-90' : ''"
-            />
+        <!-- ⭐ Favoritos (accesos rápidos) -->
+        <div
+          v-if="(canAccessWhatsAppInbox || $can('view citas') || $can('view ventas')) && matchesSearch('favoritos inbox whatsapp bandeja mensajes agendar cita citas ventas programar nueva')"
+          class="mb-4 rounded-xl border border-amber-500/15 bg-gradient-to-b from-amber-500/[0.06] to-transparent p-2 shadow-[inset_0_1px_0_rgba(251,191,36,0.08)]"
+        >
+          <div v-if="!props.isSidebarCollapsed && !searchQuery.trim()" class="mb-2 px-2 pt-0.5">
+            <span class="text-[8px] font-black uppercase tracking-[0.2em] text-amber-400/90">Favoritos</span>
+            <span class="mt-0.5 block text-[8px] font-medium normal-case tracking-normal text-white/35">Accesos que usas cada día</span>
           </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.ventas }]">
-            <div class="space-y-1">
-              <NavLink v-if="$can('view clientes')" href="/clientes" icon="users" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Clientes' : null">
-                Clientes
-              </NavLink>
-              <NavLink v-if="$can('view crm')" href="/crm" icon="funnel-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'CRM Prospectos' : null">
-                CRM Prospectos
-              </NavLink>
-              <NavLink v-if="$can('view citas')" href="/citas" icon="calendar-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Citas Agendadas' : null">
-                Citas Agendadas
-              </NavLink>
-              <NavLink href="/mi-agenda" icon="calendar-check" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mi Agenda' : null">
-                Mi Agenda
-              </NavLink>
-              <NavLink v-if="$can('view citas')" href="/citas-calendario" icon="calendar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Calendario Técnicos' : null">
-                Calendario Técnicos
-              </NavLink>
-              <NavLink v-if="$can('view cotizaciones')" href="/cotizaciones" icon="file-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cotizaciones' : null">
-                Cotizaciones
-              </NavLink>
-              <NavLink v-if="$can('view pedidos')" href="/pedidos" icon="truck" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pedidos' : null">
-                Pedidos
-              </NavLink>
-              <NavLink v-if="$can('view ventas')" href="/pedidos-online" icon="globe" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pedidos Web' : null">
-                Pedidos Web
-              </NavLink>
-              <NavLink v-if="$can('view ventas')" href="/ventas" icon="dollar-sign" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ventas Realizadas' : null">
-                Ventas Realizadas
-              </NavLink>
-              <NavLink v-if="$can('view ventas')" href="/facturas" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Facturación' : null">
-                Facturación
-              </NavLink>
-
-
-              <NavLink v-if="$can('view garantias')" href="/garantias" icon="shield-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Garantías' : null">
-                Garantías
-              </NavLink>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================= -->
-        <!-- 📞 Soporte y Contratos -->
-        <!-- ========================================= -->
-        <div v-if="$can('view soporte') || $can('view polizas') || $can('manage planes')" class="mb-4">
-          <div
-            @click="toggleAccordion('soporte')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.soporte }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="headset" class="w-4 h-4 text-orange-400" />
-              <div class="leading-tight">
-                <span>Soporte y Contratos</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Tickets, pólizas, KB y acceso remoto</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.soporte ? 'rotate-90' : ''"
-            />
-          </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.soporte }]">
-            <NavLink v-if="$can('view soporte')" href="/soporte/dashboard" icon="chart-pie" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Dashboard' : null">
-              Dashboard
+          <div class="space-y-1">
+            <NavLink
+              v-if="canAccessWhatsAppInbox && matchesSearch('whatsapp inbox bandeja mensajes marketing')"
+              href="/marketing/whatsapp-inbox"
+              icon="comments"
+              :collapsed="props.isSidebarCollapsed"
+              :title="props.isSidebarCollapsed ? 'WhatsApp Inbox' : null"
+            >
+              WhatsApp Inbox
             </NavLink>
-            <NavLink v-if="$can('view soporte')" href="/soporte" icon="ticket-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Tickets' : null" :exact="true">
-              Tickets
+            <NavLink
+              v-if="$can('view citas') && matchesSearch('citas agendar nueva programar agenda calendario')"
+              href="/citas/create"
+              icon="calendar-plus"
+              :collapsed="props.isSidebarCollapsed"
+              :title="props.isSidebarCollapsed ? 'Agendar cita' : null"
+            >
+              Agendar cita
             </NavLink>
-            <NavLink v-if="$can('view polizas')" href="/polizas-servicio" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pólizas de Servicio' : null">
-              Pólizas de Servicio
+            <NavLink
+              v-if="$can('view citas') && matchesSearch('citas agendadas programadas historial')"
+              href="/citas"
+              icon="calendar-alt"
+              :collapsed="props.isSidebarCollapsed"
+              :title="props.isSidebarCollapsed ? 'Citas Agendadas' : null"
+            >
+              Citas Agendadas
             </NavLink>
-            <NavLink v-if="$can('view polizas')" href="/tecnico/mantenimientos" icon="tools" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos de Pólizas' : null">
-              Mantenimientos de Pólizas
-            </NavLink>
-            <NavLink v-if="$can('manage planes')" href="/planes-poliza" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrar Planes' : null">
-              Administrar Planes
-            </NavLink>
-            <NavLink v-if="$can('view soporte')" href="/soporte/kb" icon="book" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Base de Conocimiento' : null">
-              Base de Conocimiento
-            </NavLink>
-            <NavLink v-if="$can('view soporte')" href="/soporte-remoto" icon="desktop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Acceso Remoto' : null">
-              Acceso Remoto
-            </NavLink>
-            <NavLink href="/credenciales" icon="key" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contraseñas' : null">
-              Contraseñas
-            </NavLink>
-            <NavLink v-if="$can('view categorias') || $can('edit soporte')" href="/soporte/categorias" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Categorías de Tickets' : null">
-              Categorías de Tickets
+            <NavLink
+              v-if="$can('view ventas') && matchesSearch('ventas realizadas facturación cobros historial')"
+              href="/ventas"
+              icon="dollar-sign"
+              :collapsed="props.isSidebarCollapsed"
+              :title="props.isSidebarCollapsed ? 'Ventas' : null"
+            >
+              Ventas
             </NavLink>
           </div>
         </div>
 
-        <!-- ========================================= -->
-        <!-- 📦 Compras e Inventario -->
-        <!-- ========================================= -->
-        <div v-if="$can('view proveedores') || $can('view ordenes_compra') || $can('view compras') || $can('view productos') || $can('view kits') || $can('view almacenes') || $can('view traspasos') || $can('view movimientos_inventario') || $can('view ajustes_inventario')" class="mb-4">
-          <div
-            @click="toggleAccordion('inventario')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.inventario }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="boxes" class="w-4 h-4 text-amber-400" />
-              <div class="leading-tight">
-                <span>Compras e Inventario</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Proveedores, almacenes y movimientos</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.inventario ? 'rotate-90' : ''"
-            />
+        <!-- Separador antes de módulos agrupados -->
+        <div class="mx-2 my-4 h-px bg-white/[0.06]" :class="{ 'my-2': searchQuery.trim() }"></div>
+
+        <!-- —— Comercial: ventas, marketing y relación con clientes —— -->
+        <div
+          class="sidebar-accordion-group mb-4 transition-all duration-300"
+          :class="searchQuery.trim()
+            ? 'border-0 bg-transparent p-0 shadow-none'
+            : 'rounded-xl border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-transparent p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'"
+        >
+          <div v-if="!props.isSidebarCollapsed && !searchQuery.trim()" class="mb-2 px-2 pt-0.5">
+            <span class="text-[8px] font-black uppercase tracking-[0.2em] text-amber-500/90">Comercial</span>
+            <span class="mt-0.5 block text-[8px] font-medium normal-case tracking-normal text-white/35">Clientes, ventas y campañas</span>
           </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.inventario }]">
-            <!-- Compras -->
-            <NavLink v-if="$can('view proveedores')" href="/proveedores" icon="truck" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Proveedores' : null">
-              Proveedores
-            </NavLink>
-            <NavLink v-if="$can('view ordenes_compra')" href="/ordenescompra" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Órdenes de Compra' : null">
-              Órdenes de Compra
-            </NavLink>
-            <NavLink v-if="$can('view compras')" href="/compras" icon="cart-shopping" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Compras a Proveedores' : null">
-              Compras a Proveedores
-            </NavLink>
-            <!-- Inventario -->
-            <NavLink v-if="$can('view productos')" href="/productos" icon="box" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Productos' : null">
-              Productos
-            </NavLink>
-            <NavLink v-if="$can('view productos') && empresaConfig?.cva_active" :href="routeOr('/cva/importar')" icon="download" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Importar CVA' : null">
-              Importar CVA
-            </NavLink>
-            <NavLink v-if="$can('view kits')" href="/kits" icon="cubes" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Kits' : null">
-              Kits
-            </NavLink>
-            <NavLink v-if="$can('view almacenes')" href="/almacenes" icon="warehouse" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Almacenes' : null">
-              Almacenes
-            </NavLink>
-            <NavLink v-if="$can('view traspasos')" href="/traspasos" icon="exchange-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Traspasos' : null">
-              Traspasos
-            </NavLink>
-            <NavLink v-if="$can('view movimientos_inventario')" href="/movimientos-inventario" icon="history" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Movimientos' : null">
-              Movimientos
-            </NavLink>
-            <NavLink v-if="$can('view ajustes_inventario')" href="/ajustes-inventario" icon="cogs" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ajustes' : null">
-              Ajustes
-            </NavLink>
-          </div>
+
+        <!-- 👥 CRM y clientes -->
+        <SidebarSection
+          v-if="($can('view clientes') || $can('view crm')) && matchesSearch('crm clientes prospectos embudo funnel oportunidades pipeline contactos cartera mirage')"
+          title="CRM y clientes"
+          subtitle="Cartera y prospectos"
+          icon="address-book"
+          iconColor="text-violet-400"
+          :isOpen="accordionStates.crm"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('crm')"
+        >
+          <NavLink v-if="$can('view clientes')" href="/clientes" icon="users" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Clientes' : null">Clientes</NavLink>
+          <NavLink v-if="$can('view crm')" href="/crm" icon="funnel-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'CRM Prospectos' : null">CRM Prospectos</NavLink>
+        </SidebarSection>
+
+        <!-- 🛒 Ventas y facturación -->
+        <SidebarSection
+          v-if="($can('view citas') || $can('view cotizaciones') || $can('view pedidos') || $can('view ventas') || $can('view garantias')) && matchesSearch('ventas citas agenda cotizaciones pedidos facturación facturacion caja pos garantías garantias calendario técnicos pedidos web pedidos online realizadas')"
+          title="Ventas y facturación"
+          subtitle="Citas, pedidos, caja y facturas"
+          icon="shopping-cart"
+          iconColor="text-blue-400"
+          :isOpen="accordionStates.ventas"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('ventas')"
+        >
+          <NavLink v-if="$can('view citas')" href="/citas" icon="calendar-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Citas Agendadas' : null">Citas Agendadas</NavLink>
+          <NavLink href="/mi-agenda" icon="calendar-check" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mi Agenda' : null">Mi Agenda</NavLink>
+          <NavLink v-if="$can('view citas')" href="/citas-calendario" icon="calendar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Calendario Técnicos' : null">Calendario Técnicos</NavLink>
+          <NavLink v-if="$can('view cotizaciones')" href="/cotizaciones" icon="file-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cotizaciones' : null">Cotizaciones</NavLink>
+          <NavLink v-if="$can('view pedidos')" href="/pedidos" icon="truck" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pedidos' : null">Pedidos</NavLink>
+          <NavLink v-if="$can('view ventas')" href="/pedidos-online" icon="globe" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pedidos Web' : null">Pedidos Web</NavLink>
+          <NavLink v-if="$can('view ventas')" href="/ventas" icon="dollar-sign" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ventas' : null">Ventas</NavLink>
+          <NavLink v-if="$can('view ventas')" href="/pos" icon="cash-register" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Caja POS' : null">Caja POS</NavLink>
+          <NavLink v-if="$can('view ventas')" href="/facturas" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Facturación' : null">Facturación</NavLink>
+          <NavLink v-if="$can('view garantias')" href="/garantias" icon="shield-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Garantías' : null">Garantías</NavLink>
+        </SidebarSection>
+
+        <!-- 📣 Marketing y Campañas -->
+        <SidebarSection
+          v-if="($can('view marketing') || isAdmin) && matchesSearch('marketing digital campañas audiencias plantillas whatsapp sms masivos')"
+          title="Marketing Digital"
+          subtitle="WhatsApp Business, SMS y masivos"
+          icon="bullhorn"
+          iconColor="text-rose-400"
+          :isOpen="accordionStates.marketing"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('marketing')"
+        >
+          <NavLink href="/marketing/campanias" icon="paper-plane" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Campañas' : null">Campañas</NavLink>
+          <NavLink href="/marketing/audiencias" icon="users" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Audiencias' : null">Audiencias</NavLink>
+          <NavLink href="/marketing/plantillas" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Plantillas' : null">Plantillas</NavLink>
+        </SidebarSection>
         </div>
 
-        <!-- ========================================= -->
-        <!-- 💰 Finanzas -->
-        <!-- ========================================= -->
-        <div v-if="$can('view cuentas_bancarias') || $can('view conciliacion_bancaria') || $can('view caja_chica') || $can('view cuentas_por_pagar') || $can('view cuentas_por_cobrar') || $can('view entregas_dinero') || $can('view gastos') || $can('view traspasos_bancarios') || $can('view prestamos') || $can('view pagos')" class="mb-4">
-          <div
-            @click="toggleAccordion('finanzas')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.finanzas }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="chart-line" class="w-4 h-4 text-emerald-400" />
-              <div class="leading-tight">
-                <span>Finanzas</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Cuentas, gastos, caja y préstamos</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.finanzas ? 'rotate-90' : ''"
-            />
+        <!-- —— Operaciones: soporte, compras, stock, finanzas, campo —— -->
+        <div
+          class="sidebar-accordion-group mb-4 transition-all duration-300"
+          :class="searchQuery.trim()
+            ? 'border-0 bg-transparent p-0 shadow-none'
+            : 'rounded-xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]'"
+        >
+          <div v-if="!props.isSidebarCollapsed && !searchQuery.trim()" class="mb-2 px-2 pt-0.5">
+            <span class="text-[8px] font-black uppercase tracking-[0.2em] text-sky-400/90">Operaciones</span>
+            <span class="mt-0.5 block text-[8px] font-medium normal-case tracking-normal text-white/35">Soporte, compras, inventario, tesorería y campo</span>
           </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.finanzas }]">
-            <NavLink v-if="$can('view cuentas_bancarias')" href="/cuentas-bancarias" icon="landmark" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cuentas Bancarias' : null">
-              Cuentas Bancarias
-            </NavLink>
-            <NavLink v-if="$can('view cuentas_por_cobrar')" href="/cuentas-por-cobrar" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cuentas por Cobrar' : null">
-              Cuentas por Cobrar
-            </NavLink>
-            <NavLink v-if="$can('view cuentas_por_pagar')" href="/cuentas-por-pagar" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cuentas por Pagar' : null">
-              Cuentas por Pagar
-            </NavLink>
-            <NavLink v-if="$can('view gastos')" href="/gastos" icon="receipt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Gastos Operativos' : null">
-              Gastos Operativos
-            </NavLink>
-            <NavLink v-if="$can('view traspasos_bancarios')" href="/traspasos-bancarios" icon="exchange-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Traspasos entre Cuentas' : null">
-              Traspasos entre Cuentas
-            </NavLink>
-            <NavLink v-if="$can('view comisiones')" href="/comisiones" icon="hand-holding-usd" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Comisiones' : null">
-              Comisiones
-            </NavLink>
-            <NavLink v-if="$can('view entregas_dinero')" href="/entregas-dinero" icon="dollar-sign" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Entregas de Dinero' : null">
-              Entregas de Dinero
-            </NavLink>
-            <NavLink v-if="$can('view caja_chica')" href="/caja-chica" icon="wallet" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Caja Chica' : null">
-              Caja Chica
-            </NavLink>
-            <NavLink v-if="$can('view conciliacion_bancaria')" href="/conciliacion-bancaria" icon="university" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Conciliación Bancaria' : null">
-              Conciliación Bancaria
-            </NavLink>
-            <!-- Préstamos -->
-            <NavLink v-if="$can('view prestamos')" href="/prestamos" icon="money-bill-wave" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Préstamos' : null">
-              Préstamos
-            </NavLink>
-            <NavLink v-if="$can('view pagos')" href="/pagos" icon="credit-card" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pagos de Préstamos' : null">
-              Pagos de Préstamos
-            </NavLink>
-          </div>
+
+        <!-- 📞 Mesa de ayuda (tickets, KB, acceso) -->
+        <SidebarSection
+          v-if="($can('view soporte') || $can('view polizas')) && matchesSearch('tickets soporte mesa ayuda dashboard kb conocimiento base categoría categorias remoto escritorio credencial contraseña contraseñas ticket')"
+          title="Mesa de ayuda"
+          subtitle="Tickets, conocimiento y acceso"
+          icon="headset"
+          iconColor="text-orange-400"
+          :isOpen="accordionStates.tickets"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('tickets')"
+        >
+          <NavLink v-if="$can('view soporte')" href="/soporte/dashboard" icon="chart-pie" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Dashboard' : null">Dashboard</NavLink>
+          <NavLink v-if="$can('view soporte')" href="/soporte" icon="ticket-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Tickets' : null" :exact="true">Tickets</NavLink>
+          <NavLink v-if="$can('view soporte')" href="/soporte/kb" icon="book" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Base de Conocimiento' : null">Base de Conocimiento</NavLink>
+          <NavLink v-if="$can('view categorias') || $can('edit soporte')" href="/soporte/categorias" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Categorías de Tickets' : null">Categorías de Tickets</NavLink>
+          <NavLink href="/soporte-remoto" icon="desktop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Acceso Remoto' : null">Acceso Remoto</NavLink>
+          <NavLink href="/credenciales" icon="key" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contraseñas' : null">Contraseñas</NavLink>
+        </SidebarSection>
+
+        <!-- 📄 Pólizas y planes de servicio -->
+        <SidebarSection
+          v-if="$can('view polizas') && matchesSearch('póliza poliza contrato servicio planes plan mantenimiento pólizas polizas técnico poliza')"
+          title="Pólizas de servicio"
+          subtitle="Contratos, planes y mantenimiento en campo"
+          icon="file-signature"
+          iconColor="text-amber-500"
+          :isOpen="accordionStates.polizas"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('polizas')"
+        >
+          <NavLink href="/polizas-servicio" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pólizas de Servicio' : null">Pólizas de Servicio</NavLink>
+          <NavLink href="/tecnico/mantenimientos" icon="tools" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos de Pólizas' : null">Mantenimientos de Pólizas</NavLink>
+          <NavLink href="/planes-poliza" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrar Planes' : null">Administrar Planes</NavLink>
+        </SidebarSection>
+
+        <!-- 🛒 Compras a proveedores -->
+        <SidebarSection
+          v-if="($can('view proveedores') || $can('view ordenes_compra') || $can('view compras')) && matchesSearch('compras proveedores proveedor orden órdenes ordenes oc compra factura recepción')"
+          title="Compras"
+          subtitle="Proveedores y órdenes de compra"
+          icon="cart-shopping"
+          iconColor="text-lime-400"
+          :isOpen="accordionStates.compras"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('compras')"
+        >
+          <NavLink v-if="$can('view proveedores')" href="/proveedores" icon="truck" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Proveedores' : null">Proveedores</NavLink>
+          <NavLink v-if="$can('view ordenes_compra')" href="/ordenescompra" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Órdenes de Compra' : null">Órdenes de Compra</NavLink>
+          <NavLink v-if="$can('view compras')" href="/compras" icon="cart-shopping" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Compras a Proveedores' : null">Compras a Proveedores</NavLink>
+        </SidebarSection>
+
+        <!-- 📦 Inventario y almacén -->
+        <SidebarSection
+          v-if="($can('view productos') || $can('view kits') || $can('view almacenes') || $can('view traspasos') || $can('view movimientos_inventario') || $can('view ajustes_inventario')) && matchesSearch('inventario almacén almacen stock productos kits traspasos movimientos ajustes cva importar catálogo catalogo existencias')"
+          title="Inventario y almacén"
+          subtitle="Productos, ubicaciones y movimientos"
+          icon="boxes"
+          iconColor="text-amber-400"
+          :isOpen="accordionStates.inventario"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('inventario')"
+        >
+          <NavLink v-if="$can('view productos')" href="/productos" icon="box" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Productos' : null">Productos</NavLink>
+          <NavLink v-if="$can('view productos') && empresaConfig?.cva_active" :href="routeOr('/cva/importar')" icon="download" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Importar CVA' : null">Importar CVA</NavLink>
+          <NavLink v-if="$can('view kits')" href="/kits" icon="cubes" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Kits' : null">Kits</NavLink>
+          <NavLink v-if="$can('view almacenes')" href="/almacenes" icon="warehouse" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Almacenes' : null">Almacenes</NavLink>
+          <NavLink v-if="$can('view traspasos')" href="/traspasos" icon="exchange-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Traspasos' : null">Traspasos</NavLink>
+          <NavLink v-if="$can('view movimientos_inventario')" href="/movimientos-inventario" icon="history" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Movimientos' : null">Movimientos</NavLink>
+          <NavLink v-if="$can('view ajustes_inventario')" href="/ajustes-inventario" icon="cogs" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ajustes' : null">Ajustes</NavLink>
+          <NavLink v-if="$can('view ajustes_inventario')" href="/inventarios-fisicos" icon="clipboard-check" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Inventario Físico' : null">Inventario Físico</NavLink>
+          <NavLink v-if="true" href="/solicitudes-material" icon="clipboard-list" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Solicitudes' : null">Solicitudes Material</NavLink>
+        </SidebarSection>
+
+        <!-- 🏦 Tesorería y bancos -->
+        <SidebarSection
+          v-if="($can('view cuentas_bancarias') || $can('view conciliacion_bancaria') || $can('view caja_chica') || $can('view entregas_dinero') || $can('view traspasos_bancarios')) && matchesSearch('tesorería tesoreria banco bancaria conciliación conciliacion traspaso cuenta caja chica entrega efectivo')"
+          title="Tesorería y bancos"
+          subtitle="Cuentas, conciliación y efectivo"
+          icon="landmark"
+          iconColor="text-emerald-400"
+          :isOpen="accordionStates.tesoreria"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('tesoreria')"
+        >
+          <NavLink v-if="$can('view cuentas_bancarias')" href="/cuentas-bancarias" icon="landmark" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cuentas Bancarias' : null">Cuentas Bancarias</NavLink>
+          <NavLink v-if="$can('view traspasos_bancarios')" href="/traspasos-bancarios" icon="exchange-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Traspasos entre Cuentas' : null">Traspasos entre Cuentas</NavLink>
+          <NavLink v-if="$can('view entregas_dinero')" href="/entregas-dinero" icon="dollar-sign" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Entregas de Dinero' : null">Entregas de Dinero</NavLink>
+          <NavLink v-if="$can('view caja_chica')" href="/caja-chica" icon="wallet" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Caja Chica' : null">Caja Chica</NavLink>
+          <NavLink v-if="$can('view conciliacion_bancaria')" href="/conciliacion-bancaria" icon="university" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Conciliación Bancaria' : null">Conciliación Bancaria</NavLink>
+        </SidebarSection>
+
+        <!-- 💳 Cuentas por cobrar/pagar y gastos -->
+        <SidebarSection
+          v-if="($can('view cuentas_por_pagar') || $can('view cuentas_por_cobrar') || $can('view gastos') || $can('view comisiones') || $can('view prestamos') || $can('view pagos')) && matchesSearch('cxc cxp cobrar pagar cuentas gastos comisión comisiones préstamos prestamos abonos obligaciones finanzas contabilidad')"
+          title="Cuentas y gastos"
+          subtitle="Por cobrar, por pagar, comisiones y préstamos"
+          icon="file-invoice-dollar"
+          iconColor="text-teal-400"
+          :isOpen="accordionStates.cuentas"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('cuentas')"
+        >
+          <NavLink v-if="$can('view cuentas_por_cobrar')" href="/cuentas-por-cobrar" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cuentas por Cobrar' : null">Cuentas por Cobrar</NavLink>
+          <NavLink v-if="$can('view cuentas_por_pagar')" href="/cuentas-por-pagar" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Cuentas por Pagar' : null">Cuentas por Pagar</NavLink>
+          <NavLink v-if="$can('view gastos')" href="/gastos" icon="receipt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Gastos Operativos' : null">Gastos Operativos</NavLink>
+          <NavLink v-if="$can('view comisiones')" href="/comisiones" icon="hand-holding-usd" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Comisiones' : null">Comisiones</NavLink>
+          <NavLink v-if="$can('view prestamos')" href="/prestamos" icon="money-bill-wave" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Préstamos' : null">Préstamos</NavLink>
+          <NavLink v-if="$can('view pagos')" href="/pagos" icon="credit-card" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pagos de Préstamos' : null">Pagos de Préstamos</NavLink>
+        </SidebarSection>
+
+        <!-- 🚗 Rentas, equipos y flota -->
+        <SidebarSection
+          v-if="($can('view rentas') || $can('view equipos') || $can('view vehiculos')) && matchesSearch('rentas pdv punto venta plan equipo laptop vehículo vehiculo carro flota unidad móvil movil')"
+          title="Rentas y flota"
+          subtitle="PDV, equipos y vehículos"
+          icon="car"
+          iconColor="text-purple-400"
+          :isOpen="accordionStates.rentas_flota"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('rentas_flota')"
+        >
+          <NavLink v-if="$can('view rentas')" href="/rentas" icon="file-contract" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Rentas PDV' : null">Rentas PDV</NavLink>
+          <NavLink v-if="$can('view rentas')" href="/planes-renta" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Planes de Renta' : null">Planes de Renta</NavLink>
+          <NavLink v-if="$can('view equipos')" href="/equipos" icon="laptop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Equipos' : null">Equipos</NavLink>
+          <NavLink v-if="$can('view vehiculos')" href="/carros" icon="car" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Vehículos' : null">Vehículos</NavLink>
+        </SidebarSection>
+
+        <!-- 🔧 Taller y herramientas -->
+        <SidebarSection
+          v-if="($can('view mantenimientos') || $can('view herramientas')) && matchesSearch('taller mantenimiento mantenimientos herramientas caja herramienta técnico gestión campo servicio')"
+          title="Taller y herramientas"
+          subtitle="Mantenimientos y control por técnico"
+          icon="wrench"
+          iconColor="text-fuchsia-400"
+          :isOpen="accordionStates.taller"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('taller')"
+        >
+          <NavLink v-if="$can('view mantenimientos')" href="/mantenimientos" icon="wrench" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos' : null">Mantenimientos</NavLink>
+          <NavLink v-if="$can('view herramientas')" href="/herramientas" icon="toolbox" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Herramientas' : null">Herramientas</NavLink>
+          <NavLink v-if="$can('view herramientas')" href="/herramientas/gestion" icon="wrench" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Gestión por Técnico' : null">Gestión por Técnico</NavLink>
+        </SidebarSection>
         </div>
 
-        <!-- ========================================= -->
-        <!-- 🚗 Operaciones -->
-        <!-- ========================================= -->
-        <div v-if="$can('view rentas') || $can('view equipos') || $can('view vehiculos') || $can('view mantenimientos') || $can('view herramientas')" class="mb-4">
-          <div
-            @click="toggleAccordion('operaciones')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.operaciones }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="tools" class="w-4 h-4 text-purple-400" />
-              <div class="leading-tight">
-                <span>Operaciones</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Rentas, equipos, vehículos y herramientas</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.operaciones ? 'rotate-90' : ''"
-            />
+        <!-- —— Equipo: RRHH y asistencia —— -->
+        <div
+          class="sidebar-accordion-group mb-4 transition-all duration-300"
+          :class="searchQuery.trim()
+            ? 'border-0 bg-transparent p-0 shadow-none'
+            : 'rounded-xl border border-white/[0.06] bg-gradient-to-b from-teal-500/[0.06] to-transparent p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]'"
+        >
+          <div v-if="!props.isSidebarCollapsed && !searchQuery.trim()" class="mb-2 px-2 pt-0.5">
+            <span class="text-[8px] font-black uppercase tracking-[0.2em] text-teal-400/90">Equipo</span>
+            <span class="mt-0.5 block text-[8px] font-medium normal-case tracking-normal text-white/35">Asistencia, nómina y vacaciones</span>
           </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.operaciones }]">
-            <!-- Rentas -->
-            <NavLink v-if="$can('view rentas')" href="/rentas" icon="file-contract" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Rentas PDV' : null">
-              Rentas PDV
-            </NavLink>
-            <NavLink v-if="$can('view rentas')" href="/planes-renta" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Planes de Renta' : null">
-              Planes de Renta
-            </NavLink>
-            <NavLink v-if="$can('view equipos')" href="/equipos" icon="laptop" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Equipos' : null">
-              Equipos
-            </NavLink>
-            <!-- Vehículos y Mantenimiento -->
-            <NavLink v-if="$can('view vehiculos')" href="/carros" icon="car" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Vehículos' : null">
-              Vehículos
-            </NavLink>
-            <NavLink v-if="$can('view mantenimientos')" href="/mantenimientos" icon="wrench" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos' : null">
-              Mantenimientos
-            </NavLink>
-            <!-- Herramientas -->
-            <NavLink v-if="$can('view herramientas')" href="/herramientas" icon="toolbox" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Herramientas' : null">
-              Herramientas
-            </NavLink>
-            <NavLink v-if="$can('view herramientas')" href="/herramientas/gestion" icon="wrench" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Gestión por Técnico' : null">
-              Gestión por Técnico
-            </NavLink>
-          </div>
+
+        <!-- ⏱ Asistencia y checador -->
+        <SidebarSection
+          v-if="matchesSearch('asistencia checador reloj horario entrada salida bitácora asistencia registros control tiempo')"
+          title="Asistencia"
+          subtitle="Checador y registros"
+          icon="clock"
+          iconColor="text-teal-400"
+          :isOpen="accordionStates.asistencia"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('asistencia')"
+        >
+          <NavLink href="/asistencia" icon="clock" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Reloj Checador' : null">Reloj Checador</NavLink>
+          <NavLink v-if="isAdmin || $can('view empleados')" href="/asistencia/registros" icon="history" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Bitácora de Asistencia' : null">Bitácora de Asistencia</NavLink>
+        </SidebarSection>
+
+        <!-- 👥 Empleados, nómina y vacaciones -->
+        <SidebarSection
+          v-if="matchesSearch('empleados nómina nominas vacaciones solicitud personal rrhh talento humano registro ausencia permiso')"
+          title="Empleados y vacaciones"
+          subtitle="Nómina, permisos y solicitudes"
+          icon="user-tie"
+          iconColor="text-cyan-400"
+          :isOpen="accordionStates.empleados"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('empleados')"
+        >
+          <NavLink v-if="$can('view empleados')" href="/empleados" icon="users-cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Empleados' : null">Empleados</NavLink>
+          <NavLink v-if="$can('view nominas')" href="/nominas" icon="money-check-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Nóminas' : null">Nóminas</NavLink>
+          <NavLink href="/mis-vacaciones" icon="umbrella-beach" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mis Vacaciones' : null">Mis Vacaciones</NavLink>
+          <NavLink v-if="$can('view vacaciones')" href="/vacaciones" icon="calendar-check" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Gestión de Vacaciones' : null">Gestión de Vacaciones</NavLink>
+          <NavLink v-if="$can('create vacaciones')" href="/vacaciones/create" icon="plus-circle" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Nueva Solicitud' : null">Nueva Solicitud</NavLink>
+          <NavLink v-if="$can('view vacaciones')" href="/registro-vacaciones" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Registro de Vacaciones' : null">Registro de Vacaciones</NavLink>
+        </SidebarSection>
         </div>
 
-        <!-- ========================================= -->
-        <!-- 👥 Recursos Humanos -->
-        <!-- ========================================= -->
-        <div class="mb-4">
-          <div
-            @click="toggleAccordion('rrhh')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.rrhh }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="user-tie" class="w-4 h-4 text-teal-400" />
-              <div class="leading-tight">
-                <span>Personal y Asistencia</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Checador, empleados, nómina y vacaciones</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.rrhh ? 'rotate-90' : ''"
-            />
+        <!-- —— Administración: blog, ajustes y reportes —— -->
+        <div
+          class="sidebar-accordion-group mb-2 transition-all duration-300"
+          :class="searchQuery.trim()
+            ? 'border-0 bg-transparent p-0 shadow-none'
+            : 'rounded-xl border border-white/[0.06] bg-gradient-to-b from-indigo-500/[0.05] to-transparent p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]'"
+        >
+          <div v-if="!props.isSidebarCollapsed && !searchQuery.trim()" class="mb-2 px-2 pt-0.5">
+            <span class="text-[8px] font-black uppercase tracking-[0.2em] text-indigo-300/90">Administración</span>
+            <span class="mt-0.5 block text-[8px] font-medium normal-case tracking-normal text-white/35">Blog, seguridad, catálogos e informes</span>
           </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.rrhh }]">
-            <NavLink href="/asistencia" icon="clock" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Reloj Checador' : null">
-              Reloj Checador
-            </NavLink>
-            <NavLink v-if="isAdmin || $can('view empleados')" href="/asistencia/registros" icon="history" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Bitácora de Asistencia' : null">
-              Bitácora de Asistencia
-            </NavLink>
-            <NavLink v-if="$can('view empleados')" href="/empleados" icon="users-cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Empleados' : null">
-              Empleados
-            </NavLink>
-            <NavLink v-if="$can('view nominas')" href="/nominas" icon="money-check-alt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Nóminas' : null">
-              Nóminas
-            </NavLink>
-            <NavLink href="/mis-vacaciones" icon="umbrella-beach" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mis Vacaciones' : null">
-              Mis Vacaciones
-            </NavLink>
-            <NavLink v-if="$can('view vacaciones')" href="/vacaciones" icon="calendar-check" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Gestión de Vacaciones' : null">
-              Gestión de Vacaciones
-            </NavLink>
-            <NavLink v-if="$can('create vacaciones')" href="/vacaciones/create" icon="plus-circle" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Nueva Solicitud' : null">
-              Nueva Solicitud
-            </NavLink>
-            <NavLink v-if="$can('view vacaciones')" href="/registro-vacaciones" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Registro de Vacaciones' : null">
-              Registro de Vacaciones
-            </NavLink>
-          </div>
-        </div>
 
-        <!-- ========================================= -->
         <!-- 📝 Blog -->
-        <!-- ========================================= -->
-        <div v-if="$can('view configuracion_empresa') || isAdmin" class="mb-4">
-          <div
-            @click="toggleAccordion('blog')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.blog }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="blog" class="w-4 h-4 text-sky-400" />
-              <div class="leading-tight">
-                <span>Blog</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Contenido público y administración</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.blog ? 'rotate-90' : ''"
-            />
-          </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.blog }]">
-            <NavLink :href="routeOr('/admin/blog')" icon="cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrador de Blog' : null">
-              Administrador de Blog
-            </NavLink>
-            <NavLink href="/blog" icon="globe" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ver Blog Público' : null">
-              Ver Blog Público
-            </NavLink>
-          </div>
-        </div>
+        <SidebarSection
+          v-if="($can('view configuracion_empresa') || isAdmin) && matchesSearch('blog contenido público publico administrador landing artículos')"
+          title="Blog"
+          subtitle="Contenido público y administración"
+          icon="blog"
+          iconColor="text-sky-400"
+          :isOpen="accordionStates.blog"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('blog')"
+        >
+          <NavLink :href="routeOr('/admin/blog')" icon="cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrador de Blog' : null">Administrador de Blog</NavLink>
+          <NavLink href="/blog" icon="globe" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ver Blog Público' : null">Ver Blog Público</NavLink>
+        </SidebarSection>
 
-        <!-- ========================================= -->
-        <!-- ⚙️ Configuración -->
-        <!-- ========================================= -->
-        <div v-if="$can('view usuarios') || $can('view roles') || $can('view bitacora') || $can('view categorias') || $can('view marcas') || $can('view servicios') || $can('manage-backups') || $can('view configuracion_empresa')" class="mb-4">
-          <div
-            @click="toggleAccordion('configuracion')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.configuracion }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="cogs" class="w-4 h-4 text-slate-400" />
-              <div class="leading-tight">
-                <span>Configuración</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Usuarios, catálogos y ajustes del sistema</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.configuracion ? 'rotate-90' : ''"
-            />
+        <!-- 🔐 Seguridad y auditoría -->
+        <SidebarSection
+          v-if="($can('view usuarios') || $can('view roles') || $can('view bitacora') || $can('manage-backups')) && matchesSearch('usuarios roles permisos seguridad auditoría auditoria bitácora bitacora respaldo backup base datos acceso administrador')"
+          title="Seguridad y auditoría"
+          subtitle="Usuarios, roles y respaldos"
+          icon="shield-alt"
+          iconColor="text-slate-400"
+          :isOpen="accordionStates.seguridad"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('seguridad')"
+        >
+          <NavLink v-if="$can('view usuarios')" href="/usuarios" icon="user" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Usuarios' : null">Usuarios</NavLink>
+          <NavLink v-if="$can('view roles')" href="/roles" icon="id-card" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Roles y Permisos' : null">Roles y Permisos</NavLink>
+          <NavLink v-if="$can('manage-backups')" :href="routeOr('/backup')" icon="database" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Copia de Seguridad' : null">Copia de Seguridad</NavLink>
+          <div v-if="$can('manage-backups')" class="px-3.5 py-2 mt-1 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-between group/vps" :class="{'justify-center': props.isSidebarCollapsed}">
+             <div v-if="!props.isSidebarCollapsed" class="flex flex-col min-w-0">
+                <span class="text-[9px] font-black uppercase tracking-widest text-white/80">Respaldo VPS</span>
+                <span class="text-[8px] text-white/40 truncate">{{ vpsStatus.last_backup }}</span>
+             </div>
+             <div class="flex items-center gap-1.5 flex-shrink-0">
+                <div v-if="vpsStatus.status === 'success'" class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" title="Respaldo OK"></div>
+                <div v-else-if="vpsStatus.status === 'error'" class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)] animate-pulse" title="Respaldo Fallido"></div>
+                <div v-else class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse" title="Pendiente"></div>
+                <span v-if="!props.isSidebarCollapsed && vpsStatus.size" class="text-[8px] font-bold text-white/60">{{ vpsStatus.size }}</span>
+             </div>
           </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.configuracion }]">
-            <!-- Usuarios y Permisos -->
-            <NavLink v-if="$can('view usuarios')" href="/usuarios" icon="user" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Usuarios' : null">
-              Usuarios
-            </NavLink>
-            <NavLink v-if="$can('view roles')" href="/roles" icon="id-card" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Roles y Permisos' : null">
-              Roles y Permisos
-            </NavLink>
-            <!-- Catálogos -->
-            <NavLink v-if="$can('view categorias')" href="/categorias" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Categorías' : null">
-              Categorías
-            </NavLink>
-            <NavLink v-if="$can('view marcas')" href="/marcas" icon="trademark" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Marcas' : null">
-              Marcas
-            </NavLink>
-            <NavLink v-if="$can('view servicios')" href="/servicios" icon="wrench" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Servicios' : null">
-              Servicios
-            </NavLink>
-            <!-- Sistema -->
-            <NavLink v-if="$can('view configuracion_empresa')" href="/empresa/configuracion" icon="cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Configuración de Empresa' : null">
-              Configuración de Empresa
-            </NavLink>
-            <NavLink v-if="$can('view configuracion_empresa')" href="/empresa/landing-content" icon="palette" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contenido de Landing' : null">
-              Contenido de Landing
-            </NavLink>
-            <NavLink v-if="$can('manage-backups')" :href="routeOr('/backup')" icon="database" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Copia de Seguridad' : null">
-              Copia de Seguridad
-            </NavLink>
-            <NavLink v-if="$can('view bitacora')" href="/bitacora" icon="clipboard-list" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Bitácora' : null">
-              Bitácora
-            </NavLink>
-          </div>
-        </div>
+          <NavLink v-if="$can('view bitacora')" href="/bitacora" icon="clipboard-list" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Bitácora de Auditoría' : null">Bitácora de Auditoría</NavLink>
+        </SidebarSection>
 
-        <!-- ========================================= -->
+        <!-- 📚 Catálogos y empresa -->
+        <SidebarSection
+          v-if="($can('view categorias') || $can('view marcas') || $can('view servicios') || $can('view configuracion_empresa')) && matchesSearch('categorías marcas servicios catálogo catalogo empresa landing ajustes marca producto configuración configuracion')"
+          title="Catálogos y empresa"
+          subtitle="Marcas, servicios y apariencia"
+          icon="cogs"
+          iconColor="text-indigo-300"
+          :isOpen="accordionStates.catalogos"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('catalogos')"
+        >
+          <NavLink v-if="$can('view categorias')" href="/categorias" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Categorías' : null">Categorías</NavLink>
+          <NavLink v-if="$can('view marcas')" href="/marcas" icon="trademark" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Marcas' : null">Marcas</NavLink>
+          <NavLink v-if="$can('view servicios')" href="/servicios" icon="wrench" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Servicios' : null">Servicios</NavLink>
+          <NavLink v-if="$can('view configuracion_empresa')" href="/empresa/configuracion" icon="cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Configuración de Empresa' : null">Configuración de Empresa</NavLink>
+          <NavLink v-if="$can('view configuracion_empresa')" href="/empresa/landing-content" icon="palette" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Contenido de Landing' : null">Contenido de Landing</NavLink>
+        </SidebarSection>
+
         <!-- 📊 Reportes y CFDI -->
-        <!-- ========================================= -->
-        <div v-if="$can('view reportes') || $can('view finanzas') || $can('view cfdi')" class="mb-4">
-          <div
-            @click="toggleAccordion('reportes')"
-            class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white hover:bg-slate-800/50 rounded-md transition-colors duration-200"
-            :class="{ 'bg-slate-900/40 text-white': accordionStates.reportes }"
-          >
-            <div class="flex items-center gap-2">
-              <FontAwesomeIcon icon="chart-bar" class="w-4 h-4 text-indigo-400" />
-              <div class="leading-tight">
-                <span>Reportes y CFDI</span>
-                <p v-if="!props.isSidebarCollapsed" class="text-[9px] normal-case tracking-normal text-slate-500 font-medium mt-0.5">Indicadores, reportes y comprobantes fiscales</p>
-              </div>
-            </div>
-            <FontAwesomeIcon
-              icon="chevron-right"
-              class="w-3 h-3 transition-transform duration-200"
-              :class="accordionStates.reportes ? 'rotate-90' : ''"
-            />
-          </div>
-          <div :class="['accordion-content', { 'accordion-open': accordionStates.reportes }]">
-            <NavLink v-if="$can('view finanzas')" href="/finanzas" icon="chart-line" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Panel General' : null">
-              Panel General
-            </NavLink>
-            <NavLink v-if="$can('view reportes')" href="/reportes" icon="chart-bar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Centro de Reportes' : null">
-              Centro de Reportes
-            </NavLink>
-            <NavLink v-if="$can('view cfdi')" href="/cfdi" icon="file-invoice" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Documentos CFDI' : null">
-              Documentos CFDI
-            </NavLink>
-          </div>
-        </div>
+        <SidebarSection
+          v-if="($can('view reportes') || $can('view finanzas') || $can('view cfdi')) && matchesSearch('reportes cfdi documentos fiscales indicadores comprobantes panel general finanzas ventas periodo vendedor cita')"
+          title="Reportes y CFDI"
+          subtitle="Indicadores, reportes y comprobantes fiscales"
+          icon="chart-bar"
+          iconColor="text-indigo-400"
+          :isOpen="accordionStates.reportes"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('reportes')"
+        >
+          <NavLink v-if="$can('view finanzas') || $can('view cuentas_bancarias') || $can('view caja_chica') || $can('view conciliacion_bancaria') || $can('view cuentas_por_pagar') || $can('view cuentas_por_cobrar') || $can('view entregas_dinero') || $can('view traspasos_bancarios')" href="/finanzas" icon="chart-line" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Panel General' : null">Panel General</NavLink>
+          <NavLink v-if="$can('view reportes')" href="/reportes" icon="chart-bar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Centro de Reportes' : null">Centro de Reportes</NavLink>
+          <NavLink v-if="$can('view reportes')" href="/reportes/citas-por-tecnico" icon="user-check" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Citas por Técnico' : null">Citas por Técnico</NavLink>
+          <NavLink v-if="$can('view reportes')" href="/reportes/ventas-semana" icon="receipt" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Ventas periodo' : null">Ventas (periodo)</NavLink>
+          <NavLink v-if="$can('view reportes')" href="/reportes/productos-para-comprar" icon="shopping-basket" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Sugerencias Compra' : null">Sugerencias Compra</NavLink>
 
-        <!-- ========================================= -->
-        <!-- 📁 Proyectos (Beta) -->
-        <!-- ========================================= -->
-        <div v-if="$can('view proyectos')" class="mb-4">
+          <NavLink v-if="$can('view cfdi')" href="/cfdi" icon="file-invoice" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Documentos CFDI' : null">Documentos CFDI</NavLink>
+        </SidebarSection>
+
+        <!-- 📁 Proyectos (mismo bloque administración) -->
+        <div v-if="$can('view proyectos') && matchesSearch('proyectos beta tareas')" class="mt-1 px-1">
           <NavLink href="/proyectos" :icon="faFolderOpen" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Proyectos' : null">
             Proyectos (Beta)
           </NavLink>
+        </div>
         </div>
 
       </div>
     </nav>
 
-    <!-- Usuario -->
+    <!-- Usuario Footer -->
     <div
-      class="border-t border-slate-800 p-4 bg-slate-900/50 backdrop-blur-sm flex-shrink-0"
-      :class="{'flex justify-center': props.isSidebarCollapsed}"
+      class="border-t border-white/[0.06] p-5 bg-gradient-to-t from-white/[0.03] to-transparent flex-shrink-0 relative overflow-hidden group/footer"
+      :class="{'flex justify-center px-2': props.isSidebarCollapsed}"
     >
-      <div class="flex items-center" :class="{'w-full justify-center': props.isSidebarCollapsed, 'space-x-3': !props.isSidebarCollapsed}">
-        <img
-          :src="props.usuario?.profile_photo_url || 'https://ui-avatars.com/api/?name=User'"
-          :alt="props.usuario?.name || 'User'"
-          class="w-10 h-10 rounded-full border-2 border-slate-700 object-cover flex-shrink-0"
-        />
+      <!-- Glassmorphism overlay -->
+      <div class="absolute inset-0 bg-white/[0.01] backdrop-blur-xl"></div>
+      
+      <div class="flex items-center relative z-10" :class="{'w-full justify-center': props.isSidebarCollapsed, 'gap-4': !props.isSidebarCollapsed}">
+        <div class="relative group/avatar flex-shrink-0">
+          <div class="absolute -inset-1 bg-gradient-to-tr from-amber-500 to-amber-600 rounded-xl blur opacity-20 group-hover/avatar:opacity-50 transition-all duration-500"></div>
+          <img
+            :src="props.usuario?.profile_photo_url || avatarFallbackUrl"
+            :alt="props.usuario?.name || 'User'"
+            class="w-10 h-10 rounded-xl border border-white/10 object-cover group-hover/avatar:border-amber-500/50 transition-all duration-500 relative z-10"
+            @error="onAvatarImgError"
+          />
+          <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-[3px] border-[#0a0e1a] rounded-full z-20 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+        </div>
         <div v-show="!props.isSidebarCollapsed" class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-slate-100 truncate">
+          <p class="text-[12px] font-black text-white/95 truncate leading-tight tracking-wide">
             {{ props.usuario?.name || 'Usuario' }}
           </p>
-          <p class="text-xs text-slate-400 truncate">
-            {{ props.usuario?.email || '' }}
-          </p>
+          <div class="flex items-center mt-1">
+            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full mr-2 opacity-60"></span>
+            <p class="text-[9px] font-bold text-white/60 truncate uppercase tracking-tighter">
+              {{ isAdmin ? 'Administrador' : 'Colaborador' }}
+            </p>
+          </div>
         </div>
+        
+        <!-- Logout Button -->
+        <Link 
+          v-show="!props.isSidebarCollapsed" 
+          method="post" 
+          as="button" 
+          href="/logout" 
+          class="p-2.5 rounded-xl text-white/40 hover:text-red-400 hover:bg-black/40 hover:border-red-500/30 border border-transparent transition-all duration-500 group/logout"
+          title="Cerrar Sesión"
+        >
+          <FontAwesomeIcon :icon="faSignOutAlt" class="text-xs group-hover/logout:scale-125 transition-transform" />
+        </Link>
       </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { ref, onMounted, computed, onBeforeUnmount, h, nextTick, watch } from 'vue';
+import axios from 'axios';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import NavLink from '@/Components/NavLink.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen, faSearch, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+
+// ─── Inline SidebarSection component ───
+const SidebarSection = {
+  name: 'SidebarSection',
+  props: {
+    title: String,
+    subtitle: String,
+    icon: String,
+    iconColor: { type: String, default: 'text-slate-400' },
+    isOpen: Boolean,
+    collapsed: Boolean,
+  },
+  emits: ['toggle'],
+  setup(props, { slots, emit }) {
+    return () => h('div', { class: 'mb-1.5 px-1' }, [
+      // Header button
+      h('div', {
+        onClick: () => emit('toggle'),
+        role: 'button',
+        tabindex: props.collapsed ? -1 : 0,
+        'aria-expanded': props.collapsed ? undefined : String(props.isOpen),
+        onKeydown: (e) => {
+          if (props.collapsed) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            emit('toggle');
+          }
+        },
+        class: [
+          'group flex items-center justify-between px-3.5 py-3 text-[10px] font-black uppercase tracking-[0.12em] cursor-pointer rounded-xl transition-all duration-500 relative overflow-hidden',
+          props.isOpen
+            ? 'bg-white/[0.06] text-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] border border-white/[0.05]'
+            : 'text-white/60 hover:text-white/90 hover:bg-white/[0.03] border border-transparent hover:border-white/[0.03]'
+        ].join(' '),
+      }, [
+        h('div', { class: 'flex items-center gap-3.5 min-w-0 relative z-10' }, [
+          h('div', { class: 'relative' }, [
+            props.isOpen ? h('div', { class: 'absolute -inset-2 bg-amber-500/20 blur-lg rounded-full animate-pulse' }) : null,
+            h(FontAwesomeIcon, {
+              icon: props.icon,
+              class: `w-4 h-4 ${props.iconColor} flex-shrink-0 transition-all duration-500 ${props.isOpen ? 'scale-110 drop-shadow-[0_0_8px_currentColor]' : 'group-hover:scale-110'}`,
+            }),
+          ]),
+          !props.collapsed ? h('div', { class: 'leading-tight min-w-0' }, [
+            h('span', { class: 'block transition-all duration-300 ' + (props.isOpen ? 'tracking-[0.15em] text-white' : '') }, props.title),
+            props.subtitle ? h('p', {
+              class: 'text-[8px] normal-case tracking-normal font-bold mt-1.5 truncate transition-all duration-500 ' +
+                     (props.isOpen ? 'text-amber-500/70' : 'text-white/30 group-hover:text-white/50'),
+            }, props.subtitle) : null,
+          ]) : null,
+        ]),
+        h('div', { class: 'relative z-10 flex items-center' }, [
+          h(FontAwesomeIcon, {
+            icon: 'chevron-right',
+            class: `w-2 h-2 transition-all duration-500 flex-shrink-0 ${props.isOpen ? 'rotate-90 text-amber-500' : 'text-white/10 group-hover:text-white/30'}`,
+          }),
+        ]),
+      ]),
+      // Content
+      h('div', {
+        class: ['sidebar-accordion', props.isOpen ? 'sidebar-accordion-open' : ''].join(' '),
+      }, [
+        h('div', { class: 'space-y-1.5 pt-2 pb-1' }, slots.default?.()),
+      ]),
+    ]);
+  },
+};
 
 const page = usePage();
-const sidebarRef = ref(null);
+const navScrollRef = ref(null);
+const searchQuery = ref('');
+const vpsStatus = ref({ last_backup: 'Cargando...', status: 'pending', size: '' });
 
-// Scroll Persistence
+const fetchVpsStatus = async () => {
+    try {
+        const response = await axios.get('/admin/backup/vps-status');
+        vpsStatus.value = response.data;
+    } catch (error) {
+        console.error('Error fetching VPS backup status:', error);
+    }
+};
+
+/** Quita tildes para comparar "cotizacion" con "cotización". */
+const stripDiacritics = (s) =>
+  String(s)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+/** Filtro del buscador: la cadena de palabras clave debe contener el texto buscado. */
+const matchesSearch = (keywordsText) => {
+  const q = stripDiacritics(searchQuery.value.trim());
+  if (!q) return true;
+  return stripDiacritics(keywordsText).includes(q);
+};
+
+const fallbackLogo = '/images/logo.webp';
+
+// ─── Scroll Persistence ───
+// Save the <nav> scroll position (the element that actually scrolls)
 const saveScrollPosition = () => {
-  if (sidebarRef.value) {
-    sessionStorage.setItem('sidebar_scroll_pos', sidebarRef.value.scrollTop);
+  if (navScrollRef.value) {
+    sessionStorage.setItem('sidebar_scroll_pos', String(navScrollRef.value.scrollTop));
   }
 };
 
 const restoreScrollPosition = () => {
   const savedPos = sessionStorage.getItem('sidebar_scroll_pos');
-  if (!savedPos || !sidebarRef.value) return;
-
+  if (!savedPos || !navScrollRef.value) return;
   const targetPos = parseInt(savedPos);
 
-  // Intentar restaurar inmediatamente
-  sidebarRef.value.scrollTop = targetPos;
+  // Apply immediately
+  navScrollRef.value.scrollTop = targetPos;
 
-  // Reintentar varias veces para compensar la animación del acordeón
+  // Retry several times to catch post-accordion-animation layout shifts
   const attemptRestore = () => {
-    if (sidebarRef.value && Math.abs(sidebarRef.value.scrollTop - targetPos) > 5) {
-      sidebarRef.value.scrollTop = targetPos;
+    if (navScrollRef.value && Math.abs(navScrollRef.value.scrollTop - targetPos) > 5) {
+      navScrollRef.value.scrollTop = targetPos;
     }
   };
-
-  // Tiempos ajustados para cubrir la transición CSS
-  [50, 150, 300, 550].forEach(delay => setTimeout(attemptRestore, delay));
+  [50, 100, 200, 400, 700].forEach(delay => setTimeout(attemptRestore, delay));
 };
+
+// Save scroll BEFORE every Inertia navigation (click on any link)
+let removeBeforeListener = null;
+onMounted(() => {
+  if ($can('manage-backups')) {
+    fetchVpsStatus();
+    // Refrescar cada 5 minutos
+    const interval = setInterval(fetchVpsStatus, 300000);
+    onBeforeUnmount(() => clearInterval(interval));
+  }
+  
+  removeBeforeListener = router.on('before', () => {
+    saveScrollPosition();
+  });
+});
 
 onBeforeUnmount(() => {
   saveScrollPosition();
+  if (removeBeforeListener) removeBeforeListener();
 });
-const empresaConfig = computed(() => page.props.empresa_config);
 
-// Función local $can que usa usePage() reactivo (NO el $can global estático)
+const empresaConfig = computed(() => page.props.empresa_config);
 const auth = computed(() => page.props.auth);
 
 const $can = (permissionOrRole) => {
   const authData = auth.value;
   if (!authData || !authData.user) return false;
-
-  // Check if user is admin (from is_admin flag)
   if (authData.user.is_admin) return true;
-
   const permissions = authData.user.permissions || [];
   const roles = authData.user.roles || [];
-
-  // Also check if user has admin or super-admin in roles array (handles both string and object formats)
   const roleNames = Array.isArray(roles) ? roles.map(r => typeof r === 'string' ? r : r.name) : [];
   if (roleNames.includes('admin') || roleNames.includes('super-admin')) return true;
-
   return permissions.includes(permissionOrRole) || roleNames.includes(permissionOrRole);
 };
 
-// Props
 const props = defineProps({
-  usuario: {
-    type: Object,
-    required: true
-  },
-  isSidebarCollapsed: {
-    type: Boolean,
-    default: false
-  },
-  isMobile: {
-    type: Boolean,
-    default: false
-  }
+  usuario: { type: Object, required: true },
+  isSidebarCollapsed: { type: Boolean, default: false },
+  isMobile: { type: Boolean, default: false },
 });
 
-// Computed para determinar si el usuario tiene rol de ventas (y no es admin)
+const avatarFallbackUrl = computed(() => {
+  const name = encodeURIComponent(props.usuario?.name || 'User');
+  return `https://ui-avatars.com/api/?name=${name}&background=1e293b&color=94a3b8&bold=true`;
+});
+
+const onLogoImgError = (e) => {
+  const el = e?.target;
+  if (!el || !el.src) return;
+  if (!el.src.includes('logo.webp')) el.src = fallbackLogo;
+};
+
+const onAvatarImgError = (e) => {
+  const el = e?.target;
+  if (!el || !el.src) return;
+  const fb = avatarFallbackUrl.value;
+  if (el.src !== fb) el.src = fb;
+};
+
 const isVentasRole = computed(() => {
   if (!props.usuario || !props.usuario.roles) return false;
   const hasAdmin = props.usuario.roles.some(role => ['admin', 'super-admin'].includes(role.name)) || props.usuario.is_admin;
   const hasVentas = props.usuario.roles.some(role => role.name === 'ventas');
-  return hasVentas && !hasAdmin; // Solo ventas si tiene ventas pero no admin
+  return hasVentas && !hasAdmin;
 });
 
-// Computed para saber si es admin
 const isAdmin = computed(() => {
   if (!props.usuario) return false;
   if (props.usuario.is_admin) return true;
@@ -645,198 +757,248 @@ const isAdmin = computed(() => {
   return false;
 });
 
-// Emits
+/** Coincide con rutas: role admin|super-admin|ventas en marketing/whatsapp-inbox */
+const canAccessWhatsAppInbox = computed(() => {
+  if (!props.usuario) return false;
+  if (isAdmin.value) return true;
+  if ($can('view marketing')) return true;
+  return props.usuario.roles?.some((r) => r.name === 'ventas') ?? false;
+});
+
 const emit = defineEmits(['toggleSidebar']);
 
-// Función para obtener el estado inicial de los acordeones (se ejecuta inmediatamente)
+const SIDEBAR_ACCORDION_STORAGE_KEY = 'sidebar_accordion_states';
+
+/** Ruta Inertia → clave de acordeón (una sección a la vez cuando coincide). */
+function detectSidebarSectionFromPath(path) {
+  const p = path || '';
+  if (p.startsWith('/clientes') || p.startsWith('/crm')) {
+    return 'crm';
+  }
+  if (p.startsWith('/citas') || p.startsWith('/citas-calendario') ||
+      p.startsWith('/cotizaciones') || p.startsWith('/pedidos') || p.startsWith('/ventas') ||
+      p.startsWith('/facturas') || p.startsWith('/garantias') ||
+      p.startsWith('/mi-agenda') || p.startsWith('/pedidos-online') || p.startsWith('/pos')) {
+    return 'ventas';
+  }
+  if (p.startsWith('/marketing/')) {
+    return 'marketing';
+  }
+  if (p.startsWith('/polizas-servicio') || p.startsWith('/planes-poliza') || p.startsWith('/tecnico/mantenimientos')) {
+    return 'polizas';
+  }
+  if (p.startsWith('/soporte') || p.startsWith('/soporte-remoto') || p.startsWith('/credenciales')) {
+    return 'tickets';
+  }
+  if (p.startsWith('/proveedores') || p.startsWith('/ordenescompra') || p.startsWith('/compras')) {
+    return 'compras';
+  }
+  if (p.startsWith('/productos') || p.startsWith('/kits') || p.startsWith('/cva') ||
+      (p.startsWith('/traspasos') && !p.startsWith('/traspasos-bancarios')) ||
+      p.startsWith('/movimientos-inventario') || p.startsWith('/ajustes-inventario') ||
+      p.startsWith('/inventarios-fisicos') ||
+      p.startsWith('/almacenes')) {
+    return 'inventario';
+  }
+  if (p.startsWith('/cuentas-bancarias') || p.startsWith('/conciliacion-bancaria') ||
+      p.startsWith('/caja-chica') || p.startsWith('/entregas-dinero') ||
+      p.startsWith('/traspasos-bancarios')) {
+    return 'tesoreria';
+  }
+  if (p.startsWith('/cuentas-por-pagar') || p.startsWith('/cuentas-por-cobrar') ||
+      p.startsWith('/gastos') || p.startsWith('/comisiones') || p.startsWith('/prestamos') || p.startsWith('/pagos')) {
+    return 'cuentas';
+  }
+  if (p.startsWith('/mantenimientos') || p.startsWith('/herramientas')) {
+    return 'taller';
+  }
+  if (p.startsWith('/rentas') || p.startsWith('/planes-renta') || p.startsWith('/equipos') || p.startsWith('/carros')) {
+    return 'rentas_flota';
+  }
+  if (p.startsWith('/asistencia')) {
+    return 'asistencia';
+  }
+  if (p.startsWith('/empleados') || p.startsWith('/nominas') || p.startsWith('/vacaciones') ||
+      p.startsWith('/mis-vacaciones') || p.startsWith('/registro-vacaciones')) {
+    return 'empleados';
+  }
+  if (p.startsWith('/usuarios') || p.startsWith('/roles') || p.startsWith('/bitacora') ||
+      p.startsWith('/backup')) {
+    return 'seguridad';
+  }
+  if (p.startsWith('/categorias') || p.startsWith('/marcas') || p.startsWith('/servicios') ||
+      p.startsWith('/empresa/configuracion') || p.startsWith('/empresa/landing-content')) {
+    return 'catalogos';
+  }
+  if (p.startsWith('/admin/blog') || p.startsWith('/gestion-blog') || p.startsWith('/blog')) {
+    return 'blog';
+  }
+  if (p.startsWith('/reportes') || p.startsWith('/cfdi') || p === '/finanzas') {
+    return 'reportes';
+  }
+  return null;
+}
+
+function pathFromInertiaUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('/')) return url.split('?')[0];
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return '';
+  }
+}
+
 const getInitialAccordionState = () => {
   const defaultState = {
-    ventas: false,
-    soporte: false,
-    inventario: false,
-    finanzas: false,
-    operaciones: false,
-    rrhh: false,
-    configuracion: false,
-    reportes: false,
-    blog: false,
+    crm: false, ventas: false, marketing: false,
+    tickets: false, polizas: false, compras: false, inventario: false,
+    tesoreria: false, cuentas: false, rentas_flota: false, taller: false,
+    asistencia: false, empleados: false,
+    blog: false, seguridad: false, catalogos: false, reportes: false,
   };
-  
-  // Intentar restaurar estado desde sessionStorage
   try {
-    const saved = sessionStorage.getItem('sidebar_accordion_states');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      Object.keys(parsed).forEach(key => {
-        if (key in defaultState) {
-          defaultState[key] = parsed[key];
-        }
+    const sess = sessionStorage.getItem(SIDEBAR_ACCORDION_STORAGE_KEY);
+    const local = localStorage.getItem(SIDEBAR_ACCORDION_STORAGE_KEY);
+    const raw = sess ?? local;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      Object.keys(parsed).forEach((key) => {
+        if (key in defaultState) defaultState[key] = !!parsed[key];
       });
     }
-  } catch (e) {
-    // Silently fail
-  }
-  
-  // Determinar la sección actual basada en la URL
+  } catch (e) {}
+
   const path = typeof window !== 'undefined' ? window.location.pathname : '';
-  let currentSection = null;
-  
-  // CRM y Ventas
-  if (path.startsWith('/clientes') || path.startsWith('/citas') || path.startsWith('/citas-calendario') ||
-      path.startsWith('/cotizaciones') || path.startsWith('/pedidos') || path.startsWith('/ventas') || 
-      path.startsWith('/facturas') || path.startsWith('/garantias') || path.startsWith('/crm') || 
-      path.startsWith('/mi-agenda') || path.startsWith('/pedidos-online')) {
-    currentSection = 'ventas';
+  const fromPath = detectSidebarSectionFromPath(path);
+  if (fromPath) {
+    Object.keys(defaultState).forEach((k) => { defaultState[k] = false; });
+    defaultState[fromPath] = true;
   }
-  // Soporte y Contratos
-  else if (path.startsWith('/soporte') || path.startsWith('/polizas-servicio') || path.startsWith('/planes-poliza') || 
-           path.startsWith('/credenciales') || path.startsWith('/soporte-remoto') || path.startsWith('/tecnico/')) {
-    currentSection = 'soporte';
-  }
-  // Finanzas
-  else if (path.startsWith('/cuentas-bancarias') || path.startsWith('/conciliacion-bancaria') || 
-           path.startsWith('/caja-chica') || path.startsWith('/cuentas-por-pagar') || 
-           path.startsWith('/cuentas-por-cobrar') || path.startsWith('/entregas-dinero') || 
-           path.startsWith('/gastos') || path.startsWith('/traspasos-bancarios') || 
-           path.startsWith('/comisiones') || path.startsWith('/prestamos') || path.startsWith('/pagos')) {
-    currentSection = 'finanzas';
-  }
-  // Inventario
-  else if (path.startsWith('/productos') || path.startsWith('/kits') || path.startsWith('/cva') ||
-           (path.startsWith('/traspasos') && !path.startsWith('/traspasos-bancarios')) || 
-           path.startsWith('/movimientos-inventario') || path.startsWith('/ajustes-inventario') || 
-           path.startsWith('/almacenes') || path.startsWith('/compras') || 
-           path.startsWith('/ordenescompra') || path.startsWith('/proveedores')) {
-    currentSection = 'inventario';
-  }
-  // Operaciones
-  else if (path.startsWith('/rentas') || path.startsWith('/planes-renta') || path.startsWith('/equipos') || 
-           path.startsWith('/carros') || path.startsWith('/mantenimientos') || path.startsWith('/herramientas')) {
-    currentSection = 'operaciones';
-  }
-  // RRHH
-  else if (path.startsWith('/empleados') || path.startsWith('/nominas') || path.startsWith('/vacaciones') || 
-           path.startsWith('/mis-vacaciones') || path.startsWith('/registro-vacaciones') || path.startsWith('/asistencia')) {
-    currentSection = 'rrhh';
-  }
-  // Configuración
-  else if (path.startsWith('/usuarios') || path.startsWith('/roles') || path.startsWith('/bitacora') || 
-           path.startsWith('/categorias') || path.startsWith('/marcas') || path.startsWith('/servicios') || 
-           path.startsWith('/backup') || path.startsWith('/empresa/configuracion') || 
-           path.startsWith('/empresa/landing-content')) {
-    currentSection = 'configuracion';
-  }
-  // Blog
-  else if (path.startsWith('/admin/blog') || path.startsWith('/gestion-blog') || path.startsWith('/blog')) {
-    currentSection = 'blog';
-  }
-  // Reportes
-  else if (path.startsWith('/reportes') || path.startsWith('/cfdi') || path === '/finanzas') {
-    currentSection = 'reportes';
-  }
-  
-  // Asegurar que la sección actual esté abierta
-  if (currentSection) {
-    defaultState[currentSection] = true;
-  }
-  
   return defaultState;
 };
 
-// Estado del acordeón - inicializado con el estado correcto desde el principio
 const accordionStates = ref(getInitialAccordionState());
 
-// Guardar estado de acordeones en sessionStorage
+/** Al buscar, abrir todas las secciones; al limpiar, restaurar el estado previo. */
+const accordionSnapshotBeforeSearch = ref(null);
+
 const saveAccordionState = () => {
+  const payload = JSON.stringify(accordionStates.value);
   try {
-    sessionStorage.setItem('sidebar_accordion_states', JSON.stringify(accordionStates.value));
-  } catch (e) {
-    // Silently fail if sessionStorage is not available
-  }
+    sessionStorage.setItem(SIDEBAR_ACCORDION_STORAGE_KEY, payload);
+  } catch (e) {}
+  try {
+    localStorage.setItem(SIDEBAR_ACCORDION_STORAGE_KEY, payload);
+  } catch (e) {}
 };
 
-
-
-// Función para alternar acordeón
 const toggleAccordion = (section) => {
-  // Estado deseado: si está abierto, cerrar; si está cerrado, abrir
   const willBeOpen = !accordionStates.value[section];
-  
-  // Si el sidebar está colapsado o queremos abrir una sección
   if (props.isSidebarCollapsed || willBeOpen) {
-    // Cerrar todas las demás y dejar solo esta abierta (si corresponde)
     Object.keys(accordionStates.value).forEach(key => {
       accordionStates.value[key] = key === section;
     });
   } else {
-    // Si queremos cerrar una sección abierta (y no está colapsado)
     accordionStates.value[section] = false;
   }
-  
-  // Guardar estado en sessionStorage
   saveAccordionState();
 };
 
+watch(searchQuery, (q) => {
+  const trimmed = String(q || '').trim();
+  if (trimmed) {
+    if (!accordionSnapshotBeforeSearch.value) {
+      accordionSnapshotBeforeSearch.value = { ...accordionStates.value };
+    }
+    Object.keys(accordionStates.value).forEach((k) => {
+      accordionStates.value[k] = true;
+    });
+  } else if (accordionSnapshotBeforeSearch.value) {
+    const snap = accordionSnapshotBeforeSearch.value;
+    accordionSnapshotBeforeSearch.value = null;
+    Object.keys(accordionStates.value).forEach((k) => {
+      if (Object.prototype.hasOwnProperty.call(snap, k)) {
+        accordionStates.value[k] = snap[k];
+      }
+    });
+    saveAccordionState();
+  }
+});
 
+/** Al navegar (Inertia), dejar solo abierto el acordeón que corresponde a la ruta. */
+watch(
+  () => page.url,
+  (url) => {
+    if (searchQuery.value.trim()) return;
+    const path = pathFromInertiaUrl(url);
+    const section = detectSidebarSectionFromPath(path);
+    if (section) {
+      Object.keys(accordionStates.value).forEach((k) => {
+        accordionStates.value[k] = k === section;
+      });
+      saveAccordionState();
+      nextTick(() => restoreScrollPosition());
+    }
+  },
+);
 
-// Helper para tolerar ausencia de Ziggy route()
 const routeOr = (fallback) => {
   if (typeof route === 'function') {
     try {
       if (fallback === '/cva/importar') return route('cva.import');
       if (fallback === '/admin/blog') return route('admin.blog.index');
+
       return route('backup.index');
-    } catch (e) {
-      return fallback;
-    }
+    } catch (e) { return fallback; }
   }
   return fallback;
 };
 
-// Toggle sidebar
-const toggleSidebar = () => {
-  emit('toggleSidebar');
-};
+const toggleSidebar = () => emit('toggleSidebar');
 
-// On mount
 onMounted(() => {
-  // Guardar el estado actual en sessionStorage para futuras navegaciones
   saveAccordionState();
-  // Restore scroll with our robust multi-attempt function
-  restoreScrollPosition();
+  // Wait for the DOM and accordion animations to settle before restoring scroll
+  nextTick(() => {
+    restoreScrollPosition();
+  });
 });
 </script>
 
-<style scoped>
-/* Accordion animation */
-.accordion-content {
+<style>
+/* All rules scoped under .sidebar-root to avoid global leaking */
+.sidebar-root {
+  background: linear-gradient(180deg, #0a0e1a 0%, #070b15 100%);
+}
+
+/* Accordion animation — must NOT be scoped because SidebarSection
+   is an inline render-function component whose elements don't
+   receive the parent's scoped data-attribute. */
+.sidebar-root .sidebar-accordion {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease-out, opacity 0.2s ease-out;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
   opacity: 0;
 }
-
-.accordion-open {
-  max-height: 1000px;
+.sidebar-root .sidebar-accordion-open {
+  max-height: 1200px;
   opacity: 1;
-  transition: max-height 0.5s ease-in, opacity 0.3s ease-in;
+  transition: max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.05s;
 }
 
-/* Scrollbar styling */
-aside::-webkit-scrollbar {
-  width: 6px;
+/* Custom scrollbar */
+.sidebar-root .sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
 }
-
-aside::-webkit-scrollbar-track {
+.sidebar-root .sidebar-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
-
-aside::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+.sidebar-root .sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
 }
-
-aside::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+.sidebar-root .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 </style>

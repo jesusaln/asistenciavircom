@@ -7,6 +7,7 @@ use Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client as GuzzleClient;
 
 /**
  * Servicio para interactuar con Google Drive API
@@ -16,6 +17,7 @@ class GoogleDriveService
     private ?Client $client = null;
     private ?Drive $driveService = null;
     private ?string $folderId = null;
+    private bool $allowDeletes = false;
 
     /**
      * Inicializar cliente de Google con credenciales
@@ -26,6 +28,8 @@ class GoogleDriveService
             $this->client = new Client();
             $this->client->setApplicationName('CDD Backups');
             $this->client->setScopes([Drive::DRIVE_FILE]);
+            $this->configureHttpClient($this->client);
+            $this->allowDeletes = (bool) config('services.google_drive.allow_deletes', false);
 
             // Configurar credenciales individuales si se proporcionan
             if ($clientId) {
@@ -81,6 +85,7 @@ class GoogleDriveService
         $client->setScopes([Drive::DRIVE_FILE]);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
+        $this->configureHttpClient($client);
 
         if ($state) {
             $client->setState($state);
@@ -99,6 +104,7 @@ class GoogleDriveService
             $client->setClientId($clientId);
             $client->setClientSecret($clientSecret);
             $client->setRedirectUri($redirectUri);
+            $this->configureHttpClient($client);
 
             $token = $client->fetchAccessTokenWithAuthCode($code);
 
@@ -324,6 +330,11 @@ class GoogleDriveService
             return ['success' => false, 'message' => 'Servicio no inicializado'];
         }
 
+        if (!$this->allowDeletes) {
+            Log::warning('Google Drive: delete bloqueado por configuración', ['file_id' => $fileId]);
+            return ['success' => false, 'message' => 'Eliminación deshabilitada por configuración'];
+        }
+
         try {
             $this->driveService->files->delete($fileId);
             Log::info('Google Drive: Archivo eliminado - ' . $fileId);
@@ -370,6 +381,11 @@ class GoogleDriveService
     {
         if (!$this->driveService) {
             return ['success' => false, 'message' => 'Servicio no inicializado'];
+        }
+
+        if (!$this->allowDeletes) {
+            Log::warning('Google Drive: cleanup bloqueado por configuración', ['keep' => $keep]);
+            return ['success' => false, 'message' => 'Eliminación deshabilitada por configuración'];
         }
 
         try {
@@ -424,5 +440,13 @@ class GoogleDriveService
         if ($bytes < 1024 * 1024 * 1024)
             return round($bytes / (1024 * 1024), 1) . ' MB';
         return round($bytes / (1024 * 1024 * 1024), 1) . ' GB';
+    }
+
+    private function configureHttpClient(Client $client): void
+    {
+        $client->setHttpClient(new GuzzleClient([
+            'timeout' => 30,
+            'connect_timeout' => 10,
+        ]));
     }
 }

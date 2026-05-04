@@ -5,27 +5,33 @@ namespace App\Console\Commands;
 use App\Models\Venta;
 use Illuminate\Console\Command;
 
+use App\Console\Traits\EnforcesMaintenanceMode;
+
 class RecalcularCostosHistoricos extends Command
 {
+    use EnforcesMaintenanceMode;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:recalcular-costos-historicos {--venta_id= : ID específico de venta para recalcular}';
+    protected $signature = 'ventas:recalcular-costos {--venta_id= : El ID de la venta específica a recalcular}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Recalcula los costos históricos de las ventas existentes';
+    protected $description = 'Recalcula los costos históricos de las ventas basados en las entradas de almacén';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
+        // 1. Check Maintenance Mode
+        if (!$this->checkMaintenanceMode()) {
+            return 1;
+        }
+
         $ventaId = $this->option('venta_id');
 
         if ($ventaId) {
@@ -62,8 +68,7 @@ class RecalcularCostosHistoricos extends Command
             $this->info("Recalculando costos históricos para todas las ventas...");
             $this->newLine();
 
-            $ventas = Venta::with(['productos', 'items.ventable'])->get();
-            $totalVentas = $ventas->count();
+            $totalVentas = Venta::count();
             $procesadas = 0;
             $errores = 0;
             $cambios = 0;
@@ -71,28 +76,36 @@ class RecalcularCostosHistoricos extends Command
             $bar = $this->output->createProgressBar($totalVentas);
             $bar->start();
 
-            foreach ($ventas as $venta) {
-                try {
-                    $costoAnterior = $venta->calcularCostoTotal();
-                    $venta->recalcularCostosHistoricos();
-                    $costoNuevo = $venta->calcularCostoTotal();
+            // Use chunkById to avoid memory exhaustion
+            Venta::with(['productos', 'items.ventable'])->chunkById(100, function ($ventas) use ($bar, &$procesadas, &$errores, &$cambios) {
+                foreach ($ventas as $venta) {
+                    try {
+                        $costoAnterior = $venta->calcularCostoTotal();
+                        $venta->recalcularCostosHistoricos();
+                        $costoNuevo = $venta->calcularCostoTotal();
 
-                    if (abs($costoNuevo - $costoAnterior) > 0.01) { // Si hay diferencia significativa
-                        $cambios++;
-                        $this->newLine();
-                        $this->line("  <fg=yellow>Venta {$venta->numero_venta}: $" . number_format($costoAnterior, 2) . " → $" . number_format($costoNuevo, 2) . "</>");
+                        if (abs($costoNuevo - $costoAnterior) > 0.01) { // Si hay diferencia significativa
+                            $cambios++;
+                            // Clear progress bar line to print log
+                            $this->output->write("\x0D");
+                            $this->output->write("\x1B[2K");
+                            $this->line("  Venta {$venta->numero_venta}: $" . number_format($costoAnterior, 2) . " → $" . number_format($costoNuevo, 2));
+                            $bar->display(); // Redraw bar
+                        }
+
+                        $procesadas++;
+
+                    } catch (\Exception $e) {
+                        $errores++;
+                        $this->output->write("\x0D");
+                        $this->output->write("\x1B[2K");
+                        $this->error("  Error en venta {$venta->numero_venta}: " . $e->getMessage());
+                        $bar->display();
                     }
 
-                    $procesadas++;
-
-                } catch (\Exception $e) {
-                    $errores++;
-                    $this->newLine();
-                    $this->error("  Error en venta {$venta->numero_venta}: " . $e->getMessage());
+                    $bar->advance();
                 }
-
-                $bar->advance();
-            }
+            });
 
             $bar->finish();
             $this->newLine();

@@ -87,7 +87,7 @@ class AlertaMantenimientoService
             'prioridad' => $mantenimiento->prioridad,
         ];
 
-        $to = config('mail.alertas_mantenimiento_to', env('ALERTAS_MANTENIMIENTO_TO', 'jesuslopeznoriega@hotmail.com'));
+        $to = config('mail.alertas_mantenimiento_to', config('mail.from.address'));
         Mail::to($to)->queue(new AlertaMantenimientoMail($datosAlerta));
 
         $mantenimiento->agregarRecordatorioEnviado('email');
@@ -98,10 +98,14 @@ class AlertaMantenimientoService
         if ($diasRestantes === null) {
             return 'informativa';
         }
-        if ($diasRestantes < 0) return 'vencido';
-        if ($diasRestantes <= 3 || $prioridad === Mantenimiento::PRIORIDAD_CRITICA) return 'critica';
-        if ($diasRestantes <= 7 || $prioridad === Mantenimiento::PRIORIDAD_ALTA) return 'urgente';
-        if ($diasRestantes <= 15) return 'moderada';
+        if ($diasRestantes < 0)
+            return 'vencido';
+        if ($diasRestantes <= 3 || $prioridad === Mantenimiento::PRIORIDAD_CRITICA)
+            return 'critica';
+        if ($diasRestantes <= 7 || $prioridad === Mantenimiento::PRIORIDAD_ALTA)
+            return 'urgente';
+        if ($diasRestantes <= 15)
+            return 'moderada';
         return 'informativa';
     }
 
@@ -140,8 +144,10 @@ class AlertaMantenimientoService
 
         $enviados = 0;
         foreach ($mantenimientos as $mantenimiento) {
+            /** @var \App\Models\Mantenimiento $mantenimiento */
             $count = $this->contarRecordatoriosEnviados($mantenimiento);
-            if ($count >= 3) continue;
+            if ($count >= 3)
+                continue;
 
             $diasDesdeUltimo = $this->getDiasDesdeUltimoRecordatorio($mantenimiento);
             if ($diasDesdeUltimo >= $mantenimiento->frecuencia_recordatorio_dias) {
@@ -162,7 +168,8 @@ class AlertaMantenimientoService
     private function getDiasDesdeUltimoRecordatorio(Mantenimiento $mantenimiento)
     {
         $recordatorios = $mantenimiento->recordatorios_enviados ?? [];
-        if (empty($recordatorios)) return PHP_INT_MAX;
+        if (empty($recordatorios))
+            return PHP_INT_MAX;
         $ultimo = collect($recordatorios)->sortByDesc('timestamp')->first();
         $fechaUltimo = Carbon::parse($ultimo['fecha']);
         return $fechaUltimo->diffInDays(now());
@@ -177,6 +184,21 @@ class AlertaMantenimientoService
             'dias_restantes' => $mantenimiento->dias_restantes,
         ]);
         // Aquí podrías enviar un correo/notification real
+    }
+
+    public function getMantenimientosCriticos()
+    {
+        return [
+            'criticos' => Mantenimiento::where('prioridad', Mantenimiento::PRIORIDAD_CRITICA)
+                ->where('estado', '!=', Mantenimiento::ESTADO_COMPLETADO)
+                ->get(),
+            'vencidos' => Mantenimiento::where('estado', '!=', Mantenimiento::ESTADO_COMPLETADO)
+                ->where('proximo_mantenimiento', '<', now())
+                ->get(),
+            'proximos_3_dias' => Mantenimiento::where('estado', '!=', Mantenimiento::ESTADO_COMPLETADO)
+                ->whereBetween('proximo_mantenimiento', [now(), now()->addDays(3)])
+                ->get(),
+        ];
     }
 }
 

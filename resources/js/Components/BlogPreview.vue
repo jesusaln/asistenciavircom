@@ -13,7 +13,7 @@ const props = defineProps({
                 extracto: 'Descubre cómo los sistemas de cámaras IP de alta resolución pueden transformar la seguridad y el control operativo de tu negocio.',
                 imagen: null,
                 categoria: 'Seguridad',
-                icono: '🛡️',
+                icono: 'shield-halved',
                 fecha: '14 Ene 2026',
                 tiempo_lectura: '5 min',
                 destacado: true,
@@ -24,7 +24,7 @@ const props = defineProps({
                 extracto: 'No esperes a que tu equipo falle. Conoce las ventajas de un mantenimiento proactivo en la infraestructura de TI.',
                 imagen: null,
                 categoria: 'Tecnología',
-                icono: '💻',
+                icono: 'laptop',
                 fecha: '10 Ene 2026',
                 tiempo_lectura: '4 min',
                 destacado: false,
@@ -35,7 +35,7 @@ const props = defineProps({
                 extracto: 'Analizamos las diferencias entre los estándares WiFi y cómo asegurar una conexión estable en todos tus dispositivos.',
                 imagen: null,
                 categoria: 'Redes',
-                icono: '📶',
+                icono: 'globe',
                 fecha: '5 Ene 2026',
                 tiempo_lectura: '6 min',
                 destacado: false,
@@ -45,21 +45,27 @@ const props = defineProps({
 });
 
 const cssVars = computed(() => ({
-    '--color-primary': props.empresa?.color_principal || '#3B82F6',
-    '--color-primary-soft': (props.empresa?.color_principal || '#3B82F6') + '15',
+    '--color-primary': props.empresa?.color_principal || '#FF6B35',
+    '--color-primary-soft': (props.empresa?.color_principal || '#FF6B35') + '15',
 }));
+
+const getBlogIcon = (icono) => {
+    if (!icono) return 'newspaper';
+    const containsEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(icono);
+    return containsEmoji ? 'newspaper' : icono;
+};
 
 const articuloDestacado = computed(() => props.articulos.find(a => a.destacado) || props.articulos[0]);
 const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !== articuloDestacado.value?.id).slice(0, 2));
 </script>
 
 <template>
-    <section id="blog" class="py-24 bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors duration-300" :style="cssVars">
+    <section id="blog" class="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-300" :style="cssVars">
         <!-- Decorative Pattern -->
         <div class="absolute inset-0 opacity-[0.02] dark:opacity-[0.05] pointer-events-none transition-opacity">
             <svg width="100%" height="100%">
                 <pattern id="blogGrid" width="60" height="60" patternUnits="userSpaceOnUse">
-                    <circle cx="30" cy="30" r="1" class="text-gray-900 dark:text-white dark:text-white" fill="currentColor" />
+                    <circle cx="30" cy="30" r="1" class="text-gray-900 dark:text-white" fill="currentColor" />
                 </pattern>
                 <rect width="100%" height="100%" fill="url(#blogGrid)" />
             </svg>
@@ -69,11 +75,13 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
                 <div>
-                    <span class="text-[var(--color-primary)] text-xs font-black uppercase tracking-[0.3em] mb-3 block">📰 Blog & Consejos</span>
-                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">
+                    <span class="text-[var(--color-primary)] text-xs font-black uppercase tracking-[0.3em] mb-3 block">
+                        <font-awesome-icon icon="newspaper" class="mr-1" /> Blog & Consejos
+                    </span>
+                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight transition-colors">
                         Aprende sobre <span class="text-[var(--color-primary)]">Tecnología y Seguridad</span>
                     </h2>
-                    <p class="mt-4 text-gray-500 dark:text-gray-400 dark:text-gray-400 max-w-xl transition-colors">
+                    <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-xl transition-colors">
                         Tips, guías y tendencias de expertos para potenciar y proteger tu empresa u hogar.
                     </p>
                 </div>
@@ -130,7 +138,7 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                         
                         <Link 
                             :href="'/blog/' + articuloDestacado.slug" 
-                            class="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 text-gray-900 dark:text-white rounded-xl font-bold text-sm hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl font-bold text-sm hover:bg-[var(--color-primary)] hover:text-white transition-all duration-300"
                         >
                             Leer artículo
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +153,7 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                     <article 
                         v-for="articulo in articulosSecundarios" 
                         :key="articulo.id"
-                        class="group bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-[var(--color-primary)]/20 transition-all duration-300"
+                        class="group bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:border-[var(--color-primary)]/20 transition-all duration-300"
                     >
                         <div class="flex">
                             <!-- Thumbnail -->
@@ -156,7 +164,9 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                                     :alt="articulo.titulo"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 >
-                                <span v-else class="text-5xl opacity-50">{{ articulo.icono }}</span>
+                                <span v-else class="text-5xl opacity-50">
+                                    <font-awesome-icon :icon="getBlogIcon(articulo.icono)" />
+                                </span>
                             </div>
                             
                             <!-- Content -->
@@ -168,11 +178,11 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                                     <span class="text-gray-400 text-xs">{{ articulo.tiempo_lectura }}</span>
                                 </div>
                                 
-                                <h3 class="font-bold text-gray-900 dark:text-white dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
+                                <h3 class="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">
                                     {{ articulo.titulo }}
                                 </h3>
                                 
-                                <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 line-clamp-2 mb-4 transition-colors">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4 transition-colors">
                                     {{ articulo.extracto }}
                                 </p>
                                 
@@ -190,16 +200,16 @@ const articulosSecundarios = computed(() => props.articulos.filter(a => a.id !==
                     <div class="bg-[var(--color-primary-soft)] rounded-2xl p-6 border border-[var(--color-primary)]/10">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 bg-[var(--color-primary)] rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
-                                📧
+                                <font-awesome-icon icon="envelope" />
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 dark:text-white mb-1">Recibe consejos cada semana</h4>
+                                <h4 class="font-bold text-gray-900 mb-1">Recibe consejos cada semana</h4>
                                 <p class="text-sm text-gray-600 mb-4">Tips exclusivos sobre seguridad, redes y mantenimiento de equipo.</p>
                                 <div class="flex gap-2">
                                     <input 
                                         type="email"
                                         placeholder="tu@email.com"
-                                        class="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-800 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none text-sm"
+                                        class="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all outline-none text-sm"
                                     >
                                     <button class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg font-bold text-sm hover:shadow-lg transition-all">
                                         Suscribir

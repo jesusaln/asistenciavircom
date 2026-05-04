@@ -5,15 +5,12 @@ namespace App\Actions\Fortify;
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
-use App\Traits\ImageOptimizerTrait;
 
 class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {
-    use ImageOptimizerTrait;
     /**
      * Validate and update the given user's profile information.
      *
@@ -24,18 +21,14 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'photo' => ['nullable', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
+            'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
         ])->validateWithBag('updateProfileInformation');
 
         if (isset($input['photo'])) {
             // Convertir el archivo de Inertia.js a UploadedFile si es necesario
             $photo = $this->convertToUploadedFile($input['photo']);
             if ($photo) {
-                if ($user->profile_photo_path) {
-                    Storage::disk('public')->delete($user->profile_photo_path);
-                }
-                $photoPath = $this->saveImageAsWebP($photo, 'profile-photos');
-                $user->forceFill(['profile_photo_path' => $photoPath])->save();
+                $user->updateProfilePhoto($photo);
             }
         }
 

@@ -1,192 +1,158 @@
 <template>
     <AppLayout title="Editar Cuenta por Cobrar">
         <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
-                    Editar Cuenta por Cobrar
-                </h2>
+            <div class="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center">
+                <div>
+                    <h2 class="font-semibold text-xl text-zinc-100 leading-tight">
+                        Editar cuenta por cobrar
+                    </h2>
+                    <p class="text-xs text-zinc-500 mt-0.5">#{{ cuenta.id }} · Actualizar vencimiento, notas y registrar pagos</p>
+                </div>
                 <Link
                     :href="route('cuentas-por-cobrar.index')"
-                    class="bg-white dark:bg-slate-9000 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    class="mt-2 sm:mt-0 inline-flex items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-700/90"
                 >
-                    Cancelar
+                    Listado
                 </Link>
             </div>
         </template>
 
-        <div class="py-12">
-            <div class="w-full sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
-                        <!-- Información de la Venta -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Información de la Venta</h3>
-                            <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Número de Venta</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.venta?.numero_venta || 'N/A' }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Cliente</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.venta?.cliente?.nombre_razon_social || 'N/A' }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Total de la Venta</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ cuenta.venta ? formatCurrency(cuenta.venta.total) : 'N/A' }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Estado Actual</label>
-                                        <span :class="{
-                                            'bg-red-100 text-red-800': cuenta.estado === 'vencido',
-                                            'bg-yellow-100 text-yellow-800': cuenta.estado === 'parcial',
-                                            'bg-green-100 text-green-800': cuenta.estado === 'pagado',
-                                            'bg-gray-100 text-gray-800 dark:text-gray-100': cuenta.estado === 'pendiente'
-                                        }" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                            {{ cuenta.estado }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="min-h-[calc(100vh-8rem)] bg-gradient-to-b from-zinc-950 via-zinc-900 to-black py-10 px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-4xl space-y-8">
+                <div class="rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/10 via-zinc-900/40 to-zinc-950 p-6 shadow-xl shadow-black/40">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80">Venta origen</p>
+                            <p class="mt-1 text-lg font-semibold text-zinc-100">{{ cuenta.venta?.numero_venta || '—' }}</p>
+                            <p class="text-sm text-zinc-400">{{ cuenta.venta?.cliente?.nombre_razon_social || 'N/A' }}</p>
                         </div>
-
-                        <!-- Información de Pagos -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Estado de Pagos</h3>
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-blue-700">Monto Total</label>
-                                        <p class="mt-1 text-lg font-semibold text-blue-900">{{ formatCurrency(cuenta.monto_total) }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-blue-700">Monto Pagado</label>
-                                        <p class="mt-1 text-lg font-semibold text-green-600">{{ formatCurrency(cuenta.monto_pagado) }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-blue-700">Monto Pendiente</label>
-                                        <p class="mt-1 text-lg font-semibold text-red-600">{{ formatCurrency(cuenta.monto_pendiente) }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <span
+                            :class="badgeEstado(cuenta.estado)"
+                            class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize"
+                        >
+                            {{ cuenta.estado }}
+                        </span>
+                    </div>
+                    <div class="mt-5 grid grid-cols-2 gap-4 border-t border-zinc-700/40 pt-5 md:grid-cols-4">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-zinc-500">Total venta</span>
+                            <p class="mt-0.5 font-semibold tabular-nums text-zinc-200">{{ cuenta.venta ? formatCurrency(cuenta.venta.total) : '—' }}</p>
                         </div>
-
-                        <form @submit.prevent="submit">
-                            <!-- Registrar Pago -->
-                            <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Registrar Nuevo Pago</h3>
-                                <div class="bg-green-50 p-4 rounded-lg">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="monto_pago" class="block text-sm font-medium text-gray-700">
-                                                Monto del Pago
-                                            </label>
-                                            <input
-                                                v-model="pagoForm.monto"
-                                                type="number"
-                                                step="0.01"
-                                                id="monto_pago"
-                                                :max="montoPendiente"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                                :class="{ 'border-red-500': pagoForm.errors.monto }"
-                                                placeholder="0.00"
-                                            />
-                                            <p v-if="pagoForm.errors.monto" class="mt-2 text-sm text-red-600">
-                                                {{ pagoForm.errors.monto }}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <label for="notas_pago" class="block text-sm font-medium text-gray-700">
-                                                Notas del Pago
-                                            </label>
-                                            <input
-                                                v-model="pagoForm.notas"
-                                                type="text"
-                                                id="notas_pago"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                                :class="{ 'border-red-500': pagoForm.errors.notas }"
-                                                placeholder="Referencia del pago..."
-                                            />
-                                            <p v-if="pagoForm.errors.notas" class="mt-2 text-sm text-red-600">
-                                                {{ pagoForm.errors.notas }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-4">
-                                        <button
-                                            type="button"
-                                            @click="registrarPago"
-                                            :disabled="pagoForm.processing || !pagoForm.monto"
-                                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-                                        >
-                                            <span v-if="pagoForm.processing">Registrando...</span>
-                                            <span v-else>Registrar Pago</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Editar Información -->
-                            <div class="mb-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Editar Información</h3>
-                                <div class="bg-white dark:bg-slate-900 p-4 rounded-lg">
-                                    <!-- Fecha de Vencimiento -->
-                                    <div class="mb-4">
-                                        <label for="fecha_vencimiento" class="block text-sm font-medium text-gray-700">
-                                            Fecha de Vencimiento
-                                        </label>
-                                        <input
-                                            v-model="form.fecha_vencimiento"
-                                            type="date"
-                                            id="fecha_vencimiento"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
-                                            :class="{ 'border-red-500': form.errors.fecha_vencimiento }"
-                                        />
-                                        <p v-if="form.errors.fecha_vencimiento" class="mt-2 text-sm text-red-600">
-                                            {{ form.errors.fecha_vencimiento }}
-                                        </p>
-                                    </div>
-
-                                    <!-- Notas -->
-                                    <div class="mb-4">
-                                        <label for="notas" class="block text-sm font-medium text-gray-700">
-                                            Notas
-                                        </label>
-                                        <textarea
-                                            v-model="form.notas"
-                                            id="notas"
-                                            rows="4"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
-                                            :class="{ 'border-red-500': form.errors.notas }"
-                                            placeholder="Notas adicionales sobre la cuenta por cobrar..."
-                                        ></textarea>
-                                        <p v-if="form.errors.notas" class="mt-2 text-sm text-red-600">
-                                            {{ form.errors.notas }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Botones -->
-                            <div class="flex items-center justify-end">
-                                <Link
-                                    :href="route('cuentas-por-cobrar.show', cuenta.id)"
-                                    class="mr-4 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:text-gray-100 font-bold py-2 px-4 rounded"
-                                >
-                                    Ver Detalles
-                                </Link>
-                                <button
-                                    type="submit"
-                                    :disabled="form.processing"
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-                                >
-                                    <span v-if="form.processing">Guardando...</span>
-                                    <span v-else>Guardar Cambios</span>
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
+
+                <div class="rounded-2xl border border-zinc-700/50 bg-zinc-900/50 p-6 shadow-xl backdrop-blur-md md:p-8">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Saldos</h3>
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div class="rounded-xl border border-zinc-700/60 bg-zinc-950/60 p-4">
+                            <span class="text-[10px] uppercase tracking-wider text-zinc-500">Monto total</span>
+                            <p class="mt-1 text-xl font-bold tabular-nums text-amber-200">{{ formatCurrency(cuenta.monto_total) }}</p>
+                        </div>
+                        <div class="rounded-xl border border-emerald-500/20 bg-emerald-950/30 p-4">
+                            <span class="text-[10px] uppercase tracking-wider text-emerald-400/80">Pagado</span>
+                            <p class="mt-1 text-xl font-bold tabular-nums text-emerald-300">{{ formatCurrency(cuenta.monto_pagado) }}</p>
+                        </div>
+                        <div class="rounded-xl border border-rose-500/20 bg-rose-950/20 p-4">
+                            <span class="text-[10px] uppercase tracking-wider text-rose-300/80">Pendiente</span>
+                            <p class="mt-1 text-xl font-bold tabular-nums text-rose-200">{{ formatCurrency(cuenta.monto_pendiente) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-zinc-700/50 bg-zinc-900/60 shadow-2xl backdrop-blur-md">
+                    <div class="border-b border-zinc-700/50 px-6 py-4 md:px-8">
+                        <h3 class="text-sm font-semibold text-zinc-200">Registrar pago</h3>
+                        <p class="text-xs text-zinc-500">Abono parcial hacia el saldo pendiente</p>
+                    </div>
+                    <div class="p-6 md:p-8">
+                        <div class="rounded-xl border border-emerald-500/15 bg-emerald-950/20 p-5">
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                    <label for="monto_pago" class="text-xs font-medium uppercase tracking-wider text-zinc-400">Monto del pago</label>
+                                    <input
+                                        v-model="pagoForm.monto"
+                                        type="number"
+                                        step="0.01"
+                                        id="monto_pago"
+                                        :max="montoPendiente"
+                                        class="input-cxc mt-2"
+                                        :class="{ 'ring-2 ring-red-500/40': pagoForm.errors.monto }"
+                                        placeholder="0.00"
+                                    />
+                                    <p v-if="pagoForm.errors.monto" class="mt-2 text-sm text-red-400">{{ pagoForm.errors.monto }}</p>
+                                </div>
+                                <div>
+                                    <label for="notas_pago" class="text-xs font-medium uppercase tracking-wider text-zinc-400">Notas / referencia</label>
+                                    <input
+                                        v-model="pagoForm.notas"
+                                        type="text"
+                                        id="notas_pago"
+                                        class="input-cxc mt-2"
+                                        :class="{ 'ring-2 ring-red-500/40': pagoForm.errors.notas }"
+                                        placeholder="Folio, banco…"
+                                    />
+                                    <p v-if="pagoForm.errors.notas" class="mt-2 text-sm text-red-400">{{ pagoForm.errors.notas }}</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                @click="registrarPago"
+                                :disabled="pagoForm.processing || !pagoForm.monto"
+                                class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                            >
+                                <span v-if="pagoForm.processing">Registrando…</span>
+                                <span v-else>Registrar pago</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <form @submit.prevent="submit" class="rounded-2xl border border-zinc-700/50 bg-zinc-900/60 shadow-2xl backdrop-blur-md">
+                    <div class="border-b border-zinc-700/50 px-6 py-4 md:px-8">
+                        <h3 class="text-sm font-semibold text-zinc-200">Editar información</h3>
+                    </div>
+                    <div class="space-y-6 p-6 md:p-8">
+                        <div>
+                            <label for="fecha_vencimiento" class="text-xs font-medium uppercase tracking-wider text-zinc-400">Fecha de vencimiento</label>
+                            <input
+                                v-model="form.fecha_vencimiento"
+                                type="date"
+                                id="fecha_vencimiento"
+                                class="input-cxc mt-2"
+                                :class="{ 'ring-2 ring-red-500/40': form.errors.fecha_vencimiento }"
+                            />
+                            <p v-if="form.errors.fecha_vencimiento" class="mt-2 text-sm text-red-400">{{ form.errors.fecha_vencimiento }}</p>
+                        </div>
+                        <div>
+                            <label for="notas" class="text-xs font-medium uppercase tracking-wider text-zinc-400">Notas</label>
+                            <textarea
+                                v-model="form.notas"
+                                id="notas"
+                                rows="4"
+                                class="input-cxc mt-2 min-h-[100px]"
+                                :class="{ 'ring-2 ring-red-500/40': form.errors.notas }"
+                                placeholder="Notas internas o acuerdos con el cliente…"
+                            />
+                            <p v-if="form.errors.notas" class="mt-2 text-sm text-red-400">{{ form.errors.notas }}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col-reverse gap-3 border-t border-zinc-700/50 px-6 py-5 md:flex-row md:justify-end md:px-8">
+                        <Link
+                            :href="route('cuentas-por-cobrar.show', cuenta.id)"
+                            class="inline-flex items-center justify-center rounded-xl border border-zinc-600 px-5 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
+                        >
+                            Ver detalle
+                        </Link>
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-2.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-900/25 transition hover:from-amber-400 hover:to-amber-500 disabled:opacity-50"
+                        >
+                            <span v-if="form.processing">Guardando…</span>
+                            <span v-else>Guardar cambios</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </AppLayout>
@@ -203,6 +169,16 @@ const props = defineProps({
         required: true,
     },
 });
+
+const badgeEstado = (estado) => {
+    const map = {
+        vencido: 'bg-rose-500/15 text-rose-200 ring-1 ring-rose-500/30',
+        parcial: 'bg-amber-500/15 text-amber-100 ring-1 ring-amber-400/25',
+        pagado: 'bg-emerald-500/15 text-emerald-100 ring-1 ring-emerald-400/25',
+        pendiente: 'bg-zinc-500/20 text-zinc-200 ring-1 ring-zinc-500/30',
+    };
+    return map[estado] || map.pendiente;
+};
 
 const currencyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
 
@@ -231,9 +207,6 @@ const pagoForm = useForm({
 
 const submit = () => {
     form.put(route('cuentas-por-cobrar.update', props.cuenta.id), {
-        onSuccess: () => {
-            // Redirigir al show
-        },
         onError: (errors) => {
             console.error('Errores:', errors);
         },
@@ -243,7 +216,6 @@ const submit = () => {
 const registrarPago = () => {
     pagoForm.post(route('cuentas-por-cobrar.registrar-pago', props.cuenta.id), {
         onSuccess: () => {
-            // Limpiar formulario y recargar página
             pagoForm.reset();
             window.location.reload();
         },
@@ -254,4 +226,9 @@ const registrarPago = () => {
 };
 </script>
 
-
+<style scoped>
+.input-cxc {
+    @apply block w-full rounded-xl border border-zinc-600/80 bg-zinc-950/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 shadow-inner shadow-black/20 transition;
+    @apply focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/25;
+}
+</style>

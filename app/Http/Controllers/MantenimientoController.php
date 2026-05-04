@@ -4,23 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Mantenimiento;
 use App\Http\Requests\StoreMantenimientoRequest;
+use App\Http\Requests\UpdateMantenimientoRequest;
+use App\Models\Carro;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use App\Services\Mantenimiento\MantenimientoStatsService;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MantenimientoController extends Controller
 {
+    protected $statsService;
+
+    public function __construct(MantenimientoStatsService $statsService)
+    {
+        $this->statsService = $statsService;
+    }
     /**
      * Obtener servicios existentes de un vehículo por tipo
      */
-    public function getServiciosPorTipo(Request $request, $carroId, $tipoServicio): JsonResponse
+    public function getServiciosPorTipo(Request $request, int $carro, string $tipoServicio): JsonResponse
     {
         try {
+            $tipoServicio = urldecode($tipoServicio);
             // Buscar mantenimientos del vehículo con el tipo específico
-            $servicios = Mantenimiento::where('carro_id', $carroId)
+            $servicios = Mantenimiento::where('carro_id', $carro)
                 ->where('tipo', $tipoServicio)
                 ->select('id', 'tipo', 'fecha', 'created_at')
                 ->orderBy('fecha', 'desc')
@@ -124,59 +135,7 @@ class MantenimientoController extends Controller
      */
     public function calcularEstadoMantenimiento(Mantenimiento $mantenimiento): array
     {
-        $hoy = Carbon::today();
-        $proximo = Carbon::parse($mantenimiento->proximo_mantenimiento);
-
-        // Si ya está completado, excluir de alertas
-        if ($mantenimiento->estado === 'completado') {
-            return [
-                'estado' => 'completado',
-                'descripcion' => 'Servicio completado',
-                'clase' => 'text-green-700 bg-green-100',
-                'dias_restantes' => 0,
-                'es_vencido' => false,
-                'es_proximo' => false
-            ];
-        }
-
-        // Calcular fecha de alerta
-        $alertAt = $this->calcularFechaAlerta($mantenimiento->proximo_mantenimiento, $mantenimiento->dias_anticipacion_alerta);
-
-        // Calcular días restantes
-        $diasRestantes = $hoy->diffInDays($proximo, false); // false para incluir signo negativo
-
-        // Aplicar reglas de negocio
-        if ($proximo->lessThan($hoy)) {
-            // VENCIDO: proximo_mantenimiento < hoy y estado != completado
-            return [
-                'estado' => 'vencido',
-                'descripcion' => "Vencido hace {$hoy->diffInDays($proximo)} días",
-                'clase' => 'text-red-700 bg-red-100',
-                'dias_restantes' => $diasRestantes,
-                'es_vencido' => true,
-                'es_proximo' => false
-            ];
-        } elseif ($alertAt->lessThanOrEqualTo($hoy) && $hoy->lessThan($proximo)) {
-            // POR VENCER: alert_at <= hoy <= proximo_mantenimiento y estado != completado
-            return [
-                'estado' => 'por_vencer',
-                'descripcion' => "Vence en {$diasRestantes} días (alerta activa)",
-                'clase' => 'text-orange-700 bg-orange-100',
-                'dias_restantes' => $diasRestantes,
-                'es_vencido' => false,
-                'es_proximo' => true
-            ];
-        } else {
-            // AL DÍA: hoy < alert_at y estado != completado
-            return [
-                'estado' => 'al_dia',
-                'descripcion' => "Próximo en {$diasRestantes} días",
-                'clase' => 'text-blue-700 bg-blue-100',
-                'dias_restantes' => $diasRestantes,
-                'es_vencido' => false,
-                'es_proximo' => false
-            ];
-        }
+        return $this->statsService->getEstadoMetadata($mantenimiento);
     }
 
     /**
@@ -185,44 +144,7 @@ class MantenimientoController extends Controller
     public function getEstadisticasMantenimientos(): JsonResponse
     {
         try {
-            $mantenimientos = Mantenimiento::with('carro')
-                ->where('estado', '!=', 'completado')
-                ->get();
-
-            $estadisticas = [
-                'total_activos' => $mantenimientos->count(),
-                'vencidos' => 0,
-                'por_vencer' => 0,
-                'al_dia' => 0,
-                'detalles' => []
-            ];
-
-            foreach ($mantenimientos as $mantenimiento) {
-                $estado = $this->calcularEstadoMantenimiento($mantenimiento);
-
-                switch ($estado['estado']) {
-                    case 'vencido':
-                        $estadisticas['vencidos']++;
-                        break;
-                    case 'por_vencer':
-                        $estadisticas['por_vencer']++;
-                        break;
-                    case 'al_dia':
-                        $estadisticas['al_dia']++;
-                        break;
-                }
-
-                $estadisticas['detalles'][] = [
-                    'id' => $mantenimiento->id,
-                    'vehiculo' => $mantenimiento->carro->marca . ' ' . $mantenimiento->carro->modelo,
-                    'tipo' => $mantenimiento->tipo,
-                    'estado' => $estado,
-                    'dias_restantes' => $estado['dias_restantes']
-                ];
-            }
-
-            return response()->json($estadisticas);
-
+            return response()->json($this->statsService->getConsolidatedStats());
         } catch (\Exception $e) {
             Log::error('Error obteniendo estadísticas de mantenimientos: ' . $e->getMessage());
             return response()->json(['error' => 'Error interno del servidor'], 500);
@@ -257,7 +179,8 @@ class MantenimientoController extends Controller
     {
         try {
             $mantenimiento->load(['carro']);
-            $carros = \App\Models\Carro::select('id', 'marca', 'modelo', 'placa', 'kilometraje')
+            $carros = Carro::query()
+                ->select('id', 'marca', 'modelo', 'anio', 'placa', 'kilometraje')
                 ->where('activo', true)
                 ->orderBy('marca')
                 ->orderBy('modelo')
@@ -265,7 +188,8 @@ class MantenimientoController extends Controller
 
             return Inertia::render('Mantenimientos/Edit', [
                 'mantenimiento' => $mantenimiento,
-                'carros' => $carros
+                'carros' => $carros,
+                'tiposMantenimiento' => $this->getTiposMantenimiento(),
             ]);
 
         } catch (\Exception $e) {
@@ -273,6 +197,7 @@ class MantenimientoController extends Controller
             return Inertia::render('Mantenimientos/Edit', [
                 'mantenimiento' => null,
                 'carros' => [],
+                'tiposMantenimiento' => [],
                 'error' => 'Error al cargar el formulario de edición'
             ]);
         }
@@ -281,25 +206,13 @@ class MantenimientoController extends Controller
     /**
      * Actualizar mantenimiento
      */
-    public function update(Request $request, Mantenimiento $mantenimiento): \Illuminate\Http\RedirectResponse
+    public function update(UpdateMantenimientoRequest $request, Mantenimiento $mantenimiento): \Illuminate\Http\RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'carro_id' => 'required|integer|exists:carros,id',
-                'tipo' => 'required|string|max:100',
-                'fecha' => 'required|date|before_or_equal:today',
-                'proximo_mantenimiento' => 'required|date|after:fecha',
-                'kilometraje_actual' => 'required|integer|min:0',
-                'costo' => 'nullable|numeric|min:0',
-                'taller' => 'nullable|string|max:100',
-                'prioridad' => 'required|in:baja,media,alta,critica',
-                'dias_anticipacion_alerta' => 'required|integer|min:1|max:365',
-                'requiere_aprobacion' => 'boolean',
-                'observaciones_alerta' => 'nullable|string|max:500',
-                'notas' => 'nullable|string|max:1000',
-            ]);
+            $validated = $this->normalizeMantenimientoPayload($request->validated());
 
             $mantenimiento->update($validated);
+            $this->syncCarroKilometrajeIfNeeded($mantenimiento->fresh());
 
             Log::info('Mantenimiento actualizado exitosamente', [
                 'id' => $mantenimiento->id,
@@ -346,9 +259,11 @@ class MantenimientoController extends Controller
     public function store(StoreMantenimientoRequest $request): \Illuminate\Http\RedirectResponse
     {
         try {
-            $validated = $request->validated();
+            $validated = $this->normalizeMantenimientoPayload($request->validated());
+            $validated['estado'] = $validated['estado'] ?? Mantenimiento::ESTADO_PENDIENTE;
 
             $mantenimiento = Mantenimiento::create($validated);
+            $this->syncCarroKilometrajeIfNeeded($mantenimiento);
 
             Log::info('Mantenimiento creado exitosamente', [
                 'id' => $mantenimiento->id,
@@ -373,7 +288,8 @@ class MantenimientoController extends Controller
     public function create(): Response
     {
         try {
-            $carros = \App\Models\Carro::select('id', 'marca', 'modelo', 'placa', 'kilometraje')
+            $carros = Carro::query()
+                ->select('id', 'marca', 'modelo', 'anio', 'placa', 'kilometraje')
                 ->where('activo', true)
                 ->orderBy('marca')
                 ->orderBy('modelo')
@@ -399,31 +315,7 @@ class MantenimientoController extends Controller
     {
         try {
             $query = Mantenimiento::with('carro');
-
-            // Filtros
-            if ($search = trim($request->input('search', ''))) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('tipo', 'like', "%{$search}%")
-                      ->orWhere('descripcion', 'like', "%{$search}%")
-                      ->orWhereHas('carro', function ($carroQuery) use ($search) {
-                          $carroQuery->where('marca', 'like', "%{$search}%")
-                                    ->orWhere('modelo', 'like', "%{$search}%")
-                                    ->orWhere('placa', 'like', "%{$search}%");
-                      });
-                });
-            }
-
-            if ($estado = $request->input('estado')) {
-                $query->where('estado', $estado);
-            }
-
-            if ($tipo = $request->input('tipo')) {
-                $query->where('tipo', $tipo);
-            }
-
-            if ($carroId = $request->input('carro_id')) {
-                $query->where('carro_id', $carroId);
-            }
+            $this->applyMantenimientoIndexFilters($query, $request);
 
             // Ordenamiento
             $sortBy = $request->input('sort_by', 'fecha');
@@ -440,20 +332,14 @@ class MantenimientoController extends Controller
             $perPage = min((int) $request->input('per_page', 10), 50);
             $mantenimientos = $query->paginate($perPage)->appends($request->query());
 
-            // Calcular días restantes para cada mantenimiento
-            foreach ($mantenimientos->items() as $mantenimiento) {
-                if ($mantenimiento->proximo_mantenimiento) {
-                    $fechaProximo = Carbon::parse($mantenimiento->proximo_mantenimiento);
-                    $fechaHoy = Carbon::now('America/Hermosillo'); // Usar zona horaria correcta
-                    $diasRestantes = round($fechaHoy->diffInDays($fechaProximo, false)); // Redondear a número entero
+            // Enriquecer cada mantenimiento con metadatos de estado
+            $mantenimientos->getCollection()->transform(function ($mantenimiento) {
+                $mantenimiento->estado_metadata = $this->statsService->getEstadoMetadata($mantenimiento);
+                return $mantenimiento;
+            });
 
-                    $mantenimiento->dias_restantes = $diasRestantes;
-                } else {
-                    $mantenimiento->dias_restantes = null;
-                }
-            }
-
-            // Estadísticas
+            $filtros = $request->only(['search', 'estado', 'tipo', 'carro_id', 'prioridad']);
+            $estadisticasPanel = $this->estadisticasParaPanel();
             $stats = [
                 'total' => Mantenimiento::count(),
                 'completados' => Mantenimiento::where('estado', Mantenimiento::ESTADO_COMPLETADO)->count(),
@@ -463,8 +349,7 @@ class MantenimientoController extends Controller
                 'proximos_vencer' => $this->getMantenimientosProximosAVencer(30)->count(),
             ];
 
-            // Obtener carros activos para el filtro
-            $carros = \App\Models\Carro::where('activo', true)
+            $carros = Carro::query()->where('activo', true)
                 ->orderBy('marca', 'asc')
                 ->orderBy('modelo', 'asc')
                 ->get();
@@ -472,7 +357,9 @@ class MantenimientoController extends Controller
             return Inertia::render('Mantenimientos/Index', [
                 'mantenimientos' => $mantenimientos,
                 'stats' => $stats,
-                'filters' => $request->only(['search', 'estado', 'tipo', 'carro_id']),
+                'estadisticas' => $estadisticasPanel,
+                'filters' => $filtros,
+                'filtros' => $filtros,
                 'sorting' => ['sort_by' => $sortBy, 'sort_direction' => $sortDirection],
                 'carros' => $carros,
                 'tiposMantenimiento' => $this->getTiposMantenimiento(),
@@ -482,11 +369,123 @@ class MantenimientoController extends Controller
             return Inertia::render('Mantenimientos/Index', [
                 'mantenimientos' => collect(),
                 'stats' => [],
+                'estadisticas' => [],
                 'filters' => [],
+                'filtros' => [],
                 'carros' => [],
                 'tiposMantenimiento' => [],
                 'error' => 'Error al cargar los mantenimientos.'
             ]);
+        }
+    }
+
+    /**
+     * CSV simple de mantenimientos (respeta filtros del índice).
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $query = Mantenimiento::query()->with('carro')->orderByDesc('fecha');
+        $this->applyMantenimientoIndexFilters($query, $request);
+
+        $filename = 'mantenimientos_flota_' . now()->format('Y-m-d_His') . '.csv';
+
+        return response()->streamDownload(function () use ($query) {
+            $out = fopen('php://output', 'w');
+            if ($out === false) {
+                return;
+            }
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['ID', 'Folio', 'Vehículo', 'Placa', 'Tipo', 'Fecha servicio', 'Próximo', 'Estado', 'KM registro', 'Costo']);
+            foreach ($query->cursor() as $m) {
+                $v = $m->carro;
+                fputcsv($out, [
+                    $m->id,
+                    $m->folio ?? '',
+                    $v ? trim(($v->marca ?? '') . ' ' . ($v->modelo ?? '')) : '',
+                    $v->placa ?? '',
+                    $m->tipo,
+                    $m->fecha?->format('Y-m-d') ?? '',
+                    $m->proximo_mantenimiento?->format('Y-m-d') ?? '',
+                    $m->estado,
+                    $m->kilometraje_actual,
+                    $m->costo,
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Filtros compartidos entre el listado y la exportación.
+     */
+    private function applyMantenimientoIndexFilters($query, Request $request): void
+    {
+        if ($search = trim((string) $request->input('search', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('tipo', 'like', "%{$search}%")
+                    ->orWhere('descripcion', 'like', "%{$search}%")
+                    ->orWhere('notas', 'like', "%{$search}%")
+                    ->orWhereHas('carro', function ($carroQuery) use ($search) {
+                        $carroQuery->where('marca', 'like', "%{$search}%")
+                            ->orWhere('modelo', 'like', "%{$search}%")
+                            ->orWhere('placa', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($estado = $request->input('estado')) {
+            $query->where('estado', $estado);
+        }
+
+        if ($tipo = $request->input('tipo')) {
+            $query->where('tipo', $tipo);
+        }
+
+        if ($carroId = $request->input('carro_id')) {
+            $query->where('carro_id', $carroId);
+        }
+
+        if ($prioridad = $request->input('prioridad')) {
+            $query->where('prioridad', $prioridad);
+        }
+    }
+
+    /**
+     * Totales para el panel (vencido / por vencer / al día según reglas de negocio).
+     */
+    private function estadisticasParaPanel(): array
+    {
+        return $this->statsService->getConsolidatedStats();
+    }
+
+    private function normalizeMantenimientoPayload(array $data): array
+    {
+        if (($data['tipo'] ?? '') === 'Otro servicio' && !empty($data['otro_servicio'])) {
+            $suffix = trim((string) $data['otro_servicio']);
+            $existing = trim((string) ($data['descripcion'] ?? ''));
+            $data['descripcion'] = $existing === ''
+                ? $suffix
+                : $existing . ' — ' . $suffix;
+        }
+        unset($data['otro_servicio']);
+
+        return $data;
+    }
+
+    private function syncCarroKilometrajeIfNeeded(Mantenimiento $mantenimiento): void
+    {
+        if (!$mantenimiento->carro_id || $mantenimiento->kilometraje_actual === null) {
+            return;
+        }
+
+        $carro = Carro::query()->find($mantenimiento->carro_id);
+        if (!$carro) {
+            return;
+        }
+
+        $km = (int) $mantenimiento->kilometraje_actual;
+        if ($km >= (int) $carro->kilometraje) {
+            $carro->update(['kilometraje' => $km]);
         }
     }
 
@@ -638,6 +637,9 @@ class MantenimientoController extends Controller
                 $this->generarMantenimientoRecurrente($mantenimiento);
             }
 
+            $mantenimiento->refresh();
+            $this->syncCarroKilometrajeIfNeeded($mantenimiento);
+
             Log::info('Mantenimiento completado exitosamente', [
                 'mantenimiento_id' => $mantenimiento->id,
                 'nuevo_estado' => $mantenimiento->estado
@@ -705,7 +707,7 @@ class MantenimientoController extends Controller
     {
         try {
             $validated = $request->validate([
-                'nueva_fecha' => 'required|date|after:today',
+                'nueva_fecha' => 'required|date|after_or_equal:today',
                 'nueva_prioridad' => 'nullable|in:baja,media,alta,critica',
                 'nuevo_tipo' => 'nullable|string|max:100',
                 'motivo' => 'nullable|string|max:255'

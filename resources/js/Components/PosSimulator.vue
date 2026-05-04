@@ -164,9 +164,9 @@ const resetSimulator = () => {
 };
 
 const cssVars = computed(() => ({
-    '--color-primary': props.empresa?.color_principal || '#3B82F6',
-    '--color-primary-soft': (props.empresa?.color_principal || '#3B82F6') + '15',
-    '--color-primary-dark': (props.empresa?.color_principal || '#3B82F6') + 'dd',
+    '--color-primary': props.empresa?.color_principal || '#FF6B35',
+    '--color-primary-soft': (props.empresa?.color_principal || '#FF6B35') + '15',
+    '--color-primary-dark': (props.empresa?.color_principal || '#FF6B35') + 'dd',
 }));
 </script>
 
@@ -182,7 +182,7 @@ const cssVars = computed(() => ({
                         
                         <div class="relative z-10">
                             <div class="w-16 h-16 bg-[var(--color-primary-soft)] rounded-2xl flex items-center justify-center text-3xl mb-6">
-                                💻
+                                <font-awesome-icon icon="laptop" />
                             </div>
                             
                             <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-3 opacity-90">Asesor Inteligente</h2>
@@ -194,21 +194,21 @@ const cssVars = computed(() => ({
                             
                             <div class="space-y-3 mb-8">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white dark:bg-slate-900/10 rounded-lg flex items-center justify-center text-sm">✓</div>
+                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm"><font-awesome-icon icon="check" /></div>
                                     <span class="text-sm text-gray-300">Respaldo técnico <span class="text-white font-bold">24/7 incluido</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white dark:bg-slate-900/10 rounded-lg flex items-center justify-center text-sm">✓</div>
+                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm"><font-awesome-icon icon="check" /></div>
                                     <span class="text-sm text-gray-300">Software especializado <span class="text-white font-bold">SoftRestaurant / Eleventa</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white dark:bg-slate-900/10 rounded-lg flex items-center justify-center text-sm">✓</div>
+                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm"><font-awesome-icon icon="check" /></div>
                                     <span class="text-sm text-gray-300">Equipamiento de <span class="text-white font-bold">última generación</span></span>
                                 </div>
                             </div>
                             
                             <div class="p-4 bg-[var(--color-primary-soft)] rounded-xl">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] mb-1 opacity-90">⚡ Solo 4 pasos</p>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] mb-1 opacity-90"><font-awesome-icon icon="bolt" class="mr-1" /> Solo 4 pasos</p>
                                 <p class="text-xs text-gray-300">Personaliza tu hardware y software en segundos.</p>
                             </div>
                         </div>
@@ -217,7 +217,7 @@ const cssVars = computed(() => ({
                 
                 <!-- Simulador -->
                 <div class="lg:col-span-8">
-                    <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-all duration-500">
+                    <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-500">
             
             <!-- Progress Bar -->
             <div class="px-8 pt-8" :style="cssVars">
@@ -233,22 +233,22 @@ const cssVars = computed(() => ({
             <div class="p-8 relative min-h-[420px]">
                 
                 <!-- Analyzing -->
-                <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white dark:bg-slate-900/95 dark:bg-gray-900/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in" :style="cssVars">
+                <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in" :style="cssVars">
                     <div class="relative w-20 h-20 mb-8">
                         <div class="absolute inset-0 border-4 border-gray-50 dark:border-gray-700 rounded-full"></div>
                         <div class="absolute inset-0 border-4 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
-                        <div class="absolute inset-0 flex items-center justify-center text-2xl">⚙️</div>
+                        <div class="absolute inset-0 flex items-center justify-center text-2xl"><font-awesome-icon icon="cogs" /></div>
                     </div>
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white dark:text-white mb-3">Configurando tu solución POS...</h3>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-3">Configurando tu solución POS...</h3>
                     <p class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] animate-pulse">ANALIZANDO REQUERIMIENTOS</p>
                 </div>
 
                 <!-- Results View -->
                 <div v-if="showResults && !isCalculating" class="text-center animate-fade-in" :style="cssVars">
                     <div class="w-20 h-20 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                        🎯
+                        <font-awesome-icon icon="bullseye" />
                     </div>
-                    <h3 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mb-2">¡Tu Sistema Ideal!</h3>
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2">¡Tu Sistema Ideal!</h3>
                     
                     <div class="bg-gray-900 rounded-2xl p-6 text-white my-6">
                         <p class="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)] mb-2 text-center opacity-90">Configuración Recomendada</p>
@@ -268,32 +268,32 @@ const cssVars = computed(() => ({
 
                 <!-- Step 1: Giro -->
                 <div v-if="step === 1 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white dark:text-white mb-2">¿Cuál es tu giro comercial?</h3>
-                    <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm mb-6">El software y equipo se adaptarán a tu modelo de negocio.</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">¿Cuál es tu giro comercial?</h3>
+                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6">El software y equipo se adaptarán a tu modelo de negocio.</p>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         <button v-for="g in [
-                            {id: 'abarrotes', label: 'Tienda / Abarrotes', icon: '🏪'},
-                            {id: 'restaurante', label: 'Comida / Café', icon: '🍔'},
-                            {id: 'retail', label: 'Ropa / Calzado', icon: '👕'},
-                            {id: 'farmacia', label: 'Farmacia', icon: '💊'},
-                            {id: 'ferreteria', label: 'Ferretería', icon: '🛠️'},
-                            {id: 'otro', label: 'Otro Servicio', icon: '🛍️'}
+                            {id: 'abarrotes', label: 'Tienda / Abarrotes', icon: 'building'},
+                            {id: 'restaurante', label: 'Comida / Café', icon: 'shopping-bag'},
+                            {id: 'retail', label: 'Ropa / Calzado', icon: 'shopping-bag'},
+                            {id: 'farmacia', label: 'Farmacia', icon: 'shield-halved'},
+                            {id: 'ferreteria', label: 'Ferretería', icon: 'tools'},
+                            {id: 'otro', label: 'Otro Servicio', icon: 'shopping-cart'}
                         ]" :key="g.id" 
                         @click="form.giro = g.id"
                         :style="form.giro === g.id ? cssVars : {}"
                         :class="['p-4 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center', 
-                                form.giro === g.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20' : 'border-gray-100 dark:border-slate-800 dark:border-gray-700 hover:border-gray-200 dark:border-slate-800 dark:hover:border-gray-600']">
-                            <span class="text-2xl mb-2">{{ g.icon }}</span>
-                            <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 dark:text-white dark:text-gray-300 leading-tight transition-colors">{{ g.label }}</span>
+                                form.giro === g.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600']">
+                            <span class="text-2xl mb-2"><font-awesome-icon :icon="g.icon" /></span>
+                            <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 dark:text-gray-300 leading-tight transition-colors">{{ g.label }}</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 2: Operación -->
                 <div v-if="step === 2 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white dark:text-white mb-2">Flujo de operación</h3>
-                    <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm mb-6">Ayúdanos a entender el volumen de tu negocio.</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Flujo de operación</h3>
+                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6">Ayúdanos a entender el volumen de tu negocio.</p>
                     
                     <div class="space-y-4 mb-8">
                         <div>
@@ -303,7 +303,7 @@ const cssVars = computed(() => ({
                                     @click="form.volumen_ventas = v.id"
                                     :style="form.volumen_ventas === v.id ? cssVars : {}"
                                     :class="['py-3 rounded-xl border-2 font-bold text-xs uppercase', 
-                                            form.volumen_ventas === v.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20 text-[var(--color-primary)]' : 'border-gray-100 dark:border-slate-800 dark:border-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400']">
+                                            form.volumen_ventas === v.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20 text-[var(--color-primary)]' : 'border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500']">
                                     {{ v.l }}
                                 </button>
                             </div>
@@ -321,53 +321,53 @@ const cssVars = computed(() => ({
 
                 <!-- Step 3: Hardware -->
                 <div v-if="step === 3 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white dark:text-white mb-2">Accesorios y Periféricos</h3>
-                    <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm mb-6">Selecciona el equipamiento necesario para tu punto de venta.</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Accesorios y Periféricos</h3>
+                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6">Selecciona el equipamiento necesario para tu punto de venta.</p>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         <button v-for="h in [
-                            {id: 'necesita_computadora_completa', label: 'Computadora Completa', icon: '🖥️'},
-                            {id: 'necesita_cpu', label: 'Solo CPU', icon: '📟'},
-                            {id: 'necesita_monitor', label: 'Monitor', icon: '📺'},
-                            {id: 'necesita_cajon_dinero', label: 'Cajón de Dinero', icon: '💰'},
-                            {id: 'necesita_impresora_tickets', label: 'Impresora Tickets', icon: '🧾'},
-                            {id: 'necesita_bascula', label: 'Báscula', icon: '⚖️'},
-                            {id: 'necesita_lector_codigos', label: 'Lector de Códigos', icon: '🏷️'},
-                            {id: 'necesita_etiquetadora', label: 'Etiquetadora', icon: '🔖'},
-                            {id: 'necesita_monitor_touch', label: 'Monitor Touch', icon: '👆'}
+                            {id: 'necesita_computadora_completa', label: 'Computadora Completa', icon: 'desktop'},
+                            {id: 'necesita_cpu', label: 'Solo CPU', icon: 'server'},
+                            {id: 'necesita_monitor', label: 'Monitor', icon: 'desktop'},
+                            {id: 'necesita_cajon_dinero', label: 'Cajón de Dinero', icon: 'dollar-sign'},
+                            {id: 'necesita_impresora_tickets', label: 'Impresora Tickets', icon: 'print'},
+                            {id: 'necesita_bascula', label: 'Báscula', icon: 'balance-scale'},
+                            {id: 'necesita_lector_codigos', label: 'Lector de Códigos', icon: 'barcode'},
+                            {id: 'necesita_etiquetadora', label: 'Etiquetadora', icon: 'tag'},
+                            {id: 'necesita_monitor_touch', label: 'Monitor Touch', icon: 'mobile-alt'}
                         ]" :key="h.id" 
                         @click="form[h.id] = !form[h.id]"
                         :style="form[h.id] ? cssVars : {}"
                         :class="['p-3 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center relative', 
-                                form[h.id] ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20' : 'border-gray-100 dark:border-slate-800 dark:border-gray-700']">
-                            <span class="text-2xl mb-1">{{ h.icon }}</span>
-                            <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 dark:text-white dark:text-gray-300 leading-tight transition-colors">{{ h.label }}</span>
-                            <div v-if="form[h.id]" class="absolute top-1 right-1 w-4 h-4 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-[8px]">✓</div>
+                                form[h.id] ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] dark:bg-[var(--color-primary)]/20' : 'border-gray-100 dark:border-gray-700']">
+                            <span class="text-2xl mb-1"><font-awesome-icon :icon="h.icon" /></span>
+                            <span class="text-[9px] font-black uppercase tracking-tight text-gray-900 dark:text-gray-300 leading-tight transition-colors">{{ h.label }}</span>
+                            <div v-if="form[h.id]" class="absolute top-1 right-1 w-4 h-4 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-[8px]"><font-awesome-icon icon="check" /></div>
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 4: Resumen Final -->
                 <div v-if="step === 4 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white dark:text-white mb-2">Propuesta Técnica</h3>
-                    <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm mb-6">Resumen de tu configuración personalizada.</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2">Propuesta Técnica</h3>
+                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6">Resumen de tu configuración personalizada.</p>
                     
                     <div class="bg-gray-50 dark:bg-gray-700/50 rounded-[1.5rem] p-6 space-y-4 transition-colors">
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 dark:text-gray-400">Software Sugerido:</span>
+                            <span class="text-gray-500">Software Sugerido:</span>
                             <span class="font-black text-[var(--color-primary)] uppercase opacity-90">{{ softwareRecomendado }}</span>
                         </div>
 
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400">Giro Comercial:</span>
-                            <span class="font-black text-gray-900 dark:text-white dark:text-white uppercase transition-colors">{{ form.giro }}</span>
+                            <span class="text-gray-500 dark:text-gray-400">Giro Comercial:</span>
+                            <span class="font-black text-gray-900 dark:text-white uppercase transition-colors">{{ form.giro }}</span>
                         </div>
                         <div class="flex flex-wrap gap-2 pt-2">
-                             <span v-if="form.necesita_computadora_completa" class="px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">PC COMPLETA</span>
-                             <span v-if="form.necesita_cajon_dinero" class="px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">CAJÓN</span>
-                             <span v-if="form.necesita_impresora_tickets" class="px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">IMPRESORA TICKETS</span>
-                             <span v-if="form.necesita_bascula" class="px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">BÁSCULA</span>
-                             <span v-if="form.necesita_monitor_touch" class="px-2 py-1 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">TOUCH</span>
+                             <span v-if="form.necesita_computadora_completa" class="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">PC COMPLETA</span>
+                             <span v-if="form.necesita_cajon_dinero" class="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">CAJÓN</span>
+                             <span v-if="form.necesita_impresora_tickets" class="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">IMPRESORA TICKETS</span>
+                             <span v-if="form.necesita_bascula" class="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">BÁSCULA</span>
+                             <span v-if="form.necesita_monitor_touch" class="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md text-[8px] font-black dark:text-gray-300">TOUCH</span>
                         </div>
                     </div>
                 </div>
@@ -392,14 +392,14 @@ const cssVars = computed(() => ({
         <div v-if="showLeadModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showLeadModal = false"></div>
             
-            <div class="relative bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-fade-in transition-colors">
-                <button @click="showLeadModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">✕</button>
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-fade-in transition-colors">
+                <button @click="showLeadModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><font-awesome-icon icon="times" /></button>
 
                 <div v-if="!leadSent">
                     <div class="text-center mb-6">
-                        <span class="text-4xl block mb-4">✨</span>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">¡Ya casi terminamos!</h3>
-                        <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm mt-2 transition-colors">Introduce tus datos para recibir tu <span class="font-bold text-[var(--color-primary)]">Propuesta Técnica</span> preparada por un experto.</p>
+                        <span class="text-4xl block mb-4"><font-awesome-icon icon="wand-magic-sparkles" /></span>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white transition-colors">¡Ya casi terminamos!</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 transition-colors">Introduce tus datos para recibir tu <span class="font-bold text-[var(--color-primary)]">Propuesta Técnica</span> preparada por un experto.</p>
                     </div>
                     
                     <div class="space-y-4">
@@ -412,7 +412,7 @@ const cssVars = computed(() => ({
                             <input v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="686XXXXXXX" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 dark:text-white border-none rounded-xl font-medium focus:ring-2 focus:ring-[var(--color-primary)] transition-colors" />
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email <span class="text-gray-300 dark:text-gray-500 dark:text-gray-400">(opcional)</span></label>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email <span class="text-gray-300 dark:text-gray-500">(opcional)</span></label>
                             <input v-model="leadForm.email" type="email" placeholder="hola@empresa.com" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 dark:text-white border-none rounded-xl font-medium focus:ring-2 focus:ring-[var(--color-primary)] transition-colors" />
                         </div>
                         
@@ -423,9 +423,9 @@ const cssVars = computed(() => ({
                 </div>
 
                 <div v-else class="text-center py-6">
-                    <span class="text-5xl block mb-4">🚀</span>
-                    <h3 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white transition-colors">¡Excelente!</h3>
-                    <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-2 transition-colors">Generando tu configuración ideal...</p>
+                    <span class="text-5xl block mb-4"><font-awesome-icon icon="paper-plane" /></span>
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white transition-colors">¡Excelente!</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2 transition-colors">Generando tu configuración ideal...</p>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { router, Link } from '@inertiajs/vue3'
+import { Head, router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import Pagination from '@/Components/Pagination.vue'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
@@ -55,6 +55,7 @@ const formatearMoneda = (monto) => {
 </script>
 
 <template>
+  <Head title="Facturación CFDI 4.0" />
   <div :style="cssVars" class="min-h-screen bg-slate-900 font-sans text-slate-300">
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

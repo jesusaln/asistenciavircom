@@ -4,16 +4,19 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Console\Traits\EnforcesMaintenanceMode;
 use PDO;
 
 class RestoreDatabase extends Command
 {
+    use EnforcesMaintenanceMode;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'db:restore {file? : Archivo SQL de respaldo a restaurar} {--force : Ejecutar sin confirmación}';
+    protected $signature = 'db:restore {file? : Archivo SQL de respaldo a restaurar} {--force : Ejecutar sin confirmación} {--confirm= : Confirmación explícita}';
 
     /**
      * The console command description.
@@ -27,6 +30,11 @@ class RestoreDatabase extends Command
      */
     public function handle()
     {
+        // 1. Check Maintenance Mode
+        if (!$this->checkMaintenanceMode($this->option('force'))) {
+            return Command::FAILURE;
+        }
+
         $file = $this->argument('file');
 
         // Si no se especifica archivo, buscar el más reciente
@@ -40,7 +48,7 @@ class RestoreDatabase extends Command
             }
 
             // Ordenar por fecha de modificación (más reciente primero)
-            usort($files, function($a, $b) {
+            usort($files, function ($a, $b) {
                 return filemtime($b) - filemtime($a);
             });
 
@@ -54,10 +62,18 @@ class RestoreDatabase extends Command
             return Command::FAILURE;
         }
 
+        if (!$this->obtainPgAdvisoryLock()) {
+            $this->error('No se pudo adquirir lock global. Otro proceso podría estar restaurando la base de datos.');
+            return Command::FAILURE;
+        }
+
         $this->info("Iniciando restauración desde: {$file}");
         $this->warn('⚠️  Esta operación eliminará todos los datos actuales de la base de datos');
 
-        if (!$this->option('force') && !$this->confirm('¿Estás seguro de que deseas continuar?', false)) {
+        $confirm = (string) $this->option('confirm');
+
+        if (!$this->option('force') && $confirm !== 'RESTORE-DB' && $confirm !== 'RESTORE-DB-FORCE' && !$this->confirm('¿Estás seguro de que deseas continuar?', false)) {
+            $this->releasePgAdvisoryLock();
             $this->info('Operación cancelada');
             return Command::SUCCESS;
         }
@@ -65,61 +81,117 @@ class RestoreDatabase extends Command
         try {
             $this->info('Iniciando proceso de restauración...');
 
-            // Leer el archivo SQL
-            $sql = file_get_contents($file);
+            $dbConfig = config('database.connections.' . config('database.default'));
+            $driver = $dbConfig['driver'] ?? 'unknown';
 
-            if (!$sql) {
-                $this->error('No se pudo leer el archivo SQL');
-                return Command::FAILURE;
-            }
+            if ($driver === 'pgsql') {
+                $this->info('Detectado PostgreSQL. Usando psql para la restauración...');
 
-            $this->info('Ejecutando restauración...');
+                $host = $dbConfig['host'] ?? '127.0.0.1';
+                $port = $dbConfig['port'] ?? 5432;
+                $database = $dbConfig['database'];
+                $username = $dbConfig['username'];
+                $password = $dbConfig['password'] ?? '';
 
-            // Dividir el SQL en consultas individuales
-            $queries = $this->parseSqlFile($sql);
+                $env = '';
+                if ($password !== '') {
+                    $env = 'PGPASSWORD=' . escapeshellarg($password) . ' ';
+                }
 
-            $totalQueries = count($queries);
-            $this->info("Se encontraron {$totalQueries} consultas para ejecutar");
+                $command = sprintf(
+                    '%spsql -h %s -p %s -U %s -d %s -f %s 2>&1',
+                    $env,
+                    escapeshellarg($host),
+                    escapeshellarg((string) $port),
+                    escapeshellarg($username),
+                    escapeshellarg($database),
+                    escapeshellarg($file)
+                );
 
-            $bar = $this->output->createProgressBar($totalQueries);
-            $bar->start();
+                $this->info('Ejecutando comando psql...');
+                exec($command, $output, $returnCode);
 
-            $executed = 0;
-            $errors = 0;
+                if ($returnCode !== 0) {
+                    $this->releasePgAdvisoryLock();
+                    $this->error('Error durante la restauración con psql:');
+                    foreach ($output as $line) {
+                        $this->error($line);
+                    }
+                    return Command::FAILURE;
+                }
 
-            foreach ($queries as $query) {
-                $query = trim($query);
-                if (empty($query) || strpos($query, '--') === 0) {
+                $this->info('✓ Restauración completada exitosamente con psql');
+            } else {
+                // Fallback para otros drivers (MySQL, SQLite)
+                $sql = file_get_contents($file);
+
+                if (!$sql) {
+                    $this->releasePgAdvisoryLock();
+                    $this->error('No se pudo leer el archivo SQL');
+                    return Command::FAILURE;
+                }
+
+                $this->info('Ejecutando restauración (fallback mode)...');
+
+                $queries = $this->parseSqlFile($sql);
+                $totalQueries = count($queries);
+                $this->info("Se encontraron {$totalQueries} consultas");
+
+                $bar = $this->output->createProgressBar($totalQueries);
+                $bar->start();
+
+                $executed = 0;
+                $errors = 0;
+
+                foreach ($queries as $query) {
+                    $query = trim($query);
+                    if (empty($query) || strpos($query, '--') === 0) {
+                        $bar->advance();
+                        continue;
+                    }
+
+                    try {
+                        DB::statement($query);
+                        $executed++;
+                    } catch (\Exception $e) {
+                        $this->warn("\nError en consulta: " . substr($query, 0, 100) . "...");
+                        $errors++;
+                    }
                     $bar->advance();
-                    continue;
                 }
 
-                try {
-                    DB::statement($query);
-                    $executed++;
-                } catch (\Exception $e) {
-                    $this->warn("Error en consulta: " . substr($query, 0, 100) . "...");
-                    $this->warn("Error: " . $e->getMessage());
-                    $errors++;
-                }
-                $bar->advance();
+                $bar->finish();
+                $this->newLine(2);
+                $this->info("✓ Restauración completada con {$errors} errores.");
             }
 
-            $bar->finish();
-            $this->newLine(2);
-
-            $this->info("Restauración completada:");
-            $this->info("✓ Consultas ejecutadas: {$executed}");
-            if ($errors > 0) {
-                $this->warn("⚠️ Errores encontrados: {$errors}");
-            }
-            $this->info("✓ Archivo de respaldo utilizado: " . basename($file));
-
-            return $errors > 0 ? Command::FAILURE : Command::SUCCESS;
+            $this->releasePgAdvisoryLock();
+            return Command::SUCCESS;
 
         } catch (\Exception $e) {
+            $this->releasePgAdvisoryLock();
             $this->error('Error durante la restauración: ' . $e->getMessage());
             return Command::FAILURE;
+        }
+    }
+
+    private function obtainPgAdvisoryLock(): bool
+    {
+        try {
+            // Lock ID único para restauración de DB
+            $row = DB::selectOne("SELECT pg_try_advisory_lock(7200101) AS locked");
+            return (bool) ($row->locked ?? false);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function releasePgAdvisoryLock(): void
+    {
+        try {
+            DB::selectOne("SELECT pg_advisory_unlock(7200101)");
+        } catch (\Throwable) {
+            // no-op
         }
     }
 
@@ -146,7 +218,7 @@ class RestoreDatabase extends Command
             for ($i = 0; $i < strlen($line); $i++) {
                 $char = $line[$i];
 
-                if (($char === '"' || $char === "'") && ($i === 0 || $line[$i-1] !== '\\')) {
+                if (($char === '"' || $char === "'") && ($i === 0 || $line[$i - 1] !== '\\')) {
                     if (!$inString) {
                         $inString = true;
                         $stringChar = $char;

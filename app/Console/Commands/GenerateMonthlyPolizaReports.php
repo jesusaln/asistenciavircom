@@ -50,41 +50,38 @@ class GenerateMonthlyPolizaReports extends Command
             $query->where('id', $poliza_id);
         }
 
-        $polizas = $query->get();
-
-        if ($polizas->isEmpty()) {
-            $this->warn('No se encontraron pólizas activas con clientes con email.');
-            return 0;
-        }
-
+        // Initialize controller and counter
         $pdfController = new PolizaServicioPDFController();
         $totalEnviados = 0;
 
-        foreach ($polizas as $poliza) {
-            try {
-                $this->line("Procesando póliza: {$poliza->folio} - {$poliza->cliente->nombre_razon_social}");
+        // ✅ CRITICAL FIX: Chunking
+        $query->chunk(50, function ($polizas) use ($pdfController, &$totalEnviados, $mes, $anio) {
+            foreach ($polizas as $poliza) {
+                try {
+                    $this->line("Procesando póliza: {$poliza->folio} - {$poliza->cliente->nombre_razon_social}");
 
-                // Establecer contexto de empresa para EmpresaResolver
-                EmpresaResolver::setContext($poliza->empresa_id);
+                    // Establecer contexto de empresa para EmpresaResolver
+                    EmpresaResolver::setContext($poliza->empresa_id);
 
-                // Generar PDF
-                $pdfResponse = $pdfController->reporteMensual($poliza, $mes, $anio);
-                $pdfContent = $pdfResponse->output();
+                    // Generar PDF
+                    $pdfResponse = $pdfController->reporteMensual($poliza, $mes, $anio);
+                    $pdfContent = $pdfResponse->output();
 
-                // Enviar notificación
-                $poliza->cliente->notify(new PolizaReporteMensualNotification($poliza, $pdfContent, $mes, $anio));
+                    // Enviar notificación
+                    $poliza->cliente->notify(new PolizaReporteMensualNotification($poliza, $pdfContent, $mes, $anio));
 
-                $totalEnviados++;
-                $this->info("  ✓ Reporte enviado correctamente.");
+                    $totalEnviados++;
+                    $this->info("  ✓ Reporte enviado correctamente.");
 
-            } catch (\Exception $e) {
-                $this->error("  ✗ Error procesando póliza {$poliza->folio}: " . $e->getMessage());
-                Log::error("GenerateMonthlyPolizaReports Error: " . $e->getMessage(), [
-                    'poliza_id' => $poliza->id,
-                    'trace' => $e->getTraceAsString()
-                ]);
+                } catch (\Exception $e) {
+                    $this->error("  ✗ Error procesando póliza {$poliza->folio}: " . $e->getMessage());
+                    Log::error("GenerateMonthlyPolizaReports Error: " . $e->getMessage(), [
+                        'poliza_id' => $poliza->id,
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                }
             }
-        }
+        });
 
         $this->info("Proceso completado. Reportes enviados: {$totalEnviados}");
 

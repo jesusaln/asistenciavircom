@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div ref="root" class="relative">
     <!-- Campo de búsqueda -->
     <div v-if="!proveedorSeleccionado" class="buscar-proveedor">
       <div class="mb-6">
@@ -54,10 +54,10 @@
         <div v-if="errorBusqueda || (requerido && touched && validacionError)" class="mt-2 text-sm text-red-600">
           {{ errorBusqueda || validacionError }}
         </div>
-        <div v-else-if="mensajeAyuda && !busquedaProveedor" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        <div v-else-if="mensajeAyuda && !busquedaProveedor" class="mt-2 text-sm text-gray-500">
           {{ mensajeAyuda }}
         </div>
-        <div v-if="busquedaProveedor && !mostrarListaProveedores && proveedoresFiltrados.length === 0 && !cargandoBusqueda" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        <div v-if="busquedaProveedor && !mostrarListaProveedores && proveedoresFiltrados.length === 0 && !cargandoBusqueda" class="mt-2 text-sm text-gray-500">
           No se encontraron proveedores que coincidan con "{{ busquedaProveedor }}"
         </div>
         <!-- Filtros rápidos -->
@@ -133,7 +133,7 @@
             </svg>
             Razón Social
           </div>
-          <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ proveedorSeleccionado.nombre_razon_social }}</div>
+          <div class="text-lg font-semibold text-gray-900">{{ proveedorSeleccionado.nombre_razon_social }}</div>
         </div>
         <div class="space-y-2" v-if="proveedorSeleccionado.email">
           <div class="flex items-center text-sm font-medium text-green-700">
@@ -142,7 +142,7 @@
             </svg>
             Email
           </div>
-          <div class="text-gray-900 dark:text-white">{{ proveedorSeleccionado.email }}</div>
+          <div class="text-gray-900">{{ proveedorSeleccionado.email }}</div>
         </div>
         <div class="space-y-2" v-if="proveedorSeleccionado.telefono">
           <div class="flex items-center text-sm font-medium text-green-700">
@@ -151,7 +151,7 @@
             </svg>
             Teléfono
           </div>
-          <div class="text-gray-900 dark:text-white">{{ proveedorSeleccionado.telefono }}</div>
+          <div class="text-gray-900">{{ proveedorSeleccionado.telefono }}</div>
         </div>
         <div class="space-y-2" v-if="proveedorSeleccionado.rfc">
           <div class="flex items-center text-sm font-medium text-green-700">
@@ -160,7 +160,7 @@
             </svg>
             RFC
           </div>
-          <div class="text-gray-900 dark:text-white font-mono">{{ proveedorSeleccionado.rfc }}</div>
+          <div class="text-gray-900 font-mono">{{ proveedorSeleccionado.rfc }}</div>
         </div>
         <!-- Estado del proveedor -->
         <div class="space-y-2" v-if="mostrarEstadoProveedor">
@@ -178,7 +178,7 @@
                 'bg-red-500': !proveedorSeleccionado.activo
               }"
             ></div>
-            <span class="text-gray-900 dark:text-white font-medium capitalize">
+            <span class="text-gray-900 font-medium capitalize">
               {{ proveedorSeleccionado.activo ? 'Activo' : 'Inactivo' }}
             </span>
           </div>
@@ -192,7 +192,7 @@
               </svg>
               Dirección
             </div>
-            <div class="text-gray-900 dark:text-white text-sm">{{ direccionCompleta }}</div>
+            <div class="text-gray-900 text-sm">{{ direccionCompleta }}</div>
           </div>
           <!-- Información comercial -->
           <div class="space-y-2" v-if="proveedorSeleccionado.credito_limite && mostrarInfoComercial">
@@ -202,7 +202,7 @@
               </svg>
               Límite de Crédito
             </div>
-            <div class="text-gray-900 dark:text-white font-semibold">{{ formatearMoneda(proveedorSeleccionado.credito_limite) }}</div>
+            <div class="text-gray-900 font-semibold">{{ formatearMoneda(proveedorSeleccionado.credito_limite) }}</div>
           </div>
           <div class="space-y-2" v-if="proveedorSeleccionado.tipo_proveedor">
             <div class="flex items-center text-sm font-medium text-green-700">
@@ -211,7 +211,7 @@
               </svg>
               Tipo de Proveedor
             </div>
-            <div class="text-gray-900 dark:text-white capitalize">{{ proveedorSeleccionado.tipo_proveedor }}</div>
+            <div class="text-gray-900 capitalize">{{ proveedorSeleccionado.tipo_proveedor }}</div>
           </div>
       </div>
       <!-- Alertas del proveedor -->
@@ -238,7 +238,7 @@
       <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
       </svg>
-      <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">{{ mensajeVacio }}</p>
+      <p class="text-gray-500 text-lg font-medium">{{ mensajeVacio }}</p>
       <p class="text-gray-400 text-sm mt-1">{{ submensajeVacio }}</p>
       <!-- Botón de acción rápida -->
       <div v-if="mostrarAccionRapida" class="mt-4">
@@ -253,72 +253,70 @@
         </button>
       </div>
     </div>
-    <!-- Lista de proveedores filtrados usando Teleport -->
-    <Teleport to="#app">
-      <div
-        ref="listaProveedoresRef"
-        v-if="mostrarListaProveedores && proveedoresFiltrados.length > 0"
-        class="z-[9999] mt-1 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-lg max-h-[60vh] overflow-y-auto pointer-events-auto"
-        :style="{
-          position: 'absolute',
-          width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
-          left: inputPosition.left + 'px',
-          pointerEvents: 'auto'
-        }"
-      >
-        <div class="p-2">
-          <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 px-2 flex items-center justify-between">
-            <span>{{ proveedoresFiltrados.length }} proveedor{{ proveedoresFiltrados.length !== 1 ? 'es' : '' }} encontrado{{ proveedoresFiltrados.length !== 1 ? 's' : '' }}</span>
-            <span v-if="tiempoRespuesta" class="text-gray-400">({{ tiempoRespuesta }}ms)</span>
-          </div>
+    <SearchDropdown
+      ref="listaProveedoresRef"
+      :show="mostrarListaProveedores"
+      :items="proveedoresFiltrados"
+      :width="inputWidth"
+      :position="inputPosition"
+      max-height="60vh"
+      :empty="busquedaTermino"
+      empty-title="No se encontraron proveedores"
+      empty-subtitle="Intenta con otro término de búsqueda"
+      item-key="id"
+    >
+      <template #header>
+        <div class="text-xs text-[var(--ui-text-soft)] flex items-center justify-between">
+          <span>{{ proveedoresFiltrados.length }} proveedor{{ proveedoresFiltrados.length !== 1 ? 'es' : '' }} encontrado{{ proveedoresFiltrados.length !== 1 ? 's' : '' }}</span>
+          <span v-if="tiempoRespuesta" class="text-[var(--ui-text-soft)]">({{ tiempoRespuesta }}ms)</span>
         </div>
+      </template>
+
+      <template #item="{ item, index }">
         <div
-          v-for="(proveedor, index) in proveedoresFiltrados"
-          :key="proveedor.id"
-          @click="seleccionarProveedor(proveedor, $event)"
+          @click="seleccionarProveedor(item, $event)"
           @mouseenter="proveedorSeleccionadoIndex = index"
-          class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 dark:border-slate-800 last:border-b-0 transition-colors duration-150 pointer-events-auto"
-          :class="{ 'bg-green-50': proveedorSeleccionadoIndex === index }"
-          :style="{ pointerEvents: 'auto' }"
+          class="px-4 py-3 hover:bg-green-50/70 dark:hover:bg-green-900/20 cursor-pointer border-b border-[var(--ui-border)] last:border-b-0 transition-colors duration-150 pointer-events-auto"
+          :class="{ 'bg-green-50/70 dark:bg-green-900/20': proveedorSeleccionadoIndex === index }"
+
         >
           <div class="flex items-center justify-between">
             <div class="flex-1">
-              <div class="font-medium text-gray-900 dark:text-white mb-1 flex items-center">
-                <span v-html="resaltarTexto(proveedor.nombre_razon_social, busquedaProveedor)"></span>
-                <!-- Indicadores de estado -->
+              <div class="font-medium mb-1 flex items-center">
+                <span v-html="resaltarTexto(item.nombre_razon_social, busquedaProveedor)"></span>
                 <div class="ml-2 flex items-center space-x-1">
-                  <div v-if="proveedor.estado"
+                  <div v-if="item.estado"
                        class="w-2 h-2 rounded-full"
                        :class="{
-                         'bg-green-500': proveedor.estado === 'activo',
-                         'bg-yellow-500': proveedor.estado === 'suspendido',
-                         'bg-red-500': proveedor.estado === 'inactivo'
+                         'bg-green-500': item.estado === 'activo',
+                         'bg-yellow-500': item.estado === 'suspendido',
+                         'bg-red-500': item.estado === 'inactivo'
                        }"
-                       :title="proveedor.estado">
+                       :title="item.estado">
                   </div>
                 </div>
               </div>
-              <div class="text-sm text-gray-500 dark:text-gray-400 space-y-1">
-                <div v-if="proveedor.email" class="flex items-center" v-html="resaltarTexto(proveedor.email, busquedaProveedor)"></div>
-                <div v-if="proveedor.telefono" class="flex items-center" v-html="resaltarTexto(proveedor.telefono, busquedaProveedor)"></div>
-                <div v-if="proveedor.rfc" class="flex items-center font-mono text-xs" v-html="resaltarTexto(proveedor.rfc, busquedaProveedor)"></div>
-                <!-- Tipo de proveedor -->
-                <div v-if="proveedor.tipo_proveedor" class="text-xs text-green-600 capitalize">
-                  Tipo: {{ proveedor.tipo_proveedor }}
+              <div class="text-sm text-[var(--ui-text-muted)] space-y-1">
+                <div v-if="item.email" class="flex items-center" v-html="resaltarTexto(item.email, busquedaProveedor)"></div>
+                <div v-if="item.telefono" class="flex items-center" v-html="resaltarTexto(item.telefono, busquedaProveedor)"></div>
+                <div v-if="item.rfc" class="flex items-center font-mono text-xs" v-html="resaltarTexto(item.rfc, busquedaProveedor)"></div>
+                <div v-if="item.tipo_proveedor" class="text-xs text-green-600 dark:text-green-300 capitalize">
+                  Tipo: {{ item.tipo_proveedor }}
                 </div>
               </div>
             </div>
-            <div v-if="proveedor.categoria" class="ml-3">
-              <div class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full whitespace-nowrap" v-html="resaltarTexto(proveedor.categoria, busquedaProveedor)"></div>
+            <div v-if="item.categoria" class="ml-3">
+              <div class="text-xs text-green-700 dark:text-green-300 bg-green-100/80 dark:bg-green-900/30 px-2 py-1 rounded-full whitespace-nowrap" v-html="resaltarTexto(item.categoria, busquedaProveedor)"></div>
             </div>
           </div>
         </div>
-        <!-- Opción para crear nuevo proveedor -->
-        <div v-if="busquedaProveedor && mostrarOpcionNuevoProveedor" class="border-t border-gray-200 dark:border-slate-800 p-3 bg-gray-50">
+      </template>
+
+      <template #footer>
+        <div v-if="busquedaProveedor && mostrarOpcionNuevoProveedor" class="p-3">
           <button
             @click.stop="crearNuevoProveedor"
-            class="w-full text-left px-3 py-2 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-150 flex items-center"
+            class="w-full text-left px-3 py-2 text-sm text-green-600 dark:text-green-300 hover:text-green-800 hover:bg-green-50/70 dark:hover:bg-green-900/20 rounded-md transition-colors duration-150 flex items-center"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -326,25 +324,15 @@
             Crear nuevo proveedor: "{{ busquedaProveedor }}"
           </button>
         </div>
-      </div>
-      <!-- Lista vacía -->
-      <div
-        ref="listaVaciaRef"
-        v-if="mostrarListaProveedores && proveedoresFiltrados.length === 0 && busquedaTermino"
-        class="z-[9999] mt-1 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-lg p-4"
-        :style="{
-          position: 'absolute',
-          width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
-          left: inputPosition.left + 'px'
-        }"
-      >
-        <div class="text-center text-gray-500 dark:text-gray-400">
+      </template>
+
+      <template #empty>
+        <div class="text-center text-[var(--ui-text-muted)]">
           <p class="text-sm font-medium mb-1">No se encontraron proveedores</p>
-          <p class="text-xs text-gray-400 mb-3">Intenta con otro término de búsqueda</p>
+          <p class="text-xs text-[var(--ui-text-soft)] mb-3">Intenta con otro término de búsqueda</p>
           <button
             @click.stop="crearNuevoProveedor"
-            class="inline-flex items-center px-3 py-2 text-sm text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-150"
+            class="inline-flex items-center px-3 py-2 text-sm text-green-600 dark:text-green-300 hover:text-green-800 hover:bg-green-50/70 dark:hover:bg-green-900/20 rounded-md transition-colors duration-150"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -352,8 +340,8 @@
             Crear nuevo proveedor
           </button>
         </div>
-      </div>
-    </Teleport>
+      </template>
+    </SearchDropdown>
 
     <!-- Modal para crear nuevo proveedor -->
     <Teleport to="#app">
@@ -362,13 +350,13 @@
           <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="cerrarModalCrearProveedor"></div>
 
           <!-- Modal panel -->
-          <div class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-            <div class="bg-white dark:bg-slate-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div class="sm:flex sm:items-start">
                 <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                   <!-- Header -->
                   <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                       Crear Nuevo Proveedor
                     </h3>
                     <button
@@ -384,8 +372,8 @@
                   <!-- Formulario -->
                   <form @submit.prevent="guardarNuevoProveedor" class="space-y-6">
                     <!-- Información General -->
-                    <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-                      <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Información General</h4>
+                    <div class="border-b border-gray-200 pb-4">
+                      <h4 class="text-md font-medium text-gray-900 mb-3">Información General</h4>
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
                           <label for="modal-nombre_razon_social" class="block text-sm font-medium text-gray-700">
@@ -434,7 +422,7 @@
                         <div>
                           <label for="modal-rfc" class="block text-sm font-medium text-gray-700">
                             RFC <span class="text-red-500">*</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                            <span class="text-xs text-gray-500">
                               ({{ nuevoProveedor.tipo_persona === 'fisica' ? '13 caracteres' : nuevoProveedor.tipo_persona === 'moral' ? '12 caracteres' : 'Selecciona tipo de persona' }})
                             </span>
                           </label>
@@ -457,7 +445,7 @@
                           <div v-if="errores.rfc" class="mt-1 text-sm text-red-600">
                             {{ errores.rfc }}
                           </div>
-                          <div v-if="!nuevoProveedor.tipo_persona" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <div v-if="!nuevoProveedor.tipo_persona" class="mt-1 text-xs text-gray-500">
                             Primero selecciona el tipo de persona
                           </div>
                         </div>
@@ -465,8 +453,8 @@
                     </div>
 
                     <!-- Información Fiscal -->
-                    <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-                      <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Información Fiscal</h4>
+                    <div class="border-b border-gray-200 pb-4">
+                      <h4 class="text-md font-medium text-gray-900 mb-3">Información Fiscal</h4>
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label for="modal-regimen_fiscal" class="block text-sm font-medium text-gray-700">
@@ -495,7 +483,7 @@
                           <div v-if="errores.regimen_fiscal" class="mt-1 text-sm text-red-600">
                             {{ errores.regimen_fiscal }}
                           </div>
-                          <div v-if="!nuevoProveedor.tipo_persona" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <div v-if="!nuevoProveedor.tipo_persona" class="mt-1 text-xs text-gray-500">
                             Primero selecciona el tipo de persona
                           </div>
                         </div>
@@ -530,8 +518,8 @@
                     </div>
 
                     <!-- Información de Contacto -->
-                    <div class="border-b border-gray-200 dark:border-slate-800 pb-4">
-                      <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Información de Contacto</h4>
+                    <div class="border-b border-gray-200 pb-4">
+                      <h4 class="text-md font-medium text-gray-900 mb-3">Información de Contacto</h4>
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label for="modal-email" class="block text-sm font-medium text-gray-700">
@@ -578,7 +566,7 @@
 
                     <!-- Dirección -->
                     <div>
-                      <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Dirección</h4>
+                      <h4 class="text-md font-medium text-gray-900 mb-3">Dirección</h4>
                       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div class="md:col-span-2">
                           <label for="modal-calle" class="block text-sm font-medium text-gray-700">
@@ -647,19 +635,16 @@
                             Colonia <span class="text-red-500">*</span>
                           </label>
                           <select
+                            v-if="availableColonias.length > 0"
                             id="modal-colonia"
                             v-model="nuevoProveedor.colonia"
-                            :disabled="availableColonias.length === 0"
                             :class="[
                               'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                              errores.colonia ? 'border-red-300 bg-red-50' : 'border-gray-300',
-                              availableColonias.length === 0 ? 'bg-gray-100 text-gray-400' : ''
+                              errores.colonia ? 'border-red-300 bg-red-50' : 'border-gray-300'
                             ]"
                             required
                           >
-                            <option value="">
-                              {{ availableColonias.length === 0 ? 'Ingresa un código postal primero' : 'Selecciona una colonia' }}
-                            </option>
+                            <option value="">Selecciona una colonia</option>
                             <option
                               v-for="colonia in availableColonias"
                               :key="colonia"
@@ -668,11 +653,25 @@
                               {{ colonia }}
                             </option>
                           </select>
+                          <input
+                            v-else
+                            type="text"
+                            id="modal-colonia"
+                            v-model="nuevoProveedor.colonia"
+                            @blur="toUpper('colonia')"
+                            autocomplete="new-password"
+                            placeholder="Captura manualmente la colonia"
+                            :class="[
+                              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
+                              errores.colonia ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                            ]"
+                            required
+                          />
                           <div v-if="errores.colonia" class="mt-1 text-sm text-red-600">
                             {{ errores.colonia }}
                           </div>
-                          <div v-if="availableColonias.length === 0" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Primero ingresa un código postal válido para cargar las colonias disponibles
+                          <div v-if="availableColonias.length === 0" class="mt-1 text-xs text-gray-500">
+                            Si el código postal no existe todavía, captura la colonia manualmente.
                           </div>
                         </div>
 
@@ -698,7 +697,7 @@
                           <div v-if="errores.codigo_postal" class="mt-1 text-sm text-red-600">
                             {{ errores.codigo_postal }}
                           </div>
-                          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <div class="mt-1 text-xs text-gray-500">
                             Al ingresar un código postal válido, se autocompletarán automáticamente el estado y municipio.
                           </div>
                         </div>
@@ -744,7 +743,7 @@
                           <div v-if="errores.estado" class="mt-1 text-sm text-red-600">
                             {{ errores.estado }}
                           </div>
-                          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <div class="mt-1 text-xs text-gray-500">
                             Opcional para proveedores extranjeros
                           </div>
                         </div>
@@ -768,7 +767,7 @@
                           <div v-if="errores.pais" class="mt-1 text-sm text-red-600">
                             {{ errores.pais }}
                           </div>
-                          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <div class="mt-1 text-xs text-gray-500">
                             Código de país (2-3 letras). México por defecto, cambia para proveedores extranjeros.
                           </div>
                         </div>
@@ -794,7 +793,7 @@
                 type="button"
                 @click="cerrarModalCrearProveedor"
                 :disabled="guardandoProveedor"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white dark:bg-slate-900 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
                 Cancelar
               </button>
@@ -809,6 +808,9 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useClickOutside } from '@/Composables/useClickOutside';
+import SearchDropdown from '@/Components/CreateComponents/SearchDropdown.vue';
+import { useDropdownPosition } from '@/Composables/useDropdownPosition';
 
 // Props del componente
 const props = defineProps({
@@ -927,8 +929,8 @@ const emit = defineEmits([
 
 // Referencias reactivas
 const inputBusqueda = ref(null);
+const root = ref(null);
 const listaProveedoresRef = ref(null);
-const listaVaciaRef = ref(null);
 const busquedaProveedor = ref('');
 const busquedaTermino = ref('');
 const mostrarListaProveedores = ref(false);
@@ -939,8 +941,7 @@ const validacionError = ref('');
 const touched = ref(false);
 const timeoutId = ref(null);
 const debounceTimeout = ref(null);
-const inputWidth = ref(0);
-const inputPosition = ref({ top: 0, left: 0, height: 0 });
+const { inputWidth, inputPosition, updatePosition } = useDropdownPosition(inputBusqueda);
 const filtroActivo = ref(null);
 const tiempoRespuesta = ref(null);
 
@@ -1072,15 +1073,7 @@ const alertasProveedor = computed(() => {
 
 // Función para calcular posición del dropdown
 const calcularPosicionInput = () => {
-  if (!inputBusqueda.value) return;
-  const rect = inputBusqueda.value.getBoundingClientRect();
-  const scrollY = window.scrollY || document.documentElement.scrollTop;
-  inputWidth.value = rect.width;
-  inputPosition.value = {
-    top: rect.top + scrollY,
-    left: rect.left + window.scrollX,
-    height: rect.height
-  };
+  updatePosition();
 };
 
 // Función para manejar input
@@ -1441,11 +1434,9 @@ const onCpInput = async (event) => {
       errores.value = { ...errores.value, estado: '', municipio: '', pais: '' }
     } catch (error) {
       availableColonias.value = []
-      nuevoProveedor.value.colonia = ''
     }
   } else {
     availableColonias.value = []
-    nuevoProveedor.value.colonia = ''
   }
 }
 
@@ -1513,23 +1504,9 @@ const validarCamposRequeridos = () => {
   return true;
 };
 
-// Función para manejar clicks fuera del componente
-const manejarClickFuera = (event) => {
-  const elemento = event.target;
-  const dentroInput = inputBusqueda.value?.contains(elemento);
-  const dentroLista = listaProveedoresRef.value?.contains(elemento) ||
-                     listaVaciaRef.value?.contains(elemento);
-  if (!dentroInput && !dentroLista) {
-    mostrarListaProveedores.value = false;
-  }
-};
-
-// Función para manejar redimensionamiento de ventana
-const manejarRedimension = () => {
-  if (mostrarListaProveedores.value) {
-    calcularPosicionInput();
-  }
-};
+useClickOutside([root, listaProveedoresRef], () => {
+  mostrarListaProveedores.value = false;
+});
 
 // Watchers
 watch(
@@ -1556,16 +1533,10 @@ watch(
 
 // Lifecycle hooks
 onMounted(() => {
-  document.addEventListener('click', manejarClickFuera);
-  window.addEventListener('resize', manejarRedimension);
-  window.addEventListener('scroll', manejarRedimension);
   // No validar estado inicial para evitar mostrar errores prematuramente
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', manejarClickFuera);
-  window.removeEventListener('resize', manejarRedimension);
-  window.removeEventListener('scroll', manejarRedimension);
   if (timeoutId.value) {
     clearTimeout(timeoutId.value);
   }
@@ -1581,4 +1552,3 @@ defineExpose({
   enfocarBusqueda: () => inputBusqueda.value?.focus()
 });
 </script>
-

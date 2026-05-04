@@ -10,7 +10,7 @@ use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\Venta;
 use App\Models\VentaItem;
-use App\Services\VentaCreationService;
+use App\Services\Ventas\VentaCreationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;

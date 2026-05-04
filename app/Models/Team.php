@@ -22,6 +22,7 @@ class Team extends JetstreamTeam
         'name',
         'personal_team',
         'user_id',
+        'owned_by',
     ];
 
     /**

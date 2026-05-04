@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use App\Models\Concerns\BelongsToEmpresa;
 
 class Credencial extends Model
@@ -19,21 +18,18 @@ class Credencial extends Model
         'credentialable_id',
         'credentialable_type',
         'nombre',
-        'categoria',
         'usuario',
         'password',
         'host',
         'puerto',
         'notas',
-        'created_by',
-        'updated_by'
+        'created_by'
     ];
 
     protected $casts = [
         'password' => 'encrypted', // Esta es la mayor seguridad de Laravel
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'last_revealed_at' => 'datetime',
     ];
 
     /**
@@ -65,10 +61,6 @@ class Credencial extends Model
      */
     public function registrarAcceso($accion = 'revelado')
     {
-        if ($accion === 'revelado') {
-            DB::table('credenciales')->where('id', $this->id)->update(['last_revealed_at' => now()]);
-        }
-
         $this->logs()->create([
             'user_id' => auth()->id(),
             'accion' => $accion,

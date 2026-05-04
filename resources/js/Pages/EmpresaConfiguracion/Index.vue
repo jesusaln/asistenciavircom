@@ -15,8 +15,6 @@ import CorreoTab from './Partials/CorreoTab.vue'
 import WhatsAppTab from './Partials/WhatsAppTab.vue'
 import SistemaTab from './Partials/SistemaTab.vue'
 import SeguridadTab from './Partials/SeguridadTab.vue'
-import BiometriaTab from './Partials/BiometriaTab.vue'
-import ImagenesTab from './Partials/ImagenesTab.vue'
 import CobrosTab from './Partials/CobrosTab.vue'
 import PagosTab from './Partials/PagosTab.vue'
 import CertificadosTab from './Partials/CertificadosTab.vue'
@@ -27,7 +25,7 @@ import FoliosTab from './Partials/FoliosTab.vue'
 import RespaldosTab from './Partials/RespaldosTab.vue'
 import RedesSocialesTab from './Partials/RedesSocialesTab.vue'
 import ApiKeysTab from './Partials/ApiKeysTab.vue'
-import BlogRobotTab from './Partials/BlogRobotTab.vue'
+import FirmaTab from './Partials/FirmaTab.vue'
 
 defineOptions({ layout: AppLayout })
 
@@ -40,7 +38,7 @@ const props = defineProps({
 // Inicializar tab desde URL hash o default
 const getInitialTab = () => {
   const hash = window.location.hash.replace('#', '');
-  const validTabs = ['general', 'visual', 'imagenes', 'redes-sociales', 'folios', 'documentos', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'biometria', 'danger'];
+  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'firma', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'danger'];
   return validTabs.includes(hash) ? hash : 'general';
 };
 
@@ -49,15 +47,15 @@ const activeTab = ref(getInitialTab())
 const tabs = [
   { id: 'general', nombre: 'Información General', icono: 'building', component: GeneralTab },
   { id: 'visual', nombre: 'Apariencia', icono: 'palette', component: VisualTab },
-  { id: 'imagenes', nombre: 'Imágenes WebP', icono: 'file-image', component: ImagenesTab },
   { id: 'redes-sociales', nombre: 'Redes Sociales', icono: 'share-alt', component: RedesSocialesTab },
   { id: 'folios', nombre: 'Folios y Series', icono: 'list-ol', component: FoliosTab }, // NEW TAB
   { id: 'documentos', nombre: 'Documentos', icono: 'file-contract', component: DocumentosTab }, // Changed from document-text to file-contract for better FA match
+  { id: 'firma', nombre: 'Firma Digital', icono: 'pen-nib', component: FirmaTab },
   { id: 'impuestos', nombre: 'Impuestos', icono: 'money-bill-wave', component: ImpuestosTab }, // Changed icon
   { id: 'bancarios', nombre: 'Datos Bancarios', icono: 'university', component: BancariosTab }, // Changed icon
   { id: 'correo', nombre: 'Configuración Correo', icono: 'envelope', component: CorreoTab },
-  { id: 'whatsapp', nombre: 'WhatsApp API', icono: 'comments', component: WhatsAppTab },
-  { id: 'api-keys', nombre: 'Inteligencia Artificial', icono: 'robot', component: ApiKeysTab },
+  { id: 'whatsapp', nombre: 'WhatsApp Business', icono: 'comments', component: WhatsAppTab },
+  { id: 'api-keys', nombre: 'API Keys & IA', icono: 'key', component: ApiKeysTab },
   { id: 'cobros', nombre: 'Cobranza', icono: 'file-invoice-dollar', component: CobrosTab },
   { id: 'pagos', nombre: 'Cuentas por Pagar', icono: 'hand-holding-usd', component: PagosTab },
   { id: 'certificados', nombre: 'Certificados SAT', icono: 'key', component: CertificadosTab },
@@ -65,19 +63,17 @@ const tabs = [
   { id: 'tienda', nombre: 'Tienda y Pagos Online', icono: 'shopping-cart', component: TiendaOnlineTab },
   { id: 'respaldos', nombre: 'Respaldos Cloud', icono: 'cloud-upload-alt', component: RespaldosTab },
   { id: 'sistema', nombre: 'Sistema', icono: 'cogs', component: SistemaTab },
-  { id: 'robot-blog', nombre: 'Robot de Blog', icono: 'robot', component: BlogRobotTab }, // NEW
   { id: 'seguridad', nombre: 'Seguridad', icono: 'shield-alt', component: SeguridadTab },
-  { id: 'biometria', nombre: 'Biometría Checador', icono: 'id-card', component: BiometriaTab },
   { id: 'danger', nombre: 'Zona de Peligro', icono: 'exclamation-triangle', component: DangerZoneTab },
 ]
 
 const tabRoutes = {
   general: 'empresa-configuracion.general.update',
   visual: 'empresa-configuracion.visual.update',
-  imagenes: 'empresa-configuracion.imagenes.update',
   'redes-sociales': 'empresa-configuracion.redes-sociales.update',
   folios: null, // Self-contained
   documentos: 'empresa-configuracion.documentos.update',
+  firma: 'empresa-configuracion.documentos.update', // Re-uses the same endpoint as it updates the company config
   impuestos: 'empresa-configuracion.impuestos.update',
   bancarios: 'empresa-configuracion.bancarios.update',
   correo: 'empresa-configuracion.correo.update',
@@ -90,9 +86,7 @@ const tabRoutes = {
   tienda: 'empresa-configuracion.tienda.update',
   respaldos: 'empresa-configuracion.respaldos.update',
   sistema: 'empresa-configuracion.sistema.update',
-  'robot-blog': 'empresa-configuracion.robot-blog.update', 
   seguridad: 'empresa-configuracion.seguridad.update',
-  biometria: 'empresa-configuracion.biometria.update',
   danger: null,
 }
 
@@ -122,8 +116,6 @@ const form = useForm({
   logo_url: props.configuracion.logo_url, // For preview
   favicon_url: props.configuracion.favicon_url, // For preview
   logo_reportes_url: props.configuracion.logo_reportes_url, // For preview
-  images_webp_enabled: props.configuracion.images_webp_enabled ?? true,
-  images_webp_quality: props.configuracion.images_webp_quality ?? 80,
 
   // Documentos
   pie_pagina_facturas: props.configuracion.pie_pagina_facturas,
@@ -131,6 +123,7 @@ const form = useForm({
   pie_pagina_ventas: props.configuracion.pie_pagina_ventas,
   terminos_condiciones: props.configuracion.terminos_condiciones,
   politica_privacidad: props.configuracion.politica_privacidad,
+  firma_digital: props.configuracion.firma_digital,
 
   // Impuestos
   iva_porcentaje: props.configuracion.iva_porcentaje,
@@ -204,7 +197,6 @@ const form = useForm({
   cobros_hora_reporte: props.configuracion.cobros_hora_reporte || '08:00',
   cobros_reporte_automatico: props.configuracion.cobros_reporte_automatico || false,
   cobros_dias_anticipacion: props.configuracion.cobros_dias_anticipacion || 0,
-  bloqueo_portal_por_deuda: props.configuracion.bloqueo_portal_por_deuda ?? false,
 
   // Pagos (Cuentas por Pagar)
   email_pagos: props.configuracion.email_pagos || '',
@@ -216,15 +208,6 @@ const form = useForm({
   intentos_login: props.configuracion.intentos_login,
   tiempo_bloqueo: props.configuracion.tiempo_bloqueo,
   requerir_2fa: props.configuracion.requerir_2fa,
-  // Biometría
-  biometrics_strict_match: props.configuracion.biometrics_strict_match ?? false,
-  biometrics_local_match_threshold: props.configuracion.biometrics_local_match_threshold ?? 0.72,
-  biometrics_local_liveness_threshold: props.configuracion.biometrics_local_liveness_threshold ?? 0.45,
-  biometrics_geofence_soft_margin_meters: props.configuracion.biometrics_geofence_soft_margin_meters ?? 120,
-  biometrics_nearby_match_relax: props.configuracion.biometrics_nearby_match_relax ?? 0.06,
-  biometrics_nearby_liveness_relax: props.configuracion.biometrics_nearby_liveness_relax ?? 0.10,
-  biometrics_far_match_penalty: props.configuracion.biometrics_far_match_penalty ?? 0.06,
-  biometrics_far_liveness_penalty: props.configuracion.biometrics_far_liveness_penalty ?? 0.10,
   dkim_selector: props.configuracion.dkim_selector,
   dkim_domain: props.configuracion.dkim_domain,
   dkim_public_key: props.configuracion.dkim_public_key,
@@ -289,16 +272,8 @@ const form = useForm({
   linkedin_url: props.configuracion.linkedin_url || '',
   n8n_webhook_blog: props.configuracion.n8n_webhook_blog || '',
 
-  // CVA
-  cva_active: props.configuracion.cva_active ?? false,
-  cva_user: props.configuracion.cva_user || '',
-  cva_password: '', // Sensible, no precargar
-  cva_utility_percentage: props.configuracion.cva_utility_percentage || 15.00,
-  cva_codigo_sucursal: props.configuracion.cva_codigo_sucursal || 1,
-  cva_paqueteria_envio: props.configuracion.cva_paqueteria_envio || 4,
-
   // AI & API Keys
-  ai_provider: props.configuracion.ai_provider || 'groq',
+  ai_provider: props.configuracion.ai_provider || 'gemini',
   groq_api_key: '', // Sensitive
   groq_model: props.configuracion.groq_model || 'llama-3.3-70b-versatile',
   groq_temperature: props.configuracion.groq_temperature || 0.7,
@@ -306,12 +281,12 @@ const form = useForm({
   ollama_model: props.configuracion.ollama_model || 'llama3.1',
   chatbot_enabled: props.configuracion.chatbot_enabled ?? true,
   chatbot_system_prompt: props.configuracion.chatbot_system_prompt || '',
-  chatbot_system_prompt: props.configuracion.chatbot_system_prompt || '',
   chatbot_name: props.configuracion.chatbot_name || 'VircomBot',
-
-  // Robot Blog
-  blog_robot_token: props.configuracion.blog_robot_token || '',
-  blog_robot_enabled: props.configuracion.blog_robot_enabled ?? false,
+  // Gemini
+  gemini_api_key: '', // Sensitive - no precargar
+  gemini_model: props.configuracion.gemini_model || 'gemini-2.0-flash',
+  gemini_temperature: props.configuracion.gemini_temperature || 0.7,
+  pin_auditoria: props.configuracion.pin_auditoria || '1234',
 })
 
 const currentTabComponent = computed(() => {
@@ -346,19 +321,19 @@ watch(activeTab, (newTab) => {
 <template>
   <Head title="Configuración de Empresa" />
 
-  <div class="min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 pb-20">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header con Botón de Guardado Sticky -->
       <div class="sticky top-4 z-30 mb-6 transition-all duration-300">
-          <div class="bg-white dark:bg-slate-900/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl shadow-lg p-4 flex items-center justify-between">
+          <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
                     <FontAwesomeIcon icon="building" size="lg" />
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900 dark:text-white dark:text-gray-100">Configuración</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 hidden md:block">Personaliza tu sistema</p>
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">Configuración</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 hidden md:block">Personaliza tu sistema</p>
                 </div>
             </div>
             
@@ -377,7 +352,7 @@ watch(activeTab, (newTab) => {
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Sidebar de Navegación -->
         <div class="lg:col-span-3">
-          <nav class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 sticky top-24 max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth flex flex-col pb-10">
+          <nav class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 sticky top-24 max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth flex flex-col pb-10">
               <button
                 v-for="tab in tabs"
                 :key="tab.id"
@@ -386,11 +361,11 @@ watch(activeTab, (newTab) => {
                   'w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium rounded-lg transition-all duration-200 mb-1',
                   activeTab === tab.id
                     ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-600 dark:text-gray-300 dark:text-gray-300 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 hover:text-gray-900 dark:text-white dark:hover:text-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
                 ]"
               >
                   <div class="w-6 text-center">
-                     <FontAwesomeIcon :icon="tab.icono" :class="activeTab === tab.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 dark:text-gray-400'" />
+                     <FontAwesomeIcon :icon="tab.icono" :class="activeTab === tab.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'" />
                   </div>
                   {{ tab.nombre }}
                   
@@ -405,8 +380,8 @@ watch(activeTab, (newTab) => {
 
         <!-- Contenido Principal -->
         <div class="lg:col-span-9">
-             <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 min-h-[600px] transition-all duration-300">
-                <component :is="currentTabComponent" :form="form" :cuentas_bancarias="cuentas_bancarias" />
+             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 min-h-[600px] transition-all duration-300">
+                <component :is="currentTabComponent" :form="form" :cuentas_bancarias="cuentas_bancarias" @save="guardarConfiguracion" />
              </div>
         </div>
       </div>
@@ -450,4 +425,6 @@ nav {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
+
+
 

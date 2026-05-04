@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative; height: 100%; width: 100%;">
+  <div class="chart-container">
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>
@@ -102,4 +102,3 @@ const chartOptions = computed(() => ({
   }
 }))
 </script>
-

@@ -69,6 +69,12 @@ class GenerarCuentasPorCobrar extends Command
                     $omitidas++;
                     continue;
                 }
+                // Verificar idempotencia: Si ya tiene cuenta, saltar (aunque el query inicial filtra, ideal doble check en loop por raza si no hay lock)
+                if ($venta->cuentaPorCobrar()->exists()) {
+                    $this->warn("Venta {$venta->numero_venta} omitida: ya tiene cuenta asociada (race condition check)");
+                    $omitidas++;
+                    continue;
+                }
 
                 // ✅ FIX #7: Usar transacción para cada cuenta
                 \DB::transaction(function () use ($venta) {

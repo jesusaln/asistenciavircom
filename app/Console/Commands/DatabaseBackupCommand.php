@@ -23,6 +23,7 @@ class DatabaseBackupCommand extends Command
                              {--encrypt : Encriptar datos sensibles}
                              {--verify : Verificar integridad del respaldo}
                              {--auto : Ejecutar sin confirmación (para tareas programadas)}
+                             {--no-upload : No subir a la nube (solo local)}
                              {--frequency= : Frecuencia para respaldo programado (daily, weekly, monthly)}
                              {--time= : Hora específica para respaldo programado (HH:MM)}
                              {--day-of-week= : Día de la semana (0-6, Domingo=0)}
@@ -50,6 +51,7 @@ class DatabaseBackupCommand extends Command
             'encrypt_sensitive' => $this->option('encrypt'),
             'generate_checksum' => $this->option('verify'),
             'confirmed' => $this->option('auto'), // Para ejecución automática sin confirmación
+            'upload' => !$this->option('no-upload'),
         ];
 
         // Determinar tipo de backup

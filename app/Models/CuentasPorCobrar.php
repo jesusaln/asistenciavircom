@@ -5,11 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Models\Concerns\Blameable;
-use Carbon\Carbon;
 
 class CuentasPorCobrar extends Model
 {
@@ -132,27 +130,25 @@ class CuentasPorCobrar extends Model
     {
         // Si la cuenta está cancelada, respetar el estado y solo ajustar pendiente
         if ($this->estado === 'cancelada') {
-            $this->monto_pendiente = max(0, $this->calcularPendiente());
+            $this->monto_pendiente = round(max(0, $this->calcularPendiente()), 2);
             $this->save();
             return;
         }
 
-        $pendiente = $this->calcularPendiente();
+        $pendiente = round($this->calcularPendiente(), 2);
+        $montoPagado = round((float) $this->monto_pagado, 2);
 
-        if ($pendiente <= 0.009) {
+        if ($pendiente <= 0.00) {
             $this->estado = 'pagado';
-            $this->monto_pendiente = 0;
+        } elseif ($montoPagado > 0.00) {
+            $this->estado = 'parcial';
+        } elseif ($this->estaVencida()) {
+            $this->estado = 'vencido';
         } else {
-            if ($this->monto_pagado > 0) {
-                $this->estado = 'parcial';
-            } elseif ($this->estaVencida()) {
-                $this->estado = 'vencido';
-            } else {
-                $this->estado = 'pendiente';
-            }
-            $this->monto_pendiente = $pendiente;
+            $this->estado = 'pendiente';
         }
 
+        $this->monto_pendiente = max(0, $pendiente);
         $this->save();
 
         // Nota: La sincronización con la Venta relacionada ahora es manejada 
@@ -164,15 +160,17 @@ class CuentasPorCobrar extends Model
      */
     public function registrarPago(float $monto, ?string $notas = null): void
     {
+        $monto = round($monto, 2);
+
         // Validación 1: Monto debe ser positivo
-        if ($monto <= 0) {
+        if ($monto <= 0.00) {
             throw new \InvalidArgumentException('El monto del pago debe ser mayor a cero');
         }
 
         // Validación 2: Calcular pendiente actual
         $pendienteActual = round($this->calcularPendiente(), 2);
 
-        // Validación 3: Monto no puede exceder el pendiente
+        // Validación 3: Monto no puede exceder el pendiente (tolerancia de centavos pequeños para evitar errores flotantes está cubierta por el round)
         if ($monto > $pendienteActual) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -193,9 +191,10 @@ class CuentasPorCobrar extends Model
             throw new \LogicException('No se puede registrar pago en una cuenta cancelada');
         }
 
-        // ✅ Registrar el pago
-        $this->monto_pagado += $monto;
+        // ✅ Registrar el pago redondeado
+        $this->monto_pagado = round((float)$this->monto_pagado + $monto, 2);
 
+        // ✅ CRITICAL FIX: Add notes for manual payments integration
         if ($notas) {
             $this->notas = ($this->notas ? $this->notas . "\n" : '') . "Pago recibido: {$monto} - {$notas}";
         }

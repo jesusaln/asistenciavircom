@@ -1,7 +1,7 @@
 <!-- /resources/js/Pages/Cotizaciones/Index.vue -->
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { router, Head } from '@inertiajs/vue3'
+import { router, Head, usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
@@ -38,6 +38,11 @@ const props = defineProps({
 /* =========================
    Configuración de notificaciones
 ========================= */
+const page = usePage()
+
+/** Tras crear cotización: datos para enviar por WhatsApp sin buscar de nuevo en la tabla */
+const whatsappCotizacionReciente = ref(null)
+
 const notyf = new Notyf({
   duration: 4000,
   position: { x: 'right', y: 'top' },
@@ -206,6 +211,13 @@ const paginationData = computed(() => ({
   next_page_url: props.pagination?.current_page < props.pagination?.last_page ? '#' : null,
   links: []
 }))
+
+onMounted(() => {
+  const w = page.props.flash?.whatsapp_cotizacion_reciente
+  if (w && typeof w === 'object' && w.id) {
+    whatsappCotizacionReciente.value = w
+  }
+})
 
 // Watch para búsqueda con debounce
 watch(searchTerm, (newVal) => {
@@ -543,7 +555,7 @@ const enviarAPedido = async (cotizacionData, { redirectTo = 'index' } = {}) => {
     loading.value = true
     notyf.success('Enviando cotización a pedido...')
 
-    const { data } = await axios.post(`/cotizaciones/${doc.id}/enviar-pedido`, {
+    const { data } = await axios.post(`/cotizaciones/${doc.id}/enviar-a-pedido`, {
       forzarReenvio: !!cotizacionData?.forzarReenvio
     })
 
@@ -570,8 +582,46 @@ const enviarAPedido = async (cotizacionData, { redirectTo = 'index' } = {}) => {
 
 
 
-const enviarAVenta = () => {
-  notyf.open({ type: 'warning', message: 'Esta acción no está disponible desde Cotizaciones.' })
+const enviarAVenta = (cotizacionData) => {
+  const docRaw = cotizacionData?.id ? cotizacionData : fila.value
+  try {
+    validarCotizacionBasica(docRaw)
+  } catch (err) {
+    notyf.error(err.message)
+    return
+  }
+
+  const doc = { ...docRaw }
+  
+  // Usar modal de confirmación
+  fila.value = doc
+  modalMode.value = 'confirm-venta'
+  showModal.value = true
+}
+
+const confirmarEnviarAVenta = () => {
+  const doc = fila.value
+  if (!doc?.id) return
+
+  loading.value = true
+  cerrarModal()
+  
+  router.post(`/cotizaciones/${doc.id}/convertir-a-venta`, {}, {
+    onStart: () => {
+      notyf.success('Convirtiendo cotización a venta...')
+    },
+    onSuccess: () => {
+      // Si el backend hace un Redirect a la venta, Inertia lo seguirá automáticamente.
+      notyf.success('Cotización convertida a venta exitosamente')
+    },
+    onError: (errors) => {
+      console.error(errors)
+      notyf.error('Error al convertir a venta')
+    },
+    onFinish: () => {
+      loading.value = false
+    }
+  })
 }
 
 // Función para enviar cotización por email
@@ -649,14 +699,97 @@ const confirmarEnvioEmail = async () => {
 const crearNuevaCotizacion = () => {
   router.visit('/cotizaciones/create')
 }
+
+const cerrarBannerWhatsappReciente = () => {
+  whatsappCotizacionReciente.value = null
+}
+
+/** Abre el Inbox de WhatsApp para confirmar y enviar el PDF (no se envía hasta que confirme allí). */
+const enviarWhatsappDesdeBanner = () => {
+  const w = whatsappCotizacionReciente.value
+  if (!w) return
+  irAlInboxWhatsappCotizacion({
+    id: w.id,
+    numero_cotizacion: w.numero_cotizacion,
+    total: w.total,
+    sharing_token: w.sharing_token,
+    cliente: w.cliente
+  })
+  cerrarBannerWhatsappReciente()
+}
+
+/**
+ * Redirige a /marketing/whatsapp-inbox?cotizacion=… para confirmar el envío por WhatsApp Business.
+ * No abre WhatsApp Web ni envía el mensaje automáticamente.
+ */
+const irAlInboxWhatsappCotizacion = (cotizacion) => {
+  if (!cotizacion?.cliente?.telefono) {
+    notyf.error('El cliente no tiene un teléfono registrado')
+    return
+  }
+
+  const telefono = String(cotizacion.cliente.telefono).replace(/\D/g, '')
+  if (telefono.length < 10) {
+    notyf.error('El teléfono del cliente no es válido')
+    return
+  }
+
+  if (!cotizacion.id) {
+    notyf.error('Falta el identificador de la cotización')
+    return
+  }
+
+  router.visit(route('marketing.whatsapp.inbox', { cotizacion: cotizacion.id }))
+}
+
+const enviarWhatsApp = irAlInboxWhatsappCotizacion
 </script>
 
 <template>
   <Head title="Cotizaciones" />
 
-  <div :style="cssVars" class="cotizaciones-index min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors">
+  <div :style="cssVars" class="cotizaciones-index min-h-screen bg-white dark:bg-gray-900 transition-colors">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
+      <!-- Tras crear cotización: atajo para enviar por WhatsApp -->
+      <div
+        v-if="whatsappCotizacionReciente"
+        class="mb-6 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/90 dark:bg-emerald-950/40 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+        role="status"
+      >
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+            Cotización {{ whatsappCotizacionReciente.numero_cotizacion || ('#' + whatsappCotizacionReciente.id) }} guardada
+          </p>
+          <p class="text-xs text-emerald-800/90 dark:text-emerald-300/90 mt-0.5">
+            <template v-if="whatsappCotizacionReciente.cliente?.telefono">
+              Abra el Inbox de WhatsApp para confirmar y enviar el enlace al PDF (WhatsApp Business).
+            </template>
+            <template v-else>
+              Agregue un teléfono al cliente para poder enviar por WhatsApp desde aquí o use el ícono en la tabla cuando lo tenga.
+            </template>
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            v-if="whatsappCotizacionReciente.cliente?.telefono"
+            type="button"
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 transition-colors"
+            @click="enviarWhatsappDesdeBanner"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Ir al Inbox de WhatsApp
+          </button>
+          <button
+            type="button"
+            class="text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:underline px-2"
+            @click="cerrarBannerWhatsappReciente"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+
       <!-- Header específico de cotizaciones -->
       <CotizacionesHeader
         :total="estadisticas.total"
@@ -685,6 +818,7 @@ const crearNuevaCotizacion = () => {
           @imprimir="imprimirCotizacion"
           @enviar-pedido="enviarAPedido"
           @enviar-email="enviarCotizacionPorEmail"
+          @enviar-whatsapp="enviarWhatsApp"
           @sort="updateSort"
         />
 
@@ -727,13 +861,14 @@ const crearNuevaCotizacion = () => {
       @confirm-email="confirmarEnvioEmail"
       @imprimir="imprimirFila"
       @editar="editarFila"
+      @confirm-venta="confirmarEnviarAVenta"
       @enviar-pedido="enviarAPedido"
       @enviar-a-venta="enviarAVenta"
     />
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-none">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-none">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderColor: colors.principal }"></div>
           <span class="text-gray-700 dark:text-gray-200">Procesando...</span>
@@ -783,13 +918,14 @@ const crearNuevaCotizacion = () => {
   color: #9ca3af;
 }
 
-.pagination-controls button:focus {
-  outline: none;
+.pagination-controls button:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
   /* Approximate Tailwind's ring-2 + ring-blue-500 + ring-offset-2 */
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18);
 }
 
-:root.dark .pagination-controls button:focus {
+:root.dark .pagination-controls button:focus-visible {
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.30);
 }
 
@@ -797,7 +933,6 @@ const crearNuevaCotizacion = () => {
   backdrop-filter: blur(2px);
 }
 </style>
-
 
 
 

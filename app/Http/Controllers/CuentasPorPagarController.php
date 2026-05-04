@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\CuentasPorPagar;
 use App\Models\Compra;
+use App\Support\DbExpression;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 
 class CuentasPorPagarController extends Controller
@@ -20,8 +22,29 @@ class CuentasPorPagarController extends Controller
             $query = CuentasPorPagar::with(['compra.proveedor']);
 
             // Filtros
+            if ($request->filled('buscar')) {
+                $buscar = $request->buscar;
+                $query->where(function ($q) use ($buscar) {
+                    $q->whereHas('compra', function ($q2) use ($buscar) {
+                        $q2->where('numero_compra', 'like', "%$buscar%")
+                            ->orWhereHas('proveedor', function ($q3) use ($buscar) {
+                                $q3->where('nombre_razon_social', 'like', "%$buscar%")
+                                    ->orWhere('rfc', 'like', "%$buscar%");
+                            });
+                    })->orWhere('id', 'like', "%$buscar%");
+                });
+            }
+
             if ($request->filled('estado')) {
-                $query->where('estado', $request->estado);
+                if ($request->estado === 'vencido') {
+                    $query->vencidas();
+                } elseif ($request->estado === 'pendiente') {
+                    // Si se pide "pendiente", incluimos también los "parcial" por UX (opcional, pero consistente con ver deudas)
+                    // Sin embargo, para mantener el dropdown literal, vamos a dejar que pase por el default si no es vencido
+                    $query->where('estado', $request->estado);
+                } else {
+                    $query->where('estado', $request->estado);
+                }
             }
 
             if ($request->filled('proveedor_id')) {
@@ -47,20 +70,42 @@ class CuentasPorPagarController extends Controller
             // Luego por fecha de vencimiento
             $query->orderBy($sortBy, $sortDirection);
 
-            $cuentas = $query->paginate(15);
+            $cuentas = $query->paginate(15)->withQueryString();
 
             // Estadísticas
+            $tieneSaldoFavorCols = Schema::hasColumn('cuentas_por_pagar', 'saldo_favor_generado')
+                && Schema::hasColumn('cuentas_por_pagar', 'saldo_favor_utilizado');
+            $totalSaldoFavor = 0;
+            if ($tieneSaldoFavorCols) {
+                $totalSaldoFavor = (float) CuentasPorPagar::where('estado', 'cancelada')
+                    ->selectRaw('COALESCE(SUM(COALESCE(saldo_favor_generado, 0) - COALESCE(saldo_favor_utilizado, 0)), 0) as total')
+                    ->value('total');
+            }
+
+            // Definición balanceada de estadísticas (mutuamente excluyentes)
+            $vencidasQuery = CuentasPorPagar::vencidas();
+            $porVencerQuery = CuentasPorPagar::pendientes()->where(function($q) {
+                $q->whereNull('fecha_vencimiento')
+                  ->orWhere('fecha_vencimiento', '>=', now()->startOfDay());
+            })->where('estado', '!=', 'vencido');
+
             $stats = [
-                'total_pendiente' => CuentasPorPagar::whereIn('estado', ['pendiente', 'parcial'])->sum('monto_pendiente'),
-                'total_vencido' => CuentasPorPagar::where('estado', 'vencido')->sum('monto_pendiente'),
-                'cuentas_pendientes' => CuentasPorPagar::whereIn('estado', ['pendiente', 'parcial'])->count(),
-                'cuentas_vencidas' => CuentasPorPagar::where('estado', 'vencido')->count(),
+                'total_vencido' => (float) $vencidasQuery->sum('monto_pendiente'),
+                'total_por_vencer' => (float) $porVencerQuery->sum('monto_pendiente'),
+                'total_deuda' => (float) CuentasPorPagar::pendientes()->sum('monto_pendiente'),
+                'total_pagado' => (float) CuentasPorPagar::where('estado', 'pagado')->sum('monto_pagado'),
+                'total_saldo_favor' => $totalSaldoFavor,
+                'count_vencidas' => $vencidasQuery->count(),
+                'count_por_vencer' => $porVencerQuery->count(),
+                'count_pagadas' => CuentasPorPagar::where('estado', 'pagado')->count(),
+                'count_canceladas' => CuentasPorPagar::where('estado', 'cancelada')->count(),
+                'total_cancelado' => (float) CuentasPorPagar::where('estado', 'cancelada')->sum('monto_total'),
             ];
 
             return Inertia::render('CuentasPorPagar/Index', [
                 'cuentas' => $cuentas,
                 'stats' => $stats,
-                'filters' => $request->only(['estado', 'proveedor_id']),
+                'filters' => $request->only(['estado', 'proveedor_id', 'buscar']),
                 'sorting' => ['sort_by' => $sortBy, 'sort_direction' => $sortDirection],
                 'cuentasBancarias' => \App\Models\CuentaBancaria::activas()->orderBy('banco')->orderBy('nombre')->get(['id', 'nombre', 'banco']),
                 'proveedores' => \App\Models\Proveedor::where('activo', true)->orderBy('nombre_razon_social')->get(['id', 'nombre_razon_social']),
@@ -101,6 +146,7 @@ class CuentasPorPagarController extends Controller
         $validated = $request->validate([
             'compra_id' => 'required|exists:compras,id',
             'monto_total' => 'required|numeric|min:0',
+            'fecha_emision' => 'nullable|date',
             'fecha_vencimiento' => 'nullable|date|after:today',
             'notas' => 'nullable|string|max:1000',
         ]);
@@ -117,6 +163,7 @@ class CuentasPorPagarController extends Controller
                 'monto_total' => $validated['monto_total'],
                 'monto_pagado' => 0,
                 'monto_pendiente' => $validated['monto_total'],
+                'fecha_emision' => $validated['fecha_emision'] ?? now()->toDateString(),
                 'fecha_vencimiento' => $validated['fecha_vencimiento'],
                 'estado' => 'pendiente',
                 'notas' => $validated['notas'],
@@ -131,11 +178,16 @@ class CuentasPorPagarController extends Controller
      */
     public function show(string $id)
     {
-        $cuenta = CuentasPorPagar::with(['compra.proveedor', 'compra.productos', 'pagadoPor', 'cfdi'])->findOrFail($id);
+        $cuenta = CuentasPorPagar::with(['compra.proveedor', 'compra.compraItems.comprable', 'pagadoPor', 'cfdi'])->findOrFail($id);
+        $proveedorId = $cuenta->proveedor_id ?: $cuenta->compra?->proveedor_id;
+        $saldoFavorDisponibleProveedor = $proveedorId
+            ? CuentasPorPagar::saldoFavorDisponibleProveedor((int) $proveedorId, $cuenta->empresa_id)
+            : 0;
 
         return Inertia::render('CuentasPorPagar/Show', [
             'cuenta' => $cuenta,
             'cuentasBancarias' => \App\Models\CuentaBancaria::activas()->orderBy('banco')->orderBy('nombre')->get(['id', 'nombre', 'banco']),
+            'saldoFavorDisponibleProveedor' => $saldoFavorDisponibleProveedor,
         ]);
     }
 
@@ -179,6 +231,7 @@ class CuentasPorPagarController extends Controller
             if (isset($validated['monto_pagado'])) {
                 $diferencia = $validated['monto_pagado'] - $cuenta->monto_pagado;
                 if ($diferencia > 0) {
+                    \Log::debug("CXP registrarPago difference detected", ['id' => $cuenta->id, 'monto' => $diferencia]);
                     $cuenta->registrarPago($diferencia, 'Pago registrado desde edición');
                 }
             }
@@ -215,11 +268,40 @@ class CuentasPorPagarController extends Controller
     }
 
     /**
+     * Cancelar cuenta por pagar manteniendo trazabilidad.
+     */
+    public function cancelar(Request $request, string $id)
+    {
+        $cuenta = CuentasPorPagar::findOrFail($id);
+
+        if ($cuenta->estado === 'cancelada') {
+            return redirect()->back()->with('error', 'La cuenta ya está cancelada.');
+        }
+
+        $validated = $request->validate([
+            'motivo_cancelacion' => 'required|string|min:5|max:1000',
+        ]);
+
+        $saldoFavor = (float) $cuenta->monto_pagado;
+
+        DB::transaction(function () use ($cuenta, $validated) {
+            $cuenta->cancelar($validated['motivo_cancelacion']);
+        });
+
+        $message = 'Cuenta por pagar cancelada correctamente.';
+        if ($saldoFavor > 0) {
+            $message .= ' Se generó saldo a favor por ' . number_format($saldoFavor, 2) . '.';
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
      * Registrar un pago parcial
      */
     public function registrarPago(Request $request, string $id)
     {
-        $cuenta = CuentasPorPagar::findOrFail($id);
+        $cuenta = CuentasPorPagar::with('compra')->findOrFail($id);
 
         // ✅ FIX: No permitir pagos en cuentas pagadas o canceladas
         if (in_array($cuenta->estado, ['pagado', 'cancelada'])) {
@@ -227,14 +309,79 @@ class CuentasPorPagarController extends Controller
         }
 
         $validated = $request->validate([
-            'monto' => 'required|numeric|min:0.01|max:' . $cuenta->monto_pendiente,
+            'monto' => 'nullable|numeric|min:0.01|max:' . $cuenta->monto_pendiente,
             'notas' => 'nullable|string|max:500',
             'cuenta_bancaria_id' => 'nullable|exists:cuentas_bancarias,id',
+            'usar_saldo_favor' => 'nullable|boolean',
         ]);
 
-        $cuenta->registrarPago($validated['monto'], $validated['notas'], $validated['cuenta_bancaria_id'] ?? null);
+        $usarSaldoFavor = (bool) ($validated['usar_saldo_favor'] ?? false);
+        $montoManual = (float) ($validated['monto'] ?? 0);
 
-        return redirect()->back()->with('success', 'Pago registrado correctamente.');
+        if (!$usarSaldoFavor && $montoManual <= 0) {
+            return redirect()->back()->with('error', 'Debes registrar un monto o activar uso de saldo a favor.');
+        }
+
+        $aplicadoFavor = 0.0;
+        $aplicadoManual = 0.0;
+
+        DB::transaction(function () use ($id, $validated, $usarSaldoFavor, $montoManual, &$aplicadoFavor, &$aplicadoManual) {
+            $cuentaActual = CuentasPorPagar::with('compra')->lockForUpdate()->findOrFail($id);
+
+            if (in_array($cuentaActual->estado, ['pagado', 'cancelada'])) {
+                throw new \RuntimeException('La cuenta ya no permite pagos.');
+            }
+
+            if ($usarSaldoFavor) {
+                $proveedorId = $cuentaActual->proveedor_id ?: $cuentaActual->compra?->proveedor_id;
+                if ($proveedorId) {
+                    $aplicacion = CuentasPorPagar::aplicarSaldoFavorProveedor(
+                        (int) $proveedorId,
+                        (float) $cuentaActual->monto_pendiente,
+                        $cuentaActual->empresa_id
+                    );
+
+                    $aplicadoFavor = (float) ($aplicacion['aplicado'] ?? 0);
+                    if ($aplicadoFavor > 0) {
+                        $origenes = collect($aplicacion['origenes'] ?? [])
+                            ->map(fn($item) => '#' . $item['id'])
+                            ->implode(', ');
+
+                        $notaFavor = trim('Aplicación de saldo a favor del proveedor' . ($origenes ? " (origen: {$origenes})" : ''));
+                        $cuentaActual->registrarPago($aplicadoFavor, $notaFavor, null);
+                    }
+                }
+            }
+
+            if ($montoManual > 0) {
+                $cuentaActual->refresh();
+                $pendiente = (float) $cuentaActual->monto_pendiente;
+                if ($pendiente <= 0) {
+                    return;
+                }
+
+                $aplicadoManual = min($montoManual, $pendiente);
+                $cuentaActual->registrarPago(
+                    $aplicadoManual,
+                    $validated['notas'] ?? null,
+                    $validated['cuenta_bancaria_id'] ?? null
+                );
+            }
+        });
+
+        if ($aplicadoFavor <= 0 && $aplicadoManual <= 0) {
+            return redirect()->back()->with('error', 'No se pudo aplicar pago: sin saldo a favor disponible o sin pendiente.');
+        }
+
+        $partes = [];
+        if ($aplicadoFavor > 0) {
+            $partes[] = 'saldo a favor ' . number_format($aplicadoFavor, 2);
+        }
+        if ($aplicadoManual > 0) {
+            $partes[] = 'pago manual ' . number_format($aplicadoManual, 2);
+        }
+
+        return redirect()->back()->with('success', 'Pago registrado correctamente (' . implode(' + ', $partes) . ').');
     }
 
     /**
@@ -314,7 +461,7 @@ class CuentasPorPagarController extends Controller
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
-                    $q->where('uuid', 'ilike', "%{$search}%")
+                    $q->where(DbExpression::castText('uuid'), 'ilike', "%{$search}%")
                         ->orWhere('nombre_emisor', 'ilike', "%{$search}%")
                         ->orWhere('rfc_emisor', 'ilike', "%{$search}%");
                 });

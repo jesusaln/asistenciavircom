@@ -7,6 +7,7 @@ use App\Models\Categoria;
 use App\Models\Marca;
 use App\Models\EmpresaConfiguracion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 
 class CatalogoController extends Controller
@@ -17,10 +18,19 @@ class CatalogoController extends Controller
     public function index(Request $request)
     {
         $empresa = EmpresaConfiguracion::getConfig();
+        $tieneCatalogoWeb = Schema::hasColumn('productos', 'catalogo_web');
 
         $query = Producto::query()
             ->where('estado', 'activo')
             ->with(['categoria', 'marca']);
+
+        if ($tieneCatalogoWeb) {
+            $query->where('catalogo_web', true);
+            
+            // Regla General: Solo mostrar productos que tengan imagen configurada
+            $query->whereNotNull('imagen')
+                  ->where('imagen', '!=', '');
+        }
 
         // Filtro por categoría
         if ($request->filled('categoria')) {
@@ -54,6 +64,14 @@ class CatalogoController extends Controller
                     ->orWhere('descripcion', 'ilike', "%{$search}%")
                     ->orWhere('codigo', 'ilike', "%{$search}%")
                     ->orWhere('cva_clave', 'ilike', "%{$search}%");
+            });
+        }
+
+        // Filtro por productos sin foto
+        if ($request->boolean('sin_foto')) {
+            $query->where(function ($q) {
+                $q->whereNull('imagen')
+                    ->orWhere('imagen', '');
             });
         }
 
@@ -91,15 +109,15 @@ class CatalogoController extends Controller
                     $query->orderBy('nombre', 'asc');
                     break;
                 default:
-                    // 1. Productos DESTACADOS manualmente
-                    // 2. Disponibilidad Local (stock > 0)
-                    // 3. Mayor Margen de Ganancia (Rentabilidad)
-                    // 4. Disponibilidad CEDIS
-                    $query->orderByDesc('destacado')
-                        ->orderByRaw('CASE WHEN stock > 0 THEN 0 ELSE 1 END')
-                        ->orderByDesc('margen_ganancia')
-                        ->orderByRaw('CASE WHEN stock_cedis > 0 THEN 0 ELSE 1 END')
-                        ->orderByDesc('created_at');
+                    // 1. Disponibles en Hermosillo (stock > 0)
+                    // 2. Disponibles en CEDIS/Otros (stock_cedis > 0)
+                    // 3. Los demás (sin stock)
+                    $query->orderByRaw('CASE 
+                        WHEN stock > 0 THEN 1 
+                        WHEN stock_cedis > 0 THEN 2 
+                        ELSE 3 
+                    END ASC')
+                        ->orderBy('created_at', 'desc');
             }
         }
 
@@ -108,26 +126,52 @@ class CatalogoController extends Controller
         });
 
         // Cache por 1 hora para mejorar velocidad de búsqueda
-        $cacheKey = "catalogo_filters_empresa_" . ($empresa->id ?? 'default');
+        $cacheKey = "catalogo_filters_empresa_v2_" . ($empresa->id ?? 'default');
 
-        $filterData = \Cache::remember($cacheKey, 3600, function () {
+        $filterData = \Cache::remember($cacheKey, 3600, function () use ($tieneCatalogoWeb) {
             // Categorías con conteo de productos activos
-            $categorias = Categoria::withCount(['productos' => fn($q) => $q->where('estado', 'activo')])
-                ->whereHas('productos', fn($q) => $q->where('estado', 'activo'))
-                ->orderBy('nombre')
-                ->get();
+            $categorias = Categoria::withCount([
+                'productos' => function ($q) use ($tieneCatalogoWeb) {
+                    $q->where('estado', 'activo');
+                    if ($tieneCatalogoWeb) {
+                        $q->where('catalogo_web', true)
+                            ->whereNotNull('imagen')
+                            ->where('imagen', '!=', '');
+                    }
+                }
+            ])->whereHas('productos', function ($q) use ($tieneCatalogoWeb) {
+                $q->where('estado', 'activo');
+                if ($tieneCatalogoWeb) {
+                    $q->where('catalogo_web', true)
+                        ->whereNotNull('imagen')
+                        ->where('imagen', '!=', '');
+                }
+            })->orderBy('nombre')->get();
 
             // Marcas con conteo
-            $marcas = Marca::withCount(['productos' => fn($q) => $q->where('estado', 'activo')])
-                ->whereHas('productos', fn($q) => $q->where('estado', 'activo'))
-                ->orderBy('nombre')
-                ->get();
+            $marcas = Marca::withCount([
+                'productos' => function ($q) use ($tieneCatalogoWeb) {
+                    $q->where('estado', 'activo');
+                    if ($tieneCatalogoWeb) {
+                        $q->where('catalogo_web', true)
+                            ->whereNotNull('imagen')
+                            ->where('imagen', '!=', '');
+                    }
+                }
+            ])->whereHas('productos', function ($q) use ($tieneCatalogoWeb) {
+                $q->where('estado', 'activo');
+                if ($tieneCatalogoWeb) {
+                    $q->where('catalogo_web', true)
+                        ->whereNotNull('imagen')
+                        ->where('imagen', '!=', '');
+                }
+            })->orderBy('nombre')->get();
 
             return compact('categorias', 'marcas');
         });
 
         // Obtener límites de precio (Cacheado por 30 min)
-        $prices = \Cache::remember("catalogo_prices_" . ($empresa->id ?? '8'), 1800, function () use ($query) {
+        $prices = \Cache::remember("catalogo_prices_v2_" . ($empresa->id ?? '8'), 1800, function () use ($query) {
             $q = clone $query;
             return [
                 'min' => $q->min('precio_venta') ?: 0,
@@ -155,7 +199,7 @@ class CatalogoController extends Controller
                 'telefono' => $empresa->telefono ?? null,
                 'email' => $empresa->email ?? null,
                 'whatsapp' => $empresa->whatsapp ?? $empresa->telefono ?? null,
-                'color_principal' => $empresa->color_principal ?? '#3B82F6',
+                'color_principal' => $empresa->color_principal ?? '#FF6B35',
                 'cva_active' => $empresa->cva_active,
             ] : null,
             'filters' => [
@@ -167,6 +211,7 @@ class CatalogoController extends Controller
                 'precio_max' => $request->precio_max,
                 'existencia' => $soloExistencia,
                 'local' => $request->boolean('local'),
+                'sin_foto' => $request->boolean('sin_foto'),
             ],
             'cliente' => session('cliente_tienda'),
             'canLogin' => true,
@@ -179,17 +224,31 @@ class CatalogoController extends Controller
     public function show($id)
     {
         $empresa = EmpresaConfiguracion::getConfig();
+        $tieneCatalogoWeb = Schema::hasColumn('productos', 'catalogo_web');
         $isCvaId = str_starts_with($id, 'CVA-');
         $productoModel = null;
         $cvaClave = null;
 
-        if (!$isCvaId && is_numeric($id)) {
+        if ($isCvaId) {
+            $cvaClave = str_replace('CVA-', '', $id);
+        } elseif (is_numeric($id)) {
             $productoModel = Producto::with(['categoria', 'marca'])->find($id);
             if ($productoModel && $productoModel->origen === 'CVA') {
                 $cvaClave = $productoModel->cva_clave;
             }
-        } elseif ($isCvaId) {
-            $cvaClave = str_replace('CVA-', '', $id);
+        } else {
+            // Slug / SKU fallback (e.g. from FB Ads)
+            $productoModel = Producto::with(['categoria', 'marca'])
+                ->where('sku', $id)
+                ->first();
+        }
+
+        if (!$productoModel && !$cvaClave) {
+            abort(404, 'Producto no encontrado');
+        }
+
+        if ($productoModel && $tieneCatalogoWeb && !$productoModel->catalogo_web) {
+            abort(404, 'Producto no disponible en tienda');
         }
 
         if ($cvaClave) {
@@ -245,8 +304,13 @@ class CatalogoController extends Controller
             $relacionados = [];
         } else {
             $productoModel = Producto::with(['categoria', 'marca'])
-                ->where('estado', 'activo')
-                ->findOrFail($id);
+                ->where('estado', 'activo');
+            if ($tieneCatalogoWeb) {
+                $productoModel->where('catalogo_web', true)
+                    ->whereNotNull('imagen')
+                    ->where('imagen', '!=', '');
+            }
+            $productoModel = $productoModel->findOrFail($id);
 
             $producto = $this->transformModelToView($productoModel);
 
@@ -256,6 +320,32 @@ class CatalogoController extends Controller
                 ->limit(4)
                 ->get()
                 ->map(fn($rel) => $this->transformModelToView($rel, true));
+            if ($tieneCatalogoWeb) {
+                $relacionados = Producto::where('estado', 'activo')
+                    ->where('catalogo_web', true)
+                    ->whereNotNull('imagen')
+                    ->where('imagen', '!=', '')
+                    ->where('categoria_id', $productoModel->categoria_id)
+                    ->where('id', '!=', $productoModel->id)
+                    ->limit(4)
+                    ->get()
+                    ->map(fn($rel) => $this->transformModelToView($rel, true));
+            }
+        }
+
+        // Tracking: Meta CAPI ViewContent
+        try {
+            $metaId = $productoModel->sku ?: ('CDD-' . $productoModel->id);
+            $metaService = app(\App\Services\MetaConversionService::class);
+            $metaService->sendEvent('ViewContent', [], [
+                'content_ids' => [(string) $metaId],
+                'content_name' => $producto['nombre'],
+                'content_type' => 'product',
+                'value' => (float) $producto['precio_con_iva'],
+                'currency' => 'MXN'
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning("Error tracking ViewContent: " . $e->getMessage());
         }
 
         return Inertia::render('Catalogo/Show', [
@@ -264,7 +354,7 @@ class CatalogoController extends Controller
             'empresa' => $empresa ? [
                 'nombre' => $empresa->nombre_comercial ?? $empresa->razon_social ?? 'Tienda',
                 'whatsapp' => $empresa->whatsapp ?? $empresa->telefono ?? null,
-                'color_principal' => $empresa->color_principal ?? '#3B82F6',
+                'color_principal' => $empresa->color_principal ?? '#FF6B35',
             ] : null,
             'canLogin' => true,
         ]);

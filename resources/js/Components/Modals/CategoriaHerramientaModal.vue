@@ -1,10 +1,10 @@
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/70 p-4">
+    <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
       <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Gestión de Categorías</h3>
-        <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
+      <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Gestión de Categorías</h3>
+        <button @click="closeModal" class="text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -12,20 +12,20 @@
       </div>
 
       <!-- Formulario de categoría -->
-      <div class="p-6 border-b">
-        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+      <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+        <h4 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">
           {{ editingCategoria ? 'Editar Categoría' : 'Crear Nueva Categoría' }}
         </h4>
         <form @submit.prevent="submitCategoria" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">
                 Nombre <span class="text-red-500">*</span>
               </label>
               <input
                 v-model="categoriaForm.nombre"
                 type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 :placeholder="editingCategoria ? categoriaForm.nombre : 'Ej: Herramientas Eléctricas'"
                 required
               />
@@ -33,11 +33,11 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+              <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
               <input
                 v-model="categoriaForm.descripcion"
                 type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 :placeholder="editingCategoria ? categoriaForm.descripcion : 'Descripción opcional...'"
               />
               <div v-if="errors.descripcion" class="mt-1 text-sm text-red-600">{{ errors.descripcion }}</div>
@@ -49,7 +49,7 @@
               v-if="editingCategoria"
               type="button"
               @click="cancelEdit"
-              class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              class="px-4 py-2 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800"
             >
               Cancelar Edición
             </button>
@@ -74,19 +74,19 @@
 
       <!-- Lista de categorías existentes -->
       <div class="p-6">
-        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Categorías Existentes</h4>
-        <div v-if="categorias.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+        <h4 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Categorías Existentes</h4>
+        <div v-if="categorias.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
           No hay categorías creadas aún
         </div>
         <div v-else class="space-y-3 max-h-96 overflow-y-auto">
           <div
             v-for="categoria in categorias"
             :key="categoria.id"
-            class="flex items-center justify-between p-3 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-gray-50"
+            class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60"
           >
             <div class="flex-1">
-              <div class="font-medium text-gray-900 dark:text-white">{{ categoria.nombre }}</div>
-              <div v-if="categoria.descripcion" class="text-sm text-gray-600">{{ categoria.descripcion }}</div>
+              <div class="font-medium text-slate-900 dark:text-slate-100">{{ categoria.nombre }}</div>
+              <div v-if="categoria.descripcion" class="text-sm text-slate-600 dark:text-slate-400">{{ categoria.descripcion }}</div>
             </div>
             <div class="flex items-center space-x-2">
               <span :class="categoria.activo ? 'text-green-600' : 'text-red-600'" class="text-sm">
@@ -100,7 +100,7 @@
               </button>
               <button
                 @click="toggleCategoria(categoria)"
-                class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                class="px-3 py-1 text-sm border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 {{ categoria.activo ? 'Desactivar' : 'Activar' }}
               </button>
@@ -250,4 +250,3 @@ const closeModal = () => {
   emit('close')
 }
 </script>
-

@@ -2,13 +2,13 @@
     <AppLayout title="Proyectos">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight flex items-center">
-                    <font-awesome-icon icon="folder-open" class="mr-3 text-indigo-500" />
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                    <font-awesome-icon icon="folder-open" class="mr-3 text-indigo-500 dark:text-indigo-300" />
                     Mis Proyectos
                 </h2>
                 <button 
                     @click="openModal()"
-                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 transition ease-in-out duration-150 shadow-sm"
                 >
                     <font-awesome-icon icon="plus" class="mr-2" />
                     Nuevo Proyecto
@@ -21,47 +21,47 @@
                 
                 <!-- Sección: Mis Proyectos -->
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 border-l-4 border-indigo-500 pl-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-l-4 border-indigo-500 pl-3">
                         Proyectos Propios
                     </h3>
                     
-                    <div v-if="misProyectos.length === 0" class="text-center py-12 bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed border-gray-300">
-                         <font-awesome-icon icon="clipboard-list" class="text-4xl text-gray-400 mb-3" />
-                         <p class="text-gray-500 dark:text-gray-400">No has creado ningún proyecto aún.</p>
-                         <button @click="openModal()" class="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">Crear mi primer proyecto</button>
+                    <div v-if="misProyectos.length === 0" class="text-center py-12 bg-white dark:bg-slate-950/70 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-800">
+                         <font-awesome-icon icon="clipboard-list" class="text-4xl text-gray-400 dark:text-slate-500 mb-3" />
+                         <p class="text-gray-500 dark:text-slate-400">No has creado ningún proyecto aún.</p>
+                         <button @click="openModal()" class="mt-4 text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-200 font-medium">Crear mi primer proyecto</button>
                     </div>
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="proyecto in misProyectos" :key="proyecto.id" 
-                            class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 cursor-pointer group relative"
+                            class="bg-white dark:bg-slate-950/70 overflow-hidden shadow-sm dark:shadow-slate-950/40 sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 cursor-pointer group relative dark:border dark:border-slate-800"
                             :style="{ borderColor: proyecto.color }"
                             @click="irAProyecto(proyecto.id)"
                         >
                             <div class="p-6">
                                 <div class="flex justify-between items-start">
-                                    <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 truncate pr-2 group-hover:text-indigo-600 transition-colors w-3/4">
+                                    <h4 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-2 truncate pr-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors w-3/4">
                                         {{ proyecto.nombre }}
                                     </h4>
                                     <!-- Action Buttons -->
-                                    <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 bg-white dark:bg-slate-900 p-1 rounded-md shadow-sm">
-                                        <button @click.stop="openModal(proyecto)" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded-full hover:bg-gray-100 transition-colors" title="Editar">
+                                    <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 bg-white dark:bg-slate-900 p-1 rounded-md shadow-sm dark:shadow-slate-950/40">
+                                        <button @click.stop="openModal(proyecto)" class="p-1.5 text-gray-400 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Editar">
                                             <font-awesome-icon icon="pen" class="w-3 h-3" />
                                         </button>
-                                        <button @click.stop="confirmDelete(proyecto)" class="p-1.5 text-gray-400 hover:text-red-600 rounded-full hover:bg-gray-100 transition-colors" title="Eliminar">
+                                        <button @click.stop="confirmDelete(proyecto)" class="p-1.5 text-gray-400 hover:text-red-600 dark:text-slate-400 dark:hover:text-rose-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar">
                                             <font-awesome-icon icon="trash-can" class="w-3 h-3" />
                                         </button>
                                     </div>
                                 </div>
-                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                <p class="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
                                     {{ proyecto.descripcion || 'Sin descripción' }}
                                 </p>
-                                <div v-if="proyecto.cliente" class="flex items-center text-xs text-gray-600 dark:text-gray-300 mb-2">
-                                    <font-awesome-icon icon="user" class="mr-1 text-gray-400" />
+                                <div v-if="proyecto.cliente" class="flex items-center text-xs text-gray-600 dark:text-slate-400 mb-2">
+                                    <font-awesome-icon icon="user" class="mr-1 text-gray-400 dark:text-slate-500" />
                                     <span class="font-medium">{{ proyecto.cliente.nombre_razon_social }}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs text-gray-400 mt-4 border-t pt-4">
+                                <div class="flex justify-between items-center text-xs text-gray-400 dark:text-slate-500 mt-4 border-t pt-4 dark:border-slate-800">
                                      <span>Creado el {{ formatDate(proyecto.created_at) }}</span>
-                                     <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-semibold">Dueño</span>
+                                     <span class="bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-200 px-2 py-1 rounded-full font-semibold">Dueño</span>
                                 </div>
                             </div>
                         </div>
@@ -70,26 +70,26 @@
 
                 <!-- Sección: Proyectos Compartidos -->
                 <div v-if="proyectosCompartidos.length > 0">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 border-l-4 border-emerald-500 pl-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-l-4 border-emerald-500 pl-3">
                         Compartidos conmigo
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                          <div v-for="proyecto in proyectosCompartidos" :key="proyecto.id" 
-                            class="bg-white dark:bg-slate-900 overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 border-emerald-400 cursor-pointer group"
+                            class="bg-white dark:bg-slate-950/70 overflow-hidden shadow-sm dark:shadow-slate-950/40 sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 border-emerald-400 cursor-pointer group dark:border dark:border-slate-800"
                             @click="irAProyecto(proyecto.id)"
                         >
                             <div class="p-6 relative">
-                                <div class="absolute top-0 right-0 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                                <div class="absolute top-0 right-0 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
                                     {{ proyecto.pivot?.role === 'viewer' ? 'LECTOR' : 'EDITOR' }}
                                 </div>
                                 
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 truncate pr-2 group-hover:text-emerald-600 transition-colors mt-2">
+                                <h4 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-2 truncate pr-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors mt-2">
                                     {{ proyecto.nombre }}
                                 </h4>
-                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                <p class="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
                                     {{ proyecto.descripcion || 'Sin descripción' }}
                                 </p>
-                                <div class="flex justify-between items-center text-xs text-gray-400 mt-4 border-t pt-4">
+                                <div class="flex justify-between items-center text-xs text-gray-400 dark:text-slate-500 mt-4 border-t pt-4 dark:border-slate-800">
                                      <span>Compartido por <strong>{{ getOwnerName(proyecto) }}</strong></span>
                                 </div>
                             </div>
@@ -149,12 +149,21 @@
         <ConfirmationModal :show="confirmingDeletion" @close="closeDeleteModal">
             <template #title>Eliminar Proyecto</template>
             <template #content>
-                ¿Estás seguro de que deseas eliminar este proyecto? Se eliminarán también todas sus tareas asociadas. Esta acción es irreversible.
+                <div class="space-y-3">
+                    <p>¿Estás seguro de que deseas eliminar este proyecto? Se eliminarán también todas sus tareas asociadas. Esta acción es irreversible.</p>
+                    
+                    <div v-if="deleteForm.errors.error" class="p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p class="text-sm text-red-600 font-medium">
+                            <font-awesome-icon icon="circle-exclamation" class="mr-2" />
+                            {{ deleteForm.errors.error }}
+                        </p>
+                    </div>
+                </div>
             </template>
             <template #footer>
                 <SecondaryButton @click="closeDeleteModal">Cancelar</SecondaryButton>
-                <DangerButton class="ml-2" @click="deleteProyecto" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Eliminar Proyecto
+                <DangerButton class="ml-2" @click="deleteProyecto" :class="{ 'opacity-25': deleteForm.processing }" :disabled="deleteForm.processing">
+                    {{ deleteForm.processing ? 'Eliminando...' : 'Eliminar Proyecto' }}
                 </DangerButton>
             </template>
         </ConfirmationModal>
@@ -192,6 +201,8 @@ const form = useForm({
     color: '#fbbf24',
     cliente_id: '',
 });
+
+const deleteForm = useForm({});
 
 const colors = ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#9ca3af'];
 
@@ -235,13 +246,19 @@ const confirmDelete = (proyecto) => {
 const closeDeleteModal = () => {
     confirmingDeletion.value = false;
     projectToDelete.value = null;
+    deleteForm.clearErrors();
 };
 
 const deleteProyecto = () => {
     if (!projectToDelete.value) return;
     
-    router.delete(route('proyectos.destroy', projectToDelete.value.id), {
-        onSuccess: () => closeDeleteModal()
+    deleteForm.delete(route('proyectos.destroy', projectToDelete.value.id), {
+        onSuccess: () => {
+            closeDeleteModal();
+        },
+        onError: () => {
+            // Los errores ya se manejan automáticamente por Inertia y están disponibles en deleteForm.errors
+        }
     });
 };
 

@@ -21,7 +21,7 @@ const props = defineProps({
   },
   class: {
     type: String,
-    default: 'w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm'
+    default: 'w-full border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)] focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm'
   }
 });
 
@@ -30,7 +30,7 @@ const emit = defineEmits(['update:modelValue']);
 
 <template>
   <div>
-    <label v-if="label" class="block text-sm font-medium text-gray-700 mb-1">
+    <label v-if="label" class="block text-sm font-medium text-[var(--ui-text-muted)] mb-1">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
@@ -50,8 +50,7 @@ const emit = defineEmits(['update:modelValue']);
 
 <style scoped>
 select:disabled {
-  background-color: #f9fafb;
+  background-color: var(--ui-surface-alt);
   opacity: 0.7;
 }
 </style>
-

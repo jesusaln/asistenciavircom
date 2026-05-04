@@ -5,7 +5,7 @@
                 <FontAwesomeIcon icon="exclamation-triangle" />
                 Zona de Peligro
             </h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            <p class="text-sm text-gray-500 mb-6">
                 ⚠️ Las acciones en esta sección son <strong>irreversibles</strong>. Los datos eliminados no se pueden recuperar.
             </p>
 
@@ -27,15 +27,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 
                 <!-- Eliminar Productos -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="boxes" class="text-orange-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Productos</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Todos los productos del catálogo</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Productos</h4>
+                                <p class="text-xs text-gray-500">Todos los productos del catálogo</p>
                             </div>
                         </div>
                         <button 
@@ -51,15 +51,15 @@
                 </div>
 
                 <!-- Eliminar Compras -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="shopping-cart" class="text-blue-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Compras</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Todas las compras e items</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Compras</h4>
+                                <p class="text-xs text-gray-500">Todas las compras e items</p>
                             </div>
                         </div>
                         <button 
@@ -75,15 +75,15 @@
                 </div>
 
                 <!-- Eliminar Ventas -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="cash-register" class="text-emerald-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Ventas</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Todas las ventas y facturas</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Ventas</h4>
+                                <p class="text-xs text-gray-500">Todas las ventas y facturas</p>
                             </div>
                         </div>
                         <button 
@@ -99,15 +99,15 @@
                 </div>
 
                 <!-- Eliminar Bancos -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="university" class="text-purple-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Bancos</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Cuentas bancarias y movimientos</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Bancos</h4>
+                                <p class="text-xs text-gray-500">Cuentas bancarias y movimientos</p>
                             </div>
                         </div>
                         <button 
@@ -123,15 +123,15 @@
                 </div>
 
                 <!-- Eliminar Inventario -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="warehouse" class="text-amber-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Inventario</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Stock, series y movimientos</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Inventario</h4>
+                                <p class="text-xs text-gray-500">Stock, series y movimientos</p>
                             </div>
                         </div>
                         <button 
@@ -147,15 +147,15 @@
                 </div>
 
                 <!-- Eliminar Clientes -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="users" class="text-cyan-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Clientes</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Todos los clientes</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Clientes</h4>
+                                <p class="text-xs text-gray-500">Todos los clientes</p>
                             </div>
                         </div>
                         <button 
@@ -171,15 +171,15 @@
                 </div>
 
                 <!-- Eliminar Proveedores -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="truck" class="text-indigo-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar Proveedores</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Todos los proveedores</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar Proveedores</h4>
+                                <p class="text-xs text-gray-500">Todos los proveedores</p>
                             </div>
                         </div>
                         <button 
@@ -195,15 +195,15 @@
                 </div>
 
                 <!-- Eliminar CFDIs -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center">
                                 <FontAwesomeIcon icon="file-invoice" class="text-rose-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Eliminar CFDIs</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Todos los documentos fiscales</p>
+                                <h4 class="font-semibold text-gray-900">Eliminar CFDIs</h4>
+                                <p class="text-xs text-gray-500">Todos los documentos fiscales</p>
                             </div>
                         </div>
                         <button 
@@ -304,111 +304,147 @@ const isDeleting = ref({
 });
 
 const confirmarEliminacion = async (modulo, descripcion) => {
-    const result = await Swal.fire({
+    const { value: formValues } = await Swal.fire({
         title: `¿Eliminar ${descripcion}?`,
         html: `
             <div class="text-left">
-                <p class="text-red-600 font-bold mb-2">⚠️ Esta acción es IRREVERSIBLE</p>
-                <p class="text-gray-600 dark:text-gray-300 text-sm">Se eliminarán permanentemente ${descripcion} de la base de datos.</p>
+                <p class="text-red-600 font-bold mb-4">⚠️ Esta acción es IRREVERSIBLE</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Confirma escribiendo "${modulo.toUpperCase()}"</label>
+                        <input id="swal-input-confirm" class="swal2-input !mt-0 !w-full" placeholder="${modulo.toUpperCase()}">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tu contraseña de administrador</label>
+                        <input id="swal-input-password" type="password" class="swal2-input !mt-0 !w-full" placeholder="••••••••">
+                    </div>
+                </div>
             </div>
         `,
-        icon: 'warning',
+        focusConfirm: false,
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Sí, Eliminar',
         cancelButtonText: 'Cancelar',
-        input: 'text',
-        inputPlaceholder: `Escribe "${modulo.toUpperCase()}" para confirmar`,
-        inputValidator: (value) => {
-            if (value !== modulo.toUpperCase()) {
-                return `Debes escribir "${modulo.toUpperCase()}" para confirmar`;
+        confirmButtonText: 'Confirmar Eliminación',
+        preConfirm: () => {
+            const confirm = document.getElementById('swal-input-confirm').value;
+            const password = document.getElementById('swal-input-password').value;
+            if (!confirm || confirm !== modulo.toUpperCase()) {
+                Swal.showValidationMessage(`Debes escribir "${modulo.toUpperCase()}"`);
+                return false;
             }
+            if (!password) {
+                Swal.showValidationMessage('La contraseña es obligatoria');
+                return false;
+            }
+            return { confirm, password };
         }
     });
 
-    if (result.isConfirmed) {
-        await ejecutarEliminacion(modulo);
+    if (formValues) {
+        await ejecutarEliminacion(modulo, formValues.confirm, formValues.password);
     }
 };
 
 const confirmarEliminacionTotal = async () => {
-    const result = await Swal.fire({
+    const { value: formValues } = await Swal.fire({
         title: '🔥 ¿ELIMINAR TODO?',
         html: `
             <div class="text-left">
                 <p class="text-red-600 font-bold mb-3">⚠️ ADVERTENCIA CRÍTICA</p>
-                <p class="text-gray-700 mb-2">Esto eliminará:</p>
-                <ul class="text-sm text-gray-600 dark:text-gray-300 list-disc pl-5 space-y-1">
-                    <li>Productos y categorías</li>
-                    <li>Compras y proveedores</li>
-                    <li>Ventas y clientes</li>
-                    <li>Inventario y series</li>
-                    <li>Bancos y movimientos</li>
-                    <li>CFDIs y documentos</li>
-                </ul>
-                <p class="text-gray-500 dark:text-gray-400 text-xs mt-3">Los usuarios NO serán eliminados.</p>
+                <p class="text-gray-700 mb-2">Esto eliminará la mayoría de los datos operativos del sistema.</p>
+                <div class="space-y-4 mt-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Confirma escribiendo "ELIMINAR TODO"</label>
+                        <input id="swal-input-confirm" class="swal2-input !mt-0 !w-full" placeholder="ELIMINAR TODO">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tu contraseña de administrador</label>
+                        <input id="swal-input-password" type="password" class="swal2-input !mt-0 !w-full" placeholder="••••••••">
+                    </div>
+                </div>
             </div>
         `,
-        icon: 'warning',
+        focusConfirm: false,
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'ELIMINAR TODO',
-        cancelButtonText: 'Cancelar',
-        input: 'text',
-        inputPlaceholder: 'Escribe "ELIMINAR TODO" para confirmar',
-        inputValidator: (value) => {
-            if (value !== 'ELIMINAR TODO') {
-                return 'Debes escribir "ELIMINAR TODO" para confirmar';
+        confirmButtonText: 'SÍ, BORRAR TODO',
+        preConfirm: () => {
+            const confirm = document.getElementById('swal-input-confirm').value;
+            const password = document.getElementById('swal-input-password').value;
+            if (confirm !== 'ELIMINAR TODO') {
+                Swal.showValidationMessage('Escribe "ELIMINAR TODO" exactamente');
+                return false;
             }
+            if (!password) {
+                Swal.showValidationMessage('La contraseña es obligatoria');
+                return false;
+            }
+            return { confirm, password };
         }
     });
 
-    if (result.isConfirmed) {
-        await ejecutarEliminacion('todo');
+    if (formValues) {
+        await ejecutarEliminacion('todo', formValues.confirm, formValues.password);
     }
 };
 
 const confirmarReinicio = async () => {
-    const result = await Swal.fire({
+    const { value: formValues } = await Swal.fire({
         title: '☠️ ¿REINICIAR SISTEMA?',
         html: `
             <div class="text-left">
                 <p class="text-red-600 font-bold mb-3">⚠️ PELIGRO EXTREMO</p>
-                <p class="text-gray-700 mb-2">Esto eliminará ABSOLUTAMENTE TODO:</p>
-                <ul class="text-sm text-gray-600 dark:text-gray-300 list-disc pl-5 space-y-1">
-                    <li>Todos los datos del sistema</li>
-                    <li>Todos los usuarios (excepto SuperAdmin)</li>
-                </ul>
-                <p class="text-red-600 text-sm mt-3 font-bold">Esta acción dejará el sistema como recién instalado.</p>
+                <p class="text-gray-700 mb-2">Se borrarán todos los datos y usuarios (excepto tú).</p>
+                <div class="space-y-4 mt-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Confirma escribiendo "REINICIAR"</label>
+                        <input id="swal-input-confirm" class="swal2-input !mt-0 !w-full" placeholder="REINICIAR">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tu contraseña de administrador</label>
+                        <input id="swal-input-password" type="password" class="swal2-input !mt-0 !w-full" placeholder="••••••••">
+                    </div>
+                </div>
             </div>
         `,
-        icon: 'error',
+        focusConfirm: false,
         showCancelButton: true,
         confirmButtonColor: '#1f2937',
-        cancelButtonColor: '#6b7280',
         confirmButtonText: 'REINICIAR SISTEMA',
-        cancelButtonText: 'Cancelar',
-        input: 'text',
-        inputPlaceholder: 'Escribe "REINICIAR" para confirmar',
-        inputValidator: (value) => {
-            if (value !== 'REINICIAR') {
-                return 'Debes escribir "REINICIAR" para confirmar';
+        preConfirm: () => {
+            const confirm = document.getElementById('swal-input-confirm').value;
+            const password = document.getElementById('swal-input-password').value;
+            if (confirm !== 'REINICIAR') {
+                Swal.showValidationMessage('Escribe "REINICIAR" para confirmar');
+                return false;
             }
+            if (!password) {
+                Swal.showValidationMessage('La contraseña es obligatoria');
+                return false;
+            }
+            return { confirm, password };
         }
     });
 
-    if (result.isConfirmed) {
-        await ejecutarEliminacion('reinicio');
+    if (formValues) {
+        await ejecutarEliminacion('reinicio', formValues.confirm, formValues.password);
     }
 };
 
-const ejecutarEliminacion = async (modulo) => {
+const ejecutarEliminacion = async (modulo, confirmValue, password) => {
     isDeleting.value[modulo] = true;
     
     try {
-        const response = await axios.delete(route('empresa-configuracion.danger-zone.eliminar', { modulo }));
+        const response = await axios.delete(
+            route('empresa-configuracion.danger-zone.eliminar', { modulo }),
+            { 
+                data: { 
+                    confirm: confirmValue,
+                    password: password
+                } 
+            }
+        );
         
         if (response.data.success) {
             Swal.fire({
@@ -416,7 +452,7 @@ const ejecutarEliminacion = async (modulo) => {
                 title: '✅ Eliminación Completada',
                 html: `
                     <p class="text-gray-700">${response.data.message}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Registros eliminados: ${response.data.count || 0}</p>
+                    <p class="text-sm text-gray-500 mt-2">Registros eliminados: ${response.data.count || 0}</p>
                 `,
                 confirmButtonColor: '#10b981'
             });

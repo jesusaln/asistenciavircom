@@ -38,74 +38,64 @@ const closeModal = () => {
 </script>
 
 <template>
-    <ActionSection>
-        <template #title>
-            <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
-                Eliminar Cuenta
-            </h2>
-        </template>
-
-        <template #description>
-            <p class="text-slate-600 dark:text-slate-400">
-                Elimina permanentemente tu cuenta.
+    <div class="space-y-8">
+        <div class="p-4 bg-rose-500/5 border border-rose-500/10 rounded-2xl">
+            <p class="text-xs text-rose-200/60 font-medium leading-relaxed">
+                Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de proceder, asegúrate de haber respaldado cualquier información importante.
             </p>
-        </template>
+        </div>
 
-        <template #content>
-            <div class="max-w-xl text-sm text-slate-600 dark:text-slate-400">
-                Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de eliminar tu cuenta, por favor descarga cualquier dato o información que desees conservar.
-            </div>
+        <div class="flex items-center pt-4 border-t border-white/5">
+            <button @click="confirmUserDeletion" class="h-12 px-8 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white font-black uppercase tracking-widest text-xs rounded-2xl border border-rose-500/20 transition-all shadow-xl">
+                Eliminar Permanentemente
+            </button>
+        </div>
 
-            <div class="mt-5">
-                <DangerButton @click="confirmUserDeletion" class="dark:text-white">
-                    Eliminar Cuenta
-                </DangerButton>
-            </div>
+        <!-- Modal de Confirmación -->
+        <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+            <template #title>
+                <div class="text-xl font-bold text-rose-500">¿Confirmar Eliminación?</div>
+            </template>
 
-            <!-- Modal de Confirmación para Eliminar Cuenta -->
-            <DialogModal :show="confirmingUserDeletion" @close="closeModal">
-                <template #title>
-                    <h2 class="text-slate-900 dark:text-white font-semibold text-xl leading-tight">
-                        Eliminar Cuenta
-                    </h2>
-                </template>
+            <template #content>
+                 <p class="text-slate-400 font-medium mb-6 leading-relaxed">
+                    Esta acción no se puede deshacer. Por favor, introduce tu contraseña para confirmar la eliminación definitiva de tu cuenta y todos sus datos asociados.
+                </p>
 
-                <template #content>
-                    <p class="text-slate-600 dark:text-slate-400">
-                        ¿Estás seguro de que deseas eliminar tu cuenta? Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Por favor, introduce tu contraseña para confirmar que deseas eliminar tu cuenta permanentemente.
-                    </p>
-
-                    <div class="mt-4">
-                        <TextInput
+                <div class="group">
+                    <div class="relative">
+                        <div class="absolute -inset-0.5 bg-rose-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                        <input
                             ref="passwordInput"
                             v-model="form.password"
                             type="password"
-                            class="mt-1 block w-3/4 dark:text-white dark:bg-slate-800 dark:border-slate-700"
-                            placeholder="Contraseña"
+                            class="relative w-full h-12 bg-slate-900 border border-white/10 rounded-2xl px-5 text-white focus:border-rose-500/50 focus:ring-0 transition-all outline-none"
+                            placeholder="Introduce tu contraseña"
                             autocomplete="current-password"
                             @keyup.enter="deleteUser"
                         />
-
-                        <InputError :message="form.errors.password" class="mt-2" />
                     </div>
-                </template>
+                    <InputError :message="form.errors.password" class="mt-2" />
+                </div>
+            </template>
 
-                <template #footer>
-                    <SecondaryButton @click="closeModal" class="dark:text-white">
+            <template #footer>
+                <div class="flex gap-3">
+                    <button @click="closeModal" class="px-6 py-3 text-slate-400 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors">
                         Cancelar
-                    </SecondaryButton>
+                    </button>
 
-                    <DangerButton
-                        class="ms-3 dark:text-white"
+                    <button
+                        class="h-12 px-8 bg-rose-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-rose-500 transition-all shadow-xl shadow-rose-900/40"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
-                        Eliminar Cuenta
-                    </DangerButton>
-                </template>
-            </DialogModal>
-        </template>
-    </ActionSection>
+                        Eliminar Todo
+                    </button>
+                </div>
+            </template>
+        </DialogModal>
+    </div>
 </template>
 

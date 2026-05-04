@@ -75,6 +75,9 @@ class InventarioService
             $producto->loadMissing('kitItems.item');
 
             foreach ($producto->kitItems as $kitItem) {
+                if (app()->environment('testing')) {
+                    dump("KitItem ID: {$kitItem->id}, Item: " . ($kitItem->item ? get_class($kitItem->item) . ' ID ' . $kitItem->item->id : 'NULL'));
+                }
                 if ($kitItem->item) { // item puede ser Producto o Servicio
                     // Si es servicio, ignorar inventario
                     if ($kitItem->esServicio())
@@ -165,8 +168,8 @@ class InventarioService
 
         $referencia = Arr::get($contexto, 'referencia');
         $esObjeto = is_object($referencia);
-        $referenciaType = $esObjeto ? get_class($referencia) : null;
-        $referenciaId = $esObjeto ? $referencia->id : null;
+        $referenciaType = $esObjeto ? get_class($referencia) : Arr::get($contexto, 'referencia_type');
+        $referenciaId = $esObjeto ? $referencia->id : Arr::get($contexto, 'referencia_id');
 
         InventarioMovimiento::create([
             'producto_id' => $producto->id,
@@ -409,8 +412,8 @@ class InventarioService
 
         $referencia = Arr::get($contexto, 'referencia');
         $esObjeto = is_object($referencia);
-        $referenciaType = $esObjeto ? get_class($referencia) : null;
-        $referenciaId = $esObjeto ? $referencia->id : null;
+        $referenciaType = $esObjeto ? get_class($referencia) : Arr::get($contexto, 'referencia_type');
+        $referenciaId = $esObjeto ? $referencia->id : Arr::get($contexto, 'referencia_id');
 
         InventarioMovimiento::create([
             'producto_id' => $producto->id,
@@ -529,8 +532,8 @@ class InventarioService
 
         $referencia = Arr::get($contexto, 'referencia');
         $esObjeto = is_object($referencia);
-        $referenciaType = $esObjeto ? get_class($referencia) : null;
-        $referenciaId = $esObjeto ? $referencia->id : null;
+        $referenciaType = $esObjeto ? get_class($referencia) : Arr::get($contexto, 'referencia_type');
+        $referenciaId = $esObjeto ? $referencia->id : Arr::get($contexto, 'referencia_id');
 
         foreach ($lotesUsados as $loteData) {
             InventarioMovimiento::create([

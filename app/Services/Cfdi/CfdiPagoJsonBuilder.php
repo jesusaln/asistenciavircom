@@ -6,6 +6,7 @@ use App\Models\Venta;
 use App\Models\CuentasPorCobrar;
 use App\Models\Cfdi;
 use App\Models\EmpresaConfiguracion;
+use App\Support\FinancialDate;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -82,7 +83,7 @@ class CfdiPagoJsonBuilder
                 "Version" => "4.0",
                 "Serie" => "P", // Serie Pagos
                 "Folio" => (string)time(), // Temporal, idealmente usar FolioGenerator
-                "Fecha" => Carbon::now()->format('Y-m-d\TH:i:s'),
+                "Fecha" => FinancialDate::now()->format('Y-m-d\TH:i:s'),
                 "Sello" => "", // Firmado por PAC
                 "NoCertificado" => $this->certService->getNoCertificado(),
                 "Certificado" => "", // Puesto por PAC

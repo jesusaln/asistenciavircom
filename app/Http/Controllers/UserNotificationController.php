@@ -31,8 +31,9 @@ class UserNotificationController extends Controller
             ]);
 
             $notifications = UserNotification::forUser($userId)
-                ->when($request->boolean('only_unread'), fn ($q) => $q->unread())
-                ->when($request->filled('type'), fn ($q) => $q->byType($request->type))
+                ->visibleInBell()
+                ->when($request->boolean('only_unread'), fn($q) => $q->unread())
+                ->when($request->filled('type'), fn($q) => $q->byType($request->type))
                 ->latest('created_at')
                 ->paginate($request->integer('per_page', 20));
 
@@ -45,11 +46,11 @@ class UserNotificationController extends Controller
                 'notifications' => $notifications->items(),
                 'pagination' => [
                     'current_page' => $notifications->currentPage(),
-                    'last_page'    => $notifications->lastPage(),
-                    'per_page'     => $notifications->perPage(),
-                    'total'        => $notifications->total(),
+                    'last_page' => $notifications->lastPage(),
+                    'per_page' => $notifications->perPage(),
+                    'total' => $notifications->total(),
                 ],
-                'unread_count' => UserNotification::forUser($userId)->unread()->count(),
+                'unread_count' => UserNotification::forUser($userId)->visibleInBell()->unread()->count(),
             ]);
         } catch (\Exception $e) {
             Log::error('Error en UserNotificationController@index: ' . $e->getMessage(), [
@@ -74,7 +75,7 @@ class UserNotificationController extends Controller
                 return response()->json(['error' => 'Usuario no autenticado'], 401);
             }
 
-            $count = UserNotification::forUser($userId)->unread()->count();
+            $count = UserNotification::forUser($userId)->visibleInBell()->unread()->count();
 
             return response()->json([
                 'unread_count' => $count,
@@ -95,8 +96,8 @@ class UserNotificationController extends Controller
     public function markAsRead(Request $request)
     {
         $validated = $request->validate([
-            'ids'   => ['required','array','min:1'],
-            'ids.*' => ['integer','distinct'],
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'distinct'],
         ]);
 
         $userId = Auth::id();
@@ -108,8 +109,8 @@ class UserNotificationController extends Controller
             ->update(['read_at' => now()]);
 
         return response()->json([
-            'message'      => 'Notificaciones marcadas como leídas',
-            'updated_count'=> $updated,
+            'message' => 'Notificaciones marcadas como leídas',
+            'updated_count' => $updated,
             'unread_count' => UserNotification::forUser($userId)->unread()->count(),
         ]);
     }
@@ -123,8 +124,8 @@ class UserNotificationController extends Controller
             ->update(['read_at' => now()]);
 
         return response()->json([
-            'message'      => 'Todas las notificaciones marcadas como leídas',
-            'updated_count'=> $updated,
+            'message' => 'Todas las notificaciones marcadas como leídas',
+            'updated_count' => $updated,
             'unread_count' => 0,
         ]);
     }
@@ -133,11 +134,13 @@ class UserNotificationController extends Controller
     {
         $userId = Auth::id();
 
-        $notification = UserNotification::forUser($userId)->findOrFail($id);
-        $notification->delete();
+        $notification = UserNotification::forUser($userId)->find($id);
+        if ($notification) {
+            $notification->delete();
+        }
 
         return response()->json([
-            'message'      => 'Notificación eliminada',
+            'message' => 'Notificación procesada',
             'unread_count' => UserNotification::forUser($userId)->unread()->count(),
         ]);
     }
@@ -145,9 +148,13 @@ class UserNotificationController extends Controller
     public function destroyMultiple(Request $request)
     {
         $validated = $request->validate([
-            'ids'   => ['required','array','min:1'],
-            'ids.*' => ['integer','distinct'],
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'distinct'],
         ]);
+
+        if (count($validated['ids']) > 50) {
+            return response()->json(['error' => 'No puedes eliminar más de 50 notificaciones a la vez por seguridad.'], 422);
+        }
 
         $userId = Auth::id();
 
@@ -155,10 +162,17 @@ class UserNotificationController extends Controller
             ->whereIn('id', $validated['ids'])
             ->delete();
 
-        return response()->json([
-            'message'       => 'Notificaciones eliminadas',
+        Log::warning('Notificaciones eliminadas en masa', [
+            'user_id' => $userId,
+            'ip' => request()->ip(),
             'deleted_count' => $deleted,
-            'unread_count'  => UserNotification::forUser($userId)->unread()->count(),
+            'requested_ids' => $validated['ids']
+        ]);
+
+        return response()->json([
+            'message' => 'Notificaciones eliminadas',
+            'deleted_count' => $deleted,
+            'unread_count' => UserNotification::forUser($userId)->unread()->count(),
         ]);
     }
 

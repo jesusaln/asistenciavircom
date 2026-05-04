@@ -3,20 +3,24 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Support\SystemRoles;
 
 class UserPolicy
 {
     /**
-     * Determina si el usuario puede realizar cualquier acción.
+     * Bypass para roles elevados salvo eliminación (debe evaluarse en delete()).
      */
-    public function before(User $user, $ability): bool|null
+    public function before(User $user, string $ability): bool|null
     {
-        // Si el usuario tiene el rol 'admin', se le otorgan todos los permisos
-        if ($user->hasAnyRole(['admin', 'super-admin'])) {
+        if (in_array($ability, ['delete', 'forceDelete'], true)) {
+            return null;
+        }
+
+        if ($user->hasAnyRole(SystemRoles::ELEVATED)) {
             return true;
         }
 
-        return null; // Continúa con las verificaciones normales si no es admin
+        return null;
     }
 
     /**
@@ -54,10 +58,29 @@ class UserPolicy
 
     /**
      * Determina si el usuario puede eliminar usuarios.
+     *
+     * - Nadie puede eliminar a un usuario con rol super-admin (alias en {@see SystemRoles::SUPER_ADMIN}).
+     * - Solo un super-admin puede eliminar a usuarios con rol de aplicación admin (alias en {@see SystemRoles::ADMIN}).
+     * - El resto: roles elevados o permiso delete usuarios.
      */
     public function delete(User $user, User $model): bool
     {
-        // No se puede eliminar a sí mismo
-        return $user->id !== $model->id && $user->can('delete usuarios');
+        if ($user->id === $model->id) {
+            return false;
+        }
+
+        if (SystemRoles::userIsSuperAdmin($model)) {
+            return false;
+        }
+
+        if (SystemRoles::userIsAppAdmin($model)) {
+            return SystemRoles::userIsSuperAdmin($user);
+        }
+
+        if ($user->hasAnyRole(SystemRoles::ELEVATED)) {
+            return true;
+        }
+
+        return $user->can('delete usuarios');
     }
 }

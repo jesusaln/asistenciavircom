@@ -1,7 +1,6 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import MantenimientosManager from './Partials/MantenimientosManager.vue';
 
 const props = defineProps({
     poliza: Object,
@@ -28,9 +27,9 @@ const getEstadoBadge = (estado) => {
         activa: 'bg-green-100 text-green-800 border-green-200',
         inactiva: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         vencida: 'bg-red-100 text-red-800 border-red-200',
-        cancelada: 'bg-gray-100 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-slate-800',
+        cancelada: 'bg-gray-100 text-gray-800 border-gray-200',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
+    return colores[estado] || 'bg-gray-100 text-gray-800';
 };
 
 const getEstadoCobroBadge = (estado) => {
@@ -39,9 +38,9 @@ const getEstadoCobroBadge = (estado) => {
         pendiente: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         parcial: 'bg-blue-100 text-blue-800 border-blue-200',
         vencido: 'bg-red-100 text-red-800 border-red-200',
-        cancelada: 'bg-gray-100 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-slate-800',
+        cancelada: 'bg-gray-100 text-gray-800 border-gray-200',
     };
-    return colores[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
+    return colores[estado] || 'bg-gray-100 text-gray-800';
 };
 
 // Acciones Rápidas
@@ -75,137 +74,122 @@ const getSaludPoliza = () => {
     <component :is="isModal ? 'div' : AppLayout" :title="`Póliza ${poliza.folio}`">
         <Head v-if="!isModal" :title="`Póliza ${poliza.folio}`" />
 
-        <div :class="isModal ? 'py-2 bg-slate-900 text-slate-300' : 'py-6 bg-[#0F172A] min-h-screen text-slate-300'">
+        <div :class="isModal ? 'py-2' : 'py-6'">
             <div :class="isModal ? 'w-full' : 'w-full px-4 sm:px-6 lg:px-8'">
                 <!-- Header -->
-                <div v-if="!isModal" class="mb-8">
-                    <Link :href="route('polizas-servicio.index')" class="text-blue-400 hover:text-blue-300 text-sm font-semibold flex items-center gap-2 mb-4 transition-all w-fit">
+                <div v-if="!isModal" class="mb-6">
+                    <Link :href="route('polizas-servicio.index')" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">
                         ← Volver al listado
                     </Link>
-                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-6">
-                        <div class="flex items-start gap-4">
-                            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-900/40 border border-blue-500/20 shrink-0">
-                                <span class="text-3xl">🛡️</span>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <span class="font-mono text-xl font-bold text-blue-600">{{ poliza.folio }}</span>
+                                <span :class="['px-3 py-1 text-sm font-bold rounded-full border', getEstadoBadge(poliza.estado)]">
+                                    {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
+                                </span>
                             </div>
-                            <div>
-                                <div class="flex items-center gap-3 mb-1">
-                                    <span class="font-mono text-sm font-bold text-blue-400 tracking-wider">{{ poliza.folio }}</span>
-                                    <span :class="['px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-full border', getEstadoBadge(poliza.estado)]">
-                                        {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
-                                    </span>
-                                </div>
-                                <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-1">{{ poliza.nombre }}</h1>
-                                <p class="text-slate-400 text-lg font-medium">{{ poliza.cliente?.nombre_razon_social }}</p>
-                            </div>
+                            <h1 class="text-3xl font-bold text-gray-900 mt-1">{{ poliza.nombre }}</h1>
+                            <p class="text-gray-500">{{ poliza.cliente?.nombre_razon_social }}</p>
                         </div>
-                        
-                        <div class="flex flex-wrap gap-2 w-full xl:w-auto">
+                        <div class="flex gap-2 flex-wrap">
                             <!-- Indicador de Salud -->
-                            <div :class="['px-4 py-2.5 rounded-xl font-bold text-white text-sm flex items-center gap-2 shadow-lg', getSaludPoliza().color]">
-                                {{ getSaludPoliza().icon }} <span class="hidden sm:inline">{{ getSaludPoliza().label }}</span>
+                            <div :class="['px-3 py-2 rounded-lg font-bold text-white text-sm flex items-center gap-2', getSaludPoliza().color]">
+                                {{ getSaludPoliza().icon }} {{ getSaludPoliza().label }}
                             </div>
-                            
                             <!-- Acciones Rápidas -->
-                            <button @click="generarCobro" class="flex-1 xl:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-900/20 transition-all border border-emerald-500/50 flex items-center justify-center gap-2">
-                                <span>💰</span> <span class="hidden sm:inline">Cobrar</span>
+                            <button @click="generarCobro" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold shadow-lg transition">
+                                💰 Cobrar Ahora
                             </button>
-                            
-                            <button v-if="poliza.dias_para_vencer !== null && poliza.dias_para_vencer <= 30" @click="enviarRecordatorio" class="flex-1 xl:flex-none px-4 py-2.5 bg-orange-500 hover:bg-orange-400 text-white rounded-xl font-bold shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-2">
-                                <span>📧</span> <span class="hidden sm:inline">Recordar</span>
+                            <button v-if="poliza.dias_para_vencer !== null && poliza.dias_para_vencer <= 30" @click="enviarRecordatorio" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-semibold shadow-lg transition">
+                                📧 Recordar Renovación
                             </button>
-
-                            <div class="hidden sm:flex bg-slate-800 rounded-xl p-1 border border-slate-700">
-                                <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors text-sm font-medium" title="Beneficios">
-                                    📄 PDF
-                                </a>
-                                <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors text-sm font-medium" title="Contrato Legal">
-                                    📝 Contrato
-                                </a>
-                            </div>
-
-                            <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="flex-1 xl:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-900/20 transition-all border border-indigo-500/50 flex items-center justify-center gap-2">
-                                <span>📊</span> <span class="hidden sm:inline">Historial</span>
+                            <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="px-4 py-2 bg-blue-100 border border-blue-300 rounded-lg hover:bg-blue-200 font-semibold text-blue-700">
+                                📄 Beneficios
+                            </a>
+                            <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 font-semibold text-gray-700">
+                                📝 Contrato
+                            </a>
+                            <Link v-if="poliza.horas_incluidas_mensual" :href="route('polizas-servicio.historial', poliza.id)" class="px-4 py-2 bg-purple-100 border border-purple-300 rounded-lg hover:bg-purple-200 font-semibold text-purple-700">
+                                📊 Historial
                             </Link>
-                            
-                            <Link :href="route('polizas-servicio.edit', poliza.id)" class="flex-1 xl:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold shadow-lg border border-slate-600 flex items-center justify-center gap-2">
-                                <span>⚙️</span> <span class="hidden sm:inline">Editar</span>
+                            <Link :href="route('polizas-servicio.edit', poliza.id)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-white font-semibold text-gray-700">
+                                ⚙️ Editar
                             </Link>
                         </div>
                     </div>
                 </div>
 
                 <!-- Header Modal -->
-                <div v-if="isModal" class="p-6 border-b border-slate-700 bg-slate-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div v-if="isModal" class="p-6 border-b bg-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <div class="flex items-center gap-3">
-                            <span class="font-mono text-lg font-bold text-blue-400">{{ poliza.folio }}</span>
-                            <span :class="['px-2 py-0.5 text-[10px] font-black rounded-full border', getEstadoBadge(poliza.estado)]">
+                            <span class="font-mono text-lg font-bold text-blue-600">{{ poliza.folio }}</span>
+                            <span :class="['px-2 py-0.5 text-xs font-bold rounded-full border', getEstadoBadge(poliza.estado)]">
                                 {{ poliza.estado?.toUpperCase() || 'PÓLIZA' }}
                             </span>
                         </div>
-                        <h1 class="text-xl font-bold text-white">{{ poliza.nombre }}</h1>
-                        <p class="text-sm text-slate-400 font-medium">{{ poliza.cliente?.nombre_razon_social }}</p>
+                        <h1 class="text-xl font-bold text-gray-900">{{ poliza.nombre }}</h1>
+                        <p class="text-sm text-gray-500 font-medium">{{ poliza.cliente?.nombre_razon_social }}</p>
                     </div>
                     <div class="flex gap-2">
-                        <!-- Botones Modal simplificados -->
-                        <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors border border-slate-700">
-                            ⚙️
+                        <a :href="route('polizas-servicio.pdf-beneficios', poliza.id)" target="_blank" class="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors border border-green-200" title="Ver PDF de Beneficios">
+                            📄 Beneficios
+                        </a>
+                        <a :href="route('polizas-servicio.pdf-contrato', poliza.id)" target="_blank" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Ver PDF Contrato">
+                            📝 Contrato
+                        </a>
+                        <Link :href="route('polizas-servicio.edit', poliza.id)" class="p-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200" title="Editar Póliza">
+                            ⚙️ Editar
                         </Link>
                     </div>
                 </div>
 
-                <div :class="['grid grid-cols-1 lg:grid-cols-3 gap-8', isModal ? 'p-6' : '']">
+                <div :class="['grid grid-cols-1 lg:grid-cols-3 gap-6', isModal ? 'p-6' : '']">
                     <!-- Columna Principal -->
-                    <div class="lg:col-span-2 space-y-8">
+                    <div class="lg:col-span-2 space-y-6">
                         <!-- Detalles y Alcance -->
-                        <div class="bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl shadow-xl p-6">
-                            <h3 class="font-bold text-white mb-6 border-b border-slate-700/50 pb-4 flex items-center gap-3">
-                                <div class="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <h3 class="font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
                                 Descripción y Alcance
                             </h3>
-                            <p class="text-slate-300 whitespace-pre-wrap leading-relaxed">{{ poliza.descripcion || 'Sin descripción detallada.' }}</p>
-                            <div v-if="poliza.notas" class="mt-6 p-4 bg-blue-900/20 border border-blue-800/50 rounded-xl text-sm text-blue-300">
-                                <strong class="text-blue-200 block mb-1">Notas Administrativas:</strong> {{ poliza.notas }}
+                            <p class="text-gray-700 whitespace-pre-wrap">{{ poliza.descripcion || 'Sin descripción detallada.' }}</p>
+                            <div v-if="poliza.notas" class="mt-4 p-4 bg-blue-50 rounded-lg text-sm text-blue-800">
+                                <strong>Notas Administrativas:</strong><br> {{ poliza.notas }}
                             </div>
                         </div>
 
-                        <!-- Planes de Mantenimiento y Checklist -->
-                        <MantenimientosManager :poliza="poliza" />
-
                         <!-- Servicios Incluidos -->
-                        <div class="bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl shadow-xl overflow-hidden">
-                            <div class="px-6 py-5 border-b border-slate-700/50">
-                                <h3 class="font-bold text-white flex items-center gap-3">
-                                    <div class="p-2 bg-indigo-500/20 rounded-lg text-indigo-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b">
+                                <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
                                     Servicios Cubiertos del Catálogo
                                 </h3>
                             </div>
-                            <table class="min-w-full divide-y divide-slate-700/50">
-                                <thead class="bg-slate-900/30 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
                                     <tr>
-                                        <th class="px-6 py-4 text-left">Servicio</th>
-                                        <th class="px-6 py-4 text-center">Cant. Mensual</th>
-                                        <th class="px-6 py-4 text-right">Precio Acordado</th>
+                                        <th class="px-6 py-3 text-left">Servicio</th>
+                                        <th class="px-6 py-3 text-center">Cant. Mensual</th>
+                                        <th class="px-6 py-3 text-right">Precio Acordado</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-700/50">
-                                    <tr v-for="servicio in poliza.servicios" :key="servicio.id" class="hover:bg-slate-700/30 transition-colors">
-                                        <td class="px-6 py-4 text-sm font-medium text-slate-200">{{ servicio.nombre }}</td>
-                                        <td class="px-6 py-4 text-center text-sm text-slate-400">{{ servicio.pivot.cantidad }}</td>
-                                        <td class="px-6 py-4 text-right text-sm font-mono text-emerald-400 font-bold">
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr v-for="servicio in poliza.servicios" :key="servicio.id">
+                                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ servicio.nombre }}</td>
+                                        <td class="px-6 py-4 text-center text-sm text-gray-600">{{ servicio.pivot.cantidad }}</td>
+                                        <td class="px-6 py-4 text-right text-sm font-mono text-gray-900">
                                             {{ servicio.pivot.precio_especial ? formatCurrency(servicio.pivot.precio_especial) : '-' }}
                                         </td>
                                     </tr>
                                     <tr v-if="poliza.servicios.length === 0">
-                                        <td colspan="3" class="px-6 py-12 text-center text-slate-500 text-sm italic">
+                                        <td colspan="3" class="px-6 py-8 text-center text-gray-400 text-sm">
                                             No se han especificado servicios individuales del catálogo.
                                         </td>
                                     </tr>
@@ -213,60 +197,44 @@ const getSaludPoliza = () => {
                             </table>
                         </div>
 
-                        <!-- Historial de Facturación y Smart Billing -->
-                        <div class="bg-slate-800/40 backdrop-blur border border-blue-900/30 rounded-2xl shadow-xl overflow-hidden relative">
-                            <!-- Glow effect -->
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -z-10 transform translate-x-1/2 -translate-y-1/2"></div>
-                            
-                            <div class="px-6 py-5 border-b border-slate-700/50 bg-slate-800/60 flex justify-between items-center">
-                                <h3 class="font-bold text-white flex items-center gap-3">
-                                    <div class="p-2 bg-sky-500/20 rounded-lg text-sky-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                                        </svg>
-                                    </div>
-                                    Cargos y Facturación (Smart Billing)
+                        <!-- Historial de Facturación y Cobros -->
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-blue-100">
+                            <div class="px-6 py-4 border-b bg-blue-50/50">
+                                <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                    </svg>
+                                    Historial de Facturación y Cobros
                                 </h3>
-                                <span class="bg-blue-600 shadow-lg shadow-blue-500/40 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest border border-white/10">
-                                    Nuevo
-                                </span>
                             </div>
-                            <table class="min-w-full divide-y divide-slate-700/50">
-                                <thead class="bg-slate-900/30 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
                                     <tr>
-                                        <th class="px-6 py-4 text-left">Emisión / Vence</th>
-                                        <th class="px-6 py-4 text-left">Concepto</th>
-                                        <th class="px-6 py-4 text-center">Estado</th>
-                                        <th class="px-6 py-4 text-right">Subtotal / IVA</th>
-                                        <th class="px-6 py-4 text-right">Total</th>
+                                        <th class="px-6 py-3 text-left">Fecha</th>
+                                        <th class="px-6 py-3 text-left">Concepto</th>
+                                        <th class="px-6 py-3 text-center">Estado</th>
+                                        <th class="px-6 py-3 text-right">Monto</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-700/50">
-                                    <tr v-for="cargo in poliza.cargos" :key="cargo.id" class="hover:bg-slate-700/30 transition-colors">
-                                        <td class="px-6 py-4 text-xs">
-                                            <div class="font-bold text-slate-200">{{ formatDate(cargo.fecha_emision) }}</div>
-                                            <div class="text-[10px] text-red-400 font-bold mt-1">Vence: {{ formatDate(cargo.fecha_vencimiento) }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-slate-300">
-                                            <div class="font-medium truncate max-w-[200px]">{{ cargo.concepto }}</div>
-                                            <div class="text-[10px] text-slate-500 uppercase font-black tracking-wider mt-0.5">{{ cargo.tipo_ciclo }}</div>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr v-for="cobro in poliza.cuentas_por_cobrar" :key="cobro.id" class="hover:bg-white">
+                                        <td class="px-6 py-4 text-xs font-medium text-gray-600">{{ formatDate(cobro.created_at) }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            <div class="font-medium">Mensualidad Póliza</div>
+                                            <div class="text-[10px] text-gray-500 truncate max-w-xs">{{ cobro.notas }}</div>
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <span :class="['px-2.5 py-1 text-[9px] font-black rounded uppercase border border-transparent', getEstadoCobroBadge(cargo.estado)]">
-                                                {{ cargo.estado }}
+                                            <span :class="['px-2 py-0.5 text-[9px] font-black rounded uppercase border', getEstadoCobroBadge(cobro.estado)]">
+                                                {{ cobro.estado }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right text-xs">
-                                            <div class="text-slate-400">{{ formatCurrency(cargo.subtotal) }}</div>
-                                            <div class="text-[10px] text-slate-600 font-bold">+ {{ formatCurrency(cargo.iva) }} IVA</div>
-                                        </td>
-                                        <td class="px-6 py-4 text-right text-sm font-black text-white">
-                                            {{ formatCurrency(cargo.total) }}
+                                        <td class="px-6 py-4 text-right text-sm font-bold text-gray-900">
+                                            {{ formatCurrency(cobro.monto_total) }}
                                         </td>
                                     </tr>
-                                    <tr v-if="!poliza.cargos || poliza.cargos.length === 0">
-                                        <td colspan="5" class="px-6 py-12 text-center text-slate-500 text-sm">
-                                            Aún no hay cargos generados por el motor Smart Billing.
+                                    <tr v-if="!poliza.cuentas_por_cobrar || poliza.cuentas_por_cobrar.length === 0">
+                                        <td colspan="4" class="px-6 py-8 text-center text-gray-400 text-sm italic">
+                                            No hay registros de cobros generados automáticamente aún.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -274,44 +242,42 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Historial de Servicios (Tickets) -->
-                        <div class="bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl shadow-xl overflow-hidden">
-                            <div class="px-6 py-5 border-b border-slate-700/50 flex justify-between items-center">
-                                <h3 class="font-bold text-white flex items-center gap-3">
-                                    <div class="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b flex justify-between items-center">
+                                <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
                                     Historial Reciente de Servicios
                                 </h3>
-                                <Link :href="route('soporte.create', { poliza_id: poliza.id, cliente_id: poliza.cliente_id })" class="text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg shadow-lg shadow-blue-900/30 transition-all border border-blue-400/30">
+                                <Link :href="route('soporte.create', { poliza_id: poliza.id, cliente_id: poliza.cliente_id })" class="text-sm font-bold text-blue-600 hover:underline">
                                     + Reportar Servicio
                                 </Link>
                             </div>
-                            <table class="min-w-full divide-y divide-slate-700/50">
-                                <thead class="bg-slate-900/30 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-white text-xs font-bold text-gray-500 uppercase">
                                     <tr>
-                                        <th class="px-6 py-4 text-left">Folio</th>
-                                        <th class="px-6 py-4 text-left">Título / Asunto</th>
-                                        <th class="px-6 py-4 text-center">Estado</th>
-                                        <th class="px-6 py-4 text-right">Fecha</th>
+                                        <th class="px-6 py-3 text-left">Folio</th>
+                                        <th class="px-6 py-3 text-left">Título / Asunto</th>
+                                        <th class="px-6 py-3 text-left">Estado</th>
+                                        <th class="px-6 py-3 text-right">Fecha</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-700/50">
-                                    <tr v-for="ticket in poliza.tickets" :key="ticket.id" class="hover:bg-slate-700/30 cursor-pointer transition-colors" @click="router.visit(route('soporte.show', ticket.id))">
-                                        <td class="px-6 py-4 font-mono text-xs font-bold text-blue-400">{{ ticket.numero }}</td>
-                                        <td class="px-6 py-4 text-sm text-slate-200 truncate max-w-xs">{{ ticket.titulo }}</td>
-                                        <td class="px-6 py-4 text-center">
-                                            <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-700 text-slate-300 border border-slate-600 uppercase tracking-wide">
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr v-for="ticket in poliza.tickets" :key="ticket.id" class="hover:bg-white cursor-pointer" @click="router.visit(route('soporte.show', ticket.id))">
+                                        <td class="px-6 py-4 font-mono text-xs font-bold text-blue-600">{{ ticket.numero }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-900 truncate max-w-xs">{{ ticket.titulo }}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-100 text-gray-700 uppercase">
                                                 {{ ticket.estado }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right text-xs text-slate-500">
+                                        <td class="px-6 py-4 text-right text-xs text-gray-500">
                                             {{ formatDate(ticket.created_at) }}
                                         </td>
                                     </tr>
                                     <tr v-if="poliza.tickets.length === 0">
-                                        <td colspan="4" class="px-6 py-12 text-center text-slate-500 text-sm">
+                                        <td colspan="4" class="px-6 py-8 text-center text-gray-400 text-sm">
                                             No hay servicios registrados aún bajo esta póliza.
                                         </td>
                                     </tr>
@@ -323,36 +289,34 @@ const getSaludPoliza = () => {
                     <!-- Sidebar Stats & Info -->
                     <div class="space-y-6">
                         <!-- Card de Resumen -->
-                        <div class="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl shadow-xl shadow-blue-900/40 border border-blue-400/30 p-6 text-white relative overflow-hidden">
-                            <!-- Texture decoration -->
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl shadow-lg p-6 text-white">
+                            <h3 class="text-lg font-bold mb-4 opacity-90">Resumen Mensual</h3>
                             
-                            <h3 class="text-lg font-bold mb-6 opacity-90 flex items-center gap-2">
-                                <span class="bg-white/20 p-1.5 rounded-lg">📊</span> Resumen Mensual
-                            </h3>
-                            
-                            <div class="space-y-6">
+                            <div class="space-y-4">
                                 <!-- Consumo de Servicios Remotos (Soporte Técnico) -->
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
                                         <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1">
-                                            <span>📞</span> Soporte Técnico
+                                            <span>📞</span> Soporte Técnico (Remoto)
                                         </div>
-                                        <div class="text-[10px] font-black opacity-60 bg-black/20 px-2 py-0.5 rounded">Remoto</div>
+                                        <div class="text-[10px] font-black opacity-60">Mensual</div>
                                     </div>
                                     <div class="flex items-end gap-2">
-                                        <span class="text-4xl font-black tracking-tight">{{ stats.tickets_mes }}</span>
-                                        <span class="text-lg opacity-60 pb-1 font-medium">/ {{ poliza.limite_mensual_tickets || '10' }}</span>
+                                        <span class="text-4xl font-extrabold">{{ stats.tickets_mes }}</span>
+                                        <span class="text-lg opacity-75 pb-1">/ {{ poliza.limite_mensual_tickets || '10' }}</span>
                                     </div>
-                                    <div class="mt-2 w-full bg-black/20 rounded-full h-2.5 backdrop-blur-sm border border-white/5">
+                                    <div class="mt-2 w-full bg-blue-900/50 rounded-full h-2">
                                         <div 
-                                            class="h-2.5 rounded-full transition-all duration-700 ease-out shadow-lg" 
-                                            :class="stats.excede_limite ? 'bg-red-400' : 'bg-emerald-400'"
+                                            class="h-2 rounded-full transition-all duration-500" 
+                                            :class="stats.excede_limite ? 'bg-red-400' : 'bg-green-400'"
                                             :style="{ width: Math.min((stats.tickets_mes / (poliza.limite_mensual_tickets || 10)) * 100, 100) + '%' }"
                                         ></div>
                                     </div>
-                                    <p v-if="stats.excede_limite" class="mt-2 text-[10px] font-black bg-red-500/30 border border-red-500/30 p-1.5 rounded text-center text-red-100 uppercase tracking-wide">
-                                        ⚠️ Límite Excedido
+                                    <p class="mt-1.5 text-[11px] opacity-80 leading-tight">
+                                        Incluye: Windows, Software, Impresoras y fallas de Sistema.
+                                    </p>
+                                    <p v-if="stats.excede_limite" class="mt-2 text-[10px] font-black bg-red-500/30 p-1 rounded text-center text-red-100">
+                                        ⚠️ LÍMITE DE SOPORTE EXCEDIDO
                                     </p>
                                 </div>
 
@@ -362,131 +326,130 @@ const getSaludPoliza = () => {
                                         <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1">
                                             <span>🏠</span> Visitas en Sitio
                                         </div>
+                                        <div class="text-[10px] font-black opacity-60">Mensual</div>
                                     </div>
                                     <div class="flex items-end gap-2">
-                                        <span class="text-4xl font-black tracking-tight">{{ stats.visitas_mes }}</span>
-                                        <span class="text-lg opacity-60 pb-1 font-medium">/ {{ poliza.visitas_sitio_mensuales || '1' }}</span>
+                                        <span class="text-4xl font-extrabold">{{ stats.visitas_mes }}</span>
+                                        <span class="text-lg opacity-75 pb-1">/ {{ poliza.visitas_sitio_mensuales || '1' }}</span>
                                     </div>
-                                    <div class="mt-2 w-full bg-black/20 rounded-full h-2.5 backdrop-blur-sm border border-white/5">
+                                    <div class="mt-2 w-full bg-blue-900/40 rounded-full h-2">
                                         <div 
-                                            class="h-2.5 rounded-full transition-all duration-700 ease-out shadow-lg" 
+                                            class="h-2 rounded-full transition-all duration-500" 
                                             :class="stats.excede_visitas ? 'bg-red-400' : 'bg-amber-400'"
                                             :style="{ width: Math.min((stats.visitas_mes / (poliza.visitas_sitio_mensuales || 1)) * 100, 100) + '%' }"
                                         ></div>
                                     </div>
-                                    <p v-if="stats.excede_visitas" class="mt-2 text-[10px] font-black bg-red-500/30 border border-red-500/30 p-1.5 rounded text-center text-red-100 uppercase tracking-wide">
-                                        ⚠️ Visita Extra (Costo Adicional)
+                                    <p v-if="stats.excede_visitas" class="mt-2 text-[10px] font-black bg-red-500/30 p-1 rounded text-center text-red-100 uppercase">
+                                        ⚠️ Visita Extra (Con Costo)
                                     </p>
                                 </div>
 
                                 <!-- Asesorías (No consumen póliza) -->
-                                <div class="pt-4 border-t border-white/10 flex justify-between items-center">
-                                    <div>
-                                        <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1 mb-1">
-                                            <span>💡</span> Asesorías
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="text-[10px] opacity-75 uppercase font-black tracking-wider flex items-center gap-1">
+                                            <span>💡</span> Asesorías y Consultas
                                         </div>
-                                        <div class="flex items-end gap-2">
-                                            <span class="text-2xl font-bold">{{ stats.tickets_asesoria || 0 }}</span>
-                                            <span class="text-xs opacity-60 pb-1 italic">realizadas</span>
-                                        </div>
+                                        <div class="bg-green-400/20 text-green-300 text-[8px] px-1.5 rounded font-black uppercase">Ilimitado</div>
                                     </div>
-                                    <div class="bg-emerald-400/20 text-emerald-100 border border-emerald-400/30 text-[9px] px-2 py-1 rounded font-black uppercase text-center">
-                                        Ilimitado
+                                    <div class="flex items-end gap-2">
+                                        <span class="text-3xl font-extrabold">{{ stats.tickets_asesoria || 0 }}</span>
+                                        <span class="text-sm opacity-60 pb-1 italic">realizadas este mes</span>
                                     </div>
+                                    <p class="mt-1 text-[10px] opacity-70 italic">Consultas sobre uso y procedimientos.</p>
                                 </div>
 
                                 <!-- Consumo de Horas (Phase 2) -->
-                                <div v-if="poliza.horas_incluidas_mensual" class="pt-4 border-t border-white/10">
-                                    <div class="text-[10px] opacity-75 uppercase font-black tracking-wider mb-1">⏱️ Consumo de Horas</div>
-                                    <div class="flex items-end gap-2">
-                                        <span class="text-3xl font-black tracking-tight">{{ poliza.horas_consumidas_mes || 0 }}</span>
-                                        <span class="text-sm opacity-60 pb-1">/ {{ poliza.horas_incluidas_mensual }}h</span>
+                                <div v-if="poliza.horas_incluidas_mensual" class="pt-3 border-t border-white/10">
+                                    <div class="text-xs opacity-75 uppercase font-bold tracking-wider">Consumo de Horas</div>
+                                    <div class="flex items-end gap-2 mt-1">
+                                        <span class="text-3xl font-extrabold">{{ poliza.horas_consumidas_mes || 0 }}</span>
+                                        <span class="text-base opacity-75 pb-0.5">/ {{ poliza.horas_incluidas_mensual }}h</span>
                                     </div>
-                                    <div class="mt-2 w-full bg-black/20 rounded-full h-2.5 backdrop-blur-sm border border-white/5">
+                                    <div class="mt-2 w-full bg-blue-900/50 rounded-full h-2">
                                         <div 
-                                            class="h-2.5 rounded-full transition-all duration-700 ease-out shadow-lg" 
+                                            class="h-2 rounded-full transition-all duration-500" 
                                             :class="poliza.excede_horas ? 'bg-red-400' : poliza.porcentaje_horas > 80 ? 'bg-yellow-400' : 'bg-green-400'"
                                             :style="{ width: Math.min(poliza.porcentaje_horas || 0, 100) + '%' }"
                                         ></div>
                                     </div>
-                                    <div class="flex justify-between mt-1.5">
-                                        <span class="text-[9px] opacity-60 font-bold uppercase">{{ poliza.porcentaje_horas || 0 }}% usado</span>
-                                        <span v-if="poliza.costo_hora_excedente" class="text-[9px] opacity-60 font-mono">
-                                            Extra: ${{ poliza.costo_hora_excedente }}/hr
+                                    <div class="flex justify-between mt-1">
+                                        <span class="text-[10px] opacity-60">{{ poliza.porcentaje_horas || 0 }}% usado</span>
+                                        <span v-if="poliza.costo_hora_excedente" class="text-[10px] opacity-60">
+                                            Excedente: ${{ poliza.costo_hora_excedente }}/hr
                                         </span>
                                     </div>
+                                    <p v-if="poliza.excede_horas" class="mt-2 text-[10px] font-bold bg-red-500/30 p-1 rounded text-center text-red-100">
+                                        ⚠️ HORAS EXCEDIDAS
+                                    </p>
                                 </div>
 
-                                <div class="pt-6 border-t border-white/10">
-                                    <div class="text-[10px] opacity-75 uppercase font-black tracking-wider mb-2">Próximo Cobro Programado</div>
-                                    <div class="text-3xl font-black tracking-tight">{{ formatCurrency(poliza.monto_mensual) }}</div>
-                                    <div class="flex items-center gap-2 mt-2">
-                                        <span class="bg-indigo-500/30 px-2 py-0.5 rounded text-[10px] font-bold border border-indigo-400/30">
-                                            Día {{ poliza.dia_cobro }} de cada mes
-                                        </span>
-                                    </div>
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="text-xs opacity-75 uppercase font-bold tracking-wider mb-2">Próximo Cobro</div>
+                                    <div class="text-2xl font-bold">{{ formatCurrency(poliza.monto_mensual) }}</div>
+                                    <p class="text-[10px] opacity-75 mt-1">Programado para el día {{ poliza.dia_cobro }} de cada mes</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Alerta de Vencimiento -->
+                        <!-- Alerta de Vencimiento (Phase 2) -->
                         <div v-if="poliza.dias_para_vencer !== null && poliza.dias_para_vencer <= 30" 
                              :class="[
-                                 'rounded-2xl shadow-xl p-5 border',
-                                 poliza.dias_para_vencer <= 0 ? 'bg-red-900/20 border-red-500/50' :
-                                 poliza.dias_para_vencer <= 7 ? 'bg-orange-900/20 border-orange-500/50' :
-                                 'bg-yellow-900/20 border-yellow-500/50'
+                                 'rounded-xl shadow-sm p-4 border-2',
+                                 poliza.dias_para_vencer <= 0 ? 'bg-red-50 border-red-300' :
+                                 poliza.dias_para_vencer <= 7 ? 'bg-orange-50 border-orange-300' :
+                                 'bg-yellow-50 border-yellow-300'
                              ]"
                         >
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-3">
                                 <div :class="[
-                                    'w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg border border-white/10',
-                                    poliza.dias_para_vencer <= 0 ? 'bg-red-500 text-white' :
-                                    poliza.dias_para_vencer <= 7 ? 'bg-orange-500 text-white' :
-                                    'bg-yellow-500 text-white'
+                                    'w-10 h-10 rounded-full flex items-center justify-center text-lg',
+                                    poliza.dias_para_vencer <= 0 ? 'bg-red-100 text-red-600' :
+                                    poliza.dias_para_vencer <= 7 ? 'bg-orange-100 text-orange-600' :
+                                    'bg-yellow-100 text-yellow-600'
                                 ]">
                                     ⏰
                                 </div>
                                 <div>
                                     <div :class="[
-                                        'text-base font-black uppercase tracking-wide',
-                                        poliza.dias_para_vencer <= 0 ? 'text-red-400' :
-                                        poliza.dias_para_vencer <= 7 ? 'text-orange-400' :
-                                        'text-yellow-400'
+                                        'text-sm font-black',
+                                        poliza.dias_para_vencer <= 0 ? 'text-red-800' :
+                                        poliza.dias_para_vencer <= 7 ? 'text-orange-800' :
+                                        'text-yellow-800'
                                     ]">
                                         {{ poliza.dias_para_vencer <= 0 ? '¡PÓLIZA VENCIDA!' : 
                                            poliza.dias_para_vencer === 1 ? '¡Vence mañana!' :
                                            `Vence en ${poliza.dias_para_vencer} días` }}
                                     </div>
-                                    <div class="text-sm text-slate-400 font-mono mt-0.5">
-                                        Expira: {{ formatDate(poliza.fecha_fin) }}
+                                    <div class="text-xs text-gray-600">
+                                        {{ formatDate(poliza.fecha_fin) }}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Detalles Técnicos Sidebar -->
-                        <div class="bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl shadow-xl p-6">
-                            <h3 class="font-bold text-white mb-4 text-sm uppercase tracking-wider border-b border-slate-700/50 pb-2">Información del Contrato</h3>
-                            <dl class="space-y-4 text-sm mt-4">
-                                <div class="flex justify-between items-center">
-                                    <dt class="text-slate-400 font-medium">Fecha Inicio</dt>
-                                    <dd class="text-white font-mono font-bold">{{ formatDate(poliza.fecha_inicio) }}</dd>
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="font-bold text-gray-900 mb-3 text-sm">Información del Contrato</h3>
+                            <dl class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-500 font-medium">Fecha Inicio</dt>
+                                    <dd class="text-gray-900 font-bold">{{ formatDate(poliza.fecha_inicio) }}</dd>
                                 </div>
-                                <div class="flex justify-between items-center">
-                                    <dt class="text-slate-400 font-medium">Vence</dt>
-                                    <dd class="text-white font-mono font-bold">{{ formatDate(poliza.fecha_fin) }}</dd>
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-500 font-medium">Vence</dt>
+                                    <dd class="text-gray-900 font-bold">{{ formatDate(poliza.fecha_fin) }}</dd>
                                 </div>
-                                <div class="flex justify-between items-center">
-                                    <dt class="text-slate-400 font-medium">Renovación</dt>
-                                    <dd>
-                                        <span v-if="poliza.renovacion_automatica" class="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 text-xs uppercase">Automática</span>
-                                        <span v-else class="text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded border border-slate-600 text-xs uppercase">Manual</span>
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-500 font-medium">Renovación</dt>
+                                    <dd class="text-gray-900">
+                                        <span v-if="poliza.renovacion_automatica" class="text-green-600 font-bold">Automatica</span>
+                                        <span v-else class="text-gray-500">Manual</span>
                                     </dd>
                                 </div>
-                                <div class="pt-3 border-t border-slate-700/50 flex justify-between items-center">
-                                    <dt class="text-slate-400 font-medium">SLA Respuesta</dt>
-                                    <dd class="text-blue-300 font-black px-2 py-1 bg-blue-900/30 border border-blue-500/30 rounded text-xs">
+                                <div class="pt-2 border-t flex justify-between items-center">
+                                    <dt class="text-gray-500 font-medium">SLA Respuesta</dt>
+                                    <dd class="text-blue-700 font-black px-2 py-0.5 bg-blue-50 rounded">
                                         {{ poliza.sla_horas_respuesta ? poliza.sla_horas_respuesta + ' Horas' : 'Sin definir' }}
                                     </dd>
                                 </div>
@@ -494,19 +457,19 @@ const getSaludPoliza = () => {
                         </div>
 
                         <!-- Equipos Vinculados -->
-                        <div class="bg-slate-800/40 backdrop-blur border border-slate-700/50 rounded-2xl shadow-xl p-6">
-                            <h3 class="font-bold text-white mb-4 text-sm uppercase tracking-wider flex items-center gap-2 border-b border-slate-700/50 pb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="font-bold text-gray-900 mb-3 text-sm flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                                 </svg>
-                                Equipos Cubiertos <span class="text-slate-500 ml-1">({{ poliza.equipos.length }})</span>
+                                Equipos Cubiertos ({{ poliza.equipos.length }})
                             </h3>
                             <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                <div v-for="equipo in poliza.equipos" :key="equipo.id" class="p-3 bg-slate-800 rounded-lg border border-slate-700 hover:border-blue-500/30 transition-colors group">
-                                    <div class="font-bold text-slate-200 text-xs group-hover:text-blue-300 transition-colors">{{ equipo.nombre }}</div>
-                                    <div class="text-slate-500 text-[10px] font-mono mt-0.5">S/N: {{ equipo.serie }}</div>
+                                <div v-for="equipo in poliza.equipos" :key="equipo.id" class="p-2 bg-white rounded border text-xs">
+                                    <div class="font-bold text-gray-800">{{ equipo.nombre }}</div>
+                                    <div class="text-gray-500 font-mono">S/N: {{ equipo.serie }}</div>
                                 </div>
-                                <div v-if="poliza.equipos.length === 0" class="text-center py-6 text-slate-500 text-xs italic bg-slate-900/20 rounded-lg border border-slate-800 border-dashed">
+                                <div v-if="poliza.equipos.length === 0" class="text-center py-4 text-gray-400 text-xs italic">
                                     No hay equipos específicos listados.
                                 </div>
                             </div>

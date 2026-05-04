@@ -10,12 +10,13 @@ class SoportePublicoController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Public/Soporte/Index');
+        $view = config('app.business') === 'climas' ? 'PublicClimas/Soporte/Index' : 'Public/Soporte/Index';
+        return Inertia::render($view);
     }
 
     public function ticketStatus(Request $request)
     {
-        // Simple status checker for public
-        return Inertia::render('Public/Soporte/Status');
+        $view = config('app.business') === 'climas' ? 'PublicClimas/Soporte/Status' : 'Public/Soporte/Status';
+        return Inertia::render($view);
     }
 }

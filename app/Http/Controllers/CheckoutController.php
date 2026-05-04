@@ -129,6 +129,26 @@ class CheckoutController extends Controller
         $cliente = $this->getClienteFromSession();
         $empresa = EmpresaConfiguracion::getConfig();
 
+        // Meta CAPI InitiateCheckout Event (Opcional, pero recomendado para embudo)
+        try {
+            if ($cliente) {
+                $metaCapi = new \App\Services\MetaCAPIService();
+                $metaCapi->sendEvent('InitiateCheckout', [
+                    'email' => $cliente['email'] ?? null,
+                    'telefono' => $cliente['telefono'] ?? null,
+                    'nombre' => $cliente['nombre'] ?? null,
+                    'ciudad' => $cliente['direccion_predeterminada']['ciudad'] ?? null,
+                    'estado' => $cliente['direccion_predeterminada']['estado'] ?? null,
+                    'cp' => $cliente['direccion_predeterminada']['cp'] ?? null,
+                ], [
+                    'currency' => 'MXN',
+                    'content_type' => 'product'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Meta CAPI Error en Show Checkout: ' . $e->getMessage());
+        }
+
         return Inertia::render('Catalogo/Checkout', [
             'empresa' => $empresa ? [
                 'nombre' => $empresa->nombre_comercial ?? $empresa->razon_social ?? 'Tienda',
@@ -433,6 +453,28 @@ class CheckoutController extends Controller
                 }
             }
 
+            // Meta CAPI Purchase Event
+            try {
+                $metaCapi = new \App\Services\MetaCAPIService();
+                $metaCapi->sendEvent('Purchase', [
+                    'email' => $pedido->email,
+                    'telefono' => $pedido->telefono,
+                    'nombre' => $pedido->nombre,
+                    'ciudad' => $pedido->direccion_envio['ciudad'] ?? null,
+                    'estado' => $pedido->direccion_envio['estado'] ?? null,
+                    'cp' => $pedido->direccion_envio['cp'] ?? null,
+                ], [
+                    'value' => $pedido->total,
+                    'currency' => 'MXN',
+                    'content_ids' => collect($pedido->items)->pluck('producto_id')->toArray(),
+                    'content_type' => 'product',
+                    'num_items' => collect($pedido->items)->sum('cantidad'),
+                    'order_id' => $pedido->numero_pedido
+                ], route('tienda.pedido', $pedido->numero_pedido));
+            } catch (\Exception $e) {
+                \Log::error('Meta CAPI Error en Checkout: ' . $e->getMessage());
+            }
+
             // Log del pedido creado
             \Log::info('Pedido online creado', [
                 'numero_pedido' => $pedido->numero_pedido,
@@ -478,9 +520,6 @@ class CheckoutController extends Controller
                 'estado' => $pedido->estado,
                 'estado_label' => $pedido->estado_label,
                 'estado_color' => $pedido->estado_color,
-                'guia_envio' => $pedido->guia_envio,
-                'paqueteria' => $pedido->paqueteria,
-                'tracking_url' => $pedido->tracking_url,
                 'created_at' => $pedido->created_at->format('d/m/Y H:i'),
             ],
             'empresa' => $empresa ? [

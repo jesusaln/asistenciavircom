@@ -2,30 +2,28 @@
 
 namespace App\Services\Ventas;
 
+use App\Models\Cliente;
+use App\Models\User;
 use App\Models\Venta;
-use App\Models\VentaItem;
-use App\Models\ProductoSerie;
-use App\Models\Producto;
-use App\Models\Servicio;
 use App\Models\CuentasPorCobrar;
+use App\Support\EmpresaResolver;
 use App\Services\StockValidationService;
-use App\Services\InventarioService;
-use App\Services\PrecioService;
-use App\Services\EmpresaConfiguracionService;
 use App\Services\Folio\FolioService;
 use App\Services\PaymentService;
 use App\Services\FinancialService;
+use App\Services\Ventas\VentaItemsProcessor;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class VentaCreationService
 {
     public function __construct(
         private readonly StockValidationService $stockValidationService,
-        private readonly InventarioService $inventarioService,
-        private readonly PrecioService $precioService,
         private readonly FolioService $folioService,
         private readonly PaymentService $paymentService,
-        private readonly FinancialService $financialService
+        private readonly FinancialService $financialService,
+        private readonly VentaItemsProcessor $ventaItemsProcessor
     ) {
     }
 
@@ -54,418 +52,226 @@ class VentaCreationService
      */
     public function createVenta(array $data, bool $usarPreciosFijos = false): Venta
     {
-        // 0. Pre-calculate totals for validation using FinancialService
-        // Combine products and services for calculation
-        $itemsForCalc = array_merge($data['productos'] ?? [], $data['servicios'] ?? []);
+        try {
+            $data['cliente_id'] = $this->resolveClienteId($data);
 
-        $totals = $this->financialService->calculateDocumentTotals(
-            $itemsForCalc,
-            (float) ($data['descuento_general'] ?? 0),
-            $data['cliente_id'] ?? null,
-            [
-                'aplicar_retencion_iva' => !empty($data['retencion_iva']),
-                'aplicar_retencion_isr' => !empty($data['retencion_isr']),
-                'mode' => 'sales'
-            ]
-        );
-
-        // 1. Validate Credit Limit
-        if (isset($data['metodo_pago']) && $data['metodo_pago'] === 'credito') {
-            $this->validateCreditLimit($data['cliente_id'] ?? null, $totals['total']);
-        }
-
-        // 1.1 Validate Bank Account for automated payments (Transfer/Card/Cheque)
-        if (isset($data['metodo_pago']) && !in_array($data['metodo_pago'], ['credito', 'efectivo'])) {
-            if (empty($data['cuenta_bancaria_id'])) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
-                    'cuenta_bancaria_id' => 'Debe seleccionar una cuenta bancaria para pagos con ' . $data['metodo_pago']
+            $authUser = Auth::user();
+            if (empty($data['almacen_id']) && $authUser && ! empty($authUser->almacen_venta_id)) {
+                $data['almacen_id'] = (int) $authUser->almacen_venta_id;
+            }
+            if (empty($data['almacen_id'])) {
+                throw ValidationException::withMessages([
+                    'almacen_id' => 'Se requiere almacén de venta. Asigna un almacén al usuario o envía almacen_id.',
                 ]);
             }
-        }
 
-        return DB::transaction(function () use ($data, $usarPreciosFijos, $totals) {
-            // 2. Validate and lock stock
-            $stockValidation = $this->stockValidationService->validateAndLockStock(
-                $data['productos'] ?? [],
-                $data['almacen_id']
+            // 0. Pre-calculate totals for validation using FinancialService
+            // Combine products and services for calculation
+            $itemsForCalc = array_merge($data['productos'] ?? [], $data['servicios'] ?? []);
+
+            $totals = $this->financialService->calculateDocumentTotals(
+                $itemsForCalc,
+                (float) ($data['descuento_general'] ?? 0),
+                $data['cliente_id'] ?? null,
+                [
+                    'aplicar_retencion_iva' => !empty($data['retencion_iva']),
+                    'aplicar_retencion_isr' => !empty($data['retencion_isr']),
+                    'mode' => 'sales'
+                ]
             );
 
-            if (!$stockValidation['valid']) {
-                throw new \Exception('Stock insuficiente: ' . implode(', ', $stockValidation['errors']));
+            if (isset($data['metodo_pago']) && !in_array($data['metodo_pago'], ['credito', 'efectivo'])) {
+                if (empty($data['cuenta_bancaria_id'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'cuenta_bancaria_id' => 'Debe seleccionar una cuenta bancaria para pagos con ' . $data['metodo_pago']
+                    ]);
+                }
             }
 
-            // 3. Generate folio
-            $numeroVenta = $this->folioService->getNextFolio('venta');
+            return DB::transaction(function () use ($data, $usarPreciosFijos, $totals) {
+                if (! empty($data['cita_id'])) {
+                    $cid = (int) $data['cita_id'];
+                    if (Venta::query()->where('cita_id', $cid)->exists()) {
+                        throw ValidationException::withMessages([
+                            'cita_id' => 'Esta cita ya tiene una venta vinculada. Usa «Vincular venta existente» desde la venta o el reporte de citas, o abre la venta ya asociada.',
+                        ]);
+                    }
+                }
 
-            // 4. Create venta record
-            $venta = Venta::create([
-                'cliente_id' => $data['cliente_id'] ?? null,
-                'cotizacion_id' => $data['cotizacion_id'] ?? null, // Para conversiones de cotización
-                'numero_venta' => $numeroVenta,
-                'fecha' => now(),
-                'estado' => \App\Enums\EstadoVenta::Aprobada,
-                'subtotal' => $totals['subtotal'],
-                'descuento_general' => $totals['descuento_general'],
-                'iva' => $totals['iva'],
-                'isr' => $totals['isr'] ?? 0, // Legacy cleaning
-                'retencion_iva' => $totals['retencion_iva'] ?? 0,
-                'retencion_isr' => $totals['retencion_isr'] ?? 0,
-                'total' => $totals['total'],
-                'notas' => $data['notas'] ?? null,
-                'pagado' => false,
-                'metodo_pago' => $data['metodo_pago'],
-                'forma_pago_sat' => $data['forma_pago_sat'] ?? ($data['metodo_pago'] === 'credito' ? '99' : null),
-                'metodo_pago_sat' => $data['metodo_pago_sat'] ?? ($data['metodo_pago'] === 'credito' ? 'PPD' : 'PUE'),
-                'almacen_id' => $data['almacen_id'],
-                'cita_id' => $data['cita_id'] ?? null,
-            ]);
+                // 1. Validate Credit Limit INSIDE Transaction (Prevent Race Conditions)
+                if (isset($data['metodo_pago']) && $data['metodo_pago'] === 'credito') {
+                    $this->validateCreditLimit($data['cliente_id'] ?? null, $totals['total']);
+                }
 
-            // 5. Create CuentasPorCobrar
-            $cuentaPorCobrar = CuentasPorCobrar::create([
-                'empresa_id' => $venta->empresa_id,
-                'cobrable_id' => $venta->id,
-                'cobrable_type' => 'venta', // Use morph map alias
-                'cliente_id' => $data['cliente_id'] ?? null,
-                'monto_total' => $totals['total'],
-                'monto_pagado' => 0,
-                'monto_pendiente' => $totals['total'],
-                'fecha_vencimiento' => now()->addDays(30), // Vence 30 días después
-                'estado' => 'pendiente',
-                'notas' => 'Cuenta generada automáticamente por venta',
-            ]);
-
-            // 6. Process products
-            $this->processProducts($venta, $data['productos'] ?? [], $data['almacen_id'], $data['price_list_id'] ?? null, $usarPreciosFijos);
-
-            // 7. Process services
-            $this->processServices($venta, $data['servicios'] ?? []);
-
-            // 8. Process automatic payment for non-credit sales
-            if ($data['metodo_pago'] !== 'credito') {
-                // ✅ FIX: Set relation manually to avoid loading issues in transaction
-                $venta->setRelation('cuentaPorCobrar', $cuentaPorCobrar);
-
-                $this->paymentService->registrarPagoContado(
-                    $venta,
-                    $data['metodo_pago'],
-                    $data['notas'] ?? 'Pago automático al crear venta',
-                    $data['cuenta_bancaria_id'] ?? null // âœ… Pass bank account if provided (for card/transfer)
+                \Log::debug("VentaCreationService: Validating stock", ['productos' => $data['productos'] ?? [], 'almacen_id' => $data['almacen_id']]);
+                // 2. Validate and lock stock
+                $stockValidation = $this->stockValidationService->validateAndLockStock(
+                    $data['productos'] ?? [],
+                    $data['almacen_id']
                 );
 
-                // Refresh to get updated pagado status
-                $venta->refresh();
-            }
-
-            // 9. Dispatch VentaCreated event
-            event(new \App\Events\VentaCreated($venta));
-
-            return $venta->fresh();
-        });
-    }
-
-
-
-    /**
-     * Process and create venta items for products
-     */
-    protected function processProducts(Venta $venta, array $productos, int $almacenId, ?int $priceListId = null, bool $usarPreciosFijos = false): void
-    {
-        // Optimización: Cargar todos los productos de una vez para evitar N+1
-        $productoIds = array_column($productos, 'id');
-        // Eager load kitItems and their items (components) to prevent N+1 in kit processing
-        $productosModelos = Producto::with(['kitItems.item'])
-            ->whereIn('id', $productoIds)
-            ->get()
-            ->keyBy('id');
-
-        foreach ($productos as $productoData) {
-            $producto = $productosModelos->get($productoData['id']);
-
-            if (!$producto) {
-                throw new \Exception("Producto con ID {$productoData['id']} no encontrado.");
-            }
-
-            $cantidad = $productoData['cantidad'];
-
-            // Si es un kit, procesarlo especialmente
-            if ($producto->esKit()) {
-                $this->processKitAsSingleItem($venta, $producto, $cantidad, $productoData, $almacenId, $priceListId, $usarPreciosFijos);
-            } else {
-                // Procesar producto normal
-                $this->processSingleProduct($venta, $producto, $cantidad, $productoData, $almacenId, $priceListId, $usarPreciosFijos);
-            }
-
-            // Liberar memoria de la variable iterada si es muy grande (micro-optimización solicitada)
-            unset($producto);
-        }
-
-        // Liberar la colección de productos
-        unset($productosModelos);
-    }
-
-    /**
-     * Process a single product (non-kit)
-     */
-    protected function processSingleProduct(Venta $venta, Producto $producto, int $cantidad, array $productoData, int $almacenId, ?int $priceListId = null, bool $usarPreciosFijos = false): void
-    {
-        // ✅ FIX: Respetar precios fijos si el flag está activado (para conversiones de cotización)
-        if ($usarPreciosFijos && isset($productoData['precio']) && $productoData['precio'] !== null) {
-            // Usar precios fijos de la cotización, no recalcular
-            $precio = (float) $productoData['precio'];
-            $priceListId = $productoData['price_list_id'] ?? $priceListId;
-        } elseif (isset($productoData['precio']) && $productoData['precio'] !== null) {
-            // Usuario especificó precio manualmente, respetarlo
-            $precio = (float) $productoData['precio'];
-            $priceListId = $productoData['price_list_id'] ?? $priceListId;
-        } else {
-            // No hay precio en formulario, resolver dinámicamente con PrecioService
-            $precioDetalles = $this->precioService->resolverPrecioConDetalles(
-                $producto,
-                $venta->cliente,
-                $priceListId ? \App\Models\PriceList::find($priceListId) : null
-            );
-            $precio = $precioDetalles['precio'];
-            $priceListId = $precioDetalles['price_list_id'];
-        }
-
-        $descuento = $productoData['descuento'] ?? 0;
-        $series = $productoData['series'] ?? [];
-
-        // Calculate historical cost using FIFO
-        $costoHistorico = $this->stockValidationService->calcularCostoHistorico(
-            $producto,
-            $cantidad,
-            $almacenId
-        );
-
-        $itemTotals = $this->financialService->calculateItemTotals($cantidad, $precio, $descuento);
-        $subtotalItem = $itemTotals['subtotal_final']; // already has discount subtracted
-        $descuentoMonto = $itemTotals['descuento_monto'];
-
-        // Create venta item
-        $ventaItem = VentaItem::create([
-            'venta_id' => $venta->id,
-            'ventable_id' => $producto->id,
-            'ventable_type' => Producto::class,
-            'cantidad' => $cantidad,
-            'precio' => $precio,
-            'descuento' => $descuento,
-            'subtotal' => $subtotalItem, // Fix: calculateItemTotals returns subtotal_final (subtotal - discount)
-            'descuento_monto' => $descuentoMonto,
-            'costo_unitario' => $costoHistorico,
-            'price_list_id' => $priceListId,  // Guardar lista usada para auditoría
-        ]);
-
-        // Process series if provided
-        if (!empty($series)) {
-            $this->processSeries($ventaItem, $producto, $series, $venta, $almacenId);
-        }
-
-        // Decrease inventory for non-serialized products
-        if (!($producto->requiere_serie ?? false)) {
-            $this->inventarioService->salida($producto, $cantidad, [
-                'motivo' => 'Venta procesada',
-                'almacen_id' => $almacenId,
-                'user_id' => auth()->id(),
-                'referencia' => $venta,
-            ]);
-        }
-    }
-
-    /**
-     * Process a kit as a single item but reduce inventory of components
-     */
-    protected function processKitAsSingleItem(Venta $venta, Producto $kit, int $cantidadKits, array $kitData, int $almacenId, ?int $priceListId = null, bool $usarPreciosFijos = false): void
-    {
-        // ✅ FIX: Respetar precios fijos si el flag está activado (para conversiones de cotización)
-        if ($usarPreciosFijos && isset($kitData['precio']) && $kitData['precio'] !== null) {
-            // Usar precios fijos de la cotización, no recalcular
-            $precio = (float) $kitData['precio'];
-            $priceListId = $kitData['price_list_id'] ?? $priceListId;
-        } elseif (isset($kitData['precio']) && $kitData['precio'] !== null) {
-            // Usuario especificó precio manualmente, respetarlo
-            $precio = (float) $kitData['precio'];
-            $priceListId = $kitData['price_list_id'] ?? $priceListId;
-        } else {
-            // No hay precio en formulario, resolver dinámicamente con PrecioService
-            $precioDetalles = $this->precioService->resolverPrecioConDetalles(
-                $kit,
-                $venta->cliente,
-                $priceListId ? \App\Models\PriceList::find($priceListId) : null
-            );
-            $precio = $precioDetalles['precio'];
-            $priceListId = $precioDetalles['price_list_id'];
-        }
-
-        $descuento = $kitData['descuento'] ?? 0;
-        $series = $kitData['series'] ?? [];
-
-        // Calcular costo total del kit basado en componentes
-        $costoTotalKit = $kit->calcularCostoKit($cantidadKits, $almacenId);
-
-        $itemTotals = $this->financialService->calculateItemTotals($cantidadKits, $precio, $descuento);
-        $subtotalItem = $itemTotals['subtotal_final'];
-        $descuentoMonto = $itemTotals['descuento_monto'];
-
-        // Create venta item for the kit (como un producto normal)
-        $ventaItem = VentaItem::create([
-            'venta_id' => $venta->id,
-            'ventable_id' => $kit->id,
-            'ventable_type' => Producto::class,
-            'cantidad' => $cantidadKits,
-            'precio' => $precio,
-            'descuento' => $descuento,
-            'subtotal' => $subtotalItem,
-            'descuento_monto' => $descuentoMonto,
-            'costo_unitario' => $costoTotalKit / $cantidadKits, // Costo promedio por kit 
-            'price_list_id' => $priceListId,  // Guardar lista usada para auditoría
-        ]);
-
-        // Process series if the kit requires them (kits generalmente no requieren series)
-        if (!empty($series)) {
-            $this->processSeries($ventaItem, $kit, $series, $venta, $almacenId);
-        }
-
-        // IMPORTANTE: Reducir inventario de TODOS los componentes del kit
-        $componentesSeries = $kitData['componentes_series'] ?? [];
-        $this->reducirInventarioComponentesKit($kit, $cantidadKits, $venta, $almacenId, $componentesSeries);
-    }
-
-    /**
-     * Reduce inventory of all kit components
-     */
-    protected function reducirInventarioComponentesKit(Producto $kit, int $cantidadKits, Venta $venta, int $almacenId, array $componentesSeries = []): void
-    {
-        foreach ($kit->kitItems as $kitItem) {
-            // Solo procesar productos, no servicios
-            if (!$kitItem->esProducto()) {
-                continue;
-            }
-
-            $componente = $kitItem->item;
-
-            $cantidadNecesaria = $kitItem->cantidad * $cantidadKits;
-
-            // Verificar si el componente requiere series
-            $requiereSeries = ($componente->requiere_serie ?? false) || ($componente->maneja_series ?? false) || ($componente->expires ?? false);
-
-            if ($requiereSeries) {
-                // Procesar series para componentes serializados
-                $seriesComponente = $componentesSeries[$componente->id] ?? [];
-
-                if (empty($seriesComponente) || count($seriesComponente) !== $cantidadNecesaria) {
-                    throw new \Exception(
-                        "El componente '{$componente->nombre}' del kit '{$kit->nombre}' requiere {$cantidadNecesaria} series, pero " .
-                        (empty($seriesComponente) ? 'no se proporcionaron' : 'se proporcionaron ' . count($seriesComponente))
+                if (!$stockValidation['valid']) {
+                    throw new \App\Exceptions\StockInsuficienteException(
+                        'Stock insuficiente: ' . implode(', ', $stockValidation['errors']),
+                        $stockValidation['detailed_errors'] ?? []
                     );
                 }
 
-                // Crear VentaItem para el componente (para trazabilidad)
-                $ventaItemComponente = VentaItem::create([
-                    'venta_id' => $venta->id,
-                    'ventable_id' => $componente->id,
-                    'ventable_type' => Producto::class,
-                    'cantidad' => $cantidadNecesaria,
-                    'precio' => 0, // Componente de kit, precio ya incluido en el kit
-                    'descuento' => 0,
-                    'subtotal' => 0,
-                    'descuento_monto' => 0,
-                    'costo_unitario' => $this->stockValidationService->calcularCostoHistorico($componente, $cantidadNecesaria, $almacenId),
-                    'price_list_id' => null,
-                ]);
+                // 3. Generate folio
+                $numeroVenta = $this->folioService->getNextFolio('venta');
 
-                // Procesar cada serie del componente
-                foreach ($seriesComponente as $numeroSerie) {
-                    $this->procesarSerieProducto($componente, $numeroSerie, $venta, $almacenId, 'Venta de kit: ' . $kit->nombre, $ventaItemComponente);
+                // 4. Create venta record
+                $user = \Illuminate\Support\Facades\Auth::user();
+
+                $metodoPagoInput = $data['metodo_pago'] ?? 'efectivo';
+                $metodoPagoEnum = \App\Enums\MetodoPago::tryFrom($metodoPagoInput);
+                if (!$metodoPagoEnum) {
+                    foreach (\App\Enums\MetodoPago::cases() as $case) {
+                        if (strcasecmp($case->value, $metodoPagoInput) === 0) {
+                            $metodoPagoEnum = $case;
+                            break;
+                        }
+                    }
                 }
-            } else {
-                // Reducir inventario del componente no serializado
-                $this->inventarioService->salida($componente, $cantidadNecesaria, [
-                    'motivo' => 'Venta de kit: ' . $kit->nombre,
-                    'almacen_id' => $almacenId,
-                    'user_id' => auth()->id(),
-                    'referencia' => $venta,
+                $metodoPagoNormalized = $metodoPagoEnum ? $metodoPagoEnum->value : $metodoPagoInput;
+
+                $vendedorAttr = $this->resolveVendedorAttribution($data, $user);
+
+                $cobradorId = isset($data['pagado_por_user_id']) ? (int) $data['pagado_por_user_id'] : (int) ($user?->id ?? 0);
+                if ($metodoPagoNormalized !== 'credito' && $cobradorId > 0) {
+                    $empresaId = (int) (EmpresaResolver::resolveId() ?? 0);
+                    $cobrador = User::withoutGlobalScopes()->find($cobradorId);
+                    if (! $cobrador || (int) ($cobrador->empresa_id ?? 0) !== $empresaId) {
+                        throw ValidationException::withMessages([
+                            'pagado_por_user_id' => ['El usuario seleccionado no puede registrar este cobro para esta empresa.'],
+                        ]);
+                    }
+                }
+
+                $venta = Venta::create([
+                    'cliente_id' => $data['cliente_id'] ?? null,
+                    'cotizacion_id' => $data['cotizacion_id'] ?? null, // Para conversiones de cotización
+                    'numero_venta' => $numeroVenta,
+                    'fecha' => now(),
+                    'estado' => \App\Enums\EstadoVenta::Aprobada,
+                    'subtotal' => $totals['subtotal'],
+                    'descuento_general' => $totals['descuento_general'],
+                    'iva' => $totals['iva'],
+                    'isr' => $totals['isr'] ?? 0, // Legacy cleaning
+                    'retencion_iva' => $totals['retencion_iva'] ?? 0,
+                    'retencion_isr' => $totals['retencion_isr'] ?? 0,
+                    'total' => $totals['total'],
+                    'notas' => $data['notas'] ?? null,
+                    'pagado' => false,
+                    'metodo_pago' => $metodoPagoNormalized,
+                    'forma_pago_sat' => $data['forma_pago_sat'] ?? ($metodoPagoNormalized === 'credito' ? '99' : null),
+                    'metodo_pago_sat' => $data['metodo_pago_sat'] ?? ($metodoPagoNormalized === 'credito' ? 'PPD' : 'PUE'),
+                    'almacen_id' => $data['almacen_id'],
+                    'cita_id' => $data['cita_id'] ?? null,
+                    // Vendedor/técnico asignado a la venta (puede ser distinto de quien registra el cobro)
+                    'vendedor_id' => $vendedorAttr['vendedor_id'],
+                    'vendedor_type' => $vendedorAttr['vendedor_type'],
+                    // Contado: quién recibió el dinero (pagado_por_user_id o quien crea la venta)
+                    'pagado_por' => $metodoPagoNormalized !== 'credito' ? $cobradorId : null,
                 ]);
-            }
+
+                // 5. Create CuentasPorCobrar
+                $cuentaPorCobrar = CuentasPorCobrar::create([
+                    'empresa_id' => $venta->empresa_id,
+                    'cobrable_id' => $venta->id,
+                    'cobrable_type' => 'venta', // Use morph map alias
+                    'cliente_id' => $data['cliente_id'] ?? null,
+                    'monto_total' => $totals['total'],
+                    'monto_pagado' => 0,
+                    'monto_pendiente' => $totals['total'],
+                    'fecha_vencimiento' => now()->addDays(30), // Vence 30 días después
+                    'estado' => 'pendiente',
+                    'notas' => 'Cuenta generada automáticamente por venta',
+                ]);
+
+                // 6. Process products
+                $this->ventaItemsProcessor->processProducts($venta, $data['productos'] ?? [], $data['almacen_id'], $data['price_list_id'] ?? null, $usarPreciosFijos);
+
+                // 7. Process services
+                $this->ventaItemsProcessor->processServices($venta, $data['servicios'] ?? []);
+
+                // 8. Process automatic payment for non-credit sales
+                if ($metodoPagoNormalized !== 'credito') {
+                    // ✅ FIX: Set relation manually to avoid loading issues in transaction
+                    $venta->setRelation('cuentaPorCobrar', $cuentaPorCobrar);
+
+                    $this->paymentService->registrarPagoContado(
+                        $venta,
+                        $metodoPagoNormalized,
+                        $data['notas'] ?? 'Pago automático al crear venta',
+                        $data['cuenta_bancaria_id'] ?? null // âœ… Pass bank account if provided (for card/transfer)
+                    );
+
+                    // Refresh to get updated pagado status
+                    $venta->refresh();
+                }
+
+                \Log::info("VentaCreationService: Venta created successfully", ['id' => $venta->id, 'numero' => $venta->numero_venta]);
+
+                return $venta->fresh();
+            });
+        } catch (\Exception $e) {
+            \Log::error("VentaCreationService: Error creating venta", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
-    /**
-     * Process series for a product
-     */
-    protected function processSeries(VentaItem $ventaItem, Producto $producto, array $series, Venta $venta, int $almacenId): void
-    {
-        foreach ($series as $numeroSerie) {
-            $this->procesarSerieProducto($producto, $numeroSerie, $venta, $almacenId, 'Venta procesada', $ventaItem);
-        }
-    }
 
     /**
-     * Process a single product series (used for both individual products and kit components)
+     * Vendedor/técnico al que se atribuye la venta (comisiones, reportes).
+     * Si no se envía vendedor_id, se usa el usuario autenticado (quien crea el registro).
+     * Solo se admite {@see User} (incluye técnicos como usuarios del mismo modelo).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array{vendedor_id: int|null, vendedor_type: class-string|null}
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    protected function procesarSerieProducto(Producto $producto, string $numeroSerie, Venta $venta, int $almacenId, string $motivo, ?VentaItem $ventaItem = null): void
+    public function resolveVendedorAttribution(array $data, $authUser): array
     {
-        $serie = ProductoSerie::where('numero_serie', $numeroSerie)
-            ->where('producto_id', $producto->id)
-            ->lockForUpdate()
-            ->first();
-
-        if (!$serie) {
-            throw new \Exception("Serie {$numeroSerie} no encontrada para el producto {$producto->nombre}");
+        $rawId = $data['vendedor_id'] ?? null;
+        if ($rawId === '' || $rawId === null) {
+            return [
+                'vendedor_id' => $authUser?->id,
+                'vendedor_type' => $authUser ? get_class($authUser) : null,
+            ];
         }
 
-        if ($serie->estado !== 'en_stock') {
-            throw new \Exception("Serie {$numeroSerie} no está disponible (estado: {$serie->estado})");
-        }
+        $vendedorId = (int) $rawId;
+        $vendedorType = $data['vendedor_type'] ?? User::class;
 
-        if ($serie->almacen_id != $almacenId) {
-            $almacenActual = \App\Models\Almacen::find($almacenId);
-            $almacenSerie = \App\Models\Almacen::find($serie->almacen_id);
-            throw new \Exception("La serie {$numeroSerie} está en el almacén '{$almacenSerie->nombre}', pero estás vendiendo desde '{$almacenActual->nombre}'");
-        }
-
-        // Update series as sold
-        $serie->update([
-            'estado' => 'vendido',
-            'venta_id' => $venta->id
-        ]);
-
-        // Create venta_item_series record if ventaItem is provided
-        if ($ventaItem) {
-            \App\Models\VentaItemSerie::create([
-                'venta_item_id' => $ventaItem->id,
-                'producto_serie_id' => $serie->id,
-                'numero_serie' => $numeroSerie,
+        if ($vendedorType !== User::class) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'vendedor_type' => 'Tipo de vendedor no soportado. Use un usuario de la empresa.',
             ]);
         }
-    }
 
-    /**
-     * Process and create venta items for services
-     */
-    protected function processServices(Venta $venta, array $servicios): void
-    {
-        foreach ($servicios as $servicioData) {
-            $servicio = Servicio::findOrFail($servicioData['id']);
-            $cantidad = $servicioData['cantidad'];
-            $precio = $servicioData['precio'];
-            $descuento = $servicioData['descuento'] ?? 0;
+        $candidato = User::withoutGlobalScopes()->find($vendedorId);
+        $empresaId = EmpresaResolver::resolveId();
 
-            $itemTotals = $this->financialService->calculateItemTotals($cantidad, $precio, $descuento);
-            $subtotalItem = $itemTotals['subtotal_final'];
-            $descuentoMonto = $itemTotals['descuento_monto'];
-
-            VentaItem::create([
-                'venta_id' => $venta->id,
-                'ventable_id' => $servicio->id,
-                'ventable_type' => Servicio::class,
-                'cantidad' => $cantidad,
-                'precio' => $precio,
-                'descuento' => $descuento,
-                'subtotal' => $subtotalItem,
-                'descuento_monto' => $descuentoMonto,
-                'price_list_id' => null,  // ✅ FIX P1: Servicios no usan listas (por ahora)
+        if (!$candidato || $empresaId === null || (int) $candidato->empresa_id !== (int) $empresaId) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'vendedor_id' => 'El vendedor seleccionado no pertenece a su empresa.',
             ]);
         }
+
+        if (isset($candidato->activo) && $candidato->activo === false) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'vendedor_id' => 'El usuario seleccionado está inactivo.',
+            ]);
+        }
+
+        return [
+            'vendedor_id' => $candidato->id,
+            'vendedor_type' => User::class,
+        ];
     }
 
     /**
@@ -480,7 +286,8 @@ class VentaCreationService
             ]);
         }
 
-        $cliente = \App\Models\Cliente::find($clienteId);
+        // Lock client record for update to prevent concurrent credit usage
+        $cliente = \App\Models\Cliente::where('id', $clienteId)->lockForUpdate()->first();
 
         if (!$cliente) {
             throw \Illuminate\Validation\ValidationException::withMessages([
@@ -512,5 +319,49 @@ class VentaCreationService
                 ]
             ]);
         }
+    }
+
+    protected function resolveClienteId(array $data): ?int
+    {
+        if (!empty($data['cliente_id'])) {
+            return (int) $data['cliente_id'];
+        }
+
+        if (($data['metodo_pago'] ?? null) === 'credito') {
+            return null;
+        }
+
+        $empresaId = EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return null;
+        }
+
+        $cliente = Cliente::withoutGlobalScopes()
+            ->where('empresa_id', $empresaId)
+            ->where(function ($query) {
+                $query->where('rfc', 'XAXX010101000')
+                    ->orWhereRaw('UPPER(nombre_razon_social) = ?', ['PÚBLICO EN GENERAL'])
+                    ->orWhereRaw('UPPER(nombre_razon_social) = ?', ['PUBLICO EN GENERAL']);
+            })
+            ->first();
+
+        if ($cliente) {
+            return $cliente->id;
+        }
+
+        $cliente = Cliente::withoutGlobalScopes()->create([
+            'empresa_id' => $empresaId,
+            'nombre_razon_social' => 'Público en General',
+            'tipo_persona' => 'fisica',
+            'rfc' => 'XAXX010101000',
+            'regimen_fiscal' => '616',
+            'uso_cfdi' => 'S01',
+            'codigo_postal' => '00000',
+            'pais' => 'México',
+            'requiere_factura' => false,
+            'activo' => true,
+        ]);
+
+        return $cliente->id;
     }
 }

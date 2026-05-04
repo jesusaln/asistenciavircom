@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Rutas de broadcasting para Presence Channels.
+Broadcast::routes([
+    'middleware' => [
+        'auth:sanctum',
+        config('jetstream.auth_session'),
+        'verified',
+    ],
+]);
+
 Route::get('/img-proxy', [App\Http\Controllers\ImageProxyController::class, 'proxy'])->name('img.proxy');
 
 // Rutas Públicas y Utilidades

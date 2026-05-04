@@ -11,101 +11,34 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Traits\ImageOptimizerTrait;
+use App\Support\SafeStorage;
+use App\Services\HerramientaQueryService;
 
 class HerramientaController extends Controller
 {
     use ImageOptimizerTrait;
     public function index(Request $request)
     {
-        $search = (string) $request->query('search', '');
-        $estado = (string) $request->query('estado', '');
-        $categoria = (string) $request->query('categoria', '');
-        $mantenimiento = (string) $request->query('mantenimiento', '');
-
-        $query = Herramienta::query()
-            ->with(['categoriaHerramienta', 'tecnico'])
-            ->select(
-                'id',
-                'nombre',
-                'numero_serie',
-                'estado',
-                'foto',
-                'categoria_id',
-                'tecnico_id',
-                'fecha_ultimo_mantenimiento',
-                'dias_para_mantenimiento',
-                'vida_util_meses',
-                'requiere_mantenimiento',
-                'created_at'
-            );
-
-        // Búsqueda avanzada
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                    ->orWhere('numero_serie', 'like', "%{$search}%")
-                    ->orWhere('descripcion', 'like', "%{$search}%");
-            });
-        }
-
-        // Filtro por estado
-        if ($estado !== '') {
-            $query->where('estado', $estado);
-        }
-
-        // Filtro por categoría
-        if ($categoria !== '') {
-            if ($categoria === 'sin_categoria') {
-                $query->where(function ($q) {
-                    $q->whereNull('categoria_id')->whereNull('categoria');
-                });
-            } else {
-                $query->where('categoria_id', $categoria);
-            }
-        }
-
-        // Filtro por mantenimiento
-        if ($mantenimiento !== '') {
-            switch ($mantenimiento) {
-                case 'requiere':
-                    $query->where('requiere_mantenimiento', true)
-                        ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento');
-                    break;
-                case 'proximo':
-                    $query->where('requiere_mantenimiento', true)
-                        ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= (dias_para_mantenimiento * 0.8)');
-                    break;
-                case 'vencida':
-                    $query->where('requiere_mantenimiento', true)
-                        ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento');
-                    break;
-            }
-        }
-
-        $herramientas = $query->orderByDesc('created_at')->paginate(12)->withQueryString();
-
-        // Estadísticas generales
-        $estadisticas = [
-            'total' => Herramienta::count(),
-            'disponibles' => Herramienta::disponibles()->count(),
-            'asignadas' => Herramienta::asignadas()->count(),
-            'mantenimiento' => Herramienta::enMantenimiento()->count(),
-            'baja' => Herramienta::where('estado', Herramienta::ESTADO_BAJA)->count(),
-            'perdida' => Herramienta::where('estado', Herramienta::ESTADO_PERDIDA)->count(),
-            'requieren_mantenimiento' => Herramienta::requierenMantenimiento()
-                ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento')->count(),
+        $filters = [
+            'search' => (string) $request->query('search', ''),
+            'estado' => (string) $request->query('estado', ''),
+            'categoria' => (string) $request->query('categoria', ''),
+            'mantenimiento' => (string) $request->query('mantenimiento', ''),
         ];
+
+        $queryService = new HerramientaQueryService();
+        $herramientas = $queryService->buildIndexQuery($filters)
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $estadisticas = $queryService->getStats();
 
         return Inertia::render('Herramientas/Index', [
             'herramientas' => $herramientas,
             'estadisticas' => $estadisticas,
             'categorias' => CategoriaHerramienta::orderBy('nombre')->get(),
-            'filters' => [
-                'search' => $search,
-                'estado' => $estado,
-                'categoria' => $categoria,
-                'mantenimiento' => $mantenimiento,
-            ],
+            'filters' => $filters,
         ]);
     }
 
@@ -129,7 +62,18 @@ class HerramientaController extends Controller
             'costo_reemplazo' => 'nullable|numeric|min:0|max:999999.99',
             'dias_para_mantenimiento' => 'nullable|integer|min:1|max:365',
             'requiere_mantenimiento' => 'nullable|boolean',
+            'tecnico_id' => 'nullable|exists:users,id',
         ]);
+
+        // Fix: Mapear tecnico_id a user_id si viene en el request
+        if (isset($data['tecnico_id'])) {
+            $data['user_id'] = $data['tecnico_id'];
+        }
+
+        // Validación de negocio: Estado asignada requiere técnico
+        if (($data['estado'] ?? '') === Herramienta::ESTADO_ASIGNADA && empty($data['user_id'])) {
+            $data['estado'] = Herramienta::ESTADO_DISPONIBLE;
+        }
 
         $fotoPath = null;
 
@@ -157,7 +101,7 @@ class HerramientaController extends Controller
 
             // Eliminar foto si se subió pero falló la creación
             if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
-                Storage::disk('public')->delete($fotoPath);
+                SafeStorage::deletePublic($fotoPath);
             }
 
             \Log::error('Error al crear herramienta: ' . $e->getMessage(), [
@@ -184,7 +128,9 @@ class HerramientaController extends Controller
             'vida_util_meses',
             'costo_reemplazo',
             'dias_para_mantenimiento',
-            'requiere_mantenimiento'
+            'requiere_mantenimiento',
+            'tecnico_id',
+            'user_id',
         ]);
 
         \Log::info('🔧 Herramienta Edit - Datos enviados al frontend:', $herramientaData);
@@ -243,7 +189,12 @@ class HerramientaController extends Controller
             'costo_reemplazo' => 'nullable|numeric|min:0|max:999999.99',
             'dias_para_mantenimiento' => 'nullable|integer|min:1|max:365',
             'requiere_mantenimiento' => 'nullable|boolean',
+            'tecnico_id' => 'nullable|exists:users,id',
         ]);
+
+        if (isset($data['tecnico_id'])) {
+            $data['user_id'] = $data['tecnico_id'];
+        }
 
         $fotoAntigua = $herramienta->foto;
         $fotoNueva = null;
@@ -253,7 +204,15 @@ class HerramientaController extends Controller
 
             // Estado por defecto si no se proporciona
             if (empty($data['estado'])) {
-                $data['estado'] = $herramienta->estado; // Mantener el estado actual
+                $data['estado'] = $herramienta->estado;
+            }
+
+            $finalUserId = $data['user_id'] ?? $herramienta->user_id;
+
+            if ($data['estado'] === Herramienta::ESTADO_ASIGNADA && empty($finalUserId)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'estado' => 'No se puede establecer estado Asignada sin seleccionar un Técnico.'
+                ]);
             }
 
             // Solo actualizar la foto si se proporciona una nueva
@@ -270,7 +229,7 @@ class HerramientaController extends Controller
 
             // Si todo fue exitoso y hay foto nueva, eliminar la antigua
             if ($fotoNueva && $fotoAntigua) {
-                Storage::disk('public')->delete($fotoAntigua);
+                SafeStorage::deletePublic($fotoAntigua);
             }
 
             DB::commit();
@@ -281,7 +240,7 @@ class HerramientaController extends Controller
 
             // Eliminar foto nueva si se subió pero falló la actualización
             if ($fotoNueva && Storage::disk('public')->exists($fotoNueva)) {
-                Storage::disk('public')->delete($fotoNueva);
+                SafeStorage::deletePublic($fotoNueva);
             }
 
             \Log::error('Error al actualizar herramienta: ' . $e->getMessage(), [
@@ -317,8 +276,15 @@ class HerramientaController extends Controller
             return redirect()->route('herramientas.index')->with('error', $mensaje);
         }
 
+        \Log::info('Eliminando Herramienta', [
+            'id' => $herramienta->id,
+            'nombre' => $herramienta->nombre,
+            'serie' => $herramienta->numero_serie,
+            'usuario_id' => auth()->id(),
+        ]);
+
         if ($herramienta->foto) {
-            Storage::disk('public')->delete($herramienta->foto);
+            SafeStorage::deletePublic($herramienta->foto);
         }
 
         $herramienta->delete();
@@ -334,24 +300,18 @@ class HerramientaController extends Controller
             'herramientas_mantenimiento' => Herramienta::enMantenimiento()->count(),
             'herramientas_baja' => Herramienta::where('estado', Herramienta::ESTADO_BAJA)->count(),
             'herramientas_perdidas' => Herramienta::where('estado', Herramienta::ESTADO_PERDIDA)->count(),
-            'herramientas_requieren_mantenimiento' => Herramienta::requierenMantenimiento()
-                ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento')->count(),
-            'herramientas_proximo_mantenimiento' => Herramienta::requierenMantenimiento()
-                ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= (dias_para_mantenimiento * 0.8)')
-                ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) < dias_para_mantenimiento')->count(),
+            'herramientas_requieren_mantenimiento' => Herramienta::requierenMantenimientoUrgente()->count(),
+            'herramientas_proximo_mantenimiento' => Herramienta::mantenimientoProximo()->count(),
         ];
 
         // Herramientas que requieren mantenimiento urgente
-        $mantenimiento_urgente = Herramienta::requierenMantenimiento()
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento')
+        $mantenimiento_urgente = Herramienta::requierenMantenimientoUrgente()
             ->with(['categoriaHerramienta', 'tecnico'])
             ->limit(10)
             ->get();
 
         // Herramientas próximas a vencer vida útil
-        $vida_util_proxima = Herramienta::whereNotNull('vida_util_meses')
-            ->whereNotNull('fecha_ultimo_mantenimiento')
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= (vida_util_meses * 30 * 0.8)')
+        $vida_util_proxima = Herramienta::vidaUtilProximaAVencer()
             ->with(['categoriaHerramienta', 'tecnico'])
             ->limit(10)
             ->get();
@@ -400,9 +360,9 @@ class HerramientaController extends Controller
 
     public function mantenimiento()
     {
-        $herramientas = Herramienta::requierenMantenimiento()
+        $herramientas = Herramienta::requierenMantenimientoUrgente()
             ->with(['categoriaHerramienta', 'tecnico'])
-            ->orderByRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) DESC')
+            ->orderBy('fecha_ultimo_mantenimiento')
             ->paginate(15);
 
         return Inertia::render('Herramientas/Mantenimiento', [
@@ -428,9 +388,15 @@ class HerramientaController extends Controller
                 'dias_para_mantenimiento' => $data['proximo_mantenimiento_dias'] ?? $herramienta->dias_para_mantenimiento,
             ]);
 
-            // TODO: Crear registro en tabla de mantenimientos separada
-            // Por ahora solo actualizamos las fechas en la herramienta
-            // HistorialHerramienta NO tiene las columnas necesarias para mantenimientos
+            // Crear registro en tabla de mantenimientos separada
+            \App\Models\MantenimientoHerramienta::create([
+                'herramienta_id' => $herramienta->id,
+                'fecha_mantenimiento' => $data['fecha_mantenimiento'],
+                'costo' => $data['costo_mantenimiento'] ?? 0,
+                'descripcion' => $data['descripcion_mantenimiento'],
+                'realizado_por' => Auth::id(),
+                'tipo' => 'preventivo', // Por defecto preventivo si no se especifica
+            ]);
 
             \Log::info('Mantenimiento registrado', [
                 'herramienta_id' => $herramienta->id,
@@ -557,30 +523,22 @@ class HerramientaController extends Controller
     public function alertas()
     {
         // Herramientas que requieren mantenimiento urgente
-        $mantenimiento_urgente = Herramienta::requierenMantenimiento()
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento')
+        $mantenimiento_urgente = Herramienta::requierenMantenimientoUrgente()
             ->with(['categoriaHerramienta', 'tecnico'])
             ->get();
 
         // Herramientas próximas a mantenimiento
-        $mantenimiento_proximo = Herramienta::requierenMantenimiento()
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= (dias_para_mantenimiento * 0.8)')
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) < dias_para_mantenimiento')
+        $mantenimiento_proximo = Herramienta::mantenimientoProximo()
             ->with(['categoriaHerramienta', 'tecnico'])
             ->get();
 
         // Herramientas con vida útil vencida
-        $vida_util_vencida = Herramienta::whereNotNull('vida_util_meses')
-            ->whereNotNull('fecha_ultimo_mantenimiento')
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= (vida_util_meses * 30)')
+        $vida_util_vencida = Herramienta::vidaUtilVencida()
             ->with(['categoriaHerramienta', 'tecnico'])
             ->get();
 
         // Herramientas próximas a vencer vida útil
-        $vida_util_proxima = Herramienta::whereNotNull('vida_util_meses')
-            ->whereNotNull('fecha_ultimo_mantenimiento')
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= (vida_util_meses * 30 * 0.8)')
-            ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) < (vida_util_meses * 30)')
+        $vida_util_proxima = Herramienta::vidaUtilProximaAVencer()
             ->with(['categoriaHerramienta', 'tecnico'])
             ->get();
 
@@ -643,8 +601,7 @@ class HerramientaController extends Controller
             'herramientas_disponibles' => Herramienta::disponibles()->count(),
             'herramientas_asignadas' => Herramienta::asignadas()->count(),
             'herramientas_mantenimiento' => Herramienta::enMantenimiento()->count(),
-            'herramientas_requieren_mantenimiento' => Herramienta::requierenMantenimiento()
-                ->whereRaw('(CURRENT_DATE - fecha_ultimo_mantenimiento) >= dias_para_mantenimiento')->count(),
+            'herramientas_requieren_mantenimiento' => Herramienta::requierenMantenimientoUrgente()->count(),
             'total_asignaciones' => 0, // Esto vendría de historial si existe
             'promedio_dias_uso' => 0, // Esto vendría de historial si existe
         ];

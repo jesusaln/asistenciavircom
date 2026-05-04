@@ -1,27 +1,27 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="$emit('close')">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm" @click.self="$emit('close')">
+    <div class="bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl shadow-[var(--ui-shadow)] w-full max-w-2xl mx-4 overflow-hidden border border-[var(--ui-border)]">
       <!-- Header -->
-      <div class="p-6 border-b">
+      <div class="p-6 border-b border-[var(--ui-border)]">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Conciliar Movimiento</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ formatFecha(movimiento.fecha) }} • {{ movimiento.concepto }}</p>
+            <h3 class="text-xl font-bold">Conciliar Movimiento</h3>
+            <p class="text-sm text-[var(--ui-text-soft)] mt-1">{{ formatFecha(movimiento.fecha) }} • {{ movimiento.concepto }}</p>
           </div>
-          <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600">
+          <button @click="$emit('close')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)]">
             <FontAwesomeIcon :icon="['fas', 'times']" class="h-6 w-6" />
           </button>
         </div>
       </div>
 
       <!-- Movimiento Info -->
-      <div class="p-6 bg-gray-50">
+      <div class="p-6 bg-[var(--ui-surface-alt)]">
         <div class="flex items-center justify-between">
           <div>
             <span :class="movimiento.tipo === 'deposito' ? 'text-green-600' : 'text-red-600'" class="text-2xl font-bold">
               {{ movimiento.tipo === 'deposito' ? '+' : '-' }}${{ formatMonto(Math.abs(movimiento.monto)) }}
             </span>
-            <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">
+            <span class="ml-2 text-sm text-[var(--ui-text-soft)]">
               {{ movimiento.tipo === 'deposito' ? 'Depósito (buscar en CXC)' : 'Retiro (buscar en CXP)' }}
             </span>
           </div>
@@ -32,39 +32,39 @@
       <div class="p-6">
         <div v-if="loading" class="text-center py-8">
           <FontAwesomeIcon :icon="['fas', 'spinner']" class="h-8 w-8 text-blue-600 animate-spin" />
-          <p class="text-gray-500 dark:text-gray-400 mt-2">Buscando sugerencias...</p>
+          <p class="text-[var(--ui-text-soft)] mt-2">Buscando sugerencias...</p>
         </div>
 
         <div v-else-if="sugerencias.length > 0">
-          <h4 class="font-medium text-gray-900 dark:text-white mb-4">Sugerencias de conciliación</h4>
+          <h4 class="font-medium mb-4">Sugerencias de conciliación</h4>
           <div class="space-y-3">
             <div
               v-for="sug in sugerencias"
               :key="`${sug.tipo}-${sug.cuenta_id}`"
               @click="seleccionarSugerencia(sug)"
               class="p-4 border rounded-lg cursor-pointer transition-all"
-              :class="sugerenciaSeleccionada?.cuenta_id === sug.cuenta_id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 dark:border-slate-800 hover:border-blue-300'"
+              :class="sugerenciaSeleccionada?.cuenta_id === sug.cuenta_id ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-900/20' : 'border-[var(--ui-border)] hover:border-blue-300'"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-2">
-                    <span class="font-medium text-gray-900 dark:text-white">{{ sug.numero }}</span>
+                    <span class="font-medium">{{ sug.numero }}</span>
                     <span class="text-xs px-2 py-0.5 rounded-full" :class="sug.tipo === 'CXC' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
                       {{ sug.tipo }}
                     </span>
                   </div>
-                  <p class="text-sm text-gray-600 mt-1">{{ sug.entidad }}</p>
-                  <p v-if="sug.fecha_vencimiento" class="text-xs text-gray-400">Vence: {{ sug.fecha_vencimiento }}</p>
+                  <p class="text-sm text-[var(--ui-text-muted)] mt-1">{{ sug.entidad }}</p>
+                  <p v-if="sug.fecha_vencimiento" class="text-xs text-[var(--ui-text-soft)]">Vence: {{ sug.fecha_vencimiento }}</p>
                 </div>
                 <div class="text-right">
-                  <p class="font-bold text-gray-900 dark:text-white">${{ formatMonto(sug.monto_pendiente) }}</p>
+                  <p class="font-bold">${{ formatMonto(sug.monto_pendiente) }}</p>
                   <div class="flex items-center gap-1 mt-1">
-                    <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div class="h-full bg-green-500" :style="`width: ${sug.score}%`"></div>
                     </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ sug.score }}%</span>
+                    <span class="text-xs text-[var(--ui-text-soft)]">{{ sug.score }}%</span>
                   </div>
-                  <p class="text-xs text-gray-400 mt-1">{{ sug.razon }}</p>
+                  <p class="text-xs text-[var(--ui-text-soft)] mt-1">{{ sug.razon }}</p>
                 </div>
               </div>
             </div>
@@ -73,14 +73,14 @@
 
         <div v-else class="text-center py-8">
           <FontAwesomeIcon :icon="['fas', 'search']" class="h-12 w-12 text-gray-300 mb-3" />
-          <p class="text-gray-600 font-medium">No se encontraron coincidencias</p>
-          <p class="text-sm text-gray-400">No hay cuentas pendientes que coincidan con este monto</p>
+          <p class="text-[var(--ui-text-muted)] font-medium">No se encontraron coincidencias</p>
+          <p class="text-sm text-[var(--ui-text-soft)]">No hay cuentas pendientes que coincidan con este monto</p>
         </div>
       </div>
 
       <!-- Botones -->
-      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3">
-        <button @click="$emit('close')" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
+      <div class="p-6 border-t border-[var(--ui-border)] bg-[var(--ui-surface-alt)] flex justify-end gap-3">
+        <button @click="$emit('close')" class="px-4 py-2 border border-[var(--ui-border)] rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
           Cancelar
         </button>
         <button
@@ -168,4 +168,3 @@ onMounted(() => {
   cargarSugerencias()
 })
 </script>
-

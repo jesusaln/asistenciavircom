@@ -10,10 +10,33 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Pago;
 use App\Models\Concerns\BelongsToEmpresa;
+use App\Models\Traits\PreventsSelectStar;
 
 class Renta extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToEmpresa;
+    use HasFactory, SoftDeletes, BelongsToEmpresa, PreventsSelectStar;
+
+    /**
+     * Configuración para prevenir SELECT *
+     * Este modelo tiene columnas pesadas (firmas, documentos) que no deben traerse siempre
+     */
+    protected bool $preventSelectStar = true;
+
+    /**
+     * Columnas pesadas que nunca deben incluirse en SELECT *
+     */
+    protected array $heavyColumns = [
+        'firma_digital',
+        'ine_frontal',
+        'ine_trasera',
+        'comprobante_domicilio',
+        'solicitud_renta',
+    ];
+
+    /**
+     * Nombre para logs
+     */
+    protected string $modelNameForLog = 'Renta';
 
     protected static function booted()
     {

@@ -19,18 +19,27 @@ class ReconciliarInventario extends Command
 {
     protected $signature = 'inventario:reconciliar 
                             {--fix : Corregir automáticamente las discrepancias}
-                            {--producto= : ID de producto específico a reconciliar}';
+                            {--producto= : ID de producto específico a reconciliar}
+                            {--empresa-id= : Forzar empresa_id para multitenant}
+                            {--confirm= : Confirmación explícita para aplicar correcciones}';
 
     protected $description = 'Detecta y opcionalmente corrige discrepancias entre productos.stock e inventarios.cantidad';
 
     public function handle(): int
     {
         $this->info('🔍 Iniciando reconciliación de inventario...');
+        $start = microtime(true);
 
         $productoId = $this->option('producto');
         $autoFix = $this->option('fix');
+        $confirm = (string) $this->option('confirm');
+        $empresaId = $this->option('empresa-id') ?: (\App\Support\EmpresaResolver::resolveId() ?? null);
 
-        $discrepancias = $this->detectarDiscrepancias($productoId);
+        if (!$empresaId) {
+            $this->warn('No se detectó empresa_id. Usa --empresa-id para evitar afectar múltiples empresas.');
+        }
+
+        $discrepancias = $this->detectarDiscrepancias($productoId, $empresaId);
 
         if ($discrepancias->isEmpty()) {
             $this->info('✅ No se encontraron discrepancias. El inventario está sincronizado.');
@@ -59,21 +68,40 @@ class ReconciliarInventario extends Command
         ]);
 
         if ($autoFix) {
+            // Safety Check for Multi-Tenant Mass Update
+            if (!$empresaId && $confirm !== 'FIX-ALL-COMPANIES') {
+                $this->error('⛔ PELIGRO: Estás intentando corregir inventario en TODAS las empresas.');
+                $this->error('  Para una sola empresa: usa --empresa-id=ID --confirm=FIX-INVENTARIO');
+                $this->error('  Para TODAS: usa --confirm=FIX-ALL-COMPANIES');
+                return Command::FAILURE;
+            }
+
+            // Standard Confirmation for Single Tenant
+            if ($empresaId && $confirm !== 'FIX-INVENTARIO') {
+                $this->warn('Para aplicar correcciones a la empresa ' . $empresaId . ', usa --confirm=FIX-INVENTARIO');
+                return Command::FAILURE;
+            }
+
             $this->corregirDiscrepancias($discrepancias);
         } else {
             $this->info('💡 Usa --fix para corregir automáticamente');
         }
 
         // Reconciliar lotes (productos con expires = true)
-        $this->reconciliarLotes($productoId);
+        $this->reconciliarLotes($productoId, $empresaId);
 
+        Log::info('Reconciliación de inventario completada', [
+            'total_discrepancias' => $discrepancias->count(),
+            'duration_seconds' => round(microtime(true) - $start, 2),
+            'empresa_id' => $empresaId,
+        ]);
         return Command::SUCCESS;
     }
 
     /**
      * Detectar discrepancias entre productos.stock e inventarios.cantidad
      */
-    private function detectarDiscrepancias($productoId = null)
+    private function detectarDiscrepancias($productoId = null, $empresaId = null)
     {
         $query = DB::table('productos as p')
             ->leftJoin('inventarios as i', 'p.id', '=', 'i.producto_id')
@@ -91,6 +119,10 @@ class ReconciliarInventario extends Command
             $query->where('p.id', $productoId);
         }
 
+        if ($empresaId) {
+            $query->where('p.empresa_id', $empresaId);
+        }
+
         return $query->get();
     }
 
@@ -103,15 +135,19 @@ class ReconciliarInventario extends Command
 
         DB::transaction(function () use ($discrepancias) {
             foreach ($discrepancias as $d) {
+                // Auditoría previa al update
+                Log::info('Reconciliación Audited: Ajuste de stock', [
+                    'producto_id' => $d->id,
+                    'stock_anterior' => $d->stock,
+                    'stock_nuevo' => $d->stock_real,
+                    'diferencia' => $d->diferencia,
+                    'usuario_id' => 'SYSTEM_CMD',
+                    'timestamp' => now()->toIso8601String(),
+                ]);
+
                 Producto::where('id', $d->id)->update(['stock' => $d->stock_real]);
 
                 $this->line("  ✓ Producto #{$d->id}: {$d->stock} → {$d->stock_real}");
-
-                Log::info('Reconciliación: stock corregido', [
-                    'producto_id' => $d->id,
-                    'stock_anterior' => $d->stock,
-                    'stock_corregido' => $d->stock_real,
-                ]);
             }
         });
 
@@ -121,7 +157,7 @@ class ReconciliarInventario extends Command
     /**
      * Reconciliar lotes: SUM(lotes.cantidad_actual) debe igualar inventarios.cantidad
      */
-    private function reconciliarLotes($productoId = null): void
+    private function reconciliarLotes($productoId = null, $empresaId = null): void
     {
         $this->info('🔍 Verificando consistencia de lotes...');
 
@@ -145,6 +181,10 @@ class ReconciliarInventario extends Command
 
         if ($productoId) {
             $query->where('p.id', $productoId);
+        }
+
+        if ($empresaId) {
+            $query->where('p.empresa_id', $empresaId);
         }
 
         $discrepanciasLotes = $query->get();

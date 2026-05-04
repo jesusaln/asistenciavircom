@@ -7,11 +7,17 @@ use Illuminate\Support\Facades\DB;
 
 class RealignSequences extends Command
 {
-    protected $signature = 'db:realign-sequences {tables* : One or more table names}';
+    protected $signature = 'db:realign-sequences {tables* : One or more table names} {--confirm= : Confirmación explícita}';
     protected $description = 'Realign PostgreSQL sequences (or identities) for given tables to MAX(id)+1';
 
     public function handle(): int
     {
+        $confirm = (string) $this->option('confirm');
+        if ($confirm !== 'REALIGN-SEQUENCES') {
+            $this->warn('Este comando modifica secuencias/identities. Usa --confirm=REALIGN-SEQUENCES para ejecutar.');
+            return self::FAILURE;
+        }
+
         $tables = $this->argument('tables');
         foreach ($tables as $table) {
             try {
@@ -27,6 +33,10 @@ class RealignSequences extends Command
 
     private function realign(string $table): void
     {
+        if (!$this->obtainPgAdvisoryLock()) {
+            throw new \RuntimeException('No se pudo adquirir lock global.');
+        }
+
         // Build a DO block without using PHP sprintf on % tokens used by Postgres format()
         $tableLiteral = str_replace("'", "''", $table);
         $sql = <<<SQL
@@ -47,5 +57,26 @@ BEGIN
 END $$;
 SQL;
         DB::statement($sql);
+
+        $this->releasePgAdvisoryLock();
+    }
+
+    private function obtainPgAdvisoryLock(): bool
+    {
+        try {
+            $row = DB::selectOne("SELECT pg_try_advisory_lock(7200104) AS locked");
+            return (bool) ($row->locked ?? false);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function releasePgAdvisoryLock(): void
+    {
+        try {
+            DB::selectOne("SELECT pg_advisory_unlock(7200104)");
+        } catch (\Throwable) {
+            // no-op
+        }
     }
 }

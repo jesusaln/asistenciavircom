@@ -6,13 +6,20 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
+use App\Services\Traits\WithApiCache;
+
 class SatConsultaDirectaService
 {
+    use WithApiCache;
+
     private Client $http;
     private string $endpoint;
 
     public function __construct()
     {
+        // Inicializar caché con prefijo 'sat_status' y TTL default de 10 min
+        $this->initCache('sat_status', 10);
+
         $this->endpoint = config(
             'services.sat_consulta.endpoint',
             'https://consultaqr.facturaelectronica.sat.gob.mx/ConsultaCFDIService.svc'
@@ -25,6 +32,13 @@ class SatConsultaDirectaService
     }
 
     public function consultarEstado(string $uuid, string $rfcEmisor, string $rfcReceptor, float $total): array
+    {
+        return $this->apiCache->remember($uuid, now()->addMinutes(10), function () use ($uuid, $rfcEmisor, $rfcReceptor, $total) {
+            return $this->execConsultarEstado($uuid, $rfcEmisor, $rfcReceptor, $total);
+        });
+    }
+
+    protected function execConsultarEstado(string $uuid, string $rfcEmisor, string $rfcReceptor, float $total): array
     {
         $expresion = $this->buildExpresionImpresa($uuid, $rfcEmisor, $rfcReceptor, $total);
         $body = $this->buildSoapEnvelope($expresion);

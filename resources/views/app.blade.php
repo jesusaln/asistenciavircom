@@ -5,88 +5,70 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="facebook-domain-verification" content="xmfjgripw60chso5uz1m9xejiccmtc" />
+    <link rel="manifest" href="/manifest.webmanifest">
 
+    {{-- Configuración de empresa --}}
     @php
         $empresaConfig = \App\Models\EmpresaConfiguracion::getConfig();
-        $title = $empresaConfig->nombre_empresa ?: config('app.name', 'Asistencia Vircom');
-        $description = $empresaConfig->descripcion_empresa ?: 'Soporte técnico profesional y soluciones integrales para tu hogar y empresa. Especialistas en tecnología y seguridad.';
-        // Priorizar el banner diseñado para que se vea "bonito" en WhatsApp
-        $ogImage = asset('images/og-main.png');
-        if (!file_exists(public_path('images/og-main.png')) && $empresaConfig->logo_path) {
-            $ogImage = asset('storage/' . $empresaConfig->logo_path);
-        }
-
-        // Override using Inertia Page Props for SEO
-        if (isset($page['props']['post']) && is_array($page['props']['post'])) {
-            $post = $page['props']['post'];
-            if (!empty($post['titulo'])) {
-                $title = $post['titulo'] . ' | ' . $title;
-            }
-            if (!empty($post['resumen'])) {
-                $description = $post['resumen'];
-            }
-            if (!empty($post['imagen_portada_url'])) {
-                $imgUrl = $post['imagen_portada_url'];
-                $ogImage = (str_starts_with($imgUrl, 'http')) ? $imgUrl : url($imgUrl);
-            }
-        }
     @endphp
 
-    {{-- SEO & Redes Sociales --}}
-    <meta name="description" content="{{ $description }}">
+    {{-- Información de la empresa --}}
+    <meta name="description" content="{{ $empresaConfig->descripcion_empresa ?? 'Expertos en venta, instalación y mantenimiento de aires acondicionados en Hermosillo y Sonora. Distribuidor autorizado Mirage.' }}">
     <meta name="keywords"
-        content="soporte técnico, vircom, asistencia, mantenimiento, tecnología, seguridad, {{ strtolower($title) }}">
-    <meta name="author" content="{{ $title }}">
+        content="aire acondicionado, minisplit, mirage, hermosillo, sonora, instalacion aircon, mantenimiento aires, inverter, {{ strtolower($empresaConfig->nombre_empresa ?? 'Climas del Desierto') }}">
+    <meta name="author" content="{{ $empresaConfig->nombre_empresa ?? 'Climas del Desierto' }}">
 
-    {{-- Open Graph / WhatsApp / Facebook --}}
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $title }}">
-    <meta property="og:description" content="{{ $description }}">
-    <meta property="og:image" content="{{ $ogImage }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="{{ $title }}">
-
-    {{-- Twitter --}}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="{{ url()->current() }}">
-    <meta name="twitter:title" content="{{ $title }}">
-    <meta name="twitter:description" content="{{ $description }}">
-    <meta name="twitter:image" content="{{ $ogImage }}">
-
-    {{-- Título --}}
-    <title inertia>{{ $title }}</title>
+    {{-- Título con nombre de empresa --}}
+    <title inertia>
+        @if($empresaConfig->nombre_empresa)
+            {{ $empresaConfig->nombre_empresa }}
+        @else
+            {{ config('app.name', 'Climas del Desierto') }}
+        @endif
+    </title>
 
     <!-- Fonts -->
     <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400&display=swap" as="style">
     <link href="https://fonts.bunny.net/css?family=figtree:400&display=swap" rel="stylesheet" />
+    <!-- Fallback font for better Spanish character support -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     {{-- Favicon dinámico --}}
-    @if($empresaConfig->favicon_path)
-        <link rel="icon" href="{{ asset('storage/' . $empresaConfig->favicon_path) }}" type="image/x-icon">
+    @if($empresaConfig->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresaConfig->favicon_path))
+        <link rel="icon" href="{{ \App\Helpers\UrlHelper::storageUrl($empresaConfig->favicon_path) }}" type="image/x-icon">
     @else
-        <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/x-icon">
+        <link rel="icon" href="{{ asset('images/logo.webp') }}" type="image/x-icon">
+    @endif
+
+    {{-- Logo para meta tags --}}
+    @if($empresaConfig->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresaConfig->logo_path))
+        <meta property="og:image" content="{{ \App\Helpers\UrlHelper::storageUrl($empresaConfig->logo_path) }}">
+        <meta property="og:title" content="{{ $empresaConfig->nombre_empresa ?? config('app.name') }}">
+        <meta property="og:description"
+            content="{{ $empresaConfig->descripcion_empresa ?? 'Sistema de gestión empresarial' }}">
     @endif
 
     {{-- Estilos dinámicos con colores de empresa --}}
     <style>
         :root {
             --color-primary:
-                {{ $empresaConfig->color_principal ?? '#3B82F6' }}
+                {{ $empresaConfig->color_principal ?? '#F59E0B' }}
+            ;
+            --color-primary-soft:
+                {{ ($empresaConfig->color_principal ?? '#F59E0B') . '15' }}
             ;
             --color-secondary:
-                {{ $empresaConfig->color_secundario ?? '#1E40AF' }}
+                {{ $empresaConfig->color_secundario ?? '#D97706' }}
             ;
-            --empresa-nombre: "{{ addslashes($empresaConfig->nombre_empresa ?? 'CDD Sistema') }}";
+            --empresa-nombre: "{{ addslashes($empresaConfig->nombre_empresa ?? 'CLIMAS DEL DESIERTO') }}";
         }
 
         /* Ensure proper font rendering for Spanish characters */
         body {
-            font-family: 'Figtree', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            font-family: 'Outfit', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
@@ -130,11 +112,45 @@
     <!-- Scripts -->
     @routes
     @php
-        $hasViteManifest = file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'));
+        $hasViteBuild = file_exists(public_path('build/manifest.json'));
+        $hasViteHot = file_exists(public_path('hot'));
     @endphp
-    @if($hasViteManifest)
+    @if($hasViteBuild || $hasViteHot)
         @vite(['resources/js/app.js', 'resources/css/app.css'])
     @endif
+    {{-- Meta Pixel: a veces la consola muestra "Unrecognized feature: attribution-reporting" (script fbevents.js de Meta); no indica fallo en la app. --}}
+    <!-- Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+    @if(config('services.meta.pixel_id'))
+        fbq('init', '{{ config('services.meta.pixel_id') }}');
+        fbq('track', 'PageView');
+    @endif
+    </script>
+    @if(config('services.meta.pixel_id'))
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id={{ config('services.meta.pixel_id') }}&ev=PageView&noscript=1" /></noscript>
+    @endif
+    <!-- End Meta Pixel Code -->
+
+    @if(config('services.google_maps.key'))
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&libraries=places"
+            defer></script>
+    @endif
+
+    {{-- SEO Canónico: Asegura que todas las páginas tengan una versión sin parámetros visible para Google --}}
+    <link rel="canonical" href="{{ url()->current() }}">
+
     @inertiaHead
 </head>
 
@@ -143,8 +159,8 @@
     @if($empresaConfig->mantenimiento ?? false)
         <div class="mantenimiento-modal">
             <div class="mb-4">
-                @if($empresaConfig->logo_path ?? false)
-                    <img src="{{ asset('storage/' . $empresaConfig->logo_path) }}" alt="Logo"
+                @if(($empresaConfig->logo_path ?? false) && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresaConfig->logo_path))
+                    <img src="{{ \App\Helpers\UrlHelper::storageUrl($empresaConfig->logo_path) }}" alt="Logo"
                         class="w-16 h-16 mx-auto mb-4 object-contain" />
                 @endif
             </div>

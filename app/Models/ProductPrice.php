@@ -10,6 +10,8 @@ class ProductPrice extends Model
 {
     use BelongsToEmpresa;
 
+    protected $table = 'price_list_products';
+
     protected $fillable = [
         'empresa_id',
         'producto_id',

@@ -7,6 +7,7 @@ use App\Models\Producto;
 use App\Models\Almacen;
 use App\Models\Inventario;
 use App\Services\InventarioService;
+use App\Support\DbExpression;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,15 +31,15 @@ class MovimientoManualController extends Controller
         // Aplicar filtros
         if ($search = trim($request->get('search', ''))) {
             $baseQuery->where(function ($query) use ($search) {
-                $query->where('id', 'like', "%{$search}%")
-                      ->orWhere('motivo', 'like', "%{$search}%")
-                      ->orWhere('referencia', 'like', "%{$search}%")
-                      ->orWhereHas('producto', function ($q) use ($search) {
-                          $q->where('nombre', 'like', "%{$search}%");
-                      })
-                      ->orWhereHas('almacen', function ($q) use ($search) {
-                          $q->where('nombre', 'like', "%{$search}%");
-                      });
+                $query->where(DbExpression::castText('id'), 'like', "%{$search}%")
+                    ->orWhere('motivo', 'like', "%{$search}%")
+                    ->orWhere('referencia', 'like', "%{$search}%")
+                    ->orWhereHas('producto', function ($q) use ($search) {
+                        $q->where('nombre', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('almacen', function ($q) use ($search) {
+                        $q->where('nombre', 'like', "%{$search}%");
+                    });
             });
         }
 

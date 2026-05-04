@@ -15,10 +15,12 @@ use App\Services\Folio\FolioService;
 class VentaFromCitaService
 {
     protected $folioService;
+    protected $ventaCreationService;
 
-    public function __construct(FolioService $folioService)
+    public function __construct(FolioService $folioService, \App\Services\Ventas\VentaCreationService $ventaCreationService)
     {
         $this->folioService = $folioService;
+        $this->ventaCreationService = $ventaCreationService;
     }
 
     /**
@@ -55,100 +57,56 @@ class VentaFromCitaService
             return null;
         }
 
-        DB::beginTransaction();
         try {
-            // Generate Folio using the service
-            $numeroVenta = $this->folioService->getNextFolio('venta');
+            // Prepare data for VentaCreationService
+            $productos = [];
+            $servicios = [];
 
-            // Create Venta
-            $venta = Venta::create([
-                'numero_venta' => $numeroVenta,
-                'empresa_id' => $cita->empresa_id,
-                'cliente_id' => $cita->cliente_id,
-                'cita_id' => $cita->id,
-                'fecha' => now(),
-                'estado' => 'pendiente',
-                'subtotal' => $cita->subtotal,
-                'iva' => $cita->iva,
-                'total' => $cita->total,
-                'almacen_id' => $almacenId,
-                'vendedor_type' => get_class($user),
-                'vendedor_id' => $user->id,
-                'notas' => 'Generada automáticamente desde Cita #' . $cita->id,
-                'pagado' => false,
-            ]);
-
-            // Create VentaItems
-            foreach ($cita->items as $cItem) {
-                $costoUnitario = 0;
-
-                // Intentar recuperar el costo real del item
-                if ($cItem->citable_type === \App\Models\Producto::class) {
-                    $producto = $cItem->citable;
-                    if ($producto) {
-                        $costoUnitario = $producto->calcularCostoHistorico($cItem->cantidad, $almacenId);
-                    }
-                } elseif ($cItem->citable_type === \App\Models\Servicio::class) {
-                    $servicio = $cItem->citable;
-                    // El costo de un servicio para la empresa suele ser la comisión del técnico o 0 si es utilidad pura
-                    $costoUnitario = $servicio->comision_vendedor ?? 0;
-                }
-
-                VentaItem::create([
-                    'empresa_id' => $venta->empresa_id,
-                    'venta_id' => $venta->id,
-                    'ventable_type' => $cItem->citable_type,
-                    'ventable_id' => $cItem->citable_id,
-                    'cantidad' => $cItem->cantidad,
-                    'precio' => $cItem->precio,
-                    'descuento' => $cItem->descuento,
-                    'subtotal' => $cItem->subtotal,
-                    'costo_unitario' => $costoUnitario,
-                ]);
-
-                // Reducir inventario si es un producto y no requiere serie
-                if ($cItem->citable_type === \App\Models\Producto::class) {
-                    $producto = $cItem->citable;
-                    if ($producto && !$producto->requiere_serie) {
-                        try {
-                            app(\App\Services\InventarioService::class)->salida($producto, (int) $cItem->cantidad, [
-                                'motivo' => 'Venta generada desde Cita #' . $cita->id,
-                                'almacen_id' => $almacenId,
-                                'referencia' => $venta,
-                                'user_id' => auth()->id() ?? $cita->tecnico_id,
-                                'skip_transaction' => true,
-                            ]);
-                        } catch (\Exception $e) {
-                            Log::warning("No se pudo descontar stock para producto {$producto->id} en cita #{$cita->id}: " . $e->getMessage());
-                        }
-                    }
+            foreach ($cita->items as $item) {
+                if ($item->citable_type === \App\Models\Producto::class) {
+                    $productos[] = [
+                        'id' => $item->citable_id,
+                        'cantidad' => $item->cantidad,
+                        'precio' => $item->precio, // Usar precio pactado en cita
+                        'descuento' => $item->descuento,
+                        'series' => [], // Citas no suelen manejar series específicas pre-asignadas, se asume sin serie o validación posterior
+                        'price_list_id' => null, // Precio manual (el de la cita)
+                    ];
+                } elseif ($item->citable_type === \App\Models\Servicio::class) {
+                    $servicios[] = [
+                        'id' => $item->citable_id,
+                        'cantidad' => $item->cantidad,
+                        'precio' => $item->precio,
+                        'descuento' => $item->descuento,
+                    ];
                 }
             }
 
-            // Create CuentasPorCobrar
-            CuentasPorCobrar::create([
-                'empresa_id' => $venta->empresa_id,
-                'cliente_id' => $venta->cliente_id,
-                'cobrable_type' => Venta::class,
-                'cobrable_id' => $venta->id,
-                'folio' => $this->folioService->getNextFolio('cxc') ?? 'CXC-' . $venta->id,
-                'monto_total' => $venta->total,
-                'monto_pendiente' => $venta->total,
-                'fecha_emision' => now(),
-                'fecha_vencimiento' => now()->addDays($cita->cliente->dias_credito ?? 15),
-                'estado' => 'pendiente',
-                'concepto' => 'Cargo por servicio y/o productos de Cita #' . $cita->id,
-            ]);
+            $ventaData = [
+                'cliente_id' => $cita->cliente_id,
+                'almacen_id' => $almacenId,
+                'metodo_pago' => 'credito', // Por defecto crédito/pendiente si viene de cita, o definir lógica
+                'forma_pago_sat' => '99',
+                'metodo_pago_sat' => 'PPD',
+                'descuento_general' => 0, // Descuentos ya aplicados por item o lógica de cita
+                'notas' => 'Generada automáticamente desde Cita #' . $cita->id,
+                'productos' => $productos,
+                'servicios' => $servicios,
+                'cita_id' => $cita->id,
+            ];
 
-            DB::commit();
+            // Delegate to robust creation service
+            // true flag para usar precios fijos (los de la cita) y no recalcular
+            $venta = $this->ventaCreationService->createVenta($ventaData, true);
 
-            Log::info("Venta #{$venta->numero_venta} y CXC generadas exitosamente para la cita #{$cita->id}.");
+            Log::info("Venta #{$venta->numero_venta} generada exitosamente desde cita #{$cita->id} usando VentaCreationService.");
 
             return $venta;
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Error crítico al generar venta para cita #{$cita->id}: " . $e->getMessage());
+            Log::error("Error al generar venta para cita #{$cita->id}: " . $e->getMessage());
+            // No need to rollback manually as createVenta handles its own transaction, 
+            // but if we were wrapping more logic, we might need to.
             return null;
         }
     }

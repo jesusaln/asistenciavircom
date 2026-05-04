@@ -10,8 +10,10 @@ use App\Models\EmpresaConfiguracion;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\Cfdi\CfdiService;
+use App\Support\DbExpression;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -31,33 +33,37 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use App\Services\Cfdi\CfdiPdfService;
+use App\Services\Cfdi\CfdiFileService;
 
 class CfdiController extends Controller
 {
     protected $cfdiService;
     protected $satDescargaService;
     protected $pdfService;
+    protected $fileService;
 
     public function __construct(
         CfdiService $cfdiService,
         SatDescargaMasivaService $satDescargaService,
-        CfdiPdfService $pdfService
+        CfdiPdfService $pdfService,
+        CfdiFileService $fileService
     ) {
         $this->cfdiService = $cfdiService;
         $this->satDescargaService = $satDescargaService;
         $this->pdfService = $pdfService;
+        $this->fileService = $fileService;
     }
 
     public function index(Request $request)
     {
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $query = Cfdi::where('empresa_id', $empresaId)->with(['cliente', 'venta', 'conceptos']);
+        // (Sin cambios en index...)
+        $query = Cfdi::with(['cliente', 'venta', 'conceptos']);
         $hasDireccionColumn = Schema::hasColumn('cfdis', 'direccion');
 
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('uuid', 'like', "%{$search}%")
+                $q->where(DbExpression::castText('uuid'), 'like', "%{$search}%")
                     ->orWhere('folio', 'like', "%{$search}%")
                     ->orWhere('serie', 'like', "%{$search}%")
                     ->orWhere('nombre_emisor', 'like', "%{$search}%")
@@ -139,14 +145,13 @@ class CfdiController extends Controller
 
         // Calcular contadores generales
         $contadores = [
-            'total' => Cfdi::where('empresa_id', $empresaId)->count(),
-            'emitidos' => $hasDireccionColumn ? Cfdi::where('empresa_id', $empresaId)->where('direccion', 'emitido')->count() : 0,
-            'recibidos' => $hasDireccionColumn ? Cfdi::where('empresa_id', $empresaId)->where('direccion', 'recibido')->count() : 0,
+            'total' => Cfdi::count(),
+            'emitidos' => $hasDireccionColumn ? Cfdi::where('direccion', 'emitido')->count() : 0,
+            'recibidos' => $hasDireccionColumn ? Cfdi::where('direccion', 'recibido')->count() : 0,
         ];
 
         // Obtener historial de descargas masivas
-        $descargas = SatDescargaMasiva::where('created_by', auth()->id())
-            ->orderBy('created_at', 'desc')
+        $descargas = SatDescargaMasiva::orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->map(function (SatDescargaMasiva $descarga) {
@@ -171,14 +176,8 @@ class CfdiController extends Controller
         // =====================================================================
         // ESTADÍSTICAS FINANCIERAS (Basadas en filtros actuales)
         // =====================================================================
-        // Clonamos el query para no afectar la paginación
-        // Ojo: Si el query es muy complejo o trae muchos resultados, esto impacta performance.
-        // Para optimization, se podría hacer una consulta separada con agregados DB directos.
-
         $statsQuery = clone $query;
-        // Quitamos los eager loads para que sea más ligero el count/sum
         $statsQuery->setEagerLoads([]);
-        // El query base trae ORDER BY y puede fallar con agregados en Postgres
         $statsQuery->reorder();
 
         $statsRaw = $statsQuery->selectRaw('
@@ -201,7 +200,7 @@ class CfdiController extends Controller
         // Obtener RFC de la empresa para determinar dirección dinámica
         $empresaRfc = EmpresaConfiguracion::getConfig()->rfc;
 
-        $cfdis->setCollection($cfdis->getCollection()->map(function ($cfdi) use ($empresaRfc, $empresaId) {
+        $cfdis->setCollection($cfdis->getCollection()->map(function ($cfdi) use ($empresaRfc) {
             $rawFechaEmision = $cfdi->getRawOriginal('fecha_emision');
             $hasTimeInEmision = $rawFechaEmision && (Str::contains($rawFechaEmision, ' ') || Str::contains($rawFechaEmision, 'T'));
             $fechaBase = $hasTimeInEmision
@@ -248,11 +247,9 @@ class CfdiController extends Controller
                     'forma_pago' => $cfdi->forma_pago,
                     'uso_cfdi' => $cfdi->uso_cfdi,
                 ]),
-                'tiene_pdf' => Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.pdf"),
-                'tiene_xml' => (
-                    (!empty($cfdi->xml_url) && Storage::disk('public')->exists(ltrim($cfdi->xml_url, '/')))
-                    || Storage::disk('public')->exists("empresas/{$empresaId}/cfdis/{$cfdi->uuid}.xml")
-                ),
+                // Usar servicio para checar existencia
+                'tiene_pdf' => (bool) $this->fileService->getPdfPath($cfdi->uuid, $cfdi->pdf_url),
+                'tiene_xml' => (bool) $this->fileService->getXmlPath($cfdi->uuid, $cfdi->getRawOriginal('fecha_emision'), $cfdi->direccion),
             ];
         }));
         $cfdis->appends($request->query());
@@ -284,11 +281,12 @@ class CfdiController extends Controller
 
     public function create()
     {
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
         return Inertia::render('Cfdi/Create', [
-            'clientes' => Cliente::where('empresa_id', $empresaId)->get(),
-            'productos' => Producto::where('empresa_id', $empresaId)->get(),
-            'empresa' => EmpresaConfiguracion::getConfig($empresaId),
+            'clientes' => Cliente::orderBy('nombre_razon_social')
+                ->get(['id', 'nombre_razon_social', 'rfc']),
+            'productos' => Producto::orderBy('nombre')
+                ->get(['id', 'nombre', 'sku', 'precio']),
+            'empresa' => EmpresaConfiguracion::getConfig(),
         ]);
     }
 
@@ -321,91 +319,16 @@ class CfdiController extends Controller
 
     public function descargarXml(Request $request, $uuid)
     {
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $cfdi = Cfdi::where('empresa_id', $empresaId)->where('uuid', $uuid)->first();
-
-        $paths = [
-            "empresas/{$empresaId}/cfdis/xml/{$uuid}.xml",
-            "empresas/{$empresaId}/cfdis/{$uuid}.xml",
-            'cfdis/xml/' . $uuid . '.xml',
-            'cfdis/' . $uuid . '.xml',
-        ];
-
-        if ($cfdi && !empty($cfdi->xml_url)) {
-            $paths[] = ltrim($cfdi->xml_url, '/');
-        }
-
-        if ($cfdi?->fecha_emision) {
-            $date = Carbon::parse($cfdi->fecha_emision);
-            $year = $date->format('Y');
-            $month = $date->format('m');
-            $tipo = $cfdi->direccion === 'recibido' ? 'recibidos' : 'emitidos';
-            $paths[] = "empresas/{$empresaId}/cfdis/{$tipo}/{$year}/{$month}/{$uuid}.xml";
-            $paths[] = "empresas/{$empresaId}/cfdis/{$tipo}/{$uuid}.xml";
-            $paths[] = "cfdis/{$tipo}/{$year}/{$month}/{$uuid}.xml";
-            $paths[] = "cfdis/{$tipo}/{$uuid}.xml";
-        }
-
-        $paths = array_values(array_unique(array_filter($paths)));
-
-        $disposition = $request->boolean('inline') ? 'inline' : 'attachment';
-
-        foreach ($paths as $path) {
-            if (Storage::exists($path)) {
-                return response()->file(Storage::path($path), [
-                    'Content-Type' => 'application/xml; charset=utf-8',
-                    'Content-Disposition' => $disposition . '; filename="' . $uuid . '.xml"',
-                ]);
-            }
-            if (Storage::disk('public')->exists($path)) {
-                return response()->file(Storage::disk('public')->path($path), [
-                    'Content-Type' => 'application/xml; charset=utf-8',
-                    'Content-Disposition' => $disposition . '; filename="' . $uuid . '.xml"',
-                ]);
-            }
-        }
-
-        if ($cfdi && !empty($cfdi->xml_content)) {
-            return response($cfdi->xml_content)
-                ->header('Content-Type', 'application/xml; charset=utf-8')
-                ->header('Content-Disposition', $disposition . '; filename="' . $uuid . '.xml"');
-        }
-
-        return abort(404, 'XML no encontrado');
+        $cfdi = Cfdi::where('uuid', $uuid)->firstOrFail();
+        $download = !$request->boolean('inline');
+        return $this->fileService->responseXml($cfdi, $download);
     }
 
     public function verPdf($uuid)
     {
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $cfdi = Cfdi::where('empresa_id', $empresaId)->where('uuid', $uuid)->first();
-
-        $paths = [
-            "empresas/{$empresaId}/cfdis/pdf/{$uuid}.pdf",
-            "empresas/{$empresaId}/cfdis/{$uuid}.pdf",
-            'cfdis/pdf/' . $uuid . '.pdf',
-            'cfdis/' . $uuid . '.pdf',
-        ];
-
-        if ($cfdi && $cfdi->pdf_url) {
-            $paths[] = ltrim($cfdi->pdf_url, '/');
-        }
-
+        $cfdi = Cfdi::where('uuid', $uuid)->firstOrFail();
         $download = request()->boolean('download');
-
-        foreach ($paths as $path) {
-            if (Storage::exists($path)) {
-                return $download ?
-                    response()->download(Storage::path($path), $uuid . '.pdf') :
-                    response()->file(Storage::path($path));
-            }
-            if (Storage::disk('public')->exists($path)) {
-                return $download
-                    ? response()->download(Storage::disk('public')->path($path), $uuid . '.pdf')
-                    : response()->file(Storage::disk('public')->path($path));
-            }
-        }
-
-        return $this->generarPdfAlVuelo($uuid, $download);
+        return $this->fileService->responsePdf($cfdi, $download);
     }
 
     public function verPdfView($uuid)
@@ -564,29 +487,7 @@ class CfdiController extends Controller
 
     public function destroy(Cfdi $cfdi)
     {
-        $uuid = $cfdi->uuid;
-
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $paths = [
-            "empresas/{$empresaId}/cfdis/xml/{$uuid}.xml",
-            "empresas/{$empresaId}/cfdis/pdf/{$uuid}.pdf",
-            "empresas/{$empresaId}/cfdis/{$uuid}.xml",
-            "empresas/{$empresaId}/cfdis/{$uuid}.pdf",
-            "cfdis/xml/{$uuid}.xml",
-            "cfdis/pdf/{$uuid}.pdf",
-            "cfdis/{$uuid}.xml",
-            "cfdis/{$uuid}.pdf",
-        ];
-
-        foreach ($paths as $path) {
-            if (Storage::exists($path)) {
-                Storage::delete($path);
-            }
-            if (Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
-        }
-
+        $this->fileService->deleteFiles($cfdi->uuid);
         $cfdi->delete();
 
         return response()->json([
@@ -665,21 +566,22 @@ class CfdiController extends Controller
 
     public function bulkDownload(Request $request)
     {
+        // Aumentar tiempo y memoria para descarga masiva
+        set_time_limit(300);
+        ini_set('memory_limit', '512M');
+
         $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:cfdis,id'
+            'ids' => 'required|array|max:200',
+            'ids.*' => 'exists:cfdis,id',
         ]);
 
         $ids = $request->input('ids');
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Cfdi> $cfdis */
-        $cfdis = Cfdi::whereIn('id', $ids)->get();
 
-        if ($cfdis->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'No se encontraron CFDIs'], 404);
-        }
+        // Procesar en chunks si son muchos (aunque el request ya trae los IDs seleccionados)
+        $cfdis = Cfdi::whereIn('id', $ids)->cursor(); // Usar cursor para minimizar memoria
 
-        // Crear ZIP temporal
-        $zipFileName = 'cfdis_bulk_' . time() . '.zip';
+        // Crear ZIP temporal con nombre descriptivo
+        $zipFileName = 'cfdis_' . now()->format('Y-m-d_His') . '_' . count($ids) . 'docs.zip';
         $zipPath = storage_path('app/public/temp/' . $zipFileName);
 
         // Asegurar que exista el directorio temp
@@ -693,38 +595,62 @@ class CfdiController extends Controller
         }
 
         $addedCount = 0;
+        $processedCount = 0;
+        $usedZipBasenames = [];
 
         foreach ($cfdis as $cfdi) {
-            // == Agregar XML ==
-            $xmlContent = $this->pdfService->getXmlContent($cfdi);
-
-            if ($xmlContent) {
-                $zip->addFromString($cfdi->uuid . '.xml', $xmlContent);
-                $addedCount++;
-            }
-
-            // == Agregar PDF ==
+            /** @var Cfdi $cfdi */
             try {
+                $slug = $this->fileService->suggestDownloadBasename($cfdi);
+                $fileKey = $slug;
+                if (isset($usedZipBasenames[$slug])) {
+                    $fileKey = $slug . '_' . substr(str_replace('-', '', (string) $cfdi->uuid), 0, 13);
+                }
+                $usedZipBasenames[$fileKey] = true;
+
+                // == Agregar XML ==
+                $xmlContent = $this->pdfService->getXmlContent($cfdi);
+
+                if ($xmlContent) {
+                    $zip->addFromString($fileKey . '.xml', $xmlContent);
+                    $addedCount++;
+                }
+
+                // == Agregar PDF ==
                 $pdfContent = $this->pdfService->generatePdfContent($cfdi, $xmlContent);
                 if ($pdfContent) {
-                    $zip->addFromString($cfdi->uuid . '.pdf', $pdfContent);
+                    $zip->addFromString($fileKey . '.pdf', $pdfContent);
                 }
+
+                // Liberar memoria explícitamente
+                unset($xmlContent);
+                unset($pdfContent);
+
+                $processedCount++;
+
+                // Forzar recolección de basura cada 10 items
+                if ($processedCount % 10 === 0) {
+                    gc_collect_cycles();
+                }
+
             } catch (\Exception $e) {
                 // Log error pero continuar
-                Log::warning("Fallo al generar PDF para ZIP uuid: {$cfdi->uuid} - {$e->getMessage()}");
+                Log::warning("Fallo al generar archivos para ZIP uuid: {$cfdi->uuid} - {$e->getMessage()}");
             }
         }
 
         $zip->close();
 
         if ($addedCount === 0) {
-            return response()->json(['success' => false, 'message' => 'No se pudieron procesar los archivos para el ZIP'], 422);
+            return response()->json(['success' => false, 'message' => 'No se pudieron procesar los archivos para el ZIP. Verifique logs.'], 422);
         }
 
         // Retornar URL de descarga
         return response()->json([
             'success' => true,
-            'url' => Storage::url('temp/' . $zipFileName)
+            'url' => Storage::url('temp/' . $zipFileName),
+            'filename' => $zipFileName,
+            'files_in_zip' => $addedCount,
         ]);
     }
 
@@ -733,7 +659,13 @@ class CfdiController extends Controller
 
     public function createProviderFromCfdi(string $uuid)
     {
-        $cfdi = Cfdi::where('id', $uuid)->orWhere('uuid', $uuid)->first();
+        $query = Cfdi::query();
+        if (is_numeric($uuid)) {
+            $query->where('id', $uuid);
+        } else {
+            $query->where('uuid', $uuid);
+        }
+        $cfdi = $query->first();
 
         if (!$cfdi) {
             return response()->json([
@@ -759,6 +691,15 @@ class CfdiController extends Controller
         }
 
         $rfc = strtoupper(trim($cfdi->rfc_emisor));
+
+        // Validar formato RFC (Persona Física o Moral)
+        if (!preg_match('/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/', $rfc)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El RFC del emisor no tiene un formato válido.',
+            ], 422);
+        }
+
         $tipoPersona = strlen($rfc) === 12 ? 'moral' : 'fisica';
 
         $proveedor = Proveedor::create([
@@ -1247,13 +1188,20 @@ class CfdiController extends Controller
      */
     public function crearProveedorDesdeCfdiCuenta(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'rfc' => 'required|string|max:13|unique:proveedores,rfc',
             'nombre_razon_social' => 'required|string|max:255',
+            'nombre_comercial' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'direccion' => 'nullable|string|max:500',
+            'regimen_fiscal' => 'nullable|string|max:20',
+            'codigo_postal' => 'nullable|string|max:10',
+            'uso_cfdi' => 'nullable|string|max:10',
         ]);
         try {
             $service = app(\App\Services\Cfdi\CfdiCuentasService::class);
-            $proveedor = $service->crearProveedorDesdeCfdi($request->all());
+            $proveedor = $service->crearProveedorDesdeCfdi($validated);
             return response()->json([
                 'success' => true,
                 'message' => 'Proveedor creado correctamente.',
@@ -1269,13 +1217,20 @@ class CfdiController extends Controller
      */
     public function crearClienteDesdeCfdiCuenta(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'rfc' => 'required|string|max:13|unique:clientes,rfc',
             'nombre' => 'required|string|max:255',
+            'razon_social' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'direccion' => 'nullable|string|max:500',
+            'codigo_postal' => 'nullable|string|max:10',
+            'regimen_fiscal' => 'nullable|string|max:20',
+            'uso_cfdi' => 'nullable|string|max:10',
         ]);
         try {
             $service = app(\App\Services\Cfdi\CfdiCuentasService::class);
-            $cliente = $service->crearClienteDesdeCfdi($request->all());
+            $cliente = $service->crearClienteDesdeCfdi($validated);
             return response()->json([
                 'success' => true,
                 'message' => 'Cliente creado correctamente.',

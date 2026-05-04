@@ -190,6 +190,7 @@ class StockValidationService
         }
 
         $errors = [];
+        $detailedErrors = [];
 
         foreach ($productos as $index => $productoData) {
             $producto = Producto::find($productoData['id']);
@@ -213,12 +214,24 @@ class StockValidationService
                 $kitErrors = $this->validateAndLockKitStock($producto, $cantidad, $almacenId, $componentesSeries);
                 if (!empty($kitErrors)) {
                     $errors = array_merge($errors, $kitErrors);
+                    $detailedErrors[] = [
+                        'producto_id' => $producto->id,
+                        'producto_nombre' => $producto->nombre,
+                        'es_kit' => true,
+                        'otros_almacenes' => $this->getOtrosAlmacenesConStock($producto->id, $almacenId)
+                    ];
                 }
             } else {
                 // Validar y bloquear producto normal
                 $productErrors = $this->validateAndLockSingleProductStock($producto, $cantidad, $productoData, $almacenId);
                 if (!empty($productErrors)) {
                     $errors = array_merge($errors, $productErrors);
+                    $detailedErrors[] = [
+                        'producto_id' => $producto->id,
+                        'producto_nombre' => $producto->nombre,
+                        'es_kit' => false,
+                        'otros_almacenes' => $this->getOtrosAlmacenesConStock($producto->id, $almacenId)
+                    ];
                 }
             }
         }
@@ -226,6 +239,7 @@ class StockValidationService
         return [
             'valid' => empty($errors),
             'errors' => $errors,
+            'detailed_errors' => $detailedErrors
         ];
     }
 
@@ -263,11 +277,8 @@ class StockValidationService
                 ->value('cantidad') ?? 0;
 
             // Get active reservations for this product (lock the product row to prevent concurrent changes)
-            $reservasActivas = DB::table('productos')
-                ->where('id', $producto->id)
-                ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
-                ->lockForUpdate()
-                ->value('reservado') ?? 0;
+            // ✅ CRITICAL FIX: Use dynamic warehouse-specific reservations
+            $reservasActivas = $this->getReservasPorAlmacen($producto->id, $almacenId);
 
             $stockDisponible = max(0, $cantidadFisica - $reservasActivas);
         }
@@ -362,11 +373,8 @@ class StockValidationService
                     ->value('cantidad') ?? 0;
 
                 // Get active reservations for this component
-                $reservasActivas = DB::table('productos')
-                    ->where('id', $componente->id)
-                    ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
-                    ->lockForUpdate()
-                    ->value('reservado') ?? 0;
+                // ✅ CRITICAL FIX: Use dynamic warehouse-specific reservations
+                $reservasActivas = $this->getReservasPorAlmacen($componente->id, $almacenId);
 
                 $stockDisponible = max(0, $cantidadFisica - $reservasActivas);
 
@@ -422,9 +430,84 @@ class StockValidationService
             ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
             ->value('cantidad') ?? 0;
 
-        $reservasActivas = $producto->reservado ?? 0;
+        // ✅ CRITICAL FIX: Determine reservations dynamically for this warehouse
+        $reservasActivas = $this->getReservasPorAlmacen($productoId, $almacenId);
 
         return max(0, $cantidadFisica - $reservasActivas);
+    }
+
+    /**
+     * Calculate active reservations for a product in a specific warehouse
+     * Based on active orders created by users belonging to that warehouse
+     */
+    private function getReservasPorAlmacen(int $productoId, int $almacenId): int
+    {
+        // Estados que consumen reserva de stock
+        $estadosReserva = [
+            'confirmado',
+            'en_preparacion',
+            'listo_entrega'
+        ];
+
+        return (int) DB::table('pedido_items')
+            ->join('pedidos', 'pedido_items.pedido_id', '=', 'pedidos.id')
+            ->where('pedido_items.pedible_id', $productoId)
+            ->whereIn('pedido_items.pedible_type', [Producto::class, 'producto', 'App\\Models\\Producto'])
+            ->whereIn('pedidos.estado', $estadosReserva)
+            ->where('pedidos.almacen_id', $almacenId)
+            ->whereNull('pedidos.deleted_at')
+            ->sum('pedido_items.cantidad');
+    }
+
+    /**
+     * Get other warehouses that have stock for a specific product
+     */
+    public function getOtrosAlmacenesConStock(int $productoId, int $excludeAlmacenId): array
+    {
+        $empresaId = EmpresaResolver::resolveId();
+        $producto = Producto::find($productoId);
+        if (!$producto) return [];
+
+        $requiereSeries = ($producto->requiere_serie ?? false) || ($producto->maneja_series ?? false) || ($producto->expires ?? false);
+
+        if ($requiereSeries) {
+            $stocks = DB::table('producto_series')
+                ->select('almacen_id', DB::raw('count(*) as cantidad'))
+                ->where('producto_id', $productoId)
+                ->where('almacen_id', '!=', $excludeAlmacenId)
+                ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
+                ->where('estado', 'en_stock')
+                ->whereNull('deleted_at')
+                ->groupBy('almacen_id')
+                ->get();
+        } else {
+            $stocks = DB::table('inventarios')
+                ->select('almacen_id', 'cantidad')
+                ->where('producto_id', $productoId)
+                ->where('almacen_id', '!=', $excludeAlmacenId)
+                ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
+                ->where('cantidad', '>', 0)
+                ->whereNull('deleted_at')
+                ->get();
+        }
+
+        $result = [];
+        foreach ($stocks as $stock) {
+            $almacen = Almacen::find($stock->almacen_id);
+            if ($almacen && $almacen->estado === 'activo') {
+                $reservas = $this->getReservasPorAlmacen($productoId, $stock->almacen_id);
+                $disponible = max(0, $stock->cantidad - $reservas);
+                if ($disponible > 0) {
+                    $result[] = [
+                        'almacen_id' => $almacen->id,
+                        'almacen_nombre' => $almacen->nombre,
+                        'cantidad' => $disponible
+                    ];
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

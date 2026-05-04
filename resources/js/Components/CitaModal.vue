@@ -1,12 +1,12 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click.self="close">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden" role="dialog" aria-modal="true">
+      <div v-if="show" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="close">
+        <div class="cita-modal-card bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl shadow-[var(--ui-shadow)] w-full max-w-4xl max-h-[90vh] overflow-hidden border border-[var(--ui-border)]" role="dialog" aria-modal="true">
           <!-- Header del modal -->
-          <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-slate-800 bg-gray-50">
-            <h2 class="text-2xl font-semibold text-gray-800">Detalles de la Cita</h2>
-            <button @click="close" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-200" aria-label="Cerrar modal">
+          <div class="flex justify-between items-center p-6 border-b border-[var(--ui-border)] bg-[var(--ui-surface-alt)]">
+            <h2 class="text-2xl font-black uppercase tracking-tight">Detalles de la Cita</h2>
+            <button @click="close" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5" aria-label="Cerrar modal">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -14,117 +14,103 @@
           </div>
 
           <!-- Contenido del modal con scroll -->
-          <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-            <div class="space-y-6">
+          <div class="p-8 overflow-y-auto max-h-[calc(90vh-140px)] bg-[var(--ui-surface)]">
+            <div class="space-y-10">
               <!-- Información General -->
-              <div class="bg-blue-50 rounded-lg p-4">
-                <h3 class="text-lg font-medium text-blue-800 mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="bg-[var(--ui-surface-alt)] rounded-[32px] p-8 border border-[var(--ui-border)]">
+                <h3 class="text-xs font-black text-blue-600 dark:text-blue-400 mb-8 flex items-center uppercase tracking-[0.2em]">
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  Información General
+                  Información Logística
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Cliente</label>
-                    <p>{{ cita.cliente.nombre_razon_social }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Cliente</label>
+                    <p class="font-bold text-lg">{{ cita.cliente.nombre_razon_social }}</p>
                   </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Tipo de Servicio</label>
-                    <p>{{ formatearTipoServicio(cita.tipo_servicio) }}</p>
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Servicios</label>
+                    <p class="font-bold text-lg uppercase">{{ formatearTipoServicio(cita.tipo_servicio) }}</p>
                   </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Fecha y Hora</label>
-                    <p>{{ formatearFechaHora(cita.fecha_hora) }}</p>
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Fecha y Hora</label>
+                    <p class="font-bold text-lg uppercase">{{ formatearFechaHora(cita.fecha_hora) }}</p>
                   </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Descripción</label>
-                    <p>{{ cita.descripcion }}</p>
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Técnico</label>
+                    <p class="font-bold text-lg uppercase">{{ cita.tecnico.name || cita.tecnico.nombre }}</p>
                   </div>
                 </div>
               </div>
 
               <!-- Información del Equipo -->
-              <div class="bg-green-50 rounded-lg p-4">
-                <h3 class="text-lg font-medium text-green-800 mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <div class="bg-[var(--ui-surface-alt)] rounded-[32px] p-8 border border-[var(--ui-border)]">
+                <h3 class="text-xs font-black text-amber-500 mb-8 flex items-center uppercase tracking-[0.2em]">
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Información del Equipo
+                  Detalles del Equipo
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Tipo de Equipo</label>
-                    <p>{{ formatearTipoEquipo(cita.tipo_equipo) }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Equipo</label>
+                    <p class="font-bold uppercase">{{ formatearTipoEquipo(cita.tipo_equipo) }}</p>
                   </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Marca del Equipo</label>
-                    <p>{{ cita.marca_equipo }}</p>
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Marca / Modelo</label>
+                    <p class="font-bold uppercase">{{ cita.marca_equipo }} - {{ cita.modelo_equipo }}</p>
                   </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Modelo del Equipo</label>
-                    <p>{{ cita.modelo_equipo }}</p>
-                  </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Problema Reportado</label>
-                    <p>{{ cita.problema_reportado }}</p>
+                  <div>
+                    <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest mb-2">Status</label>
+                    <p class="font-bold uppercase text-amber-500">{{ formatearEstado(cita.estado) }}</p>
                   </div>
                 </div>
               </div>
 
-              <!-- Estado y Técnico -->
-              <div class="bg-yellow-50 rounded-lg p-4">
-                <h3 class="text-lg font-medium text-yellow-800 mb-4 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Estado y Técnico
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Estado</label>
-                    <p>{{ formatearEstado(cita.estado) }}</p>
-                  </div>
-                  <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Técnico</label>
-                    <p>{{ cita.tecnico.nombre }}</p>
-                  </div>
-                </div>
+              <!-- Fotos de Evidencia -->
+              <div class="space-y-4">
+                 <label class="block text-[var(--ui-text-soft)] text-[10px] font-black uppercase tracking-widest">Evidencias Visuales</label>
+                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <div v-if="cita.foto_equipo" class="group relative aspect-video rounded-2xl overflow-hidden bg-black/5">
+                        <img :src="generarUrl(cita.foto_equipo)" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Ver Equipo</span>
+                        </div>
+                    </div>
+                    <div v-if="cita.foto_hoja_servicio" class="group relative aspect-video rounded-2xl overflow-hidden bg-black/5">
+                        <img :src="generarUrl(cita.foto_hoja_servicio)" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="text-[10px] font-black text-white uppercase tracking-widest">Ver Hoja</span>
+                        </div>
+                    </div>
+                 </div>
               </div>
 
-              <!-- Fotos -->
-              <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="mb-4">
-                  <label class="block text-gray-700 text-sm font-bold mb-1">Foto del Equipo</label>
-                  <img v-if="cita.foto_equipo" :src="generarUrl(cita.foto_equipo)" alt="Foto del Equipo" class="w-full h-40 object-cover mt-2 rounded-lg" @error="handleImageError($event, 'equipo')">
-                  <p v-else class="text-gray-700">No hay foto del equipo disponible</p>
-                </div>
-                <div class="mb-4">
-                  <label class="block text-gray-700 text-sm font-bold mb-1">Foto de la Hoja de Servicio</label>
-                  <img v-if="cita.foto_hoja_servicio" :src="generarUrl(cita.foto_hoja_servicio)" alt="Foto de la Hoja de Servicio" class="w-full h-40 object-cover mt-2 rounded-lg" @error="handleImageError($event, 'hoja')">
-                  <p v-else class="text-gray-700">No hay foto de la hoja de servicio disponible</p>
-                </div>
-                <div class="mb-4">
-                  <label class="block text-gray-700 text-sm font-bold mb-1">Foto de Identificación del Cliente</label>
-                  <img v-if="cita.foto_identificacion" :src="generarUrl(cita.foto_identificacion)" alt="Foto de Identificación del Cliente" class="w-full h-40 object-cover mt-2 rounded-lg" @error="handleImageError($event, 'identificacion')">
-                  <p v-else class="text-gray-700">No hay foto de identificación disponible</p>
-                </div>
+              <!-- Descripción -->
+              <div class="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[32px] p-8 border border-indigo-100 dark:border-indigo-900/20">
+                <label class="block text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-4">Problema Reportado</label>
+                <p class="text-slate-700 dark:text-slate-300 italic font-medium">"{{ cita.problema_reportado || cita.descripcion || 'Sin descripción adicional' }}"</p>
               </div>
 
-              <!-- Evidencias -->
-              <div class="mt-6">
-                <label class="block text-gray-700 text-sm font-bold mb-1">Evidencias</label>
-                <p v-if="cita.evidencias" class="text-gray-700 whitespace-pre-wrap">{{ cita.evidencias }}</p>
-                <p v-else class="text-gray-700">No hay evidencias disponibles</p>
+              <!-- GPS Validation (Nuevo) -->
+              <div v-if="cita.latitud && cita.longitud" class="bg-rose-50/50 dark:bg-rose-900/10 rounded-[32px] p-8 border border-rose-100 dark:border-rose-900/20 flex items-center justify-between">
+                <div>
+                    <label class="block text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase tracking-widest mb-2">Validación Geográfica</label>
+                    <p class="text-xs font-bold text-slate-600 dark:text-slate-400">Ubicación capturada al momento del reporte</p>
+                </div>
+                <a :href="`https://www.google.com/maps?q=${cita.latitud},${cita.longitud}`" target="_blank" class="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-rose-200 dark:shadow-none">
+                    Abrir Mapas
+                </a>
               </div>
             </div>
           </div>
 
           <!-- Footer del modal -->
-          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 dark:border-slate-800">
+          <div class="px-6 py-4 bg-[var(--ui-surface-alt)] border-t border-[var(--ui-border)]">
             <div class="flex justify-end space-x-3">
-              <button @click="close" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+              <button @click="close" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-2 transition-colors">
                 Cerrar
               </button>
             </div>
@@ -155,9 +141,12 @@ const formatearTipoServicio = (tipo) => {
     diagnostico: 'Diagnóstico',
     reparacion: 'Reparación',
     garantia: 'Garantía',
+    mantenimiento: 'Mantenimiento',
+    servicio_limpieza: 'Servicio limpieza',
+    otro: 'Otro',
     otro_servicio: 'Otro Servicio'
   };
-  return tipos[tipo] || 'Desconocido';
+  return tipos[tipo] || tipo || 'Desconocido';
 };
 
 // Formatear tipo de equipo
@@ -217,14 +206,13 @@ const handleImageError = (event, tipo) => {
   opacity: 0;
 }
 
-.modal-enter-active .bg-white dark:bg-slate-900,
-.modal-leave-active .bg-white dark:bg-slate-900 {
+.modal-enter-active .cita-modal-card,
+.modal-leave-active .cita-modal-card {
   transition: transform 0.3s ease;
 }
 
-.modal-enter-from .bg-white dark:bg-slate-900,
-.modal-leave-to .bg-white dark:bg-slate-900 {
+.modal-enter-from .cita-modal-card,
+.modal-leave-to .cita-modal-card {
   transform: scale(0.95);
 }
 </style>
-

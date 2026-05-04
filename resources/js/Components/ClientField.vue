@@ -1,13 +1,13 @@
 <template>
   <div :class="className">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
+    <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-1">
       {{ label }}
     </label>
-    <div :class="`p-3 rounded-md border ${isEmpty ? 'bg-gray-50 text-gray-500 dark:text-gray-400 italic' : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`">
-      <a v-if="type === 'email' && !isEmpty" :href="`mailto:${value}`" class="text-blue-600 hover:text-blue-800">
+    <div :class="`p-3 rounded-md border border-[var(--ui-border)] ${isEmpty ? 'bg-[var(--ui-surface-alt)] text-[var(--ui-text-soft)] italic' : 'bg-[var(--ui-surface)] text-[var(--ui-text)]'}`">
+      <a v-if="type === 'email' && !isEmpty" :href="`mailto:${value}`" class="text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">
         {{ formatValue() }}
       </a>
-      <a v-else-if="type === 'phone' && !isEmpty" :href="`tel:${value}`" class="text-blue-600 hover:text-blue-800">
+      <a v-else-if="type === 'phone' && !isEmpty" :href="`tel:${value}`" class="text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200">
         {{ formatValue() }}
       </a>
       <span v-else>
@@ -40,4 +40,3 @@ const formatValue = () => {
   return props.value;
 };
 </script>
-

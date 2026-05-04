@@ -40,8 +40,13 @@ class ComisionController extends Controller
             $fechaFin = Carbon::now()->endOfWeek();
         }
 
-        // Obtener resumen del periodo
-        $resumen = $this->calculatorService->obtenerResumenPeriodo($fechaInicio, $fechaFin);
+        // Si el usuario no tiene permiso general para ver todas las comisiones,
+        // solo puede ver las suyas propias.
+        if (!auth()->user()->can('view comisiones')) {
+            $resumen = $this->calculatorService->obtenerResumenPeriodo($fechaInicio, $fechaFin, auth()->id());
+        } else {
+            $resumen = $this->calculatorService->obtenerResumenPeriodo($fechaInicio, $fechaFin);
+        }
 
         // Historial de pagos recientes
         $pagosRecientes = PagoComision::with('vendedor')
@@ -90,18 +95,12 @@ class ComisionController extends Controller
             $fechaFin = Carbon::now()->endOfWeek();
         }
 
-        // Decodificar el tipo de vendedor (Siempre forzar User ahora)
-        $type = 'App\\Models\\User';
+        // Siempre User — normalizado
+        $type = User::class;
 
-        // Si viene request antiguo con tecnico, intentar mapear (aunque ya migramos DB)
-        // El ID vendrá del frontend. Si el frontend manda ID de User, todo ok.
-        // Si manda ID de tecnico, tendremos problema si no lo convertimos.
-        // Asumiremos que el frontend enviará ID de User tras refactorizar vistas, 
-        // o si es ID de tecnico tendriamos que buscarlo. 
-        // Para seguridad, buscamos si es tecnico por si acaso (legacy support durante transicion)
-        if ($vendedorType === 'tecnico') {
-            // Buscar User ID a partir de Tecnico ID si fuera necesario, 
-            // pero mejor asumir que el sistema ya usa User IDs
+        // Seguridad: Si no es admin y quiere ver a otro vendedor, 403
+        if (!auth()->user()->can('view comisiones') && auth()->id() != $vendedorId) {
+            abort(403, 'No tienes permiso para ver las comisiones de otro vendedor.');
         }
 
         $detalle = $this->calculatorService->calcularComisionesVendedor(
@@ -112,14 +111,14 @@ class ComisionController extends Controller
         );
 
         // Obtener info del vendedor
-        $vendedor = User::find($vendedorId); // Siempre User
+        $vendedor = User::find($vendedorId);
         $nombreVendedor = $vendedor ? $vendedor->name : 'Desconocido';
 
         return Inertia::render('Comisiones/Detalle', [
             'vendedor' => [
                 'id' => $vendedorId,
                 'type' => 'user',
-                'type_label' => 'Vendedor', // Unificado
+                'type_label' => $vendedor && $vendedor->es_tecnico ? 'Técnico' : 'Vendedor',
                 'nombre' => $nombreVendedor,
             ],
             'detalle' => $detalle,
@@ -136,6 +135,10 @@ class ComisionController extends Controller
      */
     public function pagar(Request $request)
     {
+        if (!auth()->user()->can('view comisiones')) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'vendedor_type' => 'required|string',
             'vendedor_id' => 'required|integer',
@@ -146,32 +149,15 @@ class ComisionController extends Controller
             'referencia_pago' => 'nullable|string',
             'cuenta_bancaria_id' => 'nullable|integer|exists:cuentas_bancarias,id',
             'notas' => 'nullable|string',
+            'venta_ids' => 'nullable|array',
+            'venta_ids.*' => 'integer|exists:ventas,id',
         ]);
 
-        // Verificar si ya existe un pago para este periodo
-        $pagoExistente = PagoComision::where('vendedor_type', $validated['vendedor_type'])
-            ->where('vendedor_id', $validated['vendedor_id'])
-            ->where('periodo_inicio', $validated['periodo_inicio'])
-            ->where('periodo_fin', $validated['periodo_fin'])
-            ->first();
+        // Normalizar el tipo de vendedor para el servicio
+        $validated['vendedor_type'] = \App\Models\User::class;
+        $validated['empresa_id'] = EmpresaResolver::resolveId();
 
-        if ($pagoExistente) {
-            // Actualizar pago existente
-            $pagoExistente->update([
-                'monto_pagado' => $pagoExistente->monto_pagado + $validated['monto_pagado'],
-                'estado' => ($pagoExistente->monto_pagado + $validated['monto_pagado']) >= $pagoExistente->monto_comision ? 'pagado' : 'parcial',
-                'fecha_pago' => now(),
-                'metodo_pago' => $validated['metodo_pago'],
-                'referencia_pago' => $validated['referencia_pago'],
-                'cuenta_bancaria_id' => $validated['cuenta_bancaria_id'],
-                'notas' => $validated['notas'],
-                'pagado_por' => auth()->id(),
-            ]);
-
-            return redirect()->back()->with('success', 'Pago de comisión actualizado correctamente.');
-        }
-
-        // Crear nuevo pago
+        // Crear nuevo pago selectivo
         $pago = $this->calculatorService->crearPagoComision($validated);
 
         return redirect()->back()->with('success', 'Pago de comisión registrado correctamente.');
@@ -183,6 +169,9 @@ class ComisionController extends Controller
     public function historial(Request $request)
     {
         $pagos = PagoComision::with('vendedor', 'pagadoPorUser')
+            ->when(!auth()->user()->can('view comisiones'), function ($query) {
+                $query->where('vendedor_id', auth()->id());
+            })
             ->when($request->get('estado'), function ($query, $estado) {
                 $query->where('estado', $estado);
             })
@@ -204,13 +193,18 @@ class ComisionController extends Controller
     {
         $pago->load('vendedor', 'pagadoPorUser', 'cuentaBancaria');
 
-        $empresaId = EmpresaResolver::resolveId();
+        // Seguridad: Solo admin o el propio vendedor pueden ver el recibo
+        if (!auth()->user()->can('view comisiones') && auth()->id() != $pago->vendedor_id) {
+            abort(403);
+        }
+
+        $empresa = \App\Models\EmpresaConfiguracion::getInfoEmpresa();
 
         $pdf = \PDF::loadView('pdf.recibo-comision', [
             'pago' => $pago,
-            'empresa' => $empresaId ? \App\Models\Empresa::find($empresaId) : null,
+            'empresa' => $empresa,
         ]);
 
-        return $pdf->download("recibo-comision-{$pago->id}.pdf");
+        return $pdf->stream("recibo-comision-{$pago->id}.pdf");
     }
 }

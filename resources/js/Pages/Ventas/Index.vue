@@ -1,11 +1,12 @@
 <!-- /resources/js/Pages/Ventas/Index.vue -->
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { router, Head } from '@inertiajs/vue3'
+import { router, Head, usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 import { generarPDF } from '@/Utils/pdfGenerator'
+import { extractErrorMessage, translateErrorMessage } from '@/Utils/errorHelper'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import VentasHeader from '@/Components/IndexComponents/VentasHeader.vue'
 import VentasTable from '@/Components/IndexComponents/VentasTable.vue'
@@ -45,7 +46,30 @@ const props = defineProps({
   pagination: {
     type: Object,
     default: () => ({})
+  },
+  cuentasBancarias: {
+    type: Array,
+    default: () => []
+  },
+  usuariosCobro: {
+    type: Array,
+    default: () => []
   }
+})
+
+const page = usePage()
+
+/** Lista para «quién cobró»: API o, si viene vacía, al menos el usuario actual (evita ocultar el bloque). */
+const usuariosCobroLista = computed(() => {
+  const fromApi = props.usuariosCobro
+  if (Array.isArray(fromApi) && fromApi.length > 0) {
+    return fromApi
+  }
+  const u = page.props.auth?.user
+  if (u?.id) {
+    return [{ id: u.id, name: u.name || u.email || 'Usuario actual' }]
+  }
+  return []
 })
 
 /* =========================
@@ -73,7 +97,10 @@ const loading = ref(false)
 const showPaymentModal = ref(false)
 const selectedVenta = ref(null)
 const metodoPago = ref('')
+const cuentaBancariaId = ref('')
 const notasPago = ref('')
+/** Quién recibió el dinero (corte / pagado_por). Por defecto el usuario actual. */
+const pagadoPorUserId = ref('')
 
 // Modal de cancelaci�n
 const showCancelModal = ref(false)
@@ -137,9 +164,16 @@ const goToPage = (page) => {
     search: searchTerm.value,
     cfdi: filtroCfdi.value,
     sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc'
+    sort_direction: sortBy.value.split('-')[1] || 'desc',
+    per_page: paginationData.value.per_page
   }
-  router.visit('/ventas', { data: query })
+  
+  router.get('/ventas', query, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+    only: ['ventas', 'pagination', 'filters'] 
+  })
 }
 
 const nextPage = () => {
@@ -163,12 +197,19 @@ const changePerPage = (event) => {
   const perPage = event.target.value
   const query = {
     per_page: perPage,
+    page: 1, // Reset to page 1
     search: searchTerm.value,
     cfdi: filtroCfdi.value,
     sort_by: sortBy.value.split('-')[0],
     sort_direction: sortBy.value.split('-')[1] || 'desc'
   }
-  router.visit('/ventas', { data: query })
+  
+  router.get('/ventas', query, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+    only: ['ventas', 'pagination', 'filters']
+  })
 }
 
 const handleSearch = () => {
@@ -176,19 +217,20 @@ const handleSearch = () => {
     search: searchTerm.value,
     cfdi: filtroCfdi.value,
     sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc'
+    sort_direction: sortBy.value.split('-')[1] || 'desc',
+    page: 1 // Reset pagination on search
   }
-  router.visit('/ventas', { data: query })
+  
+  router.get('/ventas', query, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+    only: ['ventas', 'pagination', 'filters']
+  })
 }
 
 const handleFilter = () => {
-  const query = {
-    search: searchTerm.value,
-    cfdi: filtroCfdi.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc'
-  }
-  router.visit('/ventas', { data: query })
+  handleSearch() // Reutilizar lógica
 }
 
 /* =========================
@@ -393,24 +435,6 @@ const formatearMoneda = (num) => {
   return new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safe)
 }
 
-// ? MEDIUM PRIORITY FIX #11: Helper para manejo consistente de errores
-const extractErrorMessage = (error, defaultMessage = 'Ha ocurrido un error') => {
-  // Prioridad 1: error.response.data.error
-  if (error.response?.data?.error) {
-    return error.response.data.error
-  }
-  // Prioridad 2: error.response.data.message
-  if (error.response?.data?.message) {
-    return error.response.data.message
-  }
-  // Prioridad 3: error.message
-  if (error.message) {
-    return error.message
-  }
-  // Fallback: mensaje por defecto
-  return defaultMessage
-}
-
 /* =========================
    Validaciones y utilidades
 ========================= */
@@ -598,7 +622,9 @@ const facturarVenta = (venta) => {
 const marcarComoPagado = (venta) => {
   selectedVenta.value = venta
   metodoPago.value = ''
+  cuentaBancariaId.value = ''
   notasPago.value = ''
+  pagadoPorUserId.value = String(page.props.auth?.user?.id ?? '')
   showPaymentModal.value = true
 }
 
@@ -606,7 +632,9 @@ const cerrarPaymentModal = () => {
   showPaymentModal.value = false
   selectedVenta.value = null
   metodoPago.value = ''
+  cuentaBancariaId.value = ''
   notasPago.value = ''
+  pagadoPorUserId.value = ''
 }
 
 // ? MEDIUM PRIORITY FIX #10: Validaciones completas en modal de pago
@@ -653,7 +681,9 @@ const confirmarPago = async () => {
 
     const { data } = await axios.post(`/ventas/${selectedVenta.value.id}/marcar-pagado`, {
       metodo_pago: metodoPago.value,
-      notas_pago: notasPago.value
+      cuenta_bancaria_id: cuentaBancariaId.value || null,
+      notas_pago: notasPago.value,
+      pagado_por_user_id: pagadoPorUserId.value ? Number(pagadoPorUserId.value) : undefined
     })
 
     if (data?.success) {
@@ -709,9 +739,9 @@ const cancelarVenta = (id) => {
 const confirmarCancelacion = () => {
   if (!selectedVentaCancel.value) return
 
-  router.post(route('ventas.cancel', selectedVentaCancel.value.id), {
+  router.post(route('ventas.cancelar', selectedVentaCancel.value.id), {
     motivo: motivoCancelacion.value,
-    force_with_payments: forceWithPayments.value
+    force_with_payments: forceWithPayments.value,
   }, {
     onStart: () => {
       loading.value = true
@@ -801,6 +831,31 @@ const confirmarBorradoReal = (id) => {
   showDeleteModal.value = true
 }
 
+const enviarWhatsApp = (venta) => {
+  if (!venta || !venta.cliente || !venta.cliente.telefono) {
+    notyf.error('El cliente no tiene un teléfono registrado');
+    return;
+  }
+  
+  const telefono = String(venta.cliente.telefono).replace(/\D/g, '');
+  if (telefono.length < 10) {
+      notyf.error('El teléfono del cliente no es válido');
+      return;
+  }
+
+  let mensaje = `Hola ${venta.cliente.nombre_razon_social}, le envío su nota de venta #${venta.numero_venta || venta.id}. Total: $${formatearMoneda(venta.total)}`;
+  
+  if (venta.sharing_token) {
+      const urlNota = `${window.location.origin}/share/venta/${venta.sharing_token}/pdf`;
+      mensaje += `\n\nPuedes descargar tu nota aquí:\n${urlNota}`;
+  }
+
+  const url = `https://web.whatsapp.com/send?phone=52${telefono}&text=${encodeURIComponent(mensaje)}`;
+  
+  // Usar un nombre de ventana específico para intentar reutilizar la pestaña
+  window.open(url, 'whatsapp_climas');
+}
+
 const ejecutarBorrado = async () => {
   if (!selectedVentaDelete.value) return
   
@@ -834,7 +889,7 @@ const ejecutarBorrado = async () => {
 
 <template>
     <Head title="Ventas" />
-    <div :style="cssVars" class="bg-white dark:bg-slate-900 min-h-screen px-6 py-8">
+    <div :style="cssVars" class="bg-white dark:bg-slate-950 min-h-screen px-6 py-8">
         <VentasHeader
                 :total="estadisticas.total"
                 :borrador="estadisticas.borrador"
@@ -864,6 +919,7 @@ const ejecutarBorrado = async () => {
                     @cancelar="cancelarVenta"
                     @enviar-email="onOpenEmailModal"
                     @facturar="facturarVenta"
+                    @enviar-whatsapp="enviarWhatsApp"
                 />
             </div>
 
@@ -890,10 +946,10 @@ const ejecutarBorrado = async () => {
             <!-- Modal de Pago -->
             <DialogModal :show="showPaymentModal" @close="cerrarPaymentModal" maxWidth="md">
                 <template #content>
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full overflow-hidden border border-gray-100 dark:border-slate-800 transform transition-all font-sans">
+                    <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-gray-100 dark:border-slate-800 transform transition-all font-sans">
                         <div class="px-8 py-6 bg-white dark:bg-slate-900 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center">
                             <h3 class="font-black uppercase tracking-[0.15em] text-sm text-gray-900 dark:text-white">Registrar Pago</h3>
-                            <button @click="cerrarPaymentModal" class="text-gray-300 dark:text-slate-600 hover:text-gray-900 dark:text-white transition-colors">
+                            <button @click="cerrarPaymentModal" class="text-gray-300 dark:text-slate-600 hover:text-gray-900 dark:hover:text-white transition-colors">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
@@ -916,18 +972,34 @@ const ejecutarBorrado = async () => {
                                 </select>
                             </div>
 
+                            <div v-if="usuariosCobroLista.length">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">¿Quién recibió el dinero?</label>
+                                <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">Define el corte de caja y reportes; puede ser distinto de quien registra la venta.</p>
+                                <select v-model="pagadoPorUserId" class="w-full py-4 px-5 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-400 focus:ring-0 transition-all">
+                                    <option v-for="u in usuariosCobroLista" :key="u.id" :value="String(u.id)">{{ u.name }}</option>
+                                </select>
+                            </div>
+
+                            <div v-if="['tarjeta', 'transferencia'].includes(metodoPago)">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Cuenta Destino</label>
+                                <select v-model="cuentaBancariaId" class="w-full py-4 px-5 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-400 focus:ring-0 transition-all">
+                                    <option value="">Seleccionar cuenta</option>
+                                    <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id">{{ cuenta.nombre }} - {{ cuenta.banco }}</option>
+                                </select>
+                            </div>
+
                             <div>
                                 <label class="block text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-2">Notas / Referencia</label>
                                 <textarea v-model="notasPago" rows="2" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-slate-400 focus:ring-0 transition-all" placeholder="Referencia de pago..."></textarea>
                             </div>
                         </div>
 
-                        <div class="px-8 py-6 bg-white dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <div class="px-8 py-6 bg-white/50 dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
                             <button @click="confirmarPago" :disabled="loading" class="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl disabled:opacity-50 flex items-center justify-center gap-3 transition-transform active:scale-95">
                                 <span v-if="loading" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                                 {{ loading ? 'Procesando...' : 'Confirmar Pago' }}
                             </button>
-                            <button @click="cerrarPaymentModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
+                            <button @click="cerrarPaymentModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
                         </div>
                     </div>
                 </template>
@@ -936,7 +1008,7 @@ const ejecutarBorrado = async () => {
             <!-- Modal de Cancelación -->
             <DialogModal :show="showCancelModal" @close="cerrarCancelModal" maxWidth="md">
                 <template #content>
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full overflow-hidden border border-red-100 dark:border-red-900/30 transform transition-all font-sans">
+                    <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-red-100 dark:border-red-900/30 transform transition-all font-sans">
                         <div class="px-8 py-6 bg-red-50 dark:bg-red-950 border-b border-red-100 dark:border-red-900/30 flex justify-between items-center">
                             <h3 class="font-black uppercase tracking-[0.15em] text-sm text-red-700 dark:text-red-400">Cancelar Venta</h3>
                             <button @click="cerrarCancelModal" class="text-red-300 hover:text-red-700 dark:hover:text-red-300 transition-colors">
@@ -979,7 +1051,7 @@ const ejecutarBorrado = async () => {
             <!-- Modal de Eliminación -->
             <DialogModal :show="showDeleteModal" @close="cerrarDeleteModal" maxWidth="md">
                 <template #content>
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full overflow-hidden border border-red-100 dark:border-red-900/30 transform transition-all font-sans">
+                    <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-red-100 dark:border-red-900/30 transform transition-all font-sans">
                         <div class="px-8 py-10 flex flex-col items-center text-center">
                             <div class="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-6">
                                 <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -988,11 +1060,11 @@ const ejecutarBorrado = async () => {
                             <p class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-relaxed">¿Estás seguro de borrar la venta #{{ selectedVentaDelete?.numero_venta || selectedVentaDelete?.id }}? Esta acción es irreversible.</p>
                         </div>
 
-                        <div class="px-8 py-6 bg-gray-50 dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <div class="px-8 py-6 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
                             <button @click="ejecutarBorrado" :disabled="loading" class="w-full py-4 bg-red-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl transition-all">
                                 {{ loading ? 'Borrando...' : 'Sí, Eliminar Registro' }}
                             </button>
-                            <button @click="cerrarDeleteModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:text-white uppercase text-[10px] tracking-widest transition-colors">Mantener Registro</button>
+                            <button @click="cerrarDeleteModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Mantener Registro</button>
                         </div>
                     </div>
                 </template>
@@ -1001,7 +1073,7 @@ const ejecutarBorrado = async () => {
             <!-- Modal de Enviar Email -->
             <DialogModal :show="showEmailModal" @close="cerrarEmailModal" maxWidth="md">
                 <template #content>
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full overflow-hidden border border-blue-100 dark:border-blue-900/30 transform transition-all font-sans">
+                    <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl w-full overflow-hidden border border-blue-100 dark:border-blue-900/30 transform transition-all font-sans">
                         <div class="px-8 py-10 flex flex-col items-center text-center">
                             <div class="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-6">
                                 <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
@@ -1016,12 +1088,12 @@ const ejecutarBorrado = async () => {
                             </div>
                         </div>
 
-                        <div class="px-8 py-6 bg-gray-50 dark:bg-slate-950 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <div class="px-8 py-6 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
                             <button @click="confirmarEnviarEmail" :disabled="loading" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl transition-all flex items-center justify-center gap-3">
                                 <span v-if="loading" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                                 {{ loading ? 'Enviando...' : 'Enviar Correo Ahora' }}
                             </button>
-                            <button @click="cerrarEmailModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
+                            <button @click="cerrarEmailModal" class="w-full py-3 font-black text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white uppercase text-[10px] tracking-widest transition-colors">Cancelar</button>
                         </div>
                     </div>
                 </template>

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Models\Concerns\Blameable;
+use Illuminate\Support\Facades\Schema;
 
 class CuentasPorPagar extends Model
 {
@@ -25,6 +26,7 @@ class CuentasPorPagar extends Model
         'monto_total',
         'monto_pagado',
         'monto_pendiente',
+        'fecha_emision',
         'fecha_vencimiento',
         'estado',
         'notas',
@@ -36,17 +38,27 @@ class CuentasPorPagar extends Model
         'pagado_con_rep',
         'pue_pagado',
         'notas_pago',
+        'motivo_cancelacion',
+        'fecha_cancelacion',
+        'saldo_favor_generado',
+        'saldo_favor_utilizado',
+        'fecha_saldo_favor',
     ];
 
     protected $casts = [
         'monto_total' => 'decimal:2',
         'monto_pagado' => 'decimal:2',
         'monto_pendiente' => 'decimal:2',
+        'fecha_emision' => 'date',
         'fecha_vencimiento' => 'date',
         'fecha_pago' => 'datetime',
         'pagado' => 'boolean',
         'pagado_con_rep' => 'boolean',
         'pue_pagado' => 'boolean',
+        'fecha_cancelacion' => 'datetime',
+        'saldo_favor_generado' => 'decimal:2',
+        'saldo_favor_utilizado' => 'decimal:2',
+        'fecha_saldo_favor' => 'datetime',
     ];
 
     /**
@@ -130,7 +142,7 @@ class CuentasPorPagar extends Model
             $this->estado = 'pendiente';
         }
 
-        $this->monto_pendiente = (float) $pendiente;
+        $this->setAttribute('monto_pendiente', $pendiente);
         $this->save();
     }
 
@@ -140,7 +152,7 @@ class CuentasPorPagar extends Model
      */
     public function registrarPago(float $monto, string $notas = null, ?int $cuentaBancariaId = null, bool $pagadoConRep = false): void
     {
-        $this->monto_pagado = (float) ((float) $this->monto_pagado + $monto);
+        $this->setAttribute('monto_pagado', (float) $this->monto_pagado + $monto);
 
         if ($pagadoConRep) {
             $this->pagado_con_rep = true;
@@ -170,6 +182,132 @@ class CuentasPorPagar extends Model
         }
 
         $this->actualizarEstado();
+    }
+
+    /**
+     * Marca la cuenta como cancelada sin eliminarla para mantener trazabilidad.
+     */
+    public function cancelar(string $motivo): void
+    {
+        $notaCancelacion = "Cancelada el " . now()->format('Y-m-d H:i:s') . ": " . $motivo;
+        $saldoFavor = (float) $this->monto_pagado > 0 ? (float) $this->monto_pagado : 0;
+        $notaSaldoFavor = $saldoFavor > 0
+            ? "\nSaldo a favor generado: " . number_format($saldoFavor, 2, '.', '') . ' (pendiente de aplicar)'
+            : '';
+
+        $this->update([
+            'estado' => 'cancelada',
+            'pagado' => false,
+            'monto_pendiente' => 0,
+            'motivo_cancelacion' => $motivo,
+            'fecha_cancelacion' => now(),
+            'saldo_favor_generado' => $saldoFavor,
+            'saldo_favor_utilizado' => 0,
+            'fecha_saldo_favor' => $saldoFavor > 0 ? now() : null,
+            'notas' => trim(($this->notas ? $this->notas . "\n" : '') . $notaCancelacion . $notaSaldoFavor),
+        ]);
+    }
+
+    /**
+     * Saldo a favor pendiente de aplicar en una cuenta cancelada.
+     */
+    public function getSaldoFavorDisponibleAttribute(): float
+    {
+        return max(0, (float) $this->saldo_favor_generado - (float) $this->saldo_favor_utilizado);
+    }
+
+    /**
+     * Aplica saldo a favor histórico de cuentas canceladas del proveedor.
+     *
+     * @return array{aplicado: float, origenes: array<int, array{id:int, monto:float}>}
+     */
+    public static function aplicarSaldoFavorProveedor(int $proveedorId, float $montoObjetivo, ?int $empresaId = null): array
+    {
+        if (!Schema::hasColumn('cuentas_por_pagar', 'saldo_favor_generado') || !Schema::hasColumn('cuentas_por_pagar', 'saldo_favor_utilizado')) {
+            return ['aplicado' => 0.0, 'origenes' => []];
+        }
+
+        if ($montoObjetivo <= 0) {
+            return ['aplicado' => 0.0, 'origenes' => []];
+        }
+
+        $query = static::query()
+            ->where('estado', 'cancelada')
+            ->where(function ($q) use ($proveedorId) {
+                $q->where('proveedor_id', $proveedorId)
+                    ->orWhereHas('compra', function ($q2) use ($proveedorId) {
+                        $q2->where('proveedor_id', $proveedorId);
+                    });
+            })
+            ->whereRaw('COALESCE(saldo_favor_generado, 0) > COALESCE(saldo_favor_utilizado, 0)')
+            ->orderByRaw('COALESCE(fecha_saldo_favor, created_at) asc')
+            ->orderBy('id');
+
+        if ($empresaId !== null) {
+            $query->where('empresa_id', $empresaId);
+        }
+
+        $cuentasConFavor = $query->lockForUpdate()->get();
+        $restante = $montoObjetivo;
+        $aplicado = 0.0;
+        $origenes = [];
+
+        foreach ($cuentasConFavor as $cuentaFavor) {
+            if ($restante <= 0) {
+                break;
+            }
+
+            $disponible = $cuentaFavor->saldo_favor_disponible;
+            if ($disponible <= 0) {
+                continue;
+            }
+
+            $montoAplicar = min($disponible, $restante);
+            if ($montoAplicar <= 0) {
+                continue;
+            }
+
+            $cuentaFavor->update([
+                'saldo_favor_utilizado' => (float) $cuentaFavor->saldo_favor_utilizado + $montoAplicar,
+                'notas' => trim(
+                    ($cuentaFavor->notas ? $cuentaFavor->notas . "\n" : '') .
+                    'Aplicación saldo a favor: ' . number_format($montoAplicar, 2, '.', '') .
+                    ' el ' . now()->format('Y-m-d H:i:s')
+                ),
+            ]);
+
+            $aplicado += $montoAplicar;
+            $restante -= $montoAplicar;
+            $origenes[] = ['id' => (int) $cuentaFavor->id, 'monto' => (float) $montoAplicar];
+        }
+
+        return ['aplicado' => $aplicado, 'origenes' => $origenes];
+    }
+
+    public static function saldoFavorDisponibleProveedor(int $proveedorId, ?int $empresaId = null): float
+    {
+        if (!Schema::hasColumn('cuentas_por_pagar', 'saldo_favor_generado') || !Schema::hasColumn('cuentas_por_pagar', 'saldo_favor_utilizado')) {
+            return 0.0;
+        }
+
+        $query = static::query()
+            ->where('estado', 'cancelada')
+            ->where(function ($q) use ($proveedorId) {
+                $q->where('proveedor_id', $proveedorId)
+                    ->orWhereHas('compra', function ($q2) use ($proveedorId) {
+                        $q2->where('proveedor_id', $proveedorId);
+                    });
+            });
+
+        if ($empresaId !== null) {
+            $query->where('empresa_id', $empresaId);
+        }
+
+        $cuentas = $query->get(['saldo_favor_generado', 'saldo_favor_utilizado']);
+
+        return (float) $cuentas->sum(function ($cuenta) {
+            return max(0, (float) $cuenta->saldo_favor_generado - (float) $cuenta->saldo_favor_utilizado);
+        });
     }
 
     /**
@@ -227,12 +365,12 @@ class CuentasPorPagar extends Model
      */
     public function scopePendientes($query)
     {
-        return $query->whereIn('estado', ['pendiente', 'parcial', 'vencido']);
+        return $query->whereIn('estado', ['pendiente', 'parcial', 'vencido'])
+                    ->where('monto_pendiente', '>', self::SALDO_MINIMO_CIERRE);
     }
 
     /**
      * Scope para cuentas vencidas
-     * ✅ FIX: Usar agrupación correcta para evitar resultados inesperados
      */
     public function scopeVencidas($query)
     {
@@ -242,6 +380,6 @@ class CuentasPorPagar extends Model
                     $sub->where('fecha_vencimiento', '<', now())
                         ->whereNotIn('estado', ['pagado', 'cancelada']);
                 });
-        });
+        })->where('monto_pendiente', '>', self::SALDO_MINIMO_CIERRE);
     }
 }

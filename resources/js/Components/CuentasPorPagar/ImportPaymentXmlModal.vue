@@ -282,370 +282,336 @@ const formatDate = (dateStr) => {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-      <!-- Header -->
-      <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 flex justify-between items-center">
-        <h2 class="text-xl font-semibold">
-          {{ step === 'source' ? 'Importar XML de Pago' : step === 'preview' ? 'Vista Previa de Pagos' : '¡Pagos Aplicados!' }}
-        </h2>
-        <button @click="close" class="text-white hover:text-gray-200 text-2xl">&times;</button>
-      </div>
+    <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="close"></div>
       
-      <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-6">
-        <!-- Step: Select Source -->
-        <div v-if="step === 'source'" class="space-y-4">
-          <!-- Tabs -->
-          <div class="flex border-b border-gray-200 dark:border-slate-800">
-            <button
-              @click="sourceTab = 'select'"
-              :class="[
-                'px-4 py-2 font-medium text-sm border-b-2 transition-colors',
-                sourceTab === 'select'
-                  ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
-              ]"
-            >
-              📋 Seleccionar CFDI Existente
-            </button>
-            <button
-              @click="sourceTab = 'upload'"
-              :class="[
-                'px-4 py-2 font-medium text-sm border-b-2 transition-colors',
-                sourceTab === 'upload'
-                  ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
-              ]"
-            >
-              📤 Subir Archivo XML
-            </button>
+      <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 transition-all duration-500 scale-100">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900 text-white px-10 py-8 flex justify-between items-center border-b border-white/5">
+          <div>
+            <h2 class="text-2xl font-black uppercase tracking-tighter">
+              {{ step === 'source' ? 'Importar XML' : step === 'preview' ? 'Validación de Pagos' : 'Proceso Exitoso' }}
+            </h2>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">{{ step === 'source' ? 'Selección de origen de datos' : 'Confirmación de vinculación' }}</p>
           </div>
-          
-          <!-- Tab: Select CFDI -->
-          <div v-if="sourceTab === 'select'" class="space-y-4">
-            <p class="text-sm text-gray-600">
-              Seleccione un complemento de pago (CFDI tipo P) del administrador de documentos:
-            </p>
-            
-            <!-- Search -->
-            <div class="relative">
-              <input
-                v-model="searchQuery"
-                @input="handleSearch"
-                type="text"
-                placeholder="Buscar por UUID, emisor, RFC..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          <button @click="close" class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-white/50 hover:text-white">&times;</button>
+        </div>
+        
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-10">
+          <!-- Step: Select Source -->
+          <div v-if="step === 'source'" class="space-y-8">
+            <!-- Tabs Premium -->
+            <div class="flex p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-[1.5rem] w-fit">
+              <button
+                @click="sourceTab = 'select'"
+                :class="[
+                  'px-6 py-2.5 font-black text-[10px] uppercase tracking-widest rounded-[1.2rem] transition-all duration-300',
+                  sourceTab === 'select'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                ]"
               >
-              <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
+                📋 CFDI en Sistema
+              </button>
+              <button
+                @click="sourceTab = 'upload'"
+                :class="[
+                  'px-6 py-2.5 font-black text-[10px] uppercase tracking-widest rounded-[1.2rem] transition-all duration-300',
+                  sourceTab === 'upload'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                ]"
+              >
+                📤 Cargar Archivo
+              </button>
             </div>
             
-            <!-- CFDI List -->
-            <div class="border rounded-lg overflow-hidden max-h-80 overflow-y-auto">
-              <div v-if="loadingCfdis" class="p-8 text-center text-gray-500 dark:text-gray-400">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-2"></div>
-                Cargando CFDIs...
-              </div>
-              <div v-else-if="paymentCfdis.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
-                <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <!-- Tab: Select CFDI -->
+            <div v-if="sourceTab === 'select'" class="space-y-6">
+              <!-- Search -->
+              <div class="relative group">
+                <input
+                  v-model="searchQuery"
+                  @input="handleSearch"
+                  type="text"
+                  placeholder="Buscar complemento de pago por UUID o RFC..."
+                  class="w-full pl-12 pr-6 py-4 bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 rounded-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all"
+                >
+                <svg class="absolute left-4 top-4 h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                No se encontraron CFDIs de pago (tipo P) recibidos
               </div>
-              <table v-else class="w-full text-sm">
-                <thead class="bg-gray-50 sticky top-0">
-                  <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Emisor</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">UUID</th>
-                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
-                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Docs</th>
-                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acción</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                  <tr v-for="cfdi in paymentCfdis" :key="cfdi.id" class="hover:bg-orange-50 transition-colors">
-                    <td class="px-4 py-3 whitespace-nowrap">{{ formatDate(cfdi.fecha_emision) }}</td>
-                    <td class="px-4 py-3">
-                      <div class="font-medium text-gray-900 dark:text-white truncate max-w-48">{{ cfdi.nombre_emisor }}</div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ cfdi.rfc_emisor }}</div>
-                    </td>
-                    <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ cfdi.uuid?.slice(0, 8) }}...</td>
-                    <td class="px-4 py-3 text-right font-medium text-green-600">{{ formatCurrency(cfdi.total) }}</td>
-                    <td class="px-4 py-3 text-center">
-                      <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{{ cfdi.num_documentos || 0 }}</span>
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                      <button
-                        @click="selectCfdi(cfdi)"
-                        :disabled="loading && selectedCfdiId === cfdi.id"
-                        class="px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded hover:bg-orange-600 disabled:opacity-50"
-                      >
-                        {{ loading && selectedCfdiId === cfdi.id ? 'Procesando...' : 'Seleccionar' }}
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <!-- Tab: Upload File -->
-          <div v-if="sourceTab === 'upload'" class="space-y-4">
-            <p class="text-gray-600">
-              O suba un XML de complemento de pago (CFDI tipo P) desde su computadora:
-            </p>
-            
-            <!-- Drag & Drop Zone -->
-            <div
-              @dragover="handleDragOver"
-              @dragleave="handleDragLeave"
-              @drop="handleDrop"
-              :class="[
-                'border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer',
-                dragOver ? 'border-orange-500 bg-orange-50' : 'border-gray-300 hover:border-gray-400'
-              ]"
-              @click="$refs.fileInput.click()"
-            >
-              <div v-if="loading" class="flex flex-col items-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
-                <p class="text-gray-600">Procesando XML...</p>
-              </div>
-              <div v-else class="flex flex-col items-center">
-                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                <p class="text-lg text-gray-600 mb-2">Arrastra y suelta tu archivo XML aquí</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">o haz clic para seleccionar</p>
-              </div>
-              <input type="file" ref="fileInput" class="hidden" accept=".xml" @change="handleFileSelect">
-            </div>
-          </div>
-          
-          <!-- Error -->
-          <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {{ error }}
-          </div>
-        </div>
-        
-        <!-- Step: Preview -->
-        <div v-if="step === 'preview'" class="space-y-6">
-          <!-- Payment Info -->
-          <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h3 class="font-semibold text-orange-800 mb-2">Información del Pago</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span class="text-gray-600">Fecha:</span>
-                <span class="ml-2 font-medium">{{ formatDate(paymentInfo?.fecha_pago) }}</span>
-              </div>
-              <div>
-                <span class="text-gray-600">Monto Total:</span>
-                <span class="ml-2 font-medium text-green-600">{{ formatCurrency(paymentInfo?.monto_total) }}</span>
-              </div>
-              <div>
-                <span class="text-gray-600">Forma de Pago:</span>
-                <span class="ml-2 font-medium">{{ paymentInfo?.forma_pago || 'N/A' }}</span>
-              </div>
-              <div>
-                <span class="text-gray-600">UUID:</span>
-                <span class="ml-2 font-mono text-xs">{{ paymentInfo?.uuid?.slice(0, 8) }}...</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Excedente Warning -->
-          <div v-if="excedente >= 1.00" class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start">
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-blue-800">Excedente de Pago Detectado</h3>
-              <div class="mt-2 text-sm text-blue-700">
-                <p>El XML tiene un excedente de <strong>{{ formatCurrency(excedente) }}</strong> que no corresponde a las facturas vinculadas. Puede aplicar este monto manualmente a otras facturas pendientes del proveedor.</p>
-              </div>
-              <div v-if="otrasCuentas.length > 0" class="mt-3">
-                <button @click="mostrarOtrasCuentas = !mostrarOtrasCuentas" class="text-xs font-semibold text-blue-600 hover:text-blue-500 uppercase tracking-wider">
-                  {{ mostrarOtrasCuentas ? 'Ocultar facturas pendientes' : 'Ver otras facturas del proveedor' }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Otras Cuentas List -->
-          <div v-if="mostrarOtrasCuentas && otrasCuentas.length > 0" class="bg-gray-50 border border-gray-200 dark:border-slate-800 rounded-lg p-4 mt-2">
-             <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-3 text-center">Otras Facturas Pendientes de este Proveedor</h4>
-             <div class="space-y-2 max-h-48 overflow-y-auto pr-2">
-                <div v-for="cuenta in otrasCuentas" :key="cuenta.id" class="flex items-center justify-between text-sm bg-white dark:bg-slate-900 p-3 rounded border border-gray-100 dark:border-slate-800 shadow-sm transition-all hover:border-indigo-200">
-                   <div class="flex flex-col">
-                      <span class="font-bold text-gray-800">{{ cuenta.numero_compra }}</span>
-                      <span class="text-xs text-gray-500 dark:text-gray-400">Vence: {{ cuenta.fecha_vencimiento }}</span>
-                   </div>
-                   <div class="flex items-center space-x-4">
-                      <div class="text-right">
-                         <div class="text-xs text-gray-400 uppercase font-semibold">Pendiente</div>
-                         <div class="font-bold text-gray-700">{{ formatCurrency(cuenta.monto_pendiente) }}</div>
-                      </div>
-                      <button @click="agregarCuentaExtra(cuenta)" class="bg-indigo-50 text-indigo-600 px-3 py-2 rounded-md hover:bg-indigo-100 font-bold text-xs transition-colors border border-indigo-100 uppercase">
-                        + Añadir
-                      </button>
-                   </div>
+              
+              <!-- CFDI List Premium -->
+              <div class="border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-xl">
+                <div v-if="loadingCfdis" class="p-16 text-center">
+                  <div class="inline-flex relative w-12 h-12">
+                    <div class="absolute inset-0 border-4 border-orange-500/20 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-t-orange-500 rounded-full animate-spin"></div>
+                  </div>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-4">Sincronizando con repositorio...</p>
                 </div>
-             </div>
-          </div>
-          
-          <!-- Match Summary -->
-          <div class="flex items-center justify-between">
-            <span class="text-gray-600">
-              Documentos encontrados: <strong>{{ documentosEncontrados }}</strong> de {{ totalDocumentos }}
-            </span>
-            <span v-if="documentosEncontrados < totalDocumentos" class="text-yellow-600 text-sm">
-              ⚠️ Algunos documentos no fueron encontrados en el sistema
-            </span>
-          </div>
-          
-          <!-- Matches Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-4 py-2 text-left">Aplicar</th>
-                  <th class="px-4 py-2 text-left">UUID Factura</th>
-                  <th class="px-4 py-2 text-left">Compra</th>
-                  <th class="px-4 py-2 text-left">Proveedor</th>
-                  <th class="px-4 py-2 text-right">Saldo Ant.</th>
-                  <th class="px-4 py-2 text-right">Pagado</th>
-                  <th class="px-4 py-2 text-right">Saldo Final</th>
-                  <th class="px-4 py-2 text-center">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(match, idx) in matches" :key="idx" :class="match.found ? 'hover:bg-gray-50' : 'bg-gray-100 opacity-60'">
-                  <td class="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      :checked="match.selected"
-                      :disabled="!match.found"
-                      @change="toggleSelection(match)"
-                      class="rounded border-gray-300 text-orange-600"
-                    >
-                  </td>
-                  <td class="px-4 py-2 font-mono text-xs">{{ match.uuid.slice(0, 8) }}...</td>
-                  <td class="px-4 py-2">{{ match.numero_compra }}</td>
-                  <td class="px-4 py-2">{{ match.proveedor_nombre }}</td>
-                  <td class="px-4 py-2 text-right">{{ formatCurrency(match.imp_saldo_ant) }}</td>
-                  <td class="px-4 py-2 text-right text-green-600 font-medium">
-                    <div class="flex items-center justify-end">
-                      <span class="mr-1">$</span>
-                      <input 
-                        type="number" 
-                        step="0.01" 
-                        v-model.number="match.imp_pagado" 
-                        class="w-24 text-right border-gray-300 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-xs"
-                        :disabled="!match.selected"
-                        @input="match.imp_saldo_insoluto = match.imp_saldo_ant - match.imp_pagado"
-                      >
-                    </div>
-                  </td>
-                  <td class="px-4 py-2 text-right">{{ formatCurrency(match.imp_saldo_insoluto) }}</td>
-                  <td class="px-4 py-2 text-center">
-                    <span v-if="match.found" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Encontrada</span>
-                    <span v-else class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">No encontrada</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <!-- Payment Options -->
-          <div class="bg-gray-50 rounded-lg p-4 space-y-4">
-            <h4 class="font-medium text-gray-700">Opciones de Registro</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label class="block text-sm text-gray-600 mb-1">Método de Pago</label>
-                <select v-model="metodoPago" class="w-full border-gray-300 rounded-md shadow-sm">
-                  <option value="transferencia">Transferencia</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="cheque">Cheque</option>
-                  <option value="tarjeta">Tarjeta</option>
-                  <option value="otros">Otros</option>
-                </select>
+                <div v-else-if="paymentCfdis.length === 0" class="p-16 text-center text-gray-500">
+                  <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center opacity-50">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                  </div>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sin documentos tipo "P" encontrados</p>
+                </div>
+                <div v-else class="overflow-x-auto max-h-96 custom-scrollbar">
+                  <table class="w-full">
+                    <thead class="bg-slate-50 dark:bg-slate-950/20 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-10 backdrop-blur-md">
+                      <tr>
+                        <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Emisor</th>
+                        <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Monto</th>
+                        <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest">Documentos</th>
+                        <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                      <tr v-for="cfdi in paymentCfdis" :key="cfdi.id" class="group hover:bg-white dark:hover:bg-slate-950/40 transition-all duration-200">
+                        <td class="px-6 py-4">
+                          <div class="font-black text-xs text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ cfdi.nombre_emisor }}</div>
+                          <div class="text-[9px] font-bold text-slate-400 tracking-[0.1em] mt-0.5">{{ cfdi.rfc_emisor }} • <span class="font-mono">{{ cfdi.uuid?.slice(0, 13) }}...</span></div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                          <div class="text-xs font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{{ formatCurrency(cfdi.total) }}</div>
+                          <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ formatDate(cfdi.fecha_emision) }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                          <span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded-lg border border-blue-500/10">{{ cfdi.num_documentos || 0 }} DOCS</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                          <button
+                            @click="selectCfdi(cfdi)"
+                            :disabled="loading && selectedCfdiId === cfdi.id"
+                            class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[9px] font-black uppercase tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md disabled:opacity-50"
+                          >
+                            {{ loading && selectedCfdiId === cfdi.id ? 'Cargando...' : 'Vincular' }}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <div>
-                <label class="block text-sm text-gray-600 mb-1">Cuenta Bancaria</label>
-                <select v-model="cuentaBancariaId" class="w-full border-gray-300 rounded-md shadow-sm">
-                  <option :value="null">-- Sin cuenta --</option>
-                  <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">
-                    {{ cb.banco }} - {{ cb.nombre }}
-                  </option>
-                </select>
+            </div>
+            
+            <!-- Tab: Upload File -->
+            <div v-if="sourceTab === 'upload'" class="space-y-6">
+              <div
+                @dragover="handleDragOver"
+                @dragleave="handleDragLeave"
+                @drop="handleDrop"
+                :class="[
+                  'relative border-2 border-dashed rounded-[2.5rem] p-20 text-center transition-all duration-500 cursor-pointer group',
+                  dragOver ? 'border-orange-500 bg-orange-500/5 ring-8 ring-orange-500/5 scale-[1.02]' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                ]"
+                @click="$refs.fileInput.click()"
+              >
+                <div v-if="loading" class="flex flex-col items-center">
+                  <div class="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 border-t-orange-500 mb-6"></div>
+                  <p class="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Procesando Estructura XML...</p>
+                </div>
+                <div v-else class="flex flex-col items-center">
+                  <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-orange-500/10 transition-all border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <svg class="w-10 h-10 text-slate-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                  </div>
+                  <p class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tighter">Arrastre su archivo XML</p>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">o haga clic para explorar sus carpetas</p>
+                  
+                  <div class="mt-8 px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest">Complementos de Pago .XML</div>
+                </div>
+                <input type="file" ref="fileInput" class="hidden" accept=".xml" @change="handleFileSelect">
               </div>
-              <div>
-                <label class="block text-sm text-gray-600 mb-1">Notas</label>
-                <input v-model="notas" type="text" placeholder="Notas adicionales..." class="w-full border-gray-300 rounded-md shadow-sm">
-              </div>
+            </div>
+            
+            <!-- Error Premium -->
+            <div v-if="error" class="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 px-6 py-4 rounded-2xl flex items-center gap-4 animate-head-shake">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div class="text-xs font-bold">{{ error }}</div>
             </div>
           </div>
           
-          <!-- Error -->
-          <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {{ error }}
+          <!-- Step: Preview Premium -->
+          <div v-if="step === 'preview'" class="space-y-8">
+            <!-- Summary Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Monto del Pago</p>
+                  <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">{{ formatCurrency(paymentInfo?.monto_total) }}</p>
+                  <div class="mt-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ paymentInfo?.forma_pago || 'TRANSFERENCIA' }}</span>
+                  </div>
+               </div>
+               <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha de Operación</p>
+                  <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">{{ formatDate(paymentInfo?.fecha_pago) }}</p>
+                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 truncate">{{ paymentInfo?.uuid?.slice(0, 20) }}...</p>
+               </div>
+               <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Emparejamiento</p>
+                  <div class="flex items-end justify-between">
+                    <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ documentosEncontrados }}<span class="text-lg text-slate-400">/{{ totalDocumentos }}</span></p>
+                    <div class="pb-1">
+                       <span :class="documentosEncontrados === totalDocumentos ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'" class="px-2 py-0.5 text-[9px] font-black rounded-lg border uppercase tracking-widest">
+                         {{ documentosEncontrados === totalDocumentos ? 'Completo' : 'Parcial' }}
+                       </span>
+                    </div>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Matches Table Premium -->
+            <div class="border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-xl">
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-950/20 border-b border-slate-100 dark:border-slate-800">
+                      <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest w-12">SEL</th>
+                      <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Compra / UUID</th>
+                      <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Proveedor</th>
+                      <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Monto Aplicar</th>
+                      <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest">Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tr v-for="(match, idx) in matches" :key="idx" :class="[match.found ? 'group hover:bg-white dark:hover:bg-slate-950/40' : 'bg-slate-50/50 dark:bg-slate-950/40 opacity-60']" class="transition-all duration-200">
+                      <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center">
+                           <input
+                            type="checkbox"
+                            :checked="match.selected"
+                            :disabled="!match.found"
+                            @change="toggleSelection(match)"
+                            class="w-5 h-5 rounded-lg border-slate-300 dark:border-slate-700 text-orange-500 focus:ring-orange-500/20 transition-all checked:scale-110"
+                          >
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ match.numero_compra || 'XML DOC' }}</div>
+                        <div class="text-[9px] font-bold text-slate-400 tracking-widest mt-0.5 italic font-mono">{{ match.uuid.slice(0, 10) }}...</div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[200px]">{{ match.proveedor_nombre || 'IDENTIFICANDO...' }}</div>
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                        <div class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-orange-500/20 transition-all">
+                          <span class="text-[10px] font-black text-slate-400">$</span>
+                          <input 
+                            type="number" 
+                            step="0.01" 
+                            v-model.number="match.imp_pagado" 
+                            class="w-24 text-right bg-transparent border-none p-0 text-xs font-black text-slate-900 dark:text-white focus:ring-0"
+                            :disabled="!match.selected"
+                            @input="match.imp_saldo_insoluto = match.imp_saldo_ant - match.imp_pagado"
+                          >
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-center">
+                        <span v-if="match.found" class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[8px] font-black rounded-lg border border-emerald-500/20 uppercase tracking-widest">Sincronizado</span>
+                        <span v-else class="px-2 py-0.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[8px] font-black rounded-lg border border-rose-500/20 uppercase tracking-widest">No hallado</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Global Options Premium -->
+            <div class="bg-slate-900 dark:bg-slate-950 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+               <div class="absolute top-0 right-0 p-8 opacity-5 scale-150 rotate-12">
+                  <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+               </div>
+               <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+                  <div class="space-y-4">
+                     <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] pl-1">Configuración del Registro</h4>
+                     <div class="grid grid-cols-1 gap-4">
+                        <div>
+                          <label class="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Origen de Fondos (Opcional)</label>
+                          <select v-model="cuentaBancariaId" class="w-full bg-slate-800/50 border-slate-700 rounded-2xl text-[10px] font-black text-white hover:bg-slate-800 transition-all focus:ring-orange-500/20 focus:border-orange-500 uppercase tracking-widest">
+                            <option :value="null">-- SIN CUENTA BANCARIA --</option>
+                            <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">
+                              {{ cb.banco }} • {{ cb.nombre }}
+                            </option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Notas de la Transacción</label>
+                          <input v-model="notas" type="text" placeholder="EJ. PAGO DE PROVEEDOR SEMANAL..." class="w-full bg-slate-800/50 border-slate-700 rounded-2xl text-[10px] font-black text-white hover:bg-slate-800 transition-all focus:ring-orange-500/20 focus:border-orange-500 uppercase tracking-widest">
+                        </div>
+                     </div>
+                  </div>
+                  <div class="flex flex-col gap-3">
+                     <button
+                        @click="applyPayments"
+                        :disabled="!canApply"
+                        class="w-full py-5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 disabled:from-slate-700 disabled:to-slate-800 text-white font-black text-xs uppercase tracking-[0.2em] rounded-3xl shadow-xl shadow-orange-500/20 transition-all duration-300 active:scale-95 group flex items-center justify-center gap-3 overflow-hidden relative"
+                      >
+                        <span v-if="applying" class="flex items-center">
+                          <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                          </svg>
+                        </span>
+                        <span v-else class="flex items-center gap-3">
+                          EJECUTAR {{ selectedPayments.length }} PAGOS
+                          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                        </span>
+                      </button>
+                      <p class="text-center text-[8px] font-bold text-slate-500 uppercase tracking-widest italic opacity-50">Pulse para confirmar la vinculación contable</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+          
+          <!-- Step: Success Premium -->
+          <div v-if="step === 'success'" class="py-20 text-center animate-bounce-in">
+            <div class="relative inline-flex mb-8">
+               <div class="absolute inset-0 bg-emerald-500 blur-2xl opacity-20 animate-pulse"></div>
+               <div class="relative w-24 h-24 bg-emerald-500 text-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+                  <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"/>
+                  </svg>
+               </div>
+            </div>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">¡Operación Completada!</h3>
+            <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-3">Los saldos han sido actualizados en tiempo real.</p>
+            
+            <div class="mt-12 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                Sincronizando vistas...
+            </div>
           </div>
         </div>
         
-        <!-- Step: Success -->
-        <div v-if="step === 'success'" class="text-center py-12">
-          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold text-green-600 mb-2">¡Pagos Aplicados!</h3>
-          <p class="text-gray-600">Los pagos han sido registrados correctamente. La página se recargará...</p>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="bg-gray-50 px-6 py-4 flex justify-between border-t">
-        <button
-          v-if="step === 'preview'"
-          @click="reset"
-          class="px-4 py-2 text-gray-600 hover:text-gray-800"
-        >
-          ← Volver
-        </button>
-        <div v-else></div>
-        
-        <div class="flex space-x-3">
-          <button
-            @click="close"
-            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
-          >
-            Cancelar
-          </button>
+        <!-- Footer Premium -->
+        <div class="bg-slate-50 dark:bg-slate-950/40 px-10 py-6 flex justify-between items-center border-t border-slate-100 dark:border-slate-800">
           <button
             v-if="step === 'preview'"
-            @click="applyPayments"
-            :disabled="!canApply"
-            :class="[
-              'px-6 py-2 rounded-md font-medium',
-              canApply
-                ? 'bg-orange-600 text-white hover:bg-orange-700'
-                : 'bg-gray-300 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            ]"
+            @click="reset"
+            class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-slate-800 dark:hover:text-white transition-all flex items-center gap-2 group"
           >
-            <span v-if="applying" class="flex items-center">
-              <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-              Aplicando...
-            </span>
-            <span v-else>Aplicar {{ selectedPayments.length }} Pago(s)</span>
+            <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Reconfigurar Origen
           </button>
+          <div v-else></div>
+          
+          <div class="flex items-center gap-4">
+            <p v-if="step === 'source'" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest italic mr-4 hidden sm:block">Asegúrese que sea un XML de pagos (Tipo P)</p>
+            <button
+              @click="close"
+              class="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:border-rose-500/50 hover:text-rose-600 transition-all active:scale-95"
+            >
+              Cerrar
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 </template>

@@ -2,18 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
+use App\Models\HistorialPagoPrestamo;
 use App\Models\PagoPrestamo;
 use App\Models\Prestamo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
+use App\Traits\Formatters\NumeroALetras;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PagoPrestamoController extends Controller
 {
+    use NumeroALetras;
     private const ITEMS_PER_PAGE = 15;
+
+    public function __construct(
+        private readonly \App\Services\PdfGeneratorService $pdfService
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -426,6 +436,71 @@ class PagoPrestamoController extends Controller
                 'success' => false,
                 'message' => 'Error al obtener pagos del préstamo'
             ], 500);
+        }
+    }
+
+    /**
+     * Generar comprobante de pago en PDF
+     */
+    public function generarComprobante(HistorialPagoPrestamo $historial)
+    {
+        try {
+            $historial->load(['prestamo.cliente', 'pagoPrestamo']);
+
+            // Obtener datos de la empresa
+            $empresa = \App\Models\EmpresaConfiguracion::getConfig();
+
+            $rutaFirmadaRelativa = URL::temporarySignedRoute(
+                'pagos.comprobante.descarga',
+                now()->addDays(90),
+                ['historial' => $historial->id],
+                false
+            );
+            $urlDescargaPdf = url($rutaFirmadaRelativa);
+
+            $datos = [
+                'historial' => $historial,
+                'pago' => $historial->pagoPrestamo,
+                'prestamo' => $historial->prestamo,
+                'cliente' => $historial->prestamo->cliente,
+                'empresa' => $empresa,
+                'fecha_actual' => now()->toIso8601String(),
+                'monto_letras' => $this->numeroALetras($historial->monto_pagado),
+                'url_descarga_pdf' => $urlDescargaPdf,
+            ];
+
+            return Inertia::render('Pagos/Comprobante', $datos);
+        } catch (\Exception $e) {
+            Log::error('Error generando comprobante de pago: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al generar el comprobante.');
+        }
+    }
+
+    /**
+     * Descarga del comprobante en PDF (enlace firmado, válido por tiempo limitado).
+     * Pensado para compartir por WhatsApp sin sesión del panel.
+     */
+    public function descargarComprobantePdf(Request $request, HistorialPagoPrestamo $historial)
+    {
+        try {
+            $historial->load(['prestamo.cliente', 'pagoPrestamo']);
+            $montoLetras = $this->numeroALetras($historial->monto_pagado);
+
+            $pdf = $this->pdfService->loadView('pagos.comprobante_pdf', [
+                'historial' => $historial,
+                'pago' => $historial->pagoPrestamo,
+                'prestamo' => $historial->prestamo,
+                'cliente' => $historial->prestamo->cliente,
+                'monto_letras' => $montoLetras,
+            ]);
+
+            $folio = 'REC-' . str_pad((string) $historial->id, 6, '0', STR_PAD_LEFT);
+            $filename = 'Comprobante_' . $folio . '.pdf';
+
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            Log::error('Error descargando comprobante PDF: ' . $e->getMessage());
+            abort(500, 'No se pudo generar el PDF.');
         }
     }
 }

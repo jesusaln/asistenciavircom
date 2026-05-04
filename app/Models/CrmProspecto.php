@@ -52,16 +52,9 @@ class CrmProspecto extends Model
         'created_by',
         'price_list_id',
         'domicilio_fiscal_cp',
-        'utm_source',
-        'utm_medium',
-        'utm_campaign',
-        'utm_term',
-        'utm_content',
-        'gclid',
-        'fbclid',
-        'referer',
-        'ip_address',
-        'user_agent',
+        'wa_user_id',
+        'wa_username',
+        'wa_profile_name',
     ];
 
     protected $casts = [
@@ -256,10 +249,18 @@ class CrmProspecto extends Model
                 'pais' => $this->pais ?: 'MX',
                 // Lista de precios
                 'price_list_id' => $this->price_list_id,
+                // WhatsApp
+                'wa_user_id' => $this->wa_user_id,
+                'wa_username' => $this->wa_username,
+                'wa_profile_name' => $this->wa_profile_name,
             ]);
 
             // Asociar cliente al prospecto
             $this->update(['cliente_id' => $cliente->id]);
+
+            // Eliminar el prospecto del CRM (Hard Delete) según solicitud del usuario
+            // para mantener el pipeline limpio y evitar que se llene la información.
+            $this->forceDelete();
 
             // Si el prospecto tenía actividades, podríamos vincularlas o dejar una traza
             // Manejar el caso de solicitudes públicas sin usuario autenticado

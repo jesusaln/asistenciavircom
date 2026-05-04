@@ -7,32 +7,29 @@ use App\Models\ClienteDocumento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use App\Traits\ImageOptimizerTrait;
 
 class ClienteDocumentoController extends Controller
 {
-    use ImageOptimizerTrait;
-
     public function store(Request $request, Cliente $cliente)
     {
         $request->validate([
-            'documento' => 'required|file|max:5120', // 5MB max
+            'documento' => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120', // 5MB max restricted to safe types
             'tipo' => 'required|string',
         ]);
 
         try {
             $file = $request->file('documento');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $this->storeFileOptimized($file, "clientes/{$cliente->id}/documentos", 'public', $filename);
+            $path = $file->storeAs("clientes/{$cliente->id}/documentos", $filename, 'public');
 
             $documento = ClienteDocumento::create([
                 'cliente_id' => $cliente->id,
                 'tipo' => $request->tipo,
-                'nombre_archivo' => basename($path),
+                'nombre_archivo' => $file->getClientOriginalName(),
                 'ruta' => $path,
-                'extension' => pathinfo($path, PATHINFO_EXTENSION),
-                'tamano' => Storage::disk('public')->size($path),
-                'mime_type' => Storage::disk('public')->mimeType($path),
+                'extension' => $file->getClientOriginalExtension(),
+                'tamano' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
             ]);
 
             return back()->with('success', 'Documento subido correctamente');

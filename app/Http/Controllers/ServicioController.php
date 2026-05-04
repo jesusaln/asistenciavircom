@@ -65,11 +65,17 @@ class ServicioController extends Controller
                 $servicio->can_toggle_in_modal = true; // Sí mostrar en el modal
             }
 
-            // Estadísticas basadas en estado del servicio
+            // Estadísticas optimizadas en una sola consulta
+            $statsRaw = Servicio::selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN estado = 'activo' THEN 1 END) as activos,
+                COUNT(CASE WHEN estado = 'inactivo' THEN 1 END) as inactivos
+            ")->first();
+
             $stats = [
-                'total' => Servicio::count(),
-                'activos' => Servicio::where('estado', 'activo')->count(),
-                'inactivos' => Servicio::where('estado', 'inactivo')->count(),
+                'total' => (int) $statsRaw->total,
+                'activos' => (int) $statsRaw->activos,
+                'inactivos' => (int) $statsRaw->inactivos,
             ];
 
             return Inertia::render('Servicios/Index', [
@@ -133,7 +139,7 @@ class ServicioController extends Controller
     {
         return Inertia::render('Servicios/Edit', [
             'servicio' => $servicio,
-            'categorias' => Categoria::all(),
+            'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
             'satCatalogos' => [
                 'unidades' => SatClaveUnidad::getOptions(),
                 'objetosImp' => SatObjetoImp::getOptions(),

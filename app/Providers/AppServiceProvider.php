@@ -2,13 +2,12 @@
 
 namespace App\Providers;
 
-use App\Contracts\RustDeskClientInterface;
-use App\Contracts\FaceVerificationService;
-use App\Services\Biometrics\MockFaceVerificationService;
-use App\Services\RustDeskService;
 use Inertia\Inertia;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -20,12 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(FaceVerificationService::class, function () {
-            // Punto único para cambiar a proveedor real (AWS/Azure/etc.)
-            return new MockFaceVerificationService();
-        });
-
-        $this->app->bind(RustDeskClientInterface::class, RustDeskService::class);
+        // ...
     }
 
     /**
@@ -33,25 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
-        if (app()->environment('production') && str_starts_with(config('app.url'), 'https')) {
-            URL::forceScheme('https');
-        } else {
-            URL::forceScheme('http');
-        }
-
-        // Nota: Para manejar UTF-8 malformado, trata los datos de origen
-        // (BD/strings) antes de pasarlos a Inertia. Evitamos usar métodos
-        // inexistentes en la versión actual de inertia-laravel.
-        // Registrar el evento y el listener
-        Event::listen(
-            \App\Events\ClientCreated::class, // El evento
-            \App\Listeners\StoreClientNotification::class // El listener
-        );
-
-        // Mapeo polimórfico: usar alias cortos y permitir FQCN por compatibilidad
-        // Activamos enforce para evitar nombres no mapeados en el futuro
-        Relation::enforceMorphMap([
+        // Mapeo polimórfico: usamos morphMap en lugar de enforceMorphMap para evitar bloqueos restrictivos, pero permitimos leer los alias cortos en la BD
+        Relation::morphMap([
             // Aliases preferidos
             'producto' => \App\Models\Producto::class,
             'servicio' => \App\Models\Servicio::class,
@@ -62,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
             'venta' => \App\Models\Venta::class,
             'compra' => \App\Models\Compra::class,
             'renta' => \App\Models\Renta::class,
+            'Venta' => \App\Models\Venta::class, // Robustez para mayúsculas
+            'Renta' => \App\Models\Renta::class, // Robustez para mayúsculas
             'cuentas_por_cobrar' => \App\Models\CuentasPorCobrar::class,
             'cuentas_por_pagar' => \App\Models\CuentasPorPagar::class,
             'entrega_dinero' => \App\Models\EntregaDinero::class,
@@ -69,15 +48,12 @@ class AppServiceProvider extends ServiceProvider
             'ticket' => \App\Models\Ticket::class,
             'factura' => \App\Models\Factura::class,
             'cita' => \App\Models\Cita::class,
-            // Nota: Para modelos de terceros como User/Tecnico usados por spatie/permission,
-            // no definimos alias cortos para no romper pivotes existentes
 
             // Compatibilidad por si existen tipos almacenados con FQCN
             'App\\Models\\Producto' => \App\Models\Producto::class,
             'App\\Models\\Servicio' => \App\Models\Servicio::class,
             'App\\Models\\Cliente' => \App\Models\Cliente::class,
             'App\\Models\\User' => \App\Models\User::class,
-            'App\\Models\\Tecnico' => \App\Models\Tecnico::class, // RESTORED
             'App\\Models\\Prestamo' => \App\Models\Prestamo::class,
             'App\\Models\\PagoPrestamo' => \App\Models\PagoPrestamo::class,
             'App\\Models\\HistorialPagoPrestamo' => \App\Models\HistorialPagoPrestamo::class,
@@ -93,6 +69,35 @@ class AppServiceProvider extends ServiceProvider
             'App\\Models\\Cita' => \App\Models\Cita::class,
         ]);
 
+        // ✅ Desactivar Rate Limiting en Local para evitar Error 429
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::none();
+        });
+
+        // Desactivar pre-carga automática de CSS para evitar advertencias de "preloaded but not used" en Chrome
+        \Illuminate\Support\Facades\Vite::usePreloadTagAttributes(false);
+
+        if ($request = $this->getCurrentRequest()) {
+            // $this->applyRequestUrlForLocalHosts($request);
+        }
+
+        // Forzar HTTPS en producción o cuando se detecte el encabezado de proxy
+        if (!app()->isLocal() || request()->header('X-Forwarded-Proto') === 'https' || str_contains(request()->getHost(), 'climasdeldesierto.com')) {
+            URL::forceScheme('https');
+            // Aseguramos que el objeto Request reconozca que es HTTPS para la validación de firmas
+            if (request()->header('X-Forwarded-Proto') === 'https') {
+                request()->server->set('HTTPS', 'on');
+            }
+        }
+
+        // Nota: Para manejar UTF-8 malformado, trata los datos de origen
+        // (BD/strings) antes de pasarlos a Inertia. Evitamos usar métodos
+        // inexistentes en la versión actual de inertia-laravel.
+        // Registrar el evento y el listener
+        Event::listen(
+            \App\Events\ClientCreated::class, // El evento
+            \App\Listeners\StoreClientNotification::class // El listener
+        );
 
         // Registrar Observers
         \App\Models\CuentasPorCobrar::observe(\App\Observers\CuentasPorCobrarObserver::class);
@@ -106,5 +111,42 @@ class AppServiceProvider extends ServiceProvider
 
         // Cita Observer (Microsoft To Do)
         \App\Models\Cita::observe(\App\Observers\CitaObserver::class);
+    }
+
+    private function getCurrentRequest(): ?Request
+    {
+        try {
+            return request();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function applyRequestUrlForLocalHosts(Request $request): void
+    {
+        $host = strtolower($request->getHost());
+
+        if (
+            $host !== 'localhost'
+            && !str_ends_with($host, '.localhost')
+            && !str_ends_with($host, '.nip.io')
+            && !(
+                filter_var($host, FILTER_VALIDATE_IP)
+                && filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
+            )
+        ) {
+            return;
+        }
+
+        $scheme = $request->isSecure() ? 'https' : 'http';
+        $appUrl = "{$scheme}://{$request->getHttpHost()}";
+
+        config([
+            'app.url' => $appUrl,
+            'session.domain' => null,
+            'session.secure' => $request->isSecure(),
+        ]);
+
+        URL::forceRootUrl($appUrl);
     }
 }

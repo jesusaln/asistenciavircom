@@ -16,15 +16,14 @@ class EmpresaWhatsAppController extends Controller
     public function index()
     {
         try {
-            // Obtener la primera empresa (por simplicidad)
-            // En un entorno multi-empresa, esto debería filtrar por la empresa del usuario
             $empresaId = EmpresaResolver::resolveId();
-            $empresa = $empresaId ? Empresa::find($empresaId) : Empresa::first();
-
-            if (!$empresa) {
+            
+            if (!$empresaId) {
                 return redirect()->route('empresas.index')
-                    ->with('error', 'Debe crear una empresa primero');
+                    ->with('error', 'Debe seleccionar o crear una empresa primero');
             }
+
+            $empresa = Empresa::findOrFail($empresaId);
 
             return Inertia::render('EmpresaConfiguracion/WhatsAppConfig', [
                 'empresa' => $empresa->only([
@@ -66,28 +65,13 @@ class EmpresaWhatsAppController extends Controller
             ]);
 
             $empresaId = EmpresaResolver::resolveId();
-            $empresa = $empresaId ? Empresa::find($empresaId) : Empresa::first();
-            if (!$empresa) {
-                $configuracion = \App\Models\EmpresaConfiguracion::getConfig();
-                $tipoPersona = strlen($configuracion->rfc ?? '') === 12 ? 'moral' : 'fisica';
-                $empresa = Empresa::create([
-                    'nombre_razon_social' => $configuracion->razon_social ?? 'Empresa',
-                    'tipo_persona' => $tipoPersona,
-                    'rfc' => $configuracion->rfc ?? null,
-                    'regimen_fiscal' => $configuracion->regimen_fiscal ?? '601',
-                    'uso_cfdi' => $configuracion->uso_cfdi ?? 'G01',
-                    'email' => $configuracion->email ?? null,
-                    'telefono' => $configuracion->telefono ?? null,
-                    'calle' => $configuracion->calle ?? 'Calle',
-                    'numero_exterior' => $configuracion->numero_exterior ?? '1',
-                    'numero_interior' => $configuracion->numero_interior ?? null,
-                    'colonia' => $configuracion->colonia ?? 'Colonia',
-                    'codigo_postal' => $configuracion->codigo_postal ?? '00000',
-                    'municipio' => $configuracion->ciudad ?? 'Ciudad',
-                    'estado' => $configuracion->estado ?? 'Estado',
-                    'pais' => $configuracion->pais ?? 'México',
-                ]);
+            
+            if (!$empresaId) {
+                return redirect()->route('empresas.index')
+                    ->with('error', 'Seleccione una empresa para actualizar su configuración');
             }
+
+            $empresa = Empresa::findOrFail($empresaId);
 
             $data = $validated;
             if ($request->has('whatsapp_enabled')) {
@@ -119,27 +103,28 @@ class EmpresaWhatsAppController extends Controller
     {
         try {
             Log::info('Iniciando prueba de WhatsApp', [
-                'request_data' => $request->all(),
-                'headers' => $request->headers->all(),
+                'telefono' => $request->input('telefono'),
+                'remote_ip' => $request->ip(),
             ]);
 
             $validated = $request->validate([
                 'telefono' => 'required|string',
                 'mensaje' => 'required|string|max:1000',
+                'template_name' => 'nullable|string|max:255',
             ]);
 
             Log::info('Datos validados', ['validated' => $validated]);
 
             $empresaId = EmpresaResolver::resolveId();
-            $empresa = $empresaId ? Empresa::find($empresaId) : Empresa::first();
-
-            if (!$empresa) {
-                Log::warning('Empresa no encontrada en prueba de WhatsApp');
+            
+            if (!$empresaId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Empresa no encontrada'
-                ], 404);
+                    'message' => 'No se pudo resolver el contexto de la empresa'
+                ], 403);
             }
+
+            $empresa = Empresa::findOrFail($empresaId);
 
             Log::info('Empresa encontrada', [
                 'empresa_id' => $empresa->id,
@@ -159,8 +144,6 @@ class EmpresaWhatsAppController extends Controller
                 'whatsapp_phone_number_id',
                 'whatsapp_sender_phone',
                 'whatsapp_access_token',
-                'whatsapp_app_secret',
-                'whatsapp_template_payment_reminder',
             ];
 
             $missingFields = [];
@@ -180,38 +163,49 @@ class EmpresaWhatsAppController extends Controller
                 ], 400);
             }
 
-            // Crear servicio WhatsApp para validar configuración
+            // Crear servicio WhatsApp para validar configuración y enviar prueba real
             try {
-                Log::info('Creando servicio WhatsApp para validación');
+                Log::info('Creando servicio WhatsApp para envío de prueba');
                 $whatsappService = \App\Services\WhatsAppService::fromEmpresa($empresa);
 
-                // Solo validar que podemos crear el servicio (no enviar mensaje real)
-                $configInfo = [
-                    'phone_number_id' => $empresa->whatsapp_phone_number_id,
-                    'business_account_id' => $empresa->whatsapp_business_account_id,
-                    'sender_phone' => $empresa->whatsapp_sender_phone,
-                    'default_language' => $empresa->whatsapp_default_language,
-                    'template_name' => $empresa->whatsapp_template_payment_reminder,
-                ];
+                // Usar plantilla explícita, la configurada en empresa o fallback hello_world
+                $templateName = $validated['template_name']
+                    ?? $empresa->whatsapp_template_payment_reminder
+                    ?? 'hello_world';
+                $language = $empresa->whatsapp_default_language ?: 'es_MX';
+                
+                Log::info('Enviando mensaje de prueba real', [
+                    'to' => $validated['telefono'],
+                    'template' => $templateName,
+                    'language' => $language
+                ]);
 
-                Log::info('Configuración validada exitosamente', ['config' => $configInfo]);
+                // hello_world no requiere parámetros; otras plantillas pueden requerirlos.
+                $params = $templateName === 'hello_world' ? [] : ['Cliente de Prueba'];
+
+                $response = $whatsappService->sendTemplate(
+                    $validated['telefono'],
+                    $templateName,
+                    $language,
+                    $params
+                );
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Configuración de WhatsApp válida y completa',
-                    'empresa' => $empresa->nombre_razon_social,
-                    'config' => $configInfo,
-                    'note' => 'Para enviar mensajes reales, necesitas crear y aprobar la plantilla en Meta Business'
+                    'message' => '¡Mensaje de prueba enviado exitosamente!',
+                    'whatsapp_response' => $response,
+                    'note' => 'Si no recibes el mensaje, verifica que tu número esté autorizado en el panel de Meta.'
                 ]);
 
             } catch (\Exception $e) {
-                Log::error('Error creando servicio WhatsApp', [
+                Log::error('Error en el envío de prueba de WhatsApp', [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
+                    'empresa_id' => $empresa->id
                 ]);
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error en configuración de WhatsApp: ' . $e->getMessage()
+                    'message' => 'Error al enviar: ' . $e->getMessage()
                 ], 400);
             }
 

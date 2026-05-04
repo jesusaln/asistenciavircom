@@ -11,6 +11,8 @@ class UserNotification extends Model
 {
     use SoftDeletes;
 
+    public const VISIBLE_DAYS_IN_BELL = 3;
+
     protected $table = 'user_notifications';
 
     protected $fillable = [
@@ -65,6 +67,14 @@ class UserNotification extends Model
     public function scopeByType(Builder $query, string $type): Builder
     {
         return $query->where('type', $type);
+    }
+
+    /**
+     * Notificaciones visibles en la campana (ventana reciente).
+     */
+    public function scopeVisibleInBell(Builder $query): Builder
+    {
+        return $query->where('created_at', '>=', now()->subDays(self::VISIBLE_DAYS_IN_BELL));
     }
 
     // Helpers
@@ -163,6 +173,30 @@ class UserNotification extends Model
                 ],
                 "/rentas/{$renta->id}",
                 'fas fa-file-signature'
+            );
+        }
+    }
+
+    public static function createSolicitudMaterialNotification($solicitud): void
+    {
+        // Notificar a todos los administradores de la misma empresa
+        $admins = User::role(['admin', 'super-admin'])
+            ->where('empresa_id', $solicitud->empresa_id)
+            ->get();
+
+        foreach ($admins as $admin) {
+            static::createForUser(
+                $admin->id,
+                'solicitud_material',
+                'Nueva Solicitud de Material',
+                "El técnico {$solicitud->user->name} ha solicitado material (Folio: {$solicitud->folio})",
+                [
+                    'solicitud_id' => $solicitud->id,
+                    'folio' => $solicitud->folio,
+                    'user_name' => $solicitud->user->name,
+                ],
+                "/admin/solicitudes-material",
+                'fas fa-clipboard-list'
             );
         }
     }

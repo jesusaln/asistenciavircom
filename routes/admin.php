@@ -660,8 +660,27 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::put('/credenciales/{credencial}', [CredencialController::class, 'update'])->name('credenciales.update');
     Route::delete('/credenciales/{credencial}', [CredencialController::class, 'destroy'])->name('credenciales.destroy');
 
+    // Reportes Operativos (Migrados de Climas)
+    Route::prefix('reportes')->name('reportes.')->middleware('role:admin|super-admin|ventas')->group(function () {
+        Route::get('/citas-por-tecnico', [\App\Http\Controllers\ReporteController::class, 'citasPorTecnicoDetalle'])->name('citas-por-tecnico');
+        Route::get('/ventas-semana', [\App\Http\Controllers\ReporteController::class, 'ventasSemanaOperativo'])->name('ventas-semana');
+        Route::get('/productos-para-comprar', [\App\Http\Controllers\ReporteController::class, 'productosParaComprar'])->name('productos-para-comprar');
+    });
+
+    // Gestión de Técnicos
+    Route::resource('tecnicos', \App\Http\Controllers\TecnicoController::class)->names('tecnicos');
+    Route::put('/tecnicos/{tecnico}/toggle', [\App\Http\Controllers\TecnicoController::class, 'toggle'])->name('tecnicos.toggle');
+
     // Perfil
     Route::get('/perfil', [UserController::class, 'profile'])->name('perfil');
 
+    // Módulos migrados de Climas del Desierto
+    Route::resource('solicitudes-material', \App\Http\Controllers\SolicitudMaterialController::class);
+    Route::resource('traspasos-bancarios', \App\Http\Controllers\TraspasoBancarioController::class)->names('traspasos-bancarios');
+    Route::get('/inventario-fisico', [\App\Http\Controllers\InventarioFisicoController::class, 'index'])->name('inventario-fisico.index');
+    Route::post('/inventario-fisico', [\App\Http\Controllers\InventarioFisicoController::class, 'store'])->name('inventario-fisico.store');
+    Route::get('/inventario-fisico/{inventario}', [\App\Http\Controllers\InventarioFisicoController::class, 'show'])->name('inventario-fisico.show');
+    
+    Route::post('/cotizaciones/{cotizacion}/whatsapp-api', [\App\Http\Controllers\Marketing\WhatsAppChatController::class, 'sendCotizacionPdfLink'])->name('cotizaciones.whatsapp-api')->middleware('can:view cotizaciones');
 
 });

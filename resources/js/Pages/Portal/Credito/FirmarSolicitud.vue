@@ -253,42 +253,42 @@ const diasCreditoOpciones = [
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white text-4xl mb-6 shadow-2xl transform hover:rotate-3 transition-transform">
                     💳
                 </div>
-                <h1 class="text-3xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight">Solicitud de Crédito</h1>
-                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-2">
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Solicitud de Crédito</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">
                     Firma digitalmente tu solicitud para agilizar el proceso
                 </p>
             </div>
 
             <!-- Información del Solicitante -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-gray-100 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
+                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">👤</span>
                     Datos del Solicitante
                 </h2>
                 
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-xs uppercase font-bold">Nombre / Razón Social</p>
-                        <p class="font-bold text-gray-800 dark:text-gray-100 dark:text-white">{{ cliente.nombre_razon_social }}</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">Nombre / Razón Social</p>
+                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.nombre_razon_social }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-xs uppercase font-bold">RFC</p>
-                        <p class="font-bold text-gray-800 dark:text-gray-100 dark:text-white">{{ cliente.rfc || 'No especificado' }}</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">RFC</p>
+                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.rfc || 'No especificado' }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-xs uppercase font-bold">Email</p>
-                        <p class="font-bold text-gray-800 dark:text-gray-100 dark:text-white">{{ cliente.email }}</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">Email</p>
+                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.email }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-xs uppercase font-bold">Teléfono</p>
-                        <p class="font-bold text-gray-800 dark:text-gray-100 dark:text-white">{{ cliente.telefono || cliente.celular || 'No especificado' }}</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">Teléfono</p>
+                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.telefono || cliente.celular || 'No especificado' }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Configuración del Crédito Solicitado -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-gray-100 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
+                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">💰</span>
                     Crédito Solicitado
                 </h2>
@@ -296,7 +296,7 @@ const diasCreditoOpciones = [
                 <div class="grid sm:grid-cols-2 gap-6">
                     <!-- Límite de Crédito -->
                     <div>
-                        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-3">
+                        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
                             Límite de Crédito Deseado
                         </label>
                         <div class="grid grid-cols-3 gap-2">
@@ -309,7 +309,7 @@ const diasCreditoOpciones = [
                                     'px-3 py-3 rounded-xl text-sm font-bold border-2 transition-all',
                                     form.limite_solicitado === limite.value 
                                         ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30' 
-                                        : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-800 dark:border-gray-600 hover:border-emerald-300'
+                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-emerald-300'
                                 ]"
                             >
                                 {{ limite.label }}
@@ -319,7 +319,7 @@ const diasCreditoOpciones = [
 
                     <!-- Días de Crédito -->
                     <div>
-                        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-3">
+                        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
                             Plazo de Pago Deseado
                         </label>
                         <div class="grid grid-cols-2 gap-2">
@@ -332,7 +332,7 @@ const diasCreditoOpciones = [
                                     'px-3 py-3 rounded-xl text-sm font-bold border-2 transition-all',
                                     form.dias_credito_solicitados === dias.value 
                                         ? 'bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/30' 
-                                        : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-800 dark:border-gray-600 hover:border-blue-300'
+                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-300'
                                 ]"
                             >
                                 {{ dias.label }}
@@ -350,8 +350,8 @@ const diasCreditoOpciones = [
             </div>
 
             <!-- Área de Firma -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-gray-100 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
+                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm">✍️</span>
                     Tu Firma Digital
                 </h2>
@@ -371,11 +371,11 @@ const diasCreditoOpciones = [
                     ></canvas>
                     
                     <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300 group-hover:opacity-60">
-                        <div class="w-16 h-16 rounded-full bg-gray-50 dark:bg-slate-950 dark:bg-gray-700 flex items-center justify-center mb-3 shadow-sm border border-gray-100 dark:border-gray-600">
+                        <div class="w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center mb-3 shadow-sm border border-gray-100 dark:border-gray-600">
                             <span class="text-2xl animate-bounce">🖋️</span>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 dark:text-gray-300 text-base font-bold">Escribe tu firma aquí</p>
-                        <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-[0.2em] mt-2 font-black">Dedo • Mouse • Stylus</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-base font-bold">Escribe tu firma aquí</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-[0.2em] mt-2 font-black">Dedo • Mouse • Stylus</p>
                     </div>
 
                     <div v-if="hasDrawn" class="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg">
@@ -392,19 +392,19 @@ const diasCreditoOpciones = [
                     >
                         <span class="text-lg">🗑️</span> Borrar y reintentar
                     </button>
-                    <div class="text-[10px] text-gray-300 dark:text-gray-600 dark:text-gray-300 font-mono">ID: SOL-{{ cliente.id }}-{{ Math.random().toString(36).substr(2, 6).toUpperCase() }}</div>
+                    <div class="text-[10px] text-gray-300 dark:text-gray-600 font-mono">ID: SOL-{{ cliente.id }}-{{ Math.random().toString(36).substr(2, 6).toUpperCase() }}</div>
                 </div>
 
                 <!-- Nombre del firmante -->
                 <div class="mb-6">
-                    <label class="block text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-2">
+                    <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
                         Nombre completo del firmante
                     </label>
                     <input
                         v-model="form.nombre_firmante"
                         type="text"
                         placeholder="Ej: Juan Pérez García"
-                        class="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium bg-white dark:bg-slate-900 dark:bg-gray-900 text-gray-900 dark:text-white dark:text-white"
+                        class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                         :class="{ 'border-red-300': form.errors.nombre_firmante }"
                     />
                     <p v-if="form.errors.nombre_firmante" class="mt-1 text-xs text-red-500 font-medium">
@@ -420,7 +420,7 @@ const diasCreditoOpciones = [
                             type="checkbox"
                             class="mt-1 w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                         />
-                        <span class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400 group-hover:text-gray-800 dark:text-gray-100 dark:group-hover:text-gray-200 transition-colors">
+                        <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">
                             Declaro que la información proporcionada es verídica, autorizo a <strong>{{ empresa?.nombre_empresa || 'la empresa' }}</strong> 
                             a realizar consultas de buró de crédito y acepto los <strong>términos y condiciones</strong> del crédito comercial.
                         </span>
@@ -456,7 +456,7 @@ const diasCreditoOpciones = [
             </div>
 
             <!-- Información Legal -->
-            <div class="text-center text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">
+            <div class="text-center text-xs text-gray-400 dark:text-gray-500">
                 <p>
                     🔒 Tu firma será cifrada y almacenada de forma segura.
                     <br>

@@ -27,7 +27,8 @@ class SyncMicrosoftTasks implements ShouldQueue
     public function handle(): void
     {
         // Obtener usuarios con token de Microsoft
-        $users = User::whereNotNull('microsoft_token')->get();
+        // ✅ CRITICAL FIX: Use cursor() for memory efficiency with large datasets
+        $users = User::whereNotNull('microsoft_token')->cursor();
 
         foreach ($users as $user) {
             $this->syncUserTasks($user);

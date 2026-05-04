@@ -58,6 +58,10 @@ class GastoController extends Controller
             $query->where('proyecto_id', $proyectoId);
         }
 
+        $totalMonto = $query->clone()
+            ->where('estado', EstadoCompra::Procesada->value)
+            ->sum('total');
+
         $gastos = $query->paginate($perPage)->withQueryString();
         $categorias = CategoriaGasto::activas()->orderBy('nombre')->get();
         $proyectos = Proyecto::orderBy('nombre')->get(['id', 'nombre']);
@@ -66,6 +70,8 @@ class GastoController extends Controller
             'gastos' => $gastos,
             'categorias' => $categorias,
             'proyectos' => $proyectos,
+            // JSON numérico: sum() sobre decimal puede llegar como string desde el driver
+            'totalMonto' => (float) $totalMonto,
             'filters' => $request->only(['search', 'categoria_id', 'proyecto_id', 'estado', 'per_page']),
         ]);
     }
@@ -285,7 +291,7 @@ class GastoController extends Controller
         // ✅ FIX: Eliminadas reglas duplicadas
         $validated = $request->validate([
             'proveedor_id' => 'nullable|exists:proveedores,id',
-            'categoria_gasto_id' => 'required|exists:categoria_gastos,id,activo,1',
+            'categoria_gasto_id' => 'required|exists:categoria_gastos,id',
             'monto' => 'required|numeric|min:0.01',
             'descripcion' => 'required|string|max:500',
             'fecha' => 'nullable|date',

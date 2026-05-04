@@ -302,6 +302,7 @@ const generarContenidoPagare = (tamano = 'carta') => {
   // ========= Colores / tamaño =========
   const size = tamanosPapel[tamano]?.dimensiones || '216mm 279mm'
   const margin = tamanosPapel[tamano]?.margin || '2mm 3mm 2mm 3mm'
+  const [pageWidth = '216mm', pageHeight = '279mm'] = size.split(' ')
   const ACCENT = '#0B3D2E'   // verde oscuro ejecutivo
   const BORDER = '#0F172A'   // gris azulado profundo
   const MUTED = '#334155'    // texto secundario
@@ -318,6 +319,8 @@ const generarContenidoPagare = (tamano = 'carta') => {
     /* ======== PÁGINA ======== */
     @page { size: ${size}; margin: ${margin}; }
     :root {
+      --page-width: ${pageWidth};
+      --page-height: ${pageHeight};
       --accent: ${ACCENT};
       --border: ${BORDER};
       --muted: ${MUTED};
@@ -329,27 +332,40 @@ const generarContenidoPagare = (tamano = 'carta') => {
       background: #fff;
       color: var(--ink);
       font-family: "Times New Roman", Times, serif;
-      font-size: 10px;
-      line-height: 1.3;
+      font-size: 9.2px;
+      line-height: 1.2;
     }
     body { margin: 0; }
 
-    /* ======== HEADER / FOOTER FIJOS ======== */
-     header {
-       position: fixed;
-       top: 0; left: 0; right: 0;
-       height: 20mm;
-       padding-top: 5mm;
-       border-bottom: 1px solid #eee;
-     }
+    .print-stage {
+      width: var(--page-width);
+      min-height: var(--page-height);
+      margin: 0 auto;
+      padding: 0;
+      overflow: hidden;
+      background: #fff;
+    }
+    .print-sheet {
+      width: 100%;
+      min-height: var(--page-height);
+      padding: 4mm 6mm;
+      transform-origin: top center;
+    }
+
+    /* ======== HEADER / FOOTER ======== */
+    header {
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 2.5mm;
+      margin-bottom: 3mm;
+    }
     .h-inner {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 8mm;
+      gap: 6mm;
       align-items: center;
     }
     .brand {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: .3px;
       color: var(--accent);
@@ -360,62 +376,59 @@ const generarContenidoPagare = (tamano = 'carta') => {
       border: 2px solid var(--border);
       border-radius: 4px;
       font-weight: 800;
-      font-size: 12px;
+      font-size: 10px;
     }
     .h-meta {
-      margin-top: 1mm;
+      margin-top: 0.6mm;
       color: var(--muted);
-      font-size: 8px;
+      font-size: 7px;
       max-width: 140mm;
     }
 
     footer {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 18mm;
       border-top: 1px solid var(--border);
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: space-between;
-      padding: 2mm 1mm;
+      gap: 5mm;
+      padding-top: 2.5mm;
+      margin-top: 3mm;
       color: var(--muted);
       font-size: 7px;
     }
     .foot-left { max-width: 70%; text-align: left; }
     .foot-right { text-align: right; }
 
-    /* Empuje del contenido para no solaparse con header/footer */
-     .page-wrap { padding: 22mm 0 20mm; }
-
     /* ======== TÍTULO Y LUGAR/FECHA ======== */
-     .title {
-       text-align: center;
-       margin: 2mm 0 1mm;
-       font-weight: 800;
-       font-size: 17px;
-       letter-spacing: .7px;
-     }
-     .subtitle {
-       text-align: center;
-       color: var(--muted);
-       margin-bottom: 0.5mm;
-       font-size: 10.5px;
-     }
-     .place-date {
-       text-align: center;
-       color: var(--muted);
-       margin-bottom: 4mm;
-       font-size: 8.5px;
-     }
+    .title {
+      text-align: center;
+      margin: 0 0 0.5mm;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: .6px;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 0.4mm;
+      font-size: 9px;
+    }
+    .place-date {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 2.8mm;
+      font-size: 7.5px;
+    }
 
     /* ======== BLOQUES ======== */
-     .block {
-       border: 1px solid var(--border);
-       border-radius: 5px;
-       padding: 5mm;
-       margin-bottom: 5mm;
-       background: #fff;
-     }
+    .block {
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 3.5mm;
+      margin-bottom: 3mm;
+      background: #fff;
+      page-break-inside: avoid;
+    }
     .block.soft {
       background: var(--bg-soft);
       border-color: #CBD5E1;
@@ -425,28 +438,28 @@ const generarContenidoPagare = (tamano = 'carta') => {
       text-transform: uppercase;
       letter-spacing: .4px;
       color: var(--accent);
-      margin-bottom: 2mm;
-      font-size: 11px;
+      margin-bottom: 1.5mm;
+      font-size: 9.5px;
     }
 
     /* ======== GRID 2 COLS ======== */
-     .grid-2 {
-       display: grid;
-       grid-template-columns: 1fr 1fr;
-       gap: 5mm;
-     }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
 
     /* ======== TABLE RESUMEN ======== */
-     table {
-       width: 100%;
-       border-collapse: collapse;
-       font-size: 9.5px;
-     }
-     th, td {
-       padding: 5px 7px;
-       border: 1px solid #CBD5E1;
-       vertical-align: top;
-     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.3px;
+    }
+    th, td {
+      padding: 4px 5px;
+      border: 1px solid #CBD5E1;
+      vertical-align: top;
+    }
     th {
       background: #EFF6FF;
       text-align: left;
@@ -461,59 +474,59 @@ const generarContenidoPagare = (tamano = 'carta') => {
     .kpi {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 3mm;
-      margin-top: 1mm;
+      gap: 2mm;
+      margin-top: 1.5mm;
     }
     .pill {
       border: 1px solid var(--border);
       border-radius: 4px;
-      padding: 3mm;
+      padding: 2mm;
       background: #fff;
       text-align: center;
     }
-    .pill .small { color: var(--muted); font-size: 8px; }
-    .pill .big { font-size: 12px; font-weight: 800; margin-top: 0.5mm; }
+    .pill .small { color: var(--muted); font-size: 7px; }
+    .pill .big { font-size: 10px; font-weight: 800; margin-top: 0.4mm; }
 
     /* ======== CLÁUSULAS ======== */
     .clauses ol { margin: 0; padding-left: 4mm; }
-    .clauses li { margin: 2mm 0; text-align: justify; }
+    .clauses li { margin: 1.2mm 0; text-align: justify; }
 
     /* ======== FIRMAS ======== */
-     .signs {
-       display: grid;
-       grid-template-columns: 1fr 1fr;
-       gap: 10mm;
-       margin-top: 6mm;
-       page-break-inside: avoid;
-     }
-     .sign {
-       text-align: center;
-       padding: 8mm 5mm 5mm;
-       border: 1px dashed #94A3B8;
-       border-radius: 5px;
-       background: #FFFFFF;
-     }
+    .signs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6mm;
+      margin-top: 3mm;
+      page-break-inside: avoid;
+    }
+    .sign {
+      text-align: center;
+      padding: 5mm 4mm 3mm;
+      border: 1px dashed #94A3B8;
+      border-radius: 5px;
+      background: #FFFFFF;
+    }
     .line {
-      height: 20px;
+      height: 16px;
       border-bottom: 1px solid var(--border);
-      margin: 0 auto 2mm;
+      margin: 0 auto 1.5mm;
       width: 75%;
     }
     .sign .name { font-weight: 700; }
-    .sign .role { color: var(--muted); font-size: 9px; }
+    .sign .role { color: var(--muted); font-size: 8px; }
 
-    /* ======== NOTAS (en footer) ======== */
+    /* ======== NOTAS ======== */
     .notas-title {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .4px;
-      margin-bottom: 2mm;
+      margin-bottom: 1mm;
       color: var(--accent);
     }
     .notas-text {
-      font-size: 9.5px;
+      font-size: 8px;
       color: var(--ink);
-      line-height: 1.35;
+      line-height: 1.2;
     }
 
     /* ======== MEDIA PRINT ======== */
@@ -524,132 +537,171 @@ const generarContenidoPagare = (tamano = 'carta') => {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
+      .print-stage {
+        margin: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
-    <div class="h-inner" style="padding:0 2mm;">
-      <div>
-        <div class="brand">${empresaNombre}${empresaComercial}</div>
-        <div class="h-meta">${empresaDomicilio}</div>
-      </div>
-      <div class="folio">${folio}</div>
-    </div>
-  </header>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="foot-left">
-      ${notasHtml}
-    </div>
-    <div class="foot-right">
-      <div>Generado: ${formatearFechaCompleta(new Date())}</div>
-      <div>${refContrato}</div>
-    </div>
-  </footer>
-
-  <!-- CONTENIDO -->
-  <div class="page-wrap">
-    <div class="title">PAGARÉ</div>
-    <div class="subtitle">Título Ejecutivo de Crédito</div>
-    <div class="place-date">Hermosillo, Sonora, México • ${fechaHoy}</div>
-
-    <!-- PROMESA DE PAGO -->
-    <div class="block">
-      <div class="block-title">Promesa de pago</div>
-      <p style="text-align:justify;">
-        Por este medio, yo <strong>${clienteNombre}</strong>, con domicilio en <strong>${clienteDom}</strong>${clienteRFC ? ` (RFC: <strong>${clienteRFC}</strong>)` : ''},
-        me obligo incondicionalmente a pagar a la orden de <strong>${empresaNombre}</strong> (RFC: <strong>${empresaRFC}</strong>),
-        en <strong>${empresaDomicilio}</strong>, la cantidad de <strong>${monto}</strong> (${props.monto_letras}),
-        más intereses ordinarios a razón de <strong>${tasa}% mensual</strong>, pagaderos mensualmente junto con cada exhibición de capital.
-      </p>
-    </div>
-
-    <!-- PARTES -->
-    <div class="grid-2">
-      <div class="block soft">
-        <div class="block-title">Deudor</div>
-        <table>
-          <tr><td class="label">Nombre</td><td>${clienteNombre}</td></tr>
-          <tr><td class="label">Domicilio</td><td>${clienteDom}</td></tr>
-          ${clienteRFC ? `<tr><td class="label">RFC</td><td>${clienteRFC}</td></tr>` : ''}
-        </table>
-      </div>
-      <div class="block soft">
-        <div class="block-title">Acreedor</div>
-        <table>
-          <tr><td class="label">Beneficiario</td><td>${empresaNombre}${empresaComercial ? ` (${props.empresa?.nombre_comercial})` : ''}</td></tr>
-          <tr><td class="label">Lugar de pago</td><td>${empresaDomicilio}</td></tr>
-          <tr><td class="label">RFC</td><td>${empresaRFC}</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- RESUMEN FINANCIERO -->
-    <div class="block">
-      <div class="block-title">Resumen financiero</div>
-      <table>
-        <tr>
-          <th>Monto del préstamo</th>
-          <th>Pago mensual</th>
-          <th>Tasa mensual</th>
-          <th>Número de pagos</th>
-          <th>Primer pago</th>
-          <th>Vencimiento</th>
-        </tr>
-        <tr>
-          <td>${monto} <br><span style="color:var(--muted);">${props.monto_letras}</span></td>
-          <td>${pagoMensual} <br><span style="color:var(--muted);">${props.pago_mensual_letras}</span></td>
-          <td>${tasa}%</td>
-          <td>${numeroPagos}</td>
-          <td>${primerPago}</td>
-          <td>${vencimiento}</td>
-        </tr>
-      </table>
-
-      <div class="kpi">
-        <div class="pill">
-          <div class="small">Referencia</div>
-          <div class="big">${folio}</div>
+  <div class="print-stage">
+    <div class="print-sheet" id="print-sheet">
+      <!-- HEADER -->
+      <header>
+        <div class="h-inner">
+          <div>
+            <div class="brand">${empresaNombre}${empresaComercial}</div>
+            <div class="h-meta">${empresaDomicilio}</div>
+          </div>
+          <div class="folio">${folio}</div>
         </div>
-        <div class="pill">
-          <div class="small">Contrato</div>
-          <div class="big">${refContrato}</div>
+      </header>
+
+      <!-- CONTENIDO -->
+      <div class="title">PAGARÉ</div>
+      <div class="subtitle">Título Ejecutivo de Crédito</div>
+      <div class="place-date">Hermosillo, Sonora, México • ${fechaHoy}</div>
+
+      <!-- PROMESA DE PAGO -->
+      <div class="block">
+        <div class="block-title">Promesa de pago</div>
+        <p style="text-align:justify; margin:0;">
+          Por este medio, yo <strong>${clienteNombre}</strong>, con domicilio en <strong>${clienteDom}</strong>${clienteRFC ? ` (RFC: <strong>${clienteRFC}</strong>)` : ''},
+          me obligo incondicionalmente a pagar a la orden de <strong>${empresaNombre}</strong> (RFC: <strong>${empresaRFC}</strong>),
+          en <strong>${empresaDomicilio}</strong>, la cantidad de <strong>${monto}</strong> (${props.monto_letras}),
+          más intereses ordinarios a razón de <strong>${tasa}% mensual</strong>, pagaderos mensualmente junto con cada exhibición de capital.
+        </p>
+      </div>
+
+      <!-- PARTES -->
+      <div class="grid-2">
+        <div class="block soft">
+          <div class="block-title">Deudor</div>
+          <table>
+            <tr><td class="label">Nombre</td><td>${clienteNombre}</td></tr>
+            <tr><td class="label">Domicilio</td><td>${clienteDom}</td></tr>
+            ${clienteRFC ? `<tr><td class="label">RFC</td><td>${clienteRFC}</td></tr>` : ''}
+          </table>
+        </div>
+        <div class="block soft">
+          <div class="block-title">Acreedor</div>
+          <table>
+            <tr><td class="label">Beneficiario</td><td>${empresaNombre}${empresaComercial ? ` (${props.empresa?.nombre_comercial})` : ''}</td></tr>
+            <tr><td class="label">Lugar de pago</td><td>${empresaDomicilio}</td></tr>
+            <tr><td class="label">RFC</td><td>${empresaRFC}</td></tr>
+          </table>
         </div>
       </div>
-    </div>
 
-    <!-- CLÁUSULAS -->
-    <div class="block">
-      <div class="block-title">Cláusulas</div>
-      <div class="clauses">
-        <ol>
-          <li><strong>Intereses moratorios.</strong> En caso de incumplimiento, se causarán intereses moratorios al doble de la tasa ordinaria sobre saldos vencidos hasta su total liquidación.</li>
-          <li><strong>Vencimiento anticipado.</strong> La falta de dos pagos consecutivos o tres no consecutivos facultará al acreedor a dar por vencidas todas las obligaciones pendientes.</li>
-          <li><strong>Gastos y costas.</strong> Todos los gastos de cobranza, honorarios y costas judiciales o extrajudiciales correrán a cargo del deudor.</li>
-          <li><strong>Jurisdicción.</strong> Para la interpretación y cumplimiento del presente pagaré, las partes se someten a los tribunales competentes de Hermosillo, Sonora, renunciando al fuero que por razón de su domicilio presente o futuro pudiera corresponderles.</li>
-          <li><strong>Cesión.</strong> Este título es negociable mediante endoso sin necesidad de notificar al deudor.</li>
-          <li><strong>Naturaleza del título.</strong> El presente documento constituye título ejecutivo de conformidad con la Ley General de Títulos y Operaciones de Crédito. Requiere firma autógrafa del deudor.</li>
-        </ol>
-      </div>
-    </div>
+      <!-- RESUMEN FINANCIERO -->
+      <div class="block">
+        <div class="block-title">Resumen financiero</div>
+        <table>
+          <tr>
+            <th>Monto del préstamo</th>
+            <th>Pago mensual</th>
+            <th>Tasa mensual</th>
+            <th>Número de pagos</th>
+            <th>Primer pago</th>
+            <th>Vencimiento</th>
+          </tr>
+          <tr>
+            <td>${monto} <br><span style="color:var(--muted);">${props.monto_letras}</span></td>
+            <td>${pagoMensual} <br><span style="color:var(--muted);">${props.pago_mensual_letras}</span></td>
+            <td>${tasa}%</td>
+            <td>${numeroPagos}</td>
+            <td>${primerPago}</td>
+            <td>${vencimiento}</td>
+          </tr>
+        </table>
 
-    <!-- FIRMAS -->
-    <div class="signs">
-      <div class="sign">
-        <div class="line"></div>
-        <div class="name">${clienteNombre}</div>
-        <div class="role">Deudor • Firma autógrafa</div>
+        <div class="kpi">
+          <div class="pill">
+            <div class="small">Referencia</div>
+            <div class="big">${folio}</div>
+          </div>
+          <div class="pill">
+            <div class="small">Contrato</div>
+            <div class="big">${refContrato}</div>
+          </div>
+        </div>
       </div>
-      <div class="sign">
-        <div class="line"></div>
-        <div class="name">${empresaNombre}</div>
-        <div class="role">Beneficiario (Acreedor) • Representante legal</div>
+
+      <!-- CLÁUSULAS -->
+      <div class="block">
+        <div class="block-title">Cláusulas</div>
+        <div class="clauses">
+          <ol>
+            <li><strong>Intereses moratorios.</strong> En caso de incumplimiento, se causarán intereses moratorios al doble de la tasa ordinaria sobre saldos vencidos hasta su total liquidación.</li>
+            <li><strong>Vencimiento anticipado.</strong> La falta de dos pagos consecutivos o tres no consecutivos facultará al acreedor a dar por vencidas todas las obligaciones pendientes.</li>
+            <li><strong>Gastos y costas.</strong> Todos los gastos de cobranza, honorarios y costas judiciales o extrajudiciales correrán a cargo del deudor.</li>
+            <li><strong>Jurisdicción.</strong> Para la interpretación y cumplimiento del presente pagaré, las partes se someten a los tribunales competentes de Hermosillo, Sonora, renunciando al fuero que por razón de su domicilio presente o futuro pudiera corresponderles.</li>
+            <li><strong>Cesión.</strong> Este título es negociable mediante endoso sin necesidad de notificar al deudor.</li>
+            <li><strong>Naturaleza del título.</strong> El presente documento constituye título ejecutivo de conformidad con la Ley General de Títulos y Operaciones de Crédito. Requiere firma autógrafa del deudor.</li>
+          </ol>
+        </div>
       </div>
+
+      <!-- FIRMAS -->
+      <div class="signs">
+        <div class="sign">
+          <div class="line"></div>
+          <div class="name">${clienteNombre}</div>
+          <div class="role">Deudor • Firma autógrafa</div>
+        </div>
+        <div class="sign">
+          <div style="position: relative; width: 80%; margin: 0 auto;">
+            ${props.empresa?.firma_digital ? 
+              `<img src="${props.empresa.firma_digital}" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) translateY(-2mm); max-height: 25mm; max-width: 100%; pointer-events: none;" />` : 
+              ''
+            }
+            <div class="line"></div>
+          </div>
+          <div class="name">${empresaNombre}</div>
+          <div class="role">Beneficiario (Acreedor) • Representante legal</div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer>
+        <div class="foot-left">
+          ${notasHtml}
+        </div>
+        <div class="foot-right">
+          <div>Generado: ${formatearFechaCompleta(new Date())}</div>
+          <div>${refContrato}</div>
+        </div>
+      </footer>
     </div>
   </div>
+  <scr` + `ipt>
+    (function () {
+      const fitSinglePage = () => {
+        const sheet = document.getElementById('print-sheet')
+        const stage = document.querySelector('.print-stage')
+        if (!sheet || !stage) return
+
+        sheet.style.transform = 'scale(1)'
+        sheet.style.height = 'auto'
+
+        const availableHeight = stage.clientHeight
+        const contentHeight = sheet.scrollHeight
+
+        if (!availableHeight || !contentHeight) return
+
+        if (contentHeight > availableHeight) {
+          const scale = Math.max(0.82, Math.min(1, availableHeight / contentHeight))
+          sheet.style.transform = 'scale(' + scale + ')'
+          sheet.style.height = (contentHeight * scale) + 'px'
+        }
+      }
+
+      window.addEventListener('load', fitSinglePage)
+      window.addEventListener('resize', fitSinglePage)
+      window.addEventListener('beforeprint', fitSinglePage)
+      setTimeout(fitSinglePage, 50)
+    })()
+  </scr` + `ipt>
 </body>
 </html>
 `
@@ -912,4 +964,3 @@ const generarContenidoPagare = (tamano = 'carta') => {
 
 <style scoped>
 </style>
-

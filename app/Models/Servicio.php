@@ -53,6 +53,7 @@ class Servicio extends Model
         'sat_clave_prod_serv',
         'sat_clave_unidad',
         'sat_objeto_imp',
+        'tipo_comision_tecnica',
     ];
 
     public function scopeActive($query)

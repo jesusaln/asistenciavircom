@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use App\Models\EmpresaConfiguracion;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\UploadedFile;
@@ -16,17 +15,15 @@ trait ImageOptimizerTrait
      * @param string $path El directorio de destino dentro del disco.
      * @param string $disk El disco de almacenamiento (por defecto 'public').
      * @param int $quality Calidad de la imagen (1-100).
+     * @param int|null $maxEdgePx Si se indica (p. ej. 1600), la imagen se escala manteniendo proporción para que el lado mayor no supere este valor.
      * @return string|null La ruta relativa del archivo guardado o null en caso de error.
      */
-    public function saveImageAsWebP(UploadedFile $file, string $path = 'uploads', string $disk = 'public', ?int $quality = null): ?string
+    public function saveImageAsWebP(UploadedFile $file, string $path = 'uploads', string $disk = 'public', int $quality = 80, ?int $maxEdgePx = null): ?string
     {
+        // Aumentar temporalmente el límite de memoria para imágenes grandes de alta resolución
+        @ini_set('memory_limit', '512M');
+
         try {
-            [$webpEnabled, $webpQuality] = $this->resolveImageOptimizationSettings($quality);
-
-            if (!$webpEnabled) {
-                return $file->store($path, $disk);
-            }
-
             // Verificar si la extensión GD está instalada
             if (!extension_loaded('gd')) {
                 Log::warning('Extensión GD no instalada. Guardando imagen original.');
@@ -47,6 +44,25 @@ trait ImageOptimizerTrait
                 return $file->store($path, $disk);
             }
 
+            if ($maxEdgePx !== null && $maxEdgePx > 0 && function_exists('imagesx') && function_exists('imagescale')) {
+                $w = imagesx($image);
+                $h = imagesy($image);
+                if ($w > $maxEdgePx || $h > $maxEdgePx) {
+                    if ($w >= $h) {
+                        $newW = $maxEdgePx;
+                        $newH = (int) max(1, round($h * ($maxEdgePx / $w)));
+                    } else {
+                        $newH = $maxEdgePx;
+                        $newW = (int) max(1, round($w * ($maxEdgePx / $h)));
+                    }
+                    $scaled = @imagescale($image, $newW, $newH, IMG_BICUBIC);
+                    if ($scaled !== false) {
+                        imagedestroy($image);
+                        $image = $scaled;
+                    }
+                }
+            }
+
             // Mantener transparencia si es PNG
             imagealphablending($image, true);
             imagesavealpha($image, true);
@@ -60,7 +76,7 @@ trait ImageOptimizerTrait
             $absPath = Storage::disk($disk)->path($relativeFullPath);
 
             // Convertir y guardar como WebP
-            if (imagewebp($image, $absPath, $webpQuality)) {
+            if (imagewebp($image, $absPath, $quality)) {
                 imagedestroy($image);
                 Log::info("Imagen convertida a WebP exitosamente: {$relativeFullPath}");
                 return $relativeFullPath;
@@ -70,69 +86,14 @@ trait ImageOptimizerTrait
             Log::warning('Fallo al guardar como WebP. Guardando imagen original.');
             return $file->store($path, $disk);
 
-        } catch (\Exception $e) {
-            Log::error('Error en ImageOptimizerTrait@saveImageAsWebP: ' . $e->getMessage());
-            return $file->store($path, $disk);
-        }
-    }
-
-    /**
-     * Guarda cualquier archivo y convierte automáticamente a WebP cuando es imagen raster.
-     *
-     * @param UploadedFile $file Archivo subido.
-     * @param string $path Directorio destino.
-     * @param string $disk Disco de almacenamiento.
-     * @param string|null $filename Nombre de archivo opcional para no-imágenes.
-     * @param int $quality Calidad WebP (1-100).
-     * @return string Ruta relativa almacenada.
-     */
-    public function storeFileOptimized(
-        UploadedFile $file,
-        string $path = 'uploads',
-        string $disk = 'public',
-        ?string $filename = null,
-        ?int $quality = null
-    ): string {
-        $mimeType = (string) $file->getMimeType();
-        $isRasterImage = str_starts_with($mimeType, 'image/') && !str_contains($mimeType, 'svg');
-
-        if ($isRasterImage) {
-            return $this->saveImageAsWebP($file, $path, $disk, $quality) ?? $file->store($path, $disk);
-        }
-
-        if ($filename) {
-            return $file->storeAs($path, $filename, $disk);
-        }
-
-        return $file->store($path, $disk);
-    }
-
-    /**
-     * Obtiene configuración de conversión WebP por empresa.
-     *
-     * @return array{0: bool, 1: int}
-     */
-    private function resolveImageOptimizationSettings(?int $quality = null): array
-    {
-        $enabled = true;
-        $resolvedQuality = $quality ?? 80;
-
-        try {
-            $config = EmpresaConfiguracion::getConfig();
-            if ($config) {
-                $enabled = (bool) ($config->images_webp_enabled ?? true);
-                if ($quality === null) {
-                    $resolvedQuality = (int) ($config->images_webp_quality ?? 80);
-                }
-            }
         } catch (\Throwable $e) {
-            Log::debug('No se pudo cargar configuración de imágenes para WebP.', [
-                'error' => $e->getMessage(),
-            ]);
+            Log::error('Error en ImageOptimizerTrait@saveImageAsWebP: ' . $e->getMessage());
+            try {
+                return $file->store($path, $disk);
+            } catch (\Throwable $storeError) {
+                Log::error('Error al guardar formato original por fallback: ' . $storeError->getMessage());
+                return null;
+            }
         }
-
-        $resolvedQuality = max(10, min(100, (int) $resolvedQuality));
-
-        return [$enabled, $resolvedQuality];
     }
 }

@@ -10,9 +10,6 @@ use App\Models\CrmMeta;
 use App\Models\CrmCampania;
 use App\Models\User;
 use App\Models\Cliente;
-use App\Models\Empresa;
-use App\Models\WhatsAppMessage;
-use App\Jobs\SendWhatsAppTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +44,7 @@ class CrmController extends Controller
             $query->where('vendedor_id', $vendedorId);
         }
 
-        $prospectos = $query->activos()->get();
+        $prospectos = $query->activos()->orderByDesc('created_at')->get();
 
         // Agrupar por etapa para el pipeline
         $pipeline = [];
@@ -153,100 +150,23 @@ class CrmController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
-        $search = trim((string) $request->input('search', ''));
-        $showClosed = $request->boolean('show_closed');
 
         $query = CrmProspecto::with(['vendedor:id,name', 'cliente:id,nombre_razon_social'])
             ->when(!$isAdmin, fn($q) => $q->where('vendedor_id', $user->id))
-            ->when($isAdmin && $request->filled('vendedor_id'), fn($q) => $q->where('vendedor_id', $request->integer('vendedor_id')))
             ->when($request->etapa, fn($q, $e) => $q->where('etapa', $e))
-            ->when($request->origen, fn($q, $o) => $q->where('origen', $o))
-            ->when($request->prioridad, fn($q, $p) => $q->where('prioridad', $p))
-            ->when(!$showClosed, fn($q) => $q->whereNotIn('etapa', ['cerrado_ganado', 'cerrado_perdido']))
-            ->when($search !== '', fn($q) => $q->where(function ($qq) use ($search) {
-                $qq->where('nombre', 'ilike', "%{$search}%")
-                    ->orWhere('telefono', 'ilike', "%{$search}%")
-                    ->orWhere('empresa', 'ilike', "%{$search}%")
-                    ->orWhere('email', 'ilike', "%{$search}%");
+            ->when($request->search, fn($q, $s) => $q->where(function ($qq) use ($s) {
+                $qq->where('nombre', 'ilike', "%{$s}%")
+                    ->orWhere('telefono', 'ilike', "%{$s}%")
+                    ->orWhere('empresa', 'ilike', "%{$s}%");
             }))
-            ->orderByRaw("
-                CASE
-                    WHEN proxima_actividad_at IS NOT NULL AND proxima_actividad_at < NOW() THEN 0
-                    WHEN proxima_actividad_at IS NOT NULL AND DATE(proxima_actividad_at) = CURRENT_DATE THEN 1
-                    WHEN proxima_actividad_at IS NULL THEN 2
-                    ELSE 3
-                END
-            ")
-            ->orderByRaw('proxima_actividad_at ASC NULLS LAST')
-            ->orderByDesc('valor_estimado')
             ->orderByDesc('updated_at');
 
         $prospectos = $query->paginate(20)->appends($request->query());
-        $vendedores = $isAdmin
-            ? User::whereHas('roles', fn($q) => $q->whereIn('name', ['ventas', 'admin']))
-                ->where('activo', true)
-                ->orderBy('name')
-                ->get(['id', 'name'])
-            : [];
 
         return Inertia::render('Crm/Prospectos/Index', [
             'prospectos' => $prospectos,
             'etapas' => CrmProspecto::ETAPAS,
-            'prioridades' => CrmProspecto::PRIORIDADES,
-            'origenes' => CrmProspecto::ORIGENES,
-            'vendedores' => $vendedores,
-            'isAdmin' => $isAdmin,
-            'tiposActividad' => CrmActividad::TIPOS,
-            'resultadosActividad' => CrmActividad::RESULTADOS,
-            'filtros' => [
-                'etapa' => $request->input('etapa'),
-                'search' => $search,
-                'prioridad' => $request->input('prioridad'),
-                'origen' => $request->input('origen'),
-                'vendedor_id' => $request->input('vendedor_id'),
-                'show_closed' => $showClosed,
-            ],
-        ]);
-    }
-
-    /**
-     * Lista de prospectos archivados
-     */
-    public function prospectosArchivados(Request $request)
-    {
-        $user = Auth::user();
-        $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
-        $search = trim((string) $request->input('search', ''));
-
-        $prospectos = CrmProspecto::onlyTrashed()
-            ->with(['vendedor:id,name', 'cliente:id,nombre_razon_social'])
-            ->when(!$isAdmin, fn($q) => $q->where('vendedor_id', $user->id))
-            ->when($isAdmin && $request->filled('vendedor_id'), fn($q) => $q->where('vendedor_id', $request->integer('vendedor_id')))
-            ->when($search !== '', fn($q) => $q->where(function ($qq) use ($search) {
-                $qq->where('nombre', 'ilike', "%{$search}%")
-                    ->orWhere('telefono', 'ilike', "%{$search}%")
-                    ->orWhere('empresa', 'ilike', "%{$search}%")
-                    ->orWhere('email', 'ilike', "%{$search}%");
-            }))
-            ->orderByDesc('deleted_at')
-            ->paginate(20)
-            ->appends($request->query());
-
-        $vendedores = $isAdmin
-            ? User::whereHas('roles', fn($q) => $q->whereIn('name', ['ventas', 'admin']))
-                ->where('activo', true)
-                ->orderBy('name')
-                ->get(['id', 'name'])
-            : [];
-
-        return Inertia::render('Crm/Prospectos/Archived', [
-            'prospectos' => $prospectos,
-            'vendedores' => $vendedores,
-            'isAdmin' => $isAdmin,
-            'filtros' => [
-                'search' => $search,
-                'vendedor_id' => $request->input('vendedor_id'),
-            ],
+            'filtros' => $request->only(['etapa', 'search']),
         ]);
     }
 
@@ -337,6 +257,31 @@ class CrmController extends Controller
     }
 
     /**
+     * Eliminar prospecto
+     */
+    public function eliminarProspecto(CrmProspecto $prospecto)
+    {
+        $user = Auth::user();
+        $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
+
+        if (!$isAdmin && (int) $prospecto->vendedor_id !== (int) $user->id) {
+            abort(403, 'No tienes permisos para eliminar este prospecto.');
+        }
+
+        if ($prospecto->cliente_id) {
+            return back()->with('error', 'No se puede eliminar un prospecto que ya fue convertido a cliente.');
+        }
+
+        DB::transaction(function () use ($prospecto) {
+            $prospecto->actividades()->delete();
+            $prospecto->tareas()->delete();
+            $prospecto->delete();
+        });
+
+        return redirect()->route('crm.index')->with('success', 'Prospecto eliminado correctamente.');
+    }
+
+    /**
      * Mover prospecto a otra etapa (para drag & drop)
      */
     public function moverEtapa(Request $request, CrmProspecto $prospecto)
@@ -348,6 +293,10 @@ class CrmController extends Controller
         // Si se cierra como ganado, convertir automáticamente a cliente
         if ($validated['etapa'] === 'cerrado_ganado') {
             $cliente = $prospecto->cerrarGanadoYConvertir();
+            // Una vez convertido a cliente, eliminamos el prospecto del CRM para no saturar el pipeline
+            // según petición del usuario "que esté vacía la información para que no se llene"
+            $prospecto->forceDelete();
+
             return back()->with('success', $cliente ? "¡Felicidades! Cliente '{$cliente->nombre_razon_social}' creado." : 'Prospecto cerrado');
         }
 
@@ -367,6 +316,8 @@ class CrmController extends Controller
         $cliente = $prospecto->convertirACliente();
 
         if ($cliente) {
+            // Eliminar prospecto del CRM tras conversión exitosa
+            $prospecto->forceDelete();
             return back()->with('success', "Cliente '{$cliente->nombre_razon_social}' creado exitosamente.");
         }
 
@@ -408,42 +359,6 @@ class CrmController extends Controller
         }
 
         return back()->with('success', 'Actividad registrada');
-    }
-
-    /**
-     * Eliminar prospecto
-     */
-    public function eliminarProspecto(CrmProspecto $prospecto)
-    {
-        $user = Auth::user();
-        $isAdmin = $user->hasAnyRole(['admin', 'super-admin']);
-
-        if (!$isAdmin && (int) $prospecto->vendedor_id !== (int) $user->id) {
-            abort(403, 'No tienes permisos para eliminar este prospecto.');
-        }
-
-        if ($prospecto->cliente_id) {
-            return back()->with('error', 'No se puede eliminar un prospecto que ya fue convertido a cliente.');
-        }
-
-        DB::transaction(function () use ($prospecto) {
-            $prospecto->actividades()->delete();
-            $prospecto->tareas()->delete();
-            $prospecto->delete();
-        });
-
-        return redirect()->route('crm.prospectos')->with('success', 'Prospecto eliminado correctamente.');
-    }
-
-    /**
-     * Restaurar prospecto archivado
-     */
-    public function restaurarProspecto(int $prospectoId)
-    {
-        $prospecto = CrmProspecto::onlyTrashed()->findOrFail($prospectoId);
-        $prospecto->restore();
-
-        return back()->with('success', 'Prospecto restaurado correctamente.');
     }
 
     /**
@@ -860,7 +775,7 @@ class CrmController extends Controller
             ->orderBy('activa', 'desc')
             ->orderBy('fecha_fin', 'desc')
             ->get()
-            ->map(function (CrmCampania $c) {
+            ->map(function ($c) {
                 return [
                     'id' => $c->id,
                     'nombre' => $c->nombre,
@@ -1034,88 +949,11 @@ class CrmController extends Controller
     }
 
     /**
-     * Enviar campaña masiva por WhatsApp
+     * Activar/Desactivar campaña
      */
-    public function enviarCampaniaWhatsApp(Request $request, CrmCampania $campania)
+    public function toggleCampania(CrmCampania $campania)
     {
-        $validated = $request->validate([
-            'template_name' => 'required|string',
-            'image_url' => 'nullable|url',
-            'solo_con_consentimiento' => 'boolean',
-            'limite' => 'nullable|integer|min:1|max:500',
-        ]);
-
-        $empresa = Empresa::find(Auth::user()->empresa_id);
-        
-        // Clientes que YA recibieron esta campaña para evitar duplicados
-        $clientesYaEnviados = WhatsAppMessage::where('campania_id', $campania->id)
-            ->whereIn('status', [WhatsAppMessage::STATUS_SENT, WhatsAppMessage::STATUS_DELIVERED, WhatsAppMessage::STATUS_QUEUED, WhatsAppMessage::STATUS_READ])
-            ->pluck('cliente_id')
-            ->filter()
-            ->toArray();
-
-        // Obtener destinatarios (clientes con teléfono)
-        $query = Cliente::where('empresa_id', $empresa->id)
-            ->whereNotNull('telefono')
-            ->whereNotIn('id', $clientesYaEnviados)
-            ->where('activo', true);
-
-        if ($request->boolean('solo_con_consentimiento', true)) {
-            $query->where('whatsapp_optin', true);
-        }
-
-        // Aplicar límite si se especifica (p.ej. 50 para prueba)
-        if ($request->filled('limite')) {
-            $query->limit($request->limite);
-        }
-
-        $clientes = $query->get();
-
-        if ($clientes->isEmpty()) {
-            return back()->with('error', 'No se encontraron clientes con teléfono y consentimiento para enviar la campaña.');
-        }
-
-        $delay = 0;
-        $enviosProgramados = 0;
-
-        foreach ($clientes as $cliente) {
-            // Limpiar teléfono
-            $telefono = trim($cliente->telefono);
-            if (empty($telefono)) continue;
-
-            // Parámetros de la plantilla (opcional, podrías personalizarlos por cliente)
-            $params = []; 
-            
-            // Si hay imagen, se pasa como parámetro de encabezado en el Job
-            $meta = [
-                'delay_seconds' => $delay,
-                'client_id' => $cliente->id,
-                'campania_id' => $campania->id,
-            ];
-
-            if ($request->filled('image_url')) {
-                $meta['header_params'] = [
-                    [
-                        'type' => 'image',
-                        'image' => ['link' => $request->image_url]
-                    ]
-                ];
-            }
-
-            SendWhatsAppTemplate::dispatch(
-                $empresa->id,
-                $telefono,
-                $validated['template_name'],
-                $empresa->whatsapp_default_language ?: 'es_MX',
-                $params,
-                $meta
-            );
-
-            // Aumentar delay para evitar bloqueo de Meta (5 segundos entre mensajes)
-            $delay += 5;
-            $enviosProgramados++;
-        }
-
-        return back()->with('success', "Campania iniciada: Se han programado {$enviosProgramados} mensajes de WhatsApp. Meta los procesará gradualmente.");
+        $campania->update(['activa' => !$campania->activa]);
+        return back()->with('success', $campania->activa ? 'Campaña activada' : 'Campaña desactivada');
     }
 }

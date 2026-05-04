@@ -13,28 +13,55 @@ class SincronizarEstadoVentas extends Command
                             {--fix : Aplicar correcciones (sin esto solo muestra reporte)}
                             {--fix-folios : Generar números de venta faltantes}
                             {--fix-pagos : Sincronizar estado de pago con CuentasPorCobrar}
-                            {--fix-cxc : Sincronizar estado de CxC con ventas pagadas}';
+                            {--fix-cxc : Sincronizar estado de CxC con ventas pagadas}
+                            {--confirm= : Confirmación explícita para aplicar correcciones}';
 
     protected $description = 'Sincroniza el estado de ventas: genera folios faltantes, sincroniza pagos y CxC';
 
     public function handle()
     {
+        // Prevent concurrent execution
+        $lock = \Illuminate\Support\Facades\Cache::lock('command_sincronizar_estado_ventas', 600); // 10 min lock
+
+        if (!$lock->get()) {
+            $this->error('Este comando ya se está ejecutando en otro proceso.');
+            return Command::FAILURE;
+        }
+
+        try {
+            return $this->executeLogic();
+        } finally {
+            $lock->release();
+        }
+    }
+
+    protected function executeLogic()
+    {
         $fix = $this->option('fix');
         $fixFolios = $this->option('fix-folios') || $fix;
         $fixPagos = $this->option('fix-pagos') || $fix;
         $fixCxC = $this->option('fix-cxc') || $fix;
+        $confirm = (string) $this->option('confirm');
+        $previewLimit = 200;
+
+        if (($fixFolios || $fixPagos || $fixCxC) && $confirm !== 'SYNC-VENTAS') {
+            $this->warn('Para aplicar correcciones usa --confirm=SYNC-VENTAS (o ejecuta sin --fix*).');
+            return Command::FAILURE;
+        }
 
         $this->info('=== Análisis de Ventas ===');
         $this->newLine();
 
         // 1. Ventas sin número de venta
-        $ventasSinFolio = Venta::whereNull('numero_venta')
-            ->orWhere('numero_venta', '')
-            ->get();
+        $ventasSinFolioQuery = Venta::query()
+            ->whereNull('numero_venta')
+            ->orWhere('numero_venta', '');
+        $ventasSinFolioCount = (clone $ventasSinFolioQuery)->count();
+        $ventasSinFolio = $ventasSinFolioQuery->limit($previewLimit)->get();
 
-        $this->warn("Ventas sin folio (numero_venta): {$ventasSinFolio->count()}");
-        
-        if ($ventasSinFolio->count() > 0) {
+        $this->warn("Ventas sin folio (numero_venta): {$ventasSinFolioCount}");
+
+        if ($ventasSinFolioCount > 0) {
             $this->table(
                 ['ID', 'Cliente', 'Total', 'Fecha', 'Pagado'],
                 $ventasSinFolio->map(fn($v) => [
@@ -48,17 +75,19 @@ class SincronizarEstadoVentas extends Command
 
             if ($fixFolios) {
                 $this->info('Generando folios...');
-                $this->generarFoliosFaltantes($ventasSinFolio);
+                $this->generarFoliosFaltantesQuery($ventasSinFolioQuery);
             }
         }
 
         $this->newLine();
 
         // 2. Ventas sin cliente
-        $ventasSinCliente = Venta::whereNull('cliente_id')->get();
-        $this->warn("Ventas sin cliente: {$ventasSinCliente->count()}");
-        
-        if ($ventasSinCliente->count() > 0) {
+        $ventasSinClienteQuery = Venta::query()->whereNull('cliente_id');
+        $ventasSinClienteCount = (clone $ventasSinClienteQuery)->count();
+        $ventasSinCliente = $ventasSinClienteQuery->limit($previewLimit)->get();
+        $this->warn("Ventas sin cliente: {$ventasSinClienteCount}");
+
+        if ($ventasSinClienteCount > 0) {
             $this->table(
                 ['ID', 'Numero Venta', 'Total', 'Fecha'],
                 $ventasSinCliente->map(fn($v) => [
@@ -75,19 +104,20 @@ class SincronizarEstadoVentas extends Command
 
         // 3. Ventas con estado de pago desincronizado
         $this->info('Analizando sincronización de pagos...');
-        
+
         $ventasDesincronizadas = collect();
-        
+
         Venta::with('cuentaPorCobrar')->chunk(100, function ($ventas) use (&$ventasDesincronizadas) {
             foreach ($ventas as $venta) {
                 $cxc = $venta->cuentaPorCobrar;
-                
-                if (!$cxc) continue;
-                
+
+                if (!$cxc)
+                    continue;
+
                 // Caso 1: CxC pagada pero venta marcada como no pagada
                 $cxcPagada = $cxc->estado === 'pagado' || $cxc->monto_pendiente <= 0;
                 $ventaPagada = $venta->pagado;
-                
+
                 if ($cxcPagada && !$ventaPagada) {
                     $ventasDesincronizadas->push([
                         'venta' => $venta,
@@ -95,7 +125,7 @@ class SincronizarEstadoVentas extends Command
                         'problema' => 'CxC pagada pero venta marcada como pendiente'
                     ]);
                 }
-                
+
                 // Caso 2: Venta pagada pero CxC pendiente (menos común, pero posible)
                 if ($ventaPagada && !$cxcPagada && $cxc->monto_pendiente > 0) {
                     $ventasDesincronizadas->push([
@@ -133,13 +163,13 @@ class SincronizarEstadoVentas extends Command
 
         // 4. Sincronizar CxC con ventas pagadas
         $this->reportarCxCHuerfanas();
-        
+
         if ($fixCxC) {
             $this->sincronizarCxCConVentas();
         }
 
         $this->newLine();
-        
+
         if (!$fix && !$fixFolios && !$fixPagos && !$fixCxC) {
             $this->comment('Ejecuta con --fix para aplicar todas las correcciones');
             $this->comment('O usa --fix-folios, --fix-pagos, o --fix-cxc para correcciones específicas');
@@ -149,44 +179,45 @@ class SincronizarEstadoVentas extends Command
         return Command::SUCCESS;
     }
 
-    private function generarFoliosFaltantes($ventas)
+    private function generarFoliosFaltantesQuery($ventasQuery): void
     {
         $count = 0;
-        
-        foreach ($ventas as $venta) {
-            try {
-                DB::beginTransaction();
-                
-                // Obtener el siguiente número disponible
-                if (DB::getDriverName() === 'pgsql') {
-                    $max = DB::table('ventas')
-                        ->selectRaw("COALESCE(MAX(NULLIF(regexp_replace(numero_venta, '\\D', '', 'g'), '')::int), 0) as max_num")
-                        ->value('max_num');
-                } else {
-                    $ultimo = Venta::whereNotNull('numero_venta')
-                        ->where('numero_venta', '!=', '')
-                        ->orderByDesc('id')
-                        ->value('numero_venta');
-                    $max = 0;
-                    if ($ultimo && preg_match('/(\d+)$/', $ultimo, $m)) {
-                        $max = (int) $m[1];
+        $ventasQuery->orderBy('id')->chunkById(100, function ($ventas) use (&$count) {
+            foreach ($ventas as $venta) {
+                try {
+                    DB::beginTransaction();
+
+                    // Obtener el siguiente número disponible
+                    if (DB::getDriverName() === 'pgsql') {
+                        $max = DB::table('ventas')
+                            ->selectRaw("COALESCE(MAX(NULLIF(regexp_replace(numero_venta, '\\D', '', 'g'), '')::int), 0) as max_num")
+                            ->value('max_num');
+                    } else {
+                        $ultimo = Venta::whereNotNull('numero_venta')
+                            ->where('numero_venta', '!=', '')
+                            ->orderByDesc('id')
+                            ->value('numero_venta');
+                        $max = 0;
+                        if ($ultimo && preg_match('/(\d+)$/', $ultimo, $m)) {
+                            $max = (int) $m[1];
+                        }
                     }
+
+                    $siguiente = $max + 1;
+                    $numeroVenta = 'V' . str_pad($siguiente, 4, '0', STR_PAD_LEFT);
+
+                    $venta->update(['numero_venta' => $numeroVenta]);
+
+                    DB::commit();
+                    $this->line("  ✓ Venta #{$venta->id} → {$numeroVenta}");
+                    $count++;
+
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    $this->error("  ✗ Error en venta #{$venta->id}: {$e->getMessage()}");
                 }
-
-                $siguiente = $max + 1;
-                $numeroVenta = 'V' . str_pad($siguiente, 4, '0', STR_PAD_LEFT);
-
-                $venta->update(['numero_venta' => $numeroVenta]);
-                
-                DB::commit();
-                $this->line("  ✓ Venta #{$venta->id} → {$numeroVenta}");
-                $count++;
-                
-            } catch (\Exception $e) {
-                DB::rollBack();
-                $this->error("  ✗ Error en venta #{$venta->id}: {$e->getMessage()}");
             }
-        }
+        });
 
         $this->info("Folios generados: {$count}");
     }
@@ -204,19 +235,28 @@ class SincronizarEstadoVentas extends Command
 
                 // Si CxC está pagada, marcar venta como pagada
                 if ($cxc->estado === 'pagado' || $cxc->monto_pendiente <= 0) {
-                    $venta->update([
-                        'pagado' => true,
-                        'fecha_pago' => $cxc->updated_at ?? now()
-                    ]);
-                    $this->line("  ✓ Venta #{$venta->id} ({$venta->numero_venta}) → Marcada como PAGADA");
+                    if (!$venta->pagado) {
+                        $venta->update([
+                            'pagado' => true,
+                            'fecha_pago' => $cxc->updated_at ?? now()
+                        ]);
+                        $this->line("  ✓ Venta #{$venta->id} ({$venta->numero_venta}) → Marcada como PAGADA (Sync from CxC)");
+                    }
                 }
                 // Si venta está pagada pero CxC no, actualizar CxC
+                // CRITICAL FIX #33: Evitar sobrescribir si la CxC tiene movimientos parciales válidos.
                 elseif ($venta->pagado && $cxc->monto_pendiente > 0) {
-                    // Esto es más complejo - necesitaría registrar el pago en CxC
-                    // Por seguridad, solo reportamos
-                    $this->warn("  ! Venta #{$venta->id} tiene discrepancia - revisar manualmente");
-                    DB::rollBack();
-                    continue;
+                    // Solo sincronizamos si no hay pagos parciales registrados en CxC que indiquen un estado intermedio real
+                    if ($cxc->monto_pagado == 0 && $cxc->estado === 'pendiente') {
+                        $this->warn("  ! Venta #{$venta->id} pagada pero CxC pendiente. Requiere revisión manual de cobros.");
+                        // No auto-corregir ciegamente para no perder rastro de cobro faltante
+                    } else {
+                        $this->warn("  ! Venta #{$venta->id} pagada pero CxC parcial/pendiente. Posible error de captura.");
+                    }
+
+                    // En lugar de rollback, simplemente no hacemos nada en este ciclo para este caso arriesgado
+                    // DB::rollBack(); -> No rollback here, just don't commit changes for this item if any
+                    // continue;
                 }
 
                 DB::commit();
@@ -241,7 +281,7 @@ class SincronizarEstadoVentas extends Command
 
         // Ventas pagadas cuya CxC está pendiente
         $ventasPagadas = Venta::where('pagado', true)
-            ->whereHas('cuentaPorCobrar', function($q) {
+            ->whereHas('cuentaPorCobrar', function ($q) {
                 $q->where('estado', '!=', 'pagado');
             })
             ->with('cuentaPorCobrar')

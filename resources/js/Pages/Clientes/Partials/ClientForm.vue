@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-8">
     <!-- Información General -->
-    <div class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información General</h2>
+    <div v-if="showSection('general')" class="border-b border-gray-200 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Información General</h2>
 
       <!-- Checkbox para factura -->
       <div class="mb-6">
@@ -20,7 +20,7 @@
             ¿Requiere factura? <span class="text-red-500">*</span>
           </label>
         </div>
-        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Marque esta opción si el cliente necesita facturación electrónica
         </div>
       </div>
@@ -37,7 +37,7 @@
               @blur="toUpper('nombre_razon_social')"
               autocomplete="new-password"
               :class="[
-                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                     form.errors.nombre_razon_social ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                   ]"
               required
@@ -54,83 +54,34 @@
           </div>
         </div>
 
-        <div class="mb-4">
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email <span v-if="form.requiere_factura" class="text-red-500">*</span>
-            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(requerido para facturación)</span>
-          </label>
-          <input
-            type="email"
-            id="email"
-            v-model="form.email"
-            @blur="normalizeEmail"
-            placeholder="correo@ejemplo.com"
-            autocomplete="off"
-            readonly
-            onfocus="this.removeAttribute('readonly');"
-            :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
-                  form.errors.email ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
-                ]"
-            :required="form.requiere_factura"
-          />
-          <div v-if="form.errors.email" class="mt-2 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.email }}
-          </div>
-        </div>
 
-        <!-- Contraseña (Solo Create o si usuario decide cambiar) -->
-        <div class="mb-4">
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            {{ isEdit ? 'Reseteo de Contraseña' : 'Contraseña' }}
-            <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">({{ isEdit ? 'dejar vacío para mantener actual' : 'opcional' }})</span>
-          </label>
-          <input
-            type="password"
-            id="password"
-            v-model="form.password"
-            autocomplete="new-password"
-            :placeholder="isEdit ? 'Nueva contraseña' : 'Mínimo 8 caracteres'"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500"
-          />
-          <div v-if="form.errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.password }}
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Confirmar {{ isEdit ? 'Nueva ' : '' }}Contraseña
-          </label>
-          <input
-            type="password"
-            id="password_confirmation"
-            v-model="form.password_confirmation"
-            autocomplete="new-password"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
-          />
-        </div>
 
         <div class="mb-4">
           <label for="telefono" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Teléfono <span v-if="form.requiere_factura" class="text-red-500">*</span>
-            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(requerido para facturación)</span>
+            <span v-if="form.requiere_factura" class="text-gray-400 dark:text-gray-500">(requerido para facturación)</span>
           </label>
           <input
             type="tel"
             id="telefono"
             v-model="form.telefono"
             maxlength="10"
-            placeholder="10 dígitos"
-            autocomplete="new-password"
+            placeholder="6621234567"
+            autocomplete="tel"
+            inputmode="numeric"
+            pattern="[0-9]{10}"
+            title="Ingresa 10 dígitos numéricos"
+            @blur="cleanPhone"
             :class="[
-                   'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                   'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                    form.errors.telefono ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                  ]"
-            :required="form.requiere_factura"
           />
           <div v-if="form.errors.telefono" class="mt-2 text-sm text-red-600 dark:text-red-400">
             {{ form.errors.telefono }}
+          </div>
+          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            10 dígitos sin espacios ni guiones.
           </div>
 
           <!-- Consentimiento de WhatsApp -->
@@ -145,48 +96,17 @@
               ¿El cliente autoriza recibir mensajes por WhatsApp?
             </label>
           </div>
-        </div>
 
-        <div class="mb-4">
-          <label for="rustdesk_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            ID RustDesk del Cliente
-          </label>
-          <input
-            type="text"
-            id="rustdesk_id"
-            v-model="form.rustdesk_id"
-            placeholder="Ej. 123 456 789"
-            autocomplete="off"
-            :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-300 dark:placeholder-gray-500',
-                  form.errors.rustdesk_id ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
-                ]"
-          />
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Se usa para soporte remoto de un clic desde el expediente del cliente.
-          </p>
-          <div v-if="form.errors.rustdesk_id" class="mt-2 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.rustdesk_id }}
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label for="rustdesk_alias" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Alias RustDesk
-          </label>
-          <input
-            type="text"
-            id="rustdesk_alias"
-            v-model="form.rustdesk_alias"
-            placeholder="Ej. PC-SUCURSAL-CENTRO"
-            autocomplete="off"
-            :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-300 dark:placeholder-gray-500',
-                  form.errors.rustdesk_alias ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
-                ]"
-          />
-          <div v-if="form.errors.rustdesk_alias" class="mt-2 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.rustdesk_alias }}
+          <div class="mt-3 flex items-center">
+            <input
+              type="checkbox"
+              id="marketing_optin"
+              v-model="form.marketing_optin"
+              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+            />
+            <label for="marketing_optin" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+              ¿El cliente autoriza recibir campañas y promociones?
+            </label>
           </div>
         </div>
       </div>
@@ -201,7 +121,7 @@
           v-model="form.price_list_id"
           @change="form.clearErrors('price_list_id')"
           :class="[
-                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
+                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
                 form.errors.price_list_id ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
               ]"
           required
@@ -218,35 +138,17 @@
         <div v-if="form.errors.price_list_id" class="mt-2 text-sm text-red-600 dark:text-red-400">
           {{ form.errors.price_list_id }}
         </div>
-        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
+        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Determina los precios que se aplicarán a este cliente en las ventas
         </div>
       </div>
 
-      <!-- Checkbox para mostrar dirección -->
-      <div class="mb-6">
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            id="mostrar_direccion"
-            v-model="form.mostrar_direccion"
-            :class="[
-                  'h-4 w-4 text-blue-600 focus:ring-blue-500 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700'
-                ]"
-          />
-          <label for="mostrar_direccion" class="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Agregar información de dirección
-          </label>
-        </div>
-        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
-          Marque esta opción si desea agregar la dirección del cliente
-        </div>
-      </div>
+
     </div>
 
-    <!-- Estado del Cliente -->
-    <div class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Estado del Cliente</h2>
+    <!-- Estado del Cliente (solo en edición) -->
+    <div v-if="showSection('status') && isEdit" class="border-b border-gray-200 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Estado del Cliente</h2>
       <div class="grid grid-cols-1 gap-6">
         <div class="mb-4">
           <label class="inline-flex items-center">
@@ -257,16 +159,74 @@
             />
             <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Cliente Activo</span>
           </label>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Desmarca para inactivar el cliente. Los clientes inactivos no aparecerán en listas por defecto.
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Gestión de Crédito -->
-    <div class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Gestión de Crédito</h2>
+    <!-- Gestión de Crédito y Portal -->
+    <div v-if="showSection('credit')" class="border-b border-gray-200 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Portal del Cliente y Crédito</h2>
+
+      <!-- Acceso al Portal -->
+      <div class="mb-6 rounded-lg border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/30 dark:bg-blue-950/20">
+        <h3 class="text-sm font-bold text-blue-800 dark:text-blue-300 mb-3">Acceso al Portal</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email
+              <span v-if="form.requiere_factura" class="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              v-model="form.email"
+              @blur="normalizeEmail"
+              placeholder="correo@ejemplo.com"
+              autocomplete="off"
+              readonly
+              onfocus="this.removeAttribute('readonly');"
+              :class="[
+                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                form.errors.email ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
+              ]"
+            />
+            <div v-if="form.errors.email" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.errors.email }}</div>
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ isEdit ? 'Reseteo de Contraseña' : 'Contraseña' }}
+              <span class="text-gray-400 dark:text-gray-500 text-xs">({{ isEdit ? 'vacío = sin cambio' : 'opcional' }})</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              v-model="form.password"
+              autocomplete="new-password"
+              :placeholder="isEdit ? 'Nueva contraseña' : 'Mínimo 8 caracteres'"
+              class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500"
+            />
+            <div v-if="form.errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.errors.password }}</div>
+          </div>
+          <div v-if="form.password">
+            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Confirmar Contraseña
+            </label>
+            <input
+              type="password"
+              id="password_confirmation"
+              v-model="form.password_confirmation"
+              autocomplete="new-password"
+              class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+            />
+          </div>
+        </div>
+        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">El email y contraseña permiten al cliente acceder al portal de clientes.</p>
+      </div>
+
+      <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">Condiciones de Crédito</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="mb-4">
           <label class="inline-flex items-center">
@@ -277,7 +237,7 @@
             />
             <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Habilitar Crédito</span>
           </label>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Permite realizar ventas a crédito para este cliente.
           </p>
         </div>
@@ -290,7 +250,7 @@
             id="estado_credito"
             v-model="form.estado_credito"
             :class="[
-              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200'
+              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
             ]"
           >
             <option value="sin_credito">Sin Crédito</option>
@@ -298,7 +258,7 @@
             <option value="autorizado">Autorizado ✅</option>
             <option value="suspendido">Suspendido 🚫</option>
           </select>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Define el flujo de aprobación del crédito.
           </p>
         </div>
@@ -309,20 +269,20 @@
           </label>
           <div class="mt-1 relative rounded-md shadow-sm">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">$</span>
+              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
             </div>
             <input
               type="number"
               name="limite_credito"
               id="limite_credito"
               v-model="form.limite_credito"
-              class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="0.00"
               step="0.01"
               min="0"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">MXN</span>
+              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">MXN</span>
             </div>
           </div>
           <div v-if="form.errors.limite_credito" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -340,13 +300,13 @@
               name="dias_credito"
               id="dias_credito"
               v-model="form.dias_credito"
-              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="30"
               min="0"
               max="365"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">días</span>
+              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">días</span>
             </div>
           </div>
           <div v-if="form.errors.dias_credito" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -365,13 +325,13 @@
               name="dias_gracia"
               id="dias_gracia"
               v-model="form.dias_gracia"
-              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 text-gray-900 dark:text-gray-200"
               placeholder="Automático"
               min="0"
               max="365"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400 dark:text-gray-400 sm:text-sm">días</span>
+              <span class="text-gray-500 dark:text-gray-400 sm:text-sm">días</span>
             </div>
           </div>
           <p class="mt-1 text-xs text-blue-500 dark:text-blue-400">
@@ -385,20 +345,20 @@
     </div>
 
     <!-- Información Fiscal -->
-    <div v-if="form.requiere_factura" class="border-b border-gray-200 dark:border-slate-800 dark:border-gray-700 pb-6">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Información Fiscal</h2>
+    <div v-if="showSection('fiscal') && form.requiere_factura" class="border-b border-gray-200 dark:border-gray-700 pb-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Información Fiscal</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="mb-4">
           <label for="tipo_persona" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Tipo de Persona <span v-if="form.requiere_factura" class="text-red-500">*</span>
-            <span v-if="!form.requiere_factura" class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
+            <span v-if="!form.requiere_factura" class="text-gray-400 dark:text-gray-500">(opcional)</span>
           </label>
           <select
             id="tipo_persona"
             v-model="form.tipo_persona"
             @change="validateTipoPersona"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
                   form.errors.tipo_persona ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
             :required="form.requiere_factura"
@@ -431,9 +391,9 @@
             :disabled="!form.tipo_persona"
             autocomplete="new-password"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.rfc ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
+                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
                 ]"
             required
           />
@@ -456,9 +416,9 @@
             :placeholder="form.tipo_persona === 'fisica' ? 'ABCD123456HMEFGH99' : 'Opcional'"
             autocomplete="new-password"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.curp ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  form.tipo_persona === 'moral' ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
+                  form.tipo_persona === 'moral' ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
                 ]"
           />
           <div v-if="form.errors.curp" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -475,9 +435,9 @@
             v-model="form.regimen_fiscal"
             :disabled="!form.tipo_persona"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
                   form.errors.regimen_fiscal ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
+                  !form.tipo_persona ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
                 ]"
             required
           >
@@ -503,7 +463,7 @@
             id="uso_cfdi"
             v-model="form.uso_cfdi"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
                   form.errors.uso_cfdi ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
             required
@@ -524,15 +484,15 @@
 
          <div class="mb-4">
           <label for="forma_pago_default" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Forma de Pago Preferida <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
+            Forma de Pago Preferida <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
           </label>
           <select
             id="forma_pago_default"
             v-model="form.forma_pago_default"
             :class="[
-              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
+              'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
               form.errors.forma_pago_default ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-              !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
+              !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
             ]"
           >
             <option value="">Sin preferencia</option>
@@ -561,9 +521,9 @@
             placeholder="12345"
             :required="form.requiere_factura"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.domicilio_fiscal_cp ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600',
-                  !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 dark:text-gray-400' : ''
+                  !form.requiere_factura ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : ''
                 ]"
           />
           <div v-if="form.errors.domicilio_fiscal_cp" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -574,13 +534,28 @@
     </div>
 
     <!-- Dirección -->
-    <div v-if="form.mostrar_direccion">
-      <h2 class="text-lg font-medium text-gray-900 dark:text-white dark:text-gray-100 mb-4">Dirección</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-if="showSection('address')" class="border-b border-gray-200 dark:border-gray-700 pb-6 pt-2">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Dirección</h2>
+        <div class="mt-2 sm:mt-0 flex items-center bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition" @click="form.mostrar_direccion = !form.mostrar_direccion">
+          <input
+            type="checkbox"
+            id="mostrar_direccion_toggle"
+            v-model="form.mostrar_direccion"
+            @click.stop
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 cursor-pointer"
+          />
+          <label for="mostrar_direccion_toggle" class="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer" @click.stop>
+            Agregar información de dirección
+          </label>
+        </div>
+      </div>
+
+      <div v-if="form.mostrar_direccion" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded flex-1">
         <div class="md:col-span-2">
           <div class="mb-4">
             <label for="calle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Calle <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
+              Calle <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
             </label>
             <input
               type="text"
@@ -589,7 +564,7 @@
               @blur="toUpper('calle')"
               autocomplete="new-password"
               :class="[
-                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                    'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                     form.errors.calle ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                   ]"
             />
@@ -598,7 +573,7 @@
 
         <div class="mb-4">
           <label for="numero_exterior" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Número Exterior <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
+            Número Exterior <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
           </label>
           <input
             type="text"
@@ -606,7 +581,7 @@
             v-model="form.numero_exterior"
             @blur="toUpper('numero_exterior')"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.numero_exterior ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
           />
@@ -621,13 +596,13 @@
             id="numero_interior"
             v-model="form.numero_interior"
             @blur="toUpper('numero_interior')"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
           />
         </div>
 
         <div class="mb-4">
           <label for="codigo_postal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Código Postal <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
+            Código Postal <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
           </label>
           <input
             type="text"
@@ -637,7 +612,7 @@
             @input="$emit('cp-input', $event.target.value)"
             placeholder="12345"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
                   form.errors.codigo_postal ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
           />
@@ -655,20 +630,18 @@
 
         <div class="mb-4">
           <label for="colonia" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Colonia <span class="text-gray-400 dark:text-gray-500 dark:text-gray-400">(opcional)</span>
+            Colonia <span class="text-gray-400 dark:text-gray-500">(opcional)</span>
           </label>
           <select
+            v-if="availableColonias.length > 0 && !isColoniaManual"
             id="colonia"
             v-model="form.colonia"
-            :disabled="availableColonias.length === 0"
             :class="[
-                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200',
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200',
                   form.errors.colonia ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
                 ]"
           >
-            <option value="">
-              {{ availableColonias.length === 0 ? 'Ingresa CP primero' : 'Selecciona una colonia' }}
-            </option>
+            <option value="">Selecciona una colonia</option>
             <option
               v-for="colonia in availableColonias"
               :key="colonia"
@@ -677,8 +650,34 @@
               {{ colonia }}
             </option>
           </select>
+          <input
+            v-else
+            id="colonia"
+            v-model="form.colonia"
+            type="text"
+            @blur="toUpper('colonia')"
+            placeholder="Captura manualmente la colonia"
+            :class="[
+                  'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500',
+                  form.errors.colonia ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
+                ]"
+          />
           <div v-if="form.errors.colonia" class="mt-2 text-sm text-red-600 dark:text-red-400">
             {{ form.errors.colonia }}
+          </div>
+          <!-- Toggle entre manual y dropdown -->
+          <div class="mt-1 flex items-center gap-2">
+            <button
+              v-if="availableColonias.length > 0"
+              type="button"
+              @click="isColoniaManual = !isColoniaManual; if(isColoniaManual) form.colonia = ''"
+              class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 underline"
+            >
+              {{ isColoniaManual ? 'Seleccionar de la lista' : 'Escribir manualmente' }}
+            </button>
+            <span v-else class="text-xs text-gray-500 dark:text-gray-400">
+              Ingresa el código postal para ver colonias disponibles, o escribe manualmente.
+            </span>
           </div>
         </div>
 
@@ -690,7 +689,7 @@
             type="text"
             id="municipio"
             v-model="form.municipio"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
           />
         </div>
 
@@ -701,7 +700,7 @@
           <select
             id="estado"
             v-model="form.estado"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
           >
             <option value="">Selecciona una opción</option>
             <option
@@ -721,7 +720,7 @@
           <select
             id="pais"
             v-model="form.pais"
-            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-900 dark:text-white dark:text-gray-200"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
           >
              <option value="MX">México</option>
              <option value="USA">Estados Unidos</option>
@@ -734,21 +733,40 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   form: Object,
   catalogs: Object,
   isEdit: { type: Boolean, default: false },
   availableColonias: { type: Array, default: () => [] },
-  isLoadingCp: { type: Boolean, default: false }
+  isLoadingCp: { type: Boolean, default: false },
+  visibleSections: { type: Array, default: () => ['general', 'status', 'credit', 'fiscal', 'address'] }
 })
 
 const emit = defineEmits(['factura-change', 'tipo-persona-change', 'cp-input'])
 
+const isColoniaManual = ref(false)
+
+watch(() => props.availableColonias, (newColonias) => {
+    if (newColonias.length > 0) {
+        if (props.form.colonia && !newColonias.includes(props.form.colonia)) {
+            isColoniaManual.value = true
+        } else {
+            isColoniaManual.value = false
+        }
+    } else {
+        isColoniaManual.value = true
+    }
+}, { immediate: true })
+
 const rfcMaxLength = computed(() => {
   return props.form.tipo_persona === 'fisica' ? 13 : 12
 })
+
+function showSection(section) {
+  return props.visibleSections.includes(section)
+}
 
 const regimenesFiltrados = computed(() => {
   if (!props.form.tipo_persona) return []
@@ -773,6 +791,13 @@ function toUpper(field) {
 function normalizeEmail() {
   if (props.form.email) {
     props.form.email = props.form.email.toLowerCase().trim()
+  }
+}
+
+function cleanPhone() {
+  if (props.form.telefono) {
+    // Remove non-digits and keep first 10
+    props.form.telefono = props.form.telefono.replace(/\D/g, '').slice(0, 10);
   }
 }
 

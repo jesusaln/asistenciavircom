@@ -10,9 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Services\WhatsAppService;
 use Inertia\Inertia;
 use Carbon\Carbon;
-use App\Support\EmpresaResolver;
 
 /**
  * Controlador para el agendamiento público de citas
@@ -216,8 +216,8 @@ class CitaPublicaController extends Controller
 
             DB::commit();
 
-            // TODO: Enviar WhatsApp de confirmación de recepción
-            // $this->enviarWhatsAppRecepcion($cita);
+            // Enviar WhatsApp de confirmación de recepción
+            $this->enviarWhatsAppRecepcion($cita);
 
             return Inertia::render('Public/AgendarCitaExito', [
                 'empresa' => [
@@ -432,12 +432,79 @@ class CitaPublicaController extends Controller
      */
     private function getEmpresaFromRequest(Request $request): ?Empresa
     {
-        $empresaId = EmpresaResolver::resolveId();
-
-        if ($empresaId) {
-            return Empresa::find($empresaId);
+        $host = $request->getHost();
+        
+        // 1. Intentar por dominio configurado en empresa_configuracion
+        $config = \App\Models\EmpresaConfiguracion::where('dominio_principal', $host)
+            ->orWhere('dominio_secundario', $host)
+            ->first();
+            
+        if ($config && $config->empresa_id) {
+            return Empresa::find($config->empresa_id);
         }
 
+        // 2. Fallback: Usar el resolveId() que puede venir de sesión o tokens (si los hay)
+        $resolvedId = \App\Support\EmpresaResolver::resolveId();
+        if ($resolvedId) {
+            return Empresa::find($resolvedId);
+        }
+
+        // 3. Último recurso: usar la primera empresa si solo hay una (o para desarrollo)
+        // Pero loguear advertencia si hay más de una empresa
+        if (Empresa::count() > 1) {
+            Log::warning("Se resolvió la primera empresa por fallback en CitaPublica para el host: {$host}");
+        }
+        
         return Empresa::first();
+    }
+
+    /**
+     * Enviar WhatsApp de confirmación de recepción
+     */
+    private function enviarWhatsAppRecepcion(Cita $cita)
+    {
+        try {
+            $empresa = $cita->empresa;
+
+            if (!$empresa || !$empresa->whatsapp_enabled) {
+                return;
+            }
+
+            // Verificar configuración mínima
+            if (!$empresa->whatsapp_phone_number_id || !$empresa->whatsapp_access_token) {
+                Log::warning("Empresa {$empresa->id} tiene WhatsApp habilitado pero sin credenciales completas.");
+                return;
+            }
+
+            $whatsappService = WhatsAppService::fromEmpresa($empresa);
+
+            if (!$cita->cliente || !$cita->cliente->telefono) {
+                return;
+            }
+
+            // Datos para la plantilla
+            // Plantilla estándar: confirmacion_cita_informativa
+            // params: {{1}} Nombre Cliente, {{2}} Folio Cita, {{3}} URL Seguimiento
+            $whatsappService->sendTemplate(
+                $cita->cliente->telefono,
+                'confirmacion_cita_informativa',
+                'es_MX',
+                [
+                    $cita->cliente->nombre_completo ?? 'Cliente',
+                    $cita->folio,
+                    $cita->url_seguimiento ?? route('agendar.seguimiento', $cita->link_seguimiento)
+                ]
+            );
+
+            $cita->update([
+                'whatsapp_recepcion_enviado' => true,
+                'whatsapp_recepcion_at' => now(),
+            ]);
+
+            Log::info("WhatsApp de recepción enviado para cita #{$cita->folio}");
+
+        } catch (\Exception $e) {
+            Log::error("Error al enviar WhatsApp de recepción: " . $e->getMessage());
+        }
     }
 }

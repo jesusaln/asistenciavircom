@@ -12,14 +12,19 @@ class KitItem extends Model
     protected $table = 'kit_items';
 
     protected $fillable = [
+        'kit_producto_id',
+        'producto_id',
         'kit_id',
         'item_type',
         'item_id',
         'cantidad',
         'precio_unitario',
+        'empresa_id',
     ];
 
     protected $casts = [
+        'kit_producto_id' => 'integer',
+        'kit_id' => 'integer',
         'cantidad' => 'integer',
         'precio_unitario' => 'decimal:2',
     ];
@@ -44,7 +49,7 @@ class KitItem extends Model
      */
     public function kit(): BelongsTo
     {
-        return $this->belongsTo(Producto::class, 'kit_id');
+        return $this->belongsTo(Producto::class, 'kit_producto_id');
     }
 
     /**

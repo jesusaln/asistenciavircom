@@ -53,7 +53,7 @@
     <!-- Equipos agregados recientemente -->
     <div v-if="equiposRecientes.length > 0" class="mt-6">
       <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         Agregados recientemente
@@ -75,7 +75,7 @@
     <!-- Sugerencias rápidas -->
     <div v-if="!busqueda && sugerenciasRapidas.length > 0" class="mt-6">
       <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         Sugerencias rápidas
@@ -85,7 +85,7 @@
           v-for="equipo in sugerenciasRapidas"
           :key="`sugerencia-${equipo.id}`"
           @click="agregarEquipo(equipo)"
-          class="p-3 border border-gray-200 dark:border-slate-800 rounded-lg hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200"
+          class="p-3 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200"
         >
           <div class="flex items-center justify-between">
             <div class="flex-1">
@@ -93,15 +93,15 @@
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 bg-blue-100 text-blue-800">
                   E
                 </span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ equipo.nombre }}</span>
+                <span class="text-sm font-medium text-gray-900">{{ equipo.nombre }}</span>
               </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ equipo.marca }} {{ equipo.modelo }}</div>
+              <div class="text-xs text-gray-500 mt-1">{{ equipo.marca }} {{ equipo.modelo }}</div>
             </div>
             <div class="text-right">
               <div class="text-sm font-semibold text-green-600">
                 ${{ formatearPrecio(equipo.precio_renta_mensual) }}/mes
               </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">
+              <div class="text-xs text-gray-500">
                 Código: {{ equipo.codigo }}
               </div>
             </div>
@@ -110,38 +110,32 @@
       </div>
     </div>
 
-    <!-- Usar Teleport para renderizar fuera del componente -->
-    <Teleport to="#app">
-      <div
-        v-if="mostrarLista && itemsFiltrados.length > 0"
-        class="z-50 mt-1 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-y-auto"
-        :style="{
-          position: 'absolute',
-          width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
-          left: inputPosition.left + 'px'
-        }"
-      >
-        <!-- Encabezados -->
-        <div class="sticky top-0 bg-gray-50 border-b border-gray-200 dark:border-slate-800 px-4 py-2">
-          <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600">
-            <div class="col-span-1">Tipo</div>
-            <div class="col-span-3">Nombre</div>
-            <div class="col-span-2">Código</div>
-            <div class="col-span-2">Marca/Modelo</div>
-            <div class="col-span-2">Precio Mensual</div>
-            <div class="col-span-1">Estado</div>
-            <div class="col-span-1">Acción</div>
-          </div>
+    <SearchDropdown
+      :show="mostrarLista"
+      :items="itemsFiltrados"
+      :width="inputWidth"
+      :position="inputPosition"
+      max-height="20rem"
+      :empty="!!busqueda"
+      empty-title="No se encontraron resultados"
+      empty-subtitle="Intenta con otros términos de búsqueda"
+      item-key="id"
+    >
+      <template #header>
+        <div class="grid grid-cols-12 gap-2 text-xs font-medium text-[var(--ui-text-muted)]">
+          <div class="col-span-1">Tipo</div>
+          <div class="col-span-3">Nombre</div>
+          <div class="col-span-2">Código</div>
+          <div class="col-span-2">Marca/Modelo</div>
+          <div class="col-span-2">Precio Mensual</div>
+          <div class="col-span-1">Estado</div>
+          <div class="col-span-1">Acción</div>
         </div>
-        <!-- Items -->
-        <div
-          v-for="equipo in itemsFiltrados"
-          :key="equipo.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 dark:border-slate-800 last:border-b-0"
-        >
+      </template>
+
+      <template #item="{ item }">
+        <div class="px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 border-b border-[var(--ui-border)] last:border-b-0">
           <div class="grid grid-cols-12 gap-2 items-center">
-            <!-- Tipo -->
             <div class="col-span-1">
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,46 +144,40 @@
                 E
               </span>
             </div>
-            <!-- Nombre -->
             <div class="col-span-3">
-              <div class="font-medium text-gray-900 dark:text-white text-sm">{{ equipo.nombre }}</div>
-              <div v-if="equipo.descripcion" class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ equipo.descripcion }}</div>
+              <div class="font-medium text-sm">{{ item.nombre }}</div>
+              <div v-if="item.descripcion" class="text-xs text-[var(--ui-text-soft)] truncate">{{ item.descripcion }}</div>
             </div>
-            <!-- Código -->
             <div class="col-span-2">
-              <span class="text-sm text-gray-600 font-mono">{{ equipo.codigo || 'N/A' }}</span>
+              <span class="text-sm text-[var(--ui-text-muted)] font-mono">{{ item.codigo || 'N/A' }}</span>
             </div>
-            <!-- Marca/Modelo -->
             <div class="col-span-2">
-              <span class="text-sm text-gray-600">{{ equipo.marca }} {{ equipo.modelo }}</span>
+              <span class="text-sm text-[var(--ui-text-muted)]">{{ item.marca }} {{ item.modelo }}</span>
             </div>
-            <!-- Precio Mensual -->
             <div class="col-span-2">
               <span class="text-sm font-semibold text-green-600">
-                ${{ formatearPrecio(equipo.precio_renta_mensual) }}
+                ${{ formatearPrecio(item.precio_renta_mensual) }}
               </span>
             </div>
-            <!-- Estado -->
             <div class="col-span-1">
               <span :class="[
                 'text-xs px-2 py-1 rounded-full font-medium',
-                equipo.estado === 'disponible' ? 'bg-green-100 text-green-800' :
-                equipo.estado === 'rentado' ? 'bg-red-100 text-red-800' :
+                item.estado === 'disponible' ? 'bg-green-100 text-green-800' :
+                item.estado === 'rentado' ? 'bg-red-100 text-red-800' :
                 'bg-yellow-100 text-yellow-800'
               ]">
-                {{ equipo.estado === 'disponible' ? 'Disp.' : equipo.estado === 'rentado' ? 'Rent.' : 'Maint.' }}
+                {{ item.estado === 'disponible' ? 'Disp.' : item.estado === 'rentado' ? 'Rent.' : 'Maint.' }}
               </span>
             </div>
-            <!-- Botón agregar -->
             <div class="col-span-1">
               <button
                 type="button"
-                @click="agregarEquipo(equipo)"
-                :disabled="equipo.estado !== 'disponible'"
+                @click="agregarEquipo(item)"
+                :disabled="item.estado !== 'disponible'"
                 :class="[
                   'w-full px-2 py-1 text-xs font-medium rounded-md transition-colors duration-200',
-                  equipo.estado !== 'disponible'
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  item.estado !== 'disponible'
+                    ? 'bg-gray-100/80 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
                     : 'bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1'
                 ]"
               >
@@ -200,27 +188,14 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Sin resultados -->
-      <div v-if="busqueda && itemsFiltrados.length === 0" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400 z-50 bg-white dark:bg-slate-900 border border-gray-300 rounded-lg shadow-lg" :style="{
-          position: 'absolute',
-          width: inputWidth + 'px',
-          top: inputPosition.top + inputPosition.height + 'px',
-          left: inputPosition.left + 'px'
-        }">
-        <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p class="text-sm font-medium">No se encontraron resultados</p>
-        <p class="text-xs text-gray-400 mt-1">Intenta con otros términos de búsqueda</p>
-      </div>
-    </Teleport>
+      </template>
+    </SearchDropdown>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import SearchDropdown from '@/Components/CreateComponents/SearchDropdown.vue';
 
 const props = defineProps({
   equipos: {
@@ -350,4 +325,3 @@ onUnmounted(() => {
   document.removeEventListener('click', cerrarLista);
 });
 </script>
-

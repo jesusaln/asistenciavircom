@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { Head, useForm, router, usePage, Link } from '@inertiajs/vue3';
+import { Head, useForm, router, Link } from '@inertiajs/vue3';
 import axios from 'axios';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
+// Inicializar notificaciones
+import { useNotification } from '@/Composables/useNotification';
 import { resolverPrecio, detectarProductosSinPrecioEnLista } from '@/Utils/precioHelper';
+import { translateErrorMessage } from '@/Utils/errorHelper';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
 import BuscarProducto from '@/Components/CreateComponents/BuscarProducto.vue';
@@ -13,24 +14,21 @@ import PySSeleccionados from '@/Components/CreateComponents/PySSeleccionados.vue
 // import BotonesAccion from '@/Components/CreateComponents/BotonesAccion.vue'; // Reemplazado por botones laterales
 import VistaPreviaModal from '@/Components/Modals/VistaPreviaModal.vue';
 import CrearClienteModal from '@/Components/Modals/CrearClienteModal.vue';
+import VentaPaymentModal from '@/Components/Modals/VentaPaymentModal.vue';
+import VentaFallbackPriceModal from '@/Components/Modals/VentaFallbackPriceModal.vue';
+import VentaErrorModal from '@/Components/Modals/VentaErrorModal.vue';
+import VentaSeriesPickerModal from '@/Components/Modals/VentaSeriesPickerModal.vue';
+import VentaKitComponentsModal from '@/Components/Modals/VentaKitComponentsModal.vue';
 import { useCompanyColors } from '@/Composables/useCompanyColors';
 
-// Inicializar notificaciones
-const notyf = new Notyf({
-  duration: 5000,
-  position: { x: 'right', y: 'top' },
-  types: [
-    { type: 'success', background: '#10B981', icon: { className: 'notyf__icon--success', tagName: 'i', text: '✓' } },
-    { type: 'warning', background: '#F59E0B', icon: { className: 'notyf__icon--warning', tagName: 'i', text: '!' } },
-    { type: 'info', background: '#3B82F6', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'ℹ' } },
-  ],
-});
+const notyf = useNotification();
 
 // Colores corporativos para estética
 const { colors } = useCompanyColors();
 
 const showErrorModal = ref(false);
 const errorModalMessages = ref([]);
+const stockErrorDetails = ref([]);
 
 const closeErrorModal = () => {
   showErrorModal.value = false;
@@ -60,6 +58,10 @@ const acceptFallbackPriceAndContinue = () => {
 
 const formatNumber = (value) => {
   return parseFloat(value || 0).toFixed(2);
+};
+
+const roundCurrency = (value) => {
+  return Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
 };
 
 const parseStockErrors = (message) => {
@@ -109,7 +111,11 @@ const showNotification = (message, type = 'success') => {
     openErrorModal(message);
     return;
   }
-  notyf.open({ type, message });
+  if (notyf[type]) {
+      notyf[type](message);
+  } else {
+      notyf.success(message);
+  }
 };
 
 // Usar layout
@@ -132,6 +138,25 @@ const props = defineProps({
 
 // Copia reactiva de clientes
 const clientesList = ref([...props.clientes]);
+
+/** Cliente del servicio: fusionar cita.cliente con el listado (lista limitada a 100). */
+const mergeClienteDesdeCita = (cit) => {
+  if (!cit) return null;
+  const raw = cit.cliente;
+  const id = raw?.id ?? cit.cliente_id;
+  if (id == null || id === '') return null;
+  const fromList = clientesList.value.find((c) => Number(c.id) === Number(id));
+  if (fromList && raw) return { ...raw, ...fromList };
+  if (fromList) return fromList;
+  if (raw) {
+    if (!clientesList.value.some((c) => Number(c.id) === Number(raw.id))) {
+      clientesList.value = [{ ...raw }, ...clientesList.value];
+    }
+    return raw;
+  }
+  return null;
+};
+
 const catalogs = computed(() => props.catalogs);
 const userAlmacenPredeterminado = computed(() => props.user?.almacen_venta_id || null);
 const numeroVentaFijo = ref('V0001');
@@ -153,6 +178,7 @@ const form = useForm({
   almacen_id: userAlmacenPredeterminado.value || '',
   vendedor_type: 'App\\Models\\User',
   vendedor_id: '',
+  pagado_por_user_id: '',
   metodo_pago: '',
   forma_pago_sat: '',
   metodo_pago_sat: '',
@@ -194,7 +220,10 @@ const requiereConfirmacionMargen = ref(false);
 const mensajeAdvertenciaMargen = ref('');
 const mostrarModalCliente = ref(false);
 const nombreClienteBuscado = ref('');
+const showKitComponentsModal = ref(false);
+const activeKit = ref(null);
 const vendedorSeleccionado = ref('');
+const cobradorSeleccionado = ref('');
 const vendedoresFiltrados = computed(() => props.vendedores || []);
 
 const seleccionarVendedorPredeterminado = () => {
@@ -223,6 +252,28 @@ const onVendedorChange = () => {
   const [type, id] = sel.split('-');
   form.vendedor_type = type === 'user' ? 'App\\Models\\User' : 'App\\Models\\Tecnico';
   form.vendedor_id = parseInt(id);
+
+  // ✅ BLINDAJE: Sincronizar almacén predeterminado del vendedor (Fix reportado: ventas saliendo de almacén incorrecto)
+  const vendedorObj = props.vendedores.find(v => (v.id === form.vendedor_id && v.type === type));
+  if (vendedorObj && vendedorObj.almacen_venta_id) {
+    if (form.almacen_id != vendedorObj.almacen_venta_id) {
+      form.almacen_id = vendedorObj.almacen_venta_id;
+      const alm = props.almacenes.find(a => a.id == vendedorObj.almacen_venta_id);
+      if (alm) {
+        showNotification(`Almacén cambiado a "${alm.nombre}" por predeterminado del vendedor`, 'info');
+      }
+    }
+  }
+};
+
+const onCobradorChange = () => {
+  const sel = cobradorSeleccionado.value;
+  if (!sel) {
+    form.pagado_por_user_id = '';
+    return;
+  }
+  const [type, id] = sel.split('-');
+  form.pagado_por_user_id = parseInt(id);
 };
 
 // Estado para modal de pago inmediato
@@ -234,7 +285,7 @@ const cuentasBancarias = ref([]);
 const importeRecibido = ref('');
 const cambio = ref(0);
 const inputEfectivo = ref(null);
-const notasEfectivoAgregadas = ref(false);
+
 
 const saveToLocalStorage = (key, data) => {
   try { localStorage.setItem(key, JSON.stringify(data)); } catch (error) { console.warn(error); }
@@ -248,6 +299,16 @@ const removeFromLocalStorage = (key) => {
   try { localStorage.removeItem(key); } catch (error) { console.warn(error); }
 };
 
+const saveState = () => {
+  saveToLocalStorage('ventaEnProgreso', {
+    cliente_id: form.cliente_id,
+    selectedProducts: selectedProducts.value,
+    quantities: quantities.value,
+    prices: prices.value,
+    discounts: discounts.value,
+  });
+};
+
 const validarSoloNumeros = (event) => {
   const char = event.key;
   if (!/[0-9.]/.test(char) && event.key !== 'Backspace' && event.key !== 'Delete' && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
@@ -259,9 +320,9 @@ const validarSoloNumeros = (event) => {
 };
 
 const calcularCambio = () => {
-  const total = form.total || 0;
-  const recibido = parseFloat(importeRecibido.value) || 0;
-  cambio.value = recibido - total;
+  const total = roundCurrency(form.total);
+  const recibido = roundCurrency(parseFloat(importeRecibido.value) || 0);
+  cambio.value = roundCurrency(recibido - total);
 };
 
 const cargarCuentasBancarias = async () => {
@@ -272,27 +333,48 @@ const cargarCuentasBancarias = async () => {
 };
 
 const abrirModalPago = async () => {
-  if (!validarDatos()) return;
-  if (form.price_list_id && !fallbackPriceAccepted.value) {
-    const productosSinPrecio = detectarProductosSinPrecioEnLista(
-      selectedProducts.value,
-      props.productos,
-      form.price_list_id
-    );
-    if (productosSinPrecio.length > 0) {
-      fallbackPriceProducts.value = productosSinPrecio;
-      showFallbackPriceModal.value = true;
+  console.log('=== abrirModalPago called ===');
+  console.log('form.cliente_id:', form.cliente_id);
+  console.log('form.almacen_id:', form.almacen_id);
+  console.log('selectedProducts:', selectedProducts.value);
+  
+  try {
+    if (!validarDatos()) {
+      console.log('validarDatos returned false');
       return;
     }
+    console.log('validarDatos passed');
+    
+    if (form.price_list_id && !fallbackPriceAccepted.value) {
+      console.log('Checking price list products...');
+      const productosSinPrecio = detectarProductosSinPrecioEnLista(
+        selectedProducts.value,
+        props.productos,
+        form.price_list_id,
+        { serviciosUsanListasPrecios: props.defaults?.serviciosUsanListasPrecios }
+      );
+      console.log('productosSinPrecio:', productosSinPrecio);
+      if (productosSinPrecio.length > 0) {
+        fallbackPriceProducts.value = productosSinPrecio;
+        showFallbackPriceModal.value = true;
+        console.log('Showing fallback price modal');
+        return;
+      }
+    }
+    
+    calcularTotal();
+    metodoPagoInmediato.value = '';
+    cuentaBancariaInmediata.value = '';
+    notasPagoInmediato.value = '';
+    importeRecibido.value = '';
+    cambio.value = 0;
+
+    showPaymentConfirmationModal.value = true;
+    console.log('Payment confirmation modal should be showing now');
+  } catch (error) {
+    console.error('Error in abrirModalPago:', error);
+    showNotification('Error al abrir modal de pago: ' + error.message, 'error');
   }
-  calcularTotal();
-  metodoPagoInmediato.value = '';
-  cuentaBancariaInmediata.value = '';
-  notasPagoInmediato.value = '';
-  importeRecibido.value = '';
-  cambio.value = 0;
-  notasEfectivoAgregadas.value = false;
-  showPaymentConfirmationModal.value = true;
 };
 
 const cerrarModalPago = () => {
@@ -300,7 +382,7 @@ const cerrarModalPago = () => {
   metodoPagoInmediato.value = '';
   importeRecibido.value = '';
   cambio.value = 0;
-  notasEfectivoAgregadas.value = false;
+
 };
 
 const onMetodoPagoChange = () => {
@@ -316,7 +398,7 @@ const onMetodoPagoChange = () => {
 
 const crearVentaConPago = () => {
   if (!metodoPagoInmediato.value) { showNotification('Debes seleccionar una forma de pago', 'error'); return; }
-  if (metodoPagoInmediato.value === 'efectivo' && cambio.value < 0) { showNotification('Importe insuficiente', 'error'); return; }
+  if (metodoPagoInmediato.value === 'efectivo' && roundCurrency(cambio.value) < 0) { showNotification('Importe insuficiente', 'error'); return; }
 
   form.metodo_pago = metodoPagoInmediato.value;
   const mapeoFormaPagoSat = { 'efectivo': '01', 'transferencia': '03', 'tarjeta': '04', 'cheque': '02', 'credito': '99' };
@@ -328,11 +410,7 @@ const crearVentaConPago = () => {
     form.cuenta_bancaria_id = null;
   }
 
-  if (metodoPagoInmediato.value === 'efectivo' && importeRecibido.value > 0 && !notasEfectivoAgregadas.value) {
-    const infoEfectivo = `Recibido: ${formatCurrency(importeRecibido.value)} - Cambio: ${formatCurrency(Math.abs(cambio.value))}`;
-    form.notas = form.notas ? `${form.notas}\n${infoEfectivo}` : infoEfectivo;
-    notasEfectivoAgregadas.value = true;
-  }
+
   
   showPaymentConfirmationModal.value = false;
   submitVentaAfterValidation();
@@ -381,10 +459,63 @@ const loadFromPedido = () => {
   }
 };
 
-const loadFromCita = () => {
-  // Lógica similar a pedido (simplificada por brevedad, el usuario la tiene)
+const loadFromCita = async () => {
   if (!props.cita) return;
-  // ... implementar si es necesario, pero loadFromPedido cubre el ejemplo principal
+  const cit = props.cita;
+  form.cita_id = cit.id;
+  const cli = mergeClienteDesdeCita(cit);
+  if (cli) {
+    onClienteSeleccionado(cli);
+    await nextTick();
+  }
+  const refCita = cit.folio ? `Cita #${cit.id} (folio ${cit.folio})` : `Cita #${cit.id}`;
+  form.notas = form.notas
+    ? `${form.notas}\n\nVenta vinculada al servicio: ${refCita}.`
+    : `Venta vinculada al servicio: ${refCita}.`;
+
+  if (!Array.isArray(cit.items) || cit.items.length === 0) {
+    showNotification(cli ? 'Cliente del servicio listo. Agrega lo vendido en sitio.' : 'Cita vinculada. Selecciona cliente y productos.', 'info');
+    return;
+  }
+
+  const skipped = [];
+  for (const line of cit.items) {
+    const c = line.citable;
+    if (!c || !line.citable_id) continue;
+    const isProducto = (line.citable_type || '').includes('Producto');
+    const tipo = isProducto ? 'producto' : 'servicio';
+    const catalogo = isProducto
+      ? props.productos.find((x) => x.id === line.citable_id)
+      : props.servicios.find((x) => x.id === line.citable_id);
+    const itemData = catalogo
+      ? { ...catalogo, tipo }
+      : {
+          id: line.citable_id,
+          tipo,
+          nombre: c.nombre || c.descripcion || 'Item',
+          precio: parseFloat(line.precio) || 0,
+          precio_venta: parseFloat(line.precio) || 0,
+          requiere_serie: !!(c.requiere_serie),
+          tipo_producto: c.tipo_producto,
+        };
+    if (tipo === 'producto' && itemData.requiere_serie) {
+      skipped.push(itemData.nombre || `Producto #${line.citable_id}`);
+      continue;
+    }
+    await agregarProducto(itemData);
+    const key = `${tipo}-${line.citable_id}`;
+    quantities.value[key] = parseFloat(line.cantidad) || 1;
+    prices.value[key] = parseFloat(line.precio) || 0;
+    discounts.value[key] = parseFloat(line.descuento) || 0;
+  }
+  calcularTotal();
+  if (skipped.length) {
+    form.notas += `\n\nAgrega manualmente series/stock para: ${skipped.join(', ')}.`;
+  }
+  if (selectedProducts.value.length && form.price_list_id && form.almacen_id) {
+    await recalcularPreciosPorLista();
+  }
+  showNotification('Datos cargados desde la cita. Revisa cantidades y precios antes de finalizar.', 'info');
 };
 
 const handlePreview = () => {
@@ -428,7 +559,7 @@ const openSerials = async (entry) => {
     pickerProducto.value = props.productos.find(p => p.id === entry.id) || { id: entry.id, nombre: entry.nombre || 'Producto' };
     let url = `/productos/${entry.id}/series?almacen_id=${form.almacen_id}`;
     const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-    if (!res.ok) throw new Error('Error network');
+    if (!res.ok) throw new Error(translateErrorMessage('Error network'));
     const data = await res.json();
     pickerSeries.value = data?.series?.en_stock || [];
     selectedSeries.value = (serialsMap.value[pickerKey.value] || []).slice(0, pickerRequired.value);
@@ -457,14 +588,52 @@ const toggleSerie = (numero) => {
 const confirmSeries = () => {
   if (!pickerKey.value) return;
   if (selectedSeries.value.length !== pickerRequired.value) { showNotification(`Selecciona ${pickerRequired.value} series`, 'error'); return; }
-  serialsMap.value[pickerKey.value] = [...selectedSeries.value];
+  
+  // Use spread to ensure reactivity triggers in modals
+  serialsMap.value = {
+    ...serialsMap.value,
+    [pickerKey.value]: [...selectedSeries.value]
+  };
+  
   closeSeriesPicker();
   notyf.success('Series seleccionadas');
 };
 
-const handleKitComponentsSeries = async (kit) => {
-  // ... (Lógica de kits del usuario)
-  // Simplificada para este ejemplo, pero en el archivo real la incluiría completa
+const handleKitComponentsSeries = (kitEntry) => {
+  activeKit.value = props.productos.find(p => p.id === kitEntry.id) || kitEntry;
+  showKitComponentsModal.value = true;
+};
+
+const openComponentSerials = async (component) => {
+  const kitId = String(activeKit.value.id);
+  const kitQty = quantities.value[`producto-${kitId}`] || 1;
+  const qty = component.cantidad || 1;
+  const required = qty * kitQty;
+  
+  // Try to find the real product ID of the component
+  const componentProductId = String(component.item_id || component.producto_id || component.item?.id || component.id);
+  
+  pickerRequiredOverride.value = required;
+  pickerKey.value = `kit-${kitId}-component-${componentProductId}`;
+  pickerProducto.value = component.item || component.producto || { id: componentProductId, nombre: 'Componente' };
+  
+  console.log(`[KIT SERIES] Opening picker for: ${pickerKey.value}`, { required });
+
+  try {
+    const url = `/productos/${componentProductId}/series?almacen_id=${form.almacen_id}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    
+    // Web controller returns { series: { en_stock: [...] } }
+    const seriesArray = data?.series?.en_stock || data?.series || [];
+    pickerSeries.value = Array.isArray(seriesArray) ? seriesArray : [];
+    selectedSeries.value = (serialsMap.value[pickerKey.value] || []).slice(0, required);
+    showSeriesPicker.value = true;
+  } catch (e) {
+    console.error('[KIT SERIES] Error:', e);
+    showNotification('Error cargando series del componente: ' + e.message, 'error');
+  }
 };
 
 const onClienteSeleccionado = (cliente) => {
@@ -499,6 +668,13 @@ const recalcularPreciosPorLista = async () => {
   } catch (e) { console.error(e); }
 };
 
+// Cliente del servicio ya seleccionado en el primer render (evita el paso de buscar cliente).
+if (props.cita) {
+  const cli = mergeClienteDesdeCita(props.cita);
+  if (cli) onClienteSeleccionado(cli);
+  form.cita_id = props.cita.id;
+}
+
 const crearNuevoCliente = (nombre) => { nombreClienteBuscado.value = nombre; mostrarModalCliente.value = true; };
 const onClienteCreado = (nuevo) => {
   if (!clientesList.value.some(c => c.id === nuevo.id)) clientesList.value.push(nuevo);
@@ -513,7 +689,11 @@ const agregarProducto = async (item) => {
   if (!exists) {
     selectedProducts.value.push({ ...item, nombre: item.nombre || item.descripcion });
     quantities.value[key] = 1;
-    let precio = item.tipo === 'producto' ? resolverPrecio(item, form.price_list_id) : (parseFloat(item.precio) || 0);
+    let precio = resolverPrecio(
+      item,
+      form.price_list_id,
+      { serviciosUsanListasPrecios: props.defaults?.serviciosUsanListasPrecios }
+    );
     prices.value[key] = precio;
     discounts.value[key] = 0;
     calcularTotal();
@@ -531,7 +711,11 @@ const eliminarProducto = (item) => {
 };
 
 const updateQuantity = (key, val) => { quantities.value[key] = val; calcularTotal(); saveState(); };
+const updatePrice = (key, val) => { prices.value[key] = parseFloat(val) || 0; calcularTotal(); saveState(); };
 const updateDiscount = (key, val) => { discounts.value[key] = val; calcularTotal(); saveState(); };
+
+// Modo de descuento general: 'porcentaje' o 'monto'
+const descuentoGeneralTipo = ref('monto');
 
 const totales = computed(() => {
   let subtotal = 0, descuentoItems = 0;
@@ -553,23 +737,43 @@ const totales = computed(() => {
   if (aplicarRetencionIsr.value) retIsr = subTotalDesc * (retencionIsrDefault.value / 100);
   else if (props.defaults?.enableIsr && clienteSeleccionado.value?.tipo_persona === 'moral') retIsr = subTotalDesc * ((props.defaults?.isrPorcentaje ?? 1.25) / 100);
 
-  const total = subTotalDesc + iva - retIva - retIsr - (Number(form.descuento_general) || 0);
+  // Calcular descuento general según tipo
+  let descuentoGeneralCalc = 0;
+  const descGralVal = Number(form.descuento_general) || 0;
+  if (descuentoGeneralTipo.value === 'porcentaje') {
+    descuentoGeneralCalc = subTotalDesc * (descGralVal / 100);
+  } else {
+    descuentoGeneralCalc = descGralVal;
+  }
+  descuentoGeneralCalc = Math.min(descuentoGeneralCalc, subTotalDesc + iva); // No puede exceder el total
+
+  const total = subTotalDesc + iva - retIva - retIsr - descuentoGeneralCalc;
   
-  return { subtotal, descuentoItems, subTotalConDescuentos: subTotalDesc, iva, retencion_iva: retIva, retencion_isr: retIsr, total };
+  return { subtotal, descuentoItems, subTotalConDescuentos: subTotalDesc, iva, retencion_iva: retIva, retencion_isr: retIsr, descuentoGeneral: descuentoGeneralCalc, total: Math.max(0, total) };
 });
 
 const calcularTotal = () => {
-  form.subtotal = totales.value.subtotal;
-  form.descuento_items = totales.value.descuentoItems;
-  form.iva = totales.value.iva;
-  form.retencion_iva = totales.value.retencion_iva;
-  form.retencion_isr = totales.value.retencion_isr;
-  form.total = totales.value.total - (Number(form.descuento_general) || 0); // Ajuste final
+  form.subtotal = roundCurrency(totales.value.subtotal);
+  form.descuento_items = roundCurrency(totales.value.descuentoItems);
+  form.iva = roundCurrency(totales.value.iva);
+  form.retencion_iva = roundCurrency(totales.value.retencion_iva);
+  form.retencion_isr = roundCurrency(totales.value.retencion_isr);
+  form.total = roundCurrency(totales.value.total);
 };
 
 const validarDatos = () => {
-  if (!form.cliente_id || !form.almacen_id || selectedProducts.value.length === 0) { showNotification('Faltan datos', 'error'); return; }
-  // Validaciones detalladas del usuario...
+  if (!form.cliente_id) { 
+    showNotification('Debes seleccionar un cliente', 'error'); 
+    return false; 
+  }
+  if (!form.almacen_id) { 
+    showNotification('Debes seleccionar un almacén', 'error'); 
+    return false; 
+  }
+  if (selectedProducts.value.length === 0) { 
+    showNotification('Debes agregar al menos un producto o servicio', 'error'); 
+    return false; 
+  }
   return true;
 };
 
@@ -640,28 +844,42 @@ const submitVentaAfterValidation = async () => {
     },
     onError: (errors) => {
       console.error('Errores al crear venta:', errors);
-      let mensaje = 'Hubo un error al guardar la venta.';
       
-      if (errors.productos) mensaje = errors.productos;
-      else if (errors.servicios) mensaje = errors.servicios;
-      else if (errors.cliente_id) mensaje = 'Debes seleccionar un cliente válido.';
-      else {
-          const first = Object.values(errors)[0];
-          mensaje = typeof first === 'string' ? first : mensaje;
+      // ✅ Handle detailed stock errors
+      if (errors.stock_type === 'stock_error') {
+        stockErrorDetails.value = errors.stock_details || [];
+      } else {
+        stockErrorDetails.value = [];
       }
+
+      // Recopilar todos los mensajes de error
+      const mensajes = [];
+      Object.entries(errors).forEach(([key, value]) => {
+        // Skip metadata fields
+        if (key === 'stock_type' || key === 'stock_details') return;
+        
+        if (typeof value === 'string') {
+          mensajes.push(value);
+        } else if (Array.isArray(value)) {
+          mensajes.push(...value);
+        }
+      });
       
-      notyf.error(mensaje);
+      if (mensajes.length > 0) {
+        openErrorModal(mensajes);
+      } else {
+        notyf.error('Hubo un error al guardar la venta.');
+      }
     }
   });
 };
-
-const saveState = () => { saveToLocalStorage('ventaEnProgreso', { cliente_id: form.cliente_id, selectedProducts: selectedProducts.value, quantities: quantities.value, prices: prices.value, discounts: discounts.value }); };
 
 onMounted(async () => {
     await fetchNextNumeroVenta();
     await cargarCuentasBancarias();
     seleccionarVendedorPredeterminado();
-    if(props.pedido) loadFromPedido();
+    if (props.pedido) loadFromPedido();
+    else if (props.cita) await loadFromCita();
     // Leer localStorage...
 });
 </script>
@@ -673,28 +891,40 @@ onMounted(async () => {
      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         <!-- Header Inline Premium -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div class="flex items-center space-x-6">
-                <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl transform transition-transform hover:scale-105" 
-                     :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
-                     <svg class="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                     </svg>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+            <div class="flex items-center space-x-8">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+                    <div class="relative w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl transform transition-all group-hover:scale-105 group-hover:rotate-3" 
+                         :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+                         <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                         </svg>
+                    </div>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-wider">Nueva Venta</h1>
-                    <div class="flex items-center mt-1 space-x-3">
-                         <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em]">F: {{ form.numero_venta || 'AUTO' }}</span>
-                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
-                         <span class="text-[10px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">Creación</span>
+                    <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tight">
+                        Nueva <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-400 dark:to-blue-400">Venta</span>
+                    </h1>
+                    <div class="flex items-center mt-2 flex-wrap gap-2">
+                         <div v-if="cita" class="px-3 py-1 bg-blue-50 dark:bg-blue-950/50 rounded-full border border-blue-200 dark:border-blue-800">
+                            <span class="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-widest">Vinculada a cita #{{ cita.id }}</span>
+                         </div>
+                         <div class="px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800">
+                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Folio: {{ form.numero_venta || 'AUTO' }}</span>
+                         </div>
+                         <div class="flex items-center space-x-2">
+                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
+                             <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">En Proceso</span>
+                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <Link :href="route('ventas.index')" class="px-6 py-3 bg-white dark:bg-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm">Cancelar</Link>
-                <button @click="abrirModalPago" class="flex items-center gap-3 px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl hover:shadow-indigo-500/20 transition-all transform hover:-translate-y-1 active:translate-y-0">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                    Confirmar Venta
+            <div class="flex items-center gap-4">
+                <Link :href="route('ventas.index')" class="px-8 py-3.5 bg-white dark:bg-slate-900 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 shadow-sm shadow-slate-200/50 dark:shadow-none">Cancelar Operación</Link>
+                <button @click="abrirModalPago" class="group relative px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-3">
+                    <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                    Finalizar Venta
                 </button>
             </div>
         </div>
@@ -705,14 +935,21 @@ onMounted(async () => {
             <div class="xl:col-span-8 space-y-8">
                 
                 <!-- Datos Generales -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                    <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 mr-3">
-                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 rounded-[2rem] blur opacity-10"></div>
+                    <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/30 dark:bg-slate-950/20">
+                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mr-4 border border-emerald-500/20 shadow-inner">
+                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                            </div>
+                            <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Información General</h2>
                         </div>
-                        <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Información General</h2>
-                    </div>
-                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                        <!-- Fecha -->
+                        <div>
+                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Fecha</label>
+                             <input type="date" v-model="form.fecha" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-indigo-500 focus:ring-0"/>
+                        </div>
                         <!-- Almacén -->
                         <div>
                              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Almacén</label>
@@ -728,60 +965,85 @@ onMounted(async () => {
                                  <option v-for="pl in priceLists" :key="pl.id" :value="pl.id">{{ pl.nombre }}</option>
                              </select>
                         </div>
+                        <!-- Vendedor -->
+                        <div>
+                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Vendedor</label>
+                             <select v-model="vendedorSeleccionado" @change="onVendedorChange" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-indigo-500 focus:ring-0">
+                                 <option value="">Seleccionar vendedor...</option>
+                                 <option v-for="v in vendedoresFiltrados" :key="`${v.type}-${v.id}`" :value="`${v.type}-${v.id}`">{{ v.nombre }}</option>
+                             </select>
+                        </div>
+                        <!-- Cobrador (Para Mi Corte) -->
+                        <div v-if="form.metodo_pago !== 'credito'">
+                             <label class="block text-[10px] font-black text-orange-400 dark:text-orange-500 uppercase tracking-widest mb-2">¿Quién tiene el dinero? (Para Mi Corte)</label>
+                             <select v-model="cobradorSeleccionado" @change="onCobradorChange" class="w-full bg-orange-50 dark:bg-slate-950 border-2 border-orange-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-orange-500 focus:ring-0">
+                                 <option value="">-- Yo (Usuario actual) --</option>
+                                 <option v-for="v in vendedoresFiltrados" :key="`cobrador-${v.type}-${v.id}`" :value="`${v.type}-${v.id}`">{{ v.nombre }}</option>
+                             </select>
+                        </div>
                     </div>
+                  </div>
                 </div>
 
                 <!-- Cliente -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                    <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 mr-3">
-                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-br from-blue-200 to-indigo-300 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-[2rem] blur opacity-10"></div>
+                    <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/30 dark:bg-slate-950/20">
+                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400 mr-4 border border-blue-500/20 shadow-inner">
+                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                            </div>
+                            <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Cliente</h2>
                         </div>
-                        <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Cliente</h2>
-                    </div>
-                    <div class="p-8">
-                        <BuscarCliente 
-                          ref="buscarClienteRef"
-                          :clientes="clientesList"
-                          :cliente-seleccionado="clienteSeleccionado"
-                          @cliente-seleccionado="onClienteSeleccionado"
-                          @crear-nuevo-cliente="crearNuevoCliente"
-                        />
+                        <div class="p-8">
+                            <BuscarCliente 
+                              ref="buscarClienteRef"
+                              :clientes="clientesList"
+                              :cliente-seleccionado="clienteSeleccionado"
+                              @cliente-seleccionado="onClienteSeleccionado"
+                              @crear-nuevo-cliente="crearNuevoCliente"
+                            />
+                        </div>
                     </div>
                 </div>
 
                 <!-- Productos -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                    <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 mr-3">
-                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-br from-indigo-200 to-purple-300 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-[2rem] blur opacity-10"></div>
+                    <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/30 dark:bg-slate-950/20">
+                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mr-4 border border-indigo-500/20 shadow-inner">
+                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            </div>
+                            <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Productos y Servicios</h2>
                         </div>
-                        <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Productos y Servicios</h2>
-                    </div>
-                    <div class="p-8">
-                        <div class="mb-8 p-6 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-                             <BuscarProducto
-                                ref="buscarProductoRef"
-                                :productos="productos"
-                                :servicios="servicios"
-                                :almacen-id="form.almacen_id"
-                                :price-list-id="form.price_list_id"
-                                @agregar-producto="agregarProducto"
-                              />
+                        <div class="p-8">
+                            <div class="mb-8 p-6 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+                                 <BuscarProducto
+                                    ref="buscarProductoRef"
+                                    :productos="productos"
+                                    :servicios="servicios"
+                                    :almacen-id="form.almacen_id"
+                                    :price-list-id="form.price_list_id"
+                                    :servicios-usan-listas-precios="props.defaults?.serviciosUsanListasPrecios"
+                                    @agregar-producto="agregarProducto"
+                                  />
+                            </div>
+                            <PySSeleccionados
+                              :selectedProducts="selectedProducts"
+                              :quantities="quantities"
+                              :prices="prices"
+                              :discounts="discounts"
+                              :serials="serialsMap"
+                              @eliminar-producto="eliminarProducto"
+                              @update-quantity="updateQuantity"
+                              @update-price="updatePrice"
+                              @update-discount="updateDiscount"
+                              @update-serials="updateSerials"
+                              @open-serials="openSerials"
+                              @open-kit-serials="handleKitComponentsSeries"
+                            />
                         </div>
-                        <PySSeleccionados
-                          :selectedProducts="selectedProducts"
-                          :quantities="quantities"
-                          :prices="prices"
-                          :discounts="discounts"
-                          :serials="serialsMap"
-                          @eliminar-producto="eliminarProducto"
-                          @update-quantity="updateQuantity"
-                          @update-discount="updateDiscount"
-                          @update-serials="updateSerials"
-                          @open-serials="openSerials"
-                          @open-kit-serials="handleKitComponentsSeries"
-                        />
                     </div>
                 </div>
 
@@ -802,35 +1064,51 @@ onMounted(async () => {
                      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}05 100%)` }">
                         <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Resumen</h2>
                      </div>
-                     <div class="p-8 space-y-6">
+                     <div class="p-8 space-y-5">
                         <div class="space-y-3">
                              <div class="flex justify-between text-xs font-bold text-slate-400 dark:text-slate-500 uppercase"><span>Subtotal</span><span>${{ formatNumber(totales.subtotal) }}</span></div>
                              <div class="flex justify-between text-xs font-bold text-rose-500 uppercase" v-if="totales.descuentoItems > 0"><span>Desc. Items</span><span>-${{ formatNumber(totales.descuentoItems) }}</span></div>
-                             <!-- Descuento General Input -->
-                             <div class="flex flex-col gap-1 pt-3 border-t border-dashed border-slate-100 dark:border-slate-800">
-                                 <label class="text-[10px] uppercase font-black text-slate-400">Descuento Global</label>
-                                 <input type="number" v-model.number="form.descuento_general" @input="calcularTotal" min="0" class="bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm font-bold text-slate-900 dark:text-white w-full" />
+                             <!-- Descuento General Input con selector de tipo -->
+                             <div class="pt-3 border-t border-dashed border-slate-100 dark:border-slate-800">
+                                 <label class="text-[10px] uppercase font-black text-slate-400 mb-2 block">Descuento Global</label>
+                                 <div class="flex items-center gap-2">
+                                   <input type="number" v-model.number="form.descuento_general" @input="calcularTotal" min="0" :max="descuentoGeneralTipo === 'porcentaje' ? 100 : undefined" class="flex-1 bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm font-bold text-slate-900 dark:text-white" />
+                                   <div class="flex bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                                     <button type="button" @click="descuentoGeneralTipo = 'monto'; calcularTotal()" :class="['px-2.5 py-2 text-[10px] font-black transition-all', descuentoGeneralTipo === 'monto' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700']">
+                                       $
+                                     </button>
+                                     <button type="button" @click="descuentoGeneralTipo = 'porcentaje'; calcularTotal()" :class="['px-2.5 py-2 text-[10px] font-black transition-all', descuentoGeneralTipo === 'porcentaje' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700']">
+                                       %
+                                     </button>
+                                   </div>
+                                 </div>
+                                 <div v-if="totales.descuentoGeneral > 0" class="flex justify-between text-xs font-bold text-rose-500 mt-2">
+                                   <span>Desc. Global</span><span>-${{ formatNumber(totales.descuentoGeneral) }}</span>
+                                 </div>
                              </div>
                              
                              <!-- Retenciones Toggles -->
                              <div class="flex flex-col gap-2 pt-3 border-t border-dashed border-slate-100 dark:border-slate-800">
                                 <label class="flex items-center justify-between cursor-pointer group">
-                                    <span class="text-[10px] uppercase font-black text-slate-400 group-hover:text-indigo-500 transition-colors">Aplicar Ret. IVA</span>
-                                    <input type="checkbox" v-model="aplicarRetencionIva" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
+                                    <span class="text-[10px] uppercase font-black text-slate-400 group-hover:text-indigo-500 transition-colors">Ret. IVA</span>
+                                    <input type="checkbox" v-model="aplicarRetencionIva" @change="calcularTotal" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
                                 </label>
                                 <label class="flex items-center justify-between cursor-pointer group">
-                                    <span class="text-[10px] uppercase font-black text-slate-400 group-hover:text-indigo-500 transition-colors">Aplicar Ret. ISR</span>
-                                    <input type="checkbox" v-model="aplicarRetencionIsr" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
+                                    <span class="text-[10px] uppercase font-black text-slate-400 group-hover:text-indigo-500 transition-colors">Ret. ISR</span>
+                                    <input type="checkbox" v-model="aplicarRetencionIsr" @change="calcularTotal" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
                                 </label>
                              </div>
                              
-                             <div class="pt-3 flex justify-between text-xs font-bold text-slate-400 dark:text-slate-500 uppercase"><span>IVA (16%)</span><span>${{ formatNumber(totales.iva) }}</span></div>
+                             <div class="pt-3 flex justify-between text-xs font-bold text-slate-400 dark:text-slate-500 uppercase"><span>IVA ({{ props.defaults?.ivaPorcentaje ?? 16 }}%)</span><span>${{ formatNumber(totales.iva) }}</span></div>
+                             <div v-if="totales.retencion_iva > 0" class="flex justify-between text-xs font-bold text-amber-500 uppercase"><span>Ret. IVA</span><span>-${{ formatNumber(totales.retencion_iva) }}</span></div>
+                             <div v-if="totales.retencion_isr > 0" class="flex justify-between text-xs font-bold text-amber-500 uppercase"><span>Ret. ISR</span><span>-${{ formatNumber(totales.retencion_isr) }}</span></div>
                         </div>
-                        <div class="pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                        <div class="pt-6 border-t-2 border-slate-100 dark:border-slate-800 text-center">
                             <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1 block">Total a Pagar</span>
                             <div class="text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">${{ formatNumber(totales.total) }}</div>
                         </div>
-                        <button @click="abrirModalPago" :disabled="form.processing" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button @click="abrirModalPago" :disabled="form.processing" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                              Cobrar Venta
                         </button>
                      </div>
@@ -844,43 +1122,60 @@ onMounted(async () => {
      <CrearClienteModal :show="mostrarModalCliente" :catalogs="catalogs" :nombre-inicial="nombreClienteBuscado" @close="mostrarModalCliente = false" @cliente-creado="onClienteCreado" />
      
      <!-- Modal Pago -->
-     <transition name="fade">
-        <div v-if="showPaymentConfirmationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
-             <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
-                 <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600">
-                     <h3 class="text-lg font-bold text-white flex items-center"><span class="mr-2">💳</span> Confirmar Pago</h3>
-                 </div>
-                 <div class="p-6 space-y-5">
-                      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-2xl text-center">
-                           <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Total a Cobrar</p>
-                           <p class="text-3xl font-black text-blue-700 dark:text-blue-300">${{ formatNumber(form.total) }}</p>
-                      </div>
-                      <div>
-                           <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Método de Pago</label>
-                           <select v-model="metodoPagoInmediato" @change="onMetodoPagoChange" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white focus:border-indigo-500"><option value="">Selecciona...</option><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="transferencia">Transferencia</option><option value="credito">Crédito</option></select>
-                      </div>
-                      <div v-if="metodoPagoInmediato === 'efectivo'" class="space-y-3">
-                           <div>
-                               <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Monto Recibido</label>
-                               <input ref="inputEfectivo" type="text" v-model="importeRecibido" @input="calcularCambio" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-lg font-black text-slate-800 dark:text-white" placeholder="0.00" />
-                           </div>
-                           <div class="flex justify-between items-center p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
-                               <span class="text-xs font-bold text-emerald-600 uppercase">Cambio</span>
-                               <span class="text-xl font-black text-emerald-700 dark:text-emerald-400">${{ formatNumber(cambio) }}</span>
-                           </div>
-                      </div>
-                 </div>
-                 <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                      <button @click="cerrarModalPago" class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-slate-700 dark:hover:text-slate-300">Cancelar</button>
-                      <button @click="crearVentaConPago" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg">Confirmar</button>
-                 </div>
-             </div>
-        </div>
-     </transition>
+     <VentaPaymentModal
+       :show="showPaymentConfirmationModal"
+       :total="form.total"
+       v-model:metodoPagoInmediato="metodoPagoInmediato"
+       v-model:importeRecibido="importeRecibido"
+       v-model:cuentaBancariaId="cuentaBancariaInmediata"
+       v-model:notasPago="notasPagoInmediato"
+       :cambio="cambio"
+       :processing="form.processing"
+       :inputRef="inputEfectivo"
+       :formatNumber="formatNumber"
+       :cuentasBancarias="cuentasBancarias"
+       @metodo-change="onMetodoPagoChange"
+       @importe-change="calcularCambio"
+       @cancel="cerrarModalPago"
+       @confirm="crearVentaConPago"
+     />
      
      <!-- Otros modales (Series, Fallback, Error) -->
-     <transition name="fade"><div v-if="showErrorModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"><div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl max-w-sm w-full"><h3 class="text-lg font-bold text-rose-600 mb-2">Error</h3><ul class="text-sm text-slate-600 dark:text-slate-300 list-disc pl-4 mb-4"><li v-for="msg in errorModalMessages" :key="msg">{{ msg }}</li></ul><button @click="closeErrorModal" class="w-full py-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white rounded-xl font-bold text-xs uppercase">Cerrar</button></div></div></transition>
-      <div v-if="showSeriesPicker" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"><div class="p-6 border-b border-slate-100 dark:border-slate-800"><h3 class="font-bold text-slate-900 dark:text-white">Seleccionar Series</h3><p class="text-xs text-slate-500 mt-1">Requeridas: {{ pickerRequired }} | Seleccionadas: {{ selectedSeries.length }}</p></div><div class="p-6 overflow-y-auto flex-1"><input v-model="pickerSearch" placeholder="Buscar serie..." class="w-full mb-4 px-4 py-2 rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm" /><div class="space-y-2"><div v-for="s in filteredPickerSeries" :key="s.id" @click="toggleSerie(s.numero_serie)" :class="{'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800': selectedSeries.includes(s.numero_serie), 'border-slate-100 dark:border-slate-800': !selectedSeries.includes(s.numero_serie)}" class="p-3 rounded-xl border flex justify-between items-center cursor-pointer transition-colors"><span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ s.numero_serie }}</span><div v-if="selectedSeries.includes(s.numero_serie)" class="w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div></div></div></div><div class="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3"><button @click="closeSeriesPicker" class="px-4 py-2 text-xs font-bold text-slate-500 uppercase">Cancelar</button><button @click="confirmSeries" :disabled="selectedSeries.length !== pickerRequired" class="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase disabled:opacity-50">Confirmar</button></div></div></div>
+     
+     <!-- Modal Fallback Price - cuando productos no tienen precio en lista -->
+     <VentaFallbackPriceModal
+       :show="showFallbackPriceModal"
+       :products="fallbackPriceProducts"
+       @close="closeFallbackPriceModal"
+       @accept="acceptFallbackPriceAndContinue"
+     />
+     
+     <VentaErrorModal
+        :show="showErrorModal"
+        :messages="errorModalMessages"
+        :stock-details="stockErrorDetails"
+        @close="closeErrorModal"
+      />
+     <VentaSeriesPickerModal
+      :show="showSeriesPicker"
+      :product="pickerProducto"
+      :picker-required="pickerRequiredOverride"
+      :selected-series="selectedSeries"
+      v-model:picker-search="pickerSearch"
+      :filtered-picker-series="filteredPickerSeries"
+      @close="showSeriesPicker = false"
+      @toggle="toggleSerie"
+      @confirm="confirmSeries"
+    />
+
+     <VentaKitComponentsModal
+       :show="showKitComponentsModal"
+       :kit="activeKit"
+       :quantities="quantities"
+       :serials="serialsMap"
+       @select-component="openComponentSerials"
+       @close="showKitComponentsModal = false"
+     />
 
   </div>
 </template>

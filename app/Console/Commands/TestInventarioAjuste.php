@@ -23,6 +23,12 @@ class TestInventarioAjuste extends Command
 
     public function handle()
     {
+        if (app()->isProduction()) {
+            $this->error('⛔ ESTE COMANDO NO PUEDE EJECUTARSE EN PRODUCCIÓN.');
+            $this->error('Genera datos de prueba y altera el inventario real.');
+            return 1;
+        }
+
         $sessionId = uniqid();
         $this->info("🧪 Iniciando prueba de ajustes manuales (ID: {$sessionId})...");
 

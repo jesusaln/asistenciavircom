@@ -78,11 +78,14 @@ class NotificationController extends Controller
     public function destroyMultiple(Request $request)
     {
         $request->validate([
-            'ids' => 'required|array',
+            'ids' => 'required|array|max:100',
             'ids.*' => 'integer',
         ]);
 
         $userId = Auth::id();
+
+        $count = count($request->ids);
+        Log::info("User {$userId} deleting {$count} notifications: " . implode(',', $request->ids));
 
         $deleted = Notification::forUser($userId)
             ->whereIn('id', $request->ids)

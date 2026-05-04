@@ -600,35 +600,34 @@ const formatearMoneda = (num) => {
   }).format(safe);
 }
 
-// Configuración de estados para pedidos Dark Premium
+// Configuración de estados para pedidos
 const configEstados = {
   'borrador': {
     label: 'Borrador',
-    classes: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700',
-    color: 'bg-slate-400'
+    classes: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
+    color: 'bg-gray-400 dark:bg-gray-500'
   },
   'pendiente': {
     label: 'Pendiente',
-    classes: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20',
-    color: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+    classes: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300',
+    color: 'bg-yellow-400 dark:bg-yellow-500'
   },
   'confirmado': {
     label: 'Confirmado',
-    classes: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20',
-    color: 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]'
+    classes: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
+    color: 'bg-blue-400 dark:bg-blue-500'
   },
   'enviado_venta': {
-    label: 'En Venta',
-    classes: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
-    color: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+    label: 'Enviado a Venta',
+    classes: 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300',
+    color: 'bg-purple-400 dark:bg-purple-500'
   },
   'cancelado': {
     label: 'Cancelado',
-    classes: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
-    color: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'
+    classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300',
+    color: 'bg-red-400 dark:bg-red-500'
   }
 };
-
 
 const obtenerClasesEstado = (estado) => {
   return configEstados[estado]?.classes || 'bg-gray-100 text-gray-700';
@@ -766,7 +765,7 @@ const estadisticasConPorcentaje = computed(() => {
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
   </component>
 
-  <div class="pedidos-index min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 transition-colors" :style="cssVars">
+  <div class="pedidos-index min-h-screen bg-white dark:bg-gray-900 transition-colors" :style="cssVars">
     <!-- Contenido principal -->
     <div class="w-full px-6 py-8">
       <!-- Header específico de pedidos -->
@@ -791,7 +790,7 @@ const estadisticasConPorcentaje = computed(() => {
       />
 
       <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-300 dark:text-gray-400">
+      <div class="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-400">
         <div>
           Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} pedidos
         </div>
@@ -812,182 +811,225 @@ const estadisticasConPorcentaje = computed(() => {
         </div>
       </div>
 
-      <!-- Tabla de pedidos Dark Premium -->
-      <div class="mt-8">
-        <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800/60 overflow-hidden animate-in fade-in duration-1000">
-          <!-- Table Header Logic -->
-          <div class="px-10 py-6 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-slate-900/40 flex items-center justify-between">
-            <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Listado de Operaciones</h2>
-            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white dark:bg-slate-950 px-4 py-1.5 rounded-full border border-slate-100 dark:border-slate-800/60 shadow-sm">
-              {{ items.length }} Mostrados
+      <!-- Tabla de pedidos -->
+      <div class="mt-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200/60 dark:border-gray-700" :style="subtleGradientStyle">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Pedidos</h2>
+              <div class="text-sm text-gray-600 dark:text-gray-400 bg-white/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600/50">
+                {{ items.length }} de {{ paginationData.total }} pedidos
+              </div>
             </div>
           </div>
 
-          <div class="overflow-x-auto text-nowrap">
-            <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/40">
-              <thead class="bg-slate-50/50 dark:bg-slate-950/50">
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
+              <thead class="bg-white/60 dark:bg-gray-900/60">
                 <tr>
-                  <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Referencia</th>
-                  <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sujeto / Cliente</th>
-                  <th class="px-10 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estado</th>
-                  <th class="px-10 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Inversión Total</th>
-                  <th class="px-10 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Control</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">N° Pedido</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                  <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody class="divide-y divide-slate-50 dark:divide-slate-800/20">
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
                 <template v-if="items.length > 0">
                   <tr
                     v-for="pedido in items"
                     :key="pedido.id"
-                    class="group hover:bg-slate-50/50 dark:hover:bg-orange-500/[0.02] cursor-pointer transition-all duration-300"
-                    @click="verDetalles(pedido)"
+                    class="group hover:bg-white/60 dark:hover:bg-gray-700/60 transition-all duration-150 hover:shadow-sm"
                   >
-                    <!-- Referencia -->
-                    <td class="px-10 py-6">
-                      <div class="flex flex-col gap-1.5">
-                        <span class="text-[10px] font-black text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-lg w-fit uppercase tracking-widest">{{ pedido.numero_pedido || 'SN-'+pedido.id }}</span>
-                        <div class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ formatearFecha(pedido.fecha || pedido.created_at) }}</div>
-                        <div class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase">{{ formatearHora(pedido.fecha || pedido.created_at) }}</div>
+                    <!-- Fecha -->
+                    <td class="px-6 py-4">
+                      <div class="flex flex-col space-y-0.5">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                          {{ formatearFecha(pedido.fecha || pedido.created_at) }}
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ formatearHora(pedido.fecha || pedido.created_at) }}
+                        </div>
                       </div>
                     </td>
 
                     <!-- Cliente -->
-                    <td class="px-10 py-6">
-                      <div class="flex flex-col gap-1">
-                        <div class="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight group-hover:text-orange-600 transition-colors">
-                          {{ pedido.cliente?.nombre_razon_social || 'Consumidor Final' }}
+                    <td class="px-6 py-4">
+                      <div class="flex flex-col space-y-0.5">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
+                          {{ pedido.cliente?.nombre_razon_social || 'Sin cliente' }}
                         </div>
-                        <div v-if="pedido.cliente?.email" class="text-[10px] text-slate-500 dark:text-slate-500 font-bold lowercase tracking-normal">
-                          <FontAwesomeIcon icon="envelope" class="mr-1 opacity-50" />
+                        <div v-if="pedido.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                           {{ pedido.cliente?.email }}
                         </div>
                       </div>
                     </td>
 
-                    <!-- Estado -->
-                    <td class="px-10 py-6 text-center">
-                      <div
-                        :class="obtenerClasesEstado(pedido.estado)"
-                        class="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300"
-                      >
-                        <span
-                          class="w-2 h-2 rounded-full mr-2.5 animate-pulse"
-                          :class="obtenerColorPuntoEstado(pedido.estado)"
-                        ></span>
-                        {{ obtenerLabelEstado(pedido.estado) }}
+                    <!-- N° Pedido -->
+                    <td class="px-6 py-4">
+                      <div class="text-sm font-mono font-medium text-gray-700 dark:text-gray-300 bg-gray-100/60 dark:bg-gray-700/60 px-2 py-1 rounded-md inline-block">
+                        {{ pedido.numero_pedido || 'N/A' }}
                       </div>
                     </td>
 
                     <!-- Total -->
-                    <td class="px-10 py-6 text-right">
-                      <div class="text-sm font-black text-slate-900 dark:text-white tabular-nums">
+                    <td class="px-6 py-4">
+                      <div class="text-sm font-semibold text-gray-900 dark:text-white">
                         ${{ formatearMoneda(pedido.total || 0) }}
                       </div>
-                      <div class="text-[9px] text-slate-400 dark:text-slate-600 font-black uppercase mt-1">MXN Netos</div>
+                    </td>
+
+                    <!-- Estado -->
+                    <td class="px-6 py-4">
+                      <span
+                        :class="obtenerClasesEstado(pedido.estado)"
+                        class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 hover:shadow-sm"
+                      >
+                        <span
+                          class="w-2 h-2 rounded-full mr-2 transition-all duration-150"
+                          :class="obtenerColorPuntoEstado(pedido.estado)"
+                        ></span>
+                        {{ obtenerLabelEstado(pedido.estado) }}
+                      </span>
                     </td>
 
                     <!-- Acciones -->
-                    <td class="px-10 py-6" @click.stop>
-                      <div class="flex items-center justify-end gap-3">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center justify-end space-x-2">
+                        <!-- Ver detalles -->
                         <button
                           @click="verDetalles(pedido)"
-                          class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-orange-500 hover:text-white transition-all shadow-sm"
-                          title="Detalles"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                          :style="focusRingStyle"
+                          title="Ver detalles"
                         >
-                          <FontAwesomeIcon icon="eye" class="text-xs" />
+                          <font-awesome-icon icon="eye" class="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:scale-110" />
                         </button>
 
+                        <!-- Editar -->
                         <button
                           v-if="['borrador', 'pendiente'].includes(pedido.estado)"
                           @click="editarPedido(pedido.id)"
-                          class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-amber-500 hover:text-white transition-all shadow-sm"
-                          title="Editar"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                          :style="focusRingStyle"
+                          title="Editar pedido"
                         >
-                          <FontAwesomeIcon icon="pen-to-square" class="text-xs" />
+                          <font-awesome-icon icon="edit" class="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:scale-110" />
                         </button>
 
+                        <!-- Enviar por Email -->
+                        <button
+                          v-if="pedido.estado !== 'cancelado' && pedido.cliente?.email"
+                          @click="enviarPedidoPorEmail(pedido)"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                          :style="focusRingStyle"
+                          :title="pedido.email_enviado ? 'Reenviar por Email' : 'Enviar por Email'"
+                        >
+                          <font-awesome-icon
+                            :icon="pedido.email_enviado ? 'envelope-open' : 'envelope'"
+                            class="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:scale-110"
+                          />
+                        </button>
+
+                        <!-- Enviar a Venta -->
                         <button
                           v-if="['confirmado', 'en_preparacion', 'listo_entrega', 'entregado', 'borrador', 'pendiente'].includes(pedido.estado)"
                           @click="enviarAVenta(pedido)"
-                          class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
-                          title="Vender"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                          :style="focusRingStyle"
+                          title="Enviar a venta"
                         >
-                          <FontAwesomeIcon icon="cash-register" class="text-xs" />
+                          <font-awesome-icon icon="shopping-cart" class="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:scale-110" />
                         </button>
 
+                        <!-- Duplicar -->
+                        <button
+                          @click="duplicarPedido(pedido)"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                          :style="focusRingStyle"
+                          title="Duplicar pedido"
+                        >
+                          <font-awesome-icon icon="copy" class="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:scale-110" />
+                        </button>
+
+                        <!-- Cancelar -->
                         <button
                           v-if="pedido.estado !== 'cancelado'"
                           @click="confirmarEliminacion(pedido.id)"
-                          class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                          title="Anular"
+                          class="group/btn relative inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                          :style="focusRingStyle"
+                          title="Cancelar pedido"
                         >
-                          <FontAwesomeIcon icon="ban" class="text-xs" />
+                          <font-awesome-icon icon="times-circle" class="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:scale-110" />
                         </button>
                       </div>
                     </td>
                   </tr>
                 </template>
 
-                <!-- Empty State Premium -->
+                <!-- Empty State -->
                 <tr v-else>
-                  <td colspan="5" class="px-10 py-32 text-center">
-                    <div class="flex flex-col items-center">
-                      <div class="w-20 h-20 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-4xl mb-6 grayscale opacity-40">
-                         📋
+                  <td :colspan="6" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center space-y-4">
+                      <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                       </div>
-                      <p class="text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em] text-sm">Sin registros operativos</p>
-                      <button @click="crearNuevoPedido" class="mt-8 text-orange-500 font-black text-[10px] uppercase tracking-widest hover:underline">Iniciar primer pedido →</button>
+                      <div class="space-y-1">
+                        <p class="text-gray-700 dark:text-gray-300 font-medium">No hay pedidos</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Los pedidos aparecerán aquí cuando se creen</p>
+                      </div>
                     </div>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-
-          <!-- Paginación Premium -->
-          <div v-if="paginationData.last_page > 1" class="px-10 py-8 bg-slate-50/50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800/40 flex flex-col md:flex-row justify-between items-center gap-8">
-            <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest font-mono">
-                Página <span class="text-slate-900 dark:text-white">{{ paginationData.current_page }}</span> de <span class="text-slate-900 dark:text-white">{{ paginationData.last_page }}</span> • {{ paginationData.total }} resultados
-            </span>
-            
-            <div class="flex gap-2">
-              <button
-                @click="handlePageChange(paginationData.current_page - 1)"
-                :disabled="paginationData.current_page === 1"
-                class="px-5 py-2 text-[10px] font-black rounded-xl bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 uppercase tracking-widest transition-all shadow-sm"
-              >
-                Anterior
-              </button>
-
-              <div class="flex gap-1.5">
-                <button
-                  v-for="page in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(p => p > 0 && p <= paginationData.last_page)"
-                  :key="page"
-                  @click="handlePageChange(page)"
-                  :class="[
-                    'w-10 h-10 flex items-center justify-center text-[11px] font-black rounded-xl transition-all',
-                    page === paginationData.current_page
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl'
-                      : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-                  ]"
-                >
-                  {{ page }}
-                </button>
-              </div>
-
-              <button
-                @click="handlePageChange(paginationData.current_page + 1)"
-                :disabled="paginationData.current_page === paginationData.last_page"
-                class="px-5 py-2 text-[10px] font-black rounded-xl bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 uppercase tracking-widest transition-all shadow-sm"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
+      <!-- Controles de paginación -->
+      <div v-if="paginationData.last_page > 1" class="flex justify-center items-center space-x-2 mt-6">
+        <button
+          @click="handlePageChange(paginationData.current_page - 1)"
+          :disabled="paginationData.current_page === 1"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent transition-colors"
+          :style="focusRingStyle"
+        >
+          Anterior
+        </button>
+
+        <div class="flex space-x-1">
+          <button
+            v-for="page in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(p => p > 0 && p <= paginationData.last_page)"
+            :key="page"
+            @click="handlePageChange(page)"
+            :class="[
+              'px-3 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-md transition-colors',
+              page === paginationData.current_page
+                ? 'text-white'
+                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700'
+            ]"
+            :style="page === paginationData.current_page ? headerGradientStyle : null"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          @click="handlePageChange(paginationData.current_page + 1)"
+          :disabled="paginationData.current_page === paginationData.last_page"
+          class="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:border-transparent transition-colors"
+          :style="focusRingStyle"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
 
     <!-- Modal de detalles -->
@@ -1026,7 +1068,7 @@ const estadisticasConPorcentaje = computed(() => {
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2" :style="{ borderBottomColor: colors.principal }"></div>
           <span class="text-gray-700 dark:text-gray-200">Procesando...</span>

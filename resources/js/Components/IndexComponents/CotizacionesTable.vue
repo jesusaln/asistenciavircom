@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white dark:text-white tracking-tight">Cotizaciones</h2>
-        <div class="text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-900/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-800/50 dark:border-gray-600/50">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Cotizaciones</h2>
+        <div class="text-sm text-gray-600 dark:text-gray-400 bg-white/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600/50">
           {{ items.length }} de {{ total }} cotizaciones
         </div>
       </div>
@@ -117,7 +117,7 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white dark:bg-slate-900 dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
@@ -130,10 +130,10 @@
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ formatearFecha(doc.created_at || doc.fecha) }}
                   </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ formatearHora(doc.created_at || doc.fecha) }}
                   </div>
                 </div>
@@ -142,10 +142,10 @@
               <!-- Cliente -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
                     {{ doc.cliente?.nombre || 'Sin cliente' }}
                   </div>
-                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 truncate max-w-48">
+                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
                     {{ doc.cliente.email }}
                   </div>
                 </div>
@@ -160,7 +160,7 @@
 
               <!-- Total -->
               <td class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900 dark:text-white dark:text-white">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -226,6 +226,18 @@
 
                   <button
                     v-if="doc.estado !== 'cancelado'"
+                    type="button"
+                    @click="onEnviarWhatsApp(doc)"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-1"
+                    title="Enviar por WhatsApp"
+                  >
+                    <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                  </button>
+
+                  <button
+                    v-if="doc.estado !== 'cancelado'"
                     @click="onImprimir(doc)"
                     class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-1"
                     title="Imprimir"
@@ -251,13 +263,13 @@
             <td :colspan="6" class="px-6 py-16 text-center">
               <div class="flex flex-col items-center space-y-4">
                 <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div class="space-y-1">
                   <p class="text-gray-700 dark:text-gray-300 font-medium">No hay cotizaciones</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">Las cotizaciones aparecerán aquí cuando se creen</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Las cotizaciones aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -278,7 +290,14 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'ver-detalles','editar','eliminar','imprimir','sort','enviar-pedido','enviar-email'
+  'ver-detalles',
+  'editar',
+  'eliminar',
+  'imprimir',
+  'sort',
+  'enviar-pedido',
+  'enviar-email',
+  'enviar-whatsapp',
 ])
 
 // Estados de cotizaciones
@@ -291,7 +310,7 @@ const estadosConfig = {
   'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300', color: 'bg-orange-400 dark:bg-orange-500' },
   'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300', color: 'bg-green-400 dark:bg-green-500' },
   'cancelado': { label: 'Cancelado', classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300', color: 'bg-red-400 dark:bg-red-500' },
-  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-400', color: 'bg-gray-400 dark:bg-gray-500' }
+  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400', color: 'bg-gray-400 dark:bg-gray-500' }
 }
 
 const obtenerClasesEstado = (estado) => estadosConfig[estado]?.classes || 'bg-gray-100 text-gray-700'
@@ -403,6 +422,7 @@ const onEliminar = (id) => emit('eliminar', id)
 const onImprimir = (doc) => emit('imprimir', doc)
 const onEnviarPedido = (doc) => emit('enviar-pedido', doc)
 const onEnviarEmail = (doc) => emit('enviar-email', doc)
+const onEnviarWhatsApp = (doc) => emit('enviar-whatsapp', doc)
 
 const onSort = (field) => {
   const current = props.sortBy.startsWith(field) ? props.sortBy : `${field}-desc`
@@ -416,7 +436,7 @@ const onSort = (field) => {
 
 @media (prefers-contrast: high) {
   .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 dark:border-slate-800 { border-color: #d1d5db; }
+  .border-gray-200 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }

@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 dark:border-gray-700 overflow-hidden transition-colors">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors index-header-root">
     <!-- Header con estadísticas -->
     <div 
-      class="px-6 py-6 border-b border-gray-200 dark:border-slate-800/60 transition-colors" 
+      class="px-6 py-6 border-b border-gray-200/60 transition-colors" 
       :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }"
     >
       <div class="flex items-center justify-between mb-6">
@@ -13,51 +13,25 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">Clientes</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors">Clientes</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5 transition-colors">Gestiona todos tus clientes en un solo lugar</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <!-- Botón de Plantilla -->
-          <a
-            :href="route('clientes.template')"
-            class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl shadow-md border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
-            title="Descargar plantilla Excel"
-          >
-            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            </svg>
-            Plantilla
-          </a>
-
-          <!-- Botón de Importar -->
-          <button
-            @click="onImportarExcel"
-            class="inline-flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl shadow-md border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
-            title="Importar desde Excel"
-          >
-            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-            </svg>
-            Importar
-          </button>
-
-          <button
-            v-if="$can('create clientes')"
-            @click="onCrearNueva"
-            class="inline-flex items-center px-5 py-2.5 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
-            :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)`, '--tw-ring-color': colors.principal }"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Nuevo Cliente
-          </button>
-        </div>
+        <button
+          v-if="$can('create clientes')"
+          @click="onCrearNueva"
+          class="inline-flex items-center px-5 py-2.5 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
+          :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)`, '--tw-ring-color': colors.principal }"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nuevo Cliente
+        </button>
       </div>
 
       <!-- Estadísticas -->
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
         <!-- Stat Card Item (reusable logic) -->
         <div 
           v-for="(stat, idx) in [
@@ -66,11 +40,10 @@
             { label: 'Pendientes', value: inactivos, color: '#f59e0b', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
             { label: 'P. Físicas', value: personas_fisicas, color: colors.principal, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
             { label: 'P. Morales', value: personas_morales, color: '#8b5cf6', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-            { label: 'Nuevos', value: nuevos_mes, color: colors.secundario, icon: 'M12 4v16m8-8H4' },
-            { label: 'Deuda Total', value: formatearMoneda(deuda_total), color: '#ef4444', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' }
+            { label: 'Nuevos', value: nuevos_mes, color: colors.secundario, icon: 'M12 4v16m8-8H4' }
           ]"
           :key="idx"
-          class="bg-white dark:bg-slate-900/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-slate-800/50 dark:border-gray-700/50 shadow-sm transition-all"
+          class="bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-all"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -88,13 +61,13 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/40 border-b border-gray-200 dark:border-slate-800/60 dark:border-gray-700/40 transition-colors">
+    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/40 border-b border-gray-200/60 dark:border-gray-700/40 transition-colors">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -102,7 +75,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar cliente..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-slate-900 dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -114,7 +87,7 @@
           <select
             v-model="filtroTipoPersona"
             @change="onFiltroTipoPersonaChange"
-            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
           >
             <option value="">Tipo: Todos</option>
             <option value="fisica">Física</option>
@@ -123,20 +96,20 @@
 
           <!-- Filtro de estado activo -->
           <select
-            v-model="filtroActivo"
-            @change="onFiltroActivoChange"
-            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            v-model="filtroEstado"
+            @change="onFiltroEstadoChange"
+            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
           >
-            <option value="">Estatus: Todos</option>
+            <option value="">Estado: Todos</option>
             <option value="1">Activos</option>
             <option value="0">Pendientes</option>
           </select>
 
-          <!-- Filtro de ubicación (Estado) -->
+          <!-- Filtro de estado de México -->
           <select
-            v-model="filtroEstado"
-            @change="onFiltroEstadoChange"
-            class="hidden lg:block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
+            v-model="filtroEstadoMexico"
+            @change="onFiltroEstadoMexicoChange"
+            class="hidden lg:block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
           >
             <option value="">Ubicación: Todo MX</option>
             <option value="CIUDAD DE MÉXICO">Ciudad de México</option>
@@ -149,7 +122,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
+            class="block pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 transition-all outline-none"
           >
             <option value="created_at-desc">Recientes</option>
             <option value="nombre_razon_social-asc">Nombre A-Z</option>
@@ -158,7 +131,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Limpiar filtros"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,40 +195,30 @@ const props = defineProps({
   personas_fisicas: { type: Number, default: 0 },
   personas_morales: { type: Number, default: 0 },
   nuevos_mes: { type: Number, default: 0 },
-  deuda_total: { type: Number, default: 0 },
 })
 
 const emit = defineEmits([
-  'crear-nueva', 'search-change', 'filtro-tipo-persona-change', 'filtro-activo-change', 'filtro-estado-change', 'sort-change', 'limpiar-filtros', 'importar-excel'
+  'crear-nueva', 'search-change', 'filtro-tipo-persona-change', 'filtro-estado-change', 'filtro-estado-mexico-change', 'sort-change', 'limpiar-filtros'
 ])
-
-// Formateador de moneda
-const formatearMoneda = (num) => {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN'
-  }).format(num || 0)
-}
 
 // Estados locales para filtros
 const searchTerm = defineModel('searchTerm', { type: String, default: '' })
 const sortBy = defineModel('sortBy', { type: String, default: 'created_at-desc' })
 const filtroTipoPersona = defineModel('filtroTipoPersona', { type: String, default: '' })
-const filtroActivo = defineModel('filtroActivo', { type: String, default: '' })
 const filtroEstado = defineModel('filtroEstado', { type: String, default: '' })
+const filtroEstadoMexico = defineModel('filtroEstadoMexico', { type: String, default: '' })
 
 // Métodos de emisión
 const onCrearNueva = () => emit('crear-nueva')
 const onSearchChange = () => emit('search-change', searchTerm.value)
 const onFiltroTipoPersonaChange = () => emit('filtro-tipo-persona-change', filtroTipoPersona.value)
-const onFiltroActivoChange = () => emit('filtro-activo-change', filtroActivo.value)
 const onFiltroEstadoChange = () => emit('filtro-estado-change', filtroEstado.value)
+const onFiltroEstadoMexicoChange = () => emit('filtro-estado-mexico-change', filtroEstadoMexico.value)
 const onSortChange = () => emit('sort-change', sortBy.value)
 const onLimpiarFiltros = () => emit('limpiar-filtros')
-const onImportarExcel = () => emit('importar-excel')
 
 // Watch para limpiar filtros automáticamente
-watch([searchTerm, sortBy, filtroTipoPersona, filtroActivo, filtroEstado], () => {
+watch([searchTerm, sortBy, filtroTipoPersona, filtroEstado, filtroEstadoMexico], () => {
   // Emitir cambios automáticamente
 }, { immediate: true })
 </script>

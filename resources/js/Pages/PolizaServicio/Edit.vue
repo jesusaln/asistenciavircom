@@ -451,7 +451,7 @@ const helpSections = [
                                             <span class="text-xs font-black text-emerald-400">-{{ resumenFinanciero.porcentajeAhorro }}%</span>
                                         </div>
                                         <div class="flex justify-between items-end">
-                                            <div class="text-[10px] text-slate-500">Valor real: <span class="line-through">${{ resumenFinanciero.valorReal.toFixed(2) }}</span></div>
+                                            <div class="text-[10px] text-slate-500">Valor real: <strike>${{ resumenFinanciero.valorReal.toFixed(2) }}</strike></div>
                                             <div class="text-xs font-bold text-emerald-400">Ahorra: ${{ resumenFinanciero.ahorro.toFixed(2) }}/mes</div>
                                         </div>
                                     </div>
@@ -593,21 +593,21 @@ const helpSections = [
                         <font-awesome-icon icon="circle-info" class="text-2xl" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-gray-900 dark:text-white">Guía de Configuración de Pólizas</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm">Siga estos estándares para garantizar la rentabilidad y claridad operativa.</p>
+                        <h3 class="text-xl font-black text-gray-900">Guía de Configuración de Pólizas</h3>
+                        <p class="text-gray-500 text-sm">Siga estos estándares para garantizar la rentabilidad y claridad operativa.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div v-for="section in helpSections" :key="section.title" class="space-y-4">
-                        <div class="flex items-center gap-2 text-gray-800 dark:text-gray-100">
+                        <div class="flex items-center gap-2 text-gray-800">
                              <font-awesome-icon :icon="section.icon" class="text-blue-500" />
                              <h4 class="font-bold uppercase tracking-widest text-xs">{{ section.title }}</h4>
                         </div>
                         <ul class="space-y-3">
-                            <li v-for="point in section.points" :key="point" class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed flex gap-2">
+                            <li v-for="point in section.points" :key="point" class="text-xs text-gray-600 leading-relaxed flex gap-2">
                                 <span class="text-blue-400 font-bold">•</span>
-                                <span v-html="point.replace(/\*\*(.*?)\*\*/g, '<b class=\'text-gray-900 dark:text-white\'>$1</b>')"></span>
+                                <span v-html="point.replace(/\*\*(.*?)\*\*/g, '<b class=\'text-gray-900\'>$1</b>')"></span>
                             </li>
                         </ul>
                     </div>

@@ -6,6 +6,8 @@ use App\Models\CuentasPorPagar;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\DB;
+
 class ActualizarCuentasVencidas extends Command
 {
     /**
@@ -13,7 +15,7 @@ class ActualizarCuentasVencidas extends Command
      *
      * @var string
      */
-    protected $signature = 'cuentas:actualizar-vencidas {--dry-run : Solo mostrar qué se actualizaría sin hacer cambios}';
+    protected $signature = 'cuentas:actualizar-vencidas {--dry-run : Solo mostrar qué se actualizaría sin hacer cambios} {--confirm= : Confirmación explícita}';
 
     /**
      * The console command description.
@@ -48,7 +50,7 @@ class ActualizarCuentasVencidas extends Command
             $this->warn('Modo dry-run: No se realizarán cambios.');
             $this->table(
                 ['ID', 'Compra ID', 'Monto Pendiente', 'Fecha Vencimiento', 'Estado Actual'],
-                $cuentasAVencer->map(fn ($c) => [
+                $cuentasAVencer->map(fn($c) => [
                     $c->id,
                     $c->compra_id,
                     '$' . number_format($c->monto_pendiente, 2),
@@ -59,20 +61,37 @@ class ActualizarCuentasVencidas extends Command
             return self::SUCCESS;
         }
 
-        $actualizadas = 0;
-        foreach ($cuentasAVencer as $cuenta) {
-            $cuenta->update(['estado' => 'vencido']);
-            $actualizadas++;
-            
-            $this->line("  - Cuenta #{$cuenta->id} marcada como vencida (Monto: \${$cuenta->monto_pendiente})");
+        $confirm = (string) $this->option('confirm');
+        if ($confirm !== 'ACTUALIZAR-VENCIDAS') {
+            $this->warn('Para aplicar cambios usa --confirm=ACTUALIZAR-VENCIDAS (o --dry-run).');
+            return self::FAILURE;
         }
 
-        Log::info('Cuentas por pagar actualizadas a vencidas', [
-            'cantidad' => $actualizadas,
-            'fecha' => now()->toDateTimeString(),
-        ]);
+        DB::beginTransaction();
 
-        $this->info("✅ {$actualizadas} cuentas actualizadas a estado 'vencido'.");
+        try {
+            $actualizadas = 0;
+            foreach ($cuentasAVencer as $cuenta) {
+                $cuenta->update(['estado' => 'vencido']);
+                $actualizadas++;
+
+                $this->line("  - Cuenta #{$cuenta->id} marcada como vencida (Monto: \${$cuenta->monto_pendiente})");
+            }
+
+            Log::info('Cuentas por pagar actualizadas a vencidas', [
+                'cantidad' => $actualizadas,
+                'cuentas_ids' => $cuentasAVencer->pluck('id')->toArray(),
+                'fecha' => now()->toDateTimeString(),
+            ]);
+
+            DB::commit();
+            $this->info("✅ {$actualizadas} cuentas actualizadas a estado 'vencido'.");
+            return self::SUCCESS;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->error("❌ Error actualizando cuentas: " . $e->getMessage());
+            return self::FAILURE;
+        }
 
         return self::SUCCESS;
     }

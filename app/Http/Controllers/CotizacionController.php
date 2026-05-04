@@ -13,6 +13,7 @@ use App\Enums\EstadoCotizacion;
 use App\Enums\EstadoVenta;
 use App\Enums\EstadoPedido;
 use App\Models\CotizacionItem;
+use App\Models\EmpresaConfiguracion;
 use App\Models\Servicio;
 use App\Models\SatEstado;
 use App\Models\SatRegimenFiscal;
@@ -20,10 +21,11 @@ use App\Models\SatUsoCfdi;
 use App\Services\InventarioService;
 use App\Services\MarginService;
 use App\Services\PrecioService;
-use App\Services\VentaCreationService;
+use App\Services\Ventas\VentaCreationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +47,6 @@ class CotizacionController extends Controller
         PrecioService $precioService,
         \App\Services\FinancialService $financialService
     ) {
-        $this->authorizeResource(Cotizacion::class);
         $this->inventarioService = $inventarioService;
         $this->precioService = $precioService;
         $this->financialService = $financialService;
@@ -57,6 +58,7 @@ class CotizacionController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Cotizacion::class);
         $perPage = $request->input('per_page', 10);
         $search = $request->input('search', '');
         $estado = $request->input('estado', '');
@@ -85,9 +87,10 @@ class CotizacionController extends Controller
         // Aplicar filtro de búsqueda
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('numero_cotizacion', 'like', "%{$search}%")
-                    ->orWhereHas('cliente', function ($clienteQuery) use ($search) {
-                        $clienteQuery->where('nombre_razon_social', 'like', "%{$search}%");
+                $searchPattern = "%{$search}%";
+                $q->where('numero_cotizacion', 'ILIKE', $searchPattern)
+                    ->orWhereHas('cliente', function ($clienteQuery) use ($searchPattern) {
+                        $clienteQuery->whereRaw("unaccent(nombre_razon_social) ILIKE unaccent(?)", [$searchPattern]);
                     });
             });
         }
@@ -123,6 +126,7 @@ class CotizacionController extends Controller
             return [
                 'id' => $cotizacion->id,
                 'numero_cotizacion' => $cotizacion->numero_cotizacion,
+                'sharing_token' => $cotizacion->sharing_token,
 
                 // Fechas
                 'fecha' => optional($cotizacion->created_at)->format('Y-m-d'),
@@ -209,6 +213,8 @@ class CotizacionController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Cotizacion::class);
+        $configuracion = EmpresaConfiguracion::getConfig();
         return Inertia::render('Cotizaciones/Create', [
             'clientes' => Cliente::activos()
                 ->select('id', 'nombre_razon_social', 'email', 'telefono', 'price_list_id', 'tipo_persona', 'rfc', 'codigo_postal', 'calle')
@@ -217,6 +223,7 @@ class CotizacionController extends Controller
             'productos' => Producto::with(['categoria:id,nombre', 'inventarios', 'precios'])  // ✅ Agregar 'precios'
                 ->select('id', 'nombre', 'codigo', 'categoria_id', 'precio_venta', 'descripcion', 'estado', 'tipo_producto')
                 ->active()
+                ->paraVentaDirectaSegunUsuario(Auth::user())
                 ->get()
                 ->map(function ($producto) {
                     $stockTotal = $producto->stock_total ?? 0;
@@ -296,6 +303,7 @@ class CotizacionController extends Controller
                 'enableRetencionIsr' => \App\Services\EmpresaConfiguracionService::isRetencionIsrEnabled(),
                 'retencionIvaDefault' => (float) \App\Services\EmpresaConfiguracionService::getRetencionIvaDefault(),
                 'retencionIsrDefault' => (float) \App\Services\EmpresaConfiguracionService::getRetencionIsrDefault(),
+                'serviciosUsanListasPrecios' => (bool) config('ventas.servicios_usan_listas_precios', false),
             ]
         ]);
     }
@@ -305,6 +313,7 @@ class CotizacionController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Cotizacion::class);
         $validated = $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'price_list_id' => 'nullable|exists:price_lists,id',
@@ -339,6 +348,13 @@ class CotizacionController extends Controller
                     ->withInput()
                     ->withErrors(["productos.{$index}.id" => "El producto '{$modelo->nombre}' no está activo"])
                     ->with('error', 'Algunos productos seleccionados no están activos');
+            }
+
+            if ($item['tipo'] === 'producto' && $modelo->ventaDirectaBloqueadaPara(Auth::user())) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(["productos.{$index}.id" => "El producto «{$modelo->nombre}» solo se vende como kit. Use el producto kit o permiso «venta componentes sueltos»."])
+                    ->with('error', 'Hay productos que no pueden cotizarse sueltos.');
             }
         }
 
@@ -391,8 +407,10 @@ class CotizacionController extends Controller
             Log::info('Todos los productos tienen márgenes válidos');
         }
 
+        $cotizacionCreada = null;
+
         try {
-            DB::transaction(function () use ($validated, $request) {
+            DB::transaction(function () use ($validated, $request, &$cotizacionCreada) {
                 // Obtener cliente para resolver precios
                 $cliente = Cliente::find($validated['cliente_id']);
 
@@ -481,6 +499,8 @@ class CotizacionController extends Controller
                     'estado' => EstadoCotizacion::Pendiente,
                 ]);
 
+                $cotizacionCreada = $cotizacion;
+
                 Log::info('Cotización creada exitosamente', [
                     'cotizacion_id' => $cotizacion->id,
                     'cliente_id' => $validated['cliente_id'],
@@ -517,6 +537,9 @@ class CotizacionController extends Controller
                 }
             });
         } catch (\Exception $e) {
+            if (app()->runningUnitTests()) {
+                throw $e;
+            }
             Log::error('Error al crear cotización', [
                 'cliente_id' => $validated['cliente_id'],
                 'productos_count' => count($validated['productos']),
@@ -529,15 +552,32 @@ class CotizacionController extends Controller
                 ->with('error', 'Error interno al crear la cotización. Por favor, inténtelo de nuevo.');
         }
 
-        return redirect()->route('cotizaciones.index')->with('success', 'Cotización creada con éxito');
+        $redirect = redirect()->route('cotizaciones.index')->with('success', 'Cotización creada con éxito');
+
+        if ($cotizacionCreada) {
+            $cotizacionCreada->loadMissing('cliente');
+            $redirect->with('whatsapp_cotizacion_reciente', [
+                'id' => $cotizacionCreada->id,
+                'numero_cotizacion' => $cotizacionCreada->numero_cotizacion,
+                'total' => (float) $cotizacionCreada->total,
+                'sharing_token' => $cotizacionCreada->sharing_token,
+                'cliente' => [
+                    'nombre' => $cotizacionCreada->cliente?->nombre_razon_social ?? 'Cliente',
+                    'telefono' => $cotizacionCreada->cliente?->telefono,
+                ],
+            ]);
+        }
+
+        return $redirect;
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($cotizacion)
     {
-        $cotizacion = Cotizacion::with(['cliente', 'items.cotizable'])->findOrFail($id);
+        $cotizacion = Cotizacion::with(['cliente', 'items.cotizable', 'createdBy', 'updatedBy'])->findOrFail($cotizacion);
+        $this->authorize('view', $cotizacion);
 
         $items = $cotizacion->items->map(function ($item) {
             $cotizable = $item->cotizable;
@@ -580,14 +620,15 @@ class CotizacionController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param int $id The ID of the cotizacion to edit
-     * @return \Inertia\Response The edit page with cotizacion data
+     * @return \Inertia\Response|\Illuminate\Http\RedirectResponse The edit page with cotizacion data
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If cotizacion not found
      */
-    public function edit(int $id): \Inertia\Response
+    public function edit(int $cotizacion): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
         // Load cotizacion with eager loading to avoid N+1 queries
-        $cotizacion = Cotizacion::with(['cliente', 'items.cotizable'])->findOrFail($id);
+        $cotizacion = Cotizacion::with(['cliente', 'items.cotizable'])->findOrFail($cotizacion);
+        $this->authorize('update', $cotizacion);
 
         // Only allow editing if in Borrador or Pendiente state
         if (!in_array($cotizacion->estado, [EstadoCotizacion::Borrador, EstadoCotizacion::Pendiente], true)) {
@@ -620,6 +661,7 @@ class CotizacionController extends Controller
         $productos = Producto::with(['categoria:id,nombre', 'inventarios'])
             ->select('id', 'nombre', 'codigo', 'categoria_id', 'precio_venta', 'descripcion', 'estado', 'tipo_producto')
             ->active()
+            ->paraVentaDirectaSegunUsuario(Auth::user())
             ->get()
             ->map(function ($producto) {
                 $stockTotal = $producto->stock_total ?? 0;
@@ -701,6 +743,7 @@ class CotizacionController extends Controller
                 'enableRetencionIsr' => \App\Services\EmpresaConfiguracionService::isRetencionIsrEnabled(),
                 'retencionIvaDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIvaDefault(),
                 'retencionIsrDefault' => \App\Services\EmpresaConfiguracionService::getRetencionIsrDefault(),
+                'serviciosUsanListasPrecios' => (bool) config('ventas.servicios_usan_listas_precios', false),
             ]
         ]);
     }
@@ -708,9 +751,10 @@ class CotizacionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $cotizacion)
     {
-        $cotizacion = Cotizacion::findOrFail($id);
+        $cotizacion = Cotizacion::findOrFail($cotizacion);
+        $this->authorize('update', $cotizacion);
 
         // (Opcional, si tienes Policy configurada)
         // $this->authorize('update', $cotizacion);
@@ -738,12 +782,25 @@ class CotizacionController extends Controller
             'estado' => ['sometimes', Rule::in(array_map(fn($c) => $c->value, EstadoCotizacion::cases()))],
         ]);
 
+        foreach ($validated['productos'] as $index => $item) {
+            if ($item['tipo'] !== 'producto') {
+                continue;
+            }
+            $modelo = Producto::find($item['id']);
+            if ($modelo && $modelo->ventaDirectaBloqueadaPara(Auth::user())) {
+                return Redirect::back()
+                    ->withInput()
+                    ->withErrors(["productos.{$index}.id" => "El producto «{$modelo->nombre}» solo se vende como kit. Use el producto kit o permiso «venta componentes sueltos»."])
+                    ->with('error', 'Hay productos que no pueden cotizarse sueltos.');
+            }
+        }
+
         // Validar márgenes de ganancia antes de calcular totales
         $marginService = new MarginService();
         $validacionMargen = $marginService->validarMargenesProductos($validated['productos']);
 
         Log::info('Validación de márgenes en actualización de cotización', [
-            'cotizacion_id' => $id,
+            'cotizacion_id' => $cotizacion->id,
             'productos_count' => count($validated['productos']),
             'todos_validos' => $validacionMargen['todos_validos'],
             'productos_bajo_margen_count' => count($validacionMargen['productos_bajo_margen']),
@@ -752,14 +809,14 @@ class CotizacionController extends Controller
 
         if (!$validacionMargen['todos_validos']) {
             Log::info('Productos con margen insuficiente detectados en actualización', [
-                'cotizacion_id' => $id,
+                'cotizacion_id' => $cotizacion->id,
                 'productos_bajo_margen' => $validacionMargen['productos_bajo_margen']
             ]);
 
             // Si hay productos con margen insuficiente, verificar si el usuario aceptó el ajuste
             // Aceptar bandera booleana para ajustar margen (true/"true"/1)
             if ($request->boolean('ajustar_margen')) {
-                Log::info('Usuario aceptó ajuste automático de márgenes en actualización', ['cotizacion_id' => $id]);
+                Log::info('Usuario aceptó ajuste automático de márgenes en actualización', ['cotizacion_id' => $cotizacion->id]);
                 // Ajustar precios automáticamente
                 foreach ($validated['productos'] as &$item) {
                     if ($item['tipo'] === 'producto') {
@@ -768,7 +825,7 @@ class CotizacionController extends Controller
                             $precioOriginal = $item['precio'];
                             $item['precio'] = $marginService->ajustarPrecioAlMargen($producto, $item['precio']);
                             Log::info('Precio ajustado en actualización', [
-                                'cotizacion_id' => $id,
+                                'cotizacion_id' => $cotizacion->id,
                                 'producto_id' => $producto->id,
                                 'precio_original' => $precioOriginal,
                                 'precio_ajustado' => $item['precio']
@@ -777,7 +834,7 @@ class CotizacionController extends Controller
                     }
                 }
             } else {
-                Log::info('Mostrando modal de confirmación de márgenes insuficientes en actualización', ['cotizacion_id' => $id]);
+                Log::info('Mostrando modal de confirmación de márgenes insuficientes en actualización', ['cotizacion_id' => $cotizacion->id]);
                 // Mostrar advertencia y permitir al usuario decidir
                 $mensaje = $marginService->generarMensajeAdvertencia($validacionMargen['productos_bajo_margen']);
                 return Redirect::back()
@@ -787,7 +844,7 @@ class CotizacionController extends Controller
                     ->with('productos_bajo_margen', $validacionMargen['productos_bajo_margen']);
             }
         } else {
-            Log::info('Todos los productos tienen márgenes válidos en actualización', ['cotizacion_id' => $id]);
+            Log::info('Todos los productos tienen márgenes válidos en actualización', ['cotizacion_id' => $cotizacion->id]);
         }
 
         // Guardar estado ANTES de actualizar (para mensaje)
@@ -910,9 +967,10 @@ class CotizacionController extends Controller
     /**
      * Cancel the specified resource (soft cancel).
      */
-    public function cancel($id)
+    public function cancel($cotizacion)
     {
-        $cotizacion = Cotizacion::findOrFail($id);
+        $cotizacion = Cotizacion::findOrFail($cotizacion);
+        $this->authorize('update', $cotizacion);
 
         // Permitir cancelar en cualquier estado excepto ya cancelado
         if ($cotizacion->estado === EstadoCotizacion::Cancelado) {
@@ -947,9 +1005,10 @@ class CotizacionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($cotizacion)
     {
-        $cotizacion = Cotizacion::withTrashed()->findOrFail($id);
+        $cotizacion = Cotizacion::withTrashed()->findOrFail($cotizacion);
+        $this->authorize('delete', $cotizacion);
 
         if (!in_array($cotizacion->estado, [EstadoCotizacion::Borrador, EstadoCotizacion::Pendiente, EstadoCotizacion::Aprobada, EstadoCotizacion::Cancelado], true)) {
             return Redirect::back()->with('error', 'Solo cotizaciones pendientes o canceladas pueden ser eliminadas');
@@ -969,10 +1028,12 @@ class CotizacionController extends Controller
      */
     private function calcularCostoFIFO(Producto $producto): float
     {
+        $orderColumn = Schema::hasColumn('lotes', 'fecha_entrada') ? 'fecha_entrada' : 'created_at';
+
         // Obtener el costo más antiguo disponible (FIFO)
         $lote = \App\Models\Lote::where('producto_id', $producto->id)
             ->where('cantidad_disponible', '>', 0)
-            ->orderBy('fecha_entrada', 'asc')
+            ->orderBy($orderColumn, 'asc')
             ->first();
 
         if ($lote) {

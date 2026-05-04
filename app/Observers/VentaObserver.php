@@ -59,36 +59,41 @@ class VentaObserver
      */
     public function deleted(Venta $venta): void
     {
-        // 1. Eliminar CxC asociada (Force delete as requested)
+        // 1. Eliminar CxC asociada (soft delete)
         $cxc = CuentasPorCobrar::where('cobrable_type', Venta::class)
             ->where('cobrable_id', $venta->id)
             ->first();
 
         if ($cxc) {
             $cuentaId = $cxc->id;
-            $cxc->forceDelete();
+            $cxc->delete();
             Log::info("VentaObserver: CxC #{$cuentaId} eliminada por eliminación de Venta #{$venta->id}");
         }
 
         // 2. Limpiar Entregas de Dinero asociadas (Efectivo/Caja)
-        $entregasDeleted = EntregaDinero::where('tipo_origen', 'venta')
+        // Usar foreach para asegurar que se disparen los eventos de SoftDeletes del modelo
+        $entregas = EntregaDinero::where('tipo_origen', 'venta')
             ->where('id_origen', $venta->id)
-            ->forceDelete();
-        
-        if ($entregasDeleted > 0) {
-            Log::info("VentaObserver: {$entregasDeleted} registros de EntregaDinero eliminados para Venta #{$venta->id}");
+            ->get();
+
+        foreach ($entregas as $entrega) {
+            $entrega->delete(); // Esto ahora sí respeta SoftDeletes
+        }
+
+        if ($entregas->count() > 0) {
+            Log::info("VentaObserver: {$entregas->count()} registros de EntregaDinero eliminados (soft) para Venta #{$venta->id}");
         }
 
         // 3. Limpiar Movimientos Bancarios asociados
-        $movimientos = MovimientoBancario::where(function($query) use ($venta) {
+        $movimientos = MovimientoBancario::where(function ($query) use ($venta) {
             $query->where('referencia', 'ilike', "%venta #{$venta->id}%")
-                  ->orWhere('referencia', 'ilike', "%{$venta->numero_venta}%")
-                  ->orWhere('concepto', 'ilike', "%venta #{$venta->id}%")
-                  ->orWhere('concepto', 'ilike', "%Cobro Venta {$venta->numero_venta}%") 
-                  ->orWhere('concepto', 'ilike', "%{$venta->numero_venta}%")
-                  ->orWhereHasMorph('conciliable', [Venta::class], function($q) use ($venta) {
-                      $q->where('id', $venta->id);
-                  });
+                ->orWhere('referencia', 'ilike', "%{$venta->numero_venta}%")
+                ->orWhere('concepto', 'ilike', "%venta #{$venta->id}%")
+                ->orWhere('concepto', 'ilike', "%Cobro Venta {$venta->numero_venta}%")
+                ->orWhere('concepto', 'ilike', "%{$venta->numero_venta}%")
+                ->orWhereHasMorph('conciliable', [Venta::class], function ($q) use ($venta) {
+                    $q->where('id', $venta->id);
+                });
         })->get();
 
         foreach ($movimientos as $movimiento) {

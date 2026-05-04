@@ -16,7 +16,7 @@
 
       <form @submit.prevent="crearPedido" class="space-y-8">
         <!-- Información General -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
                   id="numero_pedido"
                   v-model="form.numero_pedido"
                   type="text"
-                  class="w-full bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
                   :style="focusRingStyle"
                   placeholder="P0001"
                   readonly
@@ -54,7 +54,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500">
                 Este número es fijo para todos los pedidos
               </p>
             </div>
@@ -75,7 +75,7 @@
                   id="fecha_pedido"
                   v-model="form.fecha_pedido"
                   type="date"
-                  class="w-full bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
+                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
                   :style="focusRingStyle"
                   readonly
                   required
@@ -86,7 +86,7 @@
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500">
                 Esta fecha se establece automáticamente con la fecha de creación
               </p>
             </div>
@@ -94,7 +94,7 @@
         </div>
 
         <!-- Cliente -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@
                   {{ lista.nombre }}
                 </option>
               </select>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500">
                 Se usará la lista de precios del cliente por defecto. Cambia aquí si necesitas usar otra lista.
               </p>
             </div>
@@ -147,7 +147,7 @@
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,6 +162,7 @@
               :productos="productos"
               :servicios="servicios"
               :price-list-id="priceListSeleccionada"
+              :servicios-usan-listas-precios="props.defaults?.serviciosUsanListasPrecios"
               @agregar-producto="agregarProducto"
             />
             <PySSeleccionados
@@ -179,7 +180,7 @@
         </div>
 
         <!-- Notas -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +296,7 @@ const notyf = new Notyf({
   types: [
     { type: 'success', background: '#10B981', icon: { className: 'notyf__icon--success', tagName: 'i', text: '✓' } },
     { type: 'error', background: '#EF4444', icon: { className: 'notyf__icon--error', tagName: 'i', text: '✗' } },
-    { type: 'info', background: '#3B82F6', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'ℹ' } },
+    { type: 'info', background: '#FF6B35', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'ℹ' } },
   ],
 });
 
@@ -551,13 +552,11 @@ const agregarProducto = (item) => {
     quantities.value[key] = 1;
 
     // Validar precios con fallbacks seguros - usar parseFloat para manejar strings y numbers
-    let precio = 0;
-    if (item.tipo === 'producto') {
-      // ✅ Resolver precio según lista seleccionada
-      precio = resolverPrecio(item, priceListSeleccionada.value);
-    } else {
-      precio = parseFloat(item.precio) || 0;
-    }
+    const precio = resolverPrecio(
+      item,
+      priceListSeleccionada.value,
+      { serviciosUsanListasPrecios: props.defaults?.serviciosUsanListasPrecios }
+    );
 
     // Debug: mostrar precio en consola
     console.log('🔍 Pedido - Agregando:', item.nombre || item.descripcion, '- Precio:', precio, '- Tipo:', item.tipo, '- Precio raw:', item.precio || item.precio_venta);

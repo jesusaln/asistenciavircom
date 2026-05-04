@@ -102,15 +102,11 @@ class PolizaServicioController extends Controller
             'cliente',
             'servicios',
             'equipos',
-            'mantenimientos', // Nuevo: Planes de mantenimiento definidos
             'tickets' => function ($q) {
                 $q->latest()->take(10);
             },
             'cuentasPorCobrar' => function ($q) {
                 $q->latest()->take(10);
-            },
-            'cargos' => function ($q) {
-                $q->latest()->take(12);
             },
             'credenciales'
         ]);

@@ -1,437 +1,531 @@
 <template>
-  <div>
-    <Head title="Crear Cita" />
-    <div class="citas-create min-h-screen bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 transition-colors duration-300">
-      
-      <!-- Header Premium Flotante/Sticky -->
-      <div class="sticky top-0 z-30 bg-white dark:bg-slate-900/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700 shadow-sm transition-all">
-        <div class="max-w-[1600px] mx-auto px-6 lg:px-12 py-5 flex items-center justify-between">
-          <div class="flex items-center gap-6">
-            <Link :href="route('citas.index')" class="group w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-100 dark:hover:border-blue-900/30 transition-all shadow-sm">
-              <svg class="w-6 h-6 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            </Link>
-            <div>
-              <h1 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white tracking-tight transition-colors">Crear <span class="text-blue-600">Nueva Cita</span></h1>
-              <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Módulo de Asistencia Técnica Vircom</p>
+  <div class="citas-wizard min-h-screen bg-[#f8fafc] dark:bg-[#0f172a] transition-colors duration-500">
+    <Head title="Agendar Nueva Cita" />
+
+    <!-- Progress Header Premium -->
+    <div class="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col py-4">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <Link :href="route('citas.index')" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 group">
+                <svg class="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              </Link>
+              <div>
+                <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Agendar <span class="text-blue-600 dark:text-blue-400">Cita Técnica</span></h1>
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] mt-0.5">Asistencia Vircom &bull; Step {{ currentStep }} of 4</p>
+              </div>
+            </div>
+
+            <!-- Stats/Context Fast View -->
+             <div class="hidden md:flex items-center gap-3">
+                <div v-if="internalTime && internalEndTime" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200/50 dark:border-blue-700/50 animate-fade-in text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-tighter shadow-sm">
+                    {{ internalTime }} - {{ internalEndTime }}
+                </div>
+                <div v-if="selectedCliente" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 animate-fade-in">
+                    <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate max-w-[150px]">{{ selectedCliente.nombre_razon_social }}</span>
+                </div>
             </div>
           </div>
-          
-          <div class="flex items-center gap-4">
-            <button @click="saveDraft" class="hidden md:flex items-center gap-2 px-5 py-2.5 text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest hover:text-gray-700 dark:hover:text-white transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-              Guardar Borrador
-            </button>
-            <div class="w-px h-8 bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
-            <button @click="submit" :disabled="form.processing || !selectedCliente" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:scale-95 text-white text-xs font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-blue-200 dark:shadow-none active:scale-95 flex items-center gap-3">
-              <template v-if="form.processing">
-                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Procesando...
-              </template>
-              <template v-else>
-                <span>Crear Cita</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-              </template>
-            </button>
-          </div>
-        </div>
-      </div>
 
-      <div class="max-w-[1600px] mx-auto px-6 lg:px-12 py-10">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          
-          <!-- Columna Izquierda: Formulario Principal (8/12) -->
-          <form @submit.prevent="submit" class="lg:col-span-8 space-y-10">
+          <!-- Stepper Visual -->
+          <div class="flex items-center justify-between relative mt-2 px-2">
+            <!-- Line background -->
+            <div class="absolute left-0 right-0 h-1 bg-slate-200 dark:bg-slate-800 top-1/2 -translate-y-1/2 rounded-full overflow-hidden">
+               <div 
+                class="h-full bg-blue-600 dark:bg-blue-500 transition-all duration-700 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                :style="{ width: `${progressWidth}%` }"
+               ></div>
+            </div>
             
-            <!-- Sección 1: Cliente e Identificación -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
-              <div class="flex items-center gap-4 mb-10">
-                <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
-                  <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                </div>
-                <div>
-                  <h2 class="text-xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">Identificación del Cliente</h2>
-                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Busca y selecciona un cliente registrado</p>
-                </div>
+            <!-- Step Nodes -->
+            <div v-for="step in steps" :key="step.id" 
+                 class="relative z-10 flex flex-col items-center group"
+                 :class="{ 'cursor-pointer': step.id < currentStep }"
+                 @click="step.id < currentStep && (currentStep = step.id)"
+            >
+              <div 
+                class="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black transition-all duration-500 border-2"
+                :class="[
+                  currentStep === step.id ? 'bg-blue-600 border-blue-600 text-white scale-110 shadow-lg shadow-blue-200 dark:shadow-none' : 
+                  currentStep > step.id ? 'bg-emerald-500 border-emerald-500 text-white' : 
+                  'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 group-hover:border-slate-300 dark:group-hover:border-slate-600'
+                ]"
+              >
+                <template v-if="currentStep > step.id">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                </template>
+                <template v-else>{{ step.id }}</template>
               </div>
-
-              <div class="space-y-8">
-                <BuscarCliente
-                  ref="buscarClienteRef"
-                  :clientes="clientes"
-                  :cliente-seleccionado="selectedCliente"
-                  @cliente-seleccionado="onClienteSeleccionado"
-                  @crear-nuevo-cliente="onCrearNuevoCliente"
-                  label-busqueda="Cliente"
-                  placeholder-busqueda="Ingresa nombre, RFC, email o teléfono..."
-                  :requerido="true"
-                  titulo-cliente-seleccionado="Cuenta Seleccionada"
-                  mensaje-vacio="Módulo de Búsqueda"
-                  submensaje-vacio="Escribe arriba para encontrar clientes de forma inteligente"
-                  :mostrar-opcion-nuevo-cliente="true"
-                  :mostrar-estado-cliente="true"
-                  :mostrar-info-comercial="true"
-                />
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <FormField
-                    v-model="form.tecnico_id"
-                    label="Técnico Responsable"
-                    type="select"
-                    id="tecnico_id"
-                    :options="tecnicosOptions"
-                    :error="form.errors.tecnico_id"
-                    required
-                  />
-                  
-                  <!-- Selector de Póliza -->
-                  <div v-if="clientePolizas.length > 0">
-                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Póliza de Servicio</label>
-                    <select v-model="form.poliza_id" class="w-full px-4 py-3 bg-white dark:bg-slate-900 dark:bg-gray-700 border border-gray-200 dark:border-slate-800 dark:border-gray-600 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
-                      <option value="">Sin póliza (cobro normal)</option>
-                      <option v-for="pol in clientePolizas" :key="pol.id" :value="pol.id">
-                        🛡️ {{ pol.nombre }} - {{ pol.folio }} ({{ pol.visitas_disponibles }} visitas disp.)
-                      </option>
-                    </select>
-                    <p v-if="form.poliza_id" class="text-[10px] text-emerald-600 mt-2 font-bold">✅ Esta visita se descontará de la póliza seleccionada</p>
-                  </div>
-                  <div v-else-if="selectedCliente && clientePolizas.length === 0" class="flex flex-col justify-end pb-1">
-                    <div class="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
-                      <p class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Sin Póliza</p>
-                      <p class="text-xs text-amber-700 dark:text-amber-300">Este cliente no tiene póliza activa. Esta visita generará un cargo.</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8" v-if="form.ticket_id">
-                  <div class="flex flex-col justify-end pb-1">
-                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl flex items-center gap-3">
-                      <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black">🎫</div>
-                      <div>
-                        <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Ticket Vinculado</p>
-                        <p class="text-sm font-black text-blue-900 dark:text-white">FOLIO #{{ form.ticket_id }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Sección 2: Programación y Logística -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
-              <div class="flex items-center gap-4 mb-10">
-                <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-sm">
-                  <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <div>
-                  <h2 class="text-xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">Programación de la Cita</h2>
-                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Define cuándo y dónde se realizará el servicio</p>
-                </div>
-              </div>
-
-              <div class="space-y-8">
-                <!-- Selector de Fecha Mejorado -->
-                <div class="space-y-4">
-                   <label class="block text-xs font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest transition-colors">Fecha Sugerida <span class="text-red-500">*</span></label>
-                   <div class="flex flex-wrap gap-3">
-                      <button type="button" v-for="q in quickDates" :key="q.val" @click="setQuickDate(q.val)" :class="selectedDateType === q.val ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-950 dark:hover:bg-gray-600'" class="px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95">
-                        {{ q.label }}
-                      </button>
-                   </div>
-                   <input type="date" v-model="internalDate" :min="todayDate" class="w-full md:w-auto px-6 py-4 bg-gray-50 dark:bg-slate-950 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl text-lg font-black text-gray-900 dark:text-white dark:text-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
-                </div>
-
-                <!-- Timeline Visual de Disponibilidad -->
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">Horario Disponible</label>
-                    <div v-if="loadingAgenda" class="flex items-center gap-2 text-xs text-blue-500">
-                      <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                      Cargando agenda...
-                    </div>
-                    <div v-else-if="agendaSlots.length" class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider">
-                      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700"></span> Libre</span>
-                      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700"></span> Ocupado</span>
-                      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 border border-blue-600"></span> Seleccionado</span>
-                    </div>
-                  </div>
-
-                  <!-- Mensaje si no hay técnico o fecha seleccionada -->
-                  <div v-if="!form.tecnico_id || !internalDate" class="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 text-center">
-                    <p class="text-sm text-gray-400 dark:text-gray-500 font-semibold">Selecciona un <strong>técnico</strong> y una <strong>fecha</strong> para ver los horarios disponibles</p>
-                  </div>
-
-                  <!-- Timeline de Slots -->
-                  <div v-else-if="agendaSlots.length" class="space-y-3">
-                    <!-- Grid de slots -->
-                    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-10 gap-1.5">
-                      <button 
-                        v-for="slot in agendaSlots" 
-                        :key="slot.hora"
-                        type="button"
-                        @click="!slot.ocupado && setQuickTime(slot.hora)"
-                        :disabled="slot.ocupado"
-                        :class="[
-                          'relative p-2 rounded-xl text-center transition-all border-2 group',
-                        slot.ocupado 
-                            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 cursor-not-allowed opacity-70' 
-                            : isSlotInRange(slot.hora)
-                              ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30 scale-105'
-                              : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/40 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer hover:scale-105 active:scale-95'
-                        ]"
-                        :title="slot.ocupado ? `Ocupado: ${slot.cita?.tipo_servicio || 'Cita'} (${to12h(slot.cita?.inicio)} - ${to12h(slot.cita?.fin)})` : `Disponible: ${to12h(slot.hora)}`"
-                      >
-                        <span :class="[
-                          'text-xs font-black block',
-                          slot.ocupado ? 'text-red-400 dark:text-red-500 line-through' : isSlotInRange(slot.hora) ? 'text-white' : 'text-gray-700 dark:text-gray-300'
-                        ]">{{ to12hShort(slot.hora) }}</span>
-                        <span v-if="slot.ocupado" class="text-[8px] text-red-400 dark:text-red-500 font-bold block mt-0.5">🔒</span>
-                        <span v-else-if="selectedTime === slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">▶</span>
-                        <span v-else-if="isSlotInRange(slot.hora) && selectedTime !== slot.hora" class="text-[8px] text-blue-100 font-bold block mt-0.5">●</span>
-                      </button>
-                    </div>
-
-                    <!-- Resumen de Citas del Día -->
-                    <div v-if="agendaCitas.length" class="mt-4 space-y-2">
-                      <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Citas Agendadas Este Día</p>
-                      <div v-for="cita in agendaCitas" :key="cita.id" class="flex items-center gap-3 p-3 bg-red-50/60 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30">
-                        <div class="w-1.5 h-8 bg-red-400 dark:bg-red-500 rounded-full flex-shrink-0"></div>
-                        <div class="flex-1 min-w-0">
-                          <p class="text-xs font-black text-red-700 dark:text-red-400">{{ to12h(cita.inicio) }} → {{ to12h(cita.fin) }}</p>
-                          <p class="text-[10px] text-red-500 dark:text-red-500/80 truncate">{{ cita.tipo_servicio || 'Servicio' }} · {{ cita.duracion_min }} min · {{ cita.folio || '' }}</p>
-                        </div>
-                        <span :class="['px-2 py-0.5 rounded-full text-[8px] font-black uppercase', cita.estado === 'en_proceso' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700']">{{ cita.estado }}</span>
-                      </div>
-                    </div>
-
-                    <!-- Hora seleccionada + Duración -->
-                    <div v-if="selectedTime" class="space-y-4">
-                      <!-- Selector de Duración -->
-                      <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700">
-                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Duración Estimada del Servicio</label>
-                        <div class="flex flex-wrap gap-2">
-                          <button 
-                            v-for="dur in duracionOptions" 
-                            :key="dur.value" 
-                            type="button"
-                            @click="setDuracion(dur.value)"
-                            :class="[
-                              'px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all active:scale-95',
-                              form.duracion === dur.value 
-                                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/30' 
-                                : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400 dark:hover:border-blue-500'
-                            ]"
-                          >
-                            {{ dur.label }}
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <!-- Resumen de Hora Seleccionada -->
-                      <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800/40 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                          <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-sm">🕐</div>
-                          <div>
-                            <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Horario Programado</p>
-                            <p class="text-lg font-black text-blue-900 dark:text-white">{{ to12h(selectedTime) }} → {{ horaFinEstimada12h }}</p>
-                          </div>
-                        </div>
-                        <div class="text-right">
-                          <p class="text-[10px] font-bold text-blue-500 dark:text-blue-400">{{ formatearFecha(form.fecha_hora) }}</p>
-                          <p class="text-[10px] font-bold text-blue-400 dark:text-blue-500">{{ form.duracion }} min de servicio</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <FormField
-                    v-model="form.prioridad"
-                    label="Prioridad del Servicio"
-                    type="select"
-                    id="prioridad"
-                    :options="prioridadOptions"
-                    :error="form.errors.prioridad"
-                  />
-                  <FormField
-                    v-model="form.tipo_servicio"
-                    label="Tipo de Asistencia"
-                    type="select"
-                    id="tipo_servicio"
-                    :options="tipoServicioOptions"
-                    :error="form.errors.tipo_servicio"
-                    required
-                  />
-                </div>
-
-                <FormField
-                  v-model="form.direccion_servicio"
-                  label="Ubicación Exacta"
-                  type="textarea"
-                  id="direccion_servicio"
-                  :error="form.errors.direccion_servicio"
-                  placeholder="Calle, número, colonia y referencias visuales..."
-                  :rows="2"
-                />
-
-                <!-- Mapa Logístico Inteligente -->
-                <div class="mt-4 space-y-3">
-                  <div class="flex items-center gap-3">
-                    <label class="block text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Mapa de Logística y Proximidad</label>
-                    <span v-if="agendaCitas.length > 0" class="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-black rounded-full flex items-center gap-2 animate-pulse">
-                       <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
-                       {{ agendaCitas.length }} CITAS CERCANAS DETECTADAS
-                    </span>
-                    <div v-if="form.latitud" class="text-[10px] font-bold text-emerald-500 flex items-center gap-1 ml-auto">
-                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                       Ubicación Vinculada
-                    </div>
-                  </div>
-                  
-                  <LogisticMap 
-                    v-model:latitud="form.latitud"
-                    v-model:longitud="form.longitud"
-                    :direccion="form.direccion_servicio"
-                    :citas-cercanas="agendaCitas"
-                    height="320px"
-                  />
-                  
-                  <p class="text-[10px] text-gray-400 font-medium italic">
-                    * El marcador azul indica la ubicación de esta cita. Los grises son otros servicios del técnico hoy. 
-                    <strong>Puedes arrastrar el marcador azul</strong> para ajustar la ubicación exacta.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Sección 3: Datos Técnicos del Equipo -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-8 lg:p-12 transition-all">
-               <div class="flex items-center gap-4 mb-10">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
-                  <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <div>
-                  <h2 class="text-xl font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-tight">Información del Equipo</h2>
-                  <p class="text-xs font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Especificaciones técnicas para el diagnóstico</p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <FormField
-                  v-model="form.tipo_equipo"
-                  label="Tipo de Equipo"
-                  type="select"
-                  id="tipo_equipo"
-                  :options="tipoEquipoOptions"
-                  :error="form.errors.tipo_equipo"
-                />
-                
-                <div class="space-y-1">
-                  <label for="marca_equipo" class="block text-xs font-black text-gray-500 dark:text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-1.5">Marca</label>
-                  <input 
-                    v-model="form.marca_equipo" 
-                    list="marcas-list" 
-                    id="marca_equipo"
-                    type="text"
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-800 border border-gray-200 dark:border-slate-800 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-sm transition-all text-gray-900 dark:text-white dark:text-gray-100"
-                    placeholder="Ej. Samsung"
-                    @input="onInputToUpper('marca_equipo')"
-                  >
-                  <datalist id="marcas-list">
-                    <option v-for="marca in marcasComunes" :key="marca" :value="marca"></option>
-                  </datalist>
-                </div>
-
-                <FormField
-                  v-model="form.modelo_equipo"
-                  label="Modelo"
-                  id="modelo_equipo"
-                  placeholder="Ej. AR12MV"
-                  @input="onInputToUpper('modelo_equipo')"
-                />
-              </div>
-
-              <div class="mt-8">
-                 <FormField
-                  v-model="form.descripcion"
-                  label="Observaciones y Fallas Reportadas"
-                  type="textarea"
-                  id="descripcion"
-                  :error="form.errors.descripcion"
-                  placeholder="Describe detalladamente el problema que presenta el equipo..."
-                  :rows="4"
-                />
-              </div>
-            </div>
-          </form>
-
-          <!-- Columna Derecha: Sidebar con Resumen y Ayuda (4/12) -->
-          <div class="lg:col-span-4 space-y-8">
-            
-            <!-- Card de Resumen Informativo -->
-            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[32px] p-8 text-white shadow-xl shadow-blue-200 dark:shadow-none transition-transform hover:scale-[1.01] sticky top-32">
-              <h3 class="text-xs font-black uppercase tracking-[0.2em] opacity-70 mb-6">Resumen de Cita</h3>
-              
-              <div class="space-y-6">
-                <div class="flex items-start gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900/20 flex items-center justify-center backdrop-blur-md">👤</div>
-                  <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Cliente</p>
-                    <p class="text-sm font-black truncate max-w-[200px]">{{ selectedCliente?.nombre_razon_social || 'No seleccionado' }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900/20 flex items-center justify-center backdrop-blur-md">📅</div>
-                  <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Programación</p>
-                    <p class="text-sm font-black">{{ form.fecha_hora ? formatearFecha(form.fecha_hora) : 'Pendiente de definir' }}</p>
-                    <p v-if="selectedTime && horaFinEstimada12h" class="text-[10px] font-bold opacity-70">{{ to12h(selectedTime) }} → {{ horaFinEstimada12h }} ({{ form.duracion }} min)</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-4">
-                  <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900/20 flex items-center justify-center backdrop-blur-md">🛠️</div>
-                  <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Tipo de Servicio</p>
-                    <p class="text-sm font-black uppercase">{{ formatearTipoServicioShort(form.tipo_servicio) || 'Sin asignar' }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-10 pt-8 border-t border-white/10 space-y-4">
-                <div v-if="visitLimitInfo" class="bg-white dark:bg-slate-900/10 rounded-2xl p-4 border border-white/10">
-                   <p class="text-xs font-black uppercase tracking-widest mb-1 flex items-center gap-2">
-                     <span class="text-sm">⚠️</span> Póliza de Servicio
-                   </p>
-                   <p class="text-[11px] font-medium leading-relaxed opacity-90">{{ visitLimitInfo }}</p>
-                </div>
-                
-                <p class="text-[10px] text-center font-bold opacity-50 uppercase tracking-tighter">Verifica que todos los datos sean correctos antes de guardar</p>
-              </div>
-            </div>
-
-            <!-- Card Instrucciones -->
-            <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[32px] border border-gray-100 dark:border-gray-700 p-8 shadow-sm transition-colors">
-               <h3 class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-widest mb-4">Guía Rápida</h3>
-               <ul class="space-y-3">
-                 <li v-for="(tip, idx) in helperTips" :key="idx" class="flex gap-3 text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-400 leading-relaxed">
-                   <span class="text-blue-500 font-black">{{ idx+1 }}.</span>
-                   {{ tip }}
-                 </li>
-               </ul>
+              <span 
+                class="absolute -bottom-7 whitespace-nowrap text-[10px] font-black uppercase tracking-widest transition-colors duration-300"
+                :class="[currentStep >= step.id ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-600']"
+              >
+                {{ step.label }}
+              </span>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Footer Mobile Fijo -->
-      <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 p-4 z-40">
-         <button @click="submit" :disabled="form.processing || !selectedCliente" class="w-full py-4 bg-blue-600 text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-lg active:scale-95 transition-all">
-            {{ form.processing ? 'Procesando...' : 'Confirmar y Guardar Cita' }}
-         </button>
       </div>
     </div>
+
+    <!-- Main Content Container with Transitions -->
+    <main class="max-w-4xl mx-auto px-4 py-12 pb-32">
+      <form @submit.prevent="submit" class="relative min-h-[500px]">
+        <transition-group 
+          name="step-fade" 
+          enter-active-class="transition-all duration-500 ease-out" 
+          enter-from-class="opacity-0 translate-x-8" 
+          enter-to-class="opacity-100 translate-x-0" 
+          leave-active-class="absolute top-0 w-full transition-all duration-300 ease-in" 
+          leave-from-class="opacity-100 translate-x-0" 
+          leave-to-class="opacity-0 -translate-x-8"
+        >
+          
+          <!-- STEP 1: CLIENTE -->
+          <div v-show="currentStep === 1" key="step1" class="space-y-8">
+            <div class="section-card glass-morphism p-8 md:p-12">
+               <div class="flex items-center gap-5 mb-12">
+                  <div class="w-16 h-16 rounded-[24px] bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-200 dark:shadow-none transition-transform hover:rotate-3">
+                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                  </div>
+                  <div>
+                    <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Identidad del Cliente</h2>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] mt-1">Vincular cuenta para el historial técnico</p>
+                  </div>
+               </div>
+
+               <div class="space-y-10">
+                  <BuscarCliente
+                    ref="buscarClienteRef"
+                    :clientes="clientes"
+                    :cliente-seleccionado="selectedCliente"
+                    @cliente-seleccionado="onClienteSeleccionado"
+                    @crear-nuevo-cliente="onCrearNuevoCliente"
+                    label-busqueda="Cliente"
+                    placeholder-busqueda="Nombre, RFC o Teléfono..."
+                    :requerido="true"
+                    :mostrar-opcion-nuevo-cliente="true"
+                    :mostrar-estado-cliente="true"
+                    :mostrar-info-comercial="true"
+                    class="premium-search"
+                  />
+
+                  <!-- Info de Póliza Contextual -->
+                  <div v-if="selectedCliente && clientePolizas.length > 0" class="animate-scale-in p-6 bg-emerald-50 dark:bg-emerald-900/10 border-2 border-emerald-100 dark:border-emerald-800/30 rounded-[24px]">
+                    <div class="flex items-start gap-4">
+                      <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold shrink-0">🛡️</div>
+                      <div class="flex-1">
+                        <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Protección Activa</p>
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ clientePolizas[0].nombre }} <span class="ml-2 font-normal opacity-60">#{{ clientePolizas[0].folio }}</span></h4>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-4 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-tighter">
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                {{ clientePolizas[0].visitas_disponibles }} Visitas Disponibles
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                Cobertura 24/7
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else-if="selectedCliente && !form.ticket_id" class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[24px] border border-slate-200/50 dark:border-slate-700/50 text-center">
+                      <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sin póliza activa vinculada</p>
+                      <p class="text-[11px] text-slate-400 mt-1 italic">Este servicio será facturado a precio regular</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: LOGÍSTICA & ESTADÍA -->
+          <div v-show="currentStep === 2" key="step2" class="space-y-8">
+            <div class="section-card glass-morphism p-8 md:p-12">
+               <div class="flex items-center gap-5 mb-12">
+                  <div class="w-16 h-16 rounded-[24px] bg-amber-500 flex items-center justify-center text-white shadow-xl shadow-amber-200 dark:shadow-none transition-transform hover:rotate-3">
+                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  </div>
+                  <div>
+                    <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Agenda & Especialista</h2>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] mt-1">Sincronización de tiempos y recursos</p>
+                  </div>
+               </div>
+
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div class="space-y-6">
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest">Selección de Especialista</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button 
+                            v-for="tecnico in tecnicos" :key="tecnico.id" 
+                            type="button"
+                            @click="form.tecnico_id = tecnico.id"
+                            class="flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300"
+                            :class="[form.tecnico_id === tecnico.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700']"
+                        >
+                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-black text-slate-500">
+                                {{ tecnico.nombre.charAt(0) }}
+                            </div>
+                            <div class="text-left flex-1">
+                                <p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">{{ tecnico.nombre }}</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-tighter mt-0.5">Disponibilidad Inmediata</p>
+                            </div>
+                            <div v-if="form.tecnico_id === tecnico.id" class="text-blue-500">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            </div>
+                        </button>
+                    </div>
+                    <div v-if="form.errors.tecnico_id" class="text-xs text-red-500 font-bold px-2 mt-2 tracking-tight">{{ form.errors.tecnico_id }}</div>
+                    
+                    <!-- Availability Warning -->
+                    <div v-if="availabilityError" class="animate-shake mt-4 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-2xl flex items-center gap-3">
+                        <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <p class="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-tight">{{ availabilityError }}</p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-8">
+                     <!-- Date Selector UI Premium -->
+                     <div class="space-y-4">
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest">Fecha & Hora</label>
+                             <div class="w-full max-w-sm px-8 py-8 bg-white dark:bg-slate-800 rounded-[40px] shadow-2xl shadow-blue-500/10 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center transition-all hover:border-blue-400 group">
+                                <div class="w-full flex flex-col items-center gap-6">
+                                    <!-- Selector de Fecha Grande -->
+                                    <div class="relative group w-full flex justify-center items-center">
+                                        <input 
+                                            ref="dateInputRef"
+                                            type="date" 
+                                            v-model="internalDate" 
+                                            :min="todayDate"
+                                            @change="updateDateTime()"
+                                            class="w-full max-w-xs bg-slate-50 dark:bg-slate-900/40 border-2 border-slate-100 dark:border-slate-800 focus:border-blue-500 rounded-[24px] pl-6 pr-16 py-4 text-3xl font-black text-slate-900 dark:text-white transition-all outline-none text-center cursor-pointer hover:bg-white dark:hover:bg-slate-900"
+                                        >
+                                        <button 
+                                            type="button" 
+                                            @click="dateInputRef?.showPicker()"
+                                            class="absolute right-3 w-12 h-12 bg-blue-600 hover:bg-blue-700 rounded-[18px] flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105 active:scale-95 z-10"
+                                            title="Seleccionar Fecha"
+                                        >
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Rango de Tiempo Horizontal -->
+                                    <!-- Grid de Horarios -->
+                                    <div class="w-full pt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <p class="text-center text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center justify-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            Selecciona el Horario (Clic: Inicio y Fin)
+                                        </p>
+                                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                            <button 
+                                                v-for="hora in 13" :key="hora"
+                                                type="button"
+                                                @click="seleccionarBloque(hora + 7)"
+                                                :class="[
+                                                    'py-2 rounded-xl text-xs font-bold transition-all border',
+                                                    (hora + 7) === selectedStart
+                                                        ? 'bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/30 ring-2 ring-offset-1 ring-emerald-400 dark:ring-offset-slate-900'
+                                                        : ((hora + 7) === selectedEnd
+                                                            ? 'bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/30 ring-2 ring-offset-1 ring-rose-400 dark:ring-offset-slate-900'
+                                                            : (isBloqueDentroDeRango(hora + 7) 
+                                                                ? 'bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900/40 dark:border-blue-700/60 dark:text-blue-300 scale-105'
+                                                                : 'bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'))
+                                                ]"
+                                            >
+                                                {{ formatearHoraBloque(hora + 7) }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 mt-2">
+                                        <div class="flex flex-col items-start">
+                                            <span class="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">Inicia</span>
+                                            <span class="text-sm font-black text-slate-800 dark:text-white bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">{{ formatearHoraBloque(selectedStart) || '--:--' }}</span>
+                                        </div>
+                                        <div class="text-slate-300 dark:text-slate-600">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                        </div>
+                                        <div class="flex flex-col items-end">
+                                            <span class="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">Finaliza</span>
+                                            <span class="text-sm font-black text-slate-800 dark:text-white bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">{{ formatearHoraBloque(selectedEnd) || '--:--' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Lista de Horarios Ocupados -->
+                                    <div v-if="busySlots.length > 0" class="w-full mt-4 space-y-2">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Horarios Ocupados</p>
+                                        <div class="flex flex-wrap justify-center gap-2">
+                                            <div 
+                                                v-for="slot in busySlots" :key="slot.id"
+                                                class="px-3 py-1 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-[9px] font-bold text-red-500 uppercase flex items-center gap-1"
+                                            >
+                                                <div class="w-1 h-1 rounded-full bg-red-500"></div>
+                                                {{ slot.start }} - {{ slot.end }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else-if="form.tecnico_id && !isFetchingBusy" class="w-full mt-4">
+                                        <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest text-center">Todo el día disponible</p>
+                                    </div>
+                                </div>
+                                
+                                <div v-if="form.errors.fecha_hora || form.errors.fecha_hora_fin" class="mt-4 p-3 bg-red-50 dark:bg-rose-900/10 rounded-xl border border-red-100 dark:border-rose-900/20 w-full">
+                                    <p class="text-[10px] text-red-600 dark:text-rose-400 font-bold uppercase tracking-tight text-center">
+                                        {{ form.errors.fecha_hora || form.errors.fecha_hora_fin }}
+                                    </p>
+                                </div>
+                            </div>
+                     </div>
+
+                     <div class="space-y-8">
+                        <!-- Grado de Prioridad -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Grado de Prioridad</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <button 
+                                    v-for="opcion in prioridadOptions" :key="opcion.value"
+                                    type="button"
+                                    @click="form.prioridad = opcion.value"
+                                    :class="[
+                                        'py-3 px-2 rounded-2xl text-[10px] sm:text-xs font-bold transition-all border-2 text-center',
+                                        form.prioridad === opcion.value 
+                                            ? (opcion.value === 'urgente' ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30' : 
+                                               opcion.value === 'alta' ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/30' :
+                                               opcion.value === 'media' ? 'bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/30' :
+                                               'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30')
+                                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600'
+                                    ]"
+                                >
+                                    {{ opcion.text }}
+                                </button>
+                            </div>
+                            <p v-if="form.errors.prioridad" class="text-xs text-red-500 mt-1 font-bold">{{ form.errors.prioridad }}</p>
+                        </div>
+
+                        <!-- Tipo de Servicio -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Tipo de Servicio <span class="text-rose-500">*</span></label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <button 
+                                    v-for="opcion in tipoServicioOptions" :key="opcion.value"
+                                    type="button"
+                                    @click="form.tipo_servicio = opcion.value"
+                                    :class="[
+                                        'py-3 px-2 rounded-2xl text-[10px] sm:text-xs font-bold transition-all border-2 flex flex-col items-center justify-center gap-2 text-center',
+                                        form.tipo_servicio === opcion.value 
+                                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/30 scale-[1.02]'
+                                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                                    ]"
+                                >
+                                    <font-awesome-icon :icon="getServicioIcon(opcion.value)" class="text-xl sm:text-2xl mb-0.5" />
+                                    <span>{{ opcion.text }}</span>
+                                </button>
+                            </div>
+                            <p v-if="form.errors.tipo_servicio" class="text-xs text-red-500 mt-1 font-bold">{{ form.errors.tipo_servicio }}</p>
+                        </div>
+                     </div>
+
+                     <!-- Campo Condicional: Tipo de Mantenimiento -->
+                     <Transition
+                        enter-active-class="transition duration-300 ease-out"
+                        enter-from-class="transform -translate-y-4 opacity-0"
+                        enter-to-class="transform translate-y-0 opacity-100"
+                        leave-active-class="transition duration-200 ease-in"
+                        leave-from-class="transform translate-y-0 opacity-100"
+                        leave-to-class="transform -translate-y-4 opacity-0"
+                     >
+                        <div v-if="form.tipo_servicio === 'mantenimiento'" class="p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-[32px] border border-blue-100 dark:border-blue-900/20">
+                            <FormField 
+                                v-model="form.tipo_mantenimiento" 
+                                label="Tipo de Mantenimiento" 
+                                type="select" 
+                                id="tipo_mantenimiento" 
+                                :options="tipoMantenimientoOptions" 
+                                :error="form.errors.tipo_mantenimiento" 
+                            />
+                        </div>
+                     </Transition>
+                  </div>
+               </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: EQUIPO Y DIAGNÓSTICO -->
+          <div v-show="currentStep === 3" key="step3" class="space-y-8">
+             <div class="section-card glass-morphism p-8 md:p-12">
+               <div class="flex items-center gap-5 mb-12">
+                  <div class="w-16 h-16 rounded-[24px] bg-indigo-500 flex items-center justify-center text-white shadow-xl shadow-indigo-200 dark:shadow-none transition-transform hover:rotate-3">
+                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  </div>
+                  <div>
+                    <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Detalles del Equipo</h2>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] mt-1">Especificaciones técnicas y fallas</p>
+                  </div>
+               </div>
+
+               <div class="space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField v-model="form.tipo_equipo" label="Categoría" type="select" id="tipo_equipo" :options="tipoEquipoOptions" :error="form.errors.tipo_equipo" />
+                        
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-black text-slate-500 uppercase tracking-widest pl-1">Marca (Opcional)</label>
+                            <input v-model="form.marca_equipo" list="marcas-list" class="w-full h-12 px-5 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-800 dark:text-white" placeholder="Escribe la marca o elige sugerencia" @input="onInputToUpper('marca_equipo')">
+                            <datalist id="marcas-list">
+                                <option v-for="m in marcasComunes" :key="m" :value="m" />
+                            </datalist>
+                        </div>
+
+                        <FormField v-model="form.modelo_equipo" label="Modelo (Opcional)" id="modelo_equipo" placeholder="AR12..." @input="onInputToUpper('modelo_equipo')" />
+                    </div>
+
+                    <FormField
+                        v-model="form.folio"
+                        label="Folio tienda / servicio (opcional)"
+                        id="folio_cita"
+                        placeholder="Ej. folio Liverpool, LG, Mirage…"
+                        :error="form.errors.folio"
+                    />
+                    <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 -mt-6 mb-2 px-1">
+                      Si lo dejas vacío, se genera el folio interno de la cita automáticamente.
+                    </p>
+
+                    <div class="grid grid-cols-1 gap-8">
+                        <FormField 
+                            v-model="form.descripcion" 
+                            label="Descripción" 
+                            type="textarea" 
+                            id="descripcion" 
+                            :rows="4" 
+                            :placeholder="form.tipo_servicio === 'instalacion' ? 'Describe los detalles de la instalación (ej. piso, altura, materiales)...' : 'Describe brevemente la situación o requerimiento...'" 
+                            :error="form.errors.descripcion" 
+                        />
+
+                    </div>
+               </div>
+             </div>
+          </div>
+
+          <!-- STEP 4: RESUMEN FINAL -->
+          <div v-show="currentStep === 4" key="step4" class="space-y-8">
+            <div class="section-card bg-slate-900 dark:bg-slate-800 dark:border-slate-700 p-12 text-white shadow-2xl relative overflow-hidden">
+                <!-- Background decorative element -->
+                 <div class="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+                    <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                </div>
+
+                <div class="relative z-10">
+                    <h2 class="text-3xl font-black tracking-tighter mb-2">Resumen Operativo</h2>
+                    <p class="text-blue-400 text-xs font-black uppercase tracking-[0.2em] mb-12">Confirmación de Datos para Envío</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-8">
+                            <div class="group">
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 group-hover:text-blue-400 transition-colors">Titular de la Cita</p>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl">👤</div>
+                                    <p class="text-lg font-black">{{ selectedCliente?.nombre_razon_social || 'No identificado' }}</p>
+                                </div>
+                            </div>
+                            <div class="group">
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 group-hover:text-blue-400 transition-colors">Programación (Horario de Atención)</p>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl">📅</div>
+                                    <div>
+                                        <p class="text-lg font-black uppercase">{{ formatearFecha(form.fecha_hora) }}</p>
+                                        <p class="text-xs font-bold text-blue-400 uppercase tracking-tighter">
+                                            Rango: {{ formatearHora12(internalTime) }} - {{ formatearHora12(internalEndTime) }}
+                                        </p>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Asignado a: {{ selectedTecnicoName }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-8">
+                             <div class="group">
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 group-hover:text-blue-400 transition-colors">Servicio & Equipo</p>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl">🛠️</div>
+                                    <div>
+                                        <p class="text-lg font-black uppercase">{{ formatearTipoServicioShort(form.tipo_servicio) }}</p>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">{{ form.tipo_equipo }} - {{ form.marca_equipo }}</p>
+                                        <p v-if="form.folio?.trim()" class="text-xs font-mono font-bold text-amber-300 mt-1">Folio: {{ form.folio.trim() }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="group">
+                                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 group-hover:text-blue-400 transition-colors">Destino del Servicio</p>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl">📍</div>
+                                    <p class="text-sm font-bold text-slate-300 max-w-[250px] leading-relaxed">{{ selectedCliente?.calle ? `${selectedCliente.calle} ${selectedCliente.num_exterior || ''}, ${selectedCliente.colonia || ''}` : 'Dirección no especificada' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-16 p-8 border-t border-white/5 bg-white/5 rounded-[32px]">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></div>
+                                <p class="text-xs font-bold text-slate-300 uppercase tracking-widest">Listo para procesar cita técnica en el sistema</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <button type="button" @click="prevStep" class="px-8 py-4 bg-white/10 text-white rounded-[22px] font-black uppercase text-xs tracking-[0.2em] hover:bg-white/20 transition-all active:scale-95">
+                                    Atrás
+                                </button>
+                                <button type="button" @click="submit" :disabled="form.processing" class="px-12 py-4 bg-white text-slate-900 rounded-[22px] font-black uppercase text-xs tracking-[0.2em] hover:bg-blue-500 hover:text-white transition-all duration-500 shadow-xl shadow-black/20 hover:scale-105 active:scale-95 disabled:opacity-50">
+                                    {{ form.processing ? 'Procesando...' : 'Confirmar y Finalizar' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </transition-group>
+
+        <!-- Dynamic Wizards Actions Controls -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-800/60 p-5 z-50">
+          <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <button 
+              v-show="currentStep > 1"
+              type="button" 
+              @click="prevStep" 
+              class="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              Atrás
+            </button>
+            <div v-show="currentStep === 1" class="w-2"></div>
+
+            <div class="flex items-center gap-4">
+                <button 
+                    type="button"
+                    @click="saveDraft"
+                    class="hidden md:flex items-center gap-2 px-6 py-3 text-slate-400 dark:text-slate-500 font-bold uppercase text-[10px] tracking-widest hover:text-blue-500 transition-all"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                    Borrador
+                </button>
+                
+                <button 
+                v-if="currentStep < 4"
+                type="button" 
+                @click="nextStep" 
+                :disabled="!canProceed"
+                class="group flex items-center gap-3 px-10 py-4 rounded-2xl bg-blue-600 text-white font-black uppercase text-xs tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-95 disabled:opacity-30 disabled:scale-95 disabled:shadow-none"
+                >
+                Siguiente
+                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
   </div>
 </template>
 
@@ -441,8 +535,9 @@ import { computed, ref, onMounted, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormField from '@/Components/FormField.vue';
 import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
-import LogisticMap from '@/Components/LogisticMap.vue';
 import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faShieldAlt, faWrench, faCogs, faBroom, faSearch, faSprayCan, faMapPin } from '@fortawesome/free-solid-svg-icons';
 
 defineOptions({ layout: AppLayout });
 
@@ -453,248 +548,349 @@ const props = defineProps({
     prefill: Object
 });
 
+const currentStep = ref(1);
 const selectedCliente = ref(null);
 const buscarClienteRef = ref(null);
-const internalDate = ref(new Date().toISOString().split('T')[0]);
-const selectedDateType = ref('today');
-const agendaSlots = ref([]);
-const agendaCitas = ref([]);
-const loadingAgenda = ref(false);
+const internalDate = ref('');
+const clientePolizas = ref([]);
+const isCheckingAvailability = ref(false);
+const availabilityError = ref('');
+const busySlots = ref([]);
+const isFetchingBusy = ref(false);
+
+const getSafeDefaultDate = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 30);
+    
+    // Si cae en domingo, mover al lunes
+    if (now.getDay() === 0) now.setDate(now.getDate() + 1);
+    
+    // Ajustar hora si está fuera de rango (8-20)
+    if (now.getHours() < 8) {
+        now.setHours(8, 0, 0, 0);
+    } else if (now.getHours() >= 20) {
+        now.setDate(now.getDate() + 1);
+        now.setHours(8, 0, 0, 0);
+    }
+    
+    // Formatear como YYYY-MM-DDTHH:mm usando la zona local
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
 
 const form = useForm({
     cliente_id: '',
     tecnico_id: '',
     ticket_id: props.ticket_id || '',
     poliza_id: '',
-    fecha_hora: `${new Date().toISOString().split('T')[0]}T09:00`,
+    fecha_hora: '',
+    fecha_hora_fin: '',
     estado: 'programado',
     prioridad: 'media',
-    tipo_servicio: 'diagnostico',
+    tipo_servicio: '',
     descripcion: '',
+    problema_reportado: '',
     tipo_equipo: 'minisplit',
     marca_equipo: '',
     modelo_equipo: '',
-    numero_serie: '',
-    direccion_servicio: '',
-    observaciones: '',
-    notas: '',
-    extra_visit_cost: 0,
-    notify: true,
-    duracion: 60,
-    latitud: null,
-    longitud: null,
+
+    fecha_hora_fin: '', // Para guardar el fin del bloque
+    tipo_mantenimiento: 'preventivo_lavado', // Nuevo campo
+    /** Folio de tienda (LG, Mirage, etc.); si se deja vacío el sistema asigna folio interno. */
+    folio: '',
+    notify: true
 });
 
-const clientePolizas = ref([]);
+const steps = [
+  { id: 1, label: 'Cliente' },
+  { id: 2, label: 'Agenda' },
+  { id: 3, label: 'Detalles' },
+  { id: 4, label: 'Resumen' }
+];
 
-// Computed: hora seleccionada actual
-const selectedTime = computed(() => {
-    const parts = form.fecha_hora.split('T');
-    return parts[1] || null;
-});
-
-// Cargar agenda del técnico
-const fetchAgenda = async () => {
-    if (!form.tecnico_id || !internalDate.value) {
-        agendaSlots.value = [];
-        agendaCitas.value = [];
-        return;
-    }
-
-    loadingAgenda.value = true;
+const checkAvailability = async () => {
+    if (!form.tecnico_id || !form.fecha_hora || form.fecha_hora.startsWith('T')) return;
+    
+    isCheckingAvailability.value = true;
+    availabilityError.value = '';
+    
     try {
-        const url = route('citas.agenda-tecnico') + `?tecnico_id=${form.tecnico_id}&fecha=${internalDate.value}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        agendaSlots.value = data.slots || [];
-        agendaCitas.value = data.citas || [];
-
-        // Auto-seleccionar el primer slot disponible si la hora actual está ocupada
-        const currentTime = selectedTime.value;
-        const currentSlot = agendaSlots.value.find(s => s.hora === currentTime);
-        if (!currentTime || (currentSlot && currentSlot.ocupado)) {
-            const primerLibre = agendaSlots.value.find(s => !s.ocupado);
-            if (primerLibre) {
-                updateDateTime(primerLibre.hora);
-            }
+        const response = await fetch(route('api.citas.check-availability', {
+            tecnico_id: form.tecnico_id,
+            fecha_hora: form.fecha_hora,
+            fecha_hora_fin: form.fecha_hora_fin, // Sincronizar fin con la validación
+            cliente_id: form.cliente_id
+        }));
+        const data = await response.json();
+        
+        if (!data.available) {
+            availabilityError.value = data.message;
         }
-    } catch (e) {
-        console.error('Error al cargar agenda:', e);
-        agendaSlots.value = [];
-        agendaCitas.value = [];
+    } catch (err) {
+        console.error('Availability check failed', err);
     } finally {
-        loadingAgenda.value = false;
+        isCheckingAvailability.value = false;
     }
 };
 
+watch(() => [form.tecnico_id, form.fecha_hora], () => {
+    if (form.tecnico_id && form.fecha_hora) checkAvailability();
+});
+
+const fetchBusySlots = async () => {
+    if (!form.tecnico_id || !internalDate.value) {
+        busySlots.value = [];
+        return;
+    }
+    
+    isFetchingBusy.value = true;
+    try {
+        const response = await fetch(route('api.citas.busy-slots', {
+            tecnico_id: form.tecnico_id,
+            fecha: internalDate.value
+        }));
+        const data = await response.json();
+        if (data.success) {
+            busySlots.value = data.slots;
+        }
+    } catch (err) {
+        console.error('Failed to fetch busy slots', err);
+    } finally {
+        isFetchingBusy.value = false;
+    }
+};
+
+watch(() => [form.tecnico_id, internalDate.value], () => {
+    fetchBusySlots();
+});
+
+// Sincronizar descripción con problema_reportado (IGUAL QUE EN MÓVIL)
+watch(() => form.descripcion, (newVal) => {
+    form.problema_reportado = newVal;
+});
+
+// Incluir tipo de mantenimiento en la descripción automáticamente
+watch(() => [form.tipo_servicio, form.tipo_mantenimiento], ([service, type]) => {
+    if (service === 'mantenimiento') {
+        const typeText = tipoMantenimientoOptions.find(o => o.value === type)?.text || type;
+        if (!form.descripcion.includes(typeText)) {
+            form.descripcion = `[${typeText.toUpperCase()}] ${form.descripcion}`;
+        }
+    }
+});
+
 onMounted(() => {
-    // Restaurar borrador si existe
-    const draft = sessionStorage.getItem('cita_draft');
+    // Inicializar la fecha para el calendario, pero no la hora de la cita
+    const defaultDate = getSafeDefaultDate();
+    internalDate.value = defaultDate.split('T')[0];
+
+    // Restaurar borrador
+    const draft = sessionStorage.getItem('cita_wizard_draft');
     if (draft) {
         try {
             const parsed = JSON.parse(draft);
-            Object.assign(form, parsed);
+            Object.assign(form, parsed.data);
+            currentStep.value = parsed.step || 1;
             if (form.cliente_id) {
                 selectedCliente.value = props.clientes.find(c => c.id == form.cliente_id);
+                if (selectedCliente.value) onClienteSeleccionado(selectedCliente.value);
             }
-        } catch (e) {
-            console.error('Error restaurando borrador', e);
+        } catch (e) { console.error('Draft restore error', e); }
+    }
+    
+    // Prefill si viene de props
+    if (props.prefill) {
+        if (props.prefill.cliente_id) {
+             const cl = props.clientes.find(c => c.id == props.prefill.cliente_id);
+             if (cl) onClienteSeleccionado(cl);
+        }
+        Object.assign(form, props.prefill);
+    }
+
+    if (form.tecnico_id) fetchBusySlots();
+});
+
+const progressWidth = computed(() => ((currentStep.value - 1) / (steps.length - 1)) * 100);
+
+const canProceed = computed(() => {
+    if (currentStep.value === 1) return !!form.cliente_id;
+    if (currentStep.value === 2) {
+        let isValid = !!form.tecnico_id && !!form.fecha_hora && !!form.fecha_hora_fin && !!form.tipo_servicio && !availabilityError.value;
+        if (form.tipo_servicio === 'mantenimiento') {
+            isValid = isValid && !!form.tipo_mantenimiento;
+        }
+        return isValid;
+    }
+    if (currentStep.value === 3) return !!form.tipo_equipo && !!form.descripcion;
+    return true;
+});
+
+const nextStep = () => { if (canProceed.value && currentStep.value < 4) currentStep.value++; };
+const prevStep = () => { if (currentStep.value > 1) currentStep.value--; };
+
+const internalTime = ref(form.fecha_hora ? form.fecha_hora.split('T')[1]?.substring(0, 5) : '');
+const internalEndTime = ref(form.fecha_hora_fin ? form.fecha_hora_fin.split('T')[1]?.substring(0, 5) : '');
+
+// Block logic
+const clickStep = ref(0)
+const selectedStart = ref(internalTime.value ? parseInt(internalTime.value.split(':')[0]) : null)
+const selectedEnd = ref(internalEndTime.value ? parseInt(internalEndTime.value.split(':')[0]) : null)
+
+const seleccionarBloque = (hora) => {
+    if (clickStep.value === 0) {
+        selectedStart.value = hora;
+        selectedEnd.value = null; // Wait for end time click
+        clickStep.value = 1;
+    } else {
+        if (hora <= selectedStart.value) {
+            if (hora === selectedStart.value) {
+                selectedEnd.value = hora + 1; // Double click same block = 1 hour
+                clickStep.value = 0;
+            } else {
+                selectedStart.value = hora; // Clicked earlier time, reset start
+            }
+        } else {
+            selectedEnd.value = hora;
+            clickStep.value = 0;
         }
     }
-});
-
-// Watchers para recargar la agenda cuando cambie técnico o fecha
-watch(() => form.tecnico_id, () => { fetchAgenda(); });
-watch(internalDate, () => { fetchAgenda(); updateDateTime(); });
-
-const quickDates = [
-    { label: 'Hoy', val: 'today' },
-    { label: 'Mañana', val: 'tomorrow' },
-    { label: 'Lunes Prox.', val: 'monday' }
-];
-
-const setQuickDate = (type) => {
-    selectedDateType.value = type;
-    const now = new Date();
-    let date;
-    if (type === 'today') date = now;
-    else if (type === 'tomorrow') {
-        date = new Date();
-        date.setDate(now.getDate() + 1);
-    } else if (type === 'monday') {
-        date = new Date();
-        date.setDate(now.getDate() + (1 + 7 - now.getDay()) % 7 || 7);
+    
+    if (selectedStart.value !== null) {
+        internalTime.value = `${String(selectedStart.value).padStart(2, '0')}:00`;
     }
-    internalDate.value = date.toISOString().split('T')[0];
-    updateDateTime();
+    if (selectedEnd.value !== null) {
+        internalEndTime.value = `${String(selectedEnd.value).padStart(2, '0')}:00`;
+    } else {
+        internalEndTime.value = '';
+    }
+    
+    updateDateTimeFromTime();
+}
+
+const isBloqueDentroDeRango = (hora) => {
+    return selectedStart.value !== null && selectedEnd.value !== null && hora > selectedStart.value && hora < selectedEnd.value;
+}
+
+const formatearHoraBloque = (hora) => {
+    if (!hora) return '';
+    const ampm = hora >= 12 ? 'PM' : 'AM';
+    const h12 = hora > 12 ? hora - 12 : (hora === 0 ? 12 : hora);
+    return `${h12}:00 ${ampm}`;
+}
+
+const updateDateTimeFromTime = () => {
+    if (selectedStart.value !== null && selectedEnd.value !== null) {
+        form.fecha_hora = `${internalDate.value}T${internalTime.value}`;
+        form.fecha_hora_fin = `${internalDate.value}T${internalEndTime.value}`;
+    } else {
+        form.fecha_hora = '';
+        form.fecha_hora_fin = '';
+    }
 };
 
-const setQuickTime = (time) => {
-    updateDateTime(time);
-};
-
-const setDuracion = (min) => {
-    form.duracion = min;
-};
-
-// Computed: verificar si un slot está dentro del rango de la cita seleccionada
-const isSlotInRange = (slotHora) => {
-    if (!selectedTime.value) return false;
-    const [startH, startM] = selectedTime.value.split(':').map(Number);
-    const [slotH, slotM] = slotHora.split(':').map(Number);
-    const startMinutes = startH * 60 + startM;
-    const slotMinutes = slotH * 60 + slotM;
-    const endMinutes = startMinutes + form.duracion;
-    return slotMinutes >= startMinutes && slotMinutes < endMinutes;
-};
-
-// Computed: hora de fin estimada (24h para cálculos internos)
-const horaFinEstimada = computed(() => {
-    if (!selectedTime.value) return '';
-    const [h, m] = selectedTime.value.split(':').map(Number);
-    const totalMin = h * 60 + m + form.duracion;
-    const endH = Math.floor(totalMin / 60);
-    const endM = totalMin % 60;
-    return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
-});
-
-// Computed: hora de fin en formato 12h con AM/PM
-const horaFinEstimada12h = computed(() => {
-    if (!horaFinEstimada.value) return '';
-    return to12h(horaFinEstimada.value);
-});
-
-const duracionOptions = [
-    { value: 30, label: '30 min' },
-    { value: 60, label: '1 hora' },
-    { value: 90, label: '1.5 hrs' },
-    { value: 120, label: '2 hrs' },
-    { value: 180, label: '3 hrs' },
-    { value: 240, label: '4 hrs' },
-];
-
-const updateDateTime = (time) => {
-    const t = time || form.fecha_hora.split('T')[1] || '09:00';
-    form.fecha_hora = `${internalDate.value}T${t}`;
+const updateDateTime = () => {
+    const date = new Date(`${internalDate.value}T00:00:00`);
+    if (date.getDay() === 0) {
+        Swal.fire('Día no laboral', 'No se pueden programar citas los domingos.', 'warning');
+        date.setDate(date.getDate() + 1);
+        internalDate.value = date.toISOString().split('T')[0];
+    }
+    
+    updateDateTimeFromTime();
+    if (form.tecnico_id) fetchBusySlots();
 };
 
 const onClienteSeleccionado = (cliente) => {
     selectedCliente.value = cliente;
     form.cliente_id = cliente?.id || '';
-    form.poliza_id = ''; // Reset poliza al cambiar cliente
-    clientePolizas.value = []; // Limpiar pólizas previas
+    form.poliza_id = '';
+    clientePolizas.value = [];
     
-    if (cliente?.calle) {
-        form.direccion_servicio = `${cliente.calle} ${cliente.num_exterior || ''}, ${cliente.colonia || ''}, ${cliente.municipio || ''}`.replace(/\s+,/g, ',');
-    }
-    
-    // Cargar pólizas activas del cliente
     if (cliente?.id) {
         fetch(route('api.clientes.polizas', cliente.id))
             .then(res => res.json())
             .then(data => {
                 clientePolizas.value = data.polizas || [];
-                // Autoseleccionar si solo hay una
-                if (clientePolizas.value.length === 1) {
-                    form.poliza_id = clientePolizas.value[0].id;
-                }
+                if (clientePolizas.value.length === 1) form.poliza_id = clientePolizas.value[0].id;
             })
-            .catch(err => console.log('No se pudieron cargar pólizas', err));
+            .catch(err => console.log('Polizas load fail', err));
     }
 };
 
-const onInputToUpper = (field) => {
-    form[field] = form[field].toUpperCase();
-};
-
-const onCrearNuevoCliente = (text) => {
-    window.open(route('clientes.create', { name: text }), '_blank');
-};
+const onInputToUpper = (field) => { form[field] = form[field].toUpperCase(); };
+const onCrearNuevoCliente = (text) => window.open(route('clientes.create', { name: text }), '_blank');
 
 const saveDraft = () => {
-    sessionStorage.setItem('cita_draft', JSON.stringify(form.data()));
-    Swal.fire({
-      title: 'Borrador Guardado',
-      text: 'Puedes continuar después. Los datos están seguros en este navegador.',
-      icon: 'success',
-      toast: true,
-      position: 'top-end',
-      timer: 3000,
-      showConfirmButton: false
-    });
+    sessionStorage.setItem('cita_wizard_draft', JSON.stringify({ data: form.data(), step: currentStep.value }));
+    Swal.fire({ title: 'Borrador Guardado', icon: 'success', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
 };
 
 const submit = () => {
     form.post(route('citas.store'), {
         onSuccess: () => {
-            sessionStorage.removeItem('cita_draft');
-            Swal.fire('¡Éxito!', 'La cita ha sido agendada correctamente', 'success');
+            sessionStorage.removeItem('cita_wizard_draft');
+            Swal.fire({
+                title: '¡Cita Confirmada!',
+                text: 'El servicio ha sido agendado exitosamente.',
+                icon: 'success',
+                confirmButtonColor: '#2563eb'
+            });
         },
-        onError: () => {
-             Swal.fire('Error', 'Por favor verifica los campos marcados en rojo', 'error');
+        onError: (errors) => {
+             console.error('Validation errors:', errors);
+             const errorMsg = Object.values(errors).join('\n');
+             Swal.fire({
+                 title: 'Verifica los campos',
+                 text: errorMsg || 'Hay errores en la información proporcionada.',
+                 icon: 'error',
+                 confirmButtonColor: '#2563eb'
+             });
         }
     });
 };
 
-const visitLimitInfo = computed(() => {
-    if (!selectedCliente.value?.puntos) return null;
-    return `Este cliente tiene una póliza activa. Consultar disponibilidad de visitas gratuitas para evitar cargos extra.`;
+const selectedTecnicoName = computed(() => {
+    const t = props.tecnicos.find(t => t.id === form.tecnico_id);
+    return t ? t.nombre : 'Sin asignar';
 });
 
-const helperTips = [
-    'Asegúrate de confirmar la dirección con el cliente.',
-    'Selecciona al técnico con menor carga de trabajo para hoy.',
-    'Especificar el modelo ayuda al técnico a llevar refacciones.',
-    'Puedes guardar como borrador y terminar la carga después.'
-];
+const formatearFecha = (fh) => {
+    if (!fh) return 'Pendiente';
+    return new Date(fh).toLocaleString('es-MX', { 
+        weekday: 'long', day: 'numeric', month: 'long'
+    });
+};
 
-const priorityClasses = { baja: 'bg-green-100 text-green-700', media: 'bg-blue-100 text-blue-700', alta: 'bg-orange-100 text-orange-700', urgente: 'bg-red-100 text-red-700' };
+const formatearHora12 = (timeStr) => {
+    if (!timeStr) return '---';
+    const [h, m] = timeStr.split(':');
+    const hour = parseInt(h);
+    const ampm = hour >= 12 ? 'P.M.' : 'A.M.';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${m} ${ampm}`;
+};
 
-// Options
-const tecnicosOptions = computed(() => [
-    { value: '', text: 'Selecciona Especialista', disabled: true },
-    ...props.tecnicos.map(t => ({ value: t.id, text: t.name }))
-]);
+const getServicioIcon = (tipo) => {
+    const iconos = {
+        'garantia': faShieldAlt,
+        'instalacion': faWrench,
+        'reparacion': faCogs,
+        'mantenimiento': faBroom,
+        'diagnostico': faSearch,
+        'servicio_limpieza': faSprayCan,
+        'otro': faMapPin
+    };
+    return iconos[tipo] || faMapPin;
+};
+
+const formatearTipoServicioShort = (t) => tipoServicioOptions.find(o => o.value === t)?.text;
+
+const todayDate = new Date().toISOString().split('T')[0];
 
 const prioridadOptions = [
     { value: 'baja', text: 'Baja - Programable' },
@@ -704,65 +900,64 @@ const prioridadOptions = [
 ];
 
 const tipoServicioOptions = [
-    { value: 'garantia', text: 'Servicio de Garantía' },
-    { value: 'instalacion', text: 'Instalación Nueva' },
-    { value: 'reparacion', text: 'Reparación Técnica' },
-    { value: 'mantenimiento', text: 'Mantenimiento Preventivo' },
-    { value: 'diagnostico', text: 'Diagnóstico Inicial' },
-    { value: 'otro', text: 'Otro tipo de atención' }
+    { value: 'garantia', text: 'Garantía' },
+    { value: 'instalacion', text: 'Instalación' },
+    { value: 'reparacion', text: 'Reparación' },
+    { value: 'mantenimiento', text: 'Mantenimiento' },
+    { value: 'diagnostico', text: 'Diagnóstico' },
+    { value: 'servicio_limpieza', text: 'Servicio limpieza' },
+    { value: 'otro', text: 'Otro' }
+];
+
+const tipoMantenimientoOptions = [
+    { value: 'preventivo_lavado', text: 'Mantenimiento Preventivo (Lavado/Limpieza)' },
+    { value: 'preventivo_basico', text: 'Mantenimiento Preventivo Básico' },
+    { value: 'correctivo_menor', text: 'Mantenimiento Correctivo (Carga de gas/Piezas)' },
+    { value: 'integral', text: 'Mantenimiento Integral' }
 ];
 
 const tipoEquipoOptions = [
-    { value: 'minisplit', text: 'Aire Acondicionado (Minisplit)' },
-    { value: 'boiler', text: 'Calentador (Boiler)' },
-    { value: 'refrigerador', text: 'Refrigeración / Frigobar' },
-    { value: 'lavadora', text: 'Lavandería (Lavadora)' },
-    { value: 'secadora', text: 'Secadora de Gas/Electrica' },
-    { value: 'estufa', text: 'Cocina (Estufa/Parrilla)' },
-    { value: 'otro_equipo', text: 'Otro Equipo Línea Blanca' }
+    { value: 'minisplit', text: 'Minisplit' },
+    { value: 'aire_acondicionado', text: 'Aire Acondicionado' },
+    { value: 'paquete', text: 'Unidad Paquete' },
+    { value: 'refrigerador', text: 'Refrigerador' },
+    { value: 'congelador', text: 'Congelador' },
+    { value: 'enfriador_agua', text: 'Enfriador de Agua' },
+    { value: 'lavadora', text: 'Lavadora' },
+    { value: 'secadora', text: 'Secadora' },
+    { value: 'estufa', text: 'Estufa' },
+    { value: 'microondas', text: 'Microondas' },
+    { value: 'lavavajillas', text: 'Lavavajillas' },
+    { value: 'boiler', text: 'Boiler' },
+    { value: 'otro_equipo', text: 'Otro Equipo / Electrodoméstico' }
 ];
 
-const marcasComunes = ['SAMSUNG', 'LG', 'WHIRLPOOL', 'MABE', 'FRIGIDAIRE', 'GE', 'BOSCH', 'CARRIER', 'YORK', 'RHEEM'];
-
-const formatearFecha = (fh) => new Date(fh).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short', hour12: true });
-const formatearTipoServicioShort = (t) => tipoServicioOptions.find(o => o.value === t)?.text;
-const todayDate = new Date().toISOString().split('T')[0];
-
-// Convertir hora 24h a formato 12h con AM/PM
-const to12h = (time24) => {
-    if (!time24) return '';
-    const [h, m] = time24.split(':').map(Number);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
-};
-
-// Versión corta para los slots del grid (ej. "8am", "9:30am")
-const to12hShort = (time24) => {
-    if (!time24) return '';
-    const [h, m] = time24.split(':').map(Number);
-    const ampm = h >= 12 ? 'pm' : 'am';
-    const h12 = h % 12 || 12;
-    if (m === 0) return `${h12}${ampm}`;
-    return `${h12}:${String(m).padStart(2, '0')}${ampm}`;
-};
+const marcasComunes = ['MIRAGE', 'LG', 'TCL', 'MABE', 'SAMSUNG'];
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 5px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+}
+.dark .glass-morphism {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.section-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-.citas-create {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.premium-search :deep(input) {
+    height: 60px !important;
+    border-radius: 20px !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.5);
-}
-.dark input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.8);
+    display: none;
+    -webkit-appearance: none;
 }
 </style>

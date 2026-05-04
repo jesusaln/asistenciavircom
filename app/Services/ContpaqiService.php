@@ -23,11 +23,50 @@ class ContpaqiService
         protected \App\Services\CfdiXmlParserService $xmlParser
     ) {
         $this->baseUrl = config('services.contpaqi.url');
-        $this->rutaEmpresa = config('services.contpaqi.ruta_empresa');
+        $this->rutaEmpresa = (string) config('services.contpaqi.ruta_empresa', '');
+        $this->assertRutaEmpresaPermitida($this->rutaEmpresa);
         $this->conceptCode = config('services.contpaqi.concept_code', '4');
         $this->conceptCodePago = config('services.contpaqi.concept_code_pago', '100');
         $this->conceptCodeAnticipo = config('services.contpaqi.concept_code_anticipo', '4');
         $this->passCSD = config('services.contpaqi.pass_csd');
+    }
+
+    /**
+     * Evita rutas con traversals o fuera de los directorios de empresa CONTPAQi permitidos.
+     */
+    private function assertRutaEmpresaPermitida(string $ruta): void
+    {
+        if ($ruta === '') {
+            return;
+        }
+
+        if (str_contains($ruta, '..') || str_contains($ruta, "\0")) {
+            throw new \InvalidArgumentException('CONTPAQI_RUTA_EMPRESA contiene caracteres no permitidos.');
+        }
+
+        $prefixes = config('services.contpaqi.ruta_empresa_allowed_prefixes', []);
+        if (! is_array($prefixes) || $prefixes === []) {
+            $prefixes = ['C:\\Compac', 'C:/Compac'];
+        }
+
+        $normalized = str_replace('/', '\\', $ruta);
+        $ok = false;
+        foreach ($prefixes as $p) {
+            if (! is_string($p) || $p === '') {
+                continue;
+            }
+            $np = str_replace('/', '\\', rtrim($p, "\\/"));
+            if (str_starts_with($normalized, $np)) {
+                $ok = true;
+                break;
+            }
+        }
+
+        if (! $ok) {
+            throw new \InvalidArgumentException(
+                'CONTPAQI_RUTA_EMPRESA debe comenzar con un prefijo permitido (configurar CONTPAQI_RUTA_ALLOWED_PREFIXES).'
+            );
+        }
     }
 
     /**
@@ -293,7 +332,7 @@ class ContpaqiService
             "regimenFiscal" => $cliente->regimen_fiscal ?? '601',
             "usoCFDI" => $cliente->uso_cfdi ?? 'G03',
             "formaPago" => $cliente->forma_pago_default ?? '99',
-            "listaPreciosCliente" => $cliente->lista_precio_id > 0 ? (int) $cliente->lista_precio_id : 1, // Default a 1 si no hay lista asignada
+            "listaPreciosCliente" => $cliente->lista_precios_id > 0 ? (int) $cliente->lista_precios_id : 1, // Default a 1 si no hay lista asignada
         ];
 
         // LOG ESPECÍFICO PARA PUBLICO EN GENERAL

@@ -51,6 +51,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'empresa_config' => fn() => EmpresaConfiguracionService::getConfiguracion(),
             'app_version' => fn() => \App\Support\VersionHelper::getVersion(),
+            'business' => config('app.business'),
         ];
 
         // 1. Staff Auth (Guard: web)

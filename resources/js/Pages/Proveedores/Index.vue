@@ -1,3 +1,4 @@
+<!-- /resources/js/Pages/Proveedores/IndexNew.vue -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
@@ -6,16 +7,17 @@ import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 
 import ProveedoresHeader from '@/Components/IndexComponents/ProveedoresHeader.vue'
-import ProveedoresTable from '@/Components/IndexComponents/ProveedoresTable.vue'
 
 defineOptions({ layout: AppLayout })
 
+// Notificaciones
 const notyf = new Notyf({
   duration: 4000,
   position: { x: 'right', y: 'top' },
   types: [
     { type: 'success', background: '#10b981', icon: false },
-    { type: 'error', background: '#ef4444', icon: false }
+    { type: 'error', background: '#ef4444', icon: false },
+    { type: 'warning', background: '#f59e0b', icon: false }
   ]
 })
 
@@ -26,70 +28,99 @@ onMounted(() => {
   if (flash?.error) notyf.error(flash.error)
 })
 
+// Props
 const props = defineProps({
-  proveedores: { type: Object, required: true },
+  proveedores: { type: [Object, Array], required: true },
   stats: { type: Object, default: () => ({}) },
+  filterOptions: { type: Object, default: () => ({}) },
   filters: { type: Object, default: () => ({}) },
   sorting: { type: Object, default: () => ({ sort_by: 'created_at', sort_direction: 'desc' }) },
   pagination: { type: Object, default: () => ({}) },
 })
 
+// Estado UI
 const showModal = ref(false)
 const modalMode = ref('details')
 const selectedProveedor = ref(null)
 const selectedId = ref(null)
 
+// Filtros
 const searchTerm = ref(props.filters?.search ?? '')
 const sortBy = ref(props.sorting?.sort_by ? `${props.sorting.sort_by}-${props.sorting.sort_direction}` : 'created_at-desc')
 const filtroEstado = ref(props.filters?.activo ?? '')
 const filtroTipoPersona = ref(props.filters?.tipo_persona ?? '')
 const filtroEstadoMexico = ref(props.filters?.estado ?? '')
-const perPage = ref(props.pagination?.per_page || 10)
 
-const estadisticas = computed(() => ({
-  total: props.stats?.total || 0,
-  activos: props.stats?.activos || 0,
-  inactivos: props.stats?.inactivos || 0,
-  personas_fisicas: props.stats?.personas_fisicas || 0,
-  personas_morales: props.stats?.personas_morales || 0,
-  con_email: props.stats?.con_email || 0,
-}))
+// Paginación
+const perPage = ref(10)
 
-const proveedoresData = computed(() => props.proveedores?.data || [])
+// Función para crear nuevo proveedor
+const crearNuevoProveedor = () => {
+  router.visit(route('proveedores.create'))
+}
 
+// Datos
+const proveedoresPaginator = computed(() => props.proveedores)
+const proveedoresData = computed(() => proveedoresPaginator.value?.data || [])
+
+// Estadísticas
+const estadisticas = computed(() => {
+  const stats = props.stats || {}
+  const total = stats.total || 0
+
+  return {
+    total: total,
+    activos: stats.activos || 0,
+    inactivos: stats.inactivos || 0,
+    personas_fisicas: stats.personas_fisicas || 0,
+    personas_morales: stats.personas_morales || 0,
+    con_email: stats.con_email || 0,
+    sin_email: stats.sin_email || 0,
+    activosPorcentaje: total > 0 ? Math.round(((stats.activos || 0) / total) * 100) : 0,
+    inactivosPorcentaje: total > 0 ? Math.round(((stats.inactivos || 0) / total) * 100) : 0,
+    conEmailPorcentaje: total > 0 ? Math.round(((stats.con_email || 0) / total) * 100) : 0,
+  }
+})
+
+// Mapeo de estados SAT
+const estadoMapping = {
+  'AGU': 'Aguascalientes', 'BCN': 'Baja California', 'BCS': 'Baja California Sur',
+  'CAM': 'Campeche', 'CHH': 'Chihuahua', 'CHP': 'Chiapas', 'CMX': 'Ciudad de México',
+  'COA': 'Coahuila', 'COL': 'Colima', 'DUR': 'Durango', 'GRO': 'Guerrero',
+  'GUA': 'Guanajuato', 'HID': 'Hidalgo', 'JAL': 'Jalisco', 'MEX': 'Estado de México',
+  'MIC': 'Michoacán', 'MOR': 'Morelos', 'NAY': 'Nayarit', 'NLE': 'Nuevo León',
+  'OAX': 'Oaxaca', 'PUE': 'Puebla', 'QUE': 'Querétaro', 'ROO': 'Quintana Roo',
+  'SIN': 'Sinaloa', 'SLP': 'San Luis Potosí', 'SON': 'Sonora', 'TAB': 'Tabasco',
+  'TAM': 'Tamaulipas', 'TLA': 'Tlaxcala', 'VER': 'Veracruz', 'YUC': 'Yucatán',
+  'ZAC': 'Zacatecas'
+}
+
+// Transformación de datos
+const proveedoresDocumentos = computed(() => {
+  return proveedoresData.value.map(p => {
+    const estadoNombre = estadoMapping[p.estado] || p.estado
+    const direccion = [
+      p.calle, p.numero_exterior, p.numero_interior, p.colonia,
+      p.codigo_postal, p.municipio, estadoNombre, p.pais
+    ].filter(Boolean).join(', ')
+
+    return {
+      id: p.id,
+      titulo: p.nombre_razon_social || 'Sin nombre',
+      subtitulo: p.email || '',
+      estado: p.activo ? 'activo' : 'inactivo',
+      extra: `RFC: ${p.rfc || 'N/A'} | Tel: ${p.telefono || 'N/A'}`,
+      fecha: p.created_at,
+      raw: p
+    }
+  })
+})
+
+// Handlers
 function handleSearchChange(newSearch) {
   searchTerm.value = newSearch
-  updateFilters()
-}
-
-function handleEstadoChange(newEstado) {
-  filtroEstado.value = newEstado
-  updateFilters()
-}
-
-function handleTipoPersonaChange(newTipo) {
-  filtroTipoPersona.value = newTipo
-  updateFilters()
-}
-
-function handleEstadoMexicoChange(newEstado) {
-  filtroEstadoMexico.value = newEstado
-  updateFilters()
-}
-
-function handleSortChange(newSort) {
-  sortBy.value = newSort
-  updateFilters()
-}
-
-function handlePerPageChange(newPerPage) {
-  perPage.value = newPerPage
-  updateFilters()
-}
-
-function updateFilters() {
   router.get(route('proveedores.index'), {
-    search: searchTerm.value,
+    search: newSearch,
     sort_by: sortBy.value.split('-')[0],
     sort_direction: sortBy.value.split('-')[1] || 'desc',
     activo: filtroEstado.value,
@@ -100,13 +131,70 @@ function updateFilters() {
   }, { preserveState: true, preserveScroll: true })
 }
 
-const crearNuevoProveedor = () => router.visit(route('proveedores.create'))
-const editarProveedor = (id) => router.visit(route('proveedores.edit', id))
+function handleEstadoChange(newEstado) {
+  filtroEstado.value = newEstado
+  router.get(route('proveedores.index'), {
+    search: searchTerm.value,
+    sort_by: sortBy.value.split('-')[0],
+    sort_direction: sortBy.value.split('-')[1] || 'desc',
+    activo: newEstado,
+    tipo_persona: filtroTipoPersona.value,
+    estado: filtroEstadoMexico.value,
+    per_page: perPage.value,
+    page: 1
+  }, { preserveState: true, preserveScroll: true })
+}
+
+function handleTipoPersonaChange(newTipo) {
+  filtroTipoPersona.value = newTipo
+  router.get(route('proveedores.index'), {
+    search: searchTerm.value,
+    sort_by: sortBy.value.split('-')[0],
+    sort_direction: sortBy.value.split('-')[1] || 'desc',
+    activo: filtroEstado.value,
+    tipo_persona: newTipo,
+    estado: filtroEstadoMexico.value,
+    per_page: perPage.value,
+    page: 1
+  }, { preserveState: true, preserveScroll: true })
+}
+
+function handleEstadoMexicoChange(newEstado) {
+  filtroEstadoMexico.value = newEstado
+  router.get(route('proveedores.index'), {
+    search: searchTerm.value,
+    sort_by: sortBy.value.split('-')[0],
+    sort_direction: sortBy.value.split('-')[1] || 'desc',
+    activo: filtroEstado.value,
+    tipo_persona: filtroTipoPersona.value,
+    estado: newEstado,
+    per_page: perPage.value,
+    page: 1
+  }, { preserveState: true, preserveScroll: true })
+}
+
+function handleSortChange(newSort) {
+  sortBy.value = newSort
+  router.get(route('proveedores.index'), {
+    search: searchTerm.value,
+    sort_by: newSort.split('-')[0],
+    sort_direction: newSort.split('-')[1] || 'desc',
+    activo: filtroEstado.value,
+    tipo_persona: filtroTipoPersona.value,
+    estado: filtroEstadoMexico.value,
+    per_page: perPage.value,
+    page: 1
+  }, { preserveState: true, preserveScroll: true })
+}
 
 const verDetalles = (doc) => {
   selectedProveedor.value = doc.raw
   modalMode.value = 'details'
   showModal.value = true
+}
+
+const editarProveedor = (id) => {
+  router.visit(route('proveedores.edit', id))
 }
 
 const confirmarEliminacion = (id) => {
@@ -122,29 +210,69 @@ const eliminarProveedor = () => {
       notyf.success('Proveedor eliminado correctamente')
       showModal.value = false
       selectedId.value = null
+      router.reload()
+    },
+    onError: (errors) => {
+      notyf.error('No se pudo eliminar el proveedor')
     }
   })
 }
 
 const toggleProveedor = (id) => {
+  const proveedor = proveedoresData.value.find(p => p.id === id)
+  if (!proveedor) return notyf.error('Proveedor no encontrado')
+  const nuevoEstado = proveedor.activo ? 'inactivo' : 'activo'
+  const mensaje = nuevoEstado === 'activo' ? 'Proveedor activado correctamente' : 'Proveedor desactivado correctamente'
+
   router.put(route('proveedores.toggle', id), {
     preserveScroll: true,
-    onSuccess: () => notyf.success('Estado actualizado'),
-    onError: () => notyf.error('Error al actualizar')
+    onSuccess: () => {
+      notyf.success(mensaje)
+      router.reload()
+    },
+    onError: (errors) => {
+      notyf.error('No se pudo cambiar el estado del proveedor')
+    }
   })
 }
 
-const handlePageChange = (url) => {
-  if (url) router.visit(url, { preserveScroll: true, preserveState: true })
+const exportProveedores = () => {
+  const params = new URLSearchParams()
+  if (searchTerm.value) params.append('search', searchTerm.value)
+  if (filtroEstado.value) params.append('activo', filtroEstado.value)
+  const queryString = params.toString()
+  const url = route('proveedores.export') + (queryString ? `?${queryString}` : '')
+  window.location.href = url
 }
 
-const filterCount = computed(() => {
-    let count = 0;
-    if (searchTerm.value) count++;
-    if (filtroEstado.value !== '') count++;
-    if (filtroTipoPersona.value !== '') count++;
-    return count;
-});
+// Paginación
+const paginationData = computed(() => ({
+  current_page: props.pagination?.current_page || 1,
+  last_page: props.pagination?.last_page || 1,
+  per_page: props.pagination?.per_page || 10,
+  from: props.pagination?.from || 0,
+  to: props.pagination?.to || 0,
+  total: props.pagination?.total || 0,
+}))
+
+const handlePerPageChange = (newPerPage) => {
+  router.get(route('proveedores.index'), {
+    ...props.filters,
+    ...props.sorting,
+    per_page: newPerPage,
+    page: 1
+  }, { preserveState: true, preserveScroll: true })
+}
+
+const handlePageChange = (newPage) => {
+  router.get(route('proveedores.index'), {
+    ...props.filters,
+    ...props.sorting,
+    page: newPage
+  }, { preserveState: true, preserveScroll: true })
+}
+
+const hayFiltrosActivos = computed(() => !!searchTerm.value || !!filtroEstado.value || !!filtroTipoPersona.value || !!filtroEstadoMexico.value)
 
 const limpiarFiltros = () => {
   searchTerm.value = ''
@@ -153,43 +281,50 @@ const limpiarFiltros = () => {
   filtroTipoPersona.value = ''
   filtroEstadoMexico.value = ''
   router.visit(route('proveedores.index'))
+  notyf.success('Filtros limpiados correctamente')
 }
 
+// Helpers
+const formatNumber = (num) => new Intl.NumberFormat('es-ES').format(num)
 const formatearFecha = (date) => {
-  if (!date) return '---'
-  const d = new Date(date)
-  return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  if (!date) return 'Fecha no disponible'
+  try {
+    const d = new Date(date)
+    return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  } catch {
+    return 'Fecha inválida'
+  }
+}
+
+const obtenerClasesEstado = (estado) => {
+  const clases = {
+    'activo': 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+    'inactivo': 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300'
+  }
+  return clases[estado] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+}
+
+const obtenerLabelEstado = (estado) => {
+  const labels = {
+    'activo': 'Activo',
+    'inactivo': 'Inactivo'
+  }
+  return labels[estado] || 'Pendiente'
 }
 </script>
 
 <template>
   <Head title="Proveedores" />
-  
-  <div class="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden relative">
-    
-    <!-- Ambient Background Effects -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden select-none z-0">
-        <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse-slow"></div>
-        <div class="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-indigo-600/10 rounded-full blur-[100px] animate-pulse-slow px-2" style="animation-delay: 2s;"></div>
-    </div>
-
-    <div class="relative z-10 w-full px-6 lg:px-12 py-10 space-y-10 animate-fade-in-up">
-      
-      <!-- Header -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 border-b border-slate-200/50 dark:border-slate-800/50">
-        <div class="space-y-2">
-            <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Proveedores</h1>
-            <div class="flex items-center gap-4">
-                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400">Directorio Maestro</span>
-                <div class="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
-                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">{{ estadisticas.total }} Registros</span>
-            </div>
-        </div>
-      </div>
-
-      <!-- Stats & Filter Section -->
+  <div class="proveedores-index min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="w-full px-6 py-8">
+      <!-- Header específico de proveedores -->
       <ProveedoresHeader
-        v-bind="estadisticas"
+        :total="estadisticas.total"
+        :activos="estadisticas.activos"
+        :inactivos="estadisticas.inactivos"
+        :personas_fisicas="estadisticas.personas_fisicas"
+        :personas_morales="estadisticas.personas_morales"
+        :con_email="estadisticas.con_email"
         v-model:search-term="searchTerm"
         v-model:sort-by="sortBy"
         v-model:filtro-estado="filtroEstado"
@@ -204,193 +339,254 @@ const formatearFecha = (date) => {
         @limpiar-filtros="limpiarFiltros"
       />
 
-      <!-- Table Section -->
-      <div class="space-y-6">
-          <div class="flex items-center justify-between px-4">
-              <div class="flex items-center gap-3">
-                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></div>
-                  <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white">Vista de Catálogo</h2>
-              </div>
-              
-              <!-- Mini Pagination / Info -->
-              <div class="flex items-center gap-6">
-                  <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-900/50 px-4 py-2 rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                      <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mostrar</span>
-                      <select 
-                        :value="perPage"
-                        @change="handlePerPageChange($event.target.value)"
-                        class="bg-transparent border-none text-[10px] font-black text-blue-600 focus:ring-0 p-0 cursor-pointer"
-                      >
-                          <option :value="10">10</option>
-                          <option :value="25">25</option>
-                          <option :value="50">50</option>
-                      </select>
+      <!-- Tabla -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50 dark:bg-gray-700/50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Proveedor</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">RFC</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr v-for="proveedor in proveedoresDocumentos" :key="proveedor.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150">
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-900 dark:text-gray-100">{{ formatearFecha(proveedor.fecha) }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ proveedor.titulo }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-700 dark:text-gray-300">{{ proveedor.subtitulo }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-700 dark:text-gray-300">{{ proveedor.raw.rfc || 'N/A' }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span :class="obtenerClasesEstado(proveedor.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                    {{ obtenerLabelEstado(proveedor.estado) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end space-x-1">
+                    <button @click="verDetalles(proveedor)" class="w-8 h-8 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors duration-150" title="Ver detalles">
+                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button @click="editarProveedor(proveedor.id)" class="w-8 h-8 bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors duration-150" title="Editar">
+                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button @click="toggleProveedor(proveedor.id)" class="w-8 h-8 bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/60 transition-colors duration-150" title="Cambiar estado">
+                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                    <button @click="confirmarEliminacion(proveedor.id)" class="w-8 h-8 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors duration-150" title="Eliminar">
+                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
-              </div>
+                </td>
+              </tr>
+              <tr v-if="proveedoresDocumentos.length === 0">
+                <td colspan="6" class="px-6 py-16 text-center">
+                  <div class="flex flex-col items-center space-y-4">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                      <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div class="space-y-1">
+                      <p class="text-gray-700 dark:text-gray-300 font-medium">No hay proveedores</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Los proveedores aparecerán aquí cuando se creen</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div v-if="paginationData.last_page > 1" class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} resultados
+              </p>
+              <select
+                :value="paginationData.per_page"
+                @change="handlePerPageChange(parseInt($event.target.value))"
+                class="border border-gray-300 dark:border-gray-600 rounded-md text-sm py-1 px-2 bg-white dark:bg-gray-700 dark:text-gray-200"
+              >
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+              <button
+                @click="handlePageChange(paginationData.current_page - 1)"
+                :disabled="paginationData.current_page === 1"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <button
+                v-for="page in [paginationData.current_page - 1, paginationData.current_page, paginationData.current_page + 1].filter(p => p > 0 && p <= paginationData.last_page)"
+                :key="page"
+                @click="handlePageChange(page)"
+                :class="page === paginationData.current_page ? 'bg-blue-50 dark:bg-blue-500/50 border-blue-500 text-blue-600 dark:text-white' : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+              >
+                {{ page }}
+              </button>
+
+              <button
+                @click="handlePageChange(paginationData.current_page + 1)"
+                :disabled="paginationData.current_page === paginationData.last_page"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <!-- Limpiar filtros -->
+              <button
+                v-if="hayFiltrosActivos"
+                @click="limpiarFiltros"
+                class="group relative inline-flex items-center gap-2 px-4 py-3 bg-slate-100 dark:bg-gray-700/50 text-slate-600 dark:text-gray-300 rounded-xl hover:bg-slate-200 dark:hover:bg-gray-600 hover:text-slate-700 dark:hover:text-gray-200 focus:outline-none focus:ring-4 focus:ring-slate-500/10 transition-all duration-200 whitespace-nowrap border border-slate-200 dark:border-gray-600 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Limpiar todos los filtros"
+              >
+                <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span class="font-medium">Limpiar</span>
+                <div class="absolute -top-1 -right-1 min-w-[1.25rem] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+                  {{ (searchTerm ? 1 : 0) + (filtroEstado ? 1 : 0) + (filtroTipoPersona ? 1 : 0) + (filtroEstadoMexico ? 1 : 0) }}
+                </div>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal mejorado -->
+      <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <!-- Header del modal -->
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+              {{ modalMode === 'details' ? 'Detalles del Proveedor' : 'Confirmar Eliminación' }}
+            </h3>
+            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
-          <ProveedoresTable
-            :items="proveedoresData"
-            :sort-by="sortBy"
-            @ver-detalles="verDetalles"
-            @editar="editarProveedor"
-            @eliminar="confirmarEliminacion"
-            @toggle="toggleProveedor"
-            @sort="handleSortChange"
-          />
-
-          <!-- Main Pagination -->
-          <div v-if="proveedores.links && proveedores.links.length > 3" class="flex justify-center pt-8 pb-12">
-              <div class="flex items-center gap-2 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-2 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-xl">
-                  <template v-for="(link, k) in proveedores.links" :key="k">
-                      <div v-if="link.url === null" class="w-10 h-10 flex items-center justify-center text-[10px] font-black text-slate-400 opacity-50 select-none" v-html="link.label"></div>
-                      <Link
-                          v-else
-                          :href="link.url"
-                          class="w-10 h-10 flex items-center justify-center text-[10px] font-black rounded-xl transition-all duration-300"
-                          :class="link.active 
-                              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-110' 
-                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
-                          preserve-scroll
-                          v-html="link.label"
-                      />
-                  </template>
+          <div class="p-6">
+            <div v-if="modalMode === 'details' && selectedProveedor">
+              <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-3">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre/Razón Social</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProveedor.nombre_razon_social }}</p>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProveedor.email || 'N/A' }}</p>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">RFC</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProveedor.rfc || 'N/A' }}</p>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
+                      <span :class="obtenerClasesEstado(selectedProveedor.activo ? 'activo' : 'inactivo')" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
+                        {{ selectedProveedor.activo ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="space-y-3">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Teléfono</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ selectedProveedor.telefono || 'N/A' }}</p>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha de creación</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProveedor.created_at) }}</p>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Última actualización</label>
+                      <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md">{{ formatearFecha(selectedProveedor.updated_at) }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="selectedProveedor.direccion">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dirección</label>
+                  <p class="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedProveedor.direccion }}</p>
+                </div>
               </div>
+            </div>
+
+            <div v-if="modalMode === 'confirm'">
+              <div class="text-center">
+                <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">¿Eliminar Proveedor?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  ¿Estás seguro de que deseas eliminar el proveedor <strong>{{ selectedProveedor?.nombre_razon_social }}</strong>?
+                  Esta acción no se puede deshacer.
+                </p>
+              </div>
+            </div>
           </div>
+
+          <!-- Footer del modal -->
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+            <button @click="showModal = false" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+              {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
+            </button>
+            <div v-if="modalMode === 'details'" class="flex gap-2">
+              <button @click="toggleProveedor(selectedProveedor.id)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                Cambiar Estado
+              </button>
+              <button @click="editarProveedor(selectedProveedor.id)" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+                Editar
+              </button>
+            </div>
+            <button v-if="modalMode === 'confirm'" @click="eliminarProveedor" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+              Eliminar
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- Modal Premium -->
-    <Teleport to="body">
-        <Transition
-            enter-active-class="transition duration-300 ease-out"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
-            leave-active-class="transition duration-200 ease-in"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
-        >
-            <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-12">
-                <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showModal = false"></div>
-                
-                <div class="relative bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border border-slate-200/50 dark:border-slate-800/50 w-full max-w-2xl overflow-hidden animate-fade-in-up">
-                    <div class="p-10">
-                        <div class="flex justify-between items-start mb-10">
-                            <div>
-                                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 mb-2">
-                                    {{ modalMode === 'details' ? 'Expediente del Proveedor' : 'Acción Requerida' }}
-                                </h3>
-                                <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter truncate max-w-md">
-                                    {{ modalMode === 'details' ? (selectedProveedor?.nombre_razon_social || 'Detalle') : '¿Confirmar eliminación?' }}
-                                </p>
-                            </div>
-                            <button @click="showModal = false" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-all">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
-                        </div>
-
-                        <!-- Content Details -->
-                        <div v-if="modalMode === 'details' && selectedProveedor" class="space-y-8">
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="space-y-1">
-                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">RFC Oficial</span>
-                                    <p class="text-sm font-bold text-slate-900 dark:text-white font-mono uppercase">{{ selectedProveedor.rfc || 'XAX010101000' }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contacto Primario</span>
-                                    <p class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedProveedor.telefono || 'Sin datos' }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Correo Electrónico</span>
-                                    <p class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedProveedor.email || 'Sin datos' }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha Alta</span>
-                                    <p class="text-sm font-bold text-slate-900 dark:text-white">{{ formatearFecha(selectedProveedor.created_at) }}</p>
-                                </div>
-                            </div>
-
-                            <div class="p-6 bg-slate-50 dark:bg-slate-950/50 rounded-3xl border border-slate-200/50 dark:border-slate-800/50">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Ubicación / Domicilio</span>
-                                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                                    {{ selectedProveedor.calle }} {{ selectedProveedor.numero_exterior }}, {{ selectedProveedor.colonia }}, {{ selectedProveedor.municipio }}, {{ selectedProveedor.estado }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Confirm Delete -->
-                        <div v-if="modalMode === 'confirm'" class="bg-rose-50 dark:bg-rose-900/10 p-8 rounded-3xl border border-rose-200 dark:border-rose-900/30">
-                            <p class="text-sm font-bold text-rose-700 dark:text-rose-400 leading-relaxed">
-                                Estas a punto de eliminar este proveedor del sistema. Esta acción es irreversible y podría afectar documentos vinculados.
-                            </p>
-                        </div>
-
-                        <!-- Footer Actions -->
-                        <div class="mt-12 flex items-center justify-end gap-3">
-                            <button @click="showModal = false" class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all">Cancelar</button>
-                            <button v-if="modalMode === 'confirm'" @click="eliminarProveedor" class="px-10 py-4 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-rose-600/20 hover:bg-rose-700 transition-all">Eliminar Permanente</button>
-                            <button v-else @click="editarProveedor(selectedProveedor.id)" class="px-10 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all">Editar Perfil</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </Transition>
-    </Teleport>
   </div>
 </template>
-
-<style>
-.animate-fade-in-up {
-    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-pulse-slow {
-    animation: pulse-slow 8s ease-in-out infinite;
-}
-
-@keyframes pulse-slow {
-    0%, 100% { opacity: 0.1; transform: scale(1); }
-    50% { opacity: 0.15; transform: scale(1.1); }
-}
-
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 10px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-    background: #1e293b;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
-}
-</style>
-
 
 <style scoped>
 .proveedores-index {

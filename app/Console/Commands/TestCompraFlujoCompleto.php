@@ -24,6 +24,12 @@ class TestCompraFlujoCompleto extends Command
 
     public function handle()
     {
+        if (app()->isProduction()) {
+            $this->error('⛔ ESTE COMANDO NO PUEDE EJECUTARSE EN PRODUCCIÓN.');
+            $this->error('Genera datos masivos de prueba.');
+            return self::FAILURE;
+        }
+
         $this->info('📦 Iniciando Prueba Integral de Compras...');
 
         try {

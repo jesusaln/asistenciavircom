@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class DynamicUrlServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,13 @@ class DynamicUrlServiceProvider extends ServiceProvider
     {
         // Skip during tests or if in local/development environment
         if (app()->runningUnitTests() || app()->environment('local')) {
+            return;
+        }
+
+        $request = $this->getCurrentRequest();
+
+        if ($request && $this->shouldUseRequestUrl($request)) {
+            $this->applyRequestUrl($request);
             return;
         }
 
@@ -74,7 +82,7 @@ class DynamicUrlServiceProvider extends ServiceProvider
                     }
 
                     // Set asset URL as well
-                    config(['app.asset_url' => $appUrl]);
+                    // config(['app.asset_url' => $appUrl]); // DISABLED: Causes CORS issues with mixed domains
                 }
 
                 // --- CONFIGURACIÓN GLOBAL DE CORREO (SMTP) ---
@@ -85,8 +93,6 @@ class DynamicUrlServiceProvider extends ServiceProvider
                         'mail.mailers.smtp.username' => $config->smtp_username,
                         'mail.mailers.smtp.password' => $config->smtp_password,
                         'mail.mailers.smtp.encryption' => $config->smtp_encryption,
-                        'mail.mailers.smtp.verify_peer' => false,
-                        'mail.mailers.smtp.verify_peer_name' => false,
                         'mail.from.address' => $config->email_from_address,
                         'mail.from.name' => $config->email_from_name,
                     ]);
@@ -102,5 +108,45 @@ class DynamicUrlServiceProvider extends ServiceProvider
         } catch (\Throwable $e) {
             Log::debug('DynamicUrlServiceProvider: Could not load URL configuration - ' . $e->getMessage());
         }
+    }
+
+    private function getCurrentRequest(): ?Request
+    {
+        try {
+            return request();
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function shouldUseRequestUrl(Request $request): bool
+    {
+        $host = strtolower($request->getHost());
+
+        if ($host === 'localhost' || str_ends_with($host, '.localhost')) {
+            return true;
+        }
+
+        if (str_ends_with($host, '.nip.io')) {
+            return true;
+        }
+
+        return filter_var($host, FILTER_VALIDATE_IP)
+            && filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
+    }
+
+    private function applyRequestUrl(Request $request): void
+    {
+        $scheme = $request->isSecure() ? 'https' : 'http';
+        $host = $request->getHttpHost();
+        $appUrl = "{$scheme}://{$host}";
+
+        config([
+            'app.url' => $appUrl,
+            'session.domain' => null,
+            'session.secure' => $request->isSecure(),
+        ]);
+
+        URL::forceRootUrl($appUrl);
     }
 }

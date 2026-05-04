@@ -63,60 +63,95 @@ class VentaValidationService
     }
 
     /**
-     * Validate that series are not duplicated in the request and database
+     * Validate that series are not duplicated in the request and database,
+     * and that they are available for the specific product and warehouse.
      */
-    public function validateSeriesUniqueness(array $productos): array
+    public function validateSeriesUniqueness(array $productos, ?int $almacenId = null): array
     {
         $errors = [];
-        $seriesUsadas = [];
+        $seriesUsadasEnRequest = [];
 
         foreach ($productos as $producto) {
-            if (isset($producto['series'])) {
-                foreach ($producto['series'] as $serie) {
-                    // Validar duplicados en request
-                    if (in_array($serie, $seriesUsadas)) {
-                        $errors[] = "La serie {$serie} está duplicada en la solicitud";
+            $productId = $producto['id'] ?? $producto['producto_id'] ?? 0;
+            $productoModel = \App\Models\Producto::find($productId);
+            
+            if (!$productoModel || !($productoModel->requiere_serie ?? false)) {
+                continue;
+            }
+
+            if (isset($producto['series']) && is_array($producto['series'])) {
+                foreach ($producto['series'] as $numeroSerie) {
+                    // 1. Check for duplicates within the request
+                    if (in_array($numeroSerie, $seriesUsadasEnRequest)) {
+                        $errors[] = "La serie '{$numeroSerie}' está duplicada en su solicitud.";
                         continue;
                     }
+                    $seriesUsadasEnRequest[] = $numeroSerie;
 
-                    // Validar que no exista en BD para otro producto
-                    $productId = $producto['id'] ?? $producto['producto_id'] ?? 0;
-                    $serieExistente = ProductoSerie::where('numero_serie', $serie)
-                        ->where('producto_id', '!=', $productId)
+                    // 2. Comprehensive DB check
+                    $serieExistente = \App\Models\ProductoSerie::where('numero_serie', $numeroSerie)
                         ->whereNull('deleted_at')
                         ->first();
 
-                    if ($serieExistente) {
-                        $productoAsociado = Producto::find($serieExistente->producto_id);
-                        $errors[] = "La serie {$serie} ya está registrada para el producto '" . ($productoAsociado->nombre ?? 'Desconocido') . "'";
+                    if (!$serieExistente) {
+                        $errors[] = "La serie '{$numeroSerie}' no está registrada en el sistema.";
                         continue;
                     }
 
-                    $seriesUsadas[] = $serie;
+                    // 3. Belonging check
+                    if ($serieExistente->producto_id != $productId) {
+                        $errors[] = "La serie '{$numeroSerie}' pertenece al producto '" . ($serieExistente->producto->nombre ?? 'otro') . "', no a '{$productoModel->nombre}'.";
+                        continue;
+                    }
+
+                    // 4. Status check
+                    if ($serieExistente->estado !== 'en_stock') {
+                        $errors[] = "La serie '{$numeroSerie}' no está disponible (Estado: " . ucfirst($serieExistente->estado) . ").";
+                        continue;
+                    }
+
+                    // 5. Warehouse check
+                    if ($almacenId && $serieExistente->almacen_id != $almacenId) {
+                        $errors[] = "La serie '{$numeroSerie}' se encuentra en el almacén '" . ($serieExistente->almacen->nombre ?? 'otro') . "', pero la venta se está realizando desde el almacén actual.";
+                        continue;
+                    }
                 }
             }
 
             // También validar para componentes de kits
-            if (isset($producto['componentes_series'])) {
+            if (isset($producto['componentes_series']) && is_array($producto['componentes_series'])) {
                 foreach ($producto['componentes_series'] as $compId => $seriesComp) {
-                    foreach ($seriesComp as $serie) {
-                        if (in_array($serie, $seriesUsadas)) {
-                            $errors[] = "La serie de componente {$serie} está duplicada en la solicitud";
+                    $compModel = \App\Models\Producto::find($compId);
+                    foreach ($seriesComp as $numeroSerie) {
+                        if (in_array($numeroSerie, $seriesUsadasEnRequest)) {
+                            $errors[] = "La serie de componente '{$numeroSerie}' está duplicada en su solicitud.";
                             continue;
                         }
+                        $seriesUsadasEnRequest[] = $numeroSerie;
 
-                        $serieExistente = ProductoSerie::where('numero_serie', $serie)
-                            ->where('producto_id', '!=', $compId)
+                        $serieExistente = \App\Models\ProductoSerie::where('numero_serie', $numeroSerie)
                             ->whereNull('deleted_at')
                             ->first();
 
-                        if ($serieExistente) {
-                            $productoAsociado = Producto::find($serieExistente->producto_id);
-                            $errors[] = "La serie de componente {$serie} ya está registrada para otro producto '" . ($productoAsociado->nombre ?? 'Desconocido') . "'";
+                        if (!$serieExistente) {
+                            $errors[] = "La serie de componente '{$numeroSerie}' no está registrada.";
                             continue;
                         }
 
-                        $seriesUsadas[] = $serie;
+                        if ($serieExistente->producto_id != $compId) {
+                            $errors[] = "La serie '{$numeroSerie}' no pertenece al componente '" . ($compModel->nombre ?? $compId) . "'.";
+                            continue;
+                        }
+
+                        if ($serieExistente->estado !== 'en_stock') {
+                            $errors[] = "La serie de componente '{$numeroSerie}' no está disponible.";
+                            continue;
+                        }
+
+                        if ($almacenId && $serieExistente->almacen_id != $almacenId) {
+                            $errors[] = "La serie '{$numeroSerie}' no está en el almacén seleccionado.";
+                            continue;
+                        }
                     }
                 }
             }

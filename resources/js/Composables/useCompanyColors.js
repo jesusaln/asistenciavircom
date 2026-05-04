@@ -9,9 +9,10 @@ import axios from 'axios'
 export function useCompanyColors() {
     const page = usePage()
 
+    // Colores por defecto (amber/amber-dark para fallback)
     const colors = ref({
-        principal: page.props.empresa_config?.color_principal || '#3B82F6',
-        secundario: page.props.empresa_config?.color_secundario || '#60A5FA'
+        principal: '#F59E0B',
+        secundario: '#D97706'
     })
 
     const isLoaded = ref(false)
@@ -28,8 +29,8 @@ export function useCompanyColors() {
         try {
             const response = await axios.get('/empresa/configuracion/api')
             if (response.data?.configuracion) {
-                colors.value.principal = response.data.configuracion.color_principal || '#3B82F6'
-                colors.value.secundario = response.data.configuracion.color_secundario || '#60A5FA'
+                colors.value.principal = response.data.configuracion.color_principal || '#F59E0B'
+                colors.value.secundario = response.data.configuracion.color_secundario || '#D97706'
             }
             isLoaded.value = true
         } catch (error) {
@@ -65,10 +66,10 @@ export function useCompanyColors() {
             '--color-primary': colors.value.principal,
             '--color-primary-light': `${colors.value.principal}20`,
             '--color-primary-medium': `${colors.value.principal}40`,
-            '--color-primary-rgb': rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : '59, 130, 246', // Default blue-500
+            '--color-primary-rgb': rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : '245, 158, 11',
             '--color-secondary': colors.value.secundario,
             '--color-secondary-light': `${colors.value.secundario}20`,
-            '--color-secondary-rgb': rgbSecondary ? `${rgbSecondary.r}, ${rgbSecondary.g}, ${rgbSecondary.b}` : '96, 165, 250' // Default blue-400
+            '--color-secondary-rgb': rgbSecondary ? `${rgbSecondary.r}, ${rgbSecondary.g}, ${rgbSecondary.b}` : '217, 119, 6'
         }
     })
 
@@ -157,3 +158,6 @@ export function useCompanyColors() {
         loadColors
     }
 }
+
+/** Compatibilidad: `import useCompanyColors from '...'` y `import { useCompanyColors } from '...'` */
+export default useCompanyColors

@@ -1,41 +1,37 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use App\Models\Venta;
-use App\Models\VentaAuditLog;
-use App\Services\StockValidationService;
-use App\Services\Ventas\VentaCreationService;
-use App\Services\Ventas\VentaUpdateService;
-use App\Services\Ventas\VentaCancellationService;
-use App\Services\Ventas\VentaQueryService;
-use App\Services\Ventas\VentaDeletionService;
-use App\Services\Ventas\VentaPaymentService;
-use App\Services\Ventas\VentaValidationService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-
-
-use App\Services\Cfdi\CfdiService;
 use App\Http\Requests\StoreVentaRequest;
 use App\Http\Requests\UpdateVentaRequest;
+use App\Models\Venta;
+use App\Models\Cita;
+use App\Models\Cliente;
+use App\Models\Producto;
+use App\Models\Almacen;
+use App\Models\User;
+use App\Services\Ventas\VentaCreationService;
+use App\Services\Ventas\VentaUpdateService;
+use App\Services\Ventas\VentaQueryService;
+use App\Services\Ventas\VentaCancellationService;
+use App\Services\Ventas\VentaDeletionService;
+use App\Services\Ventas\VentaPaymentService;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Auth;
 
 class VentaController extends Controller
 {
     public function __construct(
         private readonly VentaCreationService $ventaCreationService,
         private readonly VentaUpdateService $ventaUpdateService,
-        private readonly VentaCancellationService $ventaCancellationService,
         private readonly VentaQueryService $ventaQueryService,
+        private readonly VentaCancellationService $ventaCancellationService,
         private readonly VentaDeletionService $ventaDeletionService,
-        private readonly VentaPaymentService $ventaPaymentService,
-        private readonly VentaValidationService $ventaValidationService
+        private readonly VentaPaymentService $ventaPaymentService
     ) {
-        $this->authorizeResource(Venta::class);
     }
 
     /**
@@ -43,13 +39,8 @@ class VentaController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            $data = $this->ventaQueryService->getVentasList($request);
-            return Inertia::render('Ventas/Index', $data);
-        } catch (\Exception $e) {
-            Log::error('Error en VentaController@index: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al cargar las ventas');
-        }
+        $data = $this->ventaQueryService->getVentasList($request);
+        return Inertia::render('Ventas/Index', $data);
     }
 
     /**
@@ -58,130 +49,203 @@ class VentaController extends Controller
     public function create(Request $request)
     {
         try {
+            if ($request->filled('cita_id')) {
+                $cita = Cita::with('venta:id,cita_id,numero_venta')->find($request->cita_id);
+                if ($cita && $cita->venta && ! $request->boolean('nueva')) {
+                    return redirect()
+                        ->route('ventas.show', $cita->venta)
+                        ->with('warning', 'Esta cita ya tiene la venta '.$cita->venta->numero_venta.' vinculada. Si debes registrar otra operación, hazlo sin vincular cita o contacta a administración.');
+                }
+            }
+
             $data = $this->ventaQueryService->getCreateData($request);
+
             return Inertia::render('Ventas/Create', $data);
         } catch (\Exception $e) {
-            Log::error('Error en VentaController@create: ' . $e->getMessage());
+            Log::error('Error loading create venta form: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al cargar el formulario de creación');
         }
     }
 
     /**
-     * Synchronize PostgreSQL sequence for ventas table
+     * JSON: ventas recientes del cliente de la cita (modal en reporte «Citas por técnico»).
      */
-    private function sincronizarSecuenciaVentas(): void
+    public function ventasClienteCandidatasParaCita(Request $request, Cita $cita)
     {
-        try {
-            DB::statement("
-                SELECT setval(
-                    pg_get_serial_sequence('ventas', 'id'),
-                    COALESCE(MAX(id), 1),
-                    true
-                ) FROM ventas
-            ");
-        } catch (\Exception $e) {
-            Log::warning('Error sincronizando secuencia de ventas', [
-                'error' => $e->getMessage()
+        if (! $request->user()?->can('view ventas')) {
+            abort(403);
+        }
+
+        $cita->loadMissing(['cliente:id,nombre_razon_social', 'venta:id,cita_id,numero_venta']);
+
+        $ventas = $this->ventaQueryService->getVentasClienteCandidatasForCita($cita);
+
+        return response()->json([
+            'cita' => [
+                'id' => $cita->id,
+                'cliente_id' => $cita->cliente_id,
+                'cliente_nombre' => $cita->cliente?->nombre_razon_social,
+                'venta_id' => $cita->venta?->id,
+            ],
+            'ventas' => $ventas,
+        ]);
+    }
+
+    /**
+     * Vincular una venta existente (mismo cliente) a una cita sin venta asociada.
+     * Una cita solo puede tener una venta; una venta solo puede enlazarse a una cita si aún no tenía otra.
+     */
+    public function vincularVentaACita(Request $request, Cita $cita)
+    {
+        $request->validate([
+            'venta_id' => 'required|integer|exists:ventas,id',
+        ]);
+
+        $venta = Venta::query()->findOrFail((int) $request->venta_id);
+
+        if ((int) ($venta->empresa_id ?? 0) !== (int) ($cita->empresa_id ?? 0)) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'La venta no pertenece a la misma empresa que la cita.',
+                ], 403);
+            }
+            abort(403, 'La venta no pertenece a la misma empresa que la cita.');
+        }
+
+        if ((int) $venta->cliente_id !== (int) $cita->cliente_id) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'El cliente de la venta debe ser el mismo que el de la cita.',
+                    'errors' => ['venta_id' => ['El cliente de la venta debe ser el mismo que el de la cita.']],
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors([
+                'venta_id' => 'El cliente de la venta debe ser el mismo que el de la cita.',
             ]);
         }
+
+        $otra = Venta::query()->where('cita_id', $cita->id)->where('id', '!=', $venta->id)->exists();
+        if ($otra) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Esta cita ya tiene otra venta vinculada.',
+                    'errors' => ['cita_id' => ['Esta cita ya tiene otra venta vinculada.']],
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors([
+                'cita_id' => 'Esta cita ya tiene otra venta vinculada.',
+            ]);
+        }
+
+        if ($venta->cita_id && (int) $venta->cita_id !== (int) $cita->id) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Esta venta ya está vinculada a otra cita.',
+                    'errors' => ['venta_id' => ['Esta venta ya está vinculada a la cita #'.$venta->cita_id.'. Desvincúlala primero desde la venta si aplica.']],
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors([
+                'venta_id' => 'Esta venta ya está vinculada a la cita #'.$venta->cita_id.'. Desvincúlala primero desde la venta si aplica.',
+            ]);
+        }
+
+        $venta->cita_id = $cita->id;
+        $venta->save();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Venta vinculada a la cita.',
+                'venta_id' => $venta->id,
+            ]);
+        }
+
+        return redirect()->route('ventas.show', $venta)
+            ->with('success', 'Venta '.$venta->numero_venta.' vinculada a la cita #'.$cita->id.'.');
     }
 
     /**
      * Store a newly created resource in storage.
-     * âœ… REFACTORED: Now uses VentaCreationService for business logic
+     * ✅ REFACTORED: Now uses VentaCreationService for business logic
      */
     public function store(StoreVentaRequest $request)
     {
         try {
-            $user = Auth::user();
-            $validatedData = $request->validated();
+            // ✅ Atribución de vendedor (crucial para Ionic app)
+            // Se prioriza el vendedor_id enviado (admin/web) sobre el usuario autenticado (móvil)
+            $vendedorId = $request->input('vendedor_id', auth()->id());
+            
+            // Buscar sin scopes para validar pertenencia real a la empresa
+            $vendedor = User::withoutGlobalScopes()->find($vendedorId);
 
-            if (isset($validatedData['vendedor_id'])) {
-                $vendedor = \App\Models\User::find($validatedData['vendedor_id']);
-                if (!$vendedor || $vendedor->empresa_id !== $user->empresa_id) {
-                    throw new \Illuminate\Auth\Access\AuthorizationException('El vendedor seleccionado no pertenece a su empresa.');
-                }
+            // Validar que el vendedor pertenezca a la misma empresa
+            $currentEmpresaId = \App\Support\EmpresaResolver::resolveId();
+            if ($vendedorId && (!$vendedor || $vendedor->empresa_id !== $currentEmpresaId)) {
+                return $this->errorResponse($request, 'El vendedor seleccionado no pertenece a su empresa.', 422);
             }
 
-            if (isset($validatedData['almacen_id'])) {
-                $almacen = \App\Models\Almacen::find($validatedData['almacen_id']);
-                if (!$almacen || $almacen->empresa_id !== $user->empresa_id) {
-                    throw new \Illuminate\Auth\Access\AuthorizationException('El almacén seleccionado no pertenece a su empresa.');
-                }
+            // Validar almacén
+            $almacenId = $request->input('almacen_id');
+            $almacen = Almacen::withoutGlobalScopes()->find($almacenId);
+            if ($almacenId && (!$almacen || $almacen->empresa_id !== $currentEmpresaId)) {
+                return $this->errorResponse($request, 'El almacén seleccionado no pertenece a su empresa.', 422);
             }
 
-            // Sanitize series data
-            if (isset($validatedData['productos'])) {
-                $validatedData['productos'] = $this->ventaValidationService->sanitizeProductData($validatedData['productos']);
+            $venta = $this->ventaCreationService->createVenta($request->validated());
 
-                // Validate uniqueness
-                $seriesErrors = $this->ventaValidationService->validateSeriesUniqueness($validatedData['productos']);
-                if (!empty($seriesErrors)) {
-                    throw new \Exception(implode(', ', $seriesErrors));
-                }
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Venta creada exitosamente',
+                    'id' => $venta->id,
+                    'numero_venta' => $venta->numero_venta
+                ], 201);
             }
 
-            // âœ… REFACTORED: Use VentaCreationService instead of inline logic
-            $venta = $this->ventaCreationService->createVenta($validatedData);
+            return redirect()->route('ventas.index')->with('success', 'Venta creada exitosamente');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => collect($e->errors())->flatten()->first() ?? 'Error de validación',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
 
-            // âœ… Log successful creation
-            VentaAuditLog::logAction(
-                $venta->id,
-                'created',
-                null,
-                $venta->estado->value,
-                [
-                    'total' => $venta->total,
-                    'productos_count' => $venta->items()->where('ventable_type', \App\Models\Producto::class)->count(),
-                    'servicios_count' => $venta->items()->where('ventable_type', \App\Models\Servicio::class)->count(),
-                ],
-                'Venta created successfully via VentaCreationService'
-            );
-
-            return redirect()->route('ventas.index')
-                ->with('success', 'Venta creada exitosamente.');
-
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            Log::warning('Authorization error creating venta', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id(),
-                'request_data' => $request->except(['password', 'password_confirmation']),
-            ]);
-            return redirect()->back()
-                ->withErrors(['message' => $e->getMessage()])
-                ->withInput();
+            throw $e;
+        } catch (\App\Exceptions\StockInsuficienteException $e) {
+            Log::warning('Stock insuficiente al crear venta: ' . $e->getMessage());
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'errors' => [
+                        'stock' => $e->getMessage(),
+                        'stock_type' => 'stock_error',
+                        'stock_details' => $e->getDetails()
+                    ]
+                ], 422);
+            }
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         } catch (\Exception $e) {
-            // Enhanced error handling
-            Log::error('Error creating venta: ' . $e->getMessage());
-
-            $prev = $e->getPrevious();
-            while ($prev) {
-                Log::error('PREVIOUS ERROR: ' . $prev->getMessage());
-                $prev = $prev->getPrevious();
-            }
-
-            Log::error($e->getTraceAsString());
-
-            VentaAuditLog::logAction(
-                null,
-                'creation_failed',
-                null,
-                null,
-                ['error' => $e->getMessage()],
-                'Venta creation failed'
-            );
-
-            // Si es una petición Inertia/XHR, retornar error usando withErrors para activar onError
-            // Inertia espera una redirección con errores en la sesión, no un JSON directo
-            return redirect()->back()
-                ->withErrors(['message' => $e->getMessage()])
-                ->withInput();
+            Log::error('Error creando venta: ' . $e->getMessage());
+            return $this->errorResponse($request, 'Error al crear la venta: ' . $e->getMessage(), 500);
         }
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show(Venta $venta)
     {
         try {
+            if (!$venta->exists) {
+                $ventaId = request()->route('venta');
+                $venta = Venta::findOrFail($ventaId);
+            }
+            
             $data = $this->ventaQueryService->getVentaDetails($venta);
             return Inertia::render('Ventas/Show', $data);
         } catch (\Exception $e) {
@@ -196,288 +260,159 @@ class VentaController extends Controller
     public function edit(Venta $venta)
     {
         try {
+            if (!$venta->exists) {
+                $ventaId = request()->route('venta');
+                $venta = Venta::findOrFail($ventaId);
+            }
+
             $data = $this->ventaQueryService->getVentaEditData($venta);
             return Inertia::render('Ventas/Edit', $data);
         } catch (\Exception $e) {
-            Log::error('Error en VentaController@edit: ' . $e->getMessage());
+            Log::error('Error loading edit venta form: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al cargar el formulario de edición');
         }
     }
 
     /**
      * Update the specified resource in storage.
-     * âœ… REFACTORED: Now uses VentaUpdateService for business logic
+     * ✅ REFACTORED: Now uses VentaUpdateService for business logic
      */
     public function update(UpdateVentaRequest $request, Venta $venta)
     {
+        if (!$venta->exists) {
+            $ventaId = $request->route('venta');
+            $venta = Venta::findOrFail($ventaId);
+        }
+
         try {
-            // Sanitize series data
             $validatedData = $request->validated();
-            if (isset($validatedData['productos'])) {
-                $validatedData['productos'] = $this->ventaValidationService->sanitizeProductData($validatedData['productos']);
+
+            // ✅ Si la venta ya tiene entrega de dinero, solo observaciones y/o vendedor/técnico asignado
+            if ($venta->entregaDinero()->exists()) {
+                $payload = [
+                    'notas' => $validatedData['notas'] ?? $venta->notas,
+                ];
+                if (array_key_exists('vendedor_id', $validatedData) && $validatedData['vendedor_id'] !== null && $validatedData['vendedor_id'] !== '') {
+                    $resolved = $this->ventaCreationService->resolveVendedorAttribution($validatedData, $request->user());
+                    $payload['vendedor_id'] = $resolved['vendedor_id'];
+                    $payload['vendedor_type'] = $resolved['vendedor_type'];
+                }
+                $venta->update($payload);
+                return $this->successResponse($request, 'Venta actualizada (corte ya registrado: solo notas y vendedor asignado)');
             }
 
-            // âœ… REFACTORED: Use VentaUpdateService instead of inline logic
-            $ventaUpdated = $this->ventaUpdateService->updateVenta($venta, $validatedData);
-
-            // âœ… Log successful update
-            VentaAuditLog::logAction(
-                $ventaUpdated->id,
-                'updated',
-                json_encode($venta->getOriginal()),
-                json_encode($ventaUpdated->toArray()),
-                [
-                    'total_before' => $venta->total,
-                    'total_after' => $ventaUpdated->total,
-                ],
-                'Venta updated successfully via VentaUpdateService'
-            );
-
-            return redirect()->route('ventas.index')->with('success', 'Venta actualizada exitosamente.');
-
-        } catch (\Exception $e) {
-            Log::error('Error updating venta', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'venta_id' => $venta->id,
-                'user_id' => Auth::id(),
-            ]);
-
-            VentaAuditLog::logAction(
-                $venta->id,
-                'update_failed',
-                null,
-                null,
-                ['error' => $e->getMessage()],
-                'Venta update failed'
-            );
-
-            return redirect()->back()
-                ->withErrors(['error' => 'Error al actualizar la venta: ' . $e->getMessage()])
-                ->withInput();
-        }
-    }
-
-    /**
-     * ✅ FIX Error #3: Validate series availability in real-time
-     * Called before form submission to ensure series are still available
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function validarSeries(Request $request)
-    {
-        $productos = $request->input('productos', []);
-
-        try {
-            $productos = $this->ventaValidationService->sanitizeProductData($productos);
-            $errors = $this->ventaValidationService->validateSeriesUniqueness($productos);
-
-            if (!empty($errors)) {
-                return response()->json([
-                    'valid' => false,
-                    'errors' => $errors
-                ]);
-            }
-
-            // Re-validate against stock service for availability
-            $almacenId = $request->input('almacen_id');
-            return response()->json([
-                'valid' => empty($errors),
-                'errors' => $errors
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error validando series', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'valid' => false,
-                'errors' => ['Error al validar series: ' . $e->getMessage()]
-            ], 500);
-        }
-    }
-
-
-
-
-
-
-
-
-    /**
-     * Mark sale as paid.
-     * ✅ REFACTORED: delegating to VentaPaymentService
-     */
-    public function marcarPagado(Request $request, Venta $venta)
-    {
-        // Authorization: Ensure the user can update this specific venta
-        $this->authorize('update', $venta);
-
-        try {
-            Log::info('Marcar pagado request', [
-                'venta_id' => $venta->id,
-                'numero_venta' => $venta->numero_venta,
-                'user_id' => Auth::id(),
-            ]);
-
-            $this->ventaPaymentService->markAsPaid($venta, $request->all());
-
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Venta marcada como pagada correctamente.',
-                ]);
-            }
-
-            return back()->with('success', 'Venta marcada como pagada correctamente.');
-
-        } catch (\Exception $e) {
-            Log::error('Error en VentaController@marcarPagado: ' . $e->getMessage());
-
-            if ($request->wantsJson()) {
+            $this->ventaUpdateService->updateVenta($venta, $validatedData);
+            return $this->successResponse($request, 'Venta actualizada exitosamente');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage(),
+                    'message' => collect($e->errors())->flatten()->first() ?? 'Error de validación',
+                    'errors' => $e->errors(),
                 ], 422);
             }
 
-            return back()->withErrors(['error' => $e->getMessage()]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Error actualizando venta: ' . $e->getMessage());
+            return $this->errorResponse($request, 'Error al actualizar la venta: ' . $e->getMessage(), 500);
         }
     }
 
     /**
-     * Facturar una venta (Generar CFDI 4.0)
+     * Cancelar una venta y devolver inventario
      */
-    public function facturar(Request $request, Venta $venta, CfdiService $cfdiService)
+    public function cancelar(Request $request, Venta $venta)
     {
-        $validated = $request->validate([
-            'tipo_factura' => 'nullable|in:ingreso,anticipo',
-            'cfdi_relacion_tipo' => 'nullable|in:01,02,03,04,05,06,07',
-            'cfdi_relacion_uuids' => 'nullable|array',
-            'cfdi_relacion_uuids.*' => 'string|uuid',
-            'anticipo_monto' => 'nullable|numeric|min:0.01',
-            'anticipo_metodo_pago' => 'nullable|in:efectivo,transferencia,cheque,tarjeta,otros',
-        ]);
+        if (!$venta->exists) {
+            $ventaId = $request->route('venta');
+            $venta = Venta::findOrFail($ventaId);
+        }
 
-        $tipoFactura = $validated['tipo_factura'] ?? 'ingreso';
+        try {
+            $motivo = $request->input('motivo');
+            $force = $request->boolean('force_with_payments', false);
 
-        if ($tipoFactura === 'anticipo') {
-            if (empty($validated['anticipo_monto']) || empty($validated['anticipo_metodo_pago'])) {
-                return back()->withErrors([
-                    'anticipo_monto' => 'Monto y método de pago son obligatorios para facturar anticipo.',
-                ]);
+            $this->ventaCancellationService->cancelVenta($venta, $motivo, $force);
+            return $this->successResponse($request, 'Venta cancelada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error cancelando venta: ' . $e->getMessage());
+            return $this->errorResponse($request, 'Error al cancelar la venta: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Marcar una venta como pagada (flujo rápido)
+     */
+    public function marcarPagado(Request $request, Venta $venta)
+    {
+        if (!$venta->exists) {
+            $ventaId = $request->route('venta');
+            $venta = Venta::findOrFail($ventaId);
+        }
+
+        try {
+            $this->ventaPaymentService->markAsPaid($venta, $request->all());
+            return $this->successResponse($request, 'Venta marcada como pagada exitosamente.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Error marcando venta como pagada: ' . $e->getMessage());
+            return $this->errorResponse($request, 'Error al procesar el pago: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * ✅ HIGH PRIORITY FIX #4: Enhanced validation with complete integrity checks
+     */
+    public function destroy(Request $request, Venta $venta)
+    {
+        if (!$venta->exists) {
+            $ventaId = $request->route('venta');
+            $venta = Venta::findOrFail($ventaId);
+        }
+
+        try {
+            // Si la venta no está cancelada, intentar cancelarla primero
+            if ($venta->estado?->value !== \App\Enums\EstadoVenta::Cancelada->value) {
+                $motivo = $request->input('motivo', 'Cancelación automática y forzada desde listado');
+                $force = true;
+                $this->ventaCancellationService->cancelVenta($venta, $motivo, $force);
+                $venta->refresh();
             }
 
-            $result = $cfdiService->facturarAnticipo(
-                $venta,
-                (float) $validated['anticipo_monto'],
-                $validated['anticipo_metodo_pago']
-            );
-        } else {
-            $options = [
-                'tipo_factura' => 'ingreso',
-                'cfdi_relacion_tipo' => $validated['cfdi_relacion_tipo'] ?? null,
-                'cfdi_relacion_uuids' => $validated['cfdi_relacion_uuids'] ?? [],
-            ];
-            $result = $cfdiService->facturarVenta($venta, $options);
+            $this->ventaDeletionService->deleteVenta($venta);
+            return $this->successResponse($request, 'Venta eliminada exitosamente');
+        } catch (\Exception $e) {
+            Log::error('Error eliminando venta: ' . $e->getMessage());
+            return $this->errorResponse($request, 'Error al eliminar la venta: ' . $e->getMessage(), 500);
         }
-
-        if (!$result['success']) {
-            return back()->with('error', $result['message']);
-        }
-
-        return back()->with('success', $result['message']);
     }
 
-
     /**
-     * Cancelar la factura de una venta
+     * Obtener el siguiente número de venta disponible (Preview)
      */
-    public function cancelarFactura(Request $request, Venta $venta, \App\Services\Cfdi\CfdiCancelService $cancelService)
+    public function obtenerSiguienteNumero()
     {
-        $this->authorize('update', $venta); // Add authorization check
-
-        Log::info('=== CANCELAR FACTURA ===', [
-            'venta_id' => $venta->id,
-            'numero_venta' => $venta->numero_venta,
-            'request_data' => $request->all()
-        ]);
-
-        $validated = $request->validate([
-            'motivo' => 'required|string|in:01,02,03,04',
-            'folio_sustitucion' => 'nullable|string|uuid|required_if:motivo,01',
-        ]);
-
-        // Buscar CFDI activo (no cancelado) de la venta
-        $cfdi = $venta->cfdi_actual;
-
-        Log::info('CFDI actual desde relación:', ['cfdi_id' => $cfdi?->id, 'cfdi_uuid' => $cfdi?->uuid]);
-
-        if (!$cfdi) {
-            // Intentar buscar el último válido en la colección
-            $cfdi = $venta->cfdis()
-                ->whereNotNull('uuid')
-                ->where('estatus', '!=', 'cancelado')
-                ->latest()
-                ->first();
-
-            Log::info('CFDI buscado manualmente:', ['cfdi_id' => $cfdi?->id, 'cfdi_uuid' => $cfdi?->uuid, 'estatus' => $cfdi?->estatus]);
+        try {
+            $siguienteNumero = app(\App\Services\Folio\FolioService::class)->previewNextFolio('venta');
+        } catch (\Exception $e) {
+            Log::error('Error generating folio preview: ' . $e->getMessage());
+            $siguienteNumero = 'V' . str_pad(rand(100, 999), 3, '0', STR_PAD_LEFT);
         }
-
-        if (!$cfdi) {
-            Log::warning('No se encontró CFDI para cancelar');
-            return back()->with('error', 'No se encontró una factura válida para cancelar.');
-        }
-
-        Log::info('Llamando a CfdiCancelService->cancelar()');
-
-        // Llamar al servicio de cancelación
-        $result = $cancelService->cancelar($cfdi, $validated['motivo'], $validated['folio_sustitucion']);
-
-        Log::info('Resultado de cancelación:', $result);
-
-        if (!$result['success']) {
-            return back()->with('error', $result['message']);
-        }
-
-        // Actualizar estado de la venta a cancelada
-        $venta->estado = \App\Enums\EstadoVenta::Cancelada;
-        $venta->save();
-
-        // Registrar en bitácora de auditoría
-        VentaAuditLog::logAction(
-            $venta->id,
-            'cfdi_cancelled',
-            null,
-            null,
-            ['uuid' => $cfdi->uuid, 'motivo' => $validated['motivo']],
-            'Factura cancelada manualmente'
-        );
-
-        return back()->with('success', $result['message']);
+        return response()->json(['siguiente_numero' => $siguienteNumero]);
     }
 
     /**
-     * Helper method for error responses
+     * Helper para respuestas de error
      */
     private function errorResponse($request, $message, $code = 400)
     {
         if ($request->expectsJson()) {
-            return response()->json(['success' => false, 'error' => $message], $code);
+            return response()->json(['success' => false, 'message' => $message], $code);
         }
-        return redirect()->back()->with('error', $message);
-    }
-
-    /**
-     * Limpiar cachÃ© de catÃ¡logos cuando se actualizan
-     */
-    private function clearCatalogCache()
-    {
-        Cache::forget('ventas_catalogs');
-        Log::info('CatÃ¡logo de ventas cache cleared');
+        return redirect()->back()->withInput()->with('error', $message);
     }
 
     /**
@@ -489,101 +424,5 @@ class VentaController extends Controller
             return response()->json(['success' => true, 'message' => $message]);
         }
         return redirect()->route($route)->with('success', $message);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * âœ… HIGH PRIORITY FIX #4: Enhanced validation with complete integrity checks
-     */
-    public function destroy(Request $request, $id)
-    {
-        try {
-            $venta = Venta::findOrFail($id);
-            $this->ventaDeletionService->deleteVenta($venta);
-            return $this->successResponse($request, 'Venta eliminada exitosamente');
-        } catch (\Exception $e) {
-            Log::error('Error eliminando venta: ' . $e->getMessage());
-            return $this->errorResponse($request, 'Error al eliminar la venta: ' . $e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Helper to load all necessary options for edit view
-     */
-    private function loadEditOptions(array $selectedProductIds = [], array $selectedServiceIds = []): array
-    {
-        // âœ… P3 FIX #11: Optimizar como create() - con lÃ­mites y solo campos necesarios
-        $clientes = \App\Models\Cliente::select('id', 'nombre_razon_social', 'rfc', 'email', 'price_list_id', 'tipo_persona', 'credito_activo', 'limite_credito')
-            ->orderBy('nombre_razon_social')
-            ->limit(500)
-            ->with('priceList:id,nombre,clave')
-            ->get();
-
-        $productos = \App\Models\Producto::select('id', 'nombre', 'codigo', 'precio_venta', 'stock', 'categoria_id', 'marca_id', 'requiere_serie', 'tipo_producto')
-            ->with(['categoria:id,nombre', 'marca:id,nombre', 'kitItems.item'])
-            ->where(function ($q) use ($selectedProductIds) {
-                $q->where('estado', 'activo')
-                    ->orWhereIn('id', $selectedProductIds);
-            })
-            ->limit(1000)
-            ->get()
-            ->map(function ($producto) {
-                $producto->precios_listas = $producto->precios->mapWithKeys(function ($precio) {
-                    return [$precio->price_list_id => (float) $precio->precio];
-                });
-                unset($producto->precios); // Limpiar relaciÃ³n
-                return $producto;
-            });
-
-        $servicios = \App\Models\Servicio::select('id', 'nombre', 'descripcion', 'precio', 'comision_vendedor')
-            ->where(function ($q) use ($selectedServiceIds) {
-                $q->where('estado', 'activo')
-                    ->orWhereIn('id', $selectedServiceIds);
-            })
-            ->limit(500)
-            ->get();
-
-        $almacenes = \App\Models\Almacen::select('id', 'nombre', 'descripcion', 'ubicacion', 'estado')
-            ->where('estado', 'activo')
-            ->get();
-
-        // âœ… P3 FIX #11: Usar cachÃ© para catÃ¡logos SAT
-        $catalogs = Cache::remember('ventas_catalogs', 604800, function () {
-            return [
-                'regimenes_fiscales' => \App\Models\SatRegimenFiscal::select('clave', 'descripcion')->get(),
-                'usos_cfdi' => \App\Models\SatUsoCfdi::select('clave', 'descripcion')->get(),
-                'estados' => \App\Models\SatEstado::select('clave', 'nombre')->get(),
-            ];
-        });
-
-        return [
-            'clientes' => $clientes,
-            'productos' => $productos,
-            'servicios' => $servicios,
-            'almacenes' => $almacenes,
-            'priceLists' => \App\Models\PriceList::activas()->select('id', 'nombre')->get(),
-            'catalogs' => $catalogs,
-            'defaults' => [
-                'ivaPorcentaje' => (float) \App\Services\EmpresaConfiguracionService::getIvaPorcentaje(),
-                'isrPorcentaje' => \App\Services\EmpresaConfiguracionService::getIsrPorcentaje(),
-                'enableIsr' => \App\Services\EmpresaConfiguracionService::isIsrEnabled(),
-                'enableRetencionIva' => \App\Services\EmpresaConfiguracionService::isRetencionIvaEnabled(),
-                'enableRetencionIsr' => \App\Services\EmpresaConfiguracionService::isRetencionIsrEnabled(),
-                'retencionIvaPorcentaje' => \App\Services\EmpresaConfiguracionService::getRetencionIvaDefault(),
-                'retencionIsrPorcentaje' => \App\Services\EmpresaConfiguracionService::getRetencionIsrDefault(),
-            ],
-        ];
-    }
-    /**
-     * Obtener el siguiente número de venta disponible (Preview)
-     */
-    public function obtenerSiguienteNumero()
-    {
-        try {
-            $siguienteNumero = app(\App\Services\Folio\FolioService::class)->previewNextFolio('venta');
-        } catch (\Exception $e) {
-            $siguienteNumero = 'V000';
-        }
-        return response()->json(['siguiente_numero' => $siguienteNumero]);
     }
 }

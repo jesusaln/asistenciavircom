@@ -1,7 +1,7 @@
 <template>
     <AppLayout title="Dashboard de Reportes">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard de Reportes
             </h2>
         </template>
@@ -17,7 +17,7 @@
                     <select 
                         v-model="periodo"
                         @change="cambiarPeriodo"
-                        class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-slate-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm bg-white dark:bg-slate-900 dark:text-gray-100 transition-colors"
+                        class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm bg-white"
                     >
                         <option value="dia">Hoy</option>
                         <option value="semana">Esta Semana</option>
@@ -27,81 +27,54 @@
                     </select>
                 </div>
 
-                <!-- KPI Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <KpiCard 
-                        title="Ventas Totales" 
-                        :value="formatCurrency(categorias.ventas.estadisticas.total)" 
-                        icon="shopping-cart" 
+                <!-- KPI (resumen del periodo seleccionado) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <KpiCard
+                        v-for="(statVal, statKey) in estadisticasPrincipal"
+                        :key="statKey"
+                        :title="formatStatLabel(statKey)"
+                        :value="formatValue(statVal, statKey)"
+                        icon="chart-line"
                         color="blue"
-                    />
-                     <KpiCard 
-                        title="Ganancia Neta" 
-                        :value="formatCurrency(categorias.finanzas.estadisticas.ganancia_neta)" 
-                        icon="chart-line" 
-                        color="green"
-                    />
-                     <KpiCard 
-                        title="Cuentas por Cobrar" 
-                        :value="formatCurrency(categorias.rentas.estadisticas.cobranzas_pendientes)" 
-                        icon="hand-holding-usd" 
-                        color="yellow"
-                    />
-                     <KpiCard 
-                        title="Valor Inventario" 
-                        :value="formatCurrency(categorias.inventario.estadisticas.valor_inventario)" 
-                        icon="boxes" 
-                        color="purple"
                     />
                 </div>
 
                 <!-- Sales Chart -->
-                <div v-if="salesChartData" class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 mb-8 transition-colors">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Evolución de Ventas</h3>
+                <div v-if="salesChartData" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Evolución de Ventas</h3>
                     <div class="h-80">
                         <StatChart :data="salesChartData" type="line" />
                     </div>
                 </div>
 
-                <!-- Categories Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div v-for="(cat, key) in categorias" :key="key" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-colors">
-                        <div class="p-5 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900/50">
+                <!-- Enlaces a reportes activos -->
+                <div class="grid grid-cols-1 max-w-3xl mx-auto gap-8">
+                    <div v-for="(cat, key) in categorias" :key="key" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white/50">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ cat.titulo }}</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ cat.descripcion }}</p>
+                                <h3 class="text-lg font-semibold text-gray-800">{{ cat.titulo }}</h3>
+                                <p class="text-sm text-gray-500">{{ cat.descripcion }}</p>
                             </div>
-                            <div class="p-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700 shadow-sm">
-                                <FontAwesomeIcon :icon="getIcon(key)" class="text-gray-400 dark:text-gray-500" />
+                            <div class="p-2 bg-white rounded-lg border border-gray-100 shadow-sm">
+                                <FontAwesomeIcon :icon="getIcon(key)" class="text-gray-400" />
                             </div>
                         </div>
                         
                         <div class="p-5">
-                            <!-- Quick Stats per Category -->
-                            <div class="grid grid-cols-3 gap-4 mb-6">
-                                <div v-for="(stat, statKey) in cat.estadisticas" :key="statKey" class="text-center p-3 bg-gray-50 dark:bg-slate-800/50 rounded-lg">
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">{{ formatStatLabel(statKey) }}</div>
-                                    <div class="font-semibold text-gray-800 dark:text-gray-100 text-sm truncate">
-                                        {{ formatValue(stat, statKey) }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Actions -->
                             <div class="space-y-2">
                                 <Link 
                                     v-for="report in cat.reportes" 
                                     :key="report.nombre"
                                     :href="report.url || route(report.ruta)"
-                                    class="flex items-center justify-between p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-800/80 group transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700"
+                                    class="flex items-center justify-between p-3 rounded-lg hover:bg-blue-50 group transition-colors border border-transparent hover:border-blue-100"
                                 >
                                     <div class="flex items-center">
-                                        <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                                        <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
                                             <FontAwesomeIcon :icon="getReportIcon(report.icono)" class="text-xs" />
                                         </span>
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-800 dark:group-hover:text-white">{{ report.nombre }}</span>
+                                        <span class="text-sm font-medium text-gray-700 group-hover:text-blue-800">{{ report.nombre }}</span>
                                     </div>
-                                    <FontAwesomeIcon icon="chevron-right" class="text-gray-300 dark:text-gray-600 group-hover:text-blue-400 dark:group-hover:text-blue-300 text-xs" />
+                                    <FontAwesomeIcon icon="chevron-right" class="text-gray-300 group-hover:text-blue-400 text-xs" />
                                 </Link>
                             </div>
                         </div>
@@ -135,7 +108,7 @@ const salesChartData = computed(() => {
             {
                 label: 'Ventas',
                 data: props.graficas.data,
-                borderColor: '#3B82F6',
+                borderColor: '#FF6B35',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 fill: true,
                 tension: 0.4
@@ -144,10 +117,15 @@ const salesChartData = computed(() => {
     };
 });
 
+const estadisticasPrincipal = computed(() => {
+    const first = Object.values(props.categorias || {})[0];
+    return first?.estadisticas || {};
+});
+
 const periodo = ref(props.periodo || 'mes');
 
 const cambiarPeriodo = () => {
-    router.visit(route('reportes.dashboard'), {
+    router.visit(route('reportes.index'), {
         data: { periodo: periodo.value },
         preserveScroll: true,
     });
@@ -158,12 +136,25 @@ const formatCurrency = (value) => {
 };
 
 const formatStatLabel = (key) => {
-    return key.replace(/_/g, ' ');
+    const labels = {
+        ventas_periodo: 'Ventas (periodo)',
+        utilidad_ventas: 'Utilidad ventas',
+        citas_completadas: 'Citas completadas',
+    };
+    return labels[key] || String(key).replace(/_/g, ' ');
 };
 
 const formatValue = (value, key) => {
     if (typeof value === 'number') {
-        if (key.includes('total') || key.includes('utilidad') || key.includes('ingresos') || key.includes('gastos') || key.includes('ganancia') || key.includes('valor')) {
+        if (
+            key.includes('total') ||
+            key.includes('utilidad') ||
+            key.includes('ingresos') ||
+            key.includes('gastos') ||
+            key.includes('ganancia') ||
+            key.includes('valor') ||
+            key === 'ventas_periodo'
+        ) {
             return formatCurrency(value);
         }
         return value.toLocaleString();
@@ -173,6 +164,7 @@ const formatValue = (value, key) => {
 
 const getIcon = (key) => {
     const map = {
+        principal: 'clipboard-list',
         ventas: 'shopping-cart',
         pagos: 'money-bill-wave',
         clientes: 'users',
@@ -181,7 +173,7 @@ const getIcon = (key) => {
         rentas: 'handshake',
         finanzas: 'chart-pie',
         personal: 'user-tie',
-        auditoria: 'shield-alt'
+        auditoria: 'shield-alt',
     };
     return map[key] || 'file-alt';
 };

@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import ModalGasto from './ModalGasto.vue';
 import ImportXmlGastoModal from '@/Components/Gastos/ImportXmlGastoModal.vue';
 import { useCompanyColors } from '@/Composables/useCompanyColors';
@@ -11,22 +11,30 @@ const props = defineProps({
     categorias: Array,
     proyectos: Array,
     filters: Object,
+    /** Backend puede enviar string por decimales DB / serialización JSON */
+    totalMonto: { type: [Number, String], default: 0 },
 });
 
-const { colors, cssVars, headerGradientStyle, focusRingStyle, primaryButtonStyle } = useCompanyColors();
+const { colors, cssVars, focusRingStyle } = useCompanyColors();
 
 const search = ref(props.filters?.search || '');
 const categoriaId = ref(props.filters?.categoria_id || '');
 const proyectoId = ref(props.filters?.proyecto_id || '');
 const estado = ref(props.filters?.estado || '');
+const isRefreshing = ref(false);
 
 const applyFilters = () => {
+    isRefreshing.value = true;
     router.get(route('gastos.index'), {
         search: search.value,
         categoria_id: categoriaId.value,
         proyecto_id: proyectoId.value,
         estado: estado.value,
-    }, { preserveState: true });
+        per_page: props.filters?.per_page || 15
+    }, { 
+        preserveState: true,
+        onFinish: () => isRefreshing.value = false
+    });
 };
 
 const clearFilters = () => {
@@ -49,30 +57,20 @@ const formatDate = (dateString) => {
     return date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-const getEstadoBadge = (estado) => {
-    const badges = {
-        'procesada': 'bg-green-100 text-green-800',
-        'cancelada': 'bg-red-100 text-red-800',
-    };
-    return badges[estado] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
-};
-
-const estadoBadgeStyle = (valor) => {
-    if (valor === 'procesada') {
-        return { backgroundColor: `${colors.value.principal}20`, color: colors.value.principal };
-    }
-    if (valor === 'cancelada') {
-        return { backgroundColor: '#fee2e2', color: '#b91c1c' };
-    }
-    return { backgroundColor: '#f3f4f6', color: '#4b5563' };
-};
-
+// Computed statistics more advanced
 const stats = computed(() => {
-    const total = props.gastos?.total || 0;
+    const totalCount = props.gastos?.total || 0;
     const rows = Array.isArray(props.gastos?.data) ? props.gastos.data : [];
-    const procesadas = rows.filter((g) => g.estado === 'procesada').length;
-    const canceladas = rows.filter((g) => g.estado === 'cancelada').length;
-    return { total, procesadas, canceladas };
+    
+    const procesadas = rows.filter((g) => g.estado?.toLowerCase() === 'procesada').length;
+    const canceladas = rows.filter((g) => g.estado?.toLowerCase() === 'cancelada').length;
+    
+    return { 
+        totalCount, 
+        procesadas, 
+        canceladas,
+        montoVisible: Number(props.totalMonto) || 0
+    };
 });
 
 const cancelGasto = (id) => {
@@ -83,7 +81,9 @@ const cancelGasto = (id) => {
 
 const deleteGasto = (id) => {
     if (confirm('¿Estás seguro de eliminar este gasto?')) {
-        router.delete(route('gastos.destroy', id));
+        router.delete(route('gastos.destroy', id), {}, {
+            onSuccess: () => router.reload()
+        });
     }
 };
 
@@ -95,7 +95,6 @@ const showGasto = (gasto) => {
     showingModal.value = true;
 };
 
-// Estado para modal de importación XML
 const showImportXmlModal = ref(false);
 
 const importarDesdeXml = () => {
@@ -103,10 +102,7 @@ const importarDesdeXml = () => {
 };
 
 const handleXmlImport = (cfdiData) => {
-  // Guardar datos del CFDI en sessionStorage para usar en Create
   sessionStorage.setItem('cfdi_gasto_import_data', JSON.stringify(cfdiData));
-  
-  // Redirigir a Create con parámetro de importación
   router.visit('/gastos/create?from_xml=1');
 };
 
@@ -116,269 +112,293 @@ const closeModal = () => {
         selectedGasto.value = null;
     }, 200);
 };
+
+// Animación de entrada
+const isLoaded = ref(false);
+onMounted(() => {
+    setTimeout(() => isLoaded.value = true, 100);
+});
 </script>
 
 <template>
     <AppLayout title="Gastos Operativos">
         <Head title="Gastos Operativos" />
 
-        <template #header>
-            <div class="rounded-xl border border-gray-200 dark:border-slate-800/60 overflow-hidden" :style="cssVars">
-                <div class="px-6 py-6 text-white" :style="headerGradientStyle">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" :style="headerGradientStyle">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-2xl font-bold tracking-tight">Gastos Operativos</h2>
-                                <p class="text-sm text-white/90 mt-0.5">Controla gastos, proveedores y categorias</p>
-                            </div>
+        <div class="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500/30 pb-20" :style="cssVars">
+            
+            <!-- Floating Header -->
+            <div class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 mb-8">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center space-x-5">
+                        <div class="p-3.5 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 shadow-lg shadow-orange-500/20 transform hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button
-                                @click="importarDesdeXml"
-                                class="inline-flex items-center px-4 py-2 text-xs font-semibold uppercase tracking-widest rounded-lg text-white shadow-sm hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-transparent transition"
-                                :style="primaryButtonStyle"
-                            >
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                                Importar XML
-                            </button>
-                            <Link
-                                :href="route('gastos.create')"
-                                class="inline-flex items-center px-4 py-2 text-xs font-semibold uppercase tracking-widest rounded-lg text-white shadow-sm hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-transparent transition"
-                                :style="primaryButtonStyle"
-                            >
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                                Nuevo Gasto
-                            </Link>
+                        <div>
+                            <h1 class="text-2xl font-black tracking-tight text-white m-0">Control de Gastos</h1>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Gestión Operativa • Sonora</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-white dark:bg-slate-900/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total</p>
-                            <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ stats.total }}</p>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Procesadas</p>
-                            <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ stats.procesadas }}</p>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900/85 backdrop-blur-sm rounded-xl p-4 border border-white/40">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Canceladas</p>
-                            <p class="text-2xl font-bold text-red-600">{{ stats.canceladas }}</p>
-                        </div>
+
+                    <div class="flex items-center gap-3">
+                        <button @click="importarDesdeXml" 
+                                class="group flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold transition-all active:scale-95">
+                            <svg class="w-5 h-5 text-orange-400 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span class="text-sm">Importar XML</span>
+                        </button>
+                        
+                        <Link :href="route('gastos.create')" 
+                              class="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-bold shadow-xl shadow-orange-600/20 transition-all hover:-translate-y-0.5 active:scale-95">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span class="text-sm">Nuevo Gasto</span>
+                        </Link>
                     </div>
                 </div>
             </div>
-        </template>
 
-        <div class="py-6" :style="cssVars">
-            <div class="px-4 sm:px-6 lg:px-8">
-                <!-- Filtros -->
-                <div class="bg-white dark:bg-slate-900 shadow rounded-lg mb-6 p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
-                            <input type="text" v-model="search" @keyup.enter="applyFilters"
-                                placeholder="Número, descripción..."
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-2 focus:border-transparent"
-                                :style="focusRingStyle"
-                            />
+            <div class="max-w-7xl mx-auto px-6 space-y-10">
+                
+                <!-- Advanced Stats Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-bottom-4 duration-700">
+                    <div class="group bg-slate-900/40 border border-white/5 rounded-[2rem] p-6 backdrop-blur-sm transition-all hover:bg-slate-900/60 hover:border-white/10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-all duration-500">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Gastos Totales</span>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                        <p class="text-3xl font-black text-white leading-none">{{ stats.totalCount }}</p>
+                        <p class="text-xs text-slate-500 mt-2 font-medium">Registros en el periodo</p>
+                    </div>
+
+                    <div class="group bg-slate-900/40 border border-white/5 rounded-[2rem] p-6 backdrop-blur-sm transition-all hover:bg-slate-900/60 hover:border-emerald-500/20">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Procesadas</span>
+                        </div>
+                        <p class="text-3xl font-black text-white leading-none">{{ stats.procesadas }}</p>
+                        <p class="text-xs text-emerald-500/70 mt-2 font-bold uppercase tracking-tight">Efectivas</p>
+                    </div>
+
+                    <div class="group bg-slate-900/40 border border-white/5 rounded-[2rem] p-6 backdrop-blur-sm transition-all hover:bg-slate-900/60 hover:border-rose-500/20">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Canceladas</span>
+                        </div>
+                        <p class="text-3xl font-black text-white leading-none">{{ stats.canceladas }}</p>
+                        <p class="text-xs text-rose-500/70 mt-2 font-bold uppercase tracking-tight">Anuladas</p>
+                    </div>
+
+                    <div class="group bg-slate-900/50 border border-orange-500/20 rounded-[2rem] p-6 backdrop-blur-sm shadow-xl shadow-orange-500/5 transition-all hover:border-orange-500/40">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Inversión Total</span>
+                        </div>
+                        <p class="text-2xl font-black text-orange-400 leading-none">{{ formatCurrency(stats.montoVisible) }}</p>
+                        <p class="text-xs text-slate-400 mt-2 font-medium italic">Filtro aplicado</p>
+                    </div>
+                </div>
+
+                <!-- Filters Toolbar -->
+                <div class="bg-slate-900/30 border border-white/5 rounded-3xl p-6 backdrop-blur-sm animate-in fade-in duration-1000">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Búsqueda Inteligente</label>
+                            <div class="relative group">
+                                <input type="text" v-model="search" @keyup.enter="applyFilters"
+                                    placeholder="Número, descripción..."
+                                    class="w-full bg-slate-950/50 border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm text-white focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all outline-none"
+                                />
+                                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 transition-colors group-focus-within:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Categoría</label>
                             <select v-model="categoriaId" @change="applyFilters"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-2 focus:border-transparent"
-                                :style="focusRingStyle"
+                                class="w-full bg-slate-950/50 border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all appearance-none"
                             >
-                                <option value="">Todas</option>
+                                <option value="">Todas las categorías</option>
                                 <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
                                     {{ cat.nombre }}
                                 </option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Estado</label>
                             <select v-model="estado" @change="applyFilters"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-2 focus:border-transparent"
-                                :style="focusRingStyle"
+                                class="w-full bg-slate-950/50 border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all appearance-none"
                             >
-                                <option value="">Todos</option>
-                                <option value="procesada">Procesado</option>
-                                <option value="cancelada">Cancelado</option>
+                                <option value="">Cualquier estado</option>
+                                <option value="procesada">Procesada</option>
+                                <option value="cancelada">Cancelada</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto</label>
+
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Asignar Proyecto</label>
                             <select v-model="proyectoId" @change="applyFilters"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-2 focus:border-transparent"
-                                :style="focusRingStyle"
+                                class="w-full bg-slate-950/50 border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all appearance-none"
                             >
-                                <option value="">Todos</option>
+                                <option value="">Sin proyecto</option>
                                 <option v-for="proyecto in proyectos" :key="proyecto.id" :value="proyecto.id">
                                     {{ proyecto.nombre }}
                                 </option>
                             </select>
                         </div>
-                        <div class="flex items-end">
-                            <button @click="clearFilters"
-                                class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition focus:outline-none focus:ring-2 focus:border-transparent"
-                                :style="focusRingStyle"
-                            >
-                                Limpiar
+
+                        <div class="flex gap-2">
+                            <button @click="applyFilters" 
+                                    class="flex-1 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" :class="{'animate-spin': isRefreshing}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                Aplicar
+                            </button>
+                            <button @click="clearFilters" 
+                                    class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 transition-all shadow-inner" title="Limpiar Filtros">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tabla -->
-                <div class="bg-white dark:bg-slate-900 shadow rounded-lg overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
-                        <thead class="bg-white dark:bg-slate-900">
-                            <tr>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Número</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Categoría</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descripción</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Proveedor</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Proyecto</th>
-                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Usuario</th>
-                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Monto</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
-                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
-                            <tr v-for="gasto in gastos.data" :key="gasto.id" class="hover:bg-white dark:bg-slate-900">
-                                <td class="px-3 py-4 whitespace-nowrap">
-                                    <button @click="showGasto(gasto)" class="text-amber-600 hover:text-indigo-900 font-medium">
-                                        {{ gasto.numero_compra }}
-                                    </button>
-                                </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ formatDate(gasto.fecha_compra) }}
-                                </td>
-                                <td class="px-3 py-4 text-sm text-gray-900 dark:text-white">
-                                    {{ gasto.categoria_gasto?.nombre || '-' }}
-                                </td>
-                                <td class="px-3 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate" :title="gasto.notas">
-                                    {{ gasto.notas || '-' }}
-                                </td>
-                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}
-                                </td>
-                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <span v-if="gasto.proyecto" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
-                                        {{ gasto.proyecto.nombre }}
-                                    </span>
-                                    <span v-else class="text-gray-400">-</span>
-                                </td>
-                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <div class="flex items-center gap-1">
-                                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] uppercase font-bold text-gray-600 dark:text-gray-300">
-                                            {{ gasto.created_by?.name?.charAt(0) || '?' }}
+                <!-- Main Datatable -->
+                <div class="bg-slate-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-sm animate-in zoom-in-95 duration-700 shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/5">
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Referencia</th>
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Fecha</th>
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Categoría / Proyecto</th>
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Descripción & Proveedor</th>
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Inversión</th>
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Estado</th>
+                                    <th class="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                <tr v-for="(gasto, index) in gastos.data" :key="gasto.id" 
+                                    class="group hover:bg-white/5 transition-all duration-300"
+                                    :style="{ animationDelay: `${index * 50}ms` }">
+                                    <td class="px-6 py-6">
+                                        <button @click="showGasto(gasto)" class="text-orange-400 hover:text-orange-300 font-bold font-mono text-sm underline decoration-orange-500/20 underline-offset-4 transition-all">
+                                            {{ gasto.numero_compra }}
+                                        </button>
+                                    </td>
+                                    <td class="px-6 py-6">
+                                        <div class="text-white font-bold text-sm">{{ formatDate(gasto.fecha_compra) }}</div>
+                                        <div class="text-[10px] text-slate-600 font-medium uppercase mt-0.5 tracking-tighter">Registrado</div>
+                                    </td>
+                                    <td class="px-6 py-6">
+                                        <div class="text-slate-300 font-bold text-xs uppercase tracking-tight">{{ gasto.categoria_gasto?.nombre || '-' }}</div>
+                                        <div v-if="gasto.proyecto" class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-400 text-[10px] font-bold border border-indigo-500/20 uppercase">
+                                            {{ gasto.proyecto.nombre }}
                                         </div>
-                                        <span class="truncate max-w-[80px] text-xs">{{ gasto.created_by?.name || 'Sistema' }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right font-medium">
-                                    {{ formatCurrency(gasto.total) }}
-                                </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-center">
-                                    <span :class="getEstadoBadge(gasto.estado)"
-                                        class="px-2 py-1 text-xs font-semibold rounded-full"
-                                        :style="estadoBadgeStyle(gasto.estado)"
-                                    >
-                                        {{ gasto.estado }}
-                                    </span>
-                                </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <div class="flex justify-center gap-1">
-                                        <!-- Ver -->
-                                        <button @click="showGasto(gasto)"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors focus:outline-none focus:ring-2 focus:border-transparent"
-                                            :style="focusRingStyle"
-                                            title="Ver detalles">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                        </button>
-                                        <!-- Editar -->
-                                        <Link v-if="gasto.estado?.toLowerCase() === 'procesada'" :href="route('gastos.edit', gasto.id)"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-amber-100 text-amber-600 rounded hover:bg-amber-200 transition-colors focus:outline-none focus:ring-2 focus:border-transparent"
-                                            :style="focusRingStyle"
-                                            title="Editar">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                            </svg>
-                                        </Link>
-                                        <!-- Cancelar -->
-                                        <button v-if="gasto.estado?.toLowerCase() === 'procesada'" @click="cancelGasto(gasto.id)"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-yellow-100 text-yellow-600 rounded hover:bg-yellow-200 transition-colors focus:outline-none focus:ring-2 focus:border-transparent"
-                                            :style="focusRingStyle"
-                                            title="Cancelar">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                                            </svg>
-                                        </button>
-                                        <!-- Eliminar -->
-                                        <button @click="deleteGasto(gasto.id)"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors focus:outline-none focus:ring-2 focus:border-transparent"
-                                            :style="focusRingStyle"
-                                            title="Eliminar">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-if="!gastos.data?.length">
-                                <td colspan="10" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                    No hay gastos registrados
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td class="px-6 py-6 max-w-sm">
+                                        <p class="text-white font-medium text-sm line-clamp-1 italic text-slate-100" :title="gasto.notas">"{{ gasto.notas || '-' }}"</p>
+                                        <p class="text-[10px] text-slate-500 mt-1 font-bold uppercase tracking-wider">{{ gasto.proveedor?.nombre_razon_social || 'Proveedor Independiente' }}</p>
+                                    </td>
+                                    <td class="px-6 py-6 text-right">
+                                        <div class="text-lg font-black text-white leading-none">{{ formatCurrency(gasto.total) }}</div>
+                                        <div class="text-[10px] text-slate-600 font-bold uppercase mt-1 tracking-widest">Neto MXN</div>
+                                    </td>
+                                    <td class="px-6 py-6 text-center">
+                                        <span :class="gasto.estado?.toLowerCase() === 'procesada' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'"
+                                              class="px-3 py-1.5 text-[10px] font-black rounded-xl border uppercase tracking-[0.1em]">
+                                            {{ gasto.estado }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-6">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <button @click="showGasto(gasto)" 
+                                                    class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all active:scale-95 shadow-lg shadow-indigo-500/0 hover:shadow-indigo-500/10"
+                                                    title="Ver Detalle">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            </button>
+                                            
+                                            <Link v-if="gasto.estado?.toLowerCase() === 'procesada'" 
+                                                  :href="route('gastos.edit', gasto.id)"
+                                                  class="p-2.5 rounded-xl bg-orange-500/10 text-orange-400 hover:bg-orange-500 hover:text-white transition-all active:scale-95 shadow-lg shadow-orange-500/0 hover:shadow-orange-500/10"
+                                                  title="Editar Transacción">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            </Link>
 
-                    <!-- Pagination -->
-                    <div v-if="gastos.links?.length > 3" class="bg-white dark:bg-slate-900 px-4 py-3 border-t border-gray-200 dark:border-slate-800 sm:px-6">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-700">
-                                Mostrando {{ gastos.from }} a {{ gastos.to }} de {{ gastos.total }} resultados
-                            </span>
-                            <div class="flex gap-1">
-                                <Link v-for="link in gastos.links" :key="link.label"
-                                    :href="link.url || '#'"
-                                    :class="[
-                                        'px-3 py-1 text-sm border rounded',
-                                        link.active ? 'text-white' : 'bg-white dark:bg-slate-900 text-gray-700 border-gray-300 hover:bg-white dark:bg-slate-900',
-                                        !link.url ? 'opacity-50 cursor-not-allowed' : ''
-                                    ]"
-                                    :style="link.active ? headerGradientStyle : null"
-                                    v-html="link.label" />
-                            </div>
+                                            <button v-if="gasto.estado?.toLowerCase() === 'procesada'" 
+                                                    @click="cancelGasto(gasto.id)"
+                                                    class="p-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-lg shadow-rose-500/0 hover:shadow-rose-500/10"
+                                                    title="Cancelar Registro">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                            </button>
+                                            
+                                            <button @click="deleteGasto(gasto.id)"
+                                                    class="p-2.5 rounded-xl bg-slate-800 text-slate-500 hover:bg-rose-600 hover:text-white transition-all active:scale-95"
+                                                    title="Eliminar Permanente">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr v-if="!gastos.data?.length">
+                                    <td colspan="7" class="px-6 py-24 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div class="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center text-slate-700 border border-white/5 animate-pulse">
+                                                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                                            </div>
+                                            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Sin registros que mostrar</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Modern Pagination -->
+                    <div v-if="gastos.links?.length > 3" class="px-8 py-6 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                            Mostrando <span class="text-white">{{ gastos.from }}</span> a <span class="text-white">{{ gastos.to }}</span> de <span class="text-white">{{ gastos.total }}</span> resultados
+                        </span>
+                        <div class="flex items-center gap-1.5">
+                            <Link v-for="link in gastos.links" :key="link.label"
+                                :href="link.url || '#'"
+                                :disabled="!link.url"
+                                :class="[
+                                    'px-4 py-2 text-[10px] font-black rounded-xl border transition-all uppercase tracking-tighter',
+                                    link.active ? 'bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-600/20' : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white',
+                                    !link.url ? 'opacity-30 cursor-not-allowed grayscale' : ''
+                                ]"
+                                v-html="link.label" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal de Detalle -->
+        <!-- Detail Modal (existing component) -->
         <ModalGasto 
             :show="showingModal" 
             :gasto="selectedGasto" 
             @close="closeModal" 
         />
 
-        <!-- Modal de importación XML -->
+        <!-- XML Import Modal (existing component) -->
         <ImportXmlGastoModal
             :show="showImportXmlModal"
             @close="showImportXmlModal = false"
@@ -386,6 +406,54 @@ const closeModal = () => {
         />
     </AppLayout>
 </template>
+
+<style scoped>
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.animate-in {
+    animation-fill-mode: both;
+}
+
+.slide-in-from-bottom-4 {
+    animation-name: fadeInUp;
+}
+
+.zoom-in-95 {
+    animation-name: zoomIn;
+}
+
+/* Scrollbar styling for dark mode */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #020617;
+}
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+}
+</style>
 
 
 

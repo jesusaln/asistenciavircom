@@ -13,16 +13,19 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use App\Models\Concerns\BelongsToEmpresa;
+use App\Models\Traits\HasTrigramSearch;
+use App\Models\Traits\HasUuid;
 
 class Cliente extends Authenticatable implements AuditableContract, CanResetPasswordContract
 {
-    use HasFactory, Notifiable, SoftDeletes, AuditableTrait, CanResetPassword, BelongsToEmpresa;
+    use HasFactory, Notifiable, SoftDeletes, AuditableTrait, CanResetPassword, BelongsToEmpresa, HasTrigramSearch, HasUuid;
+
+    protected array $searchable = ['nombre_razon_social', 'rfc', 'email', 'telefono', 'calle', 'colonia', 'municipio'];
 
     protected $table = 'clientes';
 
     protected $fillable = [
         'codigo',
-        'uuid',
         'empresa_id',
         'nombre_razon_social',
         'razon_social',        // Razón social para facturación (puede ser diferente al nombre comercial)
@@ -45,8 +48,6 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'num_reg_id_trib',     // Número de registro fiscal extranjero (CFDI 4.0)
         'email',
         'telefono',
-        'rustdesk_id',
-        'rustdesk_alias',
         'calle',
         'numero_exterior',
         'numero_interior',
@@ -65,9 +66,13 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'whatsapp_consent_date',    // Fecha de consentimiento
         'whatsapp_consent_method',  // Método de obtención de consentimiento
         'whatsapp_consent_source',  // Origen del consentimiento
-        'whatsapp_opt_in',
-        'whatsapp_opt_in_at',
-        'whatsapp_opt_in_ip',
+        'sms_optin',
+        'marketing_optin',
+        'opt_out_at',
+        'unsubscribed_reason',
+        'wa_user_id',
+        'wa_username',
+        'wa_profile_name',
 
         // ------ Facturación ------
         'cfdi_default_use',
@@ -101,9 +106,10 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'activo' => 'boolean',
         'requiere_factura' => 'boolean',
         'whatsapp_optin' => 'boolean',
-        'whatsapp_opt_in' => 'boolean',
         'whatsapp_consent_date' => 'datetime',
-        'whatsapp_opt_in_at' => 'datetime',
+        'sms_optin' => 'boolean',
+        'marketing_optin' => 'boolean',
+        'opt_out_at' => 'datetime',
         'credito_activo' => 'boolean',
         'limite_credito' => 'decimal:2',
         'dias_credito' => 'integer',
@@ -147,9 +153,6 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     protected static function booted()
     {
         static::creating(function (Cliente $cliente) {
-            if (empty($cliente->uuid)) {
-                $cliente->uuid = (string) \Illuminate\Support\Str::uuid();
-            }
             if (empty($cliente->codigo)) {
                 try {
                     $cliente->codigo = app(\App\Services\Folio\FolioService::class)->getNextFolio('cliente');
@@ -178,6 +181,11 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
                     $cliente->whatsapp_consent_method = null;
                     $cliente->whatsapp_consent_source = null;
                 }
+            }
+
+            if ($cliente->marketing_optin || $cliente->whatsapp_optin || $cliente->sms_optin) {
+                $cliente->opt_out_at = null;
+                $cliente->unsubscribed_reason = null;
             }
         });
     }
@@ -344,9 +352,10 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
             return $query;
 
         return $query->where(function ($w) use ($q) {
-            $w->where('nombre_razon_social', 'like', "%{$q}%")
-                ->orWhere('rfc', 'like', "%{$q}%")
-                ->orWhere('email', 'like', "%{$q}%");
+            $qPattern = "%{$q}%";
+            $w->whereRaw("unaccent(nombre_razon_social) ILIKE unaccent(?)", [$qPattern])
+                ->orWhere('rfc', 'ILIKE', $qPattern)
+                ->orWhere('email', 'ILIKE', $qPattern);
         });
     }
 
@@ -367,15 +376,6 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         $normalized = mb_strtoupper(trim((string) $value), 'UTF-8');
         $normalized = str_replace([' ', '-', '_'], '', $normalized);
         $this->attributes['rfc'] = $normalized;
-
-        // Detección automática de tipo de persona basada en longitud de RFC
-        // RFC de 12 caracteres = Persona Moral (Empresa)
-        // RFC de 13 caracteres = Persona Física (Individuo)
-        if (strlen($normalized) === 12) {
-            $this->attributes['tipo_persona'] = 'moral';
-        } elseif (strlen($normalized) === 13) {
-            $this->attributes['tipo_persona'] = 'fisica';
-        }
     }
 
     public function setCurpAttribute($value): void
@@ -434,16 +434,19 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
 
     public function getDireccionCompletaAttribute(): string
     {
+        $numero = trim(
+            (string) ($this->numero_exterior ?? '')
+            . ($this->numero_interior ? " Int. {$this->numero_interior}" : '')
+        );
+
+        // Calle + número + colonia (desambigua calles homónimas en Maps)
         $partes = array_filter([
             $this->calle,
-            trim($this->numero_exterior . ($this->numero_interior ? " Int. {$this->numero_interior}" : '')),
+            $numero !== '' ? $numero : null,
             $this->colonia,
-            $this->codigo_postal,
-            $this->municipio,
-            $this->estado
-        ]);
+        ], static fn ($p) => $p !== null && $p !== '');
 
-        return trim(implode(', ', $partes));
+        return trim(implode(' ', $partes));
     }
 
     public function getEstadoNombreAttribute(): ?string
@@ -598,6 +601,11 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         return $this->whatsapp_optin && !is_null($this->whatsapp_consent_date);
     }
 
+    public function hasMarketingConsent(): bool
+    {
+        return $this->marketing_optin && is_null($this->opt_out_at);
+    }
+
     /**
      * Registrar consentimiento de WhatsApp
      */
@@ -613,12 +621,19 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     /**
      * Revocar consentimiento de WhatsApp
      */
-    public function revokeWhatsAppConsent(): void
+    public function revokeWhatsAppConsent(string $reason = null): void
     {
         $this->whatsapp_optin = false;
         $this->whatsapp_consent_date = null;
         $this->whatsapp_consent_method = null;
         $this->whatsapp_consent_source = null;
+        
+        // General opt-out
+        $this->marketing_optin = false;
+        $this->sms_optin = false;
+        $this->opt_out_at = now();
+        $this->unsubscribed_reason = $reason;
+        
         $this->save();
     }
 

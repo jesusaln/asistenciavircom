@@ -12,11 +12,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Models\Concerns\Blameable;
+use App\Models\Traits\HasTrigramSearch;
 
-class Producto extends Model
+use \OwenIt\Auditing\Auditable;
+
+class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
+    use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa, HasTrigramSearch, Auditable;
 
-    use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa;
+    protected array $searchable = ['nombre', 'descripcion', 'codigo', 'codigo_barras'];
 
     protected $appends = ['precio_con_iva'];
 
@@ -27,15 +31,16 @@ class Producto extends Model
         'comision_vendedor' => 'decimal:2',
         'requiere_serie' => 'boolean',
         'tipo_producto' => 'string',
-        'cva_last_sync' => 'datetime',
         'stock_cedis' => 'integer',
         'destacado' => 'boolean',
+        'incluye_iva' => 'boolean',
+        'catalogo_web' => 'boolean',
+        'bloquear_venta_directa' => 'boolean',
     ];
 
     protected $fillable = [
         'empresa_id',
         'nombre',
-        'sku',
         'descripcion',
         'codigo',
         'codigo_barras',
@@ -62,10 +67,10 @@ class Producto extends Model
         'imagen',
         'estado',
         'origen',
-        'cva_clave',
-        'stock_cedis',
-        'cva_last_sync',
         'destacado',
+        'incluye_iva',
+        'catalogo_web',
+        'bloquear_venta_directa',
     ];
 
     protected $attributes = [
@@ -77,6 +82,8 @@ class Producto extends Model
         'requiere_serie' => false,
         'margen_ganancia' => 0,
         'comision_vendedor' => 0,
+        'catalogo_web' => true,
+        'bloquear_venta_directa' => false,
     ];
 
     protected static function booted()
@@ -282,6 +289,38 @@ class Producto extends Model
         return $this->morphMany(CotizacionItem::class, 'cotizable');
     }
 
+    /**
+     * Reglas de negocio para eliminar: solo inactivos y sin líneas en documentos vinculados.
+     */
+    public static function puedeEliminarse(self $producto): bool
+    {
+        if ($producto->estado === 'activo') {
+            return false;
+        }
+
+        return $producto->cotizacionItems()->count() === 0
+            && $producto->pedidoItems()->count() === 0
+            && $producto->ventaItems()->count() === 0
+            && $producto->compras()->count() === 0
+            && $producto->ordenesCompra()->count() === 0;
+    }
+
+    /**
+     * Misma regla usando conteos precargados (withCount) en listados paginados.
+     */
+    public function puedeEliminarseSegunConteosDeListado(): bool
+    {
+        if ($this->estado === 'activo') {
+            return false;
+        }
+
+        return (int) ($this->cotizacion_items_count ?? 0) === 0
+            && (int) ($this->pedido_items_count ?? 0) === 0
+            && (int) ($this->venta_items_count ?? 0) === 0
+            && (int) ($this->compras_count ?? 0) === 0
+            && (int) ($this->ordenes_compra_count ?? 0) === 0;
+    }
+
     /** Ítems en citas donde este producto fue usado. @return MorphMany<CitaItem> */
     public function citaItems(): MorphMany
     {
@@ -301,24 +340,6 @@ class Producto extends Model
 
     public function getPrecioVentaAttribute($value)
     {
-        // Si el producto es CVA y tiene precio de compra, aplicar márgenes dinámicos
-        if ($this->origen === 'CVA' && !empty($this->precio_compra) && $this->precio_compra > 0) {
-            try {
-                // Usar caché para no instanciar el servicio miles de veces en colecciones
-                return \Illuminate\Support\Facades\Cache::remember('cva_price_' . $this->id . '_' . $this->precio_compra, 60, function () use ($value) {
-                    $cva = app(\App\Services\CVAService::class);
-                    // Esto usará los tiers configurados en EmpresaConfiguracion actualmente
-                    $details = $cva->normalizeProduct([
-                        'precio' => $this->precio_compra,
-                        'clave' => $this->cva_clave ?: $this->codigo
-                    ]);
-                    return $details['precio'];
-                });
-            } catch (\Exception $e) {
-                return $value;
-            }
-        }
-
         return $value;
     }
 
@@ -350,6 +371,9 @@ class Producto extends Model
 
     public function getPrecioConIvaAttribute()
     {
+        if ($this->incluye_iva) {
+            return (float) ($this->precio_venta ?? 0);
+        }
         return round(($this->precio_venta ?? 0) * 1.16, 2);
     }
 
@@ -388,8 +412,8 @@ class Producto extends Model
         $costoTotal = 0;
         $stockService = app(\App\Services\StockValidationService::class);
 
-        // Asegurar que los kitItems tengan la relación 'item' cargada
-        $kitItems = $this->kitItems()->with('item')->get();
+        // ✅ FIX N+1: Usar relación cargada si existe
+        $kitItems = $this->relationLoaded('kitItems') ? $this->kitItems : $this->kitItems()->with('item')->get();
 
         foreach ($kitItems as $item) {
             if (!$item->item) {
@@ -535,6 +559,35 @@ class Producto extends Model
     public function scopeNoKits($query)
     {
         return $query->where('tipo_producto', '!=', 'kit');
+    }
+
+    /**
+     * Productos visibles como línea suelta en venta, POS, cotización y pedido (excluye solo-kit salvo permiso).
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
+     */
+    public function scopeParaVentaDirectaSegunUsuario($query, $user): \Illuminate\Database\Eloquent\Builder
+    {
+        if ($user && method_exists($user, 'can') && $user->can('venta componentes sueltos')) {
+            return $query;
+        }
+
+        return $query->where(function ($q) {
+            $q->where('bloquear_venta_directa', false)
+                ->orWhereNull('bloquear_venta_directa');
+        });
+    }
+
+    /**
+     * Indica si no se puede agregar como línea suelta (solo como parte de kit) para este usuario.
+     */
+    public function ventaDirectaBloqueadaPara(?\Illuminate\Contracts\Auth\Authenticatable $user): bool
+    {
+        if (! $this->bloquear_venta_directa) {
+            return false;
+        }
+
+        return ! ($user && method_exists($user, 'can') && $user->can('venta componentes sueltos'));
     }
 
     /**

@@ -113,6 +113,17 @@ export function useCart() {
             })
         }
 
+        // Facebook Pixel Event
+        if (window.fbq) {
+            window.fbq('track', 'AddToCart', {
+                content_name: producto.nombre,
+                content_ids: [producto.id],
+                content_type: 'product',
+                value: parseFloat(producto.precio || producto.precio_venta || 0) * cantidad,
+                currency: 'MXN',
+            });
+        }
+
         return { success: true, message: cantidad < 1 ? 'Cantidad ajustada al stock disponible' : 'Producto agregado al carrito' }
     }
 

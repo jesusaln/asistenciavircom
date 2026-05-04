@@ -127,13 +127,13 @@ const close = () => {
         <div class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4">
                 <!-- Backdrop -->
-                <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" @click="close"></div>
+                <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="close"></div>
                 
                 <!-- Modal -->
-                <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+                <div class="relative bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl shadow-[var(--ui-shadow)] w-full max-w-lg transform transition-all border border-[var(--ui-border)]">
                     
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 rounded-t-2xl">
+                    <div class="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 rounded-t-3xl">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-white">Asignar Técnico</h3>
@@ -151,19 +151,19 @@ const close = () => {
                         <div class="p-6 space-y-5">
                             
                             <!-- Info de la cita -->
-                            <div class="bg-orange-50 rounded-xl p-4">
+                            <div class="bg-orange-50/80 dark:bg-orange-900/20 rounded-2xl p-4 border border-orange-100/70 dark:border-orange-900/40">
                                 <div class="grid grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <p class="text-orange-600 font-medium">📱 Teléfono</p>
-                                        <p class="text-gray-700">{{ cita?.cliente?.telefono }}</p>
+                                        <p class="text-[var(--ui-text-muted)]">{{ cita?.cliente?.telefono }}</p>
                                     </div>
                                     <div v-if="cita?.origen_tienda">
                                         <p class="text-orange-600 font-medium">🏪 Tienda</p>
-                                        <p class="text-gray-700">{{ tiendas[cita.origen_tienda] }}</p>
+                                        <p class="text-[var(--ui-text-muted)]">{{ tiendas[cita.origen_tienda] }}</p>
                                     </div>
                                     <div v-if="cita?.horario_preferido" class="col-span-2">
                                         <p class="text-orange-600 font-medium">⏰ Horario preferido</p>
-                                        <p class="text-gray-700">
+                                        <p class="text-[var(--ui-text-muted)]">
                                             {{ horarios[cita.horario_preferido]?.emoji }}
                                             {{ horarios[cita.horario_preferido]?.nombre }}
                                             ({{ horarios[cita.horario_preferido]?.inicio }} - {{ horarios[cita.horario_preferido]?.fin }})
@@ -171,7 +171,7 @@ const close = () => {
                                     </div>
                                     <div v-if="cita?.direccion_calle" class="col-span-2">
                                         <p class="text-orange-600 font-medium">📍 Dirección</p>
-                                        <p class="text-gray-700">
+                                        <p class="text-[var(--ui-text-muted)]">
                                             {{ cita.direccion_calle }}, {{ cita.direccion_colonia }}
                                         </p>
                                     </div>
@@ -180,7 +180,7 @@ const close = () => {
                             
                             <!-- Días preferidos del cliente -->
                             <div v-if="cita?.dias_preferidos?.length">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-2">
                                     Días preferidos del cliente
                                 </label>
                                 <div class="flex flex-wrap gap-2">
@@ -193,7 +193,7 @@ const close = () => {
                                             'px-3 py-2 rounded-lg text-sm font-medium border-2 transition-all',
                                             form.fecha_confirmada === dia
                                                 ? 'border-orange-500 bg-orange-100 text-orange-800'
-                                                : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-700 hover:border-orange-300'
+                                                : 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text-muted)] hover:border-orange-300'
                                         ]"
                                     >
                                         {{ formatDate(dia) }}
@@ -203,14 +203,14 @@ const close = () => {
                             
                             <!-- Fecha confirmada (si no hay días preferidos o quiere otra) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-2">
                                     Fecha confirmada *
                                 </label>
                                 <input
                                     v-model="form.fecha_confirmada"
                                     type="date"
                                     :min="new Date().toISOString().split('T')[0]"
-                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors"
+                                    class="w-full px-4 py-3 border-2 border-[var(--ui-border)] rounded-xl focus:border-orange-500 focus:ring-0 transition-colors bg-[var(--ui-surface)]"
                                     :class="{ 'border-red-400': form.errors.fecha_confirmada }"
                                     required
                                 />
@@ -221,15 +221,15 @@ const close = () => {
                             
                             <!-- Hora confirmada -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-2">
                                     Hora confirmada *
-                                    <span v-if="selectedHorario" class="text-gray-400 font-normal">
+                                    <span v-if="selectedHorario" class="text-[var(--ui-text-soft)] font-normal">
                                         (Horario preferido: {{ selectedHorario.inicio }} - {{ selectedHorario.fin }})
                                     </span>
                                 </label>
                                 <select
                                     v-model="form.hora_confirmada"
-                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors appearance-none bg-white dark:bg-slate-900"
+                                    class="w-full px-4 py-3 border-2 border-[var(--ui-border)] rounded-xl focus:border-orange-500 focus:ring-0 transition-colors appearance-none bg-[var(--ui-surface)]"
                                     :class="{ 'border-red-400': form.errors.hora_confirmada }"
                                     required
                                 >
@@ -245,7 +245,7 @@ const close = () => {
                             
                             <!-- Técnico -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-[var(--ui-text-muted)] mb-2">
                                     Técnico a asignar *
                                 </label>
                                 <div class="grid grid-cols-2 gap-2">
@@ -258,7 +258,7 @@ const close = () => {
                                             'p-3 rounded-xl border-2 text-sm font-medium transition-all text-left',
                                             form.tecnico_id === tec.id
                                                 ? 'border-orange-500 bg-orange-50'
-                                                : 'border-gray-200 dark:border-slate-800 hover:border-orange-300'
+                                                : 'border-[var(--ui-border)] hover:border-orange-300'
                                         ]"
                                     >
                                         <div class="flex items-center gap-2">
@@ -268,7 +268,7 @@ const close = () => {
                                             ></span>
                                             <span class="truncate">{{ tec.name }}</span>
                                         </div>
-                                        <p v-if="tec.telefono" class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-5">
+                                        <p v-if="tec.telefono" class="text-xs text-[var(--ui-text-soft)] mt-1 ml-5">
                                             📱 {{ tec.telefono }}
                                         </p>
                                     </button>
@@ -279,7 +279,7 @@ const close = () => {
                             </div>
                             
                             <!-- Citas del técnico en la fecha seleccionada -->
-                            <div v-if="citasTecnicoFecha.length > 0" class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                            <div v-if="citasTecnicoFecha.length > 0" class="p-4 bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/40 rounded-2xl">
                                 <p class="font-medium text-blue-800 mb-2 flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -290,12 +290,12 @@ const close = () => {
                                     <div 
                                         v-for="citaExis in citasTecnicoFecha" 
                                         :key="citaExis.id"
-                                        class="flex items-center justify-between text-sm bg-white dark:bg-slate-900 rounded-lg px-3 py-2"
+                                        class="flex items-center justify-between text-sm bg-[var(--ui-surface)] rounded-lg px-3 py-2 border border-[var(--ui-border)]"
                                     >
-                                        <span class="font-medium text-gray-700">
+                                        <span class="font-medium text-[var(--ui-text-muted)]">
                                             {{ formatHoraDisplay(citaExis.hora_confirmada || (citaExis.fecha_hora ? citaExis.fecha_hora.split('T')[1]?.substring(0, 5) : '')) }}
                                         </span>
-                                        <span class="text-gray-600 truncate ml-2">
+                                        <span class="text-[var(--ui-text-soft)] truncate ml-2">
                                             {{ citaExis.cliente?.nombre_razon_social || 'Cliente' }}
                                         </span>
                                     </div>
@@ -303,7 +303,7 @@ const close = () => {
                             </div>
                             
                             <!-- Advertencia de conflicto -->
-                            <div v-if="tieneConflicto" class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
+                            <div v-if="tieneConflicto" class="p-3 bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-2xl text-red-700 dark:text-red-300 text-sm flex items-center gap-2">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                 </svg>
@@ -313,18 +313,18 @@ const close = () => {
                             </div>
                             
                             <!-- Error general -->
-                            <div v-if="form.errors.general" class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                            <div v-if="form.errors.general" class="p-3 bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-2xl text-red-600 dark:text-red-300 text-sm">
                                 {{ form.errors.general }}
                             </div>
                             
                         </div>
                         
                         <!-- Footer -->
-                        <div class="px-6 py-4 border-t bg-gray-50 rounded-b-2xl flex items-center justify-end gap-3">
+                        <div class="px-6 py-4 border-t border-[var(--ui-border)] bg-[var(--ui-surface-alt)] rounded-b-3xl flex items-center justify-end gap-3">
                             <button
                                 type="button"
                                 @click="close"
-                                class="px-5 py-2.5 text-gray-600 font-medium hover:text-gray-800 transition-colors"
+                                class="px-5 py-2.5 text-[var(--ui-text-muted)] font-medium hover:text-[var(--ui-text)] transition-colors"
                             >
                                 Cancelar
                             </button>
