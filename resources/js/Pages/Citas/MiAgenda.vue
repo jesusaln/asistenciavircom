@@ -268,13 +268,24 @@ function isAtrasada(cita) {
 
 function formatDateCompact(date) {
     if (!date) return '';
-    return new Date(date + 'T12:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+    const d = new Date(date + 'T12:00:00');
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const weekday = d.toLocaleDateString('es-MX', { weekday: 'short' });
+    return `${weekday} ${day}/${month}`;
+}
+
+function formatCitaHeader(cita) {
+    const fecha = cita.fecha_confirmada || (cita.fecha_hora ? cita.fecha_hora.split('T')[0] : null);
+    const hora = formatHora(cita.hora_confirmada || cita.fecha_hora);
+    if (!fecha) return hora;
+    return `${formatDateCompact(fecha)}, ${hora}`;
 }
 
 function formatCitaFecha(cita) {
     const fecha = cita.fecha_confirmada || (cita.fecha_hora ? cita.fecha_hora.split('T')[0] : null);
     if (!fecha) return 'Sin fecha';
-    return new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+    return formatDateCompact(fecha);
 }
 </script>
 
@@ -350,11 +361,11 @@ function formatCitaFecha(cita) {
                                 <font-awesome-icon :icon="isAtrasada(cita) ? 'triangle-exclamation' : getEstadoInfo(cita.estado).icon" class="text-2xl" />
                                 <div>
                                     <div class="font-bold flex items-center gap-2">
-                                        {{ formatHora(cita.hora_confirmada || cita.fecha_hora) }}
+                                        {{ formatCitaHeader(cita) }}
                                         <span v-if="isAtrasada(cita)" class="text-[10px] uppercase bg-red-600 text-white px-1.5 py-0.5 rounded">Atrasada</span>
                                     </div>
                                     <div :class="cita.estado === 'en_proceso' || cita.estado === 'completado' ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'" class="text-xs transition-colors">
-                                        {{ getTipoServicioLabel(cita.tipo_servicio) }} • <span :class="{'font-bold text-red-600 dark:text-red-400': isAtrasada(cita)}">{{ isAtrasada(cita) ? formatCitaFecha(cita) : cita.tipo_equipo || 'Minisplit' }}</span>
+                                        {{ getTipoServicioLabel(cita.tipo_servicio) }} • <span :class="{'font-bold text-red-600 dark:text-red-400': isAtrasada(cita)}">{{ cita.tipo_equipo || 'Minisplit' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -510,7 +521,7 @@ function formatCitaFecha(cita) {
                             class="p-4 flex items-center gap-3"
                         >
                             <div class="text-center">
-                                <div class="text-xs text-gray-400 dark:text-gray-500 transition-colors">{{ new Date(cita.fecha_confirmada || cita.fecha_hora).toLocaleDateString('es-MX', { weekday: 'short' }) }}</div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500 transition-colors">{{ formatDateCompact(cita.fecha_confirmada || cita.fecha_hora) }}</div>
                                 <div class="text-lg font-bold text-gray-900 dark:text-white transition-colors">{{ new Date(cita.fecha_confirmada || cita.fecha_hora).getDate() }}</div>
                             </div>
                             <div class="flex-1">
