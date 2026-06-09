@@ -20,7 +20,10 @@ use \OwenIt\Auditing\Auditable;
 
 class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, \App\Models\Concerns\BelongsToEmpresa, Auditable;
+    use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, \App\Models\Concerns\BelongsToEmpresa, Auditable {
+        HasTeams::teams insteadof HasRoles;
+        HasRoles::roles insteadof HasTeams;
+    }
 
     /**
      * The attributes that are mass assignable.
