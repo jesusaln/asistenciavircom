@@ -13,8 +13,8 @@ REMOTE_PATH="/root/asistenciavircom"
 STAGING_PATH="/root/asistenciavircom_staging"
 
 # Nombres de Contenedores
-CONTAINER_APP="asistenciavircom-queue-v3"
-CONTAINER_QUEUE="asistenciavircom-queue-v3"
+CONTAINER_APP="asistencia-app"
+CONTAINER_QUEUE="asistencia-app"
 
 echo "--------------------------------------------------------"
 echo "🚀 Iniciando Despliegue Atómico - ASISTENCIA VIRCOM..."
