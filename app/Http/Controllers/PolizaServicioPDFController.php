@@ -38,6 +38,7 @@ class PolizaServicioPDFController extends Controller
     public function contrato(PolizaServicio $polizaServicio)
     {
         $polizaServicio->load(['cliente', 'servicios', 'equipos']);
+        $equiposCliente = $polizaServicio->condiciones_especiales['equipos_cliente'] ?? [];
 
         $empresaId = EmpresaResolver::resolveId();
         $empresa = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
@@ -46,6 +47,7 @@ class PolizaServicioPDFController extends Controller
             'poliza' => $polizaServicio,
             'empresa' => $empresa,
             'fecha_generacion' => now()->format('d/m/Y H:i'),
+            'equiposCliente' => $equiposCliente,
         ];
 
         $pdf = Pdf::loadView('pdf.poliza-contrato', $data);
@@ -63,6 +65,7 @@ class PolizaServicioPDFController extends Controller
         $anio = $anio ?? now()->subMonth()->year;
 
         $polizaServicio->load(['cliente', 'equipos']);
+        $equiposCliente = $polizaServicio->condiciones_especiales['equipos_cliente'] ?? [];
 
         // Tickets del mes solicitado
         $tickets = $polizaServicio->tickets()
@@ -83,6 +86,7 @@ class PolizaServicioPDFController extends Controller
             'fecha_generacion' => now()->format('d/m/Y H:i'),
             'total_horas' => $tickets->sum('horas_trabajadas'),
             'tickets_resueltos' => $tickets->whereIn('estado', ['resuelto', 'cerrado'])->count(),
+            'equiposCliente' => $equiposCliente,
         ];
 
         $pdf = Pdf::loadView('pdf.poliza-reporte-mensual', $data);

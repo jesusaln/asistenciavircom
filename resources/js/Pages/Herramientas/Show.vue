@@ -1,7 +1,11 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link, router } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import useCompanyColors from '@/Composables/useCompanyColors'
+import Swal from '@/Utils/Swal'
+const { formatDateTime } = useFormatters();
 
 defineOptions({ layout: AppLayout })
 
@@ -11,6 +15,8 @@ const props = defineProps({
   historial_completo: { type: Array, default: () => [] },
 })
 
+const { colors, headerGradientStyle } = useCompanyColors()
+
 const showMantenimientoForm = ref(false)
 const fechaMantenimiento = ref(new Date().toISOString().split('T')[0])
 const costoMantenimiento = ref('')
@@ -19,34 +25,23 @@ const proximoMantenimientoDias = ref('')
 
 const formatDate = (date) => {
   if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('es-ES')
+  return new Date(date).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
-const formatDateTime = (date) => {
+const formatFechaHoraLocal = (date) => {
   if (!date) return 'N/A'
-  return new Date(date).toLocaleString('es-ES')
+  return new Date(date).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
-const getEstadoColor = (estado) => {
-  const colors = {
-    'disponible': 'bg-green-100 text-green-800',
-    'asignada': 'bg-blue-100 text-blue-800',
-    'mantenimiento': 'bg-yellow-100 text-yellow-800',
-    'baja': 'bg-red-100 text-red-800',
-    'perdida': 'bg-red-100 text-red-800',
+const getEstadoClase = (estado) => {
+  const classes = {
+    'disponible': 'bg-emerald-100 dark:bg-slate-800/30 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-slate-400 border-emerald-200 dark:border-emerald-800/30 dark:border-emerald-800/50',
+    'asignada': 'bg-blue-50 dark:bg-sky-900/20/30 text-sky-800 dark:text-sky-200 dark:text-blue-400 border-sky-200 dark:border-sky-800/30 dark:border-blue-800/50',
+    'mantenimiento': 'bg-brand-50 dark:bg-brand-900/20/30 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-brand-400 border-brand-200 dark:border-brand-800/30 dark:border-brand-800/50',
+    'baja': 'bg-rose-50 dark:bg-rose-900/20/30 text-rose-800 dark:text-rose-200 dark:text-rose-200 dark:text-rose-400 border-rose-200 dark:border-rose-800/30 dark:border-rose-800/50',
+    'perdida': 'bg-rose-50 dark:bg-rose-900/20/30 text-rose-800 dark:text-rose-200 dark:text-rose-200 dark:text-rose-400 border-rose-200 dark:border-rose-800/30 dark:border-rose-800/50',
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
-}
-
-const getEstadoLabel = (estado) => {
-  const labels = {
-    'disponible': 'Disponible',
-    'asignada': 'Asignada',
-    'mantenimiento': 'En Mantenimiento',
-    'baja': 'De Baja',
-    'perdida': 'Perdida',
-  }
-  return labels[estado] || estado
+  return classes[estado] || 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200'
 }
 
 const registrarMantenimiento = () => {
@@ -67,304 +62,274 @@ const registrarMantenimiento = () => {
   })
 }
 
-const cambiarEstado = (nuevoEstado) => {
-  if (confirm(`¿Estás seguro de cambiar el estado a "${getEstadoLabel(nuevoEstado)}"?`)) {
-    router.post(`/herramientas/${props.herramienta.id}/cambiar-estado`, {
-      estado: nuevoEstado,
-      observaciones: `Cambio desde vista de detalles`,
-    }, {
-      preserveScroll: true,
-    })
-  }
+const cambiarEstado = async (nuevoEstado) => {
+  const { isConfirmed } = await Swal.fire({ title: 'Confirmar', text: `¿Estás seguro de cambiar el estado a "${nuevoEstado}"?`, icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí', cancelButtonText: 'No' })
+  if (!isConfirmed) return
+  router.post(`/herramientas/${props.herramienta.id}/cambiar-estado`, {
+    estado: nuevoEstado,
+    observaciones: `Cambio desde vista de detalles`,
+  }, {
+    preserveScroll: true,
+  })
 }
 
 const estadisticasItems = computed(() => [
-  { label: 'Total de asignaciones', value: props.estadisticas.total_asignaciones || 0 },
-  { label: 'Asignaciones activas', value: props.estadisticas.asignaciones_activas || 0 },
-  { label: 'Promedio días de uso', value: `${props.estadisticas.promedio_dias_uso || 0} días` },
-  { label: 'Devoluciones por desgaste', value: props.estadisticas.devoluciones_por_desgaste || 0 },
-  { label: 'Devoluciones por daño', value: props.estadisticas.devoluciones_por_danio || 0 },
-  { label: 'Devoluciones por pérdida', value: props.estadisticas.devoluciones_por_perdida || 0 },
+  { label: 'Total asignaciones', value: props.estadisticas.total_asignaciones || 0, icon: '📋' },
+  { label: 'Uso promedio', value: `${props.estadisticas.promedio_dias_uso || 0}d`, icon: '⏳' },
+  { label: 'Mantenimientos', value: props.historial_completo.filter(h => h.tipo_accion === 'mantenimiento').length, icon: '🛠️' },
 ])
+
+const isDark = ref(false)
+let observer = null
+
+onMounted(() => {
+  isDark.value = document.documentElement.classList.contains('dark')
+  observer = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains('dark')
+  })
+  observer.observe(document.documentElement, { attributes: true })
+})
+
+onBeforeUnmount(() => { if (observer) observer.disconnect() })
 </script>
 
 <template>
   <Head :title="`Herramienta - ${props.herramienta.nombre}`" />
 
-  <div class="flex items-center justify-between mb-6">
-    <div class="flex items-center gap-4">
-      <Link href="/herramientas" class="text-blue-600 hover:underline">
-        ← Volver al listado
-      </Link>
-      <h1 class="text-3xl font-bold text-slate-900">{{ props.herramienta.nombre }}</h1>
-    </div>
-    <div class="flex gap-3">
-      <Link :href="`/herramientas/${props.herramienta.id}/estadisticas`" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-        Estadísticas
-      </Link>
-      <Link :href="`/herramientas/${props.herramienta.id}/edit`" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Editar
-      </Link>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Información principal -->
-    <div class="lg:col-span-2 space-y-6">
-      <!-- Información básica -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <h2 class="text-xl font-semibold mb-4">Información General</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-4">
-            <div>
-              <label class="text-sm font-medium text-gray-500">Número de Serie</label>
-              <p class="text-lg font-semibold">{{ props.herramienta.numero_serie || 'N/A' }}</p>
+  <div class="min-h-screen bg-[var(--ui-surface)] py-8 px-4 transition-colors duration-200">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Top Bar -->
+      <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <Link href="/herramientas" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </Link>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ props.herramienta.nombre }}</h1>
+              <span :class="[getEstadoClase(props.herramienta.estado), 'px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border shadow-sm']">
+                {{ props.herramienta.estado }}
+              </span>
             </div>
-            <div>
-              <label class="text-sm font-medium text-gray-500">Estado</label>
-              <div class="flex items-center gap-2 mt-1">
-                <span :class="['px-3 py-1 rounded-full text-sm font-medium', getEstadoColor(props.herramienta.estado)]">
-                  {{ getEstadoLabel(props.herramienta.estado) }}
-                </span>
-                <select @change="cambiarEstado($event.target.value)" class="text-sm border rounded px-2 py-1">
-                  <option value="">Cambiar estado</option>
-                  <option value="disponible">Disponible</option>
-                  <option value="asignada">Asignada</option>
-                  <option value="mantenimiento">En Mantenimiento</option>
-                  <option value="baja">De Baja</option>
-                  <option value="perdida">Perdida</option>
-                </select>
+            <p class="text-sm text-slate-500 dark:text-slate-400 font-mono tracking-tighter">Serie: {{ props.herramienta.numero_serie || 'SIN SERIE' }}</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <Link :href="`/herramientas/${props.herramienta.id}/edit`" class="px-6 py-2.5 bg-blue-600 text-white text-sm font-black uppercase tracking-wide rounded-xl hover:bg-blue-700 transition-all shadow-xl shadow-sky-200 dark:shadow-none active:scale-95">
+            Editar Equipo
+          </Link>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Columna Izquierda: Detalles e Imagen -->
+        <div class="lg:col-span-2 space-y-6">
+          
+          <!-- Card: Vista Previa y Descripción -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-200">
+            <div :style="headerGradientStyle" class="h-2 opacity-20"></div>
+            <div class="p-8 grid md:grid-cols-2 gap-8">
+              <div class="aspect-square rounded-2xl overflow-hidden bg-[var(--ui-surface)]/50 border border-slate-100 dark:border-slate-700 relative group">
+                <img v-if="props.herramienta.foto" :src="`/storage/${props.herramienta.foto}`" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div v-else class="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-4">
+                  <svg class="w-16 h-16 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                  <span class="text-[10px] font-black uppercase tracking-wide opacity-50">Sin Imagen Disponible</span>
+                </div>
+              </div>
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">Categoría</label>
+                  <p class="text-lg font-bold text-slate-900 dark:text-white">{{ props.herramienta.categoria_herramienta?.nombre || 'General' }}</p>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">Descripción del Equipo</label>
+                  <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed italic">{{ props.herramienta.descripcion || '— Sin descripción proporcionada —' }}</p>
+                </div>
+                <div class="pt-4 grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Costo Reemplazo</label>
+                    <p class="text-base font-black text-slate-900 dark:text-white">${{ props.herramienta.costo_reemplazo || '0.00' }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Días de Ciclo</label>
+                    <p class="text-base font-black text-slate-900 dark:text-white">{{ props.herramienta.dias_para_mantenimiento || '—' }}</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              <label class="text-sm font-medium text-gray-500">Categoría</label>
-              <p class="text-lg">{{ props.herramienta.categoria_herramienta?.nombre || 'Sin categoría' }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-gray-500">Fecha de Creación</label>
-              <p class="text-lg">{{ formatDate(props.herramienta.created_at) }}</p>
-            </div>
           </div>
-          <div class="space-y-4">
-            <div>
-              <label class="text-sm font-medium text-gray-500">Foto</label>
-              <div class="mt-2">
-                <img v-if="props.herramienta.foto"
-                     :src="`/storage/${props.herramienta.foto}`"
-                     alt="Foto de la herramienta"
-                     class="w-full max-w-sm h-48 object-cover rounded-lg border" />
-                <div v-else class="w-full max-w-sm h-48 bg-gray-100 rounded-lg border flex items-center justify-center">
-                  <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                  </svg>
+
+          <!-- Card: Mantenimiento -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 transition-all duration-200">
+            <div class="flex items-center justify-between mb-8">
+              <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
+                <span class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/20/30 flex items-center justify-center text-brand-600 dark:text-brand-400 italic">M</span>
+                Control de Mantenimiento
+              </h2>
+              <button @click="showMantenimientoForm = !showMantenimientoForm" :class="showMantenimientoForm ? 'bg-brand-500' : 'bg-emerald-600'" class="px-4 py-2 text-[10px] font-black text-white uppercase tracking-wide rounded-xl transition-all active:scale-95 shadow-xl">
+                {{ showMantenimientoForm ? 'Cancelar' : 'Registrar Servicio' }}
+              </button>
+            </div>
+
+            <!-- Formulario Animado -->
+            <Transition name="fade">
+              <div v-if="showMantenimientoForm" class="mb-8 p-6 bg-[var(--ui-surface)]/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 ml-1">Fecha</label>
+                    <input v-model="fechaMantenimiento" type="date" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 ml-1">Costo ($)</label>
+                    <input v-model="costoMantenimiento" type="number" placeholder="0.00" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 ml-1">Próximo en (días)</label>
+                    <input v-model="proximoMantenimientoDias" type="number" placeholder="90" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm" />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 ml-1">Descripción de los trabajos</label>
+                  <textarea v-model="descripcionMantenimiento" rows="3" class="w-full px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm" placeholder="Limpieza, cambio de carbones, lubricación..."></textarea>
+                </div>
+                <button @click="registrarMantenimiento" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black uppercase tracking-wide text-[10px] shadow-xl shadow-sky-200 dark:shadow-none active:scale-95 transition-all">Guardar Registro de Mantenimiento</button>
+              </div>
+            </Transition>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="p-6 bg-[var(--ui-surface)]/50 rounded-3xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">Días desde el último</p>
+                <p class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ props.herramienta.dias_desde_ultimo_mantenimiento || 0 }}</p>
+                <p class="text-[10px] text-slate-500 mt-1 italic">{{ formatDate(props.herramienta.fecha_ultimo_mantenimiento) }}</p>
+              </div>
+              <div class="p-6 bg-[var(--ui-surface)]/50 rounded-3xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">Días restantes</p>
+                <p :class="props.herramienta.dias_para_proximo_mantenimiento < 10 ? 'text-rose-500' : 'text-brand-500'" class="text-2xl font-black">{{ props.herramienta.dias_para_proximo_mantenimiento || 0 }}</p>
+                <p class="text-[10px] text-slate-500 mt-1 italic">Ciclo de {{ props.herramienta.dias_para_mantenimiento || '—' }} días</p>
+              </div>
+              <div class="p-6 bg-[var(--ui-surface)]/50 rounded-3xl border border-slate-100 dark:border-slate-700/50 text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wide mb-1">Uso de Vida Útil</p>
+                <p class="text-2xl font-black text-purple-600 dark:text-purple-400">{{ props.herramienta.porcentaje_vida_util || 0 }}%</p>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                  <div class="bg-purple-500 h-full transition-all duration-700" :style="{ width: `${props.herramienta.porcentaje_vida_util || 0}%` }"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="mt-6">
-          <label class="text-sm font-medium text-gray-500">Descripción</label>
-          <p class="mt-1 text-gray-900 whitespace-pre-wrap">{{ props.herramienta.descripcion || 'No hay descripción disponible' }}</p>
-        </div>
-      </div>
 
-      <!-- Información de mantenimiento -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold">Información de Mantenimiento</h2>
-          <button @click="showMantenimientoForm = !showMantenimientoForm" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            {{ showMantenimientoForm ? 'Cancelar' : 'Registrar Mantenimiento' }}
-          </button>
-        </div>
-
-        <!-- Formulario de mantenimiento -->
-        <div v-if="showMantenimientoForm" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-          <h3 class="font-medium text-green-800 mb-3">Nuevo Registro de Mantenimiento</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Mantenimiento</label>
-              <input v-model="fechaMantenimiento" type="date" class="w-full border rounded px-3 py-2" />
+        <!-- Columna Derecha: Estado y Asignación -->
+        <div class="space-y-6">
+          
+          <!-- Card: Asignación Activa -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 transition-all duration-200 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+            <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide mb-6 flex items-center gap-2">
+              <span class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-sky-900/20/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">@</span>
+              Custodia Actual
+            </h2>
+            
+            <div v-if="props.herramienta.tecnico?.nombre" class="space-y-6">
+              <div class="flex items-center gap-4 p-4 bg-sky-50 dark:bg-sky-900/20 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/50">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl font-black shadow-xl shadow-sky-200 dark:shadow-none">{{ props.herramienta.tecnico.nombre.charAt(0) }}</div>
+                <div>
+                  <p class="text-sm font-black text-slate-900 dark:text-white">{{ props.herramienta.tecnico.nombre }}</p>
+                  <p class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wide">Técnico Autorizado</p>
+                </div>
+              </div>
+              <div class="space-y-3 px-1">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-500 font-medium">Asignado:</span>
+                  <span class="text-slate-900 dark:text-slate-200 font-bold">{{ formatDate(props.herramienta.fecha_asignacion) }}</span>
+                </div>
+                <div v-if="props.herramienta.fecha_recepcion" class="flex justify-between items-center text-xs">
+                  <span class="text-slate-500 font-medium">Última entrega:</span>
+                  <span class="text-slate-900 dark:text-slate-200 font-bold">{{ formatDate(props.herramienta.fecha_recepcion) }}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Costo</label>
-              <input v-model="costoMantenimiento" type="number" step="0.01" placeholder="0.00" class="w-full border rounded px-3 py-2" />
-            </div>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Próximo Mantenimiento (días)</label>
-            <input v-model="proximoMantenimientoDias" type="number" placeholder="90" class="w-full border rounded px-3 py-2" />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción del Mantenimiento</label>
-            <textarea v-model="descripcionMantenimiento" rows="3" placeholder="Describe el mantenimiento realizado..." class="w-full border rounded px-3 py-2"></textarea>
-          </div>
-          <button @click="registrarMantenimiento" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            Guardar Mantenimiento
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="text-center p-4 bg-white rounded-lg">
-            <div class="text-2xl font-bold text-blue-600">{{ props.herramienta.dias_desde_ultimo_mantenimiento || 0 }}</div>
-            <div class="text-sm text-gray-600">Días desde último mantenimiento</div>
-          </div>
-          <div class="text-center p-4 bg-white rounded-lg">
-            <div class="text-2xl font-bold text-orange-600">{{ props.herramienta.dias_para_proximo_mantenimiento || 0 }}</div>
-            <div class="text-sm text-gray-600">Días para próximo mantenimiento</div>
-          </div>
-          <div class="text-center p-4 bg-white rounded-lg">
-            <div class="text-2xl font-bold text-purple-600">{{ props.herramienta.porcentaje_vida_util || 0 }}%</div>
-            <div class="text-sm text-gray-600">Vida útil utilizada</div>
-          </div>
-        </div>
-
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="text-sm font-medium text-gray-500">Último Mantenimiento</label>
-            <p class="text-lg">{{ formatDate(props.herramienta.fecha_ultimo_mantenimiento) }}</p>
-          </div>
-          <div>
-            <label class="text-sm font-medium text-gray-500">Requiere Mantenimiento</label>
-            <p class="text-lg">
-              <span v-if="props.herramienta.requiere_mantenimiento" class="text-red-600 font-medium">Sí</span>
-              <span v-else class="text-green-600 font-medium">No</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Información de asignación -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <h2 class="text-xl font-semibold mb-4">Información de Asignación</h2>
-        <div v-if="props.herramienta.tecnico?.nombre" class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-gray-600">Técnico asignado:</span>
-            <span class="font-medium">{{ props.herramienta.tecnico.nombre }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Fecha de asignación:</span>
-            <span class="font-medium">{{ formatDate(props.herramienta.fecha_asignacion) }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Fecha de recepción:</span>
-            <span class="font-medium">{{ formatDate(props.herramienta.fecha_recepcion) || 'No recibida' }}</span>
-          </div>
-        </div>
-        <div v-else class="text-center py-8 text-gray-500">
-          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-          </svg>
-          <p>No hay asignación activa</p>
-        </div>
-      </div>
-
-      <!-- Estadísticas básicas -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <h2 class="text-xl font-semibold mb-4">Estadísticas de Uso</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div v-for="stat in estadisticasItems" :key="stat.label" class="text-center p-3 bg-white rounded-lg">
-            <div class="text-xl font-bold text-blue-600">{{ stat.value }}</div>
-            <div class="text-sm text-gray-600">{{ stat.label }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel lateral -->
-    <div class="space-y-6">
-      <!-- Acciones rápidas -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <h3 class="text-lg font-semibold mb-4">Acciones Rápidas</h3>
-        <div class="space-y-3">
-          <button @click="showMantenimientoForm = !showMantenimientoForm" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            Registrar Mantenimiento
-          </button>
-          <Link href="/herramientas-mantenimiento" class="block w-full px-4 py-2 bg-orange-600 text-white text-center rounded-lg hover:bg-orange-700">
-            Ver Mantenimiento
-          </Link>
-          <Link href="/herramientas-alertas" class="block w-full px-4 py-2 bg-red-600 text-white text-center rounded-lg hover:bg-red-700">
-            Ver Alertas
-          </Link>
-        </div>
-      </div>
-
-      <!-- Información técnica -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <h3 class="text-lg font-semibold mb-4">Especificaciones Técnicas</h3>
-        <div class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-gray-600">Vida útil (meses):</span>
-            <span class="font-medium">{{ props.herramienta.vida_util_meses || 'N/A' }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Costo de reemplazo:</span>
-            <span class="font-medium">${{ props.herramienta.costo_reemplazo || 'N/A' }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Próxima a vencer vida útil:</span>
-            <span class="font-medium">
-              <span v-if="props.herramienta.vida_util_proxima_a_vencer" class="text-red-600">Sí</span>
-              <span v-else class="text-green-600">No</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estado de alertas -->
-      <div class="bg-white rounded-lg shadow-sm border p-6">
-        <h3 class="text-lg font-semibold mb-4">Estado de Alertas</h3>
-        <div class="space-y-3">
-          <div v-if="props.herramienta.necesita_mantenimiento" class="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-              </svg>
-              <span class="text-sm font-medium text-red-800">Requiere mantenimiento urgente</span>
+            <div v-else class="py-10 text-center space-y-6">
+              <div class="w-16 h-16 bg-[var(--ui-surface)]/50 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              </div>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Sin Asignación Activa</p>
             </div>
           </div>
-          <div v-if="props.herramienta.vida_util_proxima_a_vencer" class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span class="text-sm font-medium text-yellow-800">Próxima a vencer vida útil</span>
+
+          <!-- Card: Acciones de Estado -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 transition-all duration-200">
+            <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide mb-6">Control de Estado</h2>
+            <div class="grid grid-cols-2 gap-2">
+              <button v-for="est in ['disponible', 'mantenimiento', 'baja', 'perdida']" :key="est" @click="cambiarEstado(est)" :class="props.herramienta.estado === est ? 'bg-blue-600 text-white border-blue-600 shadow-xl' : 'bg-[var(--ui-surface)] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100'" class="py-3 px-2 rounded-xl border text-[10px] font-black uppercase tracking-wide transition-all active:scale-95">
+                {{ est }}
+              </button>
             </div>
           </div>
-          <div v-if="!props.herramienta.necesita_mantenimiento && !props.herramienta.vida_util_proxima_a_vencer" class="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span class="text-sm font-medium text-green-800">Estado normal</span>
+
+          <!-- Card: Estadísticas Rápidas -->
+          <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 transition-all duration-200">
+            <div class="space-y-6">
+              <div v-for="item in estadisticasItems" :key="item.label" class="flex items-center justify-between group">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl group-hover:scale-125 transition-transform duration-200">{{ item.icon }}</span>
+                  <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ item.label }}</span>
+                </div>
+                <span class="text-lg font-black text-slate-900 dark:text-white">{{ item.value }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Historial reciente (si está disponible) -->
-  <div v-if="historial_completo && historial_completo.length > 0" class="mt-6 bg-white rounded-lg shadow-sm border p-6">
-    <h2 class="text-xl font-semibold mb-4">Historial Reciente</h2>
-    <div class="space-y-3">
-      <div v-for="registro in historial_completo.slice(0, 5)" :key="registro.id" class="flex items-center justify-between p-3 bg-white rounded-lg">
-        <div>
-          <div class="font-medium">{{ registro.tipo_accion }}</div>
-          <div class="text-sm text-gray-600">{{ formatDateTime(registro.fecha_accion) }}</div>
-          <div v-if="registro.descripcion" class="text-sm text-gray-500">{{ registro.descripcion }}</div>
+      <!-- Sección Historial Moderno -->
+      <div v-if="historial_completo && historial_completo.length > 0" class="mt-8 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-200">
+        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-black/50">
+          <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">Línea de Tiempo / Historial</h2>
+          <span class="px-3 py-1 bg-blue-50 dark:bg-sky-900/20/30 text-blue-600 dark:text-blue-400 rounded-full text-[10px] font-bold uppercase tracking-wide">{{ historial_completo.length }} Eventos</span>
         </div>
-        <div class="text-right">
-          <div v-if="registro.costo" class="font-medium">${{ registro.costo }}</div>
-          <div v-if="registro.usuario" class="text-sm text-gray-500">{{ registro.usuario.nombre }}</div>
+        <div class="divide-y divide-slate-50 dark:divide-slate-700">
+          <div v-for="registro in historial_completo.slice(0, 10)" :key="registro.id" class="p-6 hover:bg-slate-50/20 dark:hover:bg-blue-900/10 transition-colors group">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg shadow-sm group-hover:bg-sky-100 dark:group-hover:bg-blue-900/40 transition-colors">
+                  <span v-if="registro.tipo_accion === 'mantenimiento'">🛠️</span>
+                  <span v-else-if="registro.tipo_accion === 'asignacion'">📦</span>
+                  <span v-else-if="registro.tipo_accion === 'devolucion'">🔄</span>
+                  <span v-else>📝</span>
+                </div>
+                <div>
+                  <p class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">{{ registro.tipo_accion }}</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed italic">{{ registro.descripcion || 'Sin observaciones' }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6 md:text-right">
+                <div v-if="registro.costo" class="text-sm font-black text-emerald-600 dark:text-slate-400">
+                  <span class="text-[9px] text-slate-400 uppercase mr-1">Costo:</span> ${{ registro.costo }}
+                </div>
+                <div class="text-right">
+                  <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wide">{{ formatFechaHoraLocal(registro.fecha_accion) }}</p>
+                  <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">{{ registro.usuario?.nombre || 'SISTEMA' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 bg-[var(--ui-surface)]/50 text-center">
+          <Link :href="`/herramientas/${props.herramienta.id}/estadisticas`" class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wide hover:underline">Ver Historial Completo y Gráficos de Rendimiento →</Link>
         </div>
       </div>
-    </div>
-    <div class="mt-4 text-center">
-      <Link :href="`/herramientas/${props.herramienta.id}/estadisticas`" class="text-blue-600 hover:underline">
-        Ver historial completo →
-      </Link>
+
     </div>
   </div>
 </template>
 
-
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.4s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

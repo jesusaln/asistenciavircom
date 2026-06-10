@@ -99,7 +99,7 @@ class UserNotification extends Model
     // Métodos estáticos para crear notificaciones
     public static function createForUser(int $userId, string $type, string $title, ?string $message = null, ?array $data = [], ?string $actionUrl = null, ?string $icon = null): static
     {
-        return static::create([
+        $notification = static::create([
             'user_id' => $userId,
             'type' => $type,
             'title' => $title,
@@ -108,6 +108,14 @@ class UserNotification extends Model
             'action_url' => $actionUrl,
             'icon' => $icon,
         ]);
+
+        try {
+            event(new \App\Events\UserNotificationCreated($notification));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error broadcasting UserNotificationCreated: ' . $e->getMessage());
+        }
+
+        return $notification;
     }
 
     public static function createClientNotification($cliente): void
@@ -124,7 +132,7 @@ class UserNotification extends Model
                     'client_id' => $cliente->id,
                     'client_name' => $cliente->nombre_razon_social,
                     'client_email' => $cliente->email,
-                    'created_at' => $cliente->created_at->toISOString()
+                    'created_at' => $cliente->created_at->toIso8601String()
                 ],
                 "/clientes/{$cliente->id}",
                 'fas fa-user-plus'
@@ -179,14 +187,14 @@ class UserNotification extends Model
 
     public static function createSolicitudMaterialNotification($solicitud): void
     {
-        // Notificar a todos los administradores de la misma empresa
-        $admins = User::role(['admin', 'super-admin'])
+        // Notificar al personal de compras de la misma empresa
+        $users = User::role(['compras'])
             ->where('empresa_id', $solicitud->empresa_id)
             ->get();
 
-        foreach ($admins as $admin) {
+        foreach ($users as $user) {
             static::createForUser(
-                $admin->id,
+                $user->id,
                 'solicitud_material',
                 'Nueva Solicitud de Material',
                 "El técnico {$solicitud->user->name} ha solicitado material (Folio: {$solicitud->folio})",
@@ -200,4 +208,101 @@ class UserNotification extends Model
             );
         }
     }
+
+    public static function createTallerNotification($orden, $tipo = 'proxima_entrega'): void
+    {
+        $admins = User::role(['admin', 'super-admin'])
+            ->where('empresa_id', $orden->empresa_id)
+            ->get();
+
+        $title = $tipo === 'proxima_entrega' ? 'Próxima Entrega de Taller' : 'Entrega Atrasada de Taller';
+        $icon = $tipo === 'proxima_entrega' ? 'fas fa-clock' : 'fas fa-exclamation-triangle';
+        $message = "La orden {$orden->folio} ({$orden->equipo_marca}) debe entregarse el {$orden->fecha_compromiso->format('d/m/Y')}";
+
+        foreach ($admins as $admin) {
+            // Evitar duplicados recientes
+            $exists = static::where('user_id', $admin->id)
+                ->where('type', 'taller_alert')
+                ->where('data->orden_id', $orden->id)
+                ->where('created_at', '>', now()->subDay())
+                ->exists();
+
+            if (!$exists) {
+                static::createForUser(
+                    $admin->id,
+                    'taller_alert',
+                    $title,
+                    $message,
+                    [
+                        'orden_id' => $orden->id,
+                        'folio' => $orden->folio,
+                        'tipo' => $tipo
+                    ],
+                    "/taller/{$orden->id}",
+                    $icon
+                );
+            }
+        }
+    }
+
+    public static function createNom035Notification($empresaId, $type, $title, $message, $actionUrl = "/nom035"): void
+    {
+        $admins = User::role(['admin', 'super-admin'])
+            ->where('empresa_id', $empresaId)
+            ->get();
+
+        foreach ($admins as $admin) {
+            // Evitar duplicados recientes (últimas 24 horas para el mismo tipo de alerta)
+            $exists = static::where('user_id', $admin->id)
+                ->where('type', 'nom035_alert')
+                ->where('data->alert_type', $type)
+                ->where('created_at', '>', now()->subDay())
+                ->exists();
+
+            if (!$exists) {
+                static::createForUser(
+                    $admin->id,
+                    'nom035_alert',
+                    $title,
+                    $message,
+                    [
+                        'alert_type' => $type,
+                        'empresa_id' => $empresaId
+                    ],
+                    $actionUrl,
+                    'fas fa-shield-halved'
+                );
+            }
+        }
+    }
+
+    public static function createFacturaSolicitudNotification($cliente, $venta): void
+    {
+        $admins = User::role(['admin', 'super-admin'])
+            ->where('empresa_id', $venta->empresa_id)
+            ->get();
+
+        if ($admins->isEmpty()) {
+            $admins = User::where('empresa_id', $venta->empresa_id)->get();
+        }
+
+        foreach ($admins as $admin) {
+            static::createForUser(
+                $admin->id,
+                'solicitud_factura',
+                'Solicitud de Factura Recibida',
+                "El cliente {$cliente->nombre_razon_social} solicita facturar el ticket {$venta->numero_venta}.",
+                [
+                    'client_id' => $cliente->id,
+                    'client_name' => $cliente->nombre_razon_social,
+                    'venta_id' => $venta->id,
+                    'numero_venta' => $venta->numero_venta,
+                    'rfc' => $cliente->rfc
+                ],
+                "/ventas/{$venta->id}",
+                'fas fa-file-invoice-dollar'
+            );
+        }
+    }
 }
+

@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 
 class SolicitudMaterialItem extends Model
 {
+    use BelongsToEmpresa;
+
     protected $table = 'solicitud_material_items';
 
     protected $fillable = [

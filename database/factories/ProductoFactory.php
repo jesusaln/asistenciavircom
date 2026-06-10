@@ -17,7 +17,7 @@ class ProductoFactory extends Factory
     {
         return [
             'nombre' => $this->faker->words(3, true),
-            'descripcion' => $this->faker->paragraph(),
+            'descripcion' => $this->faker->text(200),
             'codigo' => $this->faker->unique()->numerify('PROD-###'),
             'codigo_barras' => $this->faker->unique()->ean13(),
             'numero_serie' => $this->faker->optional()->bothify('SN#####'),

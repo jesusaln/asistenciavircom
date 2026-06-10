@@ -340,7 +340,7 @@
 
     <div class="footer">
         Este documento es una representación impresa de un CFDI de Pagos (Versión 4.0).<br>
-        <strong>Gracias por su preferencia - Asistencia Vircom</strong>
+        <strong>Gracias por su preferencia - Climas del Desierto</strong>
     </div>
 </body>
 

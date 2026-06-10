@@ -207,6 +207,10 @@ export function useDebouncedCleanup(delay = 300) {
         }
     }
 
+    if (getCurrentInstance()) {
+        onUnmounted(() => cancelPending());
+    }
+
     return {
         ...cleanup,
         delayedCleanup,

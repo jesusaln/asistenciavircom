@@ -1,0 +1,24 @@
+# Reporte de Archivos Potencialmente Huérfanos
+## Archivos Vue sin referencias encontradas en resources/js o controllers
+- [ ] resources/js/Pages/TermsOfService.vue
+- [ ] resources/js/Pages/Auth/VerifyEmail.vue
+- [ ] resources/js/Pages/Auth/TwoFactorChallenge.vue
+- [ ] resources/js/Pages/Auth/ConfirmPassword.vue
+- [ ] resources/js/Pages/EmpresaConfiguracion/Partials/PaymentConfig.vue
+- [ ] resources/js/Components/Modals/ServicioModal.vue
+- [ ] resources/js/Components/Modals/CrearProveedorModal.vue
+- [ ] resources/js/Components/Modals/ModalHerramientas.vue
+- [ ] resources/js/Components/Modals/ModalCarro.vue
+- [ ] resources/js/Components/DashboardCard.vue
+- [ ] resources/js/Components/ApplicationMark.vue
+- [ ] resources/js/Components/CitaModal.vue
+- [ ] resources/js/Components/DatePicker.vue
+- [ ] resources/js/Components/ConfirmDialog.vue
+- [ ] resources/js/Components/SmartImage.vue
+- [ ] resources/js/Components/LogoUploader.vue
+- [ ] resources/js/Components/EmpresaModal.vue
+- [ ] resources/js/Components/IndexComponents/CobranzaHeader.vue
+- [ ] resources/js/Components/IndexComponents/PedidosTable.vue
+- [ ] resources/js/Components/DropdownLink.vue
+- [ ] resources/js/Components/SelectInput.vue
+- [ ] resources/js/Components/ResponsiveNavLink.vue

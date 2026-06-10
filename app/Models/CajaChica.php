@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 
 class CajaChica extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'caja_chica';
@@ -23,6 +25,7 @@ class CajaChica extends Model
         'nota',
         'comprobante_path',
         'user_id',
+        'compra_id',
     ];
 
     protected $casts = [

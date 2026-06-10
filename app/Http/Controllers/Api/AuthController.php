@@ -9,9 +9,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Traits\ApiResponse;
+use App\Services\Mantenimiento\MantenimientoStatsService;
+use App\Models\Mantenimiento;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
     /**
      * Login de usuario
      *
@@ -25,7 +29,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::withoutGlobalScope('empresa')->whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
 
         // LOG DE DIAGNÓSTICO
         Log::info('Login attempt', [
@@ -36,18 +40,12 @@ class AuthController extends Controller
         ]);
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Credenciales incorrectas'
-            ], 401);
+            return $this->unauthorized('Credenciales incorrectas');
         }
 
         // Verificar que el usuario esté activo
         if (!$user->activo) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Usuario inactivo. Contacte al administrador.'
-            ], 403);
+            return $this->forbidden('Usuario inactivo. Contacte al administrador.');
         }
 
         // Obtener nombre del dispositivo o usar default
@@ -65,27 +63,30 @@ class AuthController extends Controller
             'email' => $user->email,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login exitoso',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'profile_photo_url' => $user->profile_photo_url,
-                    'activo' => $user->activo,
-                    'es_empleado' => $user->es_empleado,
-                    'roles' => $roles,
-                    'permissions' => $permissions,
-                    'puesto' => $user->puesto,
-                    'departamento' => $user->departamento,
-                    'almacen_venta_id' => $user->almacen_venta_id,
-                    'almacen_compra_id' => $user->almacen_compra_id,
-                ],
-                'token' => $token
-            ]
-        ]);
+        return $this->success([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'profile_photo_url' => $user->profile_photo_url,
+                'activo' => $user->activo,
+                'es_empleado' => $user->es_empleado,
+                'es_tecnico' => (bool) $user->es_tecnico,
+                'es_vendedor' => (bool) $user->es_vendedor,
+                'roles' => $roles,
+                'permissions' => $permissions,
+                'puesto' => $user->puesto,
+                'departamento' => $user->departamento,
+                'almacen_venta_id' => $user->almacen_venta_id,
+                'almacen_compra_id' => $user->almacen_compra_id,
+                'carro' => $user->carro ? $user->carro->load(['mantenimientos' => function($q) {
+                    // Cargar el último completado y el próximo pendiente
+                    $q->orderBy('fecha', 'desc')->limit(5);
+                }]) : null,
+                'carro_salud' => $this->getSaludVehiculo($user),
+            ],
+            'token' => $token
+        ], 'Login exitoso');
     }
 
     /**
@@ -96,17 +97,33 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // Eliminar el token actual
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
 
-        Log::info('Usuario cerró sesión vía API', [
-            'user_id' => $request->user()->id,
-        ]);
+        try {
+            if ($request->boolean('all_devices')) {
+                // Revocar todos los tokens (Cerrar sesión en todos los dispositivos)
+                $user->tokens()->delete();
+                Log::info('Usuario cerró sesión en TODOS los dispositivos vía API', ['user_id' => $user->id]);
+            } else {
+                // Eliminar solo el token actual de Sanctum (si es un token real, no TransientToken)
+                $token = $user->currentAccessToken();
+                if ($token && method_exists($token, 'delete')) {
+                    $token->delete();
+                }
+                Log::info('Usuario cerró sesión vía API', ['user_id' => $user->id]);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout exitoso'
-        ]);
+            // Limpiar el token de FCM
+            $user->fcm_token = null;
+            $user->save();
+        } catch (\Exception $e) {
+            Log::warning('Error en base de datos durante logout, procediendo con respuesta exitosa', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return $this->success(null, 'Logout exitoso');
     }
 
     /**
@@ -123,22 +140,26 @@ class AuthController extends Controller
         $roles = $user->getRoleNames();
         $permissions = $user->getAllPermissions()->pluck('name');
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'profile_photo_url' => $user->profile_photo_url,
-                'activo' => $user->activo,
-                'es_empleado' => $user->es_empleado,
-                'roles' => $roles,
-                'permissions' => $permissions,
-                'puesto' => $user->puesto,
-                'departamento' => $user->departamento,
-                'almacen_venta_id' => $user->almacen_venta_id,
-                'almacen_compra_id' => $user->almacen_compra_id,
-            ]
+        return $this->success([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'profile_photo_url' => $user->profile_photo_url,
+            'activo' => $user->activo,
+            'es_empleado' => $user->es_empleado,
+            'es_tecnico' => (bool) $user->es_tecnico,
+            'es_vendedor' => (bool) $user->es_vendedor,
+            'roles' => $roles,
+            'permissions' => $permissions,
+            'puesto' => $user->puesto,
+            'departamento' => $user->departamento,
+            'almacen_venta_id' => $user->almacen_venta_id,
+            'almacen_compra_id' => $user->almacen_compra_id,
+            'carro' => $user->carro ? $user->carro->load(['mantenimientos' => function($q) {
+                // Cargar el último completado y el próximo pendiente
+                $q->orderBy('fecha', 'desc')->limit(5);
+            }]) : null,
+            'carro_salud' => $this->getSaludVehiculo($user),
         ]);
     }
 
@@ -156,12 +177,70 @@ class AuthController extends Controller
         // Crear nuevo token
         $token = $request->user()->createToken('mobile-app')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Token renovado',
-            'data' => [
-                'token' => $token
-            ]
+        return $this->success([
+            'token' => $token
+        ], 'Token renovado');
+    }
+
+    /**
+     * Actualizar el token de FCM para notificaciones push
+     */
+    public function updateFcmToken(Request $request): JsonResponse
+    {
+        $request->validate([
+            'fcm_token' => 'required|string'
         ]);
+
+        $user = $request->user();
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        Log::info('FCM Token actualizado para usuario: ' . $user->id);
+
+        return $this->success(null, 'Token de notificaciones actualizado');
+    }
+
+    /**
+     * Obtener la salud del vehículo asignado al usuario
+     */
+    private function getSaludVehiculo(User $user): ?array
+    {
+        if (!$user->carro_id) return null;
+
+        $statsService = app(MantenimientoStatsService::class);
+        $proximo = Mantenimiento::where('carro_id', $user->carro_id)
+            ->where('estado', '!=', Mantenimiento::ESTADO_COMPLETADO)
+            ->orderBy('proximo_mantenimiento', 'asc')
+            ->first();
+
+        if (!$proximo) {
+            // Verificar si alguna vez ha tenido mantenimiento
+            $tieneHistorial = Mantenimiento::where('carro_id', $user->carro_id)->exists();
+
+            if (!$tieneHistorial) {
+                return [
+                    'estado' => 'vencido',
+                    'descripcion' => 'Requiere registro de servicio',
+                    'clase' => 'text-red-700 bg-red-100',
+                    'nivel' => 'danger'
+                ];
+            }
+
+            return [
+                'estado' => 'al_dia',
+                'descripcion' => 'Vehículo al día',
+                'clase' => 'text-green-700 bg-green-100',
+                'nivel' => 'good'
+            ];
+        }
+
+        $metadata = $statsService->getEstadoMetadata($proximo);
+        
+        // Mapear el estado a un nivel para la App
+        $nivel = 'good';
+        if ($metadata['estado'] === 'vencido') $nivel = 'danger';
+        elseif ($metadata['estado'] === 'por_vencer') $nivel = 'warning';
+
+        return array_merge($metadata, ['nivel' => $nivel]);
     }
 }

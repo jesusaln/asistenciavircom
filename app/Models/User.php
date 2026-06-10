@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
+use Carbon\Carbon;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,15 +16,17 @@ use App\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\UrlHelper;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 use \OwenIt\Auditing\Auditable;
 
 class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, \App\Models\Concerns\BelongsToEmpresa, Auditable {
+    use BelongsToEmpresa;
+
+    use HasApiTokens, Notifiable, HasRoles, HasFactory, HasProfilePhoto, HasTeams, TwoFactorAuthenticatable, Auditable, SoftDeletes {
         HasTeams::teams insteadof HasRoles;
-        HasRoles::roles insteadof HasTeams;
     }
 
     /**
@@ -70,6 +74,19 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
         'hora_salida_sabado',
         'frecuencia_pago',
         'contrato_adjunto',
+        'carro_id',
+        // Campos técnicos de Nómina (Timbrado)
+        'tipo_regimen',
+        'riesgo_puesto',
+        'salario_diario_integrado',
+        'salario_base_cotizacion',
+        'clave_ent_fed',
+        'registro_patronal',
+        'sindicalizado',
+        'empresas_acceso',
+        'latitud',
+        'longitud',
+        'ultima_fecha_gps',
     ];
 
     /**
@@ -82,8 +99,6 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
-        'microsoft_token',
-        'microsoft_refresh_token',
     ];
 
     /**
@@ -93,16 +108,12 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
      */
     protected $appends = [
         'profile_photo_url',
-        'has_microsoft_token',
+        'dias_vacaciones_disponibles',
+        'domicilio_actual',
+        'cita_actual',
     ];
 
-    /**
-     * Get if the user has a microsoft token linked.
-     */
-    public function getHasMicrosoftTokenAttribute(): bool
-    {
-        return !empty($this->microsoft_token);
-    }
+
 
 
     /**
@@ -130,9 +141,15 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
             'comision_instalacion' => 'decimal:2',
             'trabaja_sabado' => 'boolean',
             'horas_jornada' => 'integer',
-            // Seguridad: Cifrar tokens de terceros (Fix #702)
-            'microsoft_token' => 'encrypted',
-            'microsoft_refresh_token' => 'encrypted',
+            // Campos técnicos de Nómina
+            'salario_diario_integrado' => 'decimal:4',
+            'salario_base_cotizacion' => 'decimal:4',
+            'sindicalizado' => 'boolean',
+            'login_code_expires_at' => 'datetime',
+            'login_code_verified_at' => 'datetime',
+            'latitud' => 'decimal:8',
+            'longitud' => 'decimal:8',
+            'ultima_fecha_gps' => 'datetime',
         ];
     }
 
@@ -256,6 +273,12 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
         return $this->hasOne(RegistroVacaciones::class)->where('anio', now()->year);
     }
 
+    // Contratos y adendas legales
+    public function contratos()
+    {
+        return $this->hasMany(Contrato::class);
+    }
+
     // Ganancia total de todas las ventas realizadas por este usuario
     public function getGananciaTotalAttribute()
     {
@@ -273,15 +296,16 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
         if (!$this->fecha_nacimiento) {
             return null;
         }
-        return now()->diffInYears($this->fecha_nacimiento);
+        return (int) now()->diffInYears($this->fecha_nacimiento);
     }
 
     public function getAntiguedadAttribute()
     {
         if (!$this->fecha_contratacion) {
-            return null;
+            return 0;
         }
-        return now()->diffInYears($this->fecha_contratacion);
+        // Asegurar que sea un entero positivo (años cumplidos)
+        return (int) abs(now()->diffInYears($this->fecha_contratacion));
     }
 
     // Días de vacaciones correspondientes del año en curso (según antigüedad)
@@ -328,6 +352,41 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
     public function scopeEmpleadosActivos($query)
     {
         return $query->where('es_empleado', true)->where('activo', true);
+    }
+
+    /**
+     * Scope para buscar empleados por nombre, rfc, curp o número de empleado
+     */
+    public function scopeBuscar($query, $search)
+    {
+        if (empty($search)) return $query;
+
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'ilike', "%{$search}%")
+                ->orWhere('rfc', 'ilike', "%{$search}%")
+                ->orWhere('curp', 'ilike', "%{$search}%")
+                ->orWhere('nss', 'ilike', "%{$search}%")
+                ->orWhere('numero_empleado', 'ilike', "%{$search}%")
+                ->orWhere('email', 'ilike', "%{$search}%");
+        });
+    }
+
+    /**
+     * Scope para filtrar por departamento
+     */
+    public function scopeDepartamento($query, $departamento)
+    {
+        if (empty($departamento)) return $query;
+        return $query->where('departamento', $departamento);
+    }
+
+    /**
+     * Scope para filtrar por tipo de contrato
+     */
+    public function scopeTipoContrato($query, $tipoContrato)
+    {
+        if (empty($tipoContrato)) return $query;
+        return $query->where('tipo_contrato', $tipoContrato);
     }
 
     // ==================== Scopes Unificados ====================
@@ -435,6 +494,131 @@ class User extends Authenticatable implements \OwenIt\Auditing\Contracts\Auditab
         return $this->belongsToMany(Proyecto::class, 'proyecto_user')
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    /**
+     * Relación con el carro asignado
+     */
+    public function carro(): BelongsTo
+    {
+        return $this->belongsTo(Carro::class);
+    }
+
+    /**
+     * Verificar si el usuario está de vacaciones o tiene un día bloqueado (descanso)
+     * en una fecha específica.
+     */
+    public function estaDeVacaciones($fecha): bool
+    {
+        $fecha = \Carbon\Carbon::parse($fecha)->toDateString();
+
+        // 1. Verificar en tabla vacaciones (aprobadas)
+        $deVacaciones = $this->vacacionesAprobadas()
+            ->whereDate('fecha_inicio', '<=', $fecha)
+            ->whereDate('fecha_fin', '>=', $fecha)
+            ->exists();
+
+        if ($deVacaciones) {
+            return true;
+        }
+
+        // 2. Verificar en tabla dias_bloqueados (específicos para este usuario o globales)
+        return DiaBloqueado::where('empresa_id', $this->empresa_id)
+            ->whereDate('fecha', $fecha)
+            ->where(function ($q) {
+                $q->whereNull('tecnico_id')
+                    ->orWhere('tecnico_id', $this->id);
+            })
+            ->exists();
+    }
+
+    /**
+     * Relación con los movimientos de caja chica
+     */
+    public function cajaChica()
+    {
+        return $this->hasMany(CajaChica::class, 'user_id');
+    }
+
+    /**
+     * Evaluaciones NOM-035 del empleado
+     */
+    public function nom035Evaluations()
+    {
+        return $this->hasMany(Nom035Respondent::class, 'empleado_id');
+    }
+
+    /**
+     * Última evaluación NOM-035 completada
+     */
+    public function ultimoNom035()
+    {
+        return $this->hasOne(Nom035Respondent::class, 'empleado_id')
+            ->where('status', 'completed')
+            ->latest('completed_at');
+    }
+
+    /**
+     * Obtener la cita actual o en tránsito para el técnico
+     */
+    public function getCitaActualAttribute()
+    {
+        if (!$this->es_tecnico) return null;
+        
+        $citaEnProceso = \App\Models\Cita::where('tecnico_id', $this->id)
+            ->where('estado', \App\Models\Cita::ESTADO_EN_PROCESO)
+            ->with('cliente')
+            ->first();
+
+        if ($citaEnProceso) {
+            return [
+                'id' => $citaEnProceso->id,
+                'folio' => $citaEnProceso->folio,
+                'estado' => $citaEnProceso->estado,
+                'direccion' => trim(($citaEnProceso->direccion_calle ?: ($citaEnProceso->cliente?->direccion_completa ?: 'En domicilio del cliente')) . ($citaEnProceso->direccion_colonia ? " Col. {$citaEnProceso->direccion_colonia}" : "")),
+                'fecha_hora' => $citaEnProceso->fecha_hora?->format('Y-m-d H:i'),
+                'cliente_nombre' => $citaEnProceso->cliente?->nombre_razon_social ?: 'Cliente',
+            ];
+        }
+
+        // Si no hay en proceso, buscar la siguiente programada para hoy
+        $citaProgramada = \App\Models\Cita::where('tecnico_id', $this->id)
+            ->where('estado', \App\Models\Cita::ESTADO_PROGRAMADO)
+            ->whereDate('fecha_hora', today())
+            ->orderBy('fecha_hora')
+            ->with('cliente')
+            ->first();
+
+        if ($citaProgramada) {
+            return [
+                'id' => $citaProgramada->id,
+                'folio' => $citaProgramada->folio,
+                'estado' => $citaProgramada->estado,
+                'direccion' => trim(($citaProgramada->direccion_calle ?: ($citaProgramada->cliente?->direccion_completa ?: 'En domicilio del cliente')) . ($citaProgramada->direccion_colonia ? " Col. {$citaProgramada->direccion_colonia}" : "")),
+                'fecha_hora' => $citaProgramada->fecha_hora?->format('Y-m-d H:i'),
+                'cliente_nombre' => $citaProgramada->cliente?->nombre_razon_social ?: 'Cliente',
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Obtener un resumen legible del domicilio actual del técnico
+     */
+    public function getDomicilioActualAttribute(): string
+    {
+        $cita = $this->cita_actual;
+        if ($cita) {
+            $prefijo = $cita['estado'] === 'en_proceso' ? '📍 En Servicio: ' : '🚗 En Tránsito (' . Carbon::parse($cita['fecha_hora'])->format('H:i') . '): ';
+            return $prefijo . $cita['direccion'] . ' (' . $cita['cliente_nombre'] . ')';
+        }
+
+        if ($this->ultima_fecha_gps) {
+            return "⏱️ Sin cita activa (Último reporte GPS: " . Carbon::parse($this->ultima_fecha_gps)->diffForHumans() . ")";
+        }
+
+        return "❓ Ubicación desconocida";
     }
 }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\WhatsAppService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\BelongsToEmpresa;
@@ -16,6 +17,7 @@ class WhatsAppChat extends Model
         'empresa_id',
         'user_id',
         'wa_id',
+        'canonical_wa_id',
         'from_name',
         'body',
         'type',
@@ -26,6 +28,29 @@ class WhatsAppChat extends Model
         'metadata',
         'received_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $chat) {
+            if ($chat->wa_id && !$chat->canonical_wa_id) {
+                try {
+                    $chat->canonical_wa_id = WhatsAppService::canonicalWaId($chat->wa_id);
+                } catch (\Throwable $e) {
+                    $chat->canonical_wa_id = $chat->wa_id;
+                }
+            }
+        });
+
+        static::updating(function (self $chat) {
+            if ($chat->isDirty('wa_id') && !$chat->canonical_wa_id) {
+                try {
+                    $chat->canonical_wa_id = WhatsAppService::canonicalWaId($chat->wa_id);
+                } catch (\Throwable $e) {
+                    $chat->canonical_wa_id = $chat->wa_id;
+                }
+            }
+        });
+    }
 
     protected $casts = [
         'metadata' => 'array',

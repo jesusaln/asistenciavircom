@@ -9,6 +9,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class TicketCategory extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $fillable = [

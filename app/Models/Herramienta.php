@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Herramienta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected static function booted()
@@ -21,6 +23,14 @@ class Herramienta extends Model
                 }
             }
         });
+
+        static::retrieved(function (Herramienta $herramienta) {
+            // Auto-repair: si estado es 'asignada' pero no hay técnico, corregir a 'disponible'
+            if ($herramienta->estado === self::ESTADO_ASIGNADA && empty($herramienta->user_id) && empty($herramienta->tecnico_id)) {
+                $herramienta->estado = self::ESTADO_DISPONIBLE;
+                $herramienta->saveQuietly();
+            }
+        });
     }
 
     protected $fillable = [
@@ -30,6 +40,7 @@ class Herramienta extends Model
         'numero_serie',
         'foto',
         'user_id',
+        'tecnico_id',
         'estado',
         'vida_util_meses',
         'fecha_ultimo_mantenimiento',
@@ -46,6 +57,10 @@ class Herramienta extends Model
         'activo'
     ];
 
+    protected $appends = [
+        'estado_efectivo',
+    ];
+
     protected $casts = [
         'fecha_ultimo_mantenimiento' => 'date',
         'fecha_asignacion' => 'datetime',
@@ -59,6 +74,7 @@ class Herramienta extends Model
     // Estados posibles
     const ESTADO_DISPONIBLE = 'disponible';
     const ESTADO_ASIGNADA = 'asignada';
+    const ESTADO_PENDIENTE_RECEPCION = 'pendiente_recepcion';
     const ESTADO_MANTENIMIENTO = 'mantenimiento';
     const ESTADO_BAJA = 'baja';
     const ESTADO_PERDIDA = 'perdida';
@@ -87,8 +103,8 @@ class Herramienta extends Model
         return $this->belongsTo(CategoriaHerramienta::class, 'categoria_id');
     }
 
-    // Relación eliminada - AsignacionHerramienta no se utiliza
-    // El sistema usa tecnico_id directamente + historial_herramientas para tracking
+    // El sistema usa user_id (tecnico) directamente + historial_herramientas para tracking
+    // tecnico_id se mantiene en sincronía para compatibilidad legacy
 
     public function detallesAsignacionesMasivas()
     {
@@ -198,9 +214,11 @@ class Herramienta extends Model
 
     public function getEstadoLabelAttribute()
     {
-        return match ($this->estado) {
+        $effectiveEstado = $this->getEstadoEfectivo();
+        return match ($effectiveEstado) {
             self::ESTADO_DISPONIBLE => 'Disponible',
             self::ESTADO_ASIGNADA => 'Asignada',
+            self::ESTADO_PENDIENTE_RECEPCION => 'Por Confirmar',
             self::ESTADO_MANTENIMIENTO => 'En Mantenimiento',
             self::ESTADO_BAJA => 'De Baja',
             self::ESTADO_PERDIDA => 'Perdida',
@@ -208,11 +226,25 @@ class Herramienta extends Model
         };
     }
 
+    public function getEstadoEfectivo(): string
+    {
+        if ($this->estado === self::ESTADO_ASIGNADA && empty($this->user_id) && empty($this->tecnico_id)) {
+            return self::ESTADO_DISPONIBLE;
+        }
+        return $this->estado;
+    }
+
+    public function getEstadoEfectivoAttribute(): string
+    {
+        return $this->getEstadoEfectivo();
+    }
+
     public function getEstadoColorAttribute()
     {
         return match ($this->estado) {
             self::ESTADO_DISPONIBLE => 'green',
             self::ESTADO_ASIGNADA => 'blue',
+            self::ESTADO_PENDIENTE_RECEPCION => '#f59e0b', // Orange
             self::ESTADO_MANTENIMIENTO => 'yellow',
             self::ESTADO_BAJA => 'red',
             self::ESTADO_PERDIDA => 'red',
@@ -333,7 +365,7 @@ class Herramienta extends Model
     }
 
     // Verificar si la herramienta está próxima a vencer su vida útil
-    public function vidaUtilProximaAVencer()
+    public function isVidaUtilProximaAVencer()
     {
         $porcentaje = $this->porcentaje_vida_util;
         return $porcentaje !== null && $porcentaje >= 80;

@@ -13,42 +13,11 @@ use App\Models\Cobranza;
 class CuentaBancariaController extends Controller
 {
     /**
-     * Lista de cuentas bancarias
+     * Lista de cuentas bancarias (Redirigida al nuevo módulo unificado)
      */
     public function index()
     {
-        $cuentas = CuentaBancaria::orderBy('activa', 'desc')
-            ->orderBy('banco')
-            ->orderBy('nombre')
-            ->get()
-            ->map(function ($cuenta) {
-                return [
-                    'id' => $cuenta->id,
-                    'nombre' => $cuenta->nombre,
-                    'banco' => $cuenta->banco,
-                    'numero_cuenta' => $cuenta->numero_cuenta,
-                    'numero_cuenta_mascarado' => $cuenta->numero_cuenta_mascarado,
-                    'clabe' => $cuenta->clabe,
-                    'saldo_inicial' => $cuenta->saldo_inicial,
-                    'saldo_actual' => $cuenta->saldo_actual,
-                    'moneda' => $cuenta->moneda,
-                    'tipo' => $cuenta->tipo,
-                    'activa' => $cuenta->activa,
-                    'notas' => $cuenta->notas,
-                    'color' => $cuenta->color ?? CuentaBancaria::getColorPorBanco($cuenta->banco),
-                    'movimientos_count' => $cuenta->movimientos()->count(),
-                ];
-            });
-
-        $totales = [
-            'saldo_total' => CuentaBancaria::activas()->sum('saldo_actual'),
-            'cuentas_activas' => CuentaBancaria::activas()->count(),
-        ];
-
-        return Inertia::render('CuentasBancarias/Index', [
-            'cuentas' => $cuentas,
-            'totales' => $totales,
-        ]);
+        return redirect()->route('bancos.index');
     }
 
     /**
@@ -108,6 +77,14 @@ class CuentaBancariaController extends Controller
         return Inertia::render('CuentasBancarias/Create', [
             'bancos' => $this->getBancosDisponibles(),
             'tipos' => ['corriente', 'ahorro', 'credito', 'inversion'],
+            'usuarios' => \App\Models\User::activos()
+                ->where(function($q) {
+                    $q->where('es_tecnico', true)
+                      ->orWhere('es_empleado', true)
+                      ->orWhereHas('roles', fn($rq) => $rq->whereIn('name', ['admin', 'super-admin']));
+                })
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 
@@ -126,6 +103,7 @@ class CuentaBancariaController extends Controller
             'tipo' => 'nullable|string|in:corriente,ahorro,credito,inversion',
             'notas' => 'nullable|string|max:500',
             'color' => 'nullable|string|max:7',
+            'responsable_id' => 'nullable|exists:users,id',
         ]);
 
         $validated['saldo_actual'] = $validated['saldo_inicial'];
@@ -281,6 +259,14 @@ class CuentaBancariaController extends Controller
             'cuenta' => $cuentas_bancaria,
             'bancos' => $this->getBancosDisponibles(),
             'tipos' => ['corriente', 'ahorro', 'credito', 'inversion'],
+            'usuarios' => \App\Models\User::activos()
+                ->where(function($q) {
+                    $q->where('es_tecnico', true)
+                      ->orWhere('es_empleado', true)
+                      ->orWhereHas('roles', fn($rq) => $rq->whereIn('name', ['admin', 'super-admin']));
+                })
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 
@@ -300,6 +286,7 @@ class CuentaBancariaController extends Controller
             'activa' => 'nullable|boolean',
             'notas' => 'nullable|string|max:500',
             'color' => 'nullable|string|max:7',
+            'responsable_id' => 'nullable|exists:users,id',
         ]);
 
         $cuentas_bancaria->update($validated);

@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { includesSearch } from '@/Utils/searchHelper';
 
 /**
  * Composable for managing series selection
@@ -26,7 +27,7 @@ export function useSeriesSelector() {
 
         const search = pickerSearch.value.toLowerCase();
         return pickerSeries.value.filter(serie =>
-            serie.numero_serie.toLowerCase().includes(search)
+            includesSearch(serie.numero_serie, pickerSearch.value)
         );
     });
 

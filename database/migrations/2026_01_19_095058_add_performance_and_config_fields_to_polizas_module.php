@@ -11,9 +11,11 @@ return new class extends Migration {
     public function up(): void
     {
         // 3.2: Costos de excedente configurables
-        Schema::table('plan_polizas', function (Blueprint $table) {
-            $table->decimal('costo_ticket_extra', 10, 2)->default(150)->after('costo_hora_extra');
-        });
+        if (!Schema::hasColumn('plan_polizas', 'costo_ticket_extra')) {
+            Schema::table('plan_polizas', function (Blueprint $table) {
+                $table->decimal('costo_ticket_extra', 10, 2)->default(150)->after('costo_hora_extra');
+            });
+        }
 
         Schema::table('polizas_servicio', function (Blueprint $table) {
             // Ya tiene costo_hora_excedente y costo_visita_sitio_extra (Fase 1/2)
@@ -24,18 +26,27 @@ return new class extends Migration {
         });
 
         // 3.3: Índices de Base de Datos para rendimiento
-        Schema::table('tickets', function (Blueprint $table) {
-            // Índice compuesto para búsquedas por póliza y fecha (reset mensual)
-            $table->index(['poliza_id', 'created_at'], 'tickets_poliza_date_idx');
-        });
+        $ticketsIndexExists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = 'tickets_poliza_date_idx'");
+        if (empty($ticketsIndexExists)) {
+            Schema::table('tickets', function (Blueprint $table) {
+                // Índice compuesto para búsquedas por póliza y fecha (reset mensual)
+                $table->index(['poliza_id', 'created_at'], 'tickets_poliza_date_idx');
+            });
+        }
 
-        Schema::table('poliza_consumos', function (Blueprint $table) {
-            $table->index(['poliza_id', 'fecha_consumo'], 'consumos_poliza_date_idx');
-        });
+        $consumosIndexExists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = 'consumos_poliza_date_idx'");
+        if (empty($consumosIndexExists)) {
+            Schema::table('poliza_consumos', function (Blueprint $table) {
+                $table->index(['poliza_id', 'fecha_consumo'], 'consumos_poliza_date_idx');
+            });
+        }
 
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->index(['cliente_id', 'estado'], 'polizas_cliente_estado_idx');
-        });
+        $polizasIndexExists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = 'polizas_cliente_estado_idx'");
+        if (empty($polizasIndexExists)) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->index(['cliente_id', 'estado'], 'polizas_cliente_estado_idx');
+            });
+        }
     }
 
     /**

@@ -1,12 +1,12 @@
 <template>
     <Head title="Editar Producto" />
     <div class="w-full">
-        <div class="bg-white shadow-sm rounded-lg">
+        <div class="bg-white shadow-sm rounded-xl">
             <!-- Header -->
-            <div class="border-b border-gray-200 px-6 py-4">
-                <h1 class="text-2xl font-semibold text-gray-900">Editar Producto</h1>
-                <p class="text-sm text-gray-600 mt-1">Actualice la información del producto</p>
-                <div class="mt-3 bg-blue-50 border border-blue-200 rounded-md p-3">
+            <div class="border-b border-slate-200 px-6 py-4">
+                <h1 class="text-2xl font-semibold text-slate-900">Editar Producto</h1>
+                <p class="text-sm text-slate-500 mt-1">Actualice la información del producto</p>
+                <div class="mt-3 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-3">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
@@ -14,7 +14,7 @@
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-blue-700">
+                            <p class="text-sm text-sky-800 dark:text-sky-200">
                                 <strong>Nota:</strong> El IVA se calcula automáticamente según la configuración de la empresa. Ingrese los precios SIN IVA.
                             </p>
                         </div>
@@ -23,7 +23,7 @@
             </div>
 
             <!-- Navigation Tabs -->
-            <div class="border-b border-gray-200">
+            <div class="border-b border-slate-200">
                 <nav class="flex space-x-8 px-6" aria-label="Tabs">
                     <button
                         @click="activeTab = 'general'"
@@ -31,7 +31,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'general'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -43,7 +43,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'pricing'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -55,7 +55,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'additional'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -67,7 +67,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'sat'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -77,14 +77,14 @@
             </div>
 
             <!-- Form Content -->
-            <form @submit.prevent="submit" class="p-6">
+            <form @submit.prevent="submit" novalidate class="p-6">
                 <!-- Información General Tab -->
                 <div v-show="activeTab === 'general'" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Nombre -->
                         <div>
-                            <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nombre del Producto <span class="text-red-500">*</span>
+                            <label for="nombre" class="block text-sm font-medium text-slate-700 mb-2">
+                                Nombre del Producto <span class="text-rose-500">*</span>
                             </label>
                             <input
                                 v-model="form.nombre"
@@ -99,8 +99,8 @@
 
                         <!-- Código -->
                         <div>
-                            <label for="codigo" class="block text-sm font-medium text-gray-700 mb-2">
-                                Código <span class="text-red-500">*</span>
+                            <label for="codigo" class="block text-sm font-medium text-slate-700 mb-2">
+                                Código <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <input
@@ -112,12 +112,12 @@
                                     disabled
                                 />
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-1">
                                 El código no se puede modificar
                             </p>
                             <div v-if="form.errors.codigo" class="error-message">{{ form.errors.codigo }}</div>
@@ -125,8 +125,8 @@
 
                         <!-- Código de Barras -->
                         <div>
-                            <label for="codigo_barras" class="block text-sm font-medium text-gray-700 mb-2">
-                                Código de Barras <span class="text-red-500">*</span>
+                            <label for="codigo_barras" class="block text-sm font-medium text-slate-700 mb-2">
+                                Código de Barras <span class="text-rose-500">*</span>
                             </label>
                             <input
                                 v-model="form.codigo_barras"
@@ -141,15 +141,15 @@
 
 <div class="md:col-span-2">
   <div class="flex items-center space-x-3 mt-6">
-    <input id="requiere_serie" type="checkbox" v-model="form.requiere_serie" class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-    <label for="requiere_serie" class="text-sm text-gray-700">Este producto requiere capturar número de serie por unidad (en Compras)</label>
+    <input id="requiere_serie" type="checkbox" v-model="form.requiere_serie" class="h-4 w-4 text-blue-600 border-slate-300 rounded-xl" />
+    <label for="requiere_serie" class="text-sm text-slate-700">Este producto requiere capturar número de serie por unidad (en Compras)</label>
   </div>
 </div>
 
                         <!-- Categoría -->
                         <div>
-                            <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Categoría <span class="text-red-500">*</span>
+                            <label for="categoria_id" class="block text-sm font-medium text-slate-700 mb-2">
+                                Categoría <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.categoria_id" id="categoria_id" class="input-field" required>
                                 <option value="">Seleccione una categoría</option>
@@ -163,8 +163,8 @@
 
                         <!-- Marca -->
                         <div>
-                            <label for="marca_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Marca <span class="text-red-500">*</span>
+                            <label for="marca_id" class="block text-sm font-medium text-slate-700 mb-2">
+                                Marca <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.marca_id" id="marca_id" class="input-field" required>
                                 <option value="">Seleccione una marca</option>
@@ -178,7 +178,7 @@
 
                         <!-- Proveedor -->
                         <div>
-                            <label for="proveedor_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="proveedor_id" class="block text-sm font-medium text-slate-700 mb-2">
                                 Proveedor
                             </label>
                             <select v-model="form.proveedor_id" id="proveedor_id" class="input-field">
@@ -192,7 +192,7 @@
 
                         <!-- Almacén -->
                         <div>
-                             <label for="almacen_id" class="block text-sm font-medium text-gray-700 mb-2">
+                             <label for="almacen_id" class="block text-sm font-medium text-slate-700 mb-2">
                                  Almacén
                              </label>
                              <select v-model="form.almacen_id" id="almacen_id" class="input-field">
@@ -208,7 +208,7 @@
 
                     <!-- Descripción -->
                     <div>
-                        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="descripcion" class="block text-sm font-medium text-slate-700 mb-2">
                             Descripción
                         </label>
                         <textarea
@@ -226,13 +226,13 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Stock Mínimo por Almacén -->
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
                                 Stock Mínimo por Almacén
                             </label>
                             <div class="space-y-3">
-                                <div v-for="almacen in almacenes" :key="almacen.id" class="flex items-center space-x-3 p-3 bg-white rounded-lg">
+                                <div v-for="almacen in almacenes" :key="almacen.id" class="flex items-center space-x-3 p-3 bg-white rounded-xl">
                                     <div class="flex-1">
-                                        <span class="text-sm font-medium text-gray-900">{{ almacen.nombre }}</span>
+                                        <span class="text-sm font-medium text-slate-900">{{ almacen.nombre }}</span>
                                     </div>
                                     <div class="w-32">
                                         <input
@@ -245,15 +245,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">
+                            <p class="text-xs text-slate-500 mt-2">
                                 Configure el stock mínimo específico para cada almacén. Si no especifica un valor, se mantendrá el actual.
                             </p>
                         </div>
 
                         <!-- Precio de Compra -->
                         <div>
-                            <label for="precio_compra" class="block text-sm font-medium text-gray-700 mb-2">
-                                Precio de Compra (SIN IVA) <span class="text-red-500">*</span>
+                            <label for="precio_compra" class="block text-sm font-medium text-slate-700 mb-2">
+                                Precio de Compra (SIN IVA) <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
     <input
@@ -272,8 +272,8 @@
 
                         <!-- Precio de Venta -->
                         <div>
-                            <label for="precio_venta" class="block text-sm font-medium text-gray-700 mb-2">
-                                Precio de Venta (SIN IVA) <span class="text-red-500">*</span>
+                            <label for="precio_venta" class="block text-sm font-medium text-slate-700 mb-2">
+                                Precio de Venta (SIN IVA) <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
     <input
@@ -287,48 +287,48 @@
         required
     />
 </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-1">
                                 El IVA se calculará automáticamente según la configuración de la empresa
                             </p>
                             <div v-if="form.errors.precio_venta" class="error-message">{{ form.errors.precio_venta }}</div>
                         </div>
 
                         <!-- Destacado e Incluye IVA -->
-                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 mb-4">
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-100">
+                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-[var(--ui-surface)] rounded-xl border border-slate-100 mb-4">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-2xl shadow-sm border border-slate-100">
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900">Producto Destacado</h4>
-                                    <p class="text-xs text-gray-500">¿Mostrar en el inicio?</p>
+                                    <h4 class="text-sm font-bold text-slate-900">Producto Destacado</h4>
+                                    <p class="text-xs text-slate-500">¿Mostrar en el inicio?</p>
                                 </div>
                                 <button type="button" 
                                         @click="form.destacado = !form.destacado"
-                                        :class="[form.destacado ? 'bg-amber-500 shadow-lg shadow-amber-500/20' : 'bg-gray-200']"
+                                        :class="[form.destacado ? 'bg-brand-500 shadow-xl shadow-brand-500/20' : 'bg-slate-200']"
                                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-all focus:outline-none">
                                     <span :class="[form.destacado ? 'translate-x-6' : 'translate-x-1']"
                                           class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm"></span>
                                 </button>
                             </div>
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-2xl shadow-sm border border-slate-100">
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900">IVA Incluido</h4>
-                                    <p class="text-xs text-gray-500">¿El precio de venta ya incluye el IVA?</p>
+                                    <h4 class="text-sm font-bold text-slate-900">IVA Incluido</h4>
+                                    <p class="text-xs text-slate-500">¿El precio de venta ya incluye el IVA?</p>
                                 </div>
                                 <button type="button" 
                                         @click="form.incluye_iva = !form.incluye_iva"
-                                        :class="[form.incluye_iva ? 'bg-blue-600 shadow-lg shadow-blue-600/20' : 'bg-gray-200']"
+                                        :class="[form.incluye_iva ? 'bg-blue-600 shadow-xl shadow-blue-600/20' : 'bg-slate-200']"
                                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-all focus:outline-none">
                                     <span :class="[form.incluye_iva ? 'translate-x-6' : 'translate-x-1']"
                                           class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm"></span>
                                 </button>
                             </div>
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-2xl shadow-sm border border-slate-100">
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900">Catálogo Web</h4>
-                                    <p class="text-xs text-gray-500">¿Mostrar en tienda web?</p>
+                                    <h4 class="text-sm font-bold text-slate-900">Catálogo Web</h4>
+                                    <p class="text-xs text-slate-500">¿Mostrar en tienda web?</p>
                                 </div>
                                 <button type="button"
                                         @click="form.catalogo_web = !form.catalogo_web"
-                                        :class="[form.catalogo_web ? 'bg-emerald-600 shadow-lg shadow-emerald-600/20' : 'bg-gray-200']"
+                                        :class="[form.catalogo_web ? 'bg-emerald-600 shadow-xl shadow-emerald-600/20' : 'bg-slate-200']"
                                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-all focus:outline-none">
                                     <span :class="[form.catalogo_web ? 'translate-x-6' : 'translate-x-1']"
                                           class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm"></span>
@@ -339,8 +339,8 @@
 
                         <!-- Unidad de Medida -->
                         <div>
-                            <label for="unidad_medida" class="block text-sm font-medium text-gray-700 mb-2">
-                                Unidad de Medida <span class="text-red-500">*</span>
+                            <label for="unidad_medida" class="block text-sm font-medium text-slate-700 mb-2">
+                                Unidad de Medida <span class="text-rose-500">*</span>
                             </label>
                             <select
                                 v-model="form.unidad_medida"
@@ -353,8 +353,8 @@
                                     {{ unidad.nombre }}{{ unidad.nombre === unidadMedidaPredeterminada ? ' (Predeterminada)' : '' }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                                <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-700">
+                            <p class="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                                <span class="px-2 py-0.5 bg-slate-100 rounded-xl text-slate-700">
                                     Predeterminada: {{ unidadMedidaPredeterminada }}
                                 </span>
                                 <span v-if="cargandoUnidades" class="text-blue-600">Cargando opciones...</span>
@@ -365,7 +365,7 @@
 
                         <!-- Comisión Vendedor -->
                         <div>
-                            <label for="comision_vendedor" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="comision_vendedor" class="block text-sm font-medium text-slate-700 mb-2">
                                 Comisión Vendedor (%)
                             </label>
                             <div class="relative">
@@ -379,9 +379,9 @@
                                     min="0"
                                     max="100"
                                 />
-                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500">%</span>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-1">
                                 Porcentaje adicional que recibe el vendedor por cada venta de este producto
                             </p>
                             <div v-if="form.errors.comision_vendedor" class="error-message">{{ form.errors.comision_vendedor }}</div>
@@ -389,24 +389,24 @@
                     </div>
 
                     <!-- Margen de Ganancia (calculado automáticamente) -->
-                    <div v-if="form.precio_compra && form.precio_venta" class="bg-white p-4 rounded-lg">
-                        <h4 class="text-sm font-medium text-gray-700 mb-2">Análisis de Rentabilidad</h4>
+                    <div v-if="form.precio_compra && form.precio_venta" class="bg-white p-4 rounded-xl">
+                        <h4 class="text-sm font-medium text-slate-700 mb-2">Análisis de Rentabilidad</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-600">Margen:</span>
-                                <span class="font-medium text-green-600 ml-2">
+                                <span class="text-slate-500">Margen:</span>
+                                <span class="font-medium text-emerald-600 ml-2">
                                     ${{ (parseFloat(form.precio_venta) - parseFloat(form.precio_compra)).toFixed(2) }}
                                 </span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Porcentaje:</span>
+                                <span class="text-slate-500">Porcentaje:</span>
                                 <span class="font-medium text-blue-600 ml-2">
                                     {{ ((parseFloat(form.precio_venta) - parseFloat(form.precio_compra)) / parseFloat(form.precio_compra) * 100).toFixed(1) }}%
                                 </span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Precio Final (CON IVA):</span>
-                                <span class="font-medium text-gray-900 ml-2">
+                                <span class="text-slate-500">Precio Final (CON IVA):</span>
+                                <span class="font-medium text-slate-900 ml-2">
                                     ${{ (parseFloat(form.precio_venta) * (1 + (props.defaults?.ivaPorcentaje ?? 16) / 100)).toFixed(2) }}
                                 </span>
                             </div>
@@ -427,8 +427,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Tipo de Producto -->
                         <div>
-                            <label for="tipo_producto" class="block text-sm font-medium text-gray-700 mb-2">
-                                Tipo de Producto <span class="text-red-500">*</span>
+                            <label for="tipo_producto" class="block text-sm font-medium text-slate-700 mb-2">
+                                Tipo de Producto <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.tipo_producto" id="tipo_producto" class="input-field" required>
                                 <option value="fisico">Producto Físico</option>
@@ -439,8 +439,8 @@
 
                         <!-- Estado -->
                         <div>
-                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estado <span class="text-red-500">*</span>
+                            <label for="estado" class="block text-sm font-medium text-slate-700 mb-2">
+                                Estado <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.estado" id="estado" class="input-field" required>
                                 <option value="activo">Activo</option>
@@ -450,16 +450,16 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-2xl shadow-sm border border-slate-100">
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900">Solo venta en kit / equipo completo</h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">
+                                    <h4 class="text-sm font-bold text-slate-900">Solo venta en kit / equipo completo</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">
                                         Si está activo, no aparece como línea suelta en venta (POS), cotización, pedido ni tienda web; solo como parte del producto kit. Quien tenga permiso «venta componentes sueltos» puede agregarlo igual en casos excepcionales.
                                     </p>
                                 </div>
                                 <button type="button"
                                         @click="form.bloquear_venta_directa = !form.bloquear_venta_directa"
-                                        :class="[form.bloquear_venta_directa ? 'bg-amber-600 shadow-lg shadow-amber-600/20' : 'bg-gray-200']"
+                                        :class="[form.bloquear_venta_directa ? 'bg-brand-600 shadow-xl shadow-brand-600/20' : 'bg-slate-200']"
                                         class="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-all focus:outline-none">
                                     <span :class="[form.bloquear_venta_directa ? 'translate-x-6' : 'translate-x-1']"
                                           class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm"></span>
@@ -471,31 +471,31 @@
 
                     <!-- Imagen del Producto -->
                     <div>
-                        <label for="imagen" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="imagen" class="block text-sm font-medium text-slate-700 mb-2">
                             Imagen del Producto
                         </label>
-                        <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors">
+                        <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:border-brand-500 transition-colors">
                             <div class="space-y-2 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <div class="text-sm text-gray-600">
-                                    <label for="imagen" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                <div class="text-sm text-slate-500">
+                                    <label for="imagen" class="relative cursor-pointer bg-white rounded-xl font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                         <span>Subir imagen</span>
                                         <input @change="handleImageUpload" id="imagen" name="imagen" type="file" accept="image/*" class="sr-only" />
                                     </label>
                                     <p class="pl-1">o arrastrar y soltar</p>
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 10MB</p>
+                                <p class="text-xs text-slate-500">PNG, JPG, GIF hasta 10MB</p>
                                 <div v-if="imagePreview" class="mt-4">
                                     <img 
                                         :src="imagePreview" 
                                         alt="Vista previa" 
-                                        class="mx-auto h-32 w-32 object-cover rounded-lg border cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-blue-500 transition-all" 
+                                        class="mx-auto h-32 w-32 object-cover rounded-xl border cursor-pointer hover:opacity-80 hover:ring-2 hover:ring-blue-500 transition-all" 
                                         @click="showImageModal = true"
                                         title="Click para ampliar"
                                     />
-                                    <p class="text-xs text-gray-400 mt-1">Click en la imagen para ampliar</p>
+                                    <p class="text-xs text-slate-400 mt-1">Click en la imagen para ampliar</p>
                                 </div>
                             </div>
                         </div>
@@ -505,11 +505,11 @@
 
                 <!-- Información Fiscal Tab -->
                 <div v-show="activeTab === 'sat'" class="space-y-6">
-                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg mb-6 flex items-start">
+                    <div class="bg-sky-50 dark:bg-sky-900/20 border border-blue-100 p-4 rounded-xl mb-6 flex items-start">
                         <svg class="h-5 w-5 text-blue-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                         </svg>
-                        <p class="text-sm text-blue-800 leading-relaxed">
+                        <p class="text-sm text-sky-800 dark:text-sky-200 leading-relaxed">
                             Configure la información necesaria para el timbrado de facturas CFDI 4.0. Estos datos son obligatorios si planea emitir facturas electrónicas para este producto.
                         </p>
                     </div>
@@ -526,8 +526,8 @@
 
                         <!-- Clave Unidad SAT -->
                         <div>
-                            <label for="sat_clave_unidad" class="block text-sm font-medium text-gray-700 mb-2">
-                                Unidad SAT <span class="text-red-500">*</span>
+                            <label for="sat_clave_unidad" class="block text-sm font-medium text-slate-700 mb-2">
+                                Unidad SAT <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.sat_clave_unidad" id="sat_clave_unidad" class="input-field" required>
                                 <option value="">Seleccione una unidad SAT</option>
@@ -540,8 +540,8 @@
 
                         <!-- Objeto Impuesto -->
                         <div>
-                            <label for="sat_objeto_imp" class="block text-sm font-medium text-gray-700 mb-2">
-                                Objeto de Impuesto <span class="text-red-500">*</span>
+                            <label for="sat_objeto_imp" class="block text-sm font-medium text-slate-700 mb-2">
+                                Objeto de Impuesto <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.sat_objeto_imp" id="sat_objeto_imp" class="input-field" required>
                                 <option v-for="obj in satCatalogos.objetosImp" :key="obj.clave" :value="obj.clave">
@@ -554,18 +554,18 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-slate-200">
                     <button
                         type="button"
                         @click="$inertia.visit(route('productos.index'))"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         <span v-if="form.processing">Actualizando...</span>
                         <span v-else>Actualizar Producto</span>
@@ -576,38 +576,38 @@
     </div>
         <!-- Modales rápidos -->
         <div v-if="showCategoriaModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Nueva categoría</h3>
             <input v-model="quickCategoria.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
             <textarea v-model="quickCategoria.descripcion" placeholder="Descripción (opcional)" class="input-field mb-4"></textarea>
             <div class="flex justify-end space-x-2">
-              <button class="px-3 py-2 bg-gray-200 rounded" @click="closeCategoriaModal">Cancelar</button>
-              <button class="px-3 py-2 bg-blue-600 text-white rounded" @click="crearCategoriaRapida" :disabled="savingQuick">{{ savingQuick ? 'Guardando...' : 'Guardar' }}</button>
+              <button class="px-3 py-2 bg-slate-200 rounded-xl" @click="closeCategoriaModal">Cancelar</button>
+              <button class="px-3 py-2 bg-blue-600 text-white rounded-xl" @click="crearCategoriaRapida" :disabled="savingQuick">{{ savingQuick ? 'Guardando...' : 'Guardar' }}</button>
             </div>
           </div>
         </div>
 
         <div v-if="showMarcaModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Nueva marca</h3>
             <input v-model="quickMarca.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
             <textarea v-model="quickMarca.descripcion" placeholder="Descripción (opcional)" class="input-field mb-4"></textarea>
             <div class="flex justify-end space-x-2">
-              <button class="px-3 py-2 bg-gray-200 rounded" @click="closeMarcaModal">Cancelar</button>
-              <button class="px-3 py-2 bg-blue-600 text-white rounded" @click="crearMarcaRapida" :disabled="savingQuick">{{ savingQuick ? 'Guardando...' : 'Guardar' }}</button>
+              <button class="px-3 py-2 bg-slate-200 rounded-xl" @click="closeMarcaModal">Cancelar</button>
+              <button class="px-3 py-2 bg-blue-600 text-white rounded-xl" @click="crearMarcaRapida" :disabled="savingQuick">{{ savingQuick ? 'Guardando...' : 'Guardar' }}</button>
             </div>
           </div>
         </div>
 
         <div v-if="showAlmacenModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Nuevo almacén</h3>
             <input v-model="quickAlmacen.nombre" type="text" placeholder="Nombre" class="input-field mb-2" />
             <input v-model="quickAlmacen.ubicacion" type="text" placeholder="Ubicación/Dirección" class="input-field mb-2" />
             <textarea v-model="quickAlmacen.descripcion" placeholder="Descripción (opcional)" class="input-field mb-4"></textarea>
             <div class="flex justify-end space-x-2">
-              <button class="px-3 py-2 bg-gray-200 rounded" @click="closeAlmacenModal">Cancelar</button>
-              <button class="px-3 py-2 bg-blue-600 text-white rounded" @click="crearAlmacenRapido" :disabled="savingQuick">{{ savingQuick ? 'Guardando...' : 'Guardar' }}</button>
+              <button class="px-3 py-2 bg-slate-200 rounded-xl" @click="closeAlmacenModal">Cancelar</button>
+              <button class="px-3 py-2 bg-blue-600 text-white rounded-xl" @click="crearAlmacenRapido" :disabled="savingQuick">{{ savingQuick ? 'Guardando...' : 'Guardar' }}</button>
             </div>
           </div>
         </div>
@@ -628,14 +628,14 @@
             <div class="relative w-full max-h-[90vh] p-2">
                 <button 
                     @click="showImageModal = false" 
-                    class="absolute -top-10 right-0 text-white hover:text-gray-300 text-3xl font-bold"
+                    class="absolute -top-10 right-0 text-white hover:text-slate-300 text-3xl font-bold"
                 >
                     &times;
                 </button>
                 <img 
                     :src="imagePreview" 
                     alt="Imagen del producto" 
-                    class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                    class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-xl"
                     @click.stop
                 />
             </div>
@@ -650,6 +650,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import UnidadMedidaModal from '@/Components/Modals/UnidadMedidaModal.vue';
 import PriceListManager from '@/Components/PriceListManager.vue';
 import SatClaveProdServSearch from '@/Components/Sat/SatClaveProdServSearch.vue';
+import Swal from '@/Utils/Swal';
 
 // Define el layout del dashboard
 defineOptions({ layout: AppLayout });
@@ -843,6 +844,20 @@ const submit = () => {
         onSuccess: () => {
             // Producto actualizado correctamente
         },
+        onError: (errors) => {
+            if (errors.precio_compra || errors.precio_venta || errors.unidad_medida) {
+                activeTab.value = 'pricing';
+            } else if (errors.sat_clave_prod_serv || errors.sat_clave_unidad || errors.sat_objeto_imp) {
+                activeTab.value = 'sat';
+            } else if (errors.tipo_producto || errors.estado) {
+                activeTab.value = 'additional';
+            } else {
+                activeTab.value = 'general';
+            }
+            if (window.$toast) {
+                window.$toast.error('Revisa los campos obligatorios resaltados en rojo.');
+            }
+        }
     });
 };
 
@@ -1085,9 +1100,9 @@ const handleUnidadDeleted = (unidad) => {
     border-width: 1px;
     border-style: solid;
     border-color: #D1D5DB; /* gray-300 */
-    border-radius: 0.375rem; /* rounded-md */
+    border-radius: 0.375rem; /* rounded-xl */
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm approximation */
-    color: #111827; /* text-gray-900 */
+    color: #111827; /* text-slate-900 */
     outline: none;
     background-color: #fff;
     -webkit-appearance: none;
@@ -1095,25 +1110,25 @@ const handleUnidadDeleted = (unidad) => {
 }
 
 .input-field::placeholder {
-    color: #9CA3AF; /* placeholder-gray-400 */
+    color: #9CA3AF; /* placeholder-slate-400 */
 }
 
 .input-field:focus-visible {
     outline: 2px solid #6366f1;
     outline-offset: 2px;
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12); /* subtle ring approximation */
-    border-color: #FF6B35; /* focus:border-blue-500 */
+    border-color: #FF6B35; /* focus:border-brand-500 */
 }
 
 .input-field option {
-    color: #111827; /* text-gray-900 */
+    color: #111827; /* text-slate-900 */
     background-color: #ffffff;
 }
 
 .error-message {
     margin-top: 0.25rem; /* mt-1 */
     font-size: 0.875rem; /* text-sm */
-    color: #DC2626; /* text-red-600 */
+    color: #DC2626; /* text-rose-600 */
 }
 </style>
 

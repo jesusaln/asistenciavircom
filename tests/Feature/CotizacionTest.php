@@ -12,7 +12,7 @@ use App\Models\Cliente;
 
 class CotizacionTest extends TestCase
 {
-     // Limpia la DB entre tests
+    // Limpia la DB entre tests
 
     public function test_crear_cotizacion_con_items()
     {
@@ -67,7 +67,7 @@ class CotizacionTest extends TestCase
         // 6. Validar cálculos
         $this->assertEquals(400, $cotizacion->subtotal); // 2*100 + 200
         $this->assertEquals(20, $cotizacion->descuento_general); // 10% de 200
-        $this->assertEquals(62.4, $cotizacion->iva); // 16% de (400-20)
-        $this->assertEquals(442.4, $cotizacion->total); // subtotal - descuento + IVA
+        $this->assertEquals(60.8, $cotizacion->iva); // 16% de (400-20)
+        $this->assertEquals(440.8, $cotizacion->total); // subtotal - descuento + IVA
     }
 }

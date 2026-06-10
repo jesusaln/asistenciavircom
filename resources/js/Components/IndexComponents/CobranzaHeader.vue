@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden index-header-root">
+  <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden index-header-root">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
+    <div class="px-6 py-6 border-b border-slate-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
@@ -10,14 +10,14 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Cobranza</h1>
-            <p class="text-sm text-gray-600 mt-0.5">Gestiona todas tus cobranzas en un solo lugar</p>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Cobranza</h1>
+            <p class="text-sm text-slate-600 mt-0.5">Gestiona todas tus cobranzas en un solo lugar</p>
           </div>
         </div>
         <div class="flex gap-3">
           <button
             @click="onGenerarAutomaticas"
-            class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -39,10 +39,10 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50 shadow-sm">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total</p>
+              <p class="text-sm font-medium text-slate-600">Total</p>
               <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ total }}</p>
             </div>
             <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{ backgroundColor: `${colors.principal}20` }">
@@ -53,10 +53,10 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Pendientes</p>
+              <p class="text-sm font-medium text-slate-600">Pendientes</p>
               <p class="text-2xl font-bold text-yellow-600">{{ pendientes }}</p>
             </div>
             <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -67,38 +67,38 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Pagadas</p>
-              <p class="text-2xl font-bold text-green-600">{{ pagadas }}</p>
+              <p class="text-sm font-medium text-slate-600">Pagadas</p>
+              <p class="text-2xl font-bold text-emerald-600">{{ pagadas }}</p>
             </div>
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Vencidas</p>
-              <p class="text-2xl font-bold text-red-600">{{ vencidas }}</p>
+              <p class="text-sm font-medium text-slate-600">Vencidas</p>
+              <p class="text-2xl font-bold text-rose-600">{{ vencidas }}</p>
             </div>
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Pendiente</p>
+              <p class="text-sm font-medium text-slate-600">Total Pendiente</p>
               <p class="text-2xl font-bold text-yellow-600">${{ formatearMoneda(totalPendiente) }}</p>
             </div>
             <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -109,14 +109,14 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Pagado</p>
-              <p class="text-2xl font-bold text-green-600">${{ formatearMoneda(totalPagado) }}</p>
+              <p class="text-sm font-medium text-slate-600">Total Pagado</p>
+              <p class="text-2xl font-bold text-emerald-600">${{ formatearMoneda(totalPagado) }}</p>
             </div>
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -126,13 +126,13 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
+    <div class="px-6 py-4 bg-transparent border-b border-slate-200/60">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -140,7 +140,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por cliente, contrato, concepto..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -152,7 +152,7 @@
           <select
             v-model="filtroMes"
             @change="onFiltroMesChange"
-            class="block w-40 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-40 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="">Todos los Meses</option>
             <option value="1">Enero</option>
@@ -173,7 +173,7 @@
           <select
             v-model="filtroAnio"
             @change="onFiltroAnioChange"
-            class="block w-32 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-32 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option v-for="anio in 5" :key="anio" :value="(new Date().getFullYear() - 5 + anio)">
               {{ new Date().getFullYear() - 5 + anio }}
@@ -184,7 +184,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block w-40 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-40 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="">Todos los Estados</option>
             <option value="pendiente">Pendientes</option>
@@ -198,7 +198,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-40 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-40 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="fecha_cobro-desc">Fecha Cobro ↓</option>
             <option value="fecha_cobro-asc">Fecha Cobro ↑</option>
@@ -209,7 +209,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-slate-300 text-sm leading-4 font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

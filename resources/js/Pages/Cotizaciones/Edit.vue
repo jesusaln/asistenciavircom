@@ -52,7 +52,8 @@ const form = useForm({
   retencion_iva: props.cotizacion?.retencion_iva || 0,
   retencion_isr: props.cotizacion?.retencion_isr || 0,
   aplicar_retencion_iva: false,
-  aplicar_retencion_isr: false
+  aplicar_retencion_isr: false,
+  ajustar_margen: false
 });
 
 // --- ESTADO ---
@@ -534,17 +535,17 @@ const ajustarPreciosAutomaticamente = async () => {
 
 <template>
   <Head title="Editar Cotización" />
-  <div class="cotizaciones-edit min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
+  <div class="cotizaciones-edit min-h-screen bg-[var(--ui-surface)] p-6">
     <div class="w-full">
       <!-- Loading overlay -->
-      <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 dark:bg-black/70 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-3">
+      <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 dark:bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-6 flex items-center space-x-3">
           <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span class="text-gray-700 dark:text-gray-200">Procesando...</span>
+          <span class="text-slate-700 dark:text-slate-200">Procesando...</span>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-none overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-none overflow-hidden">
           title="Editar Cotización"
           description="Modifica los detalles de la cotización"
           :can-preview="clienteSeleccionado && selectedProducts.length > 0"
@@ -555,12 +556,12 @@ const ajustarPreciosAutomaticamente = async () => {
         />
       </div>
 
-      <form @submit.prevent="actualizarCotizacion" class="space-y-8 mt-6">
+      <form @submit.prevent="actualizarCotizacion" class="space-y-6 mt-6">
         <!-- Cliente -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               Cliente
@@ -576,9 +577,9 @@ const ajustarPreciosAutomaticamente = async () => {
             
             <!-- ✅ Lista de Precios -->
             <div v-if="clienteSeleccionado && priceLists && priceLists.length > 0">
-              <label for="price_list_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="price_list_id" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                 Lista de Precios
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full ml-2">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-sky-900/20/20 text-sky-800 dark:text-sky-200 dark:text-blue-300 text-xs font-medium rounded-full ml-2">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                   </svg>
@@ -589,7 +590,7 @@ const ajustarPreciosAutomaticamente = async () => {
                 id="price_list_id"
                 v-model="priceListSeleccionada"
                 @change="onPriceListChange"
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
               >
                 <option :value="null">Sin lista de precios</option>
                 <option
@@ -600,7 +601,7 @@ const ajustarPreciosAutomaticamente = async () => {
                   {{ priceList.nombre }}
                 </option>
               </select>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Los precios se actualizarán automáticamente al cambiar la lista
               </p>
             </div>
@@ -608,10 +609,10 @@ const ajustarPreciosAutomaticamente = async () => {
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
               </svg>
               Productos y Servicios
@@ -639,10 +640,10 @@ const ajustarPreciosAutomaticamente = async () => {
         </div>
 
         <!-- Notas -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
               Notas Adicionales
@@ -651,7 +652,7 @@ const ajustarPreciosAutomaticamente = async () => {
           <div class="p-6">
             <textarea
               v-model="form.notas"
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+              class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-vertical bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-400"
               rows="4"
               placeholder="Agrega notas adicionales, términos y condiciones, o información relevante para la cotización..."
             ></textarea>
@@ -686,10 +687,10 @@ const ajustarPreciosAutomaticamente = async () => {
       <!-- Botón ayuda -->
       <button
         @click="mostrarAtajos = !mostrarAtajos"
-        class="fixed bottom-4 left-4 bg-gray-600 dark:bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200"
+        class="fixed bottom-4 left-4 bg-slate-600 dark:bg-slate-700 text-white p-3 rounded-full shadow-xl hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors duration-200"
         title="Mostrar/Ocultar atajos de teclado"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </button>

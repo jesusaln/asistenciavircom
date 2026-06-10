@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('citas', function (Blueprint $table) {
-            $table->longText('firma_cliente')->nullable()->after('fotos_finales');
-            $table->string('nombre_firmante')->nullable()->after('firma_cliente');
-            $table->dateTime('fecha_firma')->nullable()->after('nombre_firmante');
-            $table->longText('firma_tecnico')->nullable()->after('fecha_firma');
-        });
+        if (!Schema::hasColumn('citas', 'firma_cliente')) {
+            Schema::table('citas', function (Blueprint $table) {
+                $table->longText('firma_cliente')->nullable()->after('fotos_finales');
+                $table->string('nombre_firmante')->nullable()->after('firma_cliente');
+                $table->dateTime('fecha_firma')->nullable()->after('nombre_firmante');
+                $table->longText('firma_tecnico')->nullable()->after('fecha_firma');
+            });
+        }
     }
 
     /**

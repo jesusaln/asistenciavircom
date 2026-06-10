@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MovimientoBancario extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'movimientos_bancarios';

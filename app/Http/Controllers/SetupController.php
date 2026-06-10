@@ -472,10 +472,16 @@ class SetupController extends Controller
                 $this->recursiveCopy($storageBackupPath, storage_path('app/public'));
             }
 
-            // Limpiar directorio temporal
-            $this->deleteDirectory($extractPath);
-
             \Log::info('Respaldo restaurado correctamente desde: ' . $zipFile->getClientOriginalName());
+
+            // AUDITORÍA: Registrar restauración exitosa
+            \App\Helpers\ActivityLogger::log('restauracion_sistema', [
+                'archivo_origen' => $zipFile->getClientOriginalName(),
+                'metodo' => $isPgDumpNative ? 'psql' : 'unprepared_statements',
+                'sql_size' => strlen($sqlContent),
+                'status' => 'success',
+                'ip' => $request->ip()
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -483,17 +489,17 @@ class SetupController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            // Limpiar en caso de error
-            if (is_dir($extractPath)) {
-                $this->deleteDirectory($extractPath);
-            }
-
             \Log::error('Error al restaurar respaldo: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
                 'message' => 'Error al restaurar: ' . $e->getMessage()
             ], 500);
+        } finally {
+            // SEGURIDAD & LIMPIEZA: Eliminar siempre el directorio temporal
+            if (isset($extractPath) && is_dir($extractPath)) {
+                $this->deleteDirectory($extractPath);
+            }
         }
     }
 

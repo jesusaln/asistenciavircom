@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 class CitaCrudTest extends TestCase
 {
-    
+
 
     protected function setUp(): void
     {
@@ -42,6 +42,7 @@ class CitaCrudTest extends TestCase
             'estado' => 'Sonora',
             'pais' => 'México',
         ]);
+        \App\Support\EmpresaResolver::setContext($empresa->id);
 
         $tecnico = User::factory()->create([
             'empresa_id' => $empresa->id,
@@ -76,8 +77,8 @@ class CitaCrudTest extends TestCase
             'estado' => 'programado',
             'descripcion' => 'Descripción de prueba para cita',
             'tipo_equipo' => 'Aire Acondicionado',
-            'marca_equipo' => 'Carrier',
-            'modelo_equipo' => 'X-100',
+            'marca_equipo' => 'Mirage',
+            'modelo_equipo' => 'Magnum 22',
         ];
 
         $response = $this->post(route('citas.store'), $payload);
@@ -99,6 +100,12 @@ class CitaCrudTest extends TestCase
             'tipo_servicio' => 'Reparación Urgente',
             'prioridad' => 'urgente',
             'estado' => 'en_proceso',
+            'tecnico_id' => $tecnico->id,
+            'cliente_id' => $cliente->id,
+            'fecha_hora' => $fechaCita->format('Y-m-d H:i:s'),
+            'tipo_equipo' => 'Central',
+            'marca_equipo' => 'York',
+            'modelo_equipo' => 'P36',
         ];
 
         $response = $this->put(route('citas.update', $cita->id), $updatePayload);
@@ -113,7 +120,7 @@ class CitaCrudTest extends TestCase
 
         // 4. Probar Eliminación (Destroy)
         // Cambiar a un estado que permita eliminación (no puede ser en_proceso)
-        $this->put(route('citas.update', $cita->id), ['estado' => 'cancelado']);
+        $this->put(route('citas.update', $cita->id), array_merge($updatePayload, ['estado' => 'cancelado']));
 
         $response = $this->delete(route('citas.destroy', $cita->id));
         $response->assertRedirect(route('citas.index'));
@@ -138,6 +145,7 @@ class CitaCrudTest extends TestCase
             'estado' => 'Sonora',
             'pais' => 'México',
         ]);
+        \App\Support\EmpresaResolver::setContext($empresa->id);
 
         $tecnico = User::factory()->create(['empresa_id' => $empresa->id, 'es_tecnico' => true]);
         $cliente = Cliente::factory()->create(['empresa_id' => $empresa->id]);
@@ -146,7 +154,7 @@ class CitaCrudTest extends TestCase
 
         $this->actingAs($admin);
 
-        $fecha = now()->addDays(2)->setHour(11)->setMinute(0)->setSecond(0);
+        $fecha = \Carbon\Carbon::parse('next tuesday')->setHour(11)->setMinute(0)->setSecond(0);
         if ($fecha->isSunday())
             $fecha->addDay();
 
@@ -159,9 +167,6 @@ class CitaCrudTest extends TestCase
             'tipo_servicio' => 'Soporte',
             'estado' => 'programado',
             'prioridad' => 'baja',
-            'tipo_equipo' => 'Laptop',
-            'marca_equipo' => 'HP',
-            'modelo_equipo' => 'ProBook',
         ]);
 
 
@@ -173,9 +178,9 @@ class CitaCrudTest extends TestCase
             'tipo_servicio' => 'Otro Servicio',
             'fecha_hora' => $fecha->format('Y-m-d H:i:s'),
             'estado' => 'programado',
-            'tipo_equipo' => 'Laptop',
-            'marca_equipo' => 'HP',
-            'modelo_equipo' => 'ProBook',
+            'tipo_equipo' => 'Test',
+            'marca_equipo' => 'Test',
+            'modelo_equipo' => 'Test',
         ];
 
         $response = $this->from(route('citas.index'))->post(route('citas.store'), $payload);

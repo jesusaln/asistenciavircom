@@ -11,6 +11,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class Ticket extends Model implements Auditable
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, \OwenIt\Auditing\Auditable, BelongsToEmpresa;
 
     protected $fillable = [

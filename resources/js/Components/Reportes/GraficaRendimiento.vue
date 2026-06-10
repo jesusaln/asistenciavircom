@@ -11,11 +11,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Bar } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { computed, defineAsyncComponent } from 'vue';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+const Bar = defineAsyncComponent(() => import('@/Components/Reportes/AsyncBarChart.vue'));
 
 const props = defineProps({
     title: String,

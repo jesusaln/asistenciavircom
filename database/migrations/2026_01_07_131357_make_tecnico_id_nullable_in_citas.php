@@ -10,15 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasTable('citas')) {
+        if (!Schema::hasTable('citas') || !Schema::hasColumn('citas', 'tecnico_id')) {
             return;
         }
 
         Schema::table('citas', function (Blueprint $table) {
             // Hacer tecnico_id nullable para citas públicas que no tienen técnico asignado
-            if (Schema::hasColumn('citas', 'tecnico_id')) {
-                $table->foreignId('tecnico_id')->nullable()->change();
-            }
+            $table->foreignId('tecnico_id')->nullable()->change();
         });
     }
 
@@ -27,14 +25,12 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        if (!Schema::hasTable('citas')) {
+        if (!Schema::hasTable('citas') || !Schema::hasColumn('citas', 'tecnico_id')) {
             return;
         }
 
         Schema::table('citas', function (Blueprint $table) {
-            if (Schema::hasColumn('citas', 'tecnico_id')) {
-                $table->foreignId('tecnico_id')->nullable(false)->change();
-            }
+            $table->foreignId('tecnico_id')->nullable(false)->change();
         });
     }
 };

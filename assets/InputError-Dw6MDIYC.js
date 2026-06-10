@@ -1,0 +1,1 @@
+import{B as s,C as a,M as e,_ as t,ft as r,ht as o,it as p,k as m,p as g,q as i}from"./vue-core-C6Q8_eCL.js";g();var n={class:"text-sm text-rose-600 dark:text-rose-400"},u={__name:"InputError",props:{message:String},setup:s=>(t,r)=>p((i(),e("div",null,[m("p",n,o(s.message),1)],512)),[[a,s.message]])};export{u as t};

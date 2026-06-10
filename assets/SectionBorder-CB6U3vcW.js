@@ -1,0 +1,1 @@
+import{B as r,M as s,k as e,p as a,q as o}from"./vue-core-C6Q8_eCL.js";import{t}from"./_plugin-vue_export-helper-DgLP3hnZ.js";a();var d={class:"hidden sm:block"};var i=t({},[["render",function(r,a){return o(),s("div",d,[...a[0]||(a[0]=[e("div",{class:"py-8"},[e("div",{class:"border-t border-slate-200 dark:border-slate-700"})],-1)])])}]]);export{i as t};

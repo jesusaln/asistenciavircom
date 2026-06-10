@@ -6,7 +6,6 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import Chart from 'chart.js/auto';
 
 const props = defineProps({
     type: { type: String, default: 'line' },
@@ -17,13 +16,14 @@ const props = defineProps({
 const chartCanvas = ref(null);
 let chartInstance = null;
 
-const createChart = () => {
+const createChart = async () => {
     if (chartInstance) {
         chartInstance.destroy();
     }
 
     if (!chartCanvas.value) return;
 
+    const { default: Chart } = await import('chart.js/auto');
     const ctx = chartCanvas.value.getContext('2d');
     chartInstance = new Chart(ctx, {
         type: props.type,

@@ -15,14 +15,7 @@ class TraspasoBancarioController extends Controller
      */
     public function index()
     {
-        $traspasos = TraspasoBancario::with(['origen', 'destino', 'usuario'])
-            ->orderBy('fecha', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(15);
-
-        return Inertia::render('Finanzas/TraspasosBancarios/Index', [
-            'traspasos' => $traspasos,
-        ]);
+        return redirect()->route('bancos.index');
     }
 
     /**
@@ -38,7 +31,7 @@ class TraspasoBancarioController extends Controller
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'banco', 'numero_cuenta', 'saldo_actual', 'moneda']);
 
-        return Inertia::render('Finanzas/TraspasosBancarios/Create', [
+        return Inertia::render('TraspasosBancarios/Create', [
             'cuentas' => $cuentas,
         ]);
     }
@@ -54,7 +47,7 @@ class TraspasoBancarioController extends Controller
 
         $traspaso = TraspasoBancario::with(['origen', 'destino', 'usuario'])->findOrFail($id);
         
-        return Inertia::render('Finanzas/TraspasosBancarios/Show', [
+        return Inertia::render('TraspasosBancarios/Show', [
             'traspaso' => $traspaso,
         ]);
     }
@@ -66,7 +59,7 @@ class TraspasoBancarioController extends Controller
     {
         $traspaso = TraspasoBancario::with(['origen', 'destino'])->findOrFail($id);
         
-        return Inertia::render('Finanzas/TraspasosBancarios/Edit', [
+        return Inertia::render('TraspasosBancarios/Edit', [
             'traspaso' => $traspaso,
         ]);
     }
@@ -114,6 +107,41 @@ class TraspasoBancarioController extends Controller
                     "REVERSO TRASPASO #{$traspaso->id} - Retiro por eliminación",
                     'traspaso'
                 );
+
+                // Sincronizar saldos de reverso en la tabla nueva de Bancos (bancos_cuentas) y registrar movimientos
+                try {
+                    $origenNueva = \App\Models\Bancos\BancoCuenta::where('numero_cuenta', $origen->numero_cuenta)->first();
+                    if ($origenNueva) {
+                        $origenNueva->increment('saldo_inicial', $traspaso->monto);
+                        \App\Models\Bancos\BancoMovimiento::create([
+                            'cuenta_bancaria_id' => $origenNueva->id,
+                            'fecha' => now()->format('Y-m-d'),
+                            'tipo' => 'ingreso',
+                            'forma_pago_sat' => '03',
+                            'monto' => $traspaso->monto,
+                            'concepto' => "REVERSO TRASPASO #{$traspaso->id} - Devolución de fondos",
+                            'referencia' => 'REV-' . $traspaso->id,
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+
+                    $destinoNueva = \App\Models\Bancos\BancoCuenta::where('numero_cuenta', $destino->numero_cuenta)->first();
+                    if ($destinoNueva) {
+                        $destinoNueva->decrement('saldo_inicial', $traspaso->monto);
+                        \App\Models\Bancos\BancoMovimiento::create([
+                            'cuenta_bancaria_id' => $destinoNueva->id,
+                            'fecha' => now()->format('Y-m-d'),
+                            'tipo' => 'egreso',
+                            'forma_pago_sat' => '03',
+                            'monto' => $traspaso->monto,
+                            'concepto' => "REVERSO TRASPASO #{$traspaso->id} - Retiro por eliminación",
+                            'referencia' => 'REV-' . $traspaso->id,
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Ignorar errores menores de sincronía para no bloquear la transacción
+                }
 
                 // 3. Eliminar el registro (SoftDelete)
                 $traspaso->delete();
@@ -171,6 +199,41 @@ class TraspasoBancarioController extends Controller
                     "Traspaso recibido de {$origen->banco} - {$origen->nombre}",
                     'traspaso'
                 );
+
+                // Sincronizar saldos con la tabla nueva de Bancos (bancos_cuentas) y registrar movimientos
+                try {
+                    $origenNueva = \App\Models\Bancos\BancoCuenta::where('numero_cuenta', $origen->numero_cuenta)->first();
+                    if ($origenNueva) {
+                        $origenNueva->decrement('saldo_inicial', $validated['monto']);
+                        \App\Models\Bancos\BancoMovimiento::create([
+                            'cuenta_bancaria_id' => $origenNueva->id,
+                            'fecha' => $validated['fecha'],
+                            'tipo' => 'egreso',
+                            'forma_pago_sat' => '03', // Transferencia
+                            'monto' => $validated['monto'],
+                            'concepto' => "Traspaso a {$destino->banco} - {$destino->nombre} // Ref: {$validated['referencia']}",
+                            'referencia' => $validated['referencia'],
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+
+                    $destinoNueva = \App\Models\Bancos\BancoCuenta::where('numero_cuenta', $destino->numero_cuenta)->first();
+                    if ($destinoNueva) {
+                        $destinoNueva->increment('saldo_inicial', $validated['monto']);
+                        \App\Models\Bancos\BancoMovimiento::create([
+                            'cuenta_bancaria_id' => $destinoNueva->id,
+                            'fecha' => $validated['fecha'],
+                            'tipo' => 'ingreso',
+                            'forma_pago_sat' => '03', // Transferencia
+                            'monto' => $validated['monto'],
+                            'concepto' => "Traspaso recibido de {$origen->banco} - {$origen->nombre}",
+                            'referencia' => $validated['referencia'],
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Ignorar errores menores de sincronía para no bloquear la transacción
+                }
             });
 
             return redirect()->route('traspasos-bancarios.index')->with('success', 'Traspaso realizado correctamente.');

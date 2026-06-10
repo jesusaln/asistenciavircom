@@ -1,6 +1,8 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { Head, useForm, router, Link } from '@inertiajs/vue3';
+import { normalizeText, includesSearch } from '@/Utils/searchHelper';
 import axios from 'axios';
 // Inicializar notificaciones
 import { useNotification } from '@/Composables/useNotification';
@@ -133,6 +135,7 @@ const props = defineProps({
   user: { type: Object, default: () => ({}) },
   pedido: { type: Object, default: () => null },
   cita: { type: Object, default: () => null },
+  taller: { type: Object, default: () => null },
   defaults: { type: Object, default: () => ({ ivaPorcentaje: 16, isrPorcentaje: 1.25 }) },
 });
 
@@ -194,6 +197,7 @@ const form = useForm({
   estado: 'borrador',
   cuenta_bancaria_id: '',
   cita_id: '',
+  taller_orden_id: '',
   descuento_general: 0, // Asegurar que existe
 });
 
@@ -233,7 +237,7 @@ const seleccionarVendedorPredeterminado = () => {
     vendedorSeleccionado.value = `user-${currentUserId}`;
   } else {
     const jesusLopez = vendedoresFiltrados.value.find(v => 
-      v.nombre.toLowerCase().includes('jesus') && v.nombre.toLowerCase().includes('lopez')
+      includesSearch(v.nombre, 'jesus') && includesSearch(v.nombre, 'lopez')
     );
     if (jesusLopez) {
       vendedorSeleccionado.value = `${jesusLopez.type}-${jesusLopez.id}`;
@@ -416,9 +420,7 @@ const crearVentaConPago = () => {
   submitVentaAfterValidation();
 };
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const fetchNextNumeroVenta = async () => {
   try {
@@ -516,6 +518,45 @@ const loadFromCita = async () => {
     await recalcularPreciosPorLista();
   }
   showNotification('Datos cargados desde la cita. Revisa cantidades y precios antes de finalizar.', 'info');
+};
+
+const loadFromTaller = async () => {
+  if (!props.taller) return;
+  const t = props.taller;
+  form.taller_orden_id = t.id;
+  
+  // Si el cliente no está en la lista inicial (lazy load), lo buscamos o lo usamos de la prop
+  const cli = t.cliente;
+  if (cli) {
+    onClienteSeleccionado(cli);
+    await nextTick();
+  }
+  
+  const refTaller = t.folio ? `Orden de Taller #${t.folio}` : `Orden de Taller #${t.id}`;
+  form.notas = form.notas
+    ? `${form.notas}\n\nVenta vinculada a: ${refTaller}.`
+    : `Venta vinculada a: ${refTaller}.`;
+
+  // Obtener parámetros de la URL (si vienen de Taller/Show.vue)
+  const urlParams = new URLSearchParams(window.location.search);
+  const monto = urlParams.get('monto');
+  const concepto = urlParams.get('concepto');
+
+  if (monto && concepto) {
+    // Agregar el servicio de taller como un item genérico
+    // Buscamos si existe un servicio "Servicio de Taller" o similar en props.servicios
+    let servicioTaller = props.servicios.find(s => s.nombre.toLowerCase().includes('taller')) || props.servicios[0];
+    
+    if (servicioTaller) {
+        await agregarProducto({ ...servicioTaller, tipo: 'servicio', nombre: concepto });
+        const key = `servicio-${servicioTaller.id}`;
+        quantities.value[key] = 1;
+        prices.value[key] = parseFloat(monto);
+    }
+  }
+  
+  calcularTotal();
+  showNotification('Datos cargados desde el taller.', 'info');
 };
 
 const handlePreview = () => {
@@ -880,22 +921,23 @@ onMounted(async () => {
     seleccionarVendedorPredeterminado();
     if (props.pedido) loadFromPedido();
     else if (props.cita) await loadFromCita();
+    else if (props.taller) await loadFromTaller();
     // Leer localStorage...
 });
 </script>
 
 <template>
   <Head title="Nueva Venta" />
-  <div class="ventas-create min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 font-sans text-slate-800 dark:text-slate-200">
+  <div class="ventas-create min-h-screen bg-[var(--ui-surface)] transition-colors duration-200 font-sans text-slate-800 dark:text-slate-200">
      
-     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+     <div class="max-w-[98%] mx-auto px-4 sm:px-6 lg:px-10 py-10">
         
         <!-- Header Inline Premium -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
             <div class="flex items-center space-x-8">
                 <div class="relative group">
-                    <div class="absolute -inset-1 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
-                    <div class="relative w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl transform transition-all group-hover:scale-105 group-hover:rotate-3" 
+                    <div class="absolute -inset-1 bg-gradient-to-br from-brand-500 to-brand-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+                    <div class="relative w-16 h-16 rounded-3xl flex items-center justify-center shadow-2xl transform transition-all group-hover:scale-105 group-hover:rotate-3" 
                          :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
                          <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -903,27 +945,30 @@ onMounted(async () => {
                     </div>
                 </div>
                 <div>
-                    <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tight">
+                    <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight uppercase tracking-wider">
                         Nueva <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-400 dark:to-blue-400">Venta</span>
                     </h1>
                     <div class="flex items-center mt-2 flex-wrap gap-2">
-                         <div v-if="cita" class="px-3 py-1 bg-blue-50 dark:bg-blue-950/50 rounded-full border border-blue-200 dark:border-blue-800">
-                            <span class="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-widest">Vinculada a cita #{{ cita.id }}</span>
+                         <div v-if="cita" class="px-3 py-1 bg-sky-50 dark:bg-sky-900/20 dark:bg-blue-950/50 rounded-full border border-sky-200 dark:border-sky-800/30 dark:border-blue-800">
+                            <span class="text-[10px] font-black text-sky-800 dark:text-sky-200 dark:text-blue-300 uppercase tracking-wide">Vinculada a cita #{{ cita.id }}</span>
                          </div>
-                         <div class="px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800">
-                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Folio: {{ form.numero_venta || 'AUTO' }}</span>
+                         <div v-if="taller" class="px-3 py-1 bg-brand-50 dark:bg-brand-900/20 rounded-full border border-brand-200 dark:border-brand-800/30">
+                            <span class="text-[10px] font-black text-brand-800 dark:text-brand-200 uppercase tracking-wide">Vinculada a Taller #{{ taller.folio || taller.id }}</span>
+                         </div>
+                         <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-800">
+                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide">Folio: {{ form.numero_venta || 'AUTO' }}</span>
                          </div>
                          <div class="flex items-center space-x-2">
-                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
-                             <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">En Proceso</span>
+                             <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
+                             <span class="text-[10px] font-black text-emerald-600 dark:text-slate-400 uppercase tracking-[0.2em]">En Proceso</span>
                          </div>
                     </div>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <Link :href="route('ventas.index')" class="px-8 py-3.5 bg-white dark:bg-slate-900 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 shadow-sm shadow-slate-200/50 dark:shadow-none">Cancelar Operación</Link>
-                <button @click="abrirModalPago" class="group relative px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-3">
-                    <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                <Link :href="route('ventas.index')" class="px-8 py-3.5 bg-white dark:bg-slate-800 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:text-slate-400 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-brand-500 dark:hover:border-brand-500 transition-all duration-200 shadow-sm shadow-slate-200/50 dark:shadow-none">Cancelar Operación</Link>
+                <button @click="abrirModalPago" class="group relative px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black uppercase tracking-wide rounded-2xl shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all duration-200 transform hover:shadow-xl hover:shadow-xl active:translate-y-0 active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                     Finalizar Venta
                 </button>
             </div>
@@ -932,51 +977,51 @@ onMounted(async () => {
         <!-- Grid Layout -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
             <!-- Main Content -->
-            <div class="xl:col-span-8 space-y-8">
+            <div class="xl:col-span-8 space-y-6">
                 
                 <!-- Datos Generales -->
                 <div class="relative group">
                     <div class="absolute -inset-0.5 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 rounded-[2rem] blur opacity-10"></div>
-                    <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                    <div class="relative bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
                         <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/30 dark:bg-slate-950/20">
-                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mr-4 border border-emerald-500/20 shadow-inner">
-                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-brand-500/10 text-emerald-600 dark:text-slate-400 mr-4 border border-emerald-500/20 shadow-inner">
+                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                             </div>
                             <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Información General</h2>
                         </div>
                     <div class="p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
                         <!-- Fecha -->
                         <div>
-                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Fecha</label>
-                             <input type="date" v-model="form.fecha" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-indigo-500 focus:ring-0"/>
+                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">Fecha</label>
+                             <input type="date" v-model="form.fecha" class="w-full bg-[var(--ui-surface)] border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-brand-500 focus:ring-0"/>
                         </div>
                         <!-- Almacén -->
                         <div>
-                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Almacén</label>
-                             <select v-model="form.almacen_id" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-indigo-500 focus:ring-0">
+                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">Almacén</label>
+                             <select v-model="form.almacen_id" class="w-full bg-[var(--ui-surface)] border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-brand-500 focus:ring-0">
                                  <option v-for="alm in almacenes" :key="alm.id" :value="alm.id">{{ alm.nombre }}</option>
                              </select>
                         </div>
                          <!-- Lista Precios -->
                         <div>
-                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Lista de Precios</label>
-                             <select v-model="form.price_list_id" @change="onPriceListChange" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-indigo-500 focus:ring-0">
+                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">Lista de Precios</label>
+                             <select v-model="form.price_list_id" @change="onPriceListChange" class="w-full bg-[var(--ui-surface)] border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-brand-500 focus:ring-0">
                                  <option value="">Lista General</option>
                                  <option v-for="pl in priceLists" :key="pl.id" :value="pl.id">{{ pl.nombre }}</option>
                              </select>
                         </div>
                         <!-- Vendedor -->
                         <div>
-                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Vendedor</label>
-                             <select v-model="vendedorSeleccionado" @change="onVendedorChange" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-indigo-500 focus:ring-0">
+                             <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">Vendedor</label>
+                             <select v-model="vendedorSeleccionado" @change="onVendedorChange" class="w-full bg-[var(--ui-surface)] border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-brand-500 focus:ring-0">
                                  <option value="">Seleccionar vendedor...</option>
                                  <option v-for="v in vendedoresFiltrados" :key="`${v.type}-${v.id}`" :value="`${v.type}-${v.id}`">{{ v.nombre }}</option>
                              </select>
                         </div>
                         <!-- Cobrador (Para Mi Corte) -->
                         <div v-if="form.metodo_pago !== 'credito'">
-                             <label class="block text-[10px] font-black text-orange-400 dark:text-orange-500 uppercase tracking-widest mb-2">¿Quién tiene el dinero? (Para Mi Corte)</label>
-                             <select v-model="cobradorSeleccionado" @change="onCobradorChange" class="w-full bg-orange-50 dark:bg-slate-950 border-2 border-orange-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-orange-500 focus:ring-0">
+                             <label class="block text-[10px] font-black text-orange-400 dark:text-brand-500 uppercase tracking-wide mb-2">¿Quién tiene el dinero? (Para Mi Corte)</label>
+                             <select v-model="cobradorSeleccionado" @change="onCobradorChange" class="w-full bg-orange-50 dark:bg-slate-950 border-2 border-orange-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-white focus:border-brand-500 focus:ring-0">
                                  <option value="">-- Yo (Usuario actual) --</option>
                                  <option v-for="v in vendedoresFiltrados" :key="`cobrador-${v.type}-${v.id}`" :value="`${v.type}-${v.id}`">{{ v.nombre }}</option>
                              </select>
@@ -988,10 +1033,10 @@ onMounted(async () => {
                 <!-- Cliente -->
                 <div class="relative group">
                     <div class="absolute -inset-0.5 bg-gradient-to-br from-blue-200 to-indigo-300 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-[2rem] blur opacity-10"></div>
-                    <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                    <div class="relative bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
                         <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/30 dark:bg-slate-950/20">
-                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400 mr-4 border border-blue-500/20 shadow-inner">
-                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-brand-500/10 text-blue-600 dark:text-blue-400 mr-4 border border-blue-500/20 shadow-inner">
+                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                             </div>
                             <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Cliente</h2>
                         </div>
@@ -1010,15 +1055,15 @@ onMounted(async () => {
                 <!-- Productos -->
                 <div class="relative group">
                     <div class="absolute -inset-0.5 bg-gradient-to-br from-indigo-200 to-purple-300 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-[2rem] blur opacity-10"></div>
-                    <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                    <div class="relative bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
                         <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/30 dark:bg-slate-950/20">
                             <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mr-4 border border-indigo-500/20 shadow-inner">
-                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                             </div>
                             <h2 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Productos y Servicios</h2>
                         </div>
                         <div class="p-8">
-                            <div class="mb-8 p-6 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+                            <div class="mb-8 p-6 bg-[var(--ui-surface)] dark:bg-slate-950/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
                                  <BuscarProducto
                                     ref="buscarProductoRef"
                                     :productos="productos"
@@ -1048,21 +1093,21 @@ onMounted(async () => {
                 </div>
 
                 <!-- Notas -->
-                 <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+                 <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
                     <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-800/50 flex items-center bg-slate-50/50 dark:bg-slate-950/20">
-                         <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Notas Adicionales</h2>
+                         <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wide">Notas Adicionales</h2>
                     </div>
                     <div class="p-8">
-                         <textarea v-model="form.notas" rows="4" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-0"></textarea>
+                         <textarea v-model="form.notas" rows="4" class="w-full bg-[var(--ui-surface)] border-2 border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white focus:border-brand-500 focus:ring-0"></textarea>
                     </div>
                   </div>
             </div>
 
             <!-- Sidebar Sticky -->
-             <div class="xl:col-span-4 space-y-8">
-                 <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden sticky top-6">
+             <div class="xl:col-span-4 space-y-6">
+                 <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden sticky top-6">
                      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800/50" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}05 100%)` }">
-                        <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Resumen</h2>
+                        <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wide">Resumen</h2>
                      </div>
                      <div class="p-8 space-y-5">
                         <div class="space-y-3">
@@ -1072,8 +1117,8 @@ onMounted(async () => {
                              <div class="pt-3 border-t border-dashed border-slate-100 dark:border-slate-800">
                                  <label class="text-[10px] uppercase font-black text-slate-400 mb-2 block">Descuento Global</label>
                                  <div class="flex items-center gap-2">
-                                   <input type="number" v-model.number="form.descuento_general" @input="calcularTotal" min="0" :max="descuentoGeneralTipo === 'porcentaje' ? 100 : undefined" class="flex-1 bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm font-bold text-slate-900 dark:text-white" />
-                                   <div class="flex bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                                   <input type="number" v-model.number="form.descuento_general" @input="calcularTotal" min="0" :max="descuentoGeneralTipo === 'porcentaje' ? 100 : undefined" class="flex-1 bg-[var(--ui-surface)] border-2 border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-slate-900 dark:text-white" />
+                                   <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
                                      <button type="button" @click="descuentoGeneralTipo = 'monto'; calcularTotal()" :class="['px-2.5 py-2 text-[10px] font-black transition-all', descuentoGeneralTipo === 'monto' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700']">
                                        $
                                      </button>
@@ -1091,24 +1136,24 @@ onMounted(async () => {
                              <div class="flex flex-col gap-2 pt-3 border-t border-dashed border-slate-100 dark:border-slate-800">
                                 <label class="flex items-center justify-between cursor-pointer group">
                                     <span class="text-[10px] uppercase font-black text-slate-400 group-hover:text-indigo-500 transition-colors">Ret. IVA</span>
-                                    <input type="checkbox" v-model="aplicarRetencionIva" @change="calcularTotal" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
+                                    <input type="checkbox" v-model="aplicarRetencionIva" @change="calcularTotal" class="rounded-xl border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-brand-500 bg-[var(--ui-surface)] dark:bg-slate-800" />
                                 </label>
                                 <label class="flex items-center justify-between cursor-pointer group">
                                     <span class="text-[10px] uppercase font-black text-slate-400 group-hover:text-indigo-500 transition-colors">Ret. ISR</span>
-                                    <input type="checkbox" v-model="aplicarRetencionIsr" @change="calcularTotal" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
+                                    <input type="checkbox" v-model="aplicarRetencionIsr" @change="calcularTotal" class="rounded-xl border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-brand-500 bg-[var(--ui-surface)] dark:bg-slate-800" />
                                 </label>
                              </div>
                              
                              <div class="pt-3 flex justify-between text-xs font-bold text-slate-400 dark:text-slate-500 uppercase"><span>IVA ({{ props.defaults?.ivaPorcentaje ?? 16 }}%)</span><span>${{ formatNumber(totales.iva) }}</span></div>
-                             <div v-if="totales.retencion_iva > 0" class="flex justify-between text-xs font-bold text-amber-500 uppercase"><span>Ret. IVA</span><span>-${{ formatNumber(totales.retencion_iva) }}</span></div>
-                             <div v-if="totales.retencion_isr > 0" class="flex justify-between text-xs font-bold text-amber-500 uppercase"><span>Ret. ISR</span><span>-${{ formatNumber(totales.retencion_isr) }}</span></div>
+                             <div v-if="totales.retencion_iva > 0" class="flex justify-between text-xs font-bold text-brand-500 uppercase"><span>Ret. IVA</span><span>-${{ formatNumber(totales.retencion_iva) }}</span></div>
+                             <div v-if="totales.retencion_isr > 0" class="flex justify-between text-xs font-bold text-brand-500 uppercase"><span>Ret. ISR</span><span>-${{ formatNumber(totales.retencion_isr) }}</span></div>
                         </div>
                         <div class="pt-6 border-t-2 border-slate-100 dark:border-slate-800 text-center">
-                            <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1 block">Total a Pagar</span>
+                            <span class="text-[10px] font-black text-indigo-400 uppercase tracking-wide mb-1 block">Total a Pagar</span>
                             <div class="text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">${{ formatNumber(totales.total) }}</div>
                         </div>
-                        <button @click="abrirModalPago" :disabled="form.processing" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <button @click="abrirModalPago" :disabled="form.processing" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase tracking-wide rounded-2xl shadow-xl hover:shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                              Cobrar Venta
                         </button>
                      </div>

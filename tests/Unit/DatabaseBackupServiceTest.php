@@ -6,6 +6,7 @@ use App\Services\DatabaseBackupService;
 use Tests\TestCase;
 use ReflectionMethod;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 
 class DatabaseBackupServiceTest extends TestCase
 {
@@ -15,7 +16,7 @@ class DatabaseBackupServiceTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function format_bytes_converts_sizes_correctly(): void
     {
         $mock = Mockery::mock(DatabaseBackupService::class)->makePartial();
@@ -28,13 +29,14 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertSame('2.5 GB', $method->invoke($mock, 2.5 * 1024 * 1024 * 1024));
     }
 
-    /** @test */
+    #[Test]
     public function can_create_backup_with_basic_options(): void
     {
         // Usar driver real (pgsql) y mockear la llamada al sistema
         config(['database.default' => 'pgsql']);
 
         $mock = Mockery::mock(DatabaseBackupService::class)->makePartial()->shouldAllowMockingProtectedMethods();
+        $mock->shouldReceive('hasEnoughDiskSpace')->andReturn(true);
         $mock->shouldReceive('isPgDumpAvailable')->andReturn(true);
         $mock->shouldReceive('createBackupWithPgDump')
             ->once()
@@ -51,7 +53,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertEquals('Respaldo creado con pg_dump', $result['message']);
     }
 
-    /** @test */
+    #[Test]
     public function can_list_backups(): void
     {
         // Mock del servicio para evitar dependencias de Laravel
@@ -83,7 +85,7 @@ class DatabaseBackupServiceTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function can_verify_backup_exists(): void
     {
         // Mock del servicio
@@ -102,7 +104,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertFalse($notExists);
     }
 
-    /** @test */
+    #[Test]
     public function can_delete_backup(): void
     {
         // Mock del servicio
@@ -122,7 +124,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('freed_space', $result);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_backup_info(): void
     {
         // Mock del servicio
@@ -148,7 +150,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertEquals('sql', $info['type']);
     }
 
-    /** @test */
+    #[Test]
     public function can_compress_backup(): void
     {
         // Mock del servicio
@@ -172,7 +174,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertGreaterThan(0, $result['size']);
     }
 
-    /** @test */
+    #[Test]
     public function can_verify_backup_integrity(): void
     {
         // Mock del servicio
@@ -192,7 +194,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertGreaterThan(0, $result['size']);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_security_stats(): void
     {
         // Mock del servicio
@@ -222,7 +224,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertLessThanOrEqual(100, $stats['security_score']);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_compression_stats(): void
     {
         // Mock del servicio
@@ -244,7 +246,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('space_saved', $stats);
     }
 
-    /** @test */
+    #[Test]
     public function can_generate_health_report(): void
     {
         // Mock del servicio
@@ -272,7 +274,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('recommendations', $report);
     }
 
-    /** @test */
+    #[Test]
     public function can_clean_old_backups(): void
     {
         // Mock del servicio
@@ -292,7 +294,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('freed_space', $result);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_system_status(): void
     {
         // Mock del servicio
@@ -321,7 +323,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertIsBool($status['disk_writable']);
     }
 
-    /** @test */
+    #[Test]
     public function handles_backup_creation_errors_gracefully(): void
     {
         // Mock para simular error en creación de respaldo
@@ -334,7 +336,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertStringContainsString('insuficiente', $result['message']);
     }
 
-    /** @test */
+    #[Test]
     public function can_create_secure_backup(): void
     {
         // Mock completo del servicio para evitar dependencias de Laravel
@@ -359,7 +361,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('size', $result);
     }
 
-    /** @test */
+    #[Test]
     public function can_create_incremental_backup(): void
     {
         $mock = Mockery::mock(DatabaseBackupService::class)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -378,7 +380,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertFalse($result['incremental']);
     }
 
-    /** @test */
+    #[Test]
     public function can_create_scheduled_backup(): void
     {
         $scheduleConfig = [
@@ -411,7 +413,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('next_run', $result);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_advanced_monitoring_data(): void
     {
         // Mock del servicio
@@ -464,7 +466,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertArrayHasKey('recommendations', $monitoringData);
     }
 
-    /** @test */
+    #[Test]
     public function validates_backup_name_format(): void
     {
         $mock = Mockery::mock(DatabaseBackupService::class)->makePartial();
@@ -487,7 +489,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertStringEndsWith('.sql', $filename3);
     }
 
-    /** @test */
+    #[Test]
     public function can_handle_encrypted_backups(): void
     {
         // Mock del servicio
@@ -515,7 +517,7 @@ class DatabaseBackupServiceTest extends TestCase
         $this->assertTrue($isEncrypted);
     }
 
-    /** @test */
+    #[Test]
     public function can_detect_database_changes(): void
     {
         $method = new ReflectionMethod(DatabaseBackupService::class, 'detectDatabaseChanges');

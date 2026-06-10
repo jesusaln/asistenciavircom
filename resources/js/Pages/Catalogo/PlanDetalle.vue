@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
@@ -15,14 +16,12 @@ const cssVars = computed(() => ({
     '--color-primary-light': `${props.empresa?.color_principal || '#3b82f6'}20`,
 }));
 
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const getColorPlan = computed(() => {
     if (props.plan.color) return props.plan.color;
     const colores = {
-        mantenimiento: '#3B82F6',
+        mantenimiento: '#FF6B35',
         soporte: '#10B981',
         garantia: '#8B5CF6',
         premium: '#F59E0B',
@@ -35,13 +34,13 @@ const getColorPlan = computed(() => {
 <template>
     <Head :title="`${plan.nombre} - ${empresa?.nombre}`" />
 
-    <div class="min-h-screen bg-slate-50 dark:bg-gray-900" :style="cssVars">
+    <div class="min-h-screen bg-[var(--ui-surface)] dark:bg-slate-800" :style="cssVars">
         <!-- Navbar -->
         <PublicNavbar :empresa="empresa" activeTab="polizas" />
 
         <main class="py-12">
             <div class="w-full px-4">
-                <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-3xl shadow-xl dark:shadow-none overflow-hidden border border-gray-100 dark:border-gray-700">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl dark:shadow-none overflow-hidden border border-slate-100 dark:border-slate-700">
                     <div class="grid grid-cols-1 lg:grid-cols-2">
                         
                         <!-- Columna Izquierda: Visual -->
@@ -50,21 +49,21 @@ const getColorPlan = computed(() => {
                             <div class="inline-flex items-center justify-center lg:justify-start gap-3 mb-6">
                                 <span class="text-6xl">{{ plan.icono_display }}</span>
                             </div>
-                            <h1 class="text-4xl lg:text-5xl font-extrabold mb-4">{{ plan.nombre }}</h1>
+                            <h1 class="text-4xl lg:text-5xl font-black mb-4">{{ plan.nombre }}</h1>
                             <p class="text-xl text-white/90 mb-8 leading-relaxed">
                                 {{ plan.descripcion_corta || 'Protección integral para tus equipos y sistemas con respuesta garantizada.' }}
                             </p>
                             
-                            <div class="space-y-4">
-                                <div class="flex items-center gap-4 bg-white dark:bg-slate-900/10 p-4 rounded-2xl backdrop-blur-sm">
-                                    <div class="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-xl flex items-center justify-center text-2xl">⏱️</div>
+                            <div class="space-y-6">
+                                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-2xl">⏱️</div>
                                     <div>
                                         <div class="font-bold text-lg">{{ plan.horas_incluidas || 'Horas ilimitadas' }}</div>
                                         <div class="text-white/70 text-sm">Servicio Técnico Incluido</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-4 bg-white dark:bg-slate-900/10 p-4 rounded-2xl backdrop-blur-sm">
-                                    <div class="w-12 h-12 bg-white dark:bg-slate-900/20 rounded-xl flex items-center justify-center text-2xl">⚡</div>
+                                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-2xl">⚡</div>
                                     <div>
                                         <div class="font-bold text-lg">{{ plan.sla_horas_respuesta }} Horas</div>
                                         <div class="text-white/70 text-sm">Tiempo Máximo de Respuesta</div>
@@ -76,12 +75,12 @@ const getColorPlan = computed(() => {
                         <!-- Columna Derecha: Detalles y Precio -->
                         <div class="p-8 lg:p-12">
                             <div class="mb-8">
-                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white dark:text-white mb-6 underline decoration-[var(--color-primary)] decoration-4 underline-offset-8">
+                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6 hover:underline decoration-[var(--color-primary)] decoration-4 underline-offset-8">
                                     Incluido en este Plan
                                 </h2>
                                 <ul class="grid grid-cols-1 gap-4">
-                                    <li v-for="(beneficio, index) in plan.beneficios" :key="index" class="flex items-start gap-3 text-gray-700 dark:text-gray-200">
-                                        <svg class="w-6 h-6 text-green-500 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <li v-for="(beneficio, index) in plan.beneficios" :key="index" class="flex items-start gap-3 text-slate-700 dark:text-slate-200">
+                                        <svg class="w-10 h-10 text-emerald-500 dark:text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         <span class="font-medium">{{ beneficio }}</span>
@@ -89,34 +88,34 @@ const getColorPlan = computed(() => {
                                 </ul>
                             </div>
 
-                            <div v-if="plan.descripcion" class="mb-8 text-gray-600 dark:text-gray-300 dark:text-gray-300 leading-relaxed">
+                            <div v-if="plan.descripcion" class="mb-8 text-slate-500 dark:text-slate-200 leading-relaxed">
                                 <p>{{ plan.descripcion }}</p>
                             </div>
 
                             <!-- Card de Precio -->
-                            <div class="bg-slate-50 dark:bg-gray-700 rounded-2xl p-6 border-2 border-dashed border-gray-200 dark:border-slate-800 dark:border-gray-600">
+                            <div class="bg-slate-50 dark:bg-slate-700 rounded-2xl p-6 border-2 border-dashed border-slate-200 dark:border-slate-700">
                                 <div class="flex justify-between items-end mb-4">
                                     <div>
-                                        <div class="text-gray-500 dark:text-gray-400 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Inversión Mensual</div>
-                                        <div class="text-4xl font-extrabold text-gray-900 dark:text-white dark:text-white">{{ formatCurrency(plan.precio_mensual) }}</div>
+                                        <div class="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider">Inversión Mensual</div>
+                                        <div class="text-4xl font-black text-slate-900 dark:text-white">{{ formatCurrency(plan.precio_mensual) }}</div>
                                     </div>
                                     <div v-if="plan.ahorro_anual > 0" class="text-right">
-                                        <div class="text-green-600 dark:text-green-400 font-bold text-sm bg-green-100 dark:bg-green-900/20 px-3 py-1 rounded-full">-{{ plan.porcentaje_descuento_anual }}% Anual</div>
+                                        <div class="text-emerald-600 dark:text-slate-400 font-bold text-sm bg-emerald-100 dark:bg-slate-800/20 px-3 py-1 rounded-full">-{{ plan.porcentaje_descuento_anual }}% Anual</div>
                                     </div>
                                 </div>
 
-                                <div v-if="plan.precio_instalacion > 0" class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-6 italic">
+                                <div v-if="plan.precio_instalacion > 0" class="text-sm text-slate-500 dark:text-slate-400 mb-6 italic">
                                     * Costo único de activación: {{ formatCurrency(plan.precio_instalacion) }}
                                 </div>
 
                                 <Link 
                                     :href="route('contratacion.show', plan.slug)"
-                                    class="block w-full py-4 bg-[var(--color-primary)] text-white text-center font-bold text-lg rounded-xl shadow-lg hover:opacity-90 transition-all transform hover:-translate-y-1"
+                                    class="block w-full py-4 bg-[var(--color-primary)] text-white text-center font-bold text-lg rounded-2xl shadow-xl hover:opacity-90 transition-all transform hover:shadow-xl hover:shadow-xl"
                                 >
                                     Contratar Plan Ahora
                                 </Link>
                                 
-                                <p class="text-center text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-4">
+                                <p class="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
                                     Sujeto a términos y condiciones establecidos en el contrato de servicio.
                                 </p>
                             </div>

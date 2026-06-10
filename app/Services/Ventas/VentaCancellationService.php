@@ -46,7 +46,11 @@ class VentaCancellationService
             }
 
             // 1. Update venta status to cancelled
-            $venta->update(['estado' => \App\Enums\EstadoVenta::Cancelada]);
+            $venta->update([
+                'estado' => \App\Enums\EstadoVenta::Cancelada,
+                'pagado' => false,
+                'notas_pago' => ($venta->notas_pago ? $venta->notas_pago . ' | ' : '') . 'Venta cancelada: pago invalidado'
+            ]);
 
             // 2. Return series to stock (Observer handles inventory sync automatically)
             $this->returnSeriesToStock($venta);
@@ -59,6 +63,9 @@ class VentaCancellationService
 
             // 5. Dispatch VentaCancelled event
             event(new \App\Events\VentaCancelled($venta, $motivo));
+
+            // Invalidate summary stats cache
+            app(\App\Services\Ventas\VentaQueryService::class)->invalidateSummaryStatsCache();
 
             return $venta->fresh() ?? $venta;
         });
@@ -90,43 +97,54 @@ class VentaCancellationService
      */
     protected function deleteVentaPayments(Venta $venta): void
     {
-        // 1. Delete EntregaDinero records (Cash/Mixed)
-        $deletedEntregas = EntregaDinero::where('tipo_origen', 'venta')
-            ->where('id_origen', $venta->id)
-            ->forceDelete();
+        $userId = auth()->id();
+        $timestamp = now()->format('Y-m-d H:i:s');
+        $auditNote = "Eliminado por cancelación forzada de venta #{$venta->id} por usuario #{$userId} en {$timestamp}";
 
-        if ($deletedEntregas > 0) {
-            Log::info('Deleted EntregaDinero records for cancelled venta', [
+        // 1. Delete EntregaDinero records (Cash/Mixed)
+        // ✅ FIX (A-06): Use soft delete instead of forceDelete
+        $entregas = EntregaDinero::where('tipo_origen', 'venta')
+            ->where('id_origen', $venta->id)
+            ->get();
+
+        foreach ($entregas as $entrega) {
+            $entrega->update(['notas' => ($entrega->notas ? $entrega->notas . ' | ' : '') . $auditNote]);
+            $entrega->delete();
+        }
+
+        if ($entregas->count() > 0) {
+            Log::info('Soft-deleted EntregaDinero records for cancelled venta', [
                 'venta_id' => $venta->id,
-                'records_deleted' => $deletedEntregas,
-                'user_id' => auth()->id(),
+                'records_deleted' => $entregas->count(),
+                'user_id' => $userId,
             ]);
         }
 
         // 2. Identify and Delete MovimientoBancario records
-        // Structured approach: Find CxC first, then movements linked to it
-        $cxc = CuentasPorCobrar::where('cobrable_type', 'venta') // Using alias/map if available, or direct class
+        $cxc = CuentasPorCobrar::where('cobrable_type', 'venta')
             ->where('cobrable_id', $venta->id)
             ->first();
 
         if ($cxc) {
-            // Find all bank movements linked to this CxC via polymorphic relation
             $movimientos = \App\Models\MovimientoBancario::where('conciliable_type', get_class($cxc))
                 ->where('conciliable_id', $cxc->id)
                 ->get();
 
             foreach ($movimientos as $movimiento) {
-                // Revert balance on the bank account if it was already updated
                 if ($movimiento->cuentaBancaria && $movimiento->estado === 'conciliado') {
                     $movimiento->cuentaBancaria->revertirSaldoPorMovimiento($movimiento);
                 }
 
-                // Force delete the movement to clean up financial history for this cancelled sale
-                $movimiento->forceDelete();
+                // ✅ FIX (A-06): Soft delete with audit trail
+                $movimiento->update([
+                    'notas' => ($movimiento->notas ? $movimiento->notas . ' | ' : '') . $auditNote,
+                    'estado' => 'pendiente' // Revert to pending before soft delete
+                ]);
+                $movimiento->delete();
             }
 
             if ($movimientos->count() > 0) {
-                Log::info('Deleted MovimientoBancario records via CxC for cancelled venta', [
+                Log::info('Soft-deleted MovimientoBancario records via CxC for cancelled venta', [
                     'venta_id' => $venta->id,
                     'cxc_id' => $cxc->id,
                     'records_deleted' => $movimientos->count(),
@@ -134,10 +152,12 @@ class VentaCancellationService
             }
 
             // 3. Finally delete the CuentasPorCobrar
-            $cxc->forceDelete();
+            // ✅ FIX (A-06): Soft delete
+            $cxc->update(['notas' => ($cxc->notas ? $cxc->notas . ' | ' : '') . $auditNote]);
+            $cxc->delete();
         }
 
-        // Fallback: If for some reason CxC didn't exist or movements were linked directly to Venta
+        // Fallback: Direct movements
         $movimientosDirectos = \App\Models\MovimientoBancario::where('conciliable_type', get_class($venta))
             ->where('conciliable_id', $venta->id)
             ->get();
@@ -146,7 +166,8 @@ class VentaCancellationService
             if ($mov->cuentaBancaria && $mov->estado === 'conciliado') {
                 $mov->cuentaBancaria->revertirSaldoPorMovimiento($mov);
             }
-            $mov->forceDelete();
+            $mov->update(['notas' => ($mov->notas ? $mov->notas . ' | ' : '') . $auditNote]);
+            $mov->delete();
         }
     }
 

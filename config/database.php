@@ -87,9 +87,33 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'cdd_app_prod'),
-            'username' => env('DB_USERNAME', 'cdd_user'),
-            'password' => env('DB_PASSWORD', 'Contpaqi1.'),
+            'database' => env('DB_DATABASE', 'cdd_climas'),
+            'username' => env('DB_USERNAME', 'cdd_climas'),
+            'password' => env('DB_PASSWORD', 'cdd_climas'),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+            'pool' => [
+                'min' => env('DB_POOL_MIN', 2),
+                'max' => env('DB_POOL_MAX', 10),
+                'idle_timeout' => env('DB_POOL_IDLE_TIMEOUT', 600),
+                'max_lifetime' => env('DB_POOL_MAX_LIFETIME', 1800),
+            ],
+            'options' => [
+                'connect_timeout' => env('DB_CONNECT_TIMEOUT', 10),
+            ],
+        ],
+
+        'vircom' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),
+            'host' => '127.0.0.1',
+            'port' => env('DB_PORT', '5432'),
+            'database' => 'vircom_local_dev',
+            'username' => 'cdd_climas',
+            'password' => 'cdd_climas',
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
@@ -147,7 +171,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

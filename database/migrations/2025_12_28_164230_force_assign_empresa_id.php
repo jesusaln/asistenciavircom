@@ -39,7 +39,7 @@ return new class extends Migration {
                 });
 
                 // Asignar empresa_id = 8 (ID de la única empresa actual) a todos los registros
-                \Illuminate\Support\Facades\DB::table($tableName)->whereNull('empresa_id')->update(['empresa_id' => 8]);
+                \Illuminate\Support\Facades\DB::table($tableName)->whereNull('empresa_id')->update(['empresa_id' => 1]);
             }
         }
     }

@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ResponsabilidadHerramienta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'responsabilidades_herramientas';
@@ -81,7 +84,7 @@ class ResponsabilidadHerramienta extends Model
     public function getHerramientasVencidasAttribute()
     {
         return $this->herramientas_activas->filter(function ($herramienta) {
-            return $herramienta->necesitaMantenimiento() || $herramienta->vidaUtilProximaAVencer();
+            return $herramienta->necesitaMantenimiento() || $herramienta->isVidaUtilProximaAVencer();
         });
     }
 
@@ -100,7 +103,7 @@ class ResponsabilidadHerramienta extends Model
         $herramientasIds = $herramientasAsignadas->pluck('id')->toArray();
         $valorTotal = $herramientasAsignadas->sum('costo_reemplazo') ?? 0;
         $tieneVencidas = $herramientasAsignadas->filter(function ($herramienta) {
-            return $herramienta->necesitaMantenimiento() || $herramienta->vidaUtilProximaAVencer();
+            return $herramienta->necesitaMantenimiento() || $herramienta->isVidaUtilProximaAVencer();
         })->count() > 0;
 
         // Calcular promedio de días de uso

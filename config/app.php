@@ -13,9 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
-
-    'business' => env('APP_BUSINESS', 'vircom'),
+    'name' => env('APP_NAME', 'Sistema'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,6 +68,20 @@ return [
     'timezone' => env('APP_TIMEZONE', 'America/Hermosillo'),
 
     /*
+    | Zona horaria para CFDI, cortes contables y reportes fiscales (SAT).
+    | Debe coincidir con la operación fiscal de México salvo requisito explícito.
+    */
+    'financial_timezone' => env('APP_FINANCIAL_TIMEZONE', 'America/Mexico_City'),
+
+    /*
+    | CDN (usar solo config(), nunca env() fuera de archivos de configuración;
+    | de lo contrario queda en null con config:cache en producción).
+    */
+    'cdn_url' => env('CDN_URL'),
+
+    'force_cdn' => (bool) env('FORCE_CDN', false),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
@@ -109,6 +121,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Danger Zone (Eliminación Masiva)
+    |--------------------------------------------------------------------------
+    |
+    | Protege las acciones destructivas masivas en producción.
+    | Para habilitar temporalmente, setear DANGER_ZONE_ENABLED=true
+    |
+    */
+    'danger_zone_enabled' => env('DANGER_ZONE_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
@@ -125,59 +148,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'apk_version' => env('APK_VERSION', '1.0.0'),
+
     /*
     |--------------------------------------------------------------------------
-    | Class Aliases
+    | Comisiones
     |--------------------------------------------------------------------------
-    |
-    | This array of class aliases will be registered when this application
-    | is started. However, feel free to register as many as you wish as
-    | the aliases are "lazy" loaded so they don't hinder performance.
-    |
     */
-
-    'aliases' => [
-        'App' => Illuminate\Support\Facades\App::class,
-        'Arr' => Illuminate\Support\Arr::class,
-        'Artisan' => Illuminate\Support\Facades\Artisan::class,
-        'Auth' => Illuminate\Support\Facades\Auth::class,
-        'Blade' => Illuminate\Support\Facades\Blade::class,
-        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
-        'Bus' => Illuminate\Support\Facades\Bus::class,
-        'Cache' => Illuminate\Support\Facades\Cache::class,
-        'Config' => Illuminate\Support\Facades\Config::class,
-        'Cookie' => Illuminate\Support\Facades\Cookie::class,
-        'Crypt' => Illuminate\Support\Facades\Crypt::class,
-        'Date' => Illuminate\Support\Facades\Date::class,
-        'DB' => Illuminate\Support\Facades\DB::class,
-        'Eloquent' => Illuminate\Database\Eloquent\Model::class,
-        'Event' => Illuminate\Support\Facades\Event::class,
-        'File' => Illuminate\Support\Facades\File::class,
-        'Gate' => Illuminate\Support\Facades\Gate::class,
-        'Hash' => Illuminate\Support\Facades\Hash::class,
-        'Http' => Illuminate\Support\Facades\Http::class,
-        'Js' => Illuminate\Support\Js::class,
-        'Lang' => Illuminate\Support\Facades\Lang::class,
-        'Log' => Illuminate\Support\Facades\Log::class,
-        'Mail' => Illuminate\Support\Facades\Mail::class,
-        'Notification' => Illuminate\Support\Facades\Notification::class,
-        'Password' => Illuminate\Support\Facades\Password::class,
-        'Process' => Illuminate\Support\Facades\Process::class,
-        'Queue' => Illuminate\Support\Facades\Queue::class,
-        'RateLimiter' => Illuminate\Support\Facades\RateLimiter::class,
-        'Redirect' => Illuminate\Support\Facades\Redirect::class,
-        'Request' => Illuminate\Support\Facades\Request::class,
-        'Response' => Illuminate\Support\Facades\Response::class,
-        'Route' => Illuminate\Support\Facades\Route::class,
-        'Schema' => Illuminate\Support\Facades\Schema::class,
-        'Session' => Illuminate\Support\Facades\Session::class,
-        'Storage' => Illuminate\Support\Facades\Storage::class,
-        'Str' => Illuminate\Support\Str::class,
-        'URL' => Illuminate\Support\Facades\URL::class,
-        'Validator' => Illuminate\Support\Facades\Validator::class,
-        'View' => Illuminate\Support\Facades\View::class,
-        'Vite' => Illuminate\Support\Facades\Vite::class,
-        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
-    ],
+    'comision_default_productos' => env('COMISION_DEFAULT_PRODUCTOS', 10),
+    'comision_split_tecnico' => env('COMISION_SPLIT_TECNICO', 70),
+    'comision_split_ayudante' => env('COMISION_SPLIT_AYUDANTE', 30),
 
 ];

@@ -21,46 +21,72 @@ class Kernel extends ConsoleKernel
         // Enviar recordatorios por WhatsApp 1 día antes del vencimiento a las 09:00
         $schedule->command('whatsapp:enviar-recordatorios --dias=1')
             ->dailyAt('09:00')
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/whatsapp_recordatorios.log'));
 
         // Enviar alertas de vencimiento de pólizas (30, 15, 7 días antes)
         $schedule->command('polizas:check-expirations')
             ->dailyAt('09:30')
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/polizas_vencimientos.log'));
 
         // Verificar pólizas próximas a vencer y disparar eventos
         $schedule->command('polizas:verificar-vencimientos')
             ->dailyAt('09:30')
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/polizas_verificar_vencimientos.log'));
 
         // Generar tickets de mantenimiento preventivo para pólizas
         $schedule->command('polizas:generar-mantenimientos')
             ->dailyAt('07:00')
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/polizas_mantenimientos.log'));
 
         // Verificar SLAs de Tickets
         $schedule->command('tickets:check-sla')
             ->everyFifteenMinutes()
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/tickets_sla.log'));
 
         // Sincronizar stock de series automáticamente cada madrugada (02:00 AM)
         $schedule->command('productos:sync-series-stock --auto --notify')
             ->dailyAt('02:00')
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/cron_sync.log'));
 
         // Actualizar cuentas por pagar vencidas cada día a las 06:00
         $schedule->command('cuentas:actualizar-vencidas')
             ->dailyAt('06:00')
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/cuentas_vencidas.log'));
 
         // Alerta si hay jobs fallidos acumulados (backups, SAT, WhatsApp, etc.)
         $schedule->command('queue:alert-failed --threshold=1')
             ->hourly()
+            ->runInBackground()
             ->appendOutputTo(storage_path('logs/queue_failed_alert.log'));
+
+        // Alertas de Taller: Verificar cada 4 horas órdenes por entregar o vencidas
+        $schedule->command('taller:check-alerts')
+            ->everyFourHours()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/taller_alerts.log'));
+
+        // Recordatorio WhatsApp: Clientes con instalación de 6+ meses
+        $schedule->command('whatsapp:recordatorio-6meses')
+            ->dailyAt('10:00')
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/whatsapp_recordatorios.log'));
 
         // =====================================================
         // BACKUPS AUTOMÁTICOS - Configuración dinámica desde empresa
         // =====================================================
+        // Descarga Masiva del SAT cada día a la 01:00 AM
+        $schedule->command('sat:daily-download')
+            ->dailyAt('01:00')
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/sat_descarga_diaria.log'));
+
         $this->scheduleBackups($schedule);
     }
 

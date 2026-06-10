@@ -51,8 +51,8 @@ class CheckSlaBreaches extends Command
                     $count++;
                 }
             }
-            // 2. Alerta de Advertencia (Faltan menios de 2 horas)
-            elseif ($fechaLimite->diffInHours($now) <= 2) {
+            // 2. Alerta de Advertencia (Faltan menos de 2 horas)
+            elseif ($fechaLimite->diffInHours($now, true) <= 2) {
                 if (!Cache::has("sla_warning_alert_{$ticket->id}")) {
                     $this->alertWarning($ticket, $fechaLimite);
                     Cache::put("sla_warning_alert_{$ticket->id}", true, now()->addDays(2));
@@ -84,7 +84,7 @@ class CheckSlaBreaches extends Command
 
     private function alertWarning(Ticket $ticket, $fechaLimite)
     {
-        $horasRestantes = $fechaLimite->diffInHours(now());
+        $horasRestantes = $fechaLimite->diffInHours(now(), true);
         $tiempoRestante = $fechaLimite->diffForHumans();
 
         $this->comment("Ticket #{$ticket->folio} está próximo a vencer ({$tiempoRestante}).");

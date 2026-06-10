@@ -154,8 +154,8 @@
     <div class="watermark">ORIGINAL</div>
 
     <div class="header">
-        @if(file_exists(public_path('images/logo.png')))
-        <img src="{{ asset('images/logo.png') }}" style="height: 60px; margin-bottom: 10px;" alt="Logo Empresa">
+        @if(file_exists(public_path('images/logo.webp')))
+        <img src="{{ asset('images/logo.webp') }}" style="height: 60px; margin-bottom: 10px;" alt="Logo Empresa">
         @else
         <div style="font-size: 18pt; font-weight: bold; color: #1e40af; margin-bottom: 10px;">CLIMAS DEL DESIERTO</div>
         @endif

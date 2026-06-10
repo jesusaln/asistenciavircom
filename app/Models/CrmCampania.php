@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CrmCampania extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'crm_campanias';

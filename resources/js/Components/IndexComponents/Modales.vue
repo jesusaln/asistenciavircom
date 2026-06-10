@@ -12,7 +12,7 @@
           'max-w-md': mode === 'confirm' || mode === 'confirm-duplicate' || mode === 'confirm-cancel' || mode === 'close',
           'max-w-4xl': mode === 'details'
         }"
-        class="bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto p-6 outline-none"
+        class="bg-white rounded-xl shadow-xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar p-6 outline-none"
         role="dialog"
         aria-modal="true"
         :aria-label="`Modal de ${config.titulo}`"
@@ -22,8 +22,8 @@
       >
         <!-- Modo: Confirmación de eliminación -->
         <div v-if="mode === 'confirm'" class="text-center">
-          <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-12 h-12 mx-auto bg-rose-100 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -35,19 +35,19 @@
           <h3 class="text-lg font-medium mb-2">
             ¿Eliminar {{ config.titulo.toLowerCase() }}?
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-slate-600 mb-6">
             Esta acción no se puede deshacer.
           </p>
           <div class="flex gap-3">
             <button
               @click="onCancel"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="onConfirm"
-              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors"
             >
               Eliminar
             </button>
@@ -56,8 +56,8 @@
 
         <!-- Modo: Confirmación de envío de email -->
         <div v-if="mode === 'confirm-email'" class="text-center">
-          <div class="w-10 h-10 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3">
-            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
@@ -66,18 +66,18 @@
                ? (selected?.email_enviado ? '¿Reenviar recordatorio de pago?' : '¿Enviar recordatorio de pago?')
                : (selected?.email_enviado ? `¿Reenviar ${config.titulo.toLowerCase()}?` : `¿Enviar ${config.titulo.toLowerCase()}?`) }}
           </h3>
-          <div v-if="selected?.numero_cotizacion || selected?.numero_pedido || selected?.numero_venta" class="text-gray-600 mb-3">
+          <div v-if="selected?.numero_cotizacion || selected?.numero_pedido || selected?.numero_venta" class="text-slate-600 mb-3">
             <p class="mb-1 text-sm">
               {{ config.titulo }} <strong>#{{ selected.numero_cotizacion || selected.numero_pedido || selected.numero_venta }}</strong>
             </p>
-            <p v-if="selected?.email_destino" class="text-xs text-gray-500">
+            <p v-if="selected?.email_destino" class="text-xs text-slate-500">
               📧 {{ selected.email_destino }}
             </p>
             <p v-if="selected?.email_enviado" class="text-xs text-blue-600">
               ✉️ Enviado: {{ selected.email_enviado_fecha || 'N/A' }}
             </p>
           </div>
-          <p class="text-gray-500 mb-4 text-xs">
+          <p class="text-slate-500 mb-4 text-xs">
             {{ selected?.tipo_envio === 'recordatorio_pago'
                ? 'El cliente recibirá el recordatorio de pago con la factura adjunta por email'
                : 'El cliente recibirá el PDF por email' }}
@@ -85,13 +85,13 @@
           <div class="flex gap-2">
             <button
               @click="onCancel"
-              class="flex-1 px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors text-xs"
+              class="flex-1 px-3 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors text-xs"
             >
               Cancelar
             </button>
             <button
               @click="onConfirmEmail"
-              class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs"
+              class="flex-1 px-3 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors text-xs"
             >
               {{ selected?.tipo_envio === 'recordatorio_pago'
                  ? (selected?.email_enviado ? 'Reenviar Recordatorio' : 'Enviar Recordatorio')
@@ -102,7 +102,7 @@
 
         <!-- Modo: Confirmación de duplicado -->
         <div v-if="mode === 'confirm-duplicate'" class="text-center">
-          <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <div class="w-12 h-12 mx-auto bg-sky-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V7M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
             </svg>
@@ -110,22 +110,22 @@
           <h3 class="text-lg font-medium mb-2">
             ¿Duplicar {{ config.titulo.toLowerCase() }}?
           </h3>
-          <p class="text-gray-600 mb-6" v-if="selected?.numero_cotizacion">
+          <p class="text-slate-600 mb-6" v-if="selected?.numero_cotizacion">
             Se creará una copia de la {{ config.titulo.toLowerCase() }} <strong>#{{ selected.numero_cotizacion }}</strong> con estado "Borrador".
           </p>
-          <p class="text-gray-600 mb-6" v-else>
+          <p class="text-slate-600 mb-6" v-else>
             Se creará una copia de esta {{ config.titulo.toLowerCase() }} con estado "Borrador".
           </p>
           <div class="flex gap-3">
             <button
               @click="onCancel"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="onConfirmDuplicate"
-              class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
             >
               Duplicar
             </button>
@@ -134,7 +134,7 @@
 
         <!-- Modo: Cerrar pedido -->
         <div v-if="mode === 'close'" class="text-center">
-          <div class="w-12 h-12 mx-auto bg-orange-100 rounded-full flex items-center justify-center mb-4">
+          <div class="w-12 h-12 mx-auto bg-brand-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
@@ -142,19 +142,19 @@
           <h3 class="text-lg font-medium mb-2">
             ¿Cerrar {{ config.titulo.toLowerCase() }}?
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-slate-600 mb-6">
             Esta acción marcará el {{ config.titulo.toLowerCase() }} como cerrado.
           </p>
           <div class="flex gap-3">
             <button
               @click="onCancel"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="emit('cerrar-pedido')"
-              class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors"
             >
               Cerrar {{ config.titulo }}
             </button>
@@ -165,42 +165,42 @@
         <div v-else-if="mode === 'details'" class="space-y-4">
           <h3 class="text-lg font-medium mb-1 flex items-center gap-2">
             Detalles de {{ config.titulo }}
-            <span v-if="selected?.id" class="text-sm text-gray-500">#{{ selected.id }}</span>
+            <span v-if="selected?.id" class="text-sm text-slate-500">#{{ selected.id }}</span>
           </h3>
 
           <!-- NUEVO: Folio detectado automáticamente -->
-          <p v-if="folioValue" class="text-sm text-gray-600">
+          <p v-if="folioValue" class="text-sm text-slate-600">
             <strong>{{ folioLabel }}:</strong> {{ folioValue }}
           </p>
 
           <!-- NUEVO: Auditoría -->
-          <div v-if="auditoriaBoxVisible" class="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h4 class="text-sm font-semibold text-gray-800 mb-3">Auditoría</h4>
+          <div v-if="auditoriaBoxVisible" class="mt-2 p-4 bg-transparent rounded-xl border border-slate-200">
+            <h4 class="text-sm font-semibold text-slate-800 mb-3">Auditoría</h4>
             <div class="grid md:grid-cols-3 gap-3 text-sm">
               <div>
-                <span class="text-gray-500">Creado por:</span>
-                <div class="font-medium text-gray-900">
+                <span class="text-slate-500">Creado por:</span>
+                <div class="font-medium text-slate-900">
                   {{ auditoriaSafe.creado_por || '—' }}
                 </div>
-                <div class="text-gray-500">
+                <div class="text-slate-500">
                   {{ auditoriaSafe.creado_en ? formatearFecha(auditoriaSafe.creado_en) : '—' }}
                 </div>
               </div>
               <div>
-                <span class="text-gray-500">Actualizado por:</span>
-                <div class="font-medium text-gray-900">
+                <span class="text-slate-500">Actualizado por:</span>
+                <div class="font-medium text-slate-900">
                   {{ auditoriaSafe.actualizado_por || '—' }}
                 </div>
-                <div class="text-gray-500">
+                <div class="text-slate-500">
                   {{ auditoriaSafe.actualizado_en ? formatearFecha(auditoriaSafe.actualizado_en) : '—' }}
                 </div>
               </div>
               <div v-if="auditoriaSafe.eliminado_en">
-                <span class="text-gray-500">Eliminado por:</span>
-                <div class="font-medium text-gray-900">
+                <span class="text-slate-500">Eliminado por:</span>
+                <div class="font-medium text-slate-900">
                   {{ auditoriaSafe.eliminado_por || '—' }}
                 </div>
-                <div class="text-gray-500">
+                <div class="text-slate-500">
                   {{ auditoriaSafe.eliminado_en ? formatearFecha(auditoriaSafe.eliminado_en) : '—' }}
                 </div>
               </div>
@@ -212,21 +212,21 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Columna izquierda -->
               <div v-if="isEquipos">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Equipo:</strong> {{ selected.nombre || 'Sin nombre' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.marca || selected.modelo">
+                <p class="text-sm text-slate-600" v-if="selected.marca || selected.modelo">
                   <strong>Marca/Modelo:</strong>
                   {{ [selected.marca, selected.modelo].filter(Boolean).join(' · ') }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.codigo_interno">
+                <p class="text-sm text-slate-600" v-if="selected.codigo_interno">
                   <strong>Código interno:</strong> {{ selected.codigo_interno }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha:</strong>
                   {{ formatearFecha(selected.created_at || selected.fecha) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -242,19 +242,19 @@
               </div>
 
               <div v-else-if="isRentas">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Cliente:</strong> {{ selected.cliente?.nombre || 'Sin cliente' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.cliente?.email">
+                <p class="text-sm text-slate-600" v-if="selected.cliente?.email">
                   <strong>Email:</strong> {{ selected.cliente.email }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha inicio:</strong> {{ formatearFecha(selected.fecha_inicio || selected.created_at) }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.fecha_fin">
+                <p class="text-sm text-slate-600" v-if="selected.fecha_fin">
                   <strong>Fecha fin:</strong> {{ formatearFecha(selected.fecha_fin) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -268,20 +268,20 @@
 
               <!-- ÓRDENES DE COMPRA -->
               <div v-else-if="isOrdenesCompra">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Proveedor:</strong> {{ selected.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.proveedor?.email">
+                <p class="text-sm text-slate-600" v-if="selected.proveedor?.email">
                   <strong>Email:</strong> {{ selected.proveedor.email }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.proveedor?.telefono">
+                <p class="text-sm text-slate-600" v-if="selected.proveedor?.telefono">
                   <strong>Teléfono:</strong> {{ selected.proveedor.telefono }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha de creación:</strong>
                   {{ formatearFecha(selected.created_at) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -295,17 +295,17 @@
 
               <!-- COMPRAS -->
               <div v-else-if="isCompras">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Proveedor:</strong> {{ selected.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.proveedor?.email">
+                <p class="text-sm text-slate-600" v-if="selected.proveedor?.email">
                   <strong>Email:</strong> {{ selected.proveedor.email }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha:</strong>
                   {{ formatearFecha(selected.created_at || selected.fecha) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -319,20 +319,20 @@
 
               <!-- CLIENTES -->
               <div v-else-if="isClientes">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Nombre/Razón Social:</strong> {{ selected.nombre_razon_social || 'Sin nombre' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.email">
+                <p class="text-sm text-slate-600" v-if="selected.email">
                   <strong>Email:</strong> {{ selected.email }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.telefono">
+                <p class="text-sm text-slate-600" v-if="selected.telefono">
                   <strong>Teléfono:</strong> {{ selected.telefono }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha de registro:</strong>
                   {{ formatearFecha(selected.created_at) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.activo ? '1' : '0')"
@@ -346,41 +346,41 @@
 
               <!-- PRODUCTOS -->
               <div v-else-if="props.tipo === 'productos'">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Nombre:</strong> {{ selected.nombre || 'Sin nombre' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.descripcion">
+                <p class="text-sm text-slate-600" v-if="selected.descripcion">
                   <strong>Descripción:</strong> {{ selected.descripcion }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.categoria">
+                <p class="text-sm text-slate-600" v-if="selected.categoria">
                   <strong>Categoría:</strong> {{ selected.categoria?.nombre || 'Sin categoría' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.marca">
+                <p class="text-sm text-slate-600" v-if="selected.marca">
                   <strong>Marca:</strong> {{ selected.marca?.nombre || 'Sin marca' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.proveedor">
+                <p class="text-sm text-slate-600" v-if="selected.proveedor">
                   <strong>Proveedor:</strong> {{ selected.proveedor?.nombre_razon_social || 'Sin proveedor' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.precio_venta">
+                <p class="text-sm text-slate-600" v-if="selected.precio_venta">
                   <strong>Precio de Venta:</strong> ${{ formatearMoneda(selected.precio_venta) }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.stock !== undefined">
+                <p class="text-sm text-slate-600" v-if="selected.stock !== undefined">
                   <strong>Stock:</strong> {{ selected.stock }} unidades
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.stock_minimo">
+                <p class="text-sm text-slate-600" v-if="selected.stock_minimo">
                   <strong>Stock Mínimo:</strong> {{ selected.stock_minimo }} unidades
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.codigo">
+                <p class="text-sm text-slate-600" v-if="selected.codigo">
                   <strong>Código:</strong> {{ selected.codigo }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.codigo_barras">
+                <p class="text-sm text-slate-600" v-if="selected.codigo_barras">
                   <strong>Código de Barras:</strong> {{ selected.codigo_barras }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha de creación:</strong>
                   {{ formatearFecha(selected.created_at) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -394,23 +394,23 @@
 
               <!-- HERRAMIENTAS -->
               <div v-else-if="props.tipo === 'herramientas'">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Nombre:</strong> {{ selected.nombre || 'Sin nombre' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.numero_serie">
+                <p class="text-sm text-slate-600" v-if="selected.numero_serie">
                   <strong>Número de serie:</strong> {{ selected.numero_serie }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.tecnico">
+                <p class="text-sm text-slate-600" v-if="selected.tecnico">
                   <strong>Técnico asignado:</strong> {{ selected.tecnico.name || `${selected.tecnico.nombre || ''} ${selected.tecnico.apellido || ''}`.trim() }}
                 </p>
-                <p class="text-sm text-gray-600" v-else>
+                <p class="text-sm text-slate-600" v-else>
                   <strong>Técnico asignado:</strong> Sin asignar
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha de creación:</strong>
                   {{ formatearFecha(selected.created_at) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.tecnico ? 'asignada' : 'sin_asignar')"
@@ -424,26 +424,26 @@
 
               <!-- SERVICIOS -->
               <div v-else-if="props.tipo === 'servicios'">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Nombre:</strong> {{ selected.nombre || 'Sin nombre' }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.codigo">
+                <p class="text-sm text-slate-600" v-if="selected.codigo">
                   <strong>Código:</strong> {{ selected.codigo }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.descripcion">
+                <p class="text-sm text-slate-600" v-if="selected.descripcion">
                   <strong>Descripción:</strong> {{ selected.descripcion }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.precio">
+                <p class="text-sm text-slate-600" v-if="selected.precio">
                   <strong>Precio:</strong> ${{ formatearMoneda(selected.precio) }}
                 </p>
-                <p class="text-sm text-gray-600" v-if="selected.duracion">
+                <p class="text-sm text-slate-600" v-if="selected.duracion">
                   <strong>Duración:</strong> {{ selected.duracion }} minutos
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha de creación:</strong>
                   {{ formatearFecha(selected.created_at) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -457,17 +457,17 @@
 
               <!-- Cotizaciones -->
               <div v-else-if="isCotizaciones">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Cliente:</strong> {{ selected.cliente?.nombre || 'Sin cliente' }}
                 </p>
-                <p v-if="selected.cliente?.email" class="text-sm text-gray-600">
+                <p v-if="selected.cliente?.email" class="text-sm text-slate-600">
                   <strong>Email:</strong> {{ selected.cliente.email }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha:</strong>
                   {{ formatearFecha(selected.fecha_cotizacion || selected.created_at || selected.fecha) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -477,24 +477,24 @@
                     {{ obtenerLabelEstado(selected.estado) }}
                   </span>
                 </p>
-                <p v-if="isNumber(selected.total)" class="text-sm text-gray-600">
+                <p v-if="isNumber(selected.total)" class="text-sm text-slate-600">
                   <strong>Total:</strong> ${{ formatearMoneda(selected.total) }}
                 </p>
               </div>
 
               <!-- Otros (pedidos, ventas, etc.) -->
               <div v-else>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Cliente:</strong> {{ selected.cliente?.nombre || 'Sin cliente' }}
                 </p>
-                <p v-if="selected.cliente?.email" class="text-sm text-gray-600">
+                <p v-if="selected.cliente?.email" class="text-sm text-slate-600">
                   <strong>Email:</strong> {{ selected.cliente.email }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Fecha:</strong>
                   {{ formatearFecha(selected.created_at || selected.fecha) }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-slate-600">
                   <strong>Estado:</strong>
                   <span
                     :class="obtenerClasesEstado(selected.estado)"
@@ -508,32 +508,32 @@
 
               <!-- Columna derecha -->
               <div>
-                <p v-if="config.mostrarCampoExtra && config.campoExtra?.key" class="text-sm text-gray-600">
+                <p v-if="config.mostrarCampoExtra && config.campoExtra?.key" class="text-sm text-slate-600">
                   <strong>{{ config.campoExtra.label }}:</strong>
                   {{ selected[config.campoExtra.key] ?? 'N/A' }}
                 </p>
 
-                <p v-if="isNumber(selected.total)" class="text-sm text-gray-600">
+                <p v-if="isNumber(selected.total)" class="text-sm text-slate-600">
                   <strong>Total:</strong> ${{ formatearMoneda(selected.total) }}
                 </p>
 
                 <template v-if="!isEquipos && !isOrdenesCompra">
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-600">
                     <strong>Productos:</strong>
                     {{ (selected.productos || selected.items)?.length || 0 }} items
                   </p>
                 </template>
 
                 <template v-else>
-                  <p class="text-sm text-gray-600" v-if="selected.numero_serie">
+                  <p class="text-sm text-slate-600" v-if="selected.numero_serie">
                     <strong>Número de serie:</strong> {{ selected.numero_serie }}
                   </p>
                 </template>
 
                 <!-- Dirección para clientes -->
-                <div v-if="isClientes && (selected.calle || selected.colonia || selected.municipio)" class="mt-3 pt-3 border-t border-gray-200">
-                  <p class="text-sm font-medium text-gray-900 mb-1">Dirección</p>
-                  <p class="text-sm text-gray-600">
+                <div v-if="isClientes && (selected.calle || selected.colonia || selected.municipio)" class="mt-3 pt-3 border-t border-slate-200">
+                  <p class="text-sm font-medium text-slate-900 mb-1">Dirección</p>
+                  <p class="text-sm text-slate-600">
                     {{ [
                       selected.calle,
                       selected.numero_exterior,
@@ -551,79 +551,79 @@
 
             <!-- Tabla de productos (no aplica a equipos ni clientes) -->
             <div v-if="!isEquipos && !isClientes && (selected.productos || selected.items)?.length" class="mt-4">
-              <h4 class="text-sm font-medium text-gray-900 mb-2">Productos y Servicios</h4>
+              <h4 class="text-sm font-medium text-slate-900 mb-2">Productos y Servicios</h4>
               <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                  <thead class="bg-transparent dark:bg-slate-800/50">
                     <tr>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Nombre
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Tipo
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Cantidad
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Precio
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Descuento
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Subtotal
                       </th>
                       <!-- Columnas adicionales para compras -->
-                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Stock Antes
                       </th>
-                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Stock Después
                       </th>
-                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <th v-if="isCompras" class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Diferencia
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
+                  <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                     <tr v-for="producto in (selected.productos || selected.items)" :key="producto.id || producto.nombre">
-                      <td class="px-4 py-2 text-sm text-gray-900">
+                      <td class="px-4 py-2 text-sm text-slate-900">
                         {{ producto.nombre || 'Sin nombre' }}
                       </td>
-                      <td class="px-4 py-2 text-sm text-gray-600 capitalize">
+                      <td class="px-4 py-2 text-sm text-slate-600 capitalize">
                         {{ producto.tipo || 'N/A' }}
                       </td>
-                      <td class="px-4 py-2 text-sm text-gray-600">
+                      <td class="px-4 py-2 text-sm text-slate-600">
                         {{ producto.cantidad || producto.pivot?.cantidad || 0 }}
                       </td>
-                      <td class="px-4 py-2 text-sm text-gray-600">
+                      <td class="px-4 py-2 text-sm text-slate-600">
                         ${{ formatearMoneda(producto.precio || producto.pivot?.precio || 0) }}
                       </td>
-                      <td class="px-4 py-2 text-sm text-gray-600">
+                      <td class="px-4 py-2 text-sm text-slate-600">
                         {{ producto.descuento || producto.pivot?.descuento || 0 }}%
                       </td>
-                      <td class="px-4 py-2 text-sm text-gray-600">
+                      <td class="px-4 py-2 text-sm text-slate-600">
                         ${{ formatearMoneda(producto.subtotal || ((producto.cantidad || producto.pivot?.cantidad || 0) * (producto.precio || producto.pivot?.precio || 0) * (1 - (producto.descuento || producto.pivot?.descuento || 0) / 100))) }}
                       </td>
                       <!-- Columnas adicionales para compras -->
-                      <td v-if="isCompras" class="px-4 py-2 text-sm text-gray-600">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <td v-if="isCompras" class="px-4 py-2 text-sm text-slate-600">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
                           {{ producto.stock_antes || 0 }}
                         </span>
                       </td>
-                      <td v-if="isCompras" class="px-4 py-2 text-sm text-gray-600">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <td v-if="isCompras" class="px-4 py-2 text-sm text-slate-600">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                           {{ producto.stock_despues || 0 }}
                         </span>
                       </td>
-                      <td v-if="isCompras" class="px-4 py-2 text-sm text-gray-600">
+                      <td v-if="isCompras" class="px-4 py-2 text-sm text-slate-600">
                         <span
                           class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                           :class="{
-                            'bg-green-100 text-green-800': (producto.diferencia_stock || 0) > 0,
-                            'bg-red-100 text-red-800': (producto.diferencia_stock || 0) < 0,
-                            'bg-gray-100 text-gray-800': (producto.diferencia_stock || 0) === 0
+                            'bg-emerald-100 text-emerald-800': (producto.diferencia_stock || 0) > 0,
+                            'bg-rose-100 text-rose-800': (producto.diferencia_stock || 0) < 0,
+                            'bg-slate-100 text-slate-800': (producto.diferencia_stock || 0) === 0
                           }"
                         >
                           <svg v-if="(producto.diferencia_stock || 0) > 0" class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -640,117 +640,117 @@
                 </table>
               </div>
             </div>
-            <p v-else-if="!isEquipos && !isClientes && !isOrdenesCompra" class="text-sm text-gray-600">No hay productos asociados.</p>
+            <p v-else-if="!isEquipos && !isClientes && !isOrdenesCompra" class="text-sm text-slate-600">No hay productos asociados.</p>
 
             <!-- Totales para cotizaciones -->
-            <div v-if="isCotizaciones && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Cotización</h4>
+            <div v-if="isCotizaciones && selected.productos?.length" class="mt-4 p-4 bg-transparent rounded-xl border border-slate-200">
+              <h4 class="text-sm font-medium text-slate-900 mb-3">Resumen de Cotización</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Subtotal:</span>
+                  <span class="text-slate-600">Subtotal:</span>
                   <span class="font-medium">${{ formatearMoneda(calcularSubtotalCotizacion()) }}</span>
                 </div>
                 <div v-if="calcularDescuentosItems() > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuentos por Items:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(calcularDescuentosItems()) }}</span>
+                  <span class="text-slate-600">Descuentos por Items:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(calcularDescuentosItems()) }}</span>
                 </div>
                 <div v-if="(selected.descuento_general || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuento General:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
+                  <span class="text-slate-600">Descuento General:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600">IVA:</span>
+                  <span class="text-slate-600">IVA:</span>
                   <span class="font-medium">${{ formatearMoneda(calcularIVACotizacion()) }}</span>
                 </div>
-                <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(calcularTotalCotizacion()) }}</span>
+                <div class="flex justify-between border-t border-slate-300 pt-2">
+                  <span class="text-slate-900 font-semibold">Total:</span>
+                  <span class="text-slate-900 font-bold">${{ formatearMoneda(calcularTotalCotizacion()) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Totales para órdenes de compra -->
-            <div v-if="isOrdenesCompra && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Orden de Compra</h4>
+            <div v-if="isOrdenesCompra && selected.productos?.length" class="mt-4 p-4 bg-transparent rounded-xl border border-slate-200">
+              <h4 class="text-sm font-medium text-slate-900 mb-3">Resumen de Orden de Compra</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Subtotal:</span>
+                  <span class="text-slate-600">Subtotal:</span>
                   <span class="font-medium">${{ formatearMoneda(selected.subtotal || 0) }}</span>
                 </div>
                 <div v-if="(selected.descuento_items || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuentos por Items:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_items || 0) }}</span>
+                  <span class="text-slate-600">Descuentos por Items:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_items || 0) }}</span>
                 </div>
                 <div v-if="(selected.descuento_general || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuento General:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
+                  <span class="text-slate-600">Descuento General:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600">IVA:</span>
+                  <span class="text-slate-600">IVA:</span>
                   <span class="font-medium">${{ formatearMoneda(selected.iva || 0) }}</span>
                 </div>
-                <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
+                <div class="flex justify-between border-t border-slate-300 pt-2">
+                  <span class="text-slate-900 font-semibold">Total:</span>
+                  <span class="text-slate-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Totales para compras -->
-            <div v-if="isCompras && selected.productos?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Compra</h4>
+            <div v-if="isCompras && selected.productos?.length" class="mt-4 p-4 bg-transparent rounded-xl border border-slate-200">
+              <h4 class="text-sm font-medium text-slate-900 mb-3">Resumen de Compra</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Subtotal:</span>
+                  <span class="text-slate-600">Subtotal:</span>
                   <span class="font-medium">${{ formatearMoneda(selected.subtotal || 0) }}</span>
                 </div>
                 <div v-if="(selected.descuento_items || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuentos por Items:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_items || 0) }}</span>
+                  <span class="text-slate-600">Descuentos por Items:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_items || 0) }}</span>
                 </div>
                 <div v-if="(selected.descuento_general || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuento General:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
+                  <span class="text-slate-600">Descuento General:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600">IVA:</span>
+                  <span class="text-slate-600">IVA:</span>
                   <span class="font-medium">${{ formatearMoneda(selected.iva || 0) }}</span>
                 </div>
-                <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
+                <div class="flex justify-between border-t border-slate-300 pt-2">
+                  <span class="text-slate-900 font-semibold">Total:</span>
+                  <span class="text-slate-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Totales para pedidos -->
-            <div v-if="isPedidos && (selected.productos || selected.items)?.length" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen de Pedido</h4>
+            <div v-if="isPedidos && (selected.productos || selected.items)?.length" class="mt-4 p-4 bg-transparent rounded-xl border border-slate-200">
+              <h4 class="text-sm font-medium text-slate-900 mb-3">Resumen de Pedido</h4>
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Subtotal:</span>
+                  <span class="text-slate-600">Subtotal:</span>
                   <span class="font-medium">${{ formatearMoneda(selected.subtotal || 0) }}</span>
                 </div>
                 <div v-if="(selected.descuento_items || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuentos por Items:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_items || 0) }}</span>
+                  <span class="text-slate-600">Descuentos por Items:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_items || 0) }}</span>
                 </div>
                 <div v-if="(selected.descuento_general || 0) > 0" class="flex justify-between">
-                  <span class="text-gray-600">Descuento General:</span>
-                  <span class="font-medium text-red-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
+                  <span class="text-slate-600">Descuento General:</span>
+                  <span class="font-medium text-rose-600">-${{ formatearMoneda(selected.descuento_general || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600">IVA:</span>
+                  <span class="text-slate-600">IVA:</span>
                   <span class="font-medium">${{ formatearMoneda(selected.iva || 0) }}</span>
                 </div>
-                <div class="flex justify-between border-t border-gray-300 pt-2">
-                  <span class="text-gray-900 font-semibold">Total:</span>
-                  <span class="text-gray-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
+                <div class="flex justify-between border-t border-slate-300 pt-2">
+                  <span class="text-slate-900 font-semibold">Total:</span>
+                  <span class="text-slate-900 font-bold">${{ formatearMoneda(selected.total || 0) }}</span>
                 </div>
               </div>
             </div>
           </div>
-          <div v-else class="text-sm text-gray-600">No hay datos disponibles.</div>
+          <div v-else class="text-sm text-slate-600">No hay datos disponibles.</div>
 
           <!-- Botones de acción -->
           <div class="flex flex-wrap justify-end gap-2 mt-6">
@@ -759,10 +759,10 @@
               <button
                 v-if="config.acciones.enviarPedido && selected?.estado !== 'cancelado'"
                 @click="confirmarEnvioPedido"
-                class="px-4 py-2 text-white rounded-lg transition-colors"
+                class="px-4 py-2 text-white rounded-xl transition-colors"
                 :class="{
-                  'bg-amber-500 hover:bg-amber-600': !yaEnviado,
-                  'bg-blue-600 hover:bg-blue-700': yaEnviado
+                  'bg-brand-500 hover:bg-amber-600': !yaEnviado,
+                  'bg-sky-600 hover:bg-sky-700': yaEnviado
                 }"
               >
                 {{ yaEnviado ? 'Reenviar a Pedido' : 'Enviar a Pedido' }}
@@ -770,7 +770,7 @@
               <button
                 v-if="config.acciones.imprimir && selected?.estado !== 'cancelado'"
                 @click="onImprimir"
-                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 Imprimir
               </button>
@@ -781,10 +781,10 @@
               <button
                 v-if="config.acciones.enviarAVenta"
                 @click="confirmarEnvioAVenta"
-                class="px-4 py-2 text-white rounded-lg transition-colors"
+                class="px-4 py-2 text-white rounded-xl transition-colors"
                 :class="{
-                  'bg-amber-500 hover:bg-amber-600': !yaConvertidoAVenta,
-                  'bg-blue-600 hover:bg-blue-700': yaConvertidoAVenta
+                  'bg-brand-500 hover:bg-amber-600': !yaConvertidoAVenta,
+                  'bg-sky-600 hover:bg-sky-700': yaConvertidoAVenta
                 }"
               >
                 {{ yaConvertidoAVenta ? 'Reenviar a Venta' : 'Enviar a Venta' }}
@@ -792,14 +792,14 @@
               <button
                 v-if="config.acciones.imprimir && selected?.estado !== 'cancelado'"
                 @click="onImprimir"
-                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 Imprimir
               </button>
               <button
                 v-if="selected?.estado !== 'cancelado' && selected?.estado !== 'cerrado'"
                 @click="emit('cerrar-pedido', selected)"
-                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                class="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors"
               >
                 Cerrar Pedido
               </button>
@@ -810,10 +810,10 @@
               <button
                 v-if="config.acciones.recibirCompra && selected?.estado !== 'cancelado'"
                 @click="confirmarRecibirCompra"
-                class="px-4 py-2 text-white rounded-lg transition-colors"
+                class="px-4 py-2 text-white rounded-xl transition-colors"
                 :class="{
-                  'bg-green-600 hover:bg-green-700': !yaRecibida,
-                  'bg-blue-600 hover:bg-blue-700': yaRecibida
+                  'bg-emerald-600 hover:bg-emerald-700': !yaRecibida,
+                  'bg-sky-600 hover:bg-sky-700': yaRecibida
                 }"
               >
                 {{ yaRecibida ? 'Reconfirmar Recepción' : 'Recibir Compra' }}
@@ -825,14 +825,14 @@
               <button
                 v-if="selected?.estado !== 'cancelado' && selected?.estado !== 'enviada'"
                 @click="emit('confirmar-recepcion', selected)"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                class="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
               >
                 Enviar a Compra
               </button>
               <button
                 v-if="selected?.estado !== 'cancelado' && !selected?.urgente"
                 @click="emit('marcar-urgente', selected)"
-                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                class="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors"
               >
                 Marcar como Urgente
               </button>
@@ -841,7 +841,7 @@
             <!-- Rentas -->
             <template v-if="isRentas">
               <button
-                class="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white"
+                class="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white"
                 @click="emit('renovar', selected)"
                 v-if="['activo','proximo_vencimiento','vencido'].includes(selected?.estado)"
                 title="Renovar"
@@ -849,7 +849,7 @@
                 Renovar
               </button>
               <button
-                class="px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white"
+                class="px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white"
                 @click="emit('suspender', selected)"
                 v-if="selected?.estado === 'activo'"
                 title="Suspender"
@@ -857,7 +857,7 @@
                 Suspender
               </button>
               <button
-                class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
+                class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
                 @click="emit('reactivar', selected)"
                 v-if="selected?.estado === 'suspendido'"
                 title="Reactivar"
@@ -869,19 +869,19 @@
             <!-- Equipos -->
             <template v-if="isEquipos">
               <div class="flex gap-2 flex-wrap">
-                <button class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
+                <button class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
                         @click="emit('marcar-disponible', selected)">
                   Marcar disponible
                 </button>
-                <button class="px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white"
+                <button class="px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white"
                         @click="emit('marcar-reparacion', selected)">
                   En reparación
                 </button>
-                <button class="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white"
+                <button class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white"
                         @click="emit('marcar-fuera-servicio', selected)">
                   Fuera de servicio
                 </button>
-                <button class="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+                <button class="px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white"
                         @click="emit('programar-mantenimiento', selected)">
                   Programar mantenimiento
                 </button>
@@ -893,14 +893,14 @@
               <button
                 v-if="config.acciones.imprimir"
                 @click="onImprimir"
-                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 Imprimir
               </button>
               <button
                 v-if="config.acciones.editar"
                 @click="onEditar"
-                class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                class="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors"
               >
                 Editar
               </button>
@@ -911,7 +911,7 @@
               <button
                 v-if="config.acciones.imprimir && selected?.estado !== 'cancelado'"
                 @click="onImprimir"
-                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 Imprimir
               </button>
@@ -921,20 +921,20 @@
             <button
               v-if="!isClientes && !isCotizaciones && !isPedidos && !isVentas && config.acciones.imprimir && selected?.estado !== 'cancelado'"
               @click="onImprimir"
-              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
             >
               Imprimir
             </button>
             <button
               v-if="!isClientes && config.acciones.editar && selected?.estado !== 'cancelado'"
               @click="onEditar"
-              class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              class="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors"
             >
               Editar
             </button>
             <button
               @click="onClose"
-              class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
+              class="px-4 py-2 bg-slate-300 rounded-xl hover:bg-slate-400 transition-colors"
             >
               Cerrar
             </button>
@@ -951,28 +951,28 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="showConfirmReenvioPedido = false"
     >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
         <div class="text-center">
-          <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <div class="w-12 h-12 mx-auto bg-sky-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
           <h3 class="text-lg font-medium mb-2">¿Reenviar a Pedido?</h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-slate-600 mb-6">
             Este documento ya fue enviado anteriormente ({{ formatearFecha(selected?.updated_at) }}).
             ¿Deseas crear un nuevo pedido?
           </p>
           <div class="flex gap-3">
             <button
               @click="showConfirmReenvioPedido = false"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="reenviarAPedido"
-              class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
             >
               Reenviar
             </button>
@@ -989,7 +989,7 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="showConfirmReenvioVenta = false"
     >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
         <div class="text-center">
           <div class="w-12 h-12 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -997,20 +997,20 @@
             </svg>
           </div>
           <h3 class="text-lg font-medium mb-2">¿Reenviar a Venta?</h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-slate-600 mb-6">
             Este pedido ya fue convertido en venta anteriormente ({{ formatearFecha(selected?.updated_at) }}).
             ¿Deseas crear una nueva venta?
           </p>
           <div class="flex gap-3">
             <button
               @click="showConfirmReenvioVenta = false"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="reenviarAVenta"
-              class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
             >
               Reenviar
             </button>
@@ -1022,6 +1022,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
@@ -1031,7 +1032,7 @@ const props = defineProps({
   tipo: {
     type: String,
     required: true,
-    validator: (v) => ['cotizaciones','pedidos','ventas','compras','ordenescompra','rentas','equipos','clientes','productos','herramientas','servicios'].includes(v)
+    validator: (v) => ['cotizaciones','pedidos','ventas','compras','ordenescompra','rentas','equipos','clientes','productos','herramientas','servicios','citas'].includes(v)
   },
   // NUEVO: pasar auditoría desde el padre (o venir en selected.metadata)
   auditoria: {
@@ -1088,13 +1089,13 @@ const config = computed(() => {
       campoExtra: { key: 'numero_cotizacion', label: 'N° Cotización' },
       acciones: { editar: true, imprimir: true, enviarPedido: true, enviarAVenta: false },
       estados: baseEstados({
-        borrador: { label: 'Borrador', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' },
+        borrador: { label: 'Borrador', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' },
         pendiente: { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-800', color: 'bg-yellow-400' },
-        enviado_pedido: { label: 'Enviado a Pedido', classes: 'bg-blue-100 text-blue-800', color: 'bg-blue-400' },
-        enviado_venta: { label: 'Enviado a Venta', classes: 'bg-indigo-100 text-indigo-800', color: 'bg-indigo-400' },
-        aprobado: { label: 'Aprobada', classes: 'bg-green-100 text-green-800', color: 'bg-green-400' },
-        rechazado: { label: 'Rechazada', classes: 'bg-red-100 text-red-800', color: 'bg-red-400' },
-        cancelado: { label: 'Cancelada', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' }
+        enviado_pedido: { label: 'Enviado a Pedido', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        enviado_venta: { label: 'Enviado a Venta', classes: 'bg-sky-100 text-sky-800', color: 'bg-sky-400' },
+        aprobado: { label: 'Aprobada', classes: 'bg-emerald-100 text-emerald-800', color: 'bg-emerald-400' },
+        rechazado: { label: 'Rechazada', classes: 'bg-rose-100 text-rose-800', color: 'bg-rose-400' },
+        cancelado: { label: 'Cancelada', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' }
       })
     },
     pedidos: {
@@ -1103,14 +1104,14 @@ const config = computed(() => {
       campoExtra: { key: 'numero_pedido', label: 'N° Pedido' },
       acciones: { editar: true, imprimir: true, enviarPedido: false, enviarAVenta: true },
       estados: baseEstados({
-        borrador: { label: 'Borrador', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' },
+        borrador: { label: 'Borrador', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' },
         pendiente: { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-800', color: 'bg-yellow-400' },
-        confirmado: { label: 'Confirmado', classes: 'bg-blue-100 text-blue-800', color: 'bg-blue-400' },
-        en_preparacion: { label: 'En Preparación', classes: 'bg-orange-100 text-orange-800', color: 'bg-orange-400' },
+        confirmado: { label: 'Confirmado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        en_preparacion: { label: 'En Preparación', classes: 'bg-brand-100 text-amber-800', color: 'bg-orange-400' },
         listo_entrega: { label: 'Listo para Entrega', classes: 'bg-purple-100 text-purple-800', color: 'bg-purple-400' },
-        entregado: { label: 'Entregado', classes: 'bg-green-100 text-green-800', color: 'bg-green-400' },
-        enviado_venta: { label: 'Enviado a Venta', classes: 'bg-indigo-100 text-indigo-800', color: 'bg-indigo-400' },
-        cancelado: { label: 'Cancelado', classes: 'bg-red-100 text-red-800', color: 'bg-red-400' }
+        entregado: { label: 'Entregado', classes: 'bg-emerald-100 text-emerald-800', color: 'bg-emerald-400' },
+        enviado_venta: { label: 'Enviado a Venta', classes: 'bg-sky-100 text-sky-800', color: 'bg-sky-400' },
+        cancelado: { label: 'Cancelado', classes: 'bg-rose-100 text-rose-800', color: 'bg-rose-400' }
       })
     },
     ventas: {
@@ -1120,11 +1121,11 @@ const config = computed(() => {
       campoExtra: { key: null, label: 'N° Venta/Factura' },
       acciones: { editar: false, imprimir: true, enviarPedido: false, enviarAVenta: false },
       estados: baseEstados({
-        borrador: { label: 'Borrador', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' },
-        facturado: { label: 'Facturado', classes: 'bg-blue-100 text-blue-800', color: 'bg-blue-400' },
-        pagado: { label: 'Pagado', classes: 'bg-green-100 text-green-800', color: 'bg-green-400' },
-        vencido: { label: 'Vencido', classes: 'bg-red-100 text-red-800', color: 'bg-red-400' },
-        anulado: { label: 'Anulado', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' }
+        borrador: { label: 'Borrador', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' },
+        facturado: { label: 'Facturado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        pagado: { label: 'Pagado', classes: 'bg-emerald-100 text-emerald-800', color: 'bg-emerald-400' },
+        vencido: { label: 'Vencido', classes: 'bg-rose-100 text-rose-800', color: 'bg-rose-400' },
+        anulado: { label: 'Anulado', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' }
       })
     },
     rentas: {
@@ -1133,15 +1134,15 @@ const config = computed(() => {
       campoExtra: { key: 'numero_contrato', label: 'N° Contrato' },
       acciones: { editar: true, imprimir: true, enviarPedido: false, enviarAVenta: false },
       estados: baseEstados({
-        borrador: { label: 'Borrador', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
-        activo: { label: 'Activo', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        proximo_vencimiento: { label: 'Próximo Vencimiento', classes: 'bg-orange-100 text-orange-700', color: 'bg-orange-400' },
-        vencido: { label: 'Vencido', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-        moroso: { label: 'Moroso', classes: 'bg-red-200 text-red-800', color: 'bg-red-500' },
+        borrador: { label: 'Borrador', classes: 'bg-slate-100 text-slate-700', color: 'bg-slate-400' },
+        activo: { label: 'Activo', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        proximo_vencimiento: { label: 'Próximo Vencimiento', classes: 'bg-brand-100 text-amber-800', color: 'bg-orange-400' },
+        vencido: { label: 'Vencido', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' },
+        moroso: { label: 'Moroso', classes: 'bg-rose-200 text-rose-800', color: 'bg-rose-500' },
         suspendido: { label: 'Suspendido', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-        finalizado: { label: 'Finalizado', classes: 'bg-gray-100 text-gray-600', color: 'bg-gray-400' },
-        anulado: { label: 'Anulado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' },
-        sin_estado: { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' }
+        finalizado: { label: 'Finalizado', classes: 'bg-slate-100 text-slate-600', color: 'bg-slate-400' },
+        anulado: { label: 'Anulado', classes: 'bg-slate-100 text-slate-500', color: 'bg-slate-400' },
+        sin_estado: { label: 'Sin Estado', classes: 'bg-slate-100 text-slate-500', color: 'bg-slate-400' }
       })
     },
     equipos: {
@@ -1151,11 +1152,11 @@ const config = computed(() => {
       acciones: { editar: true, imprimir: true, enviarPedido: false, enviarAVenta: false },
       estados: baseEstados({
         disponible: { label: 'Disponible', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-500' },
-        rentado: { label: 'Rentado', classes: 'bg-indigo-100 text-indigo-700', color: 'bg-amber-500' },
-        mantenimiento: { label: 'Mantenimiento', classes: 'bg-amber-100 text-amber-700', color: 'bg-amber-500' },
-        reparacion: { label: 'Reparación', classes: 'bg-orange-100 text-orange-700', color: 'bg-orange-500' },
+        rentado: { label: 'Rentado', classes: 'bg-sky-100 text-sky-800', color: 'bg-brand-500' },
+        mantenimiento: { label: 'Mantenimiento', classes: 'bg-brand-100 text-amber-700', color: 'bg-brand-500' },
+        reparacion: { label: 'Reparación', classes: 'bg-brand-100 text-amber-800', color: 'bg-orange-500' },
         fuera_servicio: { label: 'Fuera de servicio', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-500' },
-        sin_estado: { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-600', color: 'bg-gray-400' }
+        sin_estado: { label: 'Sin Estado', classes: 'bg-slate-100 text-slate-600', color: 'bg-slate-400' }
       })
     },
     clientes: {
@@ -1165,7 +1166,7 @@ const config = computed(() => {
       acciones: { editar: true, imprimir: false, enviarPedido: false, enviarAVenta: false },
       estados: baseEstados({
         '1': { label: 'Activo',   classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
-        '0': { label: 'Inactivo', classes: 'bg-red-100 text-red-700',        color: 'bg-red-400' },
+        '0': { label: 'Inactivo', classes: 'bg-rose-100 text-rose-700',        color: 'bg-rose-400' },
       })
     },
     productos: {
@@ -1181,8 +1182,8 @@ const config = computed(() => {
       campoExtra: { key: 'numero_serie', label: 'N° Serie' },
       acciones: { editar: true, imprimir: false, enviarPedido: false, enviarAVenta: false },
       estados: baseEstados({
-        'asignada': { label: 'Asignada', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        'sin_asignar': { label: 'Sin asignar', classes: 'bg-orange-100 text-orange-700', color: 'bg-orange-400' }
+        'asignada': { label: 'Asignada', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        'sin_asignar': { label: 'Sin asignar', classes: 'bg-brand-100 text-amber-800', color: 'bg-orange-400' }
       })
     },
     servicios: {
@@ -1191,8 +1192,8 @@ const config = computed(() => {
       campoExtra: { key: 'codigo', label: 'Código' },
       acciones: { editar: true, imprimir: false, enviarPedido: false, enviarAVenta: false },
       estados: baseEstados({
-        'activo': { label: 'Activo', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        'inactivo': { label: 'Inactivo', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' }
+        'activo': { label: 'Activo', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        'inactivo': { label: 'Inactivo', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' }
       })
     },
     compras: {
@@ -1201,12 +1202,12 @@ const config = computed(() => {
       campoExtra: { key: 'numero_compra', label: 'N° Compra' },
       acciones: { editar: true, imprimir: true, enviarPedido: false, enviarAVenta: false, recibirCompra: false },
       estados: baseEstados({
-        borrador: { label: 'Borrador', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' },
+        borrador: { label: 'Borrador', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' },
         pendiente: { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-800', color: 'bg-yellow-400' },
-        aprobado: { label: 'Aprobada', classes: 'bg-blue-100 text-blue-800', color: 'bg-blue-400' },
-        recibido: { label: 'Recibida', classes: 'bg-green-100 text-green-800', color: 'bg-green-400' },
-        rechazado: { label: 'Rechazada', classes: 'bg-red-100 text-red-800', color: 'bg-red-400' },
-        cancelado: { label: 'Cancelada', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' }
+        aprobado: { label: 'Aprobada', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        recibido: { label: 'Recibida', classes: 'bg-emerald-100 text-emerald-800', color: 'bg-emerald-400' },
+        rechazado: { label: 'Rechazada', classes: 'bg-rose-100 text-rose-800', color: 'bg-rose-400' },
+        cancelado: { label: 'Cancelada', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' }
       })
     },
     ordenescompra: {
@@ -1215,11 +1216,24 @@ const config = computed(() => {
       campoExtra: { key: 'numero_orden', label: 'N° Orden' },
       acciones: { editar: true, imprimir: true, enviarPedido: false, enviarAVenta: false, recibirCompra: false },
       estados: baseEstados({
-        borrador: { label: 'Borrador', classes: 'bg-gray-100 text-gray-800', color: 'bg-gray-400' },
+        borrador: { label: 'Borrador', classes: 'bg-slate-100 text-slate-800', color: 'bg-slate-400' },
         pendiente: { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-800', color: 'bg-yellow-400' },
-        aprobado: { label: 'Aprobado', classes: 'bg-blue-100 text-blue-800', color: 'bg-blue-400' },
-        recibida: { label: 'Recibida', classes: 'bg-green-100 text-green-800', color: 'bg-green-400' },
-        cancelada: { label: 'Cancelada', classes: 'bg-red-100 text-red-800', color: 'bg-red-400' }
+        aprobado: { label: 'Aprobado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        recibida: { label: 'Recibida', classes: 'bg-emerald-100 text-emerald-800', color: 'bg-emerald-400' },
+        cancelada: { label: 'Cancelada', classes: 'bg-rose-100 text-rose-800', color: 'bg-rose-400' }
+      })
+    },
+    citas: {
+      titulo: 'Cita',
+      mostrarCampoExtra: true,
+      campoExtra: { key: 'fecha_hora', label: 'Fecha' },
+      acciones: { editar: true, imprimir: false, enviarPedido: false, enviarAVenta: false },
+      estados: baseEstados({
+        pendiente: { label: 'Pendiente', classes: 'bg-brand-100 text-amber-700', color: 'bg-brand-500' },
+        programado: { label: 'Programado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-500' },
+        en_proceso: { label: 'En proceso', classes: 'bg-sky-100 text-sky-800', color: 'bg-sky-500' },
+        completado: { label: 'Completado', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-500' },
+        cancelado: { label: 'Cancelado', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-500' }
       })
     }
   }
@@ -1307,8 +1321,8 @@ const calcularTotalCotizacion = () => {
 }
 
 // Visual estados
-const obtenerClasesEstado = (estado) => config.value.estados[estado]?.classes || 'bg-gray-100 text-gray-800'
-const obtenerColorPuntoEstado = (estado) => config.value.estados[estado]?.color || 'bg-gray-400'
+const obtenerClasesEstado = (estado) => config.value.estados[estado]?.classes || 'bg-slate-100 text-slate-800'
+const obtenerColorPuntoEstado = (estado) => config.value.estados[estado]?.color || 'bg-slate-400'
 const obtenerLabelEstado = (estado) => config.value.estados[estado]?.label || 'Pendiente'
 
 // Flujo cotizaciones/pedidos

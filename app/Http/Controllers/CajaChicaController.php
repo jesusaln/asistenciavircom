@@ -25,6 +25,7 @@ class CajaChicaController extends Controller
             'sort_dir' => null,
             'per_page' => 10,
             'categoria' => null,
+            'limite_gasto' => 1900 // Enviamos el límite a la app para validación visuall,
         ], $request->only(['tipo', 'q', 'desde', 'hasta', 'sort_by', 'sort_dir', 'per_page', 'categoria']));
         $sortBy = in_array($filters['sort_by'] ?? '', ['fecha', 'monto', 'created_at', 'concepto', 'usuario', 'categoria']) ? $filters['sort_by'] : 'fecha';
         $sortDir = (($filters['sort_dir'] ?? '') === 'asc') ? 'asc' : 'desc';
@@ -60,6 +61,7 @@ class CajaChicaController extends Controller
             'totalIngresos' => (float) $totalIngresos,
             'totalEgresos' => (float) $totalEgresos,
             'trend' => $trend,
+            'users' => \App\Models\User::orderBy('name')->get(['id', 'name']),
             'filters' => [
                 'tipo' => $filters['tipo'] ?? null,
                 'q' => $filters['q'] ?? '',
@@ -78,10 +80,20 @@ class CajaChicaController extends Controller
         $validated = $request->validate([
             'concepto' => 'required|string|max:255',
             'categoria' => 'nullable|string|max:100',
-            'monto' => 'required|numeric|min:0.01',
+            'monto' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->tipo === 'egreso' && $value > 1900) {
+                        $fail('Por políticas de la empresa, los gastos mayores a $1,900 deben pagarse con Tarjeta o Transferencia, no con Caja Chica.');
+                    }
+                },
+            ],
             'tipo' => 'required|in:ingreso,egreso',
             'fecha' => 'required|date',
             'nota' => 'nullable|string',
+            'user_id' => 'nullable|exists:users,id',
             'comprobante' => 'nullable|file|image|max:2048',
             'comprobantes.*' => 'nullable|file|image|max:2048',
         ]);
@@ -105,7 +117,9 @@ class CajaChicaController extends Controller
             'fecha' => $validated['fecha'],
             'nota' => $validated['nota'] ?? null,
             'comprobante_path' => $path,
-            'user_id' => Auth::id(),
+            'user_id' => (Auth::user()->hasAnyRole(['admin', 'super-admin']) && !empty($validated['user_id'])) 
+                ? $validated['user_id'] 
+                : Auth::id(),
         ]);
 
         if (!empty($adjuntos)) {
@@ -124,7 +138,16 @@ class CajaChicaController extends Controller
         $validated = $request->validate([
             'concepto' => 'required|string|max:255',
             'categoria' => 'nullable|string|max:100',
-            'monto' => 'required|numeric|min:0.01',
+            'monto' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->tipo === 'egreso' && $value > 1900) {
+                        $fail('Por políticas de la empresa, los gastos mayores a $1,900 deben pagarse con Tarjeta o Transferencia, no con Caja Chica.');
+                    }
+                },
+            ],
             'tipo' => 'required|in:ingreso,egreso',
             'fecha' => 'required|date',
             'nota' => 'nullable|string',

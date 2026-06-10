@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AjusteVacaciones extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'ajustes_vacaciones';

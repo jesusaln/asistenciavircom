@@ -58,10 +58,17 @@ class PaymentProcessingService
                     $cuenta = CuentasPorPagar::where('compra_id', $compra->id)
                         ->with('compra.proveedor')
                         ->first();
+                }
 
-                    if ($cuenta) {
-                        $proveedorId = $cuenta->proveedor_id;
-                    }
+                // Si no se encontró por compra_id, buscar directamente por cfdi_id
+                if (!$cuenta && $cfdi) {
+                    $cuenta = CuentasPorPagar::where('cfdi_id', $cfdi->id)
+                        ->with(['compra.proveedor', 'proveedor'])
+                        ->first();
+                }
+
+                if ($cuenta) {
+                    $proveedorId = $cuenta->proveedor_id;
                 }
 
                 $montoDocumentoXml = (float) $docRel['imp_pagado'];
@@ -79,7 +86,7 @@ class PaymentProcessingService
                     'cuenta_id' => $cuenta?->id,
                     'cuenta_estado' => $cuenta?->estado,
                     'monto_pendiente' => $cuenta?->monto_pendiente,
-                    'proveedor_nombre' => $cuenta?->compra?->proveedor?->nombre_razon_social ?? ($compra?->proveedor?->nombre_razon_social ?? 'N/A'),
+                    'proveedor_nombre' => $cuenta?->compra?->proveedor?->nombre_razon_social ?? $cuenta?->proveedor?->nombre_razon_social ?? ($compra?->proveedor?->nombre_razon_social ?? 'N/A'),
                     'numero_compra' => $compra?->numero_compra ?? 'N/A',
                 ];
             }

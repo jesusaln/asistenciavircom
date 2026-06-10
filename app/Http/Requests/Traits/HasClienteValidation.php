@@ -30,10 +30,10 @@ trait HasClienteValidation
         // Campos a normalizar a mayúsculas
         $fieldsToUpper = [
             'nombre_razon_social',
+            'persona_contacto',
             'rfc',
             'regimen_fiscal',
             'uso_cfdi',
-            'rustdesk_alias',
             'calle',
             'numero_exterior',
             'numero_interior',
@@ -105,13 +105,6 @@ trait HasClienteValidation
             $dataToMerge['codigo_postal'] = $cp ? preg_replace('/\D/', '', $cp) : null;
         }
 
-        if ($this->has('rustdesk_id')) {
-            $rustdeskId = $this->input('rustdesk_id');
-            $dataToMerge['rustdesk_id'] = is_string($rustdeskId)
-                ? preg_replace('/\s+/', ' ', trim($rustdeskId))
-                : $rustdeskId;
-        }
-
         // Normalizar crédito para evitar NULL en columnas NOT NULL
         if ($this->has('credito_activo')) {
             $dataToMerge['credito_activo'] = $this->boolean('credito_activo');
@@ -155,12 +148,17 @@ trait HasClienteValidation
         $mostrarDireccion = $this->input('mostrar_direccion', false);
 
         $rules = [
-            'nombre_razon_social' => [
+            'nombre_razon_social' => array_filter([
                 'required',
                 'string',
                 'max:255',
                 'regex:/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ\s\.,&\-\']+$/',
-            ],
+                $clienteId ? Rule::unique('clientes', 'nombre_razon_social')
+                    ->ignore($clienteId)
+                    ->whereNull('deleted_at')
+                    ->where('empresa_id', EmpresaResolver::resolveId()) : null,
+            ]),
+            'persona_contacto' => ['nullable', 'string', 'max:255'],
             'notas' => ['nullable', 'string', 'max:1000'],
             'activo' => ['boolean'],
 
@@ -171,8 +169,8 @@ trait HasClienteValidation
             'colonia' => [$mostrarDireccion ? 'required' : 'nullable', 'string', 'max:255'],
             'codigo_postal' => [$mostrarDireccion ? 'required' : 'nullable', 'string', 'size:5', 'regex:/^[0-9]{5}$/'],
             'municipio' => [$mostrarDireccion ? 'required' : 'nullable', 'string', 'max:255'],
-            'estado' => ['nullable', 'string', 'min:2', 'max:255'],
-            'pais' => ['nullable', 'string', 'max:255'],
+            'estado' => [$mostrarDireccion ? 'required' : 'nullable', 'string', 'min:2', 'max:255'],
+            'pais' => [$mostrarDireccion ? 'required' : 'nullable', 'string', 'max:255'],
 
             // Extras
             'tipo_identificacion' => ['nullable', 'string', 'max:20'],
@@ -182,23 +180,25 @@ trait HasClienteValidation
             'cfdi_default_use' => ['nullable', 'string', 'size:3', Rule::exists('sat_usos_cfdi', 'clave')],
             'payment_form_default' => ['nullable', 'string', 'size:2'],
             'price_list_id' => ['nullable', 'integer', Rule::exists('price_lists', 'id')->where('activa', true)],
-            'rustdesk_id' => ['nullable', 'string', 'max:30', 'regex:/^[0-9\-\s]+$/'],
-            'rustdesk_alias' => ['nullable', 'string', 'max:100'],
-
-            'credito_activo' => ['nullable', 'boolean'],
-            'estado_credito' => ['nullable', 'string', 'in:sin_credito,en_revision,autorizado,suspendido'],
-            'limite_credito' => ['nullable', 'numeric', 'min:0'],
-            'dias_credito' => ['nullable', 'integer', 'min:0', 'max:365'],
-            'dias_gracia' => ['nullable', 'integer', 'min:0', 'max:365'],
 
             'requiere_factura' => ['nullable', 'boolean'],
             'whatsapp_optin' => ['nullable', 'boolean'],
+            'marketing_optin' => ['nullable', 'boolean'],
             'domicilio_fiscal_cp' => ['nullable', 'string', 'size:5', 'regex:/^[0-9]{5}$/'],
             'forma_pago_default' => ['nullable', 'string', 'max:2'],
 
             // Password solo si se envía
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
+
+        // Restricción de Seguridad: Solo Admin/SuperAdmin pueden modificar campos de crédito
+        if (auth()->check() && auth()->user()->hasAnyRole(['admin', 'super-admin'])) {
+            $rules['credito_activo'] = ['nullable', 'boolean'];
+            $rules['estado_credito'] = ['nullable', 'string', 'in:sin_credito,en_revision,autorizado,suspendido'];
+            $rules['limite_credito'] = ['nullable', 'numeric', 'min:0'];
+            $rules['dias_credito'] = ['nullable', 'integer', 'min:0', 'max:365'];
+            $rules['dias_gracia'] = ['nullable', 'integer', 'min:0', 'max:365'];
+        }
 
         if ($requiereFactura) {
             $rules = array_merge($rules, [
@@ -217,11 +217,12 @@ trait HasClienteValidation
                 ]),
                 'uso_cfdi' => ['required', 'string', 'size:3', Rule::exists('sat_usos_cfdi', 'clave')],
                 'email' => [
-                    'required',
+                    'nullable',
                     'email',
                     'max:255',
                     Rule::unique('clientes', 'email')
                         ->ignore($clienteId)
+                        ->whereNotNull('email')
                         ->whereNull('deleted_at')
                         ->where('empresa_id', EmpresaResolver::resolveId()),
                 ],
@@ -246,7 +247,7 @@ trait HasClienteValidation
                         ->where('empresa_id', EmpresaResolver::resolveId()),
                 ],
                 'telefono' => [
-                    'nullable',
+                    'required',
                     'string',
                     'max:20',
                     'regex:/^[0-9+\-\s()]+$/',
@@ -308,11 +309,12 @@ trait HasClienteValidation
         return [
             'nombre_razon_social.required' => 'El nombre o razón social es obligatorio.',
             'nombre_razon_social.regex' => 'El nombre/razón social contiene caracteres no válidos.',
+            'nombre_razon_social.unique' => 'Ya existe un cliente registrado con este nombre exacto.',
             'tipo_persona.required' => 'El tipo de persona es obligatorio.',
             'rfc.required' => 'El RFC es obligatorio.',
             'rfc.regex' => 'El RFC no tiene un formato válido.',
             'regimen_fiscal.required' => 'El régimen fiscal es obligatorio.',
-            'email.required' => 'El email es obligatorio.',
+            'telefono.required' => 'El teléfono es obligatorio.',
             'email.unique' => 'El email ya está registrado.',
             // ... agregar el resto si es necesario, Laravel tiene defaults buenos, pero mantenemos compatibilidad
             'codigo_postal.size' => 'El código postal debe tener 5 dígitos.',

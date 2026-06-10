@@ -10,7 +10,7 @@
                 </div>
                 <Link
                     :href="route('cuentas-por-cobrar.index')"
-                    class="mt-2 sm:mt-0 inline-flex items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-700/90"
+                    class="mt-2 sm:mt-0 inline-flex items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-brand-500 hover:bg-zinc-700/90"
                 >
                     Listado
                 </Link>
@@ -18,17 +18,17 @@
         </template>
 
         <div class="min-h-[calc(100vh-8rem)] bg-gradient-to-b from-zinc-950 via-zinc-900 to-black py-10 px-4 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-4xl space-y-8">
-                <div class="rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/10 via-zinc-900/40 to-zinc-950 p-6 shadow-xl shadow-black/40">
+            <div class="mx-auto max-w-4xl space-y-6">
+                <div class="rounded-2xl border border-brand-500/15 bg-gradient-to-br from-brand-500/10 via-zinc-900/40 to-zinc-950 p-6 shadow-xl shadow-black/40">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80">Venta origen</p>
+                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-200/80">Venta origen</p>
                             <p class="mt-1 text-lg font-semibold text-zinc-100">{{ cuenta.venta?.numero_venta || '—' }}</p>
                             <p class="text-sm text-zinc-400">{{ cuenta.venta?.cliente?.nombre_razon_social || 'N/A' }}</p>
                         </div>
                         <span
                             :class="badgeEstado(cuenta.estado)"
-                            class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize"
+                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
                         >
                             {{ cuenta.estado }}
                         </span>
@@ -76,10 +76,10 @@
                                         id="monto_pago"
                                         :max="montoPendiente"
                                         class="input-cxc mt-2"
-                                        :class="{ 'ring-2 ring-red-500/40': pagoForm.errors.monto }"
+                                        :class="{ 'ring-2 ring-rose-500/40': pagoForm.errors.monto }"
                                         placeholder="0.00"
                                     />
-                                    <p v-if="pagoForm.errors.monto" class="mt-2 text-sm text-red-400">{{ pagoForm.errors.monto }}</p>
+                                    <p v-if="pagoForm.errors.monto" class="mt-2 text-sm text-rose-400">{{ pagoForm.errors.monto }}</p>
                                 </div>
                                 <div>
                                     <label for="notas_pago" class="text-xs font-medium uppercase tracking-wider text-zinc-400">Notas / referencia</label>
@@ -88,17 +88,17 @@
                                         type="text"
                                         id="notas_pago"
                                         class="input-cxc mt-2"
-                                        :class="{ 'ring-2 ring-red-500/40': pagoForm.errors.notas }"
+                                        :class="{ 'ring-2 ring-rose-500/40': pagoForm.errors.notas }"
                                         placeholder="Folio, banco…"
                                     />
-                                    <p v-if="pagoForm.errors.notas" class="mt-2 text-sm text-red-400">{{ pagoForm.errors.notas }}</p>
+                                    <p v-if="pagoForm.errors.notas" class="mt-2 text-sm text-rose-400">{{ pagoForm.errors.notas }}</p>
                                 </div>
                             </div>
                             <button
                                 type="button"
                                 @click="registrarPago"
                                 :disabled="pagoForm.processing || !pagoForm.monto"
-                                class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-xl shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                             >
                                 <span v-if="pagoForm.processing">Registrando…</span>
                                 <span v-else>Registrar pago</span>
@@ -119,9 +119,9 @@
                                 type="date"
                                 id="fecha_vencimiento"
                                 class="input-cxc mt-2"
-                                :class="{ 'ring-2 ring-red-500/40': form.errors.fecha_vencimiento }"
+                                :class="{ 'ring-2 ring-rose-500/40': form.errors.fecha_vencimiento }"
                             />
-                            <p v-if="form.errors.fecha_vencimiento" class="mt-2 text-sm text-red-400">{{ form.errors.fecha_vencimiento }}</p>
+                            <p v-if="form.errors.fecha_vencimiento" class="mt-2 text-sm text-rose-400">{{ form.errors.fecha_vencimiento }}</p>
                         </div>
                         <div>
                             <label for="notas" class="text-xs font-medium uppercase tracking-wider text-zinc-400">Notas</label>
@@ -130,10 +130,10 @@
                                 id="notas"
                                 rows="4"
                                 class="input-cxc mt-2 min-h-[100px]"
-                                :class="{ 'ring-2 ring-red-500/40': form.errors.notas }"
+                                :class="{ 'ring-2 ring-rose-500/40': form.errors.notas }"
                                 placeholder="Notas internas o acuerdos con el cliente…"
                             />
-                            <p v-if="form.errors.notas" class="mt-2 text-sm text-red-400">{{ form.errors.notas }}</p>
+                            <p v-if="form.errors.notas" class="mt-2 text-sm text-rose-400">{{ form.errors.notas }}</p>
                         </div>
                     </div>
                     <div class="flex flex-col-reverse gap-3 border-t border-zinc-700/50 px-6 py-5 md:flex-row md:justify-end md:px-8">
@@ -146,7 +146,7 @@
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-2.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-900/25 transition hover:from-amber-400 hover:to-amber-500 disabled:opacity-50"
+                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-2.5 text-sm font-semibold text-zinc-950 shadow-xl shadow-brand-900/25 transition hover:from-brand-400 hover:to-brand-500 disabled:opacity-50"
                         >
                             <span v-if="form.processing">Guardando…</span>
                             <span v-else>Guardar cambios</span>
@@ -159,6 +159,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -172,15 +173,15 @@ const props = defineProps({
 
 const badgeEstado = (estado) => {
     const map = {
-        vencido: 'bg-rose-500/15 text-rose-200 ring-1 ring-rose-500/30',
-        parcial: 'bg-amber-500/15 text-amber-100 ring-1 ring-amber-400/25',
-        pagado: 'bg-emerald-500/15 text-emerald-100 ring-1 ring-emerald-400/25',
+        vencido: 'bg-brand-500/15 text-rose-200 ring-1 ring-rose-500/30',
+        parcial: 'bg-brand-500/15 text-brand-100 ring-1 ring-brand-400/25',
+        pagado: 'bg-brand-500/15 text-emerald-100 ring-1 ring-emerald-400/25',
         pendiente: 'bg-zinc-500/20 text-zinc-200 ring-1 ring-zinc-500/30',
     };
     return map[estado] || map.pendiente;
 };
 
-const currencyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+const { formatCurrency } = useFormatters();
 
 const toNumber = (value) => {
     if (value === null || value === undefined) {
@@ -191,7 +192,6 @@ const toNumber = (value) => {
     return Number.isFinite(number) ? number : 0;
 };
 
-const formatCurrency = (value) => currencyFormatter.format(toNumber(value));
 
 const montoPendiente = computed(() => toNumber(props.cuenta?.monto_pendiente));
 
@@ -226,9 +226,3 @@ const registrarPago = () => {
 };
 </script>
 
-<style scoped>
-.input-cxc {
-    @apply block w-full rounded-xl border border-zinc-600/80 bg-zinc-950/80 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 shadow-inner shadow-black/20 transition;
-    @apply focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/25;
-}
-</style>

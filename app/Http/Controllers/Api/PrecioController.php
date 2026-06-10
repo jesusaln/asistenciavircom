@@ -35,6 +35,8 @@ class PrecioController extends Controller
 
             $precios = [];
 
+            $serviciosUsanListas = (bool) config('ventas.servicios_usan_listas_precios', false);
+
             foreach ($request->productos as $productoData) {
                 $class = $productoData['tipo'] === 'producto' ? Producto::class : Servicio::class;
                 $modelo = $class::find($productoData['id']);
@@ -51,8 +53,13 @@ class PrecioController extends Controller
                     );
                     $precio = $detallesPrecio['precio'];
                 } else {
-                    // Para servicios, usar precio base (no tienen listas de precios)
-                    $precio = $modelo->precio ?? 0;
+                    // Servicios: política configurable (por defecto usan precio base)
+                    if ($serviciosUsanListas && method_exists($modelo, 'getPrecioParaLista') && $priceList) {
+                        $precioLista = $modelo->getPrecioParaLista($priceList->id);
+                        $precio = $precioLista !== null ? $precioLista : ($modelo->precio ?? 0);
+                    } else {
+                        $precio = $modelo->precio ?? 0;
+                    }
                 }
 
                 $key = $productoData['tipo'] . '-' . $productoData['id'];

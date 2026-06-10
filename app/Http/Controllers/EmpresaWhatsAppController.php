@@ -35,9 +35,11 @@ class EmpresaWhatsAppController extends Controller
                     'whatsapp_sender_phone',
                     'whatsapp_access_token',
                     'whatsapp_app_secret',
-                    'whatsapp_webhook_verify_token',
-                    'whatsapp_default_language',
                     'whatsapp_template_payment_reminder',
+                    'whatsapp_chatbot_enabled',
+                    'whatsapp_chatbot_mode',
+                    'whatsapp_chatbot_prompt',
+                    'whatsapp_chatbot_type',
                 ]),
             ]);
         } catch (\Exception $e) {
@@ -59,9 +61,11 @@ class EmpresaWhatsAppController extends Controller
                 'whatsapp_sender_phone' => 'nullable|string|max:20|regex:/^\\+[1-9]\\d{1,14}$/',
                 'whatsapp_access_token' => 'nullable|string',
                 'whatsapp_app_secret' => 'nullable|string|max:255',
-                'whatsapp_webhook_verify_token' => 'nullable|string|max:255',
-                'whatsapp_default_language' => 'nullable|string|in:es_MX,en_US',
                 'whatsapp_template_payment_reminder' => 'nullable|string|max:255',
+                'whatsapp_chatbot_enabled' => 'nullable|boolean',
+                'whatsapp_chatbot_mode' => 'nullable|string|in:always,off_hours,off',
+                'whatsapp_chatbot_prompt' => 'nullable|string',
+                'whatsapp_chatbot_type' => 'nullable|string|in:ai,menu',
             ]);
 
             $empresaId = EmpresaResolver::resolveId();
@@ -76,6 +80,9 @@ class EmpresaWhatsAppController extends Controller
             $data = $validated;
             if ($request->has('whatsapp_enabled')) {
                 $data['whatsapp_enabled'] = $request->boolean('whatsapp_enabled');
+            }
+            if ($request->has('whatsapp_chatbot_enabled')) {
+                $data['whatsapp_chatbot_enabled'] = $request->boolean('whatsapp_chatbot_enabled');
             }
 
             // Actualizar empresa

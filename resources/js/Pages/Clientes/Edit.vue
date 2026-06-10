@@ -2,29 +2,29 @@
   <Head title="Editar Cliente" />
 
   <div class="w-full p-4 md:p-6" :style="cssVars">
-    <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+    <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
 
       <!-- Header compacto -->
-      <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-        <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+      <div class="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-4 dark:border-slate-700">
+        <div class="flex items-center gap-2">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl shadow-sm" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
           </div>
           <div>
-            <h1 class="text-lg font-black tracking-tight text-gray-900 dark:text-white">Editar Cliente: {{ cliente.nombre_razon_social }}</h1>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Paso {{ wizard.currentStepIndex + 1 }} de {{ wizard.steps.length }} · {{ wizard.progress }}%</p>
+            <h1 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Editar Cliente: {{ cliente.nombre_razon_social }}</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Paso {{ wizard.currentStepIndex + 1 }} de {{ wizard.steps.length }} · {{ wizard.progress }}%</p>
           </div>
         </div>
         <div class="hidden items-center gap-2 sm:flex">
-          <div class="h-2 w-32 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+          <div class="h-2 w-32 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
             <div class="h-full rounded-full transition-all duration-500 ease-out" :style="{ width: `${wizard.progress}%`, background: `linear-gradient(90deg, ${colors.principal}, ${colors.secundario})` }" />
           </div>
-          <span class="text-xs font-bold text-gray-400">{{ wizard.progress }}%</span>
+          <span class="text-xs font-bold text-slate-400">{{ wizard.progress }}%</span>
         </div>
       </div>
 
       <!-- Navegacion de pasos tipo stepper -->
-      <div class="flex border-b border-gray-100 dark:border-gray-700 overflow-x-auto scrollbar-hide">
+      <div class="flex border-b border-slate-100 dark:border-slate-700 overflow-x-auto scrollbar-hide">
         <button
           v-for="(step, index) in wizard.steps"
           :key="step.key"
@@ -34,10 +34,10 @@
           class="group relative flex min-w-[140px] flex-1 items-center gap-2.5 px-4 py-3 text-left transition-all disabled:cursor-not-allowed disabled:opacity-40"
           :class="[
             wizard.currentStepIndex === index
-              ? 'bg-gray-50 dark:bg-gray-750'
+              ? 'bg-slate-50 dark:bg-slate-750'
               : wizard.hasServerErrorsForStep(step)
-                ? 'bg-rose-50/50 dark:bg-rose-950/20'
-                : 'hover:bg-gray-50/50 dark:hover:bg-gray-750/50'
+                ? 'bg-rose-50 dark:bg-rose-900/20/50 dark:bg-rose-950/20'
+                : 'hover:bg-slate-50/50 dark:hover:bg-slate-750/50'
           ]"
         >
           <!-- Indicador activo -->
@@ -49,15 +49,15 @@
 
           <!-- Numero/check del paso -->
           <div
-            class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-xs font-black transition-all"
+            class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all"
             :class="[
               wizard.currentStepIndex === index
                 ? 'text-white shadow-sm'
                 : index < wizard.currentStepIndex
-                  ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                  ? 'bg-emerald-100 text-emerald-600 dark:bg-slate-800/30 dark:text-slate-400'
                   : wizard.hasServerErrorsForStep(step)
                     ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
-                    : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                    : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
             ]"
             :style="wizard.currentStepIndex === index ? { background: `linear-gradient(135deg, ${colors.principal}, ${colors.secundario})` } : {}"
           >
@@ -71,10 +71,10 @@
               class="truncate text-sm font-bold"
               :class="[
                 wizard.currentStepIndex === index
-                  ? 'text-gray-900 dark:text-white'
+                  ? 'text-slate-900 dark:text-white'
                   : wizard.hasServerErrorsForStep(step)
-                    ? 'text-rose-700 dark:text-rose-400'
-                    : 'text-gray-600 dark:text-gray-300'
+                    ? 'text-rose-800 dark:text-rose-200 dark:text-rose-200 dark:text-rose-400'
+                    : 'text-slate-500 dark:text-slate-200'
               ]"
             >{{ step.title }}</div>
           </div>
@@ -83,7 +83,7 @@
 
       <div class="relative p-6">
 
-        <div v-if="hasGlobalErrors" class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">
+        <div v-if="hasGlobalErrors" class="mb-6 rounded-2xl border border-rose-200 dark:border-rose-800/30 bg-rose-50 dark:bg-rose-900/20 p-5 text-rose-800 dark:text-rose-200 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">
           <h3 class="text-sm font-black uppercase tracking-[0.2em]">Errores del formulario</h3>
           <ul class="mt-3 space-y-1 text-sm">
             <li v-for="(error, key) in form.errors" :key="key">{{ Array.isArray(error) ? error[0] : error }}</li>
@@ -92,7 +92,7 @@
 
         <div
           v-if="wizard.currentStepHasClientIssues"
-          class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100"
+          class="mb-6 rounded-2xl border border-brand-200 dark:border-brand-800/30 bg-brand-50 dark:bg-brand-900/20 p-5 text-brand-900 dark:border-brand-900/60 dark:bg-amber-950/30 dark:text-amber-100"
         >
           <h3 class="text-sm font-black uppercase tracking-[0.2em]">Completa este paso antes de continuar</h3>
           <ul class="mt-3 space-y-1 text-sm">
@@ -102,7 +102,7 @@
 
         <div
           v-if="showSuccessMessage"
-          class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200"
+          class="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800/30 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-emerald-800 dark:text-emerald-200 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200"
         >
           Cliente actualizado exitosamente.
         </div>
@@ -115,8 +115,8 @@
         </div>
 
         <form @submit.prevent="submit" autocomplete="off">
-          <div class="rounded-2xl border border-gray-200 bg-gray-50/80 p-6 dark:border-gray-700 dark:bg-slate-900/60">
-            <div class="mb-5 flex items-center gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-6 dark:border-slate-700 dark:bg-slate-800/50">
+            <div class="mb-5 flex items-center gap-2 border-b border-slate-200 pb-4 dark:border-slate-700">
               <div class="text-lg font-black tracking-tight text-slate-900 dark:text-white">
                 {{ wizard.currentStep?.title || 'Cargando...' }}
               </div>
@@ -147,19 +147,19 @@
             </div>
           </div>
 
-          <div class="mt-6 flex flex-col gap-4 border-t border-gray-200 pt-5 dark:border-gray-700 md:flex-row md:items-center md:justify-between">
+          <div class="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 dark:border-slate-700 md:flex-row md:items-center md:justify-between">
             <div class="flex flex-wrap gap-3">
               <button
                 v-if="wizard.currentStepIndex > 0"
                 type="button"
                 @click="wizard.goPrevious"
-                class="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+                class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
               >
                 ← Anterior
               </button>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
               <button
                 type="submit"
                 :disabled="form.processing || !form.nombre_razon_social"

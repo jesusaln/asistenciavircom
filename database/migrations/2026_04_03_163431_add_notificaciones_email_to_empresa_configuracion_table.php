@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->boolean('notificaciones_email')->default(false)->nullable();
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'notificaciones_email')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->boolean('notificaciones_email')->default(false)->nullable();
+            });
+        }
     }
 
     /**

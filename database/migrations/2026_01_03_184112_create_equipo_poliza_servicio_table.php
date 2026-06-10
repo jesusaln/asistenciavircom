@@ -10,16 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('equipo_poliza_servicio', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('poliza_servicio_id')->constrained('polizas_servicio')->onDelete('cascade');
-            $table->foreignId('equipo_id')->constrained('equipos')->onDelete('cascade');
-            $table->string('notas')->nullable();
-            $table->timestamp('agregado_at')->useCurrent();
+        if (!Schema::hasTable('equipo_poliza_servicio')) {
+            Schema::create('equipo_poliza_servicio', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('poliza_servicio_id')->constrained('polizas_servicio')->onDelete('cascade');
+                $table->foreignId('equipo_id')->constrained('equipos')->onDelete('cascade');
+                $table->string('notas')->nullable();
+                $table->timestamp('agregado_at')->useCurrent();
 
-            // Índices para búsquedas rápidas
-            $table->unique(['poliza_servicio_id', 'equipo_id']);
-        });
+                // Índices para búsquedas rápidas
+                $table->unique(['poliza_servicio_id', 'equipo_id']);
+            });
+        }
     }
 
     /**

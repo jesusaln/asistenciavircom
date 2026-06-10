@@ -483,13 +483,13 @@ const actualizarPedido = () => {
     <div class="w-full">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <div class="bg-white rounded-xl p-6 flex items-center space-x-3">
           <div class="animate-spin rounded-full h-6 w-6 border-b-2" :style="{ borderBottomColor: colors.principal }"></div>
-          <span class="text-gray-700">Procesando...</span>
+          <span class="text-slate-700">Procesando...</span>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <Header
           title="Editar Pedido"
           description="Modifica los detalles del pedido"
@@ -501,12 +501,12 @@ const actualizarPedido = () => {
         />
       </div>
 
-      <form @submit.prevent="actualizarPedido" class="space-y-8 mt-6">
+      <form @submit.prevent="actualizarPedido" class="space-y-6 mt-6">
         <!-- Cliente -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               Cliente
@@ -522,9 +522,9 @@ const actualizarPedido = () => {
             
             <!-- ✅ Lista de Precios -->
             <div v-if="clienteSeleccionado && priceLists && priceLists.length > 0">
-              <label for="price_list_id" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="price_list_id" class="block text-sm font-medium text-slate-700 mb-2">
                 Lista de Precios
-                <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ml-2" :style="{ backgroundColor: `${colors.principal}20`, color: colors.principal }">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-full ml-2" :style="{ backgroundColor: `${colors.principal}20`, color: colors.principal }">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                   </svg>
@@ -535,7 +535,7 @@ const actualizarPedido = () => {
                 id="price_list_id"
                 v-model="priceListSeleccionada"
                 @change="onPriceListChange"
-                class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent"
+                class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:border-transparent"
                 :style="focusRingStyle"
               >
                 <option :value="null">Sin lista de precios</option>
@@ -547,7 +547,7 @@ const actualizarPedido = () => {
                   {{ priceList.nombre }}
                 </option>
               </select>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-slate-500">
                 Los precios se actualizarán automáticamente al cambiar la lista
               </p>
             </div>
@@ -555,10 +555,10 @@ const actualizarPedido = () => {
         </div>
 
         <!-- Productos y Servicios -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
               </svg>
               Productos y Servicios
@@ -585,10 +585,10 @@ const actualizarPedido = () => {
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-4" :style="headerGradientStyle">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
               Notas Adicionales
@@ -597,7 +597,7 @@ const actualizarPedido = () => {
           <div class="p-6">
             <textarea
               v-model="form.notas"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:border-transparent resize-vertical"
+              class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:border-transparent resize-vertical"
               :style="focusRingStyle"
               rows="4"
               placeholder="Agrega notas adicionales, términos y condiciones, o información relevante para el pedido..."
@@ -632,10 +632,10 @@ const actualizarPedido = () => {
       <!-- Botón ayuda -->
       <button
         @click="mostrarAtajos = !mostrarAtajos"
-        class="fixed bottom-4 left-4 bg-gray-600 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors duration-200"
+        class="fixed bottom-4 left-4 bg-slate-600 text-white p-3 rounded-full shadow-xl hover:bg-slate-700 transition-colors duration-200"
         title="Mostrar/Ocultar atajos de teclado"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </button>

@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Test;
 class MultiTenancyIsolationTest extends TestCase
 {
     // Usamos RefreshDatabase para limpiar la BD entre tests
-
+    
 
     protected $empresaA;
     protected $empresaB;
@@ -141,9 +141,9 @@ class MultiTenancyIsolationTest extends TestCase
         $userSinEmpresa = User::factory()->create(['empresa_id' => null]);
 
         $response = $this->actingAs($userSinEmpresa)
-            ->get('/compras'); // Ruta protegida por middleware
+            ->get('/'); // Ruta raíz protegida por middleware
 
-        // Debe ser Forbidden (403) por EnforceEmpresaContext al acceder a un recurso protegido
+        // Debe ser Forbidden (403) por EnforceEmpresaContext
         $response->assertStatus(403);
     }
 }

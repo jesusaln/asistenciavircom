@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inventario extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $fillable = ['empresa_id', 'producto_id', 'almacen_id', 'cantidad', 'stock_minimo'];

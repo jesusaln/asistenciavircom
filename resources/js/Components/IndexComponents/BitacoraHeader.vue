@@ -1,16 +1,16 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden index-header-root">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 overflow-hidden index-header-root">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60 dark:border-gray-700">
+    <div class="px-6 py-6 border-b border-slate-200/60 dark:border-slate-700">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Bitácora de Actividades</h1>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Registro completo de todas las actividades del sistema</p>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Bitácora de Actividades</h1>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Registro completo de todas las actividades del sistema</p>
         </div>
         <div class="flex gap-3">
           <Link
             :href="route('bitacora.create')"
-            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 shadow-sm"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors duration-200 shadow-sm"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -19,7 +19,7 @@
           </Link>
           <button
             @click="onExportar"
-            class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -31,13 +31,13 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700">
+        <div class="bg-white/70 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200/50 dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ total }}</p>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Total</p>
+              <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">{{ total }}</p>
             </div>
-            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
+            <div class="w-10 h-10 bg-blue-50 dark:bg-sky-900/20/40 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -45,27 +45,27 @@
           </div>
         </div>
 
-        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700">
+        <div class="bg-white/70 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200/50 dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Hoy</p>
-              <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ hoy }}</p>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Hoy</p>
+              <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ hoy }}</p>
             </div>
-            <div class="w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700">
+        <div class="bg-white/70 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200/50 dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Esta Semana</p>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Esta Semana</p>
               <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ estaSemana }}</p>
             </div>
-            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
+            <div class="w-10 h-10 bg-blue-50 dark:bg-sky-900/20/40 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -73,10 +73,10 @@
           </div>
         </div>
 
-        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700">
+        <div class="bg-white/70 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200/50 dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Este Mes</p>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Este Mes</p>
               <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ esteMes }}</p>
             </div>
             <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center">
@@ -87,14 +87,14 @@
           </div>
         </div>
 
-        <div class="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4 border border-gray-200/50 dark:border-gray-700">
+        <div class="bg-white/70 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200/50 dark:border-slate-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Usuarios Activos</p>
-              <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ usuariosActivos }}</p>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Usuarios Activos</p>
+              <p class="text-2xl font-bold text-brand-600 dark:text-amber-400">{{ usuariosActivos }}</p>
             </div>
-            <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-sky-100 dark:bg-sky-900/40 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-brand-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
@@ -104,13 +104,13 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200/60 dark:border-gray-700">
+    <div class="px-6 py-4 bg-transparent dark:bg-slate-800/50 border-b border-slate-200/60 dark:border-slate-700">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -118,7 +118,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por usuario, acción o descripción..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm dark:text-gray-200"
+              class="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl leading-5 bg-white dark:bg-slate-700 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 text-sm dark:text-slate-200"
               @input="onSearchChange"
             />
           </div>
@@ -130,7 +130,7 @@
           <select
             v-model="filtroUsuario"
             @change="onFiltroUsuarioChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-200"
           >
             <option value="">Todos los Usuarios</option>
             <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
@@ -142,7 +142,7 @@
           <select
             v-model="filtroAccion"
             @change="onFiltroAccionChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-200"
           >
             <option value="">Todas las Acciones</option>
             <option value="crear">Crear</option>
@@ -158,7 +158,7 @@
             v-model="filtroFecha"
             type="date"
             @change="onFiltroFechaChange"
-            class="block w-40 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200"
+            class="block w-40 pl-3 pr-10 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-200"
             placeholder="Fecha"
           />
 
@@ -166,7 +166,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white dark:bg-slate-700 dark:text-slate-200"
           >
             <option value="created_at-desc">Fecha (Más reciente)</option>
             <option value="created_at-asc">Fecha (Más antiguo)</option>
@@ -179,7 +179,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-slate-300 dark:border-slate-600 text-sm leading-4 font-medium rounded-xl text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

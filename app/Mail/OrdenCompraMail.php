@@ -10,9 +10,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+use App\Models\EmpresaConfiguracion;
+
 class OrdenCompraMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public OrdenCompra $orden;
     public string $empresaNombre;
@@ -23,7 +26,8 @@ class OrdenCompraMail extends Mailable implements ShouldQueue
     public function __construct(OrdenCompra $orden)
     {
         $this->orden = $orden;
-        $this->empresaNombre = config('app.name', 'Sistema ERP');
+        $config = EmpresaConfiguracion::getConfig($orden->empresa_id);
+        $this->empresaNombre = $config->nombre_empresa ?? config('app.name', 'Sistema ERP');
     }
 
     /**

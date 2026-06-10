@@ -17,7 +17,6 @@ class CobrosConfigController extends Controller
             'cobros_hora_reporte' => 'nullable|string|max:5',
             'cobros_reporte_automatico' => 'nullable|boolean',
             'cobros_dias_anticipacion' => 'nullable|integer|min:0|max:60',
-            'bloqueo_portal_por_deuda' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -28,9 +27,6 @@ class CobrosConfigController extends Controller
         $data = $validator->validated();
         if ($request->has('cobros_reporte_automatico')) {
             $data['cobros_reporte_automatico'] = $request->boolean('cobros_reporte_automatico');
-        }
-        if ($request->has('bloqueo_portal_por_deuda')) {
-            $data['bloqueo_portal_por_deuda'] = $request->boolean('bloqueo_portal_por_deuda');
         }
 
         $configuracion = EmpresaConfiguracion::getConfig();

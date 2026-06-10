@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Carbon\Carbon;
 
 class PolizaMantenimientoEjecucion extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'poliza_mantenimiento_ejecuciones';
@@ -23,8 +26,13 @@ class PolizaMantenimientoEjecucion extends Model
         'fecha_ejecucion',
         'estado', // pendiente, completado, cancelado, vencido
         'resultado', // ok, alerta, critico
+        'notas_iniciales',
+        'fotos_antes',
+        'fotos_despues',
+        'numero_serie',
         'notas_tecnico',
         'evidencia',
+        'equipos_detalles',
         'notificado_cliente',
     ];
 
@@ -32,7 +40,10 @@ class PolizaMantenimientoEjecucion extends Model
         'fecha_programada' => 'datetime',
         'fecha_original' => 'datetime',
         'fecha_ejecucion' => 'datetime',
+        'fotos_antes' => 'array',
+        'fotos_despues' => 'array',
         'evidencia' => 'array',
+        'equipos_detalles' => 'array',
         'notificado_cliente' => 'boolean',
     ];
 

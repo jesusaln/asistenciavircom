@@ -10,6 +10,8 @@ use App\Models\Concerns\Blameable;
 
 class Pedido extends Model
 {
+    use BelongsToEmpresa;
+
     use SoftDeletes, Blameable, BelongsToEmpresa;
 
     protected $table = 'pedidos';

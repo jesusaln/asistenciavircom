@@ -19,7 +19,6 @@ trait LogsCredentialRotation
         'stripe_secret_key',
         'gdrive_refresh_token',
         'cva_password',
-        'microsoft_client_secret',
         'google_client_secret'
     ];
 
@@ -50,8 +49,6 @@ trait LogsCredentialRotation
             return 'MercadoPago';
         if (str_contains($field, 'gdrive') || str_contains($field, 'google'))
             return 'Google';
-        if (str_contains($field, 'microsoft'))
-            return 'Microsoft';
         if (str_contains($field, 'pac'))
             return 'PAC Facturación';
         if (str_contains($field, 'smtp'))

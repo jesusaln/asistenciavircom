@@ -164,7 +164,7 @@ class EnviarRecordatoriosCobranza extends Command
 
         $cobrable = $cuenta->cobrable;
         $cliente = $cobrable->cliente;
-        $configuracion = EmpresaConfiguracion::getConfig();
+        $configuracion = EmpresaConfiguracion::getConfig($cuenta->empresa_id);
 
         // Configurar SMTP
         config([
@@ -172,10 +172,13 @@ class EnviarRecordatoriosCobranza extends Command
             'mail.mailers.smtp.port' => $configuracion->smtp_port,
             'mail.mailers.smtp.username' => $configuracion->smtp_username,
             'mail.mailers.smtp.password' => $configuracion->smtp_password,
-            'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption,
+            'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption === 'null' ? null : $configuracion->smtp_encryption,
             'mail.from.address' => $configuracion->email_from_address,
             'mail.from.name' => $configuracion->email_from_name,
         ]);
+
+        \Illuminate\Support\Facades\Mail::purge('smtp');
+        app()->forgetInstance('mail.manager');
 
         if ($cobrable instanceof \App\Models\Venta) {
             $this->enviarEmailVenta($cuenta, $cobrable, $cliente, $configuracion, $recordatorio);

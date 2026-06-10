@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class PlanRenta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected static array $columnExistsCache = [];

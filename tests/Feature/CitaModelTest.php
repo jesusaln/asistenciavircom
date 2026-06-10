@@ -8,8 +8,12 @@ use App\Models\User;
 
 use Tests\TestCase;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
 class CitaModelTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected User $user;
 
     protected function setUp(): void
@@ -73,6 +77,7 @@ class CitaModelTest extends TestCase
             'fecha_firma',
             'firma_tecnico',
             'poliza_id',
+            'microsoft_list_id',
         ];
 
         $this->assertEquals($expectedFillable, $cita->getFillable());

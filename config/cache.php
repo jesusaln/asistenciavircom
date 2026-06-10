@@ -105,4 +105,45 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Allowed Serializable Classes
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify a list of class names that are allowed to be
+    | unserialized when retrieving cached items to prevent object injection.
+    |
+    */
+
+    'serializable_classes' => [
+        \Illuminate\Database\Eloquent\Model::class,
+        \Illuminate\Database\Eloquent\Collection::class,
+        \Illuminate\Support\Collection::class,
+        \Illuminate\Support\Carbon::class,
+        \Carbon\Carbon::class,
+        \Carbon\CarbonImmutable::class,
+        \DateTime::class,
+        stdClass::class,
+        \App\Models\User::class,
+        \App\Models\Usuario::class,
+        \App\Models\Empresa::class,
+        \App\Models\EmpresaConfiguracion::class,
+        \App\Models\Venta::class,
+        \App\Models\Cfdi::class,
+        \App\Models\Producto::class,
+        \App\Models\Cliente::class,
+        \App\Models\SatRegimenFiscal::class,
+        \App\Models\SatUsoCfdi::class,
+        \App\Models\SatEstado::class,
+        \App\Models\Categoria::class,
+        \App\Models\Marca::class,
+        \App\Models\Proveedor::class,
+        \App\Models\Almacen::class,
+        \App\Models\Ticket::class,
+        \App\Models\Cita::class,
+        \App\Models\Todo::class,
+        \Spatie\Permission\Models\Role::class,
+        \Spatie\Permission\Models\Permission::class,
+    ],
+
 ];

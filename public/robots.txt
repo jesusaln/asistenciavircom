@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /checkout
+Disallow: /cart
+Disallow: /mi-cuenta
+Disallow: /api/
+Disallow: /*?add-to-cart=*
+
+Sitemap: https://www.climasdeldesierto.com/sitemap.xml

@@ -10,20 +10,22 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('poliza_audit_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('poliza_id')->constrained('polizas_servicio')->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('event'); // created, updated, paused, resumed, reset, etc.
-            $table->json('old_values')->nullable();
-            $table->json('new_values')->nullable();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('poliza_audit_logs')) {
+            Schema::create('poliza_audit_logs', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('poliza_id')->constrained('polizas_servicio')->onDelete('cascade');
+                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->string('event'); // created, updated, paused, resumed, reset, etc.
+                $table->json('old_values')->nullable();
+                $table->json('new_values')->nullable();
+                $table->string('ip_address', 45)->nullable();
+                $table->text('user_agent')->nullable();
+                $table->timestamps();
 
-            $table->index('poliza_id');
-            $table->index('event');
-        });
+                $table->index('poliza_id');
+                $table->index('event');
+            });
+        }
     }
 
     /**

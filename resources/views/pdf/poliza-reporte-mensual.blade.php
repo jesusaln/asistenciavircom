@@ -172,7 +172,7 @@
                     <td style="border: none; padding: 0;">
                         <span class="company-name">{{ $empresa->nombre_empresa ?? 'Vircom' }}</span><br>
                         <span style="color: #64748b; font-size: 9px;">{{ $empresa->email ??
-                            'contacto@asistenciavircom.com' }}</span>
+                            'contacto@climasdeldesierto.com' }}</span>
                     </td>
                     <td style="border: none; padding: 0; text-align: right;">
                         <div class="report-title">Reporte de Servicio</div>
@@ -263,13 +263,22 @@
             </tbody>
         </table>
 
-        @if($poliza->equipos->isNotEmpty())
+        @if($poliza->equipos->isNotEmpty() || count($equiposCliente) > 0)
             <div class="section-title">Infraestructura Bajo Cobertura</div>
             <div style="margin-bottom: 30px;">
                 @foreach($poliza->equipos as $equipo)
                     <div class="equipment-tag">
                         <strong style="color: #334155;">{{ $equipo->nombre }}</strong>
                         <span style="color: #94a3b8; font-size: 8px;">| S/N: {{ $equipo->numero_serie ?? 'N/A' }}</span>
+                    </div>
+                @endforeach
+                @foreach($equiposCliente as $equipo)
+                    <div class="equipment-tag">
+                        <strong style="color: #334155;">{{ $equipo['nombre'] }}</strong>
+                        <span style="color: #94a3b8; font-size: 8px;">
+                            | Eva: {{ $equipo['serie_evaporador'] ?? 'N/A' }}
+                            | Cond: {{ $equipo['serie_condensadora'] ?? 'N/A' }}
+                        </span>
                     </div>
                 @endforeach
             </div>

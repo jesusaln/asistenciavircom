@@ -3,7 +3,7 @@
     use Illuminate\Support\Str;
 
     // Color principal saneado
-    $COLOR = ltrim($configuracion->color_principal ?? '#3B82F6', '#');
+    $COLOR = ltrim($configuracion->color_principal ?? '#FF6B35', '#');
     $HEX = "#{$COLOR}";
     $money = fn($n) => number_format((float) $n, 2);
 @endphp

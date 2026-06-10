@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Marketing;
 use App\Http\Controllers\Controller;
 use App\Models\Empresa;
 use App\Models\WhatsAppChat;
+use App\Models\Cita;
 use App\Models\Cliente;
 use App\Models\Cotizacion;
 use App\Models\CrmProspecto;
@@ -39,18 +40,14 @@ class WhatsAppChatController extends Controller
 
         // Unificar por mismo número (wa_id canónico): evita dos filas "JESUS LOPEZ" por formatos distintos en BD
         $chats = $chats->groupBy(function ($chat) {
-            try {
-                return WhatsAppService::canonicalWaId((string) $chat->wa_id);
-            } catch (\Throwable $e) {
-                return (string) $chat->wa_id;
-            }
+            return $chat->canonical_wa_id ?: $chat->wa_id;
         })->map(function (Collection $group) use ($empresaId) {
             $sorted = $group->sortByDesc(function ($c) {
                 return $c->last_message_at ? $c->last_message_at->getTimestamp() : 0;
             });
             /** @var WhatsAppConversation $primary */
             $primary = $sorted->first();
-            $canonical = WhatsAppService::canonicalWaId((string) $primary->wa_id);
+            $canonical = $primary->canonical_wa_id ?: $primary->wa_id;
             $primary->setAttribute('wa_id', $canonical);
 
             $waIds = $group->pluck('wa_id')->unique()->values()->all();
@@ -67,7 +64,10 @@ class WhatsAppChatController extends Controller
             }
 
             $lastMsg = WhatsAppChat::where('empresa_id', $empresaId)
-                ->whereIn('wa_id', $waIds)
+                ->where(function ($q) use ($canonical, $waIds) {
+                    $q->where('canonical_wa_id', $canonical)
+                      ->orWhereIn('wa_id', $waIds);
+                })
                 ->where('is_internal', false)
                 ->orderByDesc('created_at')
                 ->first();
@@ -129,26 +129,41 @@ class WhatsAppChatController extends Controller
             return response()->json(['error' => 'No se pudo determinar la empresa'], 403);
         }
 
+        $target = WhatsAppService::canonicalWaId((string) $waId);
         $waIds = $this->waIdsForSameCanonicalContact($empresaId, $waId);
-        $messages = WhatsAppChat::where('empresa_id', $empresaId)
-            ->whereIn('wa_id', $waIds)
+        $limit = min((int) (request()->query('limit', 200)), 500);
+        $before = request()->query('before');
+
+        $query = WhatsAppChat::where('empresa_id', $empresaId)
+            ->where(function ($q) use ($target, $waIds) {
+                $q->where('canonical_wa_id', $target)
+                  ->orWhereIn('wa_id', $waIds);
+            })
             ->with('user:id,name')
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($before) {
+            $query->where('id', '<', (int) $before);
+        }
+
+        $messages = $query->limit($limit)->get()->reverse()->values();
 
         return response()->json($messages);
     }
 
     public function assignAgent(Request $request, $waId)
     {
-        $request->validate(['agent_id' => 'nullable|exists:users,id']);
-
         $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
         if (!$empresaId) {
             return response()->json(['error' => 'No se pudo determinar la empresa'], 403);
         }
 
+        $request->validate(['agent_id' => 'nullable|exists:users,id,empresa_id,'.$empresaId]);
+
         $conv = $this->findConversationByCanonical($empresaId, $waId);
+        if (!$conv) {
+            return response()->json(['error' => 'Conversación no encontrada'], 404);
+        }
         $conv->update(['assigned_to' => $request->agent_id]);
         
         return response()->json(['success' => true]);
@@ -164,8 +179,25 @@ class WhatsAppChatController extends Controller
         }
 
         $conv = $this->findConversationByCanonical($empresaId, $waId);
+        if (!$conv) {
+            return response()->json(['error' => 'Conversación no encontrada'], 404);
+        }
         $conv->update(['status' => $request->status]);
         
+        $canonical = \App\Services\WhatsAppService::canonicalWaId((string) $waId);
+        $humanActiveKey = "whatsapp_human_active_{$empresaId}_{$canonical}";
+        if ($request->status === 'open') {
+            \Illuminate\Support\Facades\Cache::put($humanActiveKey, true, now()->addMinutes(30));
+        } else {
+            \Illuminate\Support\Facades\Cache::forget($humanActiveKey);
+        }
+        
+        if (in_array($request->status, ['closed', 'archived'])) {
+            \Illuminate\Support\Facades\Cache::forget("whatsapp_menu_state_{$empresaId}_{$canonical}");
+            \Illuminate\Support\Facades\Cache::forget("whatsapp_chatbot_spam_blocked_{$canonical}");
+            \Illuminate\Support\Facades\Cache::forget("whatsapp_chatbot_msg_count_{$canonical}");
+        }
+
         return response()->json(['success' => true]);
     }
 
@@ -192,7 +224,7 @@ class WhatsAppChatController extends Controller
             'type' => 'text',
             'is_internal' => true,
             'message_id' => 'internal_' . time() . '_' . rand(1000, 9999),
-            'estado' => 'read',
+            'status' => 'read',
             'received_at' => now(),
         ]);
 
@@ -209,7 +241,27 @@ class WhatsAppChatController extends Controller
         }
 
         $conv = $this->findConversationByCanonical($empresaId, $waId);
+        if (!$conv) {
+            return response()->json(['error' => 'Conversación no encontrada'], 404);
+        }
         $conv->update($request->only(['tags', 'status', 'assigned_to']));
+
+        if ($request->has('status')) {
+            $canonical = \App\Services\WhatsAppService::canonicalWaId((string) $waId);
+            $humanActiveKey = "whatsapp_human_active_{$empresaId}_{$canonical}";
+            if ($request->status === 'open') {
+                \Illuminate\Support\Facades\Cache::put($humanActiveKey, true, now()->addDays(7));
+            } else {
+                \Illuminate\Support\Facades\Cache::forget($humanActiveKey);
+            }
+
+            if (in_array($request->status, ['closed', 'archived'])) {
+                \Illuminate\Support\Facades\Cache::forget("whatsapp_menu_state_{$empresaId}_{$canonical}");
+                \Illuminate\Support\Facades\Cache::forget("whatsapp_chatbot_spam_blocked_{$canonical}");
+                \Illuminate\Support\Facades\Cache::forget("whatsapp_chatbot_msg_count_{$canonical}");
+            }
+        }
+
         return response()->json($conv);
     }
 
@@ -313,6 +365,11 @@ class WhatsAppChatController extends Controller
 
         $file = $request->file('file');
         $mimeType = $file->getMimeType();
+        if ($mimeType === 'application/octet-stream' || !$mimeType) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file->getRealPath()) ?: 'application/octet-stream';
+            finfo_close($finfo);
+        }
         $type = explode('/', $mimeType)[0] === 'image' ? 'image' : 'document';
         
         // WhatsApp solo acepta ciertos mimes. Documentos permitidos: pdf, docx, etc.
@@ -359,12 +416,14 @@ class WhatsAppChatController extends Controller
                 ]
             );
 
+        \Illuminate\Support\Facades\Cache::put("whatsapp_human_active_{$empresaId}_{$waId}", true, now()->addMinutes(30));
+
             event(new \App\Events\WhatsAppMessageReceived($message));
 
             return response()->json($message);
         } catch (\Exception $e) {
             \Log::error("WHATSAPP UPLOAD Error: " . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Error al subir o enviar el archivo. Verifique la configuración de WhatsApp e intente de nuevo.'], 500);
         }
     }
 
@@ -375,9 +434,13 @@ class WhatsAppChatController extends Controller
             return response()->json(['suggestion' => 'No se pudo determinar la empresa.'], 403);
         }
 
+        $target = WhatsAppService::canonicalWaId((string) $waId);
         $waIds = $this->waIdsForSameCanonicalContact($empresaId, $waId);
         $messages = WhatsAppChat::where('empresa_id', $empresaId)
-            ->whereIn('wa_id', $waIds)
+            ->where(function ($q) use ($target, $waIds) {
+                $q->where('canonical_wa_id', $target)
+                  ->orWhereIn('wa_id', $waIds);
+            })
             ->where('is_internal', false)
             ->orderByDesc('created_at')
             ->limit(10)
@@ -418,21 +481,24 @@ class WhatsAppChatController extends Controller
     {
         $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
         if (!$empresaId) {
-            abort(403, 'No se pudo determinar la empresa.');
+            return response()->json(['error' => 'No se pudo determinar la empresa.'], 403);
         }
 
-        $chat = WhatsAppChat::where('empresa_id', $empresaId)->where('message_id', $messageId)->firstOrFail();
+        $chat = WhatsAppChat::where('empresa_id', $empresaId)->where('message_id', $messageId)->first();
+        if (!$chat) {
+            return response()->json(['error' => 'Mensaje no encontrado.'], 404);
+        }
         $meta = $chat->metadata ?? [];
         $audioId = $meta['audio']['id'] ?? null;
 
         if (! $audioId) {
-            abort(404, 'Sin referencia de audio en el mensaje.');
+            return response()->json(['error' => 'Sin referencia de audio en el mensaje.'], 404);
         }
 
         $empresa = Empresa::find($chat->empresa_id);
         $token = WhatsAppConfigService::resolveGraphAccessToken($empresa);
         if (! $token) {
-            abort(503, 'WhatsApp no configurado.');
+            return response()->json(['error' => 'WhatsApp no configurado.'], 403);
         }
 
         try {
@@ -441,8 +507,7 @@ class WhatsAppChatController extends Controller
                 ->get("https://graph.facebook.com/v20.0/{$audioId}");
         } catch (\Throwable $e) {
             \Log::channel('whatsapp')->error('WhatsApp getAudio Graph', ['e' => $e->getMessage(), 'audioId' => $audioId]);
-
-            abort(502, 'No se pudo contactar a Meta.');
+            return response()->json(['error' => 'No se pudo contactar a Meta.'], 404);
         }
 
         if (! $response->successful()) {
@@ -450,24 +515,23 @@ class WhatsAppChatController extends Controller
                 'status' => $response->status(),
                 'body' => substr($response->body(), 0, 500),
             ]);
-            abort($response->status() === 404 ? 404 : 502, 'Audio no disponible o expirado en Meta.');
+            return response()->json(['error' => 'Audio no disponible o expirado en Meta.'], 404);
         }
 
         $url = $response->json()['url'] ?? null;
         if (! $url) {
-            abort(404, 'Sin URL de descarga de audio.');
+            return response()->json(['error' => 'Sin URL de descarga de audio.'], 404);
         }
 
         try {
             $audioData = Http::withToken($token)->timeout(60)->get($url);
         } catch (\Throwable $e) {
             \Log::channel('whatsapp')->error('WhatsApp getAudio download', ['e' => $e->getMessage()]);
-
-            abort(502, 'No se pudo descargar el audio.');
+            return response()->json(['error' => 'No se pudo descargar el audio.'], 404);
         }
 
         if (! $audioData->successful()) {
-            abort(502, 'Descarga de audio fallida.');
+            return response()->json(['error' => 'Descarga de audio fallida.'], 404);
         }
 
         return response($audioData->body())
@@ -478,10 +542,13 @@ class WhatsAppChatController extends Controller
     {
         $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
         if (!$empresaId) {
-            abort(403, 'No se pudo determinar la empresa.');
+            return response()->json(['error' => 'No se pudo determinar la empresa.'], 403);
         }
 
-        $chat = WhatsAppChat::where('empresa_id', $empresaId)->where('message_id', $messageId)->firstOrFail();
+        $chat = WhatsAppChat::where('empresa_id', $empresaId)->where('message_id', $messageId)->first();
+        if (!$chat) {
+            return response()->json(['error' => 'Mensaje no encontrado.'], 404);
+        }
         $meta = $chat->metadata ?? [];
 
         // Si es outbound y tenemos la URL guardada (sticker/image enviada), la usamos directamente
@@ -493,13 +560,13 @@ class WhatsAppChatController extends Controller
         $imageId = $meta['image']['id'] ?? $meta['sticker']['id'] ?? $meta['document']['id'] ?? null;
 
         if (! $imageId) {
-            abort(404, 'Sin referencia de medio en el mensaje.');
+            return response()->json(['error' => 'Sin referencia de medio en el mensaje.'], 404);
         }
 
         $empresa = Empresa::find($chat->empresa_id);
         $token = WhatsAppConfigService::resolveGraphAccessToken($empresa);
         if (! $token) {
-            abort(503, 'WhatsApp no configurado.');
+            return response()->json(['error' => 'WhatsApp no configurado.'], 403);
         }
 
         try {
@@ -508,8 +575,7 @@ class WhatsAppChatController extends Controller
                 ->get("https://graph.facebook.com/v20.0/{$imageId}");
         } catch (\Throwable $e) {
             \Log::channel('whatsapp')->error('WhatsApp getImage Graph', ['e' => $e->getMessage(), 'mediaId' => $imageId]);
-
-            abort(502, 'No se pudo contactar a Meta.');
+            return response()->json(['error' => 'No se pudo contactar a Meta.'], 404);
         }
 
         if (! $response->successful()) {
@@ -517,24 +583,23 @@ class WhatsAppChatController extends Controller
                 'status' => $response->status(),
                 'body' => substr($response->body(), 0, 500),
             ]);
-            abort($response->status() === 404 ? 404 : 502, 'Medio no disponible o expirado en Meta.');
+            return response()->json(['error' => 'Medio no disponible o expirado en Meta.'], 404);
         }
 
         $url = $response->json()['url'] ?? null;
         if (! $url) {
-            abort(404, 'Sin URL de descarga.');
+            return response()->json(['error' => 'Sin URL de descarga.'], 404);
         }
 
         try {
             $imageData = Http::withToken($token)->timeout(60)->get($url);
         } catch (\Throwable $e) {
             \Log::channel('whatsapp')->error('WhatsApp getImage download', ['e' => $e->getMessage()]);
-
-            abort(502, 'No se pudo descargar el medio.');
+            return response()->json(['error' => 'No se pudo descargar el medio.'], 404);
         }
 
         if (! $imageData->successful()) {
-            abort(502, 'Descarga del medio fallida.');
+            return response()->json(['error' => 'Descarga del medio fallida.'], 404);
         }
 
         $mimeType = $response->json()['mime_type'] ?? 'image/jpeg';
@@ -619,6 +684,8 @@ class WhatsAppChatController extends Controller
             ]
         );
 
+        \Illuminate\Support\Facades\Cache::put("whatsapp_human_active_{$empresaId}_{$waId}", true, now()->addDays(7));
+
         event(new \App\Events\WhatsAppMessageReceived($message));
 
         return response()->json($message);
@@ -672,28 +739,18 @@ class WhatsAppChatController extends Controller
     {
         $target = WhatsAppService::canonicalWaId((string) $waId);
 
+        // Primary lookup via canonical_wa_id (indexed, fast)
         $ids = WhatsAppConversation::query()
             ->where('empresa_id', $empresaId)
-            ->pluck('wa_id')
-            ->push($waId)
-            ->unique()
-            ->filter(function ($id) use ($target) {
-                try {
-                    return WhatsAppService::canonicalWaId((string) $id) === $target;
-                } catch (\Throwable $e) {
-                    return false;
-                }
-            });
+            ->where('canonical_wa_id', $target)
+            ->pluck('wa_id');
 
-        // Mensajes huérfanos (solo whats_app_chats): acotado por últimos 10 dígitos
-        if (strlen($target) >= 10) {
-            $suffix = substr($target, -10);
-            $extra = WhatsAppChat::query()
+        // If canonical_wa_id not populated yet, fallback to LIKE suffix + in-memory filter
+        if ($ids->isEmpty()) {
+            $fallbackIds = WhatsAppConversation::query()
                 ->where('empresa_id', $empresaId)
-                ->where('wa_id', 'like', '%'.$suffix)
-                ->select('wa_id')
-                ->groupBy('wa_id')
-                ->limit(40)
+                ->where('wa_id', 'like', '%'.substr($target, -10))
+                ->limit(25)
                 ->pluck('wa_id')
                 ->filter(function ($id) use ($target) {
                     try {
@@ -702,24 +759,50 @@ class WhatsAppChatController extends Controller
                         return false;
                     }
                 });
-            $ids = $ids->merge($extra)->unique()->values();
+            $ids = $fallbackIds;
         }
 
-        return $ids->all();
+        $ids = $ids->push($waId)->unique()->values();
+
+        // Mensajes huérfanos (solo whats_app_chats): acotado por canonical_wa_id o últimos 10 dígitos
+        $orphanIds = WhatsAppChat::query()
+            ->where('empresa_id', $empresaId)
+            ->where(function ($q) use ($target) {
+                $q->where('canonical_wa_id', $target)
+                  ->orWhere('wa_id', 'like', '%'.substr($target, -10));
+            })
+            ->select('wa_id')
+            ->groupBy('wa_id')
+            ->limit(40)
+            ->pluck('wa_id')
+            ->filter(function ($id) use ($target) {
+                try {
+                    return WhatsAppService::canonicalWaId((string) $id) === $target;
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            });
+
+        return $ids->merge($orphanIds)->unique()->values()->all();
     }
 
-    private function findConversationByCanonical(int $empresaId, string $waId): WhatsAppConversation
+    private function findConversationByCanonical(int $empresaId, string $waId): ?WhatsAppConversation
     {
         $target = WhatsAppService::canonicalWaId((string) $waId);
 
+        // Fast path: indexed canonical_wa_id lookup
         $direct = WhatsAppConversation::query()
             ->where('empresa_id', $empresaId)
-            ->where('wa_id', $target)
+            ->where(function ($q) use ($target) {
+                $q->where('canonical_wa_id', $target)
+                  ->orWhere('wa_id', $target);
+            })
             ->first();
         if ($direct) {
             return $direct;
         }
 
+        // Fallback for legacy data without canonical_wa_id
         if (strlen($target) >= 10) {
             $suffix = substr($target, -10);
             $match = WhatsAppConversation::query()
@@ -739,6 +822,7 @@ class WhatsAppChatController extends Controller
             }
         }
 
+        return null;
     }
 
     public function toggleChatbot(Request $request)
@@ -761,5 +845,246 @@ class WhatsAppChatController extends Controller
             'enabled' => (bool)$empresa->whatsapp_chatbot_enabled,
             'mode' => $empresa->whatsapp_chatbot_mode
         ]);
+    }
+
+    public function initJson()
+    {
+        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json(['error' => 'No se pudo determinar la empresa.'], 403);
+        }
+
+        $empresa = \App\Models\Empresa::find($empresaId);
+
+        $chats = WhatsAppConversation::query()
+            ->where('empresa_id', $empresaId)
+            ->with('assignedAgent:id,name')
+            ->orderByDesc('last_message_at')
+            ->limit(100)
+            ->get();
+
+        // Unificar por mismo número (wa_id canónico)
+        $chats = $chats->groupBy(function ($chat) {
+            try {
+                return WhatsAppService::canonicalWaId((string) $chat->wa_id);
+            } catch (\Throwable $e) {
+                return (string) $chat->wa_id;
+            }
+        })->map(function (Collection $group) use ($empresaId) {
+            $sorted = $group->sortByDesc(function ($c) {
+                return $c->last_message_at ? $c->last_message_at->getTimestamp() : 0;
+            });
+            /** @var WhatsAppConversation $primary */
+            $primary = $sorted->first();
+            $canonical = WhatsAppService::canonicalWaId((string) $primary->wa_id);
+            $primary->setAttribute('wa_id', $canonical);
+
+            $waIds = $group->pluck('wa_id')->unique()->values()->all();
+            $telLimpio = strlen($canonical) >= 10 ? substr($canonical, -10) : $canonical;
+
+            $cliente = Cliente::where('telefono', 'like', "%$telLimpio%")->first();
+            if ($cliente) {
+                $primary->from_name = $cliente->nombre_razon_social;
+            } else {
+                $prospecto = CrmProspecto::where('telefono', 'like', "%$telLimpio%")->first();
+                if ($prospecto) {
+                    $primary->from_name = $prospecto->nombre;
+                }
+            }
+
+            $lastMsg = WhatsAppChat::where('empresa_id', $empresaId)
+                ->where(function ($q) use ($canonical, $waIds) {
+                    $q->where('canonical_wa_id', $canonical)
+                      ->orWhereIn('wa_id', $waIds);
+                })
+                ->where('is_internal', false)
+                ->orderByDesc('created_at')
+                ->first();
+
+            $primary->last_message = $lastMsg?->body;
+            $primary->direction = $lastMsg?->direction;
+            $primary->message_status = $lastMsg?->status;
+
+            return $primary;
+        })->values();
+
+        return response()->json([
+            'chats' => $chats,
+            'agents' => \App\Models\User::query()
+                ->where('empresa_id', $empresaId)
+                ->role(['admin', 'ventas'])
+                ->get(['id', 'name']),
+            'quickResponses' => WhatsAppQuickResponse::query()
+                ->where('empresa_id', $empresaId)
+                ->get(),
+            'chatbotConfig' => [
+                'enabled' => (bool) ($empresa?->whatsapp_chatbot_enabled ?? false),
+                'mode' => (string) ($empresa?->whatsapp_chatbot_mode ?? 'off'),
+            ],
+        ]);
+    }
+
+    public function startBot(Request $request, $waId)
+    {
+        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json(['error' => 'No se pudo determinar la empresa'], 403);
+        }
+
+        $canonical = \App\Services\WhatsAppService::canonicalWaId((string) $waId);
+
+        // 1. Limpiar llaves de caché para rehabilitar el bot
+        \Illuminate\Support\Facades\Cache::forget("whatsapp_human_active_{$empresaId}_{$canonical}");
+        \Illuminate\Support\Facades\Cache::forget("whatsapp_menu_state_{$empresaId}_{$canonical}");
+        \Illuminate\Support\Facades\Cache::forget("whatsapp_chatbot_spam_blocked_{$canonical}");
+        \Illuminate\Support\Facades\Cache::forget("whatsapp_chatbot_msg_count_{$canonical}");
+
+        // 2. Mandar el menú principal de inmediato de forma proactiva
+        $empresa = \App\Models\Empresa::find($empresaId);
+        if ($empresa && $empresa->whatsapp_chatbot_enabled) {
+            \App\Jobs\ProcessWhatsAppChatbot::dispatch($empresaId, $canonical, 'menu');
+        }
+
+        // 3. Asegurar que la conversación se actualice a 'open'
+        $conv = $this->findConversationByCanonical($empresaId, $waId);
+        if ($conv) {
+            $conv->update(['status' => 'open']);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function toggleBotConversation(Request $request, $waId)
+    {
+        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json(['error' => 'No se pudo determinar la empresa'], 403);
+        }
+
+        $conv = $this->findConversationByCanonical($empresaId, $waId);
+        if (!$conv) {
+            return response()->json(['error' => 'Conversación no encontrada'], 404);
+        }
+
+        $conv->chatbot_disabled = !$conv->chatbot_disabled;
+        $conv->save();
+
+        return response()->json([
+            'success' => true,
+            'chatbot_disabled' => $conv->chatbot_disabled,
+        ]);
+    }
+
+    public function getActiveCitas($waId)
+    {
+        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json(['error' => 'No se pudo determinar la empresa'], 403);
+        }
+
+        $canonical = WhatsAppService::canonicalWaId((string) $waId);
+        $telLimpio = strlen($canonical) >= 10 ? substr($canonical, -10) : $canonical;
+
+        $cliente = Cliente::where('empresa_id', $empresaId)
+            ->where('telefono', 'like', '%'.$telLimpio.'%')
+            ->first();
+
+        if (!$cliente) {
+            return response()->json(['citas' => []]);
+        }
+
+        $citas = Cita::where('empresa_id', $empresaId)
+            ->where('cliente_id', $cliente->id)
+            ->whereIn('estado', ['programado', 'pendiente', 'confirmado'])
+            ->orderBy('fecha_hora')
+            ->get(['id', 'folio', 'fecha_hora', 'tipo_servicio']);
+
+        return response()->json(['citas' => $citas]);
+    }
+
+    public function saveEvidence(Request $request, $waId, $citaId)
+    {
+        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json(['error' => 'No se pudo determinar la empresa'], 403);
+        }
+
+        $request->validate([
+            'message_id' => 'nullable|string',
+            'media_id' => 'nullable|string',
+        ]);
+
+        $cita = Cita::where('empresa_id', $empresaId)->where('id', $citaId)->first();
+        if (!$cita) {
+            return response()->json(['error' => 'Cita no encontrada'], 404);
+        }
+
+        if (!in_array($cita->estado, ['programado', 'pendiente', 'confirmado'])) {
+            return response()->json(['error' => 'La cita no está activa'], 400);
+        }
+
+        try {
+            $empresa = \App\Models\Empresa::find($empresaId);
+            $whatsapp = WhatsAppService::fromEmpresa($empresa);
+
+            // Obtener media_id: si se envió directo, usarlo; si no, buscar en metadata del chat
+            $mediaId = $request->media_id;
+            if (!$mediaId && $request->message_id) {
+                $chatMsg = \App\Models\WhatsAppChat::where('message_id', $request->message_id)->first();
+                if ($chatMsg && $chatMsg->metadata) {
+                    $meta = $chatMsg->metadata;
+                    $mediaId = $meta['image']['id'] ?? $meta['document']['id'] ?? $meta['video']['id'] ?? null;
+                }
+                // Fallback: intentar con el message_id directamente
+                if (!$mediaId) {
+                    $mediaId = $request->message_id;
+                }
+            }
+
+            if (!$mediaId) {
+                return response()->json(['error' => 'No se pudo determinar el ID del media'], 422);
+            }
+
+            // Verificar si esta message_id ya fue guardada como evidencia
+            $fotos = $cita->fotos_finales ?? [];
+            $msgYaGuardada = false;
+            foreach ($fotos as $foto) {
+                if (is_array($foto) && ($foto['message_id'] ?? null) === $request->message_id) {
+                    $msgYaGuardada = true;
+                    break;
+                }
+                if (is_string($foto) && $foto === $request->message_id) {
+                    $msgYaGuardada = true;
+                    break;
+                }
+            }
+
+            if ($msgYaGuardada) {
+                return response()->json([
+                    'success' => true,
+                    'path' => null,
+                    'already_saved' => true,
+                    'message' => 'Esta imagen ya fue guardada como evidencia'
+                ]);
+            }
+
+            $mediaUrl = $whatsapp->getMediaUrl($mediaId);
+            $imageData = $whatsapp->downloadMedia($mediaUrl);
+
+            $folder = "empresas/{$empresaId}/citas/evidencias";
+            $filename = $cita->folio . '_' . time() . '.jpg';
+            $path = $folder . '/' . $filename;
+
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path, $imageData);
+
+            $fotos[] = $path;
+            $cita->fotos_finales = $fotos;
+            $cita->save();
+
+            return response()->json(['success' => true, 'path' => $path, 'already_saved' => false]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error guardando evidencia: " . $e->getMessage());
+            return response()->json(['error' => 'Error al guardar la imagen'], 500);
+        }
     }
 }

@@ -32,8 +32,8 @@ class SecurityHeaders
         // Política de referrer
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // Política de permisos (features del navegador)
-        $response->headers->set('Permissions-Policy', 'geolocation=(self), microphone=(), camera=(self)');
+        // Política de permisos: (self) permite uso en este origen (p. ej. citas con "usar mi ubicación").
+        $response->headers->set('Permissions-Policy', 'geolocation=(self), microphone=(), camera=()');
 
         return $response;
     }

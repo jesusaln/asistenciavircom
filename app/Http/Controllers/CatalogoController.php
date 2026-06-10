@@ -34,12 +34,32 @@ class CatalogoController extends Controller
 
         // Filtro por categoría
         if ($request->filled('categoria')) {
-            $query->where('categoria_id', $request->categoria);
+            $categoriaVal = $request->categoria;
+            if (is_numeric($categoriaVal)) {
+                $query->where('categoria_id', $categoriaVal);
+            } else {
+                $cat = Categoria::where('nombre', 'ilike', $categoriaVal)->first();
+                if ($cat) {
+                    $query->where('categoria_id', $cat->id);
+                } else {
+                    $query->whereRaw('1=0');
+                }
+            }
         }
 
         // Filtro por marca
         if ($request->filled('marca')) {
-            $query->where('marca_id', $request->marca);
+            $marcaVal = $request->marca;
+            if (is_numeric($marcaVal)) {
+                $query->where('marca_id', $marcaVal);
+            } else {
+                $brand = Marca::where('nombre', 'ilike', $marcaVal)->first();
+                if ($brand) {
+                    $query->where('marca_id', $brand->id);
+                } else {
+                    $query->whereRaw('1=0');
+                }
+            }
         }
 
         // Filtro por existencia (Local o CEDIS) - DEFAULT: FALSE (mostrar todo)
@@ -121,7 +141,7 @@ class CatalogoController extends Controller
             }
         }
 
-        $productos = $query->paginate(28)->withQueryString()->through(function ($item) {
+        $productos = $query->paginate(15)->withQueryString()->through(function ($item) {
             return $this->transformModelToView($item);
         });
 

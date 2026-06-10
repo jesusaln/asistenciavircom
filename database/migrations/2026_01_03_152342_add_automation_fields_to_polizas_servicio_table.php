@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->timestamp('ultimo_cobro_generado_at')->nullable()->after('dia_cobro');
-            $table->integer('sla_horas_respuesta')->nullable()->after('limite_mensual_tickets');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'ultimo_cobro_generado_at')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->timestamp('ultimo_cobro_generado_at')->nullable()->after('dia_cobro');
+                $table->integer('sla_horas_respuesta')->nullable()->after('limite_mensual_tickets');
+            });
+        }
     }
 
     /**

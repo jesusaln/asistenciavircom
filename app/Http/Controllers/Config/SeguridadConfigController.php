@@ -20,6 +20,7 @@ class SeguridadConfigController extends Controller
             'dkim_domain' => 'nullable|string|max:255',
             'dkim_public_key' => 'nullable|string|max:2000',
             'dkim_enabled' => 'nullable|boolean',
+            'pin_auditoria' => 'nullable|string|max:10',
         ]);
 
         if ($validator->fails()) {

@@ -38,15 +38,15 @@ const closeModal = () => {
 </script>
 
 <template>
-    <div class="space-y-8">
-        <div class="p-4 bg-rose-500/5 border border-rose-500/10 rounded-2xl">
+    <div class="space-y-6">
+        <div class="p-4 bg-brand-500/5 border border-rose-500/10 rounded-2xl">
             <p class="text-xs text-rose-200/60 font-medium leading-relaxed">
                 Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de proceder, asegúrate de haber respaldado cualquier información importante.
             </p>
         </div>
 
         <div class="flex items-center pt-4 border-t border-white/5">
-            <button @click="confirmUserDeletion" class="h-12 px-8 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white font-black uppercase tracking-widest text-xs rounded-2xl border border-rose-500/20 transition-all shadow-xl">
+            <button @click="confirmUserDeletion" class="h-12 px-8 bg-brand-500/10 hover:bg-slate-500 text-rose-500 hover:text-white font-black uppercase tracking-wide text-xs rounded-2xl border border-rose-500/20 transition-all shadow-xl">
                 Eliminar Permanentemente
             </button>
         </div>
@@ -64,7 +64,7 @@ const closeModal = () => {
 
                 <div class="group">
                     <div class="relative">
-                        <div class="absolute -inset-0.5 bg-rose-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                        <div class="absolute -inset-0.5 bg-brand-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
                         <input
                             ref="passwordInput"
                             v-model="form.password"
@@ -81,12 +81,12 @@ const closeModal = () => {
 
             <template #footer>
                 <div class="flex gap-3">
-                    <button @click="closeModal" class="px-6 py-3 text-slate-400 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors">
+                    <button @click="closeModal" class="px-6 py-3 text-slate-400 font-bold uppercase tracking-wide text-xs hover:text-white transition-colors">
                         Cancelar
                     </button>
 
                     <button
-                        class="h-12 px-8 bg-rose-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-rose-500 transition-all shadow-xl shadow-rose-900/40"
+                        class="h-12 px-8 bg-rose-600 text-white font-black uppercase tracking-wide text-xs rounded-2xl hover:bg-slate-500 transition-all shadow-xl shadow-rose-900/40"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"

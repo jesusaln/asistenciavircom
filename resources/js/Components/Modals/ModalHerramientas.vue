@@ -7,11 +7,11 @@
             &times;
           </button>
         </div>
-        <div class="p-4 overflow-y-auto max-h-[calc(90vh-72px)]">
+        <div class="p-4 overflow-y-auto custom-scrollbar max-h-[calc(90vh-72px)]">
           <p><strong>Nombre:</strong> {{ herramienta.nombre }}</p>
           <p><strong>Número de Serie:</strong> {{ herramienta.numero_serie }}</p>
           <p v-if="herramienta.foto"><strong>Foto:</strong></p>
-          <img v-if="herramienta.foto" :src="herramienta.foto" alt="Foto de la herramienta" class="w-full h-auto rounded-lg border border-slate-200 dark:border-slate-800">
+          <img v-if="herramienta.foto" :src="herramienta.foto" alt="Foto de la herramienta" class="w-full h-auto rounded-xl border border-slate-200 dark:border-slate-800">
           <p><strong>Técnico Asignado:</strong> {{ herramienta.tecnico ? (herramienta.tecnico.name || `${herramienta.tecnico.nombre || ''} ${herramienta.tecnico.apellido || ''}`.trim()) : 'Sin asignar' }}</p>
         </div>
       </div>

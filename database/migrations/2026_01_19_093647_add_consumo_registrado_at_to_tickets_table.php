@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('tickets', function (Blueprint $table) {
-            // Timestamp que registra cuándo se descontó el folio de la póliza
-            // Si tiene valor, significa que ya se registró el consumo
-            $table->timestamp('consumo_registrado_at')->nullable()->after('poliza_id');
-        });
+        if (!Schema::hasColumn('tickets', 'consumo_registrado_at')) {
+            Schema::table('tickets', function (Blueprint $table) {
+                // Timestamp que registra cuándo se descontó el folio de la póliza
+                // Si tiene valor, significa que ya se registró el consumo
+                $table->timestamp('consumo_registrado_at')->nullable()->after('poliza_id');
+            });
+        }
     }
 
     public function down(): void

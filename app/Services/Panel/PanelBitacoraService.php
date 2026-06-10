@@ -15,20 +15,28 @@ class PanelBitacoraService
     public function getTareasPendientes(int $userId): array
     {
         $eid = EmpresaResolver::resolveId();
-        $cacheKey = 'panel:bitacora_pendientes:'.($eid ?? 'global').':'.$userId;
+        $connection = config('database.default');
+        $cacheKey = "panel:{$connection}:bitacora_pendientes:".($eid ?? 'global').":".$userId;
 
         return Cache::remember($cacheKey, PanelCacheKeys::ttl('bitacora'), function () use ($userId) {
             try {
-                $tareas = BitacoraActividad::with(['usuario:id,name', 'cliente:id,nombre_razon_social'])
+                $tareasBitacora = BitacoraActividad::with(['usuario:id,name', 'cliente:id,nombre_razon_social'])
                     ->pendientesParaUsuario($userId)
                     ->limit(10)
                     ->get();
 
+                $todosPersonales = \App\Models\Todo::where('user_id', $userId)
+                    ->where('status', 'pending')
+                    ->limit(10)
+                    ->get();
+
+                $unificadas = $this->formatTareasUnificadas($tareasBitacora, $todosPersonales);
+
                 return [
-                    'tareas' => $this->formatTareas($tareas),
-                    'total' => $tareas->count(),
-                    'en_proceso' => $tareas->where('estado', 'en_proceso')->count(),
-                    'pendientes' => $tareas->where('estado', 'pendiente')->count(),
+                    'tareas' => $unificadas,
+                    'total' => count($unificadas),
+                    'en_proceso' => $tareasBitacora->where('estado', 'en_proceso')->count() + $todosPersonales->count(), // Los todos personales cuentan como pendientes/en proceso
+                    'pendientes' => $tareasBitacora->where('estado', 'pendiente')->count(),
                 ];
             } catch (\Exception $e) {
                 \Log::error("Error loading bitacora alerts: " . $e->getMessage());
@@ -97,10 +105,66 @@ class PanelBitacoraService
     }
 
     /**
+     * Formatear tareas unificadas (Bitácora + Todos)
+     */
+    private function formatTareasUnificadas($bitacora, $todos): array
+    {
+        $now = Carbon::now();
+        $items = [];
+
+        // Formatear Bitácora
+        foreach ($bitacora as $tarea) {
+            $fecha = Carbon::parse($tarea->fecha);
+            $diasRestantes = $now->diffInDays($fecha, false);
+            $items[] = [
+                'id' => $tarea->id,
+                'titulo' => $tarea->titulo,
+                'descripcion' => $tarea->descripcion ? \Str::limit($tarea->descripcion, 80) : null,
+                'tipo' => 'bitacora',
+                'estado' => $tarea->estado,
+                'prioridad' => $tarea->prioridad ?? 3,
+                'fecha' => $fecha->format('d/m/Y'),
+                'vencida' => $diasRestantes < 0,
+                'url' => "/mis-pendientes?open_id=B{$tarea->id}", // Unificado a Mis Pendientes con prefijo B
+                'icon' => 'wrench'
+            ];
+        }
+
+        // Formatear Todos
+        foreach ($todos as $todo) {
+            $fecha = $todo->due_date ? Carbon::parse($todo->due_date) : null;
+            $diasRestantes = $fecha ? $now->diffInDays($fecha, false) : 0;
+            $items[] = [
+                'id' => $todo->id,
+                'titulo' => $todo->title,
+                'descripcion' => $todo->description ? \Str::limit($todo->description, 80) : null,
+                'tipo' => 'todo',
+                'estado' => $todo->status,
+                'prioridad' => $todo->priority === 'high' ? 1 : ($todo->priority === 'medium' ? 2 : 3),
+                'fecha' => $fecha ? $fecha->format('d/m/Y') : 'Sin fecha',
+                'vencida' => $fecha ? $diasRestantes < 0 : false,
+                'url' => "/mis-pendientes?open_id={$todo->id}",
+                'icon' => 'clipboard-list'
+            ];
+        }
+
+        // Ordenar por vencimiento y prioridad
+        usort($items, function($a, $b) {
+            if ($a['vencida'] !== $b['vencida']) return $b['vencida'] <=> $a['vencida'];
+            return $a['prioridad'] <=> $b['prioridad'];
+        });
+
+        return $items;
+    }
+
+    /**
      * Limpiar cache de un usuario
      */
     public function clearCache(int $userId): void
     {
-        Cache::forget("panel_bitacora_pendientes_{$userId}");
+        $eid = EmpresaResolver::resolveId();
+        $connection = config('database.default');
+        $cacheKey = "panel:{$connection}:bitacora_pendientes:".($eid ?? 'global').":".$userId;
+        Cache::forget($cacheKey);
     }
 }

@@ -191,7 +191,7 @@ const props = defineProps({
   shape: {
     type: String,
     default: 'square',
-    validator: (v) => ['square', 'rounded', 'circle', 'rect'].includes(v),
+    validator: (v) => ['square', 'rounded-xl', 'circle', 'rect'].includes(v),
   },
 
   // Color de fondo del skeleton
@@ -394,7 +394,7 @@ defineExpose({
   border-radius: 0;
 }
 
-.smart-image--rounded {
+.smart-image--rounded-xl {
   border-radius: 8px;
 }
 

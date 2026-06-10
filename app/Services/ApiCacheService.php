@@ -9,14 +9,14 @@ use Throwable;
 /**
  * ApiCacheService - Sistema de caché para llamadas a APIs externas
  *
- * Proporciona caché automático para llamadas a Facturapi, CVA y otras APIs.
+ * Proporciona caché automático para llamadas a SW Sapien, CVA y otras APIs.
  *
  * @example
  *   $cache = app(ApiCacheService::class);
  *
  *   // obtener con caché automático
- *   $data = $cache->remember('facturapi_comprobante_' . $id, now()->addHours(1), function() use ($id) {
- *       return app(FacturapiService::class)->getComprobante($id);
+ *   $data = $cache->remember('sw_sapien_comprobante_' . $id, now()->addHours(1), function() use ($id) {
+ *       return app(SwSapienService::class)->getComprobante($id);
  *   });
  */
 class ApiCacheService

@@ -257,27 +257,27 @@ const getEstadoLabel = (estado) => {
 
 const getEstadoColor = (estado) => {
   const colors = {
-    'activo': 'bg-green-100 text-green-800',
-    'completado': 'bg-blue-100 text-blue-800',
-    'cancelado': 'bg-red-100 text-red-800'
+    'activo': 'bg-emerald-100 text-emerald-800 dark:text-emerald-200',
+    'completado': 'bg-sky-100 text-sky-800 dark:text-sky-200',
+    'cancelado': 'bg-rose-100 text-rose-800 dark:text-rose-200'
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-slate-100 text-slate-800'
 }
 </script>
 
 <template>
   <Head title="Editar Préstamo" />
 
-  <div class="prestamos-edit min-h-screen bg-white">
+  <div class="prestamos-edit min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Editar Préstamo</h1>
-            <p class="text-gray-600 mt-2">
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Editar Préstamo</h1>
+            <p class="text-slate-500 mt-2">
               Modifique la información del préstamo
-              <span v-if="!puedeEditarTerminos" class="text-orange-600 font-medium">
+              <span v-if="!puedeEditarTerminos" class="text-brand-600 font-medium">
                 (Algunos campos están bloqueados porque ya tiene pagos registrados)
               </span>
             </p>
@@ -288,13 +288,13 @@ const getEstadoColor = (estado) => {
             </span>
             <Link
               :href="`/prestamos/${prestamo.id}`"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
             >
               👁 Ver Detalles
             </Link>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
             >
               ← Volver a Préstamos
             </Link>
@@ -305,9 +305,9 @@ const getEstadoColor = (estado) => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulario principal -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Información del Préstamo</h2>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h2 class="text-lg font-semibold text-slate-900">Información del Préstamo</h2>
             </div>
 
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
@@ -329,19 +329,19 @@ const getEstadoColor = (estado) => {
                   @cliente-seleccionado="onClienteSeleccionado"
                   @crear-nuevo-cliente="onCrearNuevoCliente"
                 />
-                <p v-if="errors.cliente_id" class="mt-1 text-sm text-red-600">{{ errors.cliente_id }}</p>
+                <p v-if="errors.cliente_id" class="mt-1 text-sm text-rose-600">{{ errors.cliente_id }}</p>
               </div>
 
               <!-- Información de progreso (solo lectura) -->
-              <div v-if="prestamo.pagos_realizados > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div v-if="prestamo.pagos_realizados > 0" class="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
                 <h3 class="text-sm font-medium text-blue-900 mb-2">Progreso del Préstamo</h3>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span class="text-blue-700">Pagos realizados:</span>
+                    <span class="text-sky-800 dark:text-sky-200">Pagos realizados:</span>
                     <span class="font-semibold text-blue-900 ml-2">{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</span>
                   </div>
                   <div>
-                    <span class="text-blue-700">Monto pagado:</span>
+                    <span class="text-sky-800 dark:text-sky-200">Monto pagado:</span>
                     <span class="font-semibold text-blue-900 ml-2">${{ formatearMoneda(prestamo.monto_pagado) }}</span>
                   </div>
                 </div>
@@ -351,13 +351,13 @@ const getEstadoColor = (estado) => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Monto prestado -->
                 <div>
-                  <label for="monto_prestado" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="monto_prestado" class="block text-sm font-medium text-slate-700 mb-2">
                     Monto a Prestar *
-                    <span v-if="!puedeEditarTerminos" class="text-orange-600 text-xs">(Bloqueado)</span>
+                    <span v-if="!puedeEditarTerminos" class="text-brand-600 text-xs">(Bloqueado)</span>
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 sm:text-sm">$</span>
+                      <span class="text-slate-500 sm:text-sm">$</span>
                     </div>
                     <input
                       id="monto_prestado"
@@ -367,18 +367,18 @@ const getEstadoColor = (estado) => {
                       min="0"
                       placeholder="0.00"
                       :disabled="!puedeEditarTerminos"
-                      class="block w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      :class="{ 'border-red-300': errors.monto_prestado }"
+                      class="block w-full pl-8 pr-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      :class="{ 'border-rose-300': errors.monto_prestado }"
                     />
                   </div>
-                  <p v-if="errors.monto_prestado" class="mt-1 text-sm text-red-600">{{ errors.monto_prestado }}</p>
+                  <p v-if="errors.monto_prestado" class="mt-1 text-sm text-rose-600">{{ errors.monto_prestado }}</p>
                 </div>
 
                 <!-- Tasa de interés -->
                 <div>
-                  <label for="tasa_interes_mensual" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="tasa_interes_mensual" class="block text-sm font-medium text-slate-700 mb-2">
                     Tasa de Interés (%) *
-                    <span v-if="!puedeEditarTerminos" class="text-orange-600 text-xs">(Bloqueado)</span>
+                    <span v-if="!puedeEditarTerminos" class="text-brand-600 text-xs">(Bloqueado)</span>
                   </label>
                   <div class="relative">
                     <input
@@ -390,47 +390,47 @@ const getEstadoColor = (estado) => {
                       max="100"
                       placeholder="0.00"
                       :disabled="!puedeEditarTerminos"
-                      class="block w-full pr-8 pl-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      :class="{ 'border-red-300': errors.tasa_interes_mensual }"
+                      class="block w-full pr-8 pl-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      :class="{ 'border-rose-300': errors.tasa_interes_mensual }"
                     />
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 sm:text-sm">%</span>
+                      <span class="text-slate-500 sm:text-sm">%</span>
                     </div>
                   </div>
-                  <p v-if="errors.tasa_interes_mensual" class="mt-1 text-sm text-red-600">{{ errors.tasa_interes_mensual }}</p>
+                  <p v-if="errors.tasa_interes_mensual" class="mt-1 text-sm text-rose-600">{{ errors.tasa_interes_mensual }}</p>
                 </div>
 
                 <!-- Número de pagos -->
                 <div>
-                  <label for="numero_pagos" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="numero_pagos" class="block text-sm font-medium text-slate-700 mb-2">
                     Número de Pagos *
-                    <span v-if="!puedeEditarTerminos" class="text-orange-600 text-xs">(Bloqueado)</span>
+                    <span v-if="!puedeEditarTerminos" class="text-brand-600 text-xs">(Bloqueado)</span>
                   </label>
                   <select
                     id="numero_pagos"
                     v-model="form.numero_pagos"
                     :disabled="!puedeEditarTerminos"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    :class="{ 'border-red-300': errors.numero_pagos }"
+                    class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                    :class="{ 'border-rose-300': errors.numero_pagos }"
                   >
                     <option v-for="opcion in opcionesNumeroPagos" :key="opcion.value" :value="opcion.value">
                       {{ opcion.label }}
                     </option>
                   </select>
-                  <p v-if="errors.numero_pagos" class="mt-1 text-sm text-red-600">{{ errors.numero_pagos }}</p>
+                  <p v-if="errors.numero_pagos" class="mt-1 text-sm text-rose-600">{{ errors.numero_pagos }}</p>
                 </div>
 
                 <!-- Frecuencia de pago -->
                 <div>
-                  <label for="frecuencia_pago" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="frecuencia_pago" class="block text-sm font-medium text-slate-700 mb-2">
                     Frecuencia de Pago *
-                    <span v-if="!puedeEditarTerminos" class="text-orange-600 text-xs">(Bloqueado)</span>
+                    <span v-if="!puedeEditarTerminos" class="text-brand-600 text-xs">(Bloqueado)</span>
                   </label>
                   <select
                     id="frecuencia_pago"
                     v-model="form.frecuencia_pago"
                     :disabled="!puedeEditarTerminos"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
                   >
                     <option v-for="opcion in opcionesFrecuencia" :key="opcion.value" :value="opcion.value">
                       {{ opcion.label }}
@@ -440,23 +440,23 @@ const getEstadoColor = (estado) => {
 
                 <!-- Fecha de inicio -->
                 <div>
-                  <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="fecha_inicio" class="block text-sm font-medium text-slate-700 mb-2">
                     Fecha de Inicio *
                   </label>
                   <input
                     id="fecha_inicio"
                     v-model="form.fecha_inicio"
                     type="date"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
-                    :class="{ 'border-red-300': errors.fecha_inicio }"
+                    class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500"
+                    :class="{ 'border-rose-300': errors.fecha_inicio }"
                   />
-                  <p v-if="errors.fecha_inicio" class="mt-1 text-sm text-red-600">{{ errors.fecha_inicio }}</p>
+                  <p v-if="errors.fecha_inicio" class="mt-1 text-sm text-rose-600">{{ errors.fecha_inicio }}</p>
                 </div>
               </div>
 
               <!-- Descripción -->
               <div>
-                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="descripcion" class="block text-sm font-medium text-slate-700 mb-2">
                   Descripción
                 </label>
                 <textarea
@@ -464,13 +464,13 @@ const getEstadoColor = (estado) => {
                   v-model="form.descripcion"
                   rows="3"
                   placeholder="Descripción del préstamo (opcional)"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500"
                 ></textarea>
               </div>
 
               <!-- Notas -->
               <div>
-                <label for="notas" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="notas" class="block text-sm font-medium text-slate-700 mb-2">
                   Notas Adicionales
                 </label>
                 <textarea
@@ -478,22 +478,22 @@ const getEstadoColor = (estado) => {
                   v-model="form.notas"
                   rows="3"
                   placeholder="Notas adicionales (opcional)"
-                  class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-emerald-500"
                 ></textarea>
               </div>
 
               <!-- Botones de acción -->
-              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+              <div class="flex items-center justify-end space-x-3 pt-6 border-t border-slate-200">
                 <Link
                   :href="`/prestamos/${prestamo.id}`"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-slate-300 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </Link>
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   <span v-if="loading" class="flex items-center">
                     <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -511,77 +511,77 @@ const getEstadoColor = (estado) => {
 
         <!-- Panel de cálculos e información -->
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden sticky top-8">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="text-lg font-semibold text-slate-900">
                 {{ puedeEditarTerminos ? 'Cálculo de Pagos' : 'Información Actual' }}
               </h3>
-              <p class="text-sm text-gray-600 mt-1">
+              <p class="text-sm text-slate-500 mt-1">
                 {{ puedeEditarTerminos ? 'Se actualiza automáticamente' : 'Valores actuales del préstamo' }}
               </p>
             </div>
 
             <div class="p-6">
-              <div v-if="puedeEditarTerminos && calculando" class="text-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
-                <p class="text-sm text-gray-600 mt-2">Calculando...</p>
+              <div v-if="puedeEditarTerminos && calculando" class="py-8 text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto"></div>
+                <p class="text-sm text-slate-500 mt-2">Calculando...</p>
               </div>
 
               <div v-else-if="puedeEditarTerminos && form.monto_prestado > 0 && form.numero_pagos > 0">
-                <div class="space-y-4">
+                <div class="space-y-6">
                   <!-- Pago periódico -->
-                  <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span class="text-sm font-medium text-gray-700">Pago {{ form.frecuencia_pago }}:</span>
-                    <span class="text-lg font-bold text-green-600">
+                  <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-sm font-medium text-slate-700">Pago {{ form.frecuencia_pago }}:</span>
+                    <span class="text-lg font-bold text-emerald-600">
                       ${{ formatearMoneda(calculos.pago_periodico) }}
                     </span>
                   </div>
 
                   <!-- Interés total -->
-                  <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                    <span class="text-sm font-medium text-gray-700">Interés Total:</span>
+                  <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-sm font-medium text-slate-700">Interés Total:</span>
                     <span class="text-lg font-semibold text-blue-600">
                       ${{ formatearMoneda(calculos.interes_total) }}
                     </span>
                   </div>
 
                   <!-- Total a pagar -->
-                  <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
-                    <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
-                    <span class="text-xl font-bold text-gray-900">
+                  <div class="flex justify-between items-center py-3 border-b-2 border-slate-200">
+                    <span class="text-sm font-medium text-slate-700">Total a Pagar:</span>
+                    <span class="text-xl font-bold text-slate-900">
                       ${{ formatearMoneda(calculos.total_pagar) }}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div v-else class="space-y-4">
+              <div v-else class="space-y-6">
                 <!-- Información actual del préstamo -->
-                <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span class="text-sm font-medium text-gray-700">Pago {{ prestamo.frecuencia_texto?.toLowerCase() }}:</span>
-                  <span class="text-lg font-bold text-green-600">
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                  <span class="text-sm font-medium text-slate-700">Pago {{ prestamo.frecuencia_texto?.toLowerCase() }}:</span>
+                  <span class="text-lg font-bold text-emerald-600">
                     ${{ formatearMoneda(prestamo.pago_periodico) }}
                   </span>
                 </div>
 
-                <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span class="text-sm font-medium text-gray-700">Interés Total:</span>
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                  <span class="text-sm font-medium text-slate-700">Interés Total:</span>
                   <span class="text-lg font-semibold text-blue-600">
                     ${{ formatearMoneda(prestamo.monto_interes_total) }}
                   </span>
                 </div>
 
-                <div class="flex justify-between items-center py-3 border-b-2 border-gray-200">
-                  <span class="text-sm font-medium text-gray-700">Total a Pagar:</span>
-                  <span class="text-xl font-bold text-gray-900">
+                <div class="flex justify-between items-center py-3 border-b-2 border-slate-200">
+                  <span class="text-sm font-medium text-slate-700">Total a Pagar:</span>
+                  <span class="text-xl font-bold text-slate-900">
                     ${{ formatearMoneda(prestamo.monto_total_pagar) }}
                   </span>
                 </div>
 
                 <!-- Información adicional -->
-                <div class="bg-white rounded-lg p-4 mt-4">
-                  <h4 class="text-sm font-medium text-gray-900 mb-2">Estado del Préstamo</h4>
-                  <div class="space-y-2 text-sm text-gray-600">
+                <div class="bg-white rounded-xl p-4 mt-4">
+                  <h4 class="text-sm font-medium text-slate-900 mb-2">Estado del Préstamo</h4>
+                  <div class="space-y-2 text-sm text-slate-500">
                     <div class="flex justify-between">
                       <span>Pagos realizados:</span>
                       <span>{{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}</span>
@@ -597,11 +597,11 @@ const getEstadoColor = (estado) => {
                   </div>
 
                   <!-- Información del cálculo original -->
-                  <div class="mt-3 pt-3 border-t border-gray-200">
-                    <div class="text-xs text-gray-500 mb-2">
+                  <div class="mt-3 pt-3 border-t border-slate-200">
+                    <div class="text-xs text-slate-500 mb-2">
                       <strong>Configuración original:</strong>
                     </div>
-                    <div class="space-y-1 text-xs text-gray-500">
+                    <div class="space-y-1 text-xs text-slate-500">
                       <div class="flex justify-between">
                         <span>Tasa anual:</span>
                         <span>{{ prestamo.tasa_interes_mensual }}%</span>

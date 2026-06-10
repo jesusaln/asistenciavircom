@@ -8,6 +8,7 @@ use App\Models\EmpresaConfiguracion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Traits\ImageOptimizerTrait;
+use App\Support\ConfigValidationRules;
 
 /**
  * Controller para gestión de apariencia visual
@@ -18,15 +19,19 @@ class AparienciaConfigController extends Controller
 {
     use ApiResponse, ImageOptimizerTrait;
 
+    public function __construct()
+    {
+        $this->middleware('can:edit configuracion_empresa');
+    }
+
     /**
      * Actualizar colores de la marca
      */
     public function updateColores(Request $request)
     {
         $data = $request->validate([
-            'color_principal' => 'nullable|string|regex:/^#[0-9A-F]{6}$/i',
-            'color_secundario' => 'nullable|string|regex:/^#[0-9A-F]{6}$/i',
-            'color_terciario' => 'nullable|string|regex:/^#[0-9A-F]{6}$/i',
+            'color_principal' => ConfigValidationRules::colorHexNullable(),
+            'color_secundario' => ConfigValidationRules::colorHexNullable(),
         ]);
 
         if (!empty($data['color_principal'])) {
@@ -35,15 +40,12 @@ class AparienciaConfigController extends Controller
         if (!empty($data['color_secundario'])) {
             $data['color_secundario'] = strtoupper($data['color_secundario']);
         }
-        if (!empty($data['color_terciario'])) {
-            $data['color_terciario'] = strtoupper($data['color_terciario']);
-        }
 
         $configuracion = EmpresaConfiguracion::getConfig();
         $configuracion->update($data);
         EmpresaConfiguracion::clearCache();
 
-        return redirect()->back()->with('success', 'La configuración visual se ha actualizado correctamente.');
+        return redirect()->back()->with('success', 'Colores actualizados correctamente.');
     }
 
     /**
@@ -52,30 +54,24 @@ class AparienciaConfigController extends Controller
     public function subirLogo(Request $request)
     {
         $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'logo' => ConfigValidationRules::logoImage(),
         ]);
 
-        try {
-            $configuracion = EmpresaConfiguracion::getConfig();
+        $configuracion = EmpresaConfiguracion::getConfig();
 
-            // Eliminar logo anterior si existe
-            if ($configuracion->logo_path && Storage::exists($configuracion->logo_path)) {
-                Storage::delete($configuracion->logo_path);
-            }
-
-            // Guardar nuevo logo optimizado como WebP
-            $path = $this->saveImageAsWebP($request->file('logo'), 'logos');
-
-            $configuracion->update([
-                'logo_path' => $path,
-            ]);
-
-            EmpresaConfiguracion::clearCache();
-
-            return redirect()->back()->with('success', 'El logotipo se ha actualizado correctamente.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al procesar la imagen: ' . $e->getMessage());
+        // Eliminar logo anterior si existe
+        if ($configuracion->logo_path && Storage::exists($configuracion->logo_path)) {
+            Storage::delete($configuracion->logo_path);
         }
+
+        // Guardar nuevo logo
+        $path = $this->saveImageAsWebP($request->file('logo'), 'logos');
+
+        $configuracion->update([
+            'logo_path' => $path,
+        ]);
+
+        return redirect()->back()->with('success', 'Logo subido correctamente.');
     }
 
     /**
@@ -84,30 +80,24 @@ class AparienciaConfigController extends Controller
     public function subirFavicon(Request $request)
     {
         $request->validate([
-            'favicon' => 'required|image|mimes:jpeg,png,jpg,gif,ico,webp|max:1024',
+            'favicon' => ConfigValidationRules::faviconImage(),
         ]);
 
-        try {
-            $configuracion = EmpresaConfiguracion::getConfig();
+        $configuracion = EmpresaConfiguracion::getConfig();
 
-            // Eliminar favicon anterior si existe
-            if ($configuracion->favicon_path && Storage::exists($configuracion->favicon_path)) {
-                Storage::delete($configuracion->favicon_path);
-            }
-
-            // Guardar nuevo favicon
-            $path = $this->saveImageAsWebP($request->file('favicon'), 'favicons');
-
-            $configuracion->update([
-                'favicon_path' => $path,
-            ]);
-
-            EmpresaConfiguracion::clearCache();
-
-            return redirect()->back()->with('success', 'El favicon se ha actualizado correctamente.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al procesar el favicon: ' . $e->getMessage());
+        // Eliminar favicon anterior si existe
+        if ($configuracion->favicon_path && Storage::exists($configuracion->favicon_path)) {
+            Storage::delete($configuracion->favicon_path);
         }
+
+        // Guardar nuevo favicon
+        $path = $this->saveImageAsWebP($request->file('favicon'), 'favicons');
+
+        $configuracion->update([
+            'favicon_path' => $path,
+        ]);
+
+        return redirect()->back()->with('success', 'Favicon subido correctamente.');
     }
 
     /**
@@ -116,7 +106,7 @@ class AparienciaConfigController extends Controller
     public function subirLogoReportes(Request $request)
     {
         $request->validate([
-            'logo_reportes' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'logo_reportes' => ConfigValidationRules::logoReportesImage(),
         ]);
 
         $configuracion = EmpresaConfiguracion::getConfig();
@@ -196,8 +186,8 @@ class AparienciaConfigController extends Controller
     public function previewColores(Request $request)
     {
         $colores = $request->validate([
-            'color_principal' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
-            'color_secundario' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
+            'color_principal' => ConfigValidationRules::colorHexRequired(),
+            'color_secundario' => ConfigValidationRules::colorHexRequired(),
         ]);
 
         return $this->success($colores, 'Vista previa de colores');

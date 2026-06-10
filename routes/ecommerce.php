@@ -14,8 +14,7 @@ use App\Http\Controllers\PolizaPaymentController;
 Route::get('/tienda/login', [SocialAuthController::class, 'showLogin'])->name('tienda.login');
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-Route::get('/auth/microsoft', [SocialAuthController::class, 'redirectToMicrosoft'])->name('auth.microsoft');
-Route::get('/auth/microsoft/callback', [SocialAuthController::class, 'handleMicrosoftCallback']);
+
 Route::post('/tienda/logout', [SocialAuthController::class, 'logout'])->name('tienda.logout');
 Route::get('/tienda/mi-cuenta', [SocialAuthController::class, 'miCuenta'])->name('tienda.mi-cuenta');
 Route::get('/api/tienda/cliente', [SocialAuthController::class, 'me'])->name('tienda.cliente.me');
@@ -71,19 +70,22 @@ Route::get('/contratacion/exito', [PolizaPaymentController::class, 'success'])->
 Route::get('/contratacion/cancelado', [PolizaPaymentController::class, 'cancel'])->name('pago.poliza.cancelado');
 
 // Integración Grupo CVA (Proxy)
-Route::get('/api/tienda/cva/catalogo', [App\Http\Controllers\Tienda\CVAProxyController::class, 'index'])->name('tienda.cva.catalogo');
-Route::get('/api/tienda/cva/sugerencias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'suggestions'])->name('tienda.cva.sugerencias');
-Route::post('/api/tienda/cva/shipping', [App\Http\Controllers\Tienda\CVAProxyController::class, 'calculateShipping'])->name('tienda.cva.shipping');
-Route::get('/api/tienda/cva/producto/{clave}', [App\Http\Controllers\Tienda\CVAProxyController::class, 'show'])->name('tienda.cva.producto');
-Route::post('/api/tienda/cva/importar', [App\Http\Controllers\Tienda\CVAProxyController::class, 'import'])->name('tienda.cva.importar');
-Route::post('/api/tienda/cva/sync-local', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncToLocal'])->name('tienda.cva.sync-local');
-Route::post('/api/tienda/cva/sync-categorias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncCategories'])->name('tienda.cva.sync-categorias');
-Route::post('/api/tienda/cva/sync-marcas', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncBrands'])->name('tienda.cva.sync-marcas');
+Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('api/tienda/cva')->name('tienda.cva.')->group(function () {
+    Route::get('/catalogo', [App\Http\Controllers\Tienda\CVAProxyController::class, 'index'])->name('catalogo');
+    Route::get('/sugerencias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'suggestions'])->name('sugerencias');
+    Route::post('/shipping', [App\Http\Controllers\Tienda\CVAProxyController::class, 'calculateShipping'])->name('shipping');
+    Route::get('/producto/{clave}', [App\Http\Controllers\Tienda\CVAProxyController::class, 'show'])->name('producto');
+    Route::post('/importar', [App\Http\Controllers\Tienda\CVAProxyController::class, 'import'])->name('importar');
+    Route::post('/sync-local', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncToLocal'])->name('sync-local');
+    Route::post('/sync-categorias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncCategories'])->name('sync-categorias');
+    Route::post('/sync-marcas', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncBrands'])->name('sync-marcas');
+});
+
 
 // Ruta de PRUEBA para Pagos (Solo dev)
 Route::get('/test/pagos', function () {
-    //    if (app()->environment('production'))
-//        abort(404);
+    if (app()->environment('production'))
+        abort(404);
     $poliza = \App\Models\PolizaServicio::with('cliente')->where('estado', 'pendiente_pago')->latest()->first();
     return \Inertia\Inertia::render('Contratacion/TestPagos', ['poliza' => $poliza, 'gateways' => config('payments')]);
 })->name('pago.test');

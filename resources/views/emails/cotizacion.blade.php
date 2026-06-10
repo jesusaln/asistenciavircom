@@ -29,7 +29,7 @@ Ubicación: resources/views/emails/cotizacion.blade.php
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #3B82F6;
+            border-bottom: 2px solid #FF6B35;
         }
         .info-section {
             display: table;
@@ -45,7 +45,7 @@ Ubicación: resources/views/emails/cotizacion.blade.php
             border-radius: 8px;
         }
         .info-block h3 {
-            color: #3B82F6;
+            color: #FF6B35;
             margin: 0 0 10px 0;
             font-size: 14px;
         }
@@ -67,11 +67,11 @@ Ubicación: resources/views/emails/cotizacion.blade.php
             padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
-            border-left: 4px solid #3B82F6;
+            border-left: 4px solid #FF6B35;
         }
         .highlight-box h4 {
             margin: 0 0 10px 0;
-            color: #3B82F6;
+            color: #FF6B35;
         }
         .notes-box {
             background-color: #fff3cd;

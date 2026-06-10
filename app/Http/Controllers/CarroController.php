@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Carro;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class CarroController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Carro::query();
+            $query = Carro::query()->with('tecnicos');
 
             // Filtros
             if ($search = trim($request->input('search', ''))) {
@@ -100,7 +101,14 @@ class CarroController extends Controller
     // Mostrar formulario para crear un nuevo carro
     public function create()
     {
-        return Inertia::render('Carros/Create');
+        $tecnicos = User::tecnicosActivos()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Carros/Create', [
+            'tecnicos' => $tecnicos
+        ]);
     }
 
     // Guardar un nuevo carro
@@ -129,7 +137,12 @@ class CarroController extends Controller
             $validated['activo'] = (bool) $validated['activo'];
         }
 
-        Carro::create($validated);
+        $carro = Carro::create($validated);
+
+        // ASIGNACIÓN DE TÉCNICO (Si se proporcionó)
+        if ($request->has('tecnico_id') && $request->input('tecnico_id')) {
+            User::where('id', $request->input('tecnico_id'))->update(['carro_id' => $carro->id]);
+        }
 
         return redirect('/carros')->with('success', 'Carro creado exitosamente.');
     }
@@ -141,7 +154,19 @@ class CarroController extends Controller
             $carro->foto = Storage::url($carro->foto); // Genera la URL pública
         }
 
-        return Inertia::render('Carros/Edit', ['carro' => $carro]);
+        // Obtener técnicos asignados actualmente
+        $carro->load('tecnicos');
+
+        // Obtener lista de técnicos disponibles para el selector
+        $tecnicos = User::tecnicosActivos()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Carros/Edit', [
+            'carro' => $carro,
+            'tecnicos' => $tecnicos
+        ]);
     }
 
     // Actualizar un carro existente
@@ -175,6 +200,19 @@ class CarroController extends Controller
         }
 
         $carro->update($validated);
+
+        // ASIGNACIÓN DE TÉCNICO
+        if ($request->has('tecnico_id')) {
+            $tecnicoId = $request->input('tecnico_id');
+            
+            // 1. Limpiar técnicos previos de este carro (si quieres que sea 1 a 1)
+            // User::where('carro_id', $carro->id)->update(['carro_id' => null]);
+
+            // 2. Asignar el nuevo técnico
+            if ($tecnicoId) {
+                User::where('id', $tecnicoId)->update(['carro_id' => $carro->id]);
+            }
+        }
 
         return redirect('/carros')->with('success', 'Carro actualizado exitosamente.');
     }

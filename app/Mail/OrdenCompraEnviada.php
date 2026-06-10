@@ -10,9 +10,11 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+
 class OrdenCompraEnviada extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public OrdenCompra $ordenCompra;
 
@@ -45,7 +47,7 @@ class OrdenCompraEnviada extends Mailable
                 'ordenCompra' => $this->ordenCompra,
                 'proveedor' => $this->ordenCompra->proveedor,
                 'productos' => $this->ordenCompra->productos,
-                'configuracion' => \App\Models\EmpresaConfiguracion::getConfig(),
+                'configuracion' => \App\Models\EmpresaConfiguracion::getConfig($this->ordenCompra->empresa_id),
             ],
         );
     }

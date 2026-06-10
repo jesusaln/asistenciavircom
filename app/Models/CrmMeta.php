@@ -10,6 +10,8 @@ use Carbon\Carbon;
 
 class CrmMeta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'crm_metas';

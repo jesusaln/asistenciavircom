@@ -1,6 +1,6 @@
 <template>
     <div v-if="mostrarModal" class="fixed inset-0 bg-black/60 dark:bg-black/70 flex justify-center items-center p-4">
-        <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
+        <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-800">
             <!-- Cerrar Modal -->
             <button @click="$emit('cerrar')" class="float-right text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -15,7 +15,7 @@
             <div v-if="carro">
                 <div class="mb-4">
                     <label class="block text-slate-600 dark:text-slate-300 text-sm font-bold mb-2">Foto</label>
-                    <img v-if="carro.foto" :src="carro.foto" alt="Foto del carro" class="w-full h-auto rounded">
+                    <img v-if="carro.foto" :src="carro.foto" alt="Foto del carro" class="w-full h-auto rounded-xl">
                     <span v-else class="text-slate-500 dark:text-slate-400 italic">Sin foto</span>
                 </div>
                 <div class="mb-2">

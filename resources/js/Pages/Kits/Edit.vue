@@ -1,28 +1,28 @@
 <template>
   <AppLayout :title="`Editar Kit: ${kit.nombre}`">
-    <div class="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-amber-500 selection:text-white">
+    <div class="min-h-screen bg-[var(--ui-surface)] text-slate-100 font-sans selection:bg-brand-500 selection:text-white">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         <!-- Header -->
         <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 tracking-tight">
+            <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-500 tracking-tight">
               Editar Kit
             </h1>
             <p class="mt-2 text-slate-400 text-lg">Modifica la composición y detalles del kit</p>
           </div>
           <div class="flex space-x-3">
              <Link :href="`/kits/${kit.id}`" 
-               class="inline-flex items-center px-5 py-2.5 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 transition-all duration-300">
-               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="inline-flex items-center px-5 py-2.5 border border-slate-600 rounded-2xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200">
+               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                </svg>
                Ver Kit
              </Link>
              <Link href="/kits" 
-               class="inline-flex items-center px-5 py-2.5 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 transition-all duration-300">
-               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="inline-flex items-center px-5 py-2.5 border border-slate-600 rounded-2xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200">
+               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                </svg>
                Volver a Kits
@@ -36,8 +36,8 @@
           <!-- Información Básica -->
           <div class="px-8 py-6 border-b border-slate-700 bg-slate-800/50">
             <div class="flex items-center">
-              <span class="p-2 bg-amber-500/10 rounded-lg mr-3">
-                 <svg class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <span class="p-2 bg-brand-500/10 rounded-xl mr-3">
+                 <svg class="w-10 h-10 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                  </svg>
               </span>
@@ -48,23 +48,23 @@
             </div>
           </div>
 
-          <div class="px-8 py-8 space-y-8">
+          <div class="px-8 py-8 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Nombre -->
               <div>
-                <label for="nombre" class="block text-sm font-medium text-slate-300 mb-2">Nombre del Kit <span class="text-amber-500">*</span></label>
+                <label for="nombre" class="block text-sm font-medium text-slate-300 mb-2">Nombre del Kit <span class="text-brand-500">*</span></label>
                 <input v-model="form.nombre" type="text" id="nombre"
-                       class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200"
+                       class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200"
                        required>
-                <div v-if="errors.nombre" class="mt-2 text-sm text-red-400 font-medium">{{ errors.nombre[0] }}</div>
+                <div v-if="errors.nombre" class="mt-2 text-sm text-rose-400 font-medium">{{ errors.nombre[0] }}</div>
               </div>
 
               <!-- Código -->
               <div>
                 <label for="codigo" class="block text-sm font-medium text-slate-300 mb-2">Código</label>
                 <input v-model="form.codigo" type="text" id="codigo"
-                       class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200">
-                <div v-if="errors.codigo" class="mt-2 text-sm text-red-400 font-medium">{{ errors.codigo[0] }}</div>
+                       class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200">
+                <div v-if="errors.codigo" class="mt-2 text-sm text-rose-400 font-medium">{{ errors.codigo[0] }}</div>
               </div>
             </div>
 
@@ -72,8 +72,8 @@
             <div>
               <label for="descripcion" class="block text-sm font-medium text-slate-300 mb-2">Descripción</label>
               <textarea v-model="form.descripcion" id="descripcion" rows="3"
-                        class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200"></textarea>
-              <div v-if="errors.descripcion" class="mt-2 text-sm text-red-400 font-medium">{{ errors.descripcion[0] }}</div>
+                        class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200"></textarea>
+              <div v-if="errors.descripcion" class="mt-2 text-sm text-rose-400 font-medium">{{ errors.descripcion[0] }}</div>
             </div>
 
             <!-- Foto y Destacado -->
@@ -81,20 +81,20 @@
               <!-- Imagen -->
               <div>
                 <label class="block text-sm font-medium text-slate-300 mb-2">Imagen del Kit</label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-700 border-dashed rounded-2xl bg-slate-900/50 hover:bg-slate-900 transition-all duration-300 group">
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-700 border-dashed rounded-2xl bg-black/50 hover:bg-slate-900 transition-all duration-200 group">
                   <div class="space-y-2 text-center">
                     <div v-if="imagePreview" class="relative inline-block group/preview">
-                      <img :src="imagePreview" class="h-32 w-32 object-cover rounded-xl border-2 border-amber-500/50 shadow-lg shadow-amber-500/10" />
-                      <button @click="removeImage" type="button" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200">
+                      <img :src="imagePreview" class="h-32 w-32 object-cover rounded-xl border-2 border-brand-500/50 shadow-xl shadow-brand-500/10" />
+                      <button @click="removeImage" type="button" class="absolute -top-2 -right-2 bg-brand-500 text-white rounded-full p-1 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                       </button>
                     </div>
                     <div v-else class="flex flex-col items-center">
-                      <svg class="mx-auto h-12 w-12 text-slate-500 group-hover:text-amber-500 transition-colors duration-300" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                      <svg class="mx-auto h-12 w-12 text-slate-500 group-hover:text-brand-500 transition-colors duration-200" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                       <div class="flex text-sm text-slate-400 mt-2">
-                        <label for="imagen" class="relative cursor-pointer bg-transparent rounded-md font-bold text-amber-500 hover:text-amber-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-amber-500 focus-within:ring-offset-slate-900">
+                        <label for="imagen" class="relative cursor-pointer bg-transparent rounded-xl font-bold text-brand-500 hover:text-brand-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-500 focus-within:ring-offset-slate-900">
                           <span>Cambiar imagen</span>
                           <input id="imagen" name="imagen" type="file" class="sr-only" @change="handleImageUpload" accept="image/*">
                         </label>
@@ -104,13 +104,13 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="errors.imagen" class="mt-2 text-sm text-red-400 font-medium">{{ errors.imagen[0] }}</div>
+                <div v-if="errors.imagen" class="mt-2 text-sm text-rose-400 font-medium">{{ errors.imagen[0] }}</div>
               </div>
 
               <!-- Destacado -->
               <div class="flex flex-col justify-center">
                 <label class="block text-sm font-medium text-slate-300 mb-4">Visibilidad en Tienda</label>
-                <div class="bg-slate-900/50 border border-slate-700 rounded-2xl p-6 hover:bg-slate-900 transition-all duration-300">
+                <div class="bg-black/50 border border-slate-700 rounded-2xl p-6 hover:bg-slate-900 transition-all duration-200">
                   <div class="flex items-center justify-between">
                     <div>
                       <h4 class="text-white font-bold">Producto Destacado</h4>
@@ -118,8 +118,8 @@
                     </div>
                     <button type="button" 
                             @click="form.destacado = !form.destacado"
-                            :class="[form.destacado ? 'bg-amber-500' : 'bg-slate-700']"
-                            class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                            :class="[form.destacado ? 'bg-brand-500' : 'bg-slate-700']"
+                            class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-slate-900">
                       <span :class="[form.destacado ? 'translate-x-5' : 'translate-x-0']"
                             class="inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
                     </button>
@@ -131,23 +131,23 @@
             <!-- Precio, Estado y Categoría -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
-                <label for="precio_venta" class="block text-sm font-medium text-slate-300 mb-2">Precio de Venta <span class="text-amber-500">*</span></label>
-                <div class="relative rounded-xl shadow-sm">
+                <label for="precio_venta" class="block text-sm font-medium text-slate-300 mb-2">Precio de Venta <span class="text-brand-500">*</span></label>
+                <div class="relative rounded-2xl shadow-sm">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span class="text-slate-500 font-bold">$</span>
                   </div>
                   <input v-model.number="form.precio_venta" type="number" step="0.01" min="0" id="precio_venta"
-                         class="pl-8 block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 font-mono text-lg"
+                         class="pl-8 block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 font-mono text-lg"
                          required>
                 </div>
-                <div v-if="errors.precio_venta" class="mt-2 text-sm text-red-400 font-medium">{{ errors.precio_venta[0] }}</div>
+                <div v-if="errors.precio_venta" class="mt-2 text-sm text-rose-400 font-medium">{{ errors.precio_venta[0] }}</div>
               </div>
 
               <div>
                 <label for="categoria_id" class="block text-sm font-medium text-slate-300 mb-2">Categoría</label>
                 <div class="relative">
                    <select v-model="form.categoria_id" id="categoria_id"
-                          class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 appearance-none">
+                          class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 appearance-none">
                     <option value="" class="text-slate-500">Seleccionar categoría (opcional)</option>
                     <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
                       {{ categoria.nombre }}
@@ -163,7 +163,7 @@
                 <label for="estado" class="block text-sm font-medium text-slate-300 mb-2">Estado</label>
                 <div class="relative">
                    <select v-model="form.estado" id="estado"
-                          class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 appearance-none">
+                          class="block w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 appearance-none">
                     <option value="activo">Activo</option>
                     <option value="inactivo">Inactivo</option>
                   </select>
@@ -179,8 +179,8 @@
           <div class="px-8 py-6 border-t border-slate-700 bg-slate-800/50">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div class="flex items-center">
-                 <span class="p-2 bg-blue-500/10 rounded-lg mr-3">
-                    <svg class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <span class="p-2 bg-brand-500/10 rounded-xl mr-3">
+                    <svg class="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                  </span>
@@ -190,8 +190,8 @@
                  </div>
               </div>
               <button type="button" @click="addComponent"
-                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-lg shadow-emerald-900/20 text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900 transition-all duration-300 transform hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-2xl shadow-xl shadow-emerald-900/20 text-sm font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-emerald-400 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200 transform hover:scale-105 active:scale-95">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
                 Agregar Componente
@@ -203,7 +203,7 @@
             <!-- Lista de Componentes -->
             <div class="space-y-6">
               <div v-for="(componente, index) in form.componentes" :key="index"
-                   class="bg-slate-700/30 border border-slate-600/50 rounded-2xl p-6 transition-all duration-300 hover:border-slate-500 hover:shadow-lg relative group">
+                   class="bg-slate-700/30 border border-slate-600/50 rounded-2xl p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-xl relative group">
                 
                 <div class="absolute -top-3 -left-3 bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-slate-600 shadow-sm">
                    #{{ index + 1 }}
@@ -211,8 +211,8 @@
 
                 <div class="flex justify-end absolute top-4 right-4 opacity-70 group-hover:opacity-100 transition-opacity">
                   <button type="button" @click="removeComponent(index)"
-                          class="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          class="p-2 bg-brand-500/10 text-rose-400 rounded-xl hover:bg-slate-500 hover:text-white transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
                   </button>
@@ -225,7 +225,7 @@
                     <div class="relative">
                        <select v-model="componente.item_type"
                               @change="clearItemSelection(index)"
-                              class="block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 appearance-none text-sm"
+                              class="block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 appearance-none text-sm"
                               required>
                         <option value="" class="text-slate-500">Seleccionar</option>
                         <option value="producto">Producto</option>
@@ -245,7 +245,7 @@
                     <div class="relative">
                        <select v-model="componente.item_id"
                               @change="updateItemInfo(index)"
-                              class="block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 appearance-none text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                              class="block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 appearance-none text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                               :disabled="!componente.item_type"
                               required>
                         <option value="" class="text-slate-500">Seleccionar...</option>
@@ -271,20 +271,20 @@
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cantidad</label>
                     <input v-model.number="componente.cantidad" type="number" min="1" step="1"
                            @input="calculateCosts"
-                           class="block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 text-sm font-mono text-center"
+                           class="block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 text-sm font-mono text-center"
                            required>
                   </div>
 
                   <!-- Precio Unitario -->
                   <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">P. Unitario</label>
-                    <div class="relative rounded-xl shadow-sm">
+                    <div class="relative rounded-2xl shadow-sm">
                       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span class="text-slate-500 font-bold text-xs">$</span>
                       </div>
                       <input v-model.number="componente.precio_unitario" type="number" step="0.01" min="0"
                              @input="calculateCosts"
-                             class="pl-6 block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white placeholder-slate-600 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-200 text-sm font-mono text-right"
+                             class="pl-6 block w-full bg-slate-900 border border-slate-600 rounded-xl py-2.5 px-3 text-white placeholder-slate-600 focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all duration-200 text-sm font-mono text-right"
                              :placeholder="getItemPrecio(componente)">
                     </div>
                   </div>
@@ -292,7 +292,7 @@
 
                 <!-- Info adicional -->
                 <div v-if="componente.item_type === 'producto' && componente.requiereSeries" class="mt-4 flex items-center">
-                  <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-blue-400 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-blue-400 bg-brand-500/10 rounded-xl border border-blue-500/20">
                     <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
@@ -302,7 +302,7 @@
               </div>
             </div>
 
-            <div v-if="errors.componentes" class="mt-4 text-sm text-red-400 font-medium px-4 py-2 bg-red-500/10 rounded-lg border border-red-500/20 inline-block">
+            <div v-if="errors.componentes" class="mt-4 text-sm text-rose-400 font-medium px-4 py-2 bg-brand-500/10 rounded-xl border border-rose-500/20 inline-block">
                {{ errors.componentes[0] }}
             </div>
 
@@ -318,8 +318,8 @@
                      <div class="text-2xl font-bold text-white tracking-tight">{{ formatCurrency(sumaPreciosUnitarios) }}</div>
                    </div>
                     <div class="text-right">
-                      <p class="text-[10px] text-amber-500 font-black uppercase tracking-widest mb-1.5 opacity-80">Precio Final Sugerido</p>
-                      <div class="text-2xl font-black text-amber-400 tracking-tighter">{{ formatCurrency(sumaConIva) }}</div>
+                      <p class="text-[10px] text-brand-500 font-black uppercase tracking-wide mb-1.5 opacity-80">Precio Final Sugerido</p>
+                      <div class="text-2xl font-black text-brand-400 tracking-tighter">{{ formatCurrency(sumaConIva) }}</div>
                       <p class="text-[9px] text-slate-500 mt-1 font-bold">Sumando 16% IVA al subtotal</p>
                     </div>
                  </div>
@@ -350,17 +350,17 @@
           </div>
 
           <!-- Actions -->
-          <div class="px-8 py-6 bg-slate-900/50 border-t border-slate-700 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-            <Link href="/kits" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-slate-600 rounded-xl shadow-sm text-base font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 transition-all duration-200">
+          <div class="px-8 py-6 bg-black/50 border-t border-slate-700 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <Link href="/kits" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-600 rounded-2xl shadow-sm text-base font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200">
               Cancelar
             </Link>
             <button type="submit" :disabled="loading"
-                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-lg shadow-amber-900/20 text-base font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 disabled:opacity-50 disabled:transform-none transition-all duration-300 transform hover:scale-105 active:scale-95">
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-2xl shadow-xl shadow-brand-900/20 text-base font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 disabled:opacity-50 disabled:transform-none transition-all duration-200 transform hover:scale-105 active:scale-95">
               <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <svg v-else class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               {{ loading ? 'Guardando...' : 'Guardar Cambios' }}

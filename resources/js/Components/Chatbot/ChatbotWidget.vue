@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, watch, nextTick, onMounted } from 'vue';
 import axios from 'axios';
 import { usePage } from '@inertiajs/vue3';
@@ -92,7 +93,7 @@ const formatTime = () => {
             leave-from-class="opacity-100 translate-y-0 scale-100"
             leave-to-class="opacity-0 translate-y-10 scale-95"
         >
-            <div v-if="isOpen" class="bg-white dark:bg-gray-800 w-[350px] sm:w-[380px] h-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700 mb-4">
+            <div v-if="isOpen" class="bg-white dark:bg-slate-800 w-[350px] sm:w-[380px] h-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700 mb-4">
                 
                 <!-- Header -->
                 <div class="p-4 flex justify-between items-center shadow-sm" :style="{ backgroundColor: primaryColor }">
@@ -106,7 +107,7 @@ const formatTime = () => {
                         <div>
                             <h3 class="font-bold text-white text-base leading-none">Asistente Virtual</h3>
                             <span class="text-xs text-white/80 flex items-center gap-1 mt-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 En línea
                             </span>
                         </div>
@@ -119,7 +120,7 @@ const formatTime = () => {
                 </div>
 
                 <!-- Messages Area -->
-                <div ref="chatContainer" class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50 scroll-smooth">
+                <div ref="chatContainer" class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50 scroll-smooth">
                     <div v-for="(msg, idx) in messages" :key="idx" 
                         class="flex w-full" 
                         :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
@@ -129,7 +130,7 @@ const formatTime = () => {
                             :class="[
                                 msg.role === 'user' 
                                     ? 'bg-indigo-600 text-white rounded-br-none' 
-                                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-100 dark:border-gray-600'
+                                    : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-none border border-slate-100 dark:border-slate-600'
                             ]"
                             :style="msg.role === 'user' ? { backgroundColor: primaryColor } : {}"
                         >
@@ -140,28 +141,28 @@ const formatTime = () => {
 
                     <!-- Typing Indicator -->
                     <div v-if="isLoading" class="flex justify-start w-full">
-                        <div class="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-none p-4 shadow-sm border border-gray-100 dark:border-gray-600 flex gap-1 items-center h-10">
-                            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-                            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-                            <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                        <div class="bg-white dark:bg-slate-700 rounded-2xl rounded-bl-none p-4 shadow-sm border border-slate-100 dark:border-slate-600 flex gap-1 items-center h-10">
+                            <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                            <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                            <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Input Area -->
-                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+                <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
                     <form @submit.prevent="sendMessage" class="relative items-end w-full flex gap-2">
                         <input 
                             v-model="inputMessage"
                             type="text" 
                             placeholder="Escribe tu mensaje..." 
-                            class="w-full pl-4 pr-12 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border-0 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all text-sm dark:text-white"
+                            class="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border-0 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all text-sm dark:text-white"
                         >
                         <button 
                             type="submit"
                             :disabled="!inputMessage.trim() || isLoading"
-                            class="absolute right-2 top-1.5 p-1.5 rounded-lg transition-all"
-                            :class="inputMessage.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transform hover:scale-105' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+                            class="absolute right-2 top-1.5 p-1.5 rounded-xl transition-all"
+                            :class="inputMessage.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transform hover:scale-105' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
                             :style="inputMessage.trim() ? { backgroundColor: primaryColor } : {}"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -170,7 +171,7 @@ const formatTime = () => {
                         </button>
                     </form>
                     <div class="text-center mt-2">
-                        <p class="text-[10px] text-gray-400">Powered by <b>Vircom AI</b></p>
+                        <p class="text-[10px] text-slate-400">Powered by <b>Vircom AI</b></p>
                     </div>
                 </div>
             </div>
@@ -182,7 +183,7 @@ const formatTime = () => {
             class="group relative flex items-center justify-center w-14 h-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 z-50 text-white"
             :style="{ backgroundColor: primaryColor }"
         >
-            <span v-if="!isOpen" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+            <span v-if="!isOpen" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
             
             <svg v-if="!isOpen" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -193,7 +194,7 @@ const formatTime = () => {
             </svg>
 
             <!-- Tooltip -->
-            <span class="absolute right-16 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <span class="absolute right-16 bg-slate-900 text-white text-xs px-2 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                 ¿Necesitas ayuda?
             </span>
         </button>

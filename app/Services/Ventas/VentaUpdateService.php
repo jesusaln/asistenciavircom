@@ -18,7 +18,7 @@ class VentaUpdateService
 {
     public function __construct(
         private readonly StockValidationService $stockValidationService,
-        private readonly \App\Services\Inventory\InventoryManager $inventoryManager,
+        private readonly InventarioService $inventarioService,
         private readonly \App\Services\FinancialService $financialService,
         private readonly \App\Services\Ventas\VentaItemsProcessor $ventaItemsProcessor,
         private readonly \App\Services\PrecioService $precioService
@@ -129,6 +129,11 @@ class VentaUpdateService
                 $payload['vendedor_type'] = $resolved['vendedor_type'];
             }
 
+            if (array_key_exists('pagado_por', $data)) {
+                $payload['pagado_por'] = $data['pagado_por'] ?: null;
+            }
+
+            \Log::info('VentaUpdateService@updateVenta - Updating with payload', ['payload' => $payload]);
             $venta->update($payload);
 
             // 7. Process new products via unified processor
@@ -192,7 +197,12 @@ class VentaUpdateService
                 // ✅ CRITICAL: Only return inventory manually for products WITHOUT series
                 // Products with series are handled automatically by ProductoSerieObserver
                 if (!($producto->requiere_serie ?? false)) {
-                    $this->inventoryManager->incrementStock($producto, $item->cantidad, $venta->almacen_id);
+                    $this->inventarioService->entrada($producto, $item->cantidad, [
+                        'motivo' => 'Devolución por edición de venta: ' . ($venta->numero_venta ?? $venta->id),
+                        'almacen_id' => $venta->almacen_id,
+                        'user_id' => Auth::id(),
+                        'referencia' => $venta,
+                    ]);
                 }
             }
         }
@@ -232,7 +242,12 @@ class VentaUpdateService
 
             if (!$requiereSeries) {
                 // Devolver inventario del componente no serializado
-                $this->inventoryManager->incrementStock($componente, $cantidadNecesaria, $venta->almacen_id);
+                $this->inventarioService->entrada($componente, $cantidadNecesaria, [
+                    'motivo' => 'Devolución de componente (Kit: ' . $kit->nombre . ') por edición de venta: ' . ($venta->numero_venta ?? $venta->id),
+                    'almacen_id' => $venta->almacen_id,
+                    'user_id' => Auth::id(),
+                    'referencia' => $venta,
+                ]);
             }
             // Series are handled automatically by ProductoSerieObserver
         }
@@ -256,6 +271,10 @@ class VentaUpdateService
                 ->resolveVendedorAttribution($data, Auth::user());
             $payload['vendedor_id'] = $resolved['vendedor_id'];
             $payload['vendedor_type'] = $resolved['vendedor_type'];
+        }
+
+        if (array_key_exists('pagado_por', $data)) {
+            $payload['pagado_por'] = $data['pagado_por'] ?: null;
         }
 
         if ($payload !== []) {

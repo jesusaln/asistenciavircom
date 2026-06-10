@@ -640,7 +640,7 @@ class DatabaseBackupService
             'crc32' => sprintf('%08x', $crc32),
             'file_size' => $fileSize,
             'chunk_count' => $chunkIndex,
-            'generated_at' => now()->toISOString()
+            'generated_at' => now()->toIso8601String()
         ];
     }
 
@@ -977,10 +977,11 @@ class DatabaseBackupService
             }
         }
 
-        $env = '';
-        if ($password !== '') {
-            $env = 'PGPASSWORD=' . escapeshellarg($password) . ' ';
-        }
+        // SEGURIDAD: Usar PGPASSFILE temporal con permisos restringidos (0600) 
+        // para evitar exponer el password en la línea de comandos/proceso
+        $pgpassFile = tempnam(sys_get_temp_dir(), 'pgpass');
+        file_put_contents($pgpassFile, "{$host}:{$port}:{$database}:{$username}:{$password}");
+        chmod($pgpassFile, 0600);
 
         // Formato plano (-F p) para coherencia con flujo actual.
         // Se agregan banderas críticas:
@@ -988,8 +989,8 @@ class DatabaseBackupService
         // --if-exists: Evita errores si se intenta borrar algo que no existe.
         // --no-owner --no-acl: Evita problemas al restaurar en otro servidor/usuario.
         $command = sprintf(
-            '%spg_dump -h %s -p %s -U %s -n %s%s --clean --if-exists --no-owner --no-acl -F p -f %s %s 2>&1',
-            $env,
+            'PGPASSFILE=%s pg_dump -h %s -p %s -U %s -n %s%s --clean --if-exists --no-owner --no-acl -F p -f %s %s 2>&1',
+            escapeshellarg($pgpassFile),
             escapeshellarg($host),
             escapeshellarg((string) $port),
             escapeshellarg($username),
@@ -1000,6 +1001,11 @@ class DatabaseBackupService
         );
 
         exec($command, $output, $returnCode);
+        
+        // Limpiar archivo de credenciales inmediatamente
+        if (file_exists($pgpassFile)) {
+            @unlink($pgpassFile);
+        }
 
         if ($returnCode === 0 && file_exists($storagePath) && filesize($storagePath) > 0) {
             return [
@@ -1632,14 +1638,14 @@ class DatabaseBackupService
                 $username = $config['username'];
                 $password = $config['password'] ?? '';
 
-                $env = '';
-                if ($password !== '') {
-                    $env = 'PGPASSWORD=' . escapeshellarg($password) . ' ';
-                }
+                // SEGURIDAD: Usar PGPASSFILE temporal con permisos restringidos (0600)
+                $pgpassFile = tempnam(sys_get_temp_dir(), 'pgpass');
+                file_put_contents($pgpassFile, "{$host}:{$port}:{$database}:{$username}:{$password}");
+                chmod($pgpassFile, 0600);
 
                 $command = sprintf(
-                    '%spsql -h %s -p %s -U %s -d %s -f %s 2>&1',
-                    $env,
+                    'PGPASSFILE=%s psql -h %s -p %s -U %s -d %s -f %s 2>&1',
+                    escapeshellarg($pgpassFile),
                     escapeshellarg($host),
                     escapeshellarg((string) $port),
                     escapeshellarg($username),
@@ -1648,6 +1654,11 @@ class DatabaseBackupService
                 );
 
                 exec($command, $restoreOutput, $restoreReturnCode);
+
+                // Limpiar archivo de credenciales inmediatamente
+                if (file_exists($pgpassFile)) {
+                    @unlink($pgpassFile);
+                }
 
                 if ($restoreReturnCode !== 0) {
                     throw new \Exception('Error en restauración con psql: ' . implode("\n", $restoreOutput));
@@ -2907,7 +2918,7 @@ class DatabaseBackupService
             ]);
 
             return [
-                'timestamp' => now()->toISOString(),
+                'timestamp' => now()->toIso8601String(),
                 'overview' => [
                     'total_backups' => $totalBackups,
                     'total_size' => $totalSize,
@@ -2934,7 +2945,7 @@ class DatabaseBackupService
 
             return [
                 'error' => 'No se pudieron obtener datos de monitoreo',
-                'timestamp' => now()->toISOString(),
+                'timestamp' => now()->toIso8601String(),
                 'system_health' => 'error'
             ];
         }
@@ -3219,7 +3230,7 @@ class DatabaseBackupService
                 $events[] = [
                     'type' => 'cleanup',
                     'description' => 'Limpieza automática de respaldos antiguos',
-                    'scheduled_for' => $cleanupDate->toISOString(),
+                    'scheduled_for' => $cleanupDate->toIso8601String(),
                     'days_until' => $oldestDate->diffInDays(now())
                 ];
             }
@@ -3358,7 +3369,7 @@ class DatabaseBackupService
                 'type' => 'system_health',
                 'message' => 'Salud del sistema crítica',
                 'description' => 'El sistema de respaldos requiere atención inmediata',
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->toIso8601String()
             ];
         }
 
@@ -3369,7 +3380,7 @@ class DatabaseBackupService
                 'type' => 'capacity',
                 'message' => 'Capacidad de almacenamiento crítica',
                 'description' => 'El espacio disponible es menor al 10%',
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->toIso8601String()
             ];
         }
 
@@ -3380,7 +3391,7 @@ class DatabaseBackupService
                 'type' => 'performance',
                 'message' => 'Rendimiento degradándose',
                 'description' => 'Los tiempos de respaldo están aumentando',
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->toIso8601String()
             ];
         }
 
@@ -3393,7 +3404,7 @@ class DatabaseBackupService
                     'type' => 'errors',
                     'message' => 'Errores frecuentes detectados',
                     'description' => "Error '{$topError['sample_message']}' ocurrido {$topError['count']} veces",
-                    'timestamp' => now()->toISOString()
+                    'timestamp' => now()->toIso8601String()
                 ];
             }
         }
@@ -3711,12 +3722,12 @@ class DatabaseBackupService
 
             switch ($config['frequency']) {
                 case 'daily':
-                    return $now->copy()->setTimeFromTimeString($config['time'])->addDay()->toISOString();
+                    return $now->copy()->setTimeFromTimeString($config['time'])->addDay()->toIso8601String();
 
                 case 'weekly':
                     $dayOfWeek = $config['day_of_week'] ?? 0; // Domingo por defecto
                     $nextRun = $now->copy()->next((int) $dayOfWeek)->setTimeFromTimeString($config['time']);
-                    return $nextRun->toISOString();
+                    return $nextRun->toIso8601String();
 
                 case 'monthly':
                     $dayOfMonth = $config['day_of_month'] ?? 1; // Primero de mes por defecto
@@ -3727,7 +3738,7 @@ class DatabaseBackupService
                         $nextRun->addMonth();
                     }
 
-                    return $nextRun->toISOString();
+                    return $nextRun->toIso8601String();
 
                 case 'custom':
                     // Para horarios personalizados, requeriría configuración adicional
@@ -3804,7 +3815,7 @@ class DatabaseBackupService
         try {
             $backups = $this->listBackups();
             $report = [
-                'generated_at' => now()->toISOString(),
+                'generated_at' => now()->toIso8601String(),
                 'total_backups' => count($backups),
                 'healthy_backups' => 0,
                 'corrupted_backups' => 0,
@@ -3872,7 +3883,7 @@ class DatabaseBackupService
             return [
                 'error' => 'No se pudo generar el reporte de salud',
                 'overall_health' => 'error',
-                'generated_at' => now()->toISOString()
+                'generated_at' => now()->toIso8601String()
             ];
         }
     }

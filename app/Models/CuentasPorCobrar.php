@@ -11,6 +11,8 @@ use App\Models\Concerns\Blameable;
 
 class CuentasPorCobrar extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa;
 
     protected $table = 'cuentas_por_cobrar';

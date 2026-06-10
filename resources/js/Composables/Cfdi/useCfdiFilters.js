@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 /**
@@ -75,6 +75,10 @@ export function useCfdiFilters(initialFilters = {}, routeName = 'cfdi.index') {
             })
         }, 500)
     }, { deep: true })
+
+    onUnmounted(() => {
+        if (timeout) clearTimeout(timeout)
+    })
 
     const getSortIndicator = (field) => {
         if (filters.value.sort !== field) return ''

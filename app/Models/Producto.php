@@ -18,7 +18,25 @@ use \OwenIt\Auditing\Auditable;
 
 class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa, HasTrigramSearch, Auditable;
+
+    /**
+     * Only audit changes to sensitive financial/inventory fields.
+     * This prevents noise from cosmetic edits (descripcion, imagen, etc.)
+     * while ensuring every price or stock change has a full trail.
+     */
+    protected $auditInclude = [
+        'precio_compra',
+        'precio_venta',
+        'stock',
+        'stock_minimo',
+        'estado',
+        'margen_ganancia',
+        'comision_vendedor',
+        'nombre',
+    ];
 
     protected array $searchable = ['nombre', 'descripcion', 'codigo', 'codigo_barras'];
 
@@ -366,7 +384,10 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function getGananciaMargenAttribute()
     {
-        return $this->ganancia * ($this->margen_ganancia / 100);
+        if (!isset($this->attributes['cached_ganancia_margen'])) {
+            $this->attributes['cached_ganancia_margen'] = $this->ganancia * ($this->margen_ganancia / 100);
+        }
+        return $this->attributes['cached_ganancia_margen'];
     }
 
     public function getPrecioConIvaAttribute()
@@ -375,6 +396,11 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
             return (float) ($this->precio_venta ?? 0);
         }
         return round(($this->precio_venta ?? 0) * 1.16, 2);
+    }
+
+    public function getActivoAttribute(): bool
+    {
+        return $this->estado === 'activo';
     }
 
     /* =========================
@@ -427,12 +453,7 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 // No usar el precio, porque eso infla el costo.
                 $costoUnitario = $item->item->comision_vendedor ?? 0;
             } else {
-                // Manejar Productos
-                if ($item->precio_unitario) {
-                    // Check if we should use stored price? No, user wants historical cost.
-                    // But we previously commented this out.
-                }
-
+                // Manejar Productos — calcular costo histórico real
                 $cantidadNecesaria = $item->cantidad * $cantidadKits;
                 $costoUnitario = $stockService->calcularCostoHistorico($item->item, $cantidadNecesaria, $almacenId);
             }
@@ -492,7 +513,8 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
     }
 
     /**
-     * Expandir kit en sus componentes para ventas
+     * Expandir kit en sus componentes (solo productos) para ventas.
+     * Los servicios del kit se manejan a nivel de venta, no aquí.
      */
     public function expandirKit(int $cantidad = 1, ?int $almacenId = null): array
     {
@@ -591,36 +613,29 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
     }
 
     /**
-     * Calcula el costo histórico promedio basado en los últimos movimientos de entrada
-     * @param int|null $cantidad Número de movimientos a considerar (opcional)
+     * Calcula el costo histórico promedio ponderado basado en todos los movimientos de entrada.
+     * Usa el método configurado en ventas.metodo_costo_historico (default: 'promedio').
+     *
      * @param int|null $almacenId ID del almacén para filtrar movimientos (opcional)
      */
-    public function calcularCostoHistorico($cantidad = null, $almacenId = null)
+    public function calcularCostoHistorico($legacyLimit = null, $almacenId = null): float
     {
         try {
-            // Si no hay movimientos de entrada, usar el precio de compra actual
             $movimientosEntrada = $this->movimientos()
                 ->where('tipo', 'entrada')
                 ->where('cantidad', '>', 0);
 
-            // Filtrar por almacén si se proporciona
             if ($almacenId) {
                 $movimientosEntrada->where('almacen_id', $almacenId);
             }
 
-            $movimientosEntrada->orderBy('created_at', 'desc');
-
-            if ($cantidad) {
-                $movimientosEntrada->limit($cantidad);
-            }
-
-            $movimientos = $movimientosEntrada->get();
+            $movimientos = $movimientosEntrada->orderBy('created_at', 'desc')->get();
 
             if ($movimientos->isEmpty()) {
                 return $this->precio_compra ?: 0;
             }
 
-            // Calcular costo promedio ponderado
+            // Promedio ponderado por cantidad: SUM(costo_unitario * cantidad) / SUM(cantidad)
             $totalCantidad = 0;
             $totalCosto = 0;
 
@@ -632,7 +647,6 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
             return $totalCantidad > 0 ? $totalCosto / $totalCantidad : ($this->precio_compra ?: 0);
         } catch (\Exception $e) {
-            // En caso de error, devolver el precio de compra actual
             return $this->precio_compra ?: 0;
         }
     }
@@ -644,7 +658,7 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         try {
             if (!$this->expires) {
-                return $this->calcularCostoHistorico($cantidadNecesaria);
+                return $this->calcularCostoHistorico(null, $almacenId);
             }
 
             // Para productos con lotes, calcular basado en los lotes disponibles

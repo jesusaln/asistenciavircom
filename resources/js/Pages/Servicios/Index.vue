@@ -390,10 +390,10 @@ const formatearFecha = (date) => {
 
 const obtenerClasesEstado = (estado) => {
   const clases = {
-    'activo': 'bg-green-100 text-green-700',
-    'inactivo': 'bg-red-100 text-red-700'
+    'activo': 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200',
+    'inactivo': 'bg-rose-100 text-rose-800 dark:text-rose-200 dark:text-rose-200'
   }
-  return clases[estado] || 'bg-gray-100 text-gray-700'
+  return clases[estado] || 'bg-slate-100 text-slate-300'
 }
 
 const obtenerLabelEstado = (estado) => {
@@ -407,7 +407,7 @@ const obtenerLabelEstado = (estado) => {
 
 <template>
   <Head title="Servicios" />
-  <div class="servicios-index min-h-screen bg-white">
+  <div class="servicios-index">
     <div class="w-full px-6 py-8">
       <!-- Header específico de servicios -->
       <ServiciosHeader
@@ -430,85 +430,85 @@ const obtenerLabelEstado = (estado) => {
       />
 
       <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Servicio</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Código</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SAT</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Esquema de Pago</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Precio</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Duración</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Servicio</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Código</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">SAT</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Esquema de Pago</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Precio</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Duración</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="servicio in serviciosDocumentos" :key="servicio.id" class="hover:bg-white transition-colors duration-150">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+              <tr v-for="servicio in serviciosDocumentos" :key="servicio.id" class="hover:bg-white dark:hover:bg-slate-700/50 transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(servicio.fecha) }}</div>
+                  <div class="text-sm text-slate-900 dark:text-slate-100">{{ formatearFecha(servicio.fecha) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ servicio.titulo }}</div>
-                  <div class="text-sm text-gray-500">{{ servicio.subtitulo }}</div>
+                  <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ servicio.titulo }}</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">{{ servicio.subtitulo }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ servicio.raw.codigo || 'N/A' }}</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">{{ servicio.raw.codigo || 'N/A' }}</div>
                 </td>
                 <td class="px-6 py-4">
                   <button
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                    :class="servicio.raw.sat_clave_prod_serv ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                    class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium"
+                    :class="servicio.raw.sat_clave_prod_serv ? 'bg-brand-500/10 text-emerald-600 dark:text-slate-400' : 'bg-brand-500/10 text-rose-600 dark:text-rose-400'"
                     @click="openSatModal(servicio.raw)"
                   >
                     {{ servicio.raw.sat_clave_prod_serv || 'Sin clave' }}
                   </button>
                 </td>
                 <td class="px-6 py-4">
-                  <span v-if="servicio.raw.tipo_comision_tecnica === 'instalacion'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                  <span v-if="servicio.raw.tipo_comision_tecnica === 'instalacion'" class="inline-flex items-center px-2 py-0.5 rounded-xl text-xs font-medium bg-brand-500/10 text-blue-600 dark:text-blue-400">
                     Instalación ($300)
                   </span>
-                  <span v-else-if="servicio.raw.tipo_comision_tecnica === 'refrigeracion'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-cyan-100 text-cyan-800">
+                  <span v-else-if="servicio.raw.tipo_comision_tecnica === 'refrigeracion'" class="inline-flex items-center px-2 py-0.5 rounded-xl text-xs font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
                     Refrigeración ($350)
                   </span>
-                  <span v-else-if="servicio.raw.tipo_comision_tecnica === 'desinstalacion'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                  <span v-else-if="servicio.raw.tipo_comision_tecnica === 'desinstalacion'" class="inline-flex items-center px-2 py-0.5 rounded-xl text-xs font-medium bg-brand-500/10 text-brand-600 dark:text-orange-400">
                     Desinstalación ($100)
                   </span>
-                  <span v-else-if="servicio.raw.tipo_comision_tecnica === 'tierra'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <span v-else-if="servicio.raw.tipo_comision_tecnica === 'tierra'" class="inline-flex items-center px-2 py-0.5 rounded-xl text-xs font-medium bg-brand-500/10 text-brand-600 dark:text-amber-400">
                     Tierra ($100)
                   </span>
-                  <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                  <span v-else class="inline-flex items-center px-2 py-0.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-200">
                     General (30%)
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">${{ formatNumber(servicio.raw.precio || 0) }}</div>
+                  <div class="text-sm text-slate-900 dark:text-slate-100 font-semibold">${{ formatNumber(servicio.raw.precio || 0) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ servicio.raw.duracion || 0 }} min</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">{{ servicio.raw.duracion || 0 }} min</div>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="obtenerClasesEstado(servicio.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <span :class="obtenerClasesEstado(servicio.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-medium">
                     {{ obtenerLabelEstado(servicio.estado) }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end space-x-1">
-                    <button @click="verDetalles(servicio)" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-150" title="Ver detalles">
+                    <button @click="verDetalles(servicio)" class="w-10 h-10 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/40 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-sky-100 dark:hover:bg-blue-900/60 transition-colors duration-150" title="Ver detalles">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </button>
-                    <button @click="editarServicio(servicio.id)" class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors duration-150" title="Editar">
+                    <button @click="editarServicio(servicio.id)" class="w-10 h-10 bg-brand-50 dark:bg-brand-900/20 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 rounded-xl hover:bg-brand-100 dark:hover:bg-brand-900/60 transition-colors duration-150" title="Editar">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button v-if="servicio.raw.can_delete" @click="confirmarEliminacion(servicio.id)" class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-150" title="Eliminar">
+                    <button v-if="servicio.raw.can_delete" @click="confirmarEliminacion(servicio.id)" class="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors duration-150" title="Eliminar">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -518,15 +518,15 @@ const obtenerLabelEstado = (estado) => {
               </tr>
               <tr v-if="serviciosDocumentos.length === 0">
                 <td colspan="9" class="px-6 py-16 text-center">
-                  <div class="flex flex-col items-center space-y-4">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="flex flex-col items-center space-y-6">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                      <svg class="w-10 h-10 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div class="space-y-1">
-                      <p class="text-gray-700 font-medium">No hay servicios</p>
-                      <p class="text-sm text-gray-500">Los servicios aparecerán aquí cuando se creen</p>
+                      <p class="text-slate-700 dark:text-slate-200 font-medium">No hay servicios</p>
+                      <p class="text-sm text-slate-500 dark:text-slate-400">Los servicios aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -536,16 +536,16 @@ const obtenerLabelEstado = (estado) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-slate-900 border-t border-slate-800 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <p class="text-sm text-gray-700">
+              <p class="text-sm text-slate-400">
                 Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} resultados
               </p>
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
+                class="border border-slate-700 rounded-xl text-sm py-1 px-2 bg-slate-800 text-slate-200"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -554,18 +554,18 @@ const obtenerLabelEstado = (estado) => {
               </select>
             </div>
 
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <nav class="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px">
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-700 bg-slate-800 text-sm font-medium text-slate-400 hover:bg-slate-700"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-700 bg-slate-900 text-sm font-medium text-slate-500">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -575,7 +575,7 @@ const obtenerLabelEstado = (estado) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === paginationData.currentPage ? 'bg-brand-500/20 border-blue-500 text-blue-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -584,14 +584,14 @@ const obtenerLabelEstado = (estado) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-700 bg-slate-800 text-sm font-medium text-slate-400 hover:bg-slate-700"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-700 bg-slate-900 text-sm font-medium text-slate-500">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -602,36 +602,36 @@ const obtenerLabelEstado = (estado) => {
       </div>
 
       <!-- Modal SAT -->
-      <div v-if="showSatModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="closeSatModal">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-xl overflow-hidden">
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+      <div v-if="showSatModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeSatModal">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all">
+          <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">
               Clave SAT del servicio: {{ satTarget?.nombre || '' }}
             </h3>
-            <button @click="closeSatModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button @click="closeSatModal" class="text-slate-400 hover:text-brand-600 dark:hover:text-slate-200 transition-colors">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          <div class="p-6 space-y-4">
-            <p class="text-sm text-gray-600">
+          <div class="p-6 space-y-6">
+            <p class="text-sm text-slate-500 dark:text-slate-400">
               Se usa el nombre para sugerir la primera coincidencia del catalogo SAT.
             </p>
-            <div v-if="satSuggesting" class="text-xs text-gray-500">Buscando sugerencia...</div>
+            <div v-if="satSuggesting" class="text-xs text-slate-500">Buscando sugerencia...</div>
             <SatClaveProdServSearch
               v-model="satForm.sat_clave_prod_serv"
               :initial-description="satClaveDescription"
             />
-            <div v-if="satSuggestion" class="text-xs text-gray-500">
+            <div v-if="satSuggestion" class="text-xs text-slate-500">
               Sugerencia aplicada: {{ satSuggestion.clave }} - {{ satSuggestion.descripcion }}
             </div>
           </div>
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-            <button @click="closeSatModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-[var(--ui-surface)] dark:bg-black/50">
+            <button @click="closeSatModal" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
               Cancelar
             </button>
-            <button @click="saveSatClave" :disabled="satSaving" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+            <button @click="saveSatClave" :disabled="satSaving" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50">
               {{ satSaving ? 'Guardando...' : 'Guardar' }}
             </button>
           </div>
@@ -639,15 +639,15 @@ const obtenerLabelEstado = (estado) => {
       </div>
 
       <!-- Modal mejorado -->
-      <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showModal = false">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+          <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">
               {{ modalMode === 'details' ? 'Detalles del Servicio' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button @click="showModal = false" class="text-slate-400 hover:text-brand-600 dark:hover:text-slate-200 transition-colors">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -655,68 +655,68 @@ const obtenerLabelEstado = (estado) => {
 
           <div class="p-6">
             <div v-if="modalMode === 'details' && selectedServicio">
-              <div class="space-y-4">
+              <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedServicio.nombre }}</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Nombre</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-medium">{{ selectedServicio.nombre }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Código</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedServicio.codigo || 'N/A' }}</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Código</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-medium">{{ selectedServicio.codigo || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Precio</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedServicio.precio || 0) }}</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Precio</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-bold">${{ formatNumber(selectedServicio.precio || 0) }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Duración</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedServicio.duracion || 0 }} minutos</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Duración</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-medium">{{ selectedServicio.duracion || 0 }} minutos</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Estado</label>
-                      <span :class="obtenerClasesEstado(selectedServicio.estado)" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Estado</label>
+                      <span :class="obtenerClasesEstado(selectedServicio.estado)" class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium mt-2">
                         {{ obtenerLabelEstado(selectedServicio.estado) }}
                       </span>
                     </div>
                     <div class="mt-2">
-                       <label class="block text-sm font-medium text-gray-700">Categoría Técnica</label>
-                       <p class="mt-1 text-sm text-gray-900 font-semibold">{{ selectedServicio.tipo_comision_tecnica?.toUpperCase() || 'GENERAL' }}</p>
+                       <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Categoría Técnica</label>
+                       <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 font-bold uppercase tracking-wider">{{ selectedServicio.tipo_comision_tecnica?.toUpperCase() || 'GENERAL' }}</p>
                     </div>
                   </div>
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Categoría</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedServicio.categoria?.nombre || 'N/A' }}</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Categoría</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-medium">{{ selectedServicio.categoria?.nombre || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedServicio.created_at) }}</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Fecha de Creación</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-medium">{{ formatearFecha(selectedServicio.created_at) }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedServicio.updated_at) }}</p>
+                      <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Última Actualización</label>
+                      <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 font-medium">{{ formatearFecha(selectedServicio.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedServicio.descripcion">
-                  <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedServicio.descripcion }}</p>
+                  <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Descripción</label>
+                  <p class="mt-1 text-sm text-slate-800 dark:text-slate-100 bg-[var(--ui-surface)] dark:bg-slate-800/50 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800 whitespace-pre-wrap font-medium">{{ selectedServicio.descripcion }}</p>
                 </div>
               </div>
             </div>
 
             <div v-if="modalMode === 'confirm'">
               <div class="text-center">
-                <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 mx-auto bg-brand-500/10 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">¿Eliminar Servicio?</h3>
-                <p class="text-sm text-gray-500 mb-4">
-                  ¿Estás seguro de que deseas eliminar el servicio <strong>{{ selectedServicio?.nombre }}</strong>?
+                <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">¿Eliminar Servicio?</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                  ¿Estás seguro de que deseas eliminar el servicio <strong class="text-slate-800 dark:text-slate-200">{{ selectedServicio?.nombre }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
               </div>
@@ -724,19 +724,19 @@ const obtenerLabelEstado = (estado) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-            <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-[var(--ui-surface)] dark:bg-black/50">
+            <button @click="showModal = false" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
             <div v-if="modalMode === 'details'" class="flex gap-2">
-              <button @click="toggleServicio(selectedServicio.id)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              <button @click="toggleServicio(selectedServicio.id)" class="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
                 Cambiar Estado
               </button>
-              <button @click="editarServicio(selectedServicio.id)" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+              <button @click="editarServicio(selectedServicio.id)" class="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors">
                 Editar
               </button>
             </div>
-            <button v-if="modalMode === 'confirm'" @click="eliminarServicio" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+            <button v-if="modalMode === 'confirm'" @click="eliminarServicio" class="px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors">
               Eliminar
             </button>
           </div>

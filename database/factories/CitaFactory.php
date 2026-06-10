@@ -17,7 +17,7 @@ class CitaFactory extends Factory
     public function definition(): array
     {
         return [
-            'empresa_id' => null,
+            'empresa_id' => \App\Support\EmpresaResolver::resolveId() ?? \App\Models\Empresa::factory(),
             'tecnico_id' => \App\Models\User::factory()->state(['es_tecnico' => true]),
             'cliente_id' => \App\Models\Cliente::factory(),
             'tipo_servicio' => $this->faker->randomElement([
@@ -28,7 +28,14 @@ class CitaFactory extends Factory
                 'Actualización',
                 'Soporte Técnico'
             ]),
-            'fecha_hora' => $this->faker->dateTimeBetween('now', '+30 days'),
+            'fecha_hora' => function() {
+                $faker = \Faker\Factory::create();
+                $date = $faker->dateTimeBetween('now', '+30 days');
+                while ($date->format('N') == 7) { // 7 is Sunday
+                    $date->add(new \DateInterval('P1D'));
+                }
+                return $date->format('Y-m-d') . ' ' . $faker->randomElement(['09:00:00', '11:00:00', '13:00:00', '15:00:00', '17:00:00']);
+            },
             'descripcion' => $this->faker->optional(0.7)->sentence(),
             'tipo_equipo' => $this->faker->randomElement([
                 'Computadora',
@@ -62,7 +69,10 @@ class CitaFactory extends Factory
                 \App\Models\Cita::ESTADO_COMPLETADO,
                 \App\Models\Cita::ESTADO_CANCELADO
             ]),
-            'evidencias' => $this->faker->optional(0.5)->text(200),
+            'fecha_hora_fin' => function(array $attributes) {
+                return \Carbon\Carbon::parse($attributes['fecha_hora'])->addHour();
+            },
+            'evidencias' => [],
         ];
     }
 

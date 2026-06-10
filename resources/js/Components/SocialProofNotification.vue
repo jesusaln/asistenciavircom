@@ -133,7 +133,7 @@ onUnmounted(() => {
                             {{ currentNotification.nombre.charAt(0) }}
                         </div>
                         <!-- Indicador de verificado -->
-                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 dark:bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 dark:bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
                             <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
@@ -142,23 +142,23 @@ onUnmounted(() => {
                     
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm text-gray-800 dark:text-gray-200">
+                        <p class="text-sm text-slate-800 dark:text-slate-200">
                             <span class="font-bold">{{ currentNotification.nombre }}</span>
-                            <span class="text-gray-500 dark:text-gray-400"> de </span>
+                            <span class="text-slate-500 dark:text-slate-400"> de </span>
                             <span class="font-medium">{{ currentNotification.ciudad }}</span>
                         </p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
-                            compró <span class="font-semibold text-gray-800 dark:text-white">{{ currentNotification.producto }}</span>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 truncate">
+                            compró <span class="font-semibold text-slate-800 dark:text-white">{{ currentNotification.producto }}</span>
                         </p>
-                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
-                            <span class="w-2 h-2 bg-green-400 dark:bg-emerald-500 rounded-full animate-pulse"></span>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+                            <span class="w-2 h-2 bg-emerald-400 dark:bg-emerald-500 rounded-full animate-pulse"></span>
                             {{ currentNotification.tiempo }}
                         </p>
                     </div>
                 </div>
                 
                 <!-- Barra de progreso -->
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50 dark:bg-gray-800">
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-slate-200/50 dark:bg-slate-800">
                     <div 
                         class="h-full bg-gradient-to-r from-green-400 to-emerald-500 dark:from-emerald-600 dark:to-emerald-400 progress-bar"
                         :style="{ animationDuration: `${duration}ms` }"

@@ -10,13 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('compras', function (Blueprint $table) {
-            $table->foreignId('proyecto_id')
-                ->nullable()
-                ->after('user_id')
-                ->constrained('proyectos')
-                ->nullOnDelete();
-        });
+        if (!Schema::hasColumn('compras', 'proyecto_id')) {
+            Schema::table('compras', function (Blueprint $table) {
+                $table->foreignId('proyecto_id')
+                    ->nullable()
+                    ->after('user_id')
+                    ->constrained('proyectos')
+                    ->nullOnDelete();
+            });
+        }
     }
 
     /**

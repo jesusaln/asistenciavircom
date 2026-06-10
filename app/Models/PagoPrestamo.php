@@ -13,6 +13,8 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class PagoPrestamo extends Model implements AuditableContract
 {
+    use BelongsToEmpresa;
+
     use HasFactory, AuditableTrait, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'pagos_prestamos';
@@ -193,6 +195,7 @@ class PagoPrestamo extends Model implements AuditableContract
                 'referencia' => $referencia,
                 'cuenta_bancaria_id' => $cuentaBancariaId,
                 'confirmado' => true,
+                'empresa_id' => $this->empresa_id,
             ]);
 
             // Registrar movimiento bancario si se especificó cuenta bancaria

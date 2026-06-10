@@ -92,9 +92,37 @@
     </div>
 
     <div class="content">
-        <p>Estimado/a <strong>{{ $cliente->nombre_razon_social ?? $cliente->nombre ?? 'Cliente' }}</strong>,</p>
+        <p>Estimado/a <strong>{{ $cliente ? ($cliente->nombre_razon_social ?? $cliente->nombre ?? 'Cliente') : 'Cliente' }}</strong>,</p>
         
-        <p>Le enviamos su factura electrónica (CFDI). Adjunto encontrará los archivos XML y PDF correspondientes.</p>
+        @if(isset($isConciliacion) && $isConciliacion)
+            @if(isset($cfdi) && $cfdi->direccion === 'recibido')
+                <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h3 style="color: #1d4ed8; margin: 0 0 10px 0;">📌 Solicitud de Complemento de Pago (REP) o Aclaración</h3>
+                    <p style="margin: 0 0 10px 0;">
+                        Actualmente estamos llevando a cabo nuestra conciliación contable y bancaria. En nuestros registros fiscales, esta factura emitida por su empresa aparece con saldo pendiente o carece de su Recibo Electrónico de Pago (REP) asociado.
+                    </p>
+                    <p style="margin: 0;">
+                        Por tal motivo, le compartimos los datos de la factura y le solicitamos amablemente que:
+                        <br>1️⃣ Si la factura ya fue liquidada por nuestra parte, nos apoye enviando el archivo XML y PDF del Recibo Electrónico de Pago (REP) correspondiente.
+                        <br>2️⃣ En caso de que exista algún saldo pendiente o aclaración, nos informe para programar el pago a la brevedad.
+                    </p>
+                </div>
+            @else
+                <div style="background: #fff7ed; border-left: 4px solid #f97316; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                    <h3 style="color: #c2410c; margin: 0 0 10px 0;">📌 Aviso de Conciliación Contable</h3>
+                    <p style="margin: 0 0 10px 0;">
+                        Actualmente estamos llevando a cabo nuestra conciliación contable y bancaria. En nuestros registros, esta factura electrónica aparece como pendiente de pago o de acreditación.
+                    </p>
+                    <p style="margin: 0;">
+                        Le compartimos los datos fiscales para su verificación y le invitamos amablemente a que:
+                        <br>1️⃣ Si la factura ya fue liquidada, nos apoye enviando el comprobante de pago bancario (transferencia o depósito).
+                        <br>2️⃣ En caso de encontrarse pendiente, le solicitamos atentamente programar o realizar el pago de la misma.
+                    </p>
+                </div>
+            @endif
+        @else
+            <p>Le enviamos su factura electrónica (CFDI). Adjunto encontrará los archivos XML y PDF correspondientes.</p>
+        @endif
 
         <div class="info-box">
             <div class="info-row">
@@ -115,17 +143,19 @@
             </div>
         </div>
 
-        <div class="attachments">
-            <div class="attachments-title">📎 Archivos Adjuntos</div>
-            <p style="margin: 0; color: #1e40af;">
-                • XML del CFDI (archivo fiscal para contabilidad)<br>
-                • PDF de la factura (representación impresa)
-            </p>
-        </div>
+        @if(!isset($isConciliacion) || !$isConciliacion)
+            <div class="attachments">
+                <div class="attachments-title">📎 Archivos Adjuntos</div>
+                <p style="margin: 0; color: #1e40af;">
+                    • XML del CFDI (archivo fiscal para contabilidad)<br>
+                    • PDF de la factura (representación impresa)
+                </p>
+            </div>
 
-        <p style="color: #6b7280; font-size: 14px;">
-            <strong>Importante:</strong> Conserve el archivo XML para sus registros fiscales. Este es el documento oficial ante el SAT.
-        </p>
+            <p style="color: #6b7280; font-size: 14px;">
+                <strong>Importante:</strong> Conserve el archivo XML para sus registros fiscales. Este es el documento oficial ante el SAT.
+            </p>
+        @endif
 
         <p>Si tiene alguna pregunta o necesita asistencia, no dude en contactarnos.</p>
 

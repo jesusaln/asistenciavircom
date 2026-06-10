@@ -55,7 +55,7 @@ class CrudCitaTest extends TestCase
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
             'tipo_servicio' => 'Instalación',
-            'fecha_hora' => now()->addDays(1)->setHour(10)->format('Y-m-d H:i:s'),
+            'fecha_hora' => now()->next('Monday')->setHour(10)->format('Y-m-d H:i:s'),
             'prioridad' => 'media',
             'descripcion' => 'Descripción de la cita',
             'estado' => 'pendiente',
@@ -110,7 +110,7 @@ class CrudCitaTest extends TestCase
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
             'tipo_servicio' => 'Servicio actualizado',
-            'fecha_hora' => now()->addDays(2)->setHour(14)->format('Y-m-d H:i:s'),
+            'fecha_hora' => now()->next('Tuesday')->setHour(14)->format('Y-m-d H:i:s'),
             'prioridad' => 'alta',
             'descripcion' => 'Descripción actualizada',
             'estado' => 'en_proceso',
@@ -151,7 +151,7 @@ class CrudCitaTest extends TestCase
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
             'tipo_servicio' => 'Reparación',
-            'fecha_hora' => now()->addDays(1)->format('Y-m-d H:i:s'),
+            'fecha_hora' => now()->next('Wednesday')->format('Y-m-d H:i:s'),
             'estado' => 'pendiente',
             // Faltan campos de equipo
         ];
@@ -168,7 +168,7 @@ class CrudCitaTest extends TestCase
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
             'tipo_servicio' => str_repeat('a', 256), // Max 255
-            'fecha_hora' => now()->addDays(1)->format('Y-m-d H:i:s'),
+            'fecha_hora' => now()->next('Thursday')->format('Y-m-d H:i:s'),
             'estado' => 'pendiente',
             'tipo_equipo' => str_repeat('a', 256),
             'marca_equipo' => str_repeat('a', 256),

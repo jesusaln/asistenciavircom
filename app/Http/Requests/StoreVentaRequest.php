@@ -2,31 +2,34 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Abstracts\ValidatedRequest;
 use App\Models\Almacen;
 use App\Models\Producto;
+use App\Services\MarginService;
 
-class StoreVentaRequest extends FormRequest
+class StoreVentaRequest extends ValidatedRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        \Illuminate\Support\Facades\Log::info('StoreVentaRequest@authorize');
         return true; // Authorization handled by middleware
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Reglas críticas que no deben deshabilitarse
      */
-    public function rules(): array
+    protected function getCriticalRules(): array
     {
         return [
             'cliente_id' => 'nullable|exists:clientes,id',
             'price_list_id' => 'nullable|exists:price_lists,id',
             'cita_id' => 'nullable|exists:citas,id',
-            'vendedor_id' => 'nullable|exists:users,id', // Added validation rule for vendedor_id
+            'taller_orden_id' => 'nullable|exists:taller_ordenes,id',
+            'vendedor_id' => 'nullable|exists:users,id',
+            /** Si se omite, se asume {@see \App\Models\User} (técnicos y vendedores son usuarios). */
+            'vendedor_type' => 'nullable|string|in:App\\Models\\User',
             'almacen_id' => [
                 'required',
                 'exists:almacenes,id',
@@ -38,11 +41,14 @@ class StoreVentaRequest extends FormRequest
                 },
             ],
             'metodo_pago' => 'required|string|in:efectivo,tarjeta,transferencia,cheque,credito',
+            /** Quién recibió el dinero al crear la venta de contado (si no, quien registra). */
+            'pagado_por_user_id' => 'nullable|exists:users,id',
             'cuenta_bancaria_id' => 'nullable|exists:cuentas_bancarias,id',
             // ✅ FIX: Permitir ventas solo con servicios (productos es opcional si hay servicios)
             'productos' => 'nullable|array',
             'productos.*.id' => 'required|exists:productos,id',
-            'productos.*.cantidad' => 'required|integer|min:1',
+            // Permitir cantidades decimales (productos pesables)
+            'productos.*.cantidad' => 'required|numeric|min:0.001',
             'productos.*.precio' => 'required|numeric|min:0.01',
             'productos.*.descuento' => 'nullable|numeric|min:0|max:100',
             'productos.*.series' => 'nullable|array',
@@ -54,7 +60,7 @@ class StoreVentaRequest extends FormRequest
             // ✅ FIX: Servicios con validación apropiada
             'servicios' => 'nullable|array',
             'servicios.*.id' => 'required|exists:servicios,id',
-            'servicios.*.cantidad' => 'required|integer|min:1',
+            'servicios.*.cantidad' => 'required|numeric|min:0.001',
             'servicios.*.precio' => 'required|numeric|min:0.01',
             'servicios.*.descuento' => 'nullable|numeric|min:0|max:100',
             'descuento_general' => 'nullable|numeric|min:0',
@@ -63,18 +69,21 @@ class StoreVentaRequest extends FormRequest
     }
 
     /**
-     * Configure the validator instance.
+     * Validaciones críticas personalizadas (no deshabilitar)
      */
-    public function withValidator($validator)
+    protected function getCriticalCustomValidations(): array
     {
-        $validator->after(function ($validator) {
-            // ✅ FIX: Validar que haya al menos un producto O un servicio
-            $this->validateAtLeastOneItem($validator);
-            $this->validateSeriesCount($validator);
-            $this->validateSeriesUniqueness($validator);
-            $this->validateProductosActivos($validator);
-            $this->validatePreciosNoMenoresAlCosto($validator);
-        });
+        return [
+            function ($validator) {
+                // ✅ FIX: Validar que haya al menos un producto O un servicio
+                $this->validateAtLeastOneItem($validator);
+                $this->validateSeriesCount($validator);
+                $this->validateSeriesUniqueness($validator);
+                $this->validateProductosActivos($validator);
+                $this->validatePreciosNoMenoresAlCosto($validator);
+                $this->validateUserWarehouseRestriction($validator);
+            },
+        ];
     }
 
     /**
@@ -91,16 +100,46 @@ class StoreVentaRequest extends FormRequest
     }
 
     /**
-     * Validate that selling price is not below purchase cost
-     * ✅ REMOVED: This validation was blocking sales below cost.
-     * Business decision: Users may sell below cost for promotions, liquidation, etc.
+     * Validate that selling price respects margin policy (configurable)
      * The margin information is displayed in the UI for user awareness.
      */
     protected function validatePreciosNoMenoresAlCosto($validator)
     {
-        // Validación removida intencionalmente - el usuario puede vender a cualquier precio
-        // La información de margen/costo se muestra en la UI para que el usuario tome decisiones informadas
-        return;
+        if (!config('ventas.validar_margen', true)) {
+            return;
+        }
+
+        $user = $this->user();
+        $rolesOverride = config('ventas.roles_override_margen', []);
+        if ($user && method_exists($user, 'hasRole') && !empty($rolesOverride)) {
+            if ($user->hasRole($rolesOverride)) {
+                return;
+            }
+        }
+
+        $productos = $this->input('productos', []);
+        if (empty($productos)) {
+            return;
+        }
+
+        $marginService = new MarginService();
+
+        foreach ($productos as $index => $item) {
+            $producto = Producto::find($item['id']);
+            if (!$producto) {
+                continue;
+            }
+
+            $precio = (float) ($item['precio'] ?? 0);
+            $validacion = $marginService->validarMargen($producto, $precio);
+
+            if (!$validacion['valido']) {
+                $validator->errors()->add(
+                    "productos.{$index}.precio",
+                    "El precio de '{$producto->nombre}' está por debajo del margen mínimo requerido ({$validacion['margen_requerido']}%)."
+                );
+            }
+        }
     }
 
     /**
@@ -119,6 +158,11 @@ class StoreVentaRequest extends FormRequest
 
             // Productos individuales con series
             if ($producto->requiere_serie) {
+                // Si la venta viene del POS, permitimos omitir las series para asignarlas automáticamente
+                if ($this->input('source') === 'pos') {
+                    continue;
+                }
+
                 $series = $productoData['series'] ?? [];
                 $cantidad = $productoData['cantidad'];
 
@@ -242,16 +286,44 @@ class StoreVentaRequest extends FormRequest
             'productos.*.id.required' => 'El ID del producto es requerido',
             'productos.*.id.exists' => 'El producto seleccionado no existe',
             'productos.*.cantidad.required' => 'La cantidad es requerida',
-            'productos.*.cantidad.min' => 'La cantidad debe ser al menos 1',
+            'productos.*.cantidad.min' => 'La cantidad debe ser al menos 0.001',
             'productos.*.precio.required' => 'El precio es requerido',
-            'productos.*.precio.min' => 'El precio no puede ser negativo',
+            'productos.*.precio.min' => 'El precio del producto debe ser al menos 0.01',
             'productos.*.descuento.max' => 'El descuento no puede ser mayor a 100%',
             'productos.*.series.*.regex' => 'El formato de la serie es inválido. Solo se permiten letras, números, guiones y @',
             'productos.*.series.*.max' => 'La serie no puede tener más de 50 caracteres',
+            'servicios.*.precio.min' => 'El precio del servicio debe ser al menos 0.01',
+            'servicios.*.precio.required' => 'El precio del servicio es requerido',
+            'servicios.*.cantidad.min' => 'La cantidad del servicio debe ser al menos 0.001',
             'almacen_id.required' => 'El almacén es requerido',
             'almacen_id.exists' => 'El almacén seleccionado no existe',
             'metodo_pago.required' => 'El método de pago es requerido',
             'cliente_id.exists' => 'El cliente seleccionado no existe',
         ];
+    }
+
+    /**
+     * Validate that non-admin users only sell from their assigned warehouse.
+     */
+    protected function validateUserWarehouseRestriction($validator)
+    {
+        $user = $this->user();
+        if ($user && !$user->hasAnyRole(['admin', 'super-admin'])) {
+            $assignedAlmacenId = $user->almacen_venta_id;
+            if (!$assignedAlmacenId) {
+                $validator->errors()->add(
+                    'almacen_id',
+                    'No tienes un almacén de venta asignado en tu perfil. Contacta al administrador.'
+                );
+                return;
+            }
+
+            if ((int) $this->input('almacen_id') !== (int) $assignedAlmacenId) {
+                $validator->errors()->add(
+                    'almacen_id',
+                    'No tienes permiso para vender desde un almacén diferente al asignado.'
+                );
+            }
+        }
     }
 }

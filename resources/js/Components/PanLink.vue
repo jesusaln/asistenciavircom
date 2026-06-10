@@ -2,6 +2,7 @@
   <li>
     <Link
       :href="href"
+      prefetch
       class="flex items-center p-4 transition-colors duration-200"
     >
       <FontAwesomeIcon v-if="icon" :icon="formattedIcon" class="mr-3" />

@@ -12,6 +12,40 @@ use Illuminate\Support\Facades\DB;
 
 class ComisionCalculatorService
 {
+    const SPLIT_TECNICO = 0.70;
+    const SPLIT_AYUDANTE = 0.30;
+
+    private function getSplitTecnico(): float
+    {
+        return config('app.comision_split_tecnico', 70) / 100;
+    }
+
+    private function getSplitAyudante(): float
+    {
+        return config('app.comision_split_ayudante', 30) / 100;
+    }
+
+    private function getDefaultComisionProducto(): float
+    {
+        return config('app.comision_default_productos', 10);
+    }
+
+    private function motivoComisionCero(array $context): ?string
+    {
+        $tipo = $context['tipo'] ?? '';
+        $item = $context['item'] ?? null;
+
+        if ($tipo === 'Producto' && $item) {
+            if (empty($item->comision_vendedor)) return 'Producto sin % de comisión';
+            if (!empty($context['gananciaBase']) && $context['gananciaBase'] <= 0) return 'Sin margen de ganancia (precio ≤ costo)';
+        }
+        if ($tipo === 'Servicio' && $item) {
+            if (!empty($context['esTecnico']) && empty($item->tipo_comision_tecnica)) return 'Servicio sin tipo de comisión técnica';
+            if (empty($context['esTecnico']) && empty($item->comision_vendedor)) return 'Servicio sin comisión fija configurada';
+        }
+        if ($tipo === 'Instalación' && !empty($context['esAyudanteSinSplit'])) return 'Ayudante sin split asignado';
+        return 'Configuración de comisión incompleta';
+    }
     /**
      * Obtener todos los vendedores (Users + Tecnicos) que tienen ventas
      */
@@ -24,12 +58,20 @@ class ComisionCalculatorService
             ->pluck('vendedor_id')
             ->toArray();
 
-        // Obtener IDs de técnicos asignados a citas de ventas
+        // Obtener IDs de técnicos asignados a citas de ventas (como técnicos líderes o ayudantes)
         $tecnicoIds = Venta::whereNotNull('cita_id')
             ->join('citas', 'ventas.cita_id', '=', 'citas.id')
-            ->whereNotNull('citas.tecnico_id')
+            ->where(function ($q) {
+                $q->whereNotNull('citas.tecnico_id')
+                  ->orWhereNotNull('citas.ayudante_id');
+            })
             ->distinct()
-            ->pluck('citas.tecnico_id')
+            ->get(['citas.tecnico_id', 'citas.ayudante_id'])
+            ->flatMap(function ($item) {
+                return [$item->tecnico_id, $item->ayudante_id];
+            })
+            ->filter()
+            ->unique()
             ->toArray();
 
         // Combinar IDs únicos
@@ -56,25 +98,38 @@ class ComisionCalculatorService
      */
     public function calcularComisionesVendedor(string $vendedorType, int $vendedorId, Carbon $fechaInicio, Carbon $fechaFin): array
     {
+        // Convert boundaries to UTC because Venta's fecha is cast via TimezoneCast (which stores in UTC)
+        $fechaInicioUtc = $fechaInicio->copy()->startOfDay()->timezone('UTC');
+        $fechaFinUtc = $fechaFin->copy()->endOfDay()->timezone('UTC');
+
         // Ventas donde es el vendedor directo
-        $ventasAsVendedor = Venta::with(['cliente', 'productos', 'servicios', 'cita'])
+        $ventasAsVendedor = Venta::with(['cliente', 'productos.kitItems.item', 'servicios', 'cita'])
             ->where('vendedor_type', $vendedorType)
             ->where('vendedor_id', $vendedorId)
             ->whereIn('estado', ['aprobada', 'enviada', 'facturada', 'pagado'])
-            ->whereBetween('fecha', [$fechaInicio->startOfDay(), $fechaFin->endOfDay()])
+            ->whereBetween('fecha', [$fechaInicioUtc, $fechaFinUtc])
             ->get();
 
         // Ventas donde es el técnico de la cita
-        $ventasAsTecnico = Venta::with(['cliente', 'productos', 'servicios', 'cita'])
+        $ventasAsTecnico = Venta::with(['cliente', 'productos.kitItems.item', 'servicios', 'cita'])
             ->whereHas('cita', function ($q) use ($vendedorId) {
                 $q->where('tecnico_id', $vendedorId);
             })
             ->whereIn('estado', ['aprobada', 'enviada', 'facturada', 'pagado'])
-            ->whereBetween('fecha', [$fechaInicio->startOfDay(), $fechaFin->endOfDay()])
+            ->whereBetween('fecha', [$fechaInicioUtc, $fechaFinUtc])
+            ->get();
+
+        // Ventas donde es el ayudante de la cita
+        $ventasAsAyudante = Venta::with(['cliente', 'productos.kitItems.item', 'servicios', 'cita'])
+            ->whereHas('cita', function ($q) use ($vendedorId) {
+                $q->where('ayudante_id', $vendedorId);
+            })
+            ->whereIn('estado', ['aprobada', 'enviada', 'facturada', 'pagado'])
+            ->whereBetween('fecha', [$fechaInicioUtc, $fechaFinUtc])
             ->get();
 
         // Combinar y ordenar por fecha
-        $ventas = $ventasAsVendedor->concat($ventasAsTecnico)->unique('id')->sortBy('fecha');
+        $ventas = $ventasAsVendedor->concat($ventasAsTecnico)->concat($ventasAsAyudante)->unique('id')->sortBy('fecha');
 
         $totalComisionBruto = 0;
         $totalComisionPendiente = 0;
@@ -97,7 +152,10 @@ class ComisionCalculatorService
             // Productos (incluyendo Kits)
             $esVendedorDirecto = ($venta->vendedor_id == $vendedorId);
             $esTecnicoCita = ($venta->cita && $venta->cita->tecnico_id == $vendedorId);
-            if ($esVendedorDirecto || $esTecnicoCita) {
+            $esAyudanteCita = ($venta->cita && $venta->cita->ayudante_id == $vendedorId);
+            $tieneAyudante = ($venta->cita && $venta->cita->ayudante_id);
+
+            if ($esVendedorDirecto || $esTecnicoCita || $esAyudanteCita) {
                 foreach ($venta->productos as $p) {
                     $pivot = $p->pivot;
                     
@@ -107,7 +165,10 @@ class ComisionCalculatorService
                         $costo = $pivot->costo_unitario ?? $p->precio_compra ?? 0;
                         $gananciaBase = ($precioVenta - $costo) * $pivot->cantidad;
                         
-                        $comisionItem = $gananciaBase * (($p->comision_vendedor ?? 0) / 100);
+                        $pctComision = ($p->comision_vendedor ?? 0) > 0
+                            ? $p->comision_vendedor
+                            : $this->getDefaultComisionProducto();
+                        $comisionItem = $gananciaBase * ($pctComision / 100);
                         if ($usuario && $usuario->es_tecnico) {
                             $comisionItem += $gananciaBase * (($usuario->margen_venta_productos ?? 0) / 100);
                         }
@@ -118,13 +179,15 @@ class ComisionCalculatorService
                             'cantidad' => $pivot->cantidad,
                             'precio' => (float)$pivot->precio,
                             'descuento' => (float)$pivot->descuento,
-                            'comision' => round($comisionItem, 2)
+                            'comision' => round($comisionItem, 2),
+                            'motivo_cero' => round($comisionItem, 2) <= 0 ? $this->motivoComisionCero([
+                                'tipo' => 'Producto', 'item' => $p, 'gananciaBase' => $gananciaBase
+                            ]) : null,
                         ];
                     }
 
-                    // Si el usuario es el técnico Y el producto es un kit, buscar instalaciones dentro del kit
-                    if ($esTecnicoCita && $p->tipo_producto === 'kit') {
-                        $p->load(['kitItems.item']);
+                    // Si el usuario es el técnico, ayudante o vendedor-técnico Y el producto es un kit, buscar instalaciones dentro del kit
+                    if (($esTecnicoCita || $esAyudanteCita || ($esVendedorDirecto && $usuario && $usuario->es_tecnico)) && $p->tipo_producto === 'kit') {
                         foreach ($p->kitItems as $ki) {
                             if ($ki->item_type === 'servicio' && $ki->item && $ki->item->es_instalacion) {
                                 $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
@@ -133,13 +196,24 @@ class ComisionCalculatorService
 
                                 $totalInstalacion = $comisionInstalacion * $ki->cantidad * $pivot->cantidad;
                                 
+                                $splitTecnico = $this->getSplitTecnico();
+                                $splitAyudante = $this->getSplitAyudante();
+                                if ($tieneAyudante) {
+                                    $totalInstalacion = $totalInstalacion * ($esTecnicoCita ? $splitTecnico : $splitAyudante);
+                                } elseif ($esAyudanteCita) {
+                                    $totalInstalacion = 0;
+                                }
+
                                 $itemsBreakdown[] = [
-                                    'nombre' => "Instalación (Kit: {$p->nombre})",
+                                    'nombre' => "Instalación (Kit: {$p->nombre})" . ($tieneAyudante ? ($esTecnicoCita ? " (Líder " . ($splitTecnico*100) . "%)" : " (Ayudante " . ($splitAyudante*100) . "%)") : ''),
                                     'tipo' => 'Servicio',
                                     'cantidad' => $ki->cantidad * $pivot->cantidad,
                                     'precio' => 0,
                                     'descuento' => 0,
-                                    'comision' => round($totalInstalacion, 2)
+                                    'comision' => round($totalInstalacion, 2),
+                                    'motivo_cero' => round($totalInstalacion, 2) <= 0 ? $this->motivoComisionCero([
+                                        'tipo' => 'Instalación', 'esAyudanteSinSplit' => true
+                                    ]) : null,
                                 ];
                             }
                         }
@@ -147,8 +221,8 @@ class ComisionCalculatorService
                 }
             }
 
-            // Servicios (si es el técnico o el vendedor sin técnico asignado)
-            if ($esTecnicoCita || ($esVendedorDirecto && (!$venta->cita || !$venta->cita->tecnico_id))) {
+            // Servicios (si es el técnico, ayudante o el vendedor sin técnico asignado)
+            if ($esTecnicoCita || $esAyudanteCita || ($esVendedorDirecto && (!$venta->cita || !$venta->cita->tecnico_id))) {
                 foreach ($venta->servicios as $s) {
                     $pivot = $s->pivot;
                     $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
@@ -160,6 +234,10 @@ class ComisionCalculatorService
                         if ($tipo === 'refrigeracion') {
                             // Servicios de refrigeración en 350
                             $comisionItem = 350 * $pivot->cantidad;
+                        } elseif ($tipo === 'limpieza_refrigeracion') {
+                            $comisionItem = 300 * $pivot->cantidad;
+                        } elseif ($tipo === 'preventivo_refrigerador') {
+                            $comisionItem = 200 * $pivot->cantidad;
                         } elseif ($tipo === 'desinstalacion') {
                             // Desinstalaciones en 100
                             $comisionItem = 100 * $pivot->cantidad;
@@ -176,18 +254,31 @@ class ComisionCalculatorService
                             // Otros servicios (diagnósticos, preventivos, etc.) al 30% del total
                             $comisionItem = $precioConIva * (($usuario->margen_venta_servicios ?? 0) / 100) * $pivot->cantidad;
                         }
+
+                        // Aplicar división Líder / Ayudante
+                        $splitTecnico = $this->getSplitTecnico();
+                        $splitAyudante = $this->getSplitAyudante();
+                        if ($tieneAyudante) {
+                            $comisionItem = $comisionItem * ($esTecnicoCita ? $splitTecnico : $splitAyudante);
+                        } elseif ($esAyudanteCita) {
+                            $comisionItem = 0;
+                        }
                     } else {
                         // Para vendedores normales, usamos la comisión fija del catálogo
                         $comisionItem = ($s->comision_vendedor ?? 0) * $pivot->cantidad;
                     }
 
+                    $esTecnico = $usuario && $usuario->es_tecnico;
                     $itemsBreakdown[] = [
-                        'nombre' => $s->nombre,
+                        'nombre' => $s->nombre . ($tieneAyudante && ($esTecnicoCita || $esAyudanteCita) ? ($esTecnicoCita ? ' (Líder ' . ($splitTecnico*100) . '%)' : ' (Ayudante ' . ($splitAyudante*100) . '%)') : ''),
                         'tipo' => 'Servicio',
                         'cantidad' => $pivot->cantidad,
                         'precio' => (float)$precioConIva,
                         'descuento' => (float)$pivot->descuento,
-                        'comision' => round($comisionItem, 2)
+                        'comision' => round($comisionItem, 2),
+                        'motivo_cero' => round($comisionItem, 2) <= 0 ? $this->motivoComisionCero([
+                            'tipo' => 'Servicio', 'item' => $s, 'esTecnico' => $esTecnico
+                        ]) : null,
                     ];
                 }
             }
@@ -196,12 +287,13 @@ class ComisionCalculatorService
                 'venta_id' => $venta->id,
                 'numero_venta' => $venta->numero_venta,
                 'fecha' => $venta->fecha->format('Y-m-d'),
+                'fecha_display' => $venta->fecha->locale('es')->isoFormat('D MMM YYYY'),
                 'cliente' => $venta->cliente ? $venta->cliente->nombre_razon_social : 'Sin cliente',
                 'total_venta' => (float) $venta->total,
                 'comision_productos' => $comisionVenta['productos'],
                 'comision_servicios' => $comisionVenta['servicios'],
                 'comision_total' => $comisionVenta['total'],
-                'rol' => $venta->vendedor_id == $vendedorId ? 'Vendedor' : 'Técnico',
+                'rol' => $venta->vendedor_id == $vendedorId ? 'Vendedor' : ($esTecnicoCita ? 'Técnico Líder' : 'Ayudante'),
                 'comision_pagada' => (bool) $venta->comision_pagada,
                 'items' => $itemsBreakdown,
             ];
@@ -308,9 +400,11 @@ class ComisionCalculatorService
         
         if (!$usuario) return ['productos' => 0, 'servicios' => 0, 'total' => 0];
 
-        // Determinar si es vendedor directo o técnico de la cita
+        // Determinar si es vendedor directo, técnico de la cita, o ayudante de la cita
         $esVendedorDirecto = ($venta->vendedor_type === User::class && $venta->vendedor_id == $userId);
         $esTecnicoCita = ($venta->cita && $venta->cita->tecnico_id == $userId);
+        $esAyudanteCita = ($venta->cita && $venta->cita->ayudante_id == $userId);
+        $tieneAyudante = ($venta->cita && $venta->cita->ayudante_id);
 
         // 1. Comisión de productos
         if ($esVendedorDirecto) {
@@ -320,7 +414,10 @@ class ComisionCalculatorService
                 $costo = $pivot->costo_unitario ?? $producto->precio_compra ?? 0;
                 $gananciaBase = ($precioVenta - $costo) * $pivot->cantidad;
 
-                $comisionProductos += $gananciaBase * (($producto->comision_vendedor ?? 0) / 100);
+                $pctComision = ($producto->comision_vendedor ?? 0) > 0
+                    ? $producto->comision_vendedor
+                    : $this->getDefaultComisionProducto();
+                $comisionProductos += $gananciaBase * ($pctComision / 100);
 
                 if ($usuario->es_tecnico) {
                     $comisionProductos += $gananciaBase * (($usuario->margen_venta_productos ?? 0) / 100);
@@ -329,7 +426,7 @@ class ComisionCalculatorService
         }
 
         // 2. Comisión de servicios
-        if ($esTecnicoCita || ($esVendedorDirecto && (!$venta->cita || !$venta->cita->tecnico_id))) {
+        if ($esTecnicoCita || $esAyudanteCita || ($esVendedorDirecto && (!$venta->cita || !$venta->cita->tecnico_id))) {
             foreach ($venta->servicios as $servicio) {
                 $pivot = $servicio->pivot;
                 $precioVenta = $pivot->precio * (1 - ($pivot->descuento ?? 0) / 100);
@@ -338,18 +435,33 @@ class ComisionCalculatorService
                 if ($usuario && $usuario->es_tecnico) {
                     $tipo = $servicio->tipo_comision_tecnica;
                     if ($tipo === 'refrigeracion') {
-                        $comisionServicios += 350 * $pivot->cantidad;
+                        $comisionItem = 350 * $pivot->cantidad;
+                    } elseif ($tipo === 'limpieza_refrigeracion') {
+                        $comisionItem = 300 * $pivot->cantidad;
+                    } elseif ($tipo === 'preventivo_refrigerador') {
+                        $comisionItem = 200 * $pivot->cantidad;
                     } elseif ($tipo === 'desinstalacion') {
-                        $comisionServicios += 100 * $pivot->cantidad;
+                        $comisionItem = 100 * $pivot->cantidad;
                     } elseif ($tipo === 'tierra') {
-                        $comisionServicios += 100 * $pivot->cantidad;
+                        $comisionItem = 100 * $pivot->cantidad;
                     } elseif ($tipo === 'instalacion' || $servicio->es_instalacion) {
                         $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
                             ? $usuario->comision_instalacion 
                             : 300;
-                        $comisionServicios += $comisionInstalacion * $pivot->cantidad;
+                        $comisionItem = $comisionInstalacion * $pivot->cantidad;
                     } else {
-                        $comisionServicios += $precioConIva * (($usuario->margen_venta_servicios ?? 0) / 100) * $pivot->cantidad;
+                        $comisionItem = $precioConIva * (($usuario->margen_venta_servicios ?? 0) / 100) * $pivot->cantidad;
+                    }
+
+                    $splitTecnico = $this->getSplitTecnico();
+                    $splitAyudante = $this->getSplitAyudante();
+                    // Aplicar división si hay ayudante asignado
+                    if ($tieneAyudante) {
+                        $comisionServicios += $comisionItem * ($esTecnicoCita ? $splitTecnico : $splitAyudante);
+                    } elseif ($esTecnicoCita) {
+                        $comisionServicios += $comisionItem;
+                    } elseif ($esVendedorDirecto) {
+                        $comisionServicios += $comisionItem;
                     }
                 } else {
                     $comisionServicios += ($servicio->comision_vendedor ?? 0) * $pivot->cantidad;
@@ -357,18 +469,30 @@ class ComisionCalculatorService
             }
         }
 
-        // 3. Comisión por instalaciones dentro de KITS (para técnicos)
-        if ($esTecnicoCita) {
+        // 3. Comisión por instalaciones dentro de KITS (para técnicos/ayudantes/vendedor-técnico)
+        if ($esTecnicoCita || $esAyudanteCita || ($esVendedorDirecto && $usuario && $usuario->es_tecnico)) {
+            $splitTecnico = $this->getSplitTecnico();
+            $splitAyudante = $this->getSplitAyudante();
             foreach ($venta->productos as $producto) {
                 if ($producto->tipo_producto === 'kit') {
-                    $producto->load(['kitItems.item']);
+                    if (!$producto->relationLoaded('kitItems')) {
+                        $producto->load(['kitItems.item']);
+                    }
                     foreach ($producto->kitItems as $ki) {
                         if ($ki->item_type === 'servicio' && $ki->item && $ki->item->es_instalacion) {
                             $comisionInstalacion = ($usuario->comision_instalacion ?? 0) > 0 
                                 ? $usuario->comision_instalacion 
                                 : 300;
                             
-                            $comisionServicios += $comisionInstalacion * $ki->cantidad * $producto->pivot->cantidad;
+                            $comisionItem = $comisionInstalacion * $ki->cantidad * $producto->pivot->cantidad;
+                            
+                            if ($tieneAyudante) {
+                                $comisionServicios += $comisionItem * ($esTecnicoCita ? $splitTecnico : $splitAyudante);
+                            } elseif ($esTecnicoCita) {
+                                $comisionServicios += $comisionItem;
+                            } elseif ($esVendedorDirecto) {
+                                $comisionServicios += $comisionItem;
+                            }
                         }
                     }
                 }
@@ -405,15 +529,27 @@ class ComisionCalculatorService
             $calculo['detalles'] = $detallesFiltrados->values()->all();
         }
 
+        $montoPagado = (float) ($data['monto_pagado'] ?? $calculo['total_comision']);
+        $montoComision = (float) $calculo['total_comision'];
+
+        // Validar que no se pague más de lo debido
+        if ($montoPagado > $montoComision && $montoComision > 0) {
+            throw new \InvalidArgumentException(
+                "El monto pagado (\${$montoPagado}) excede la comisión calculada (\${$montoComision})."
+            );
+        }
+
+        $pagadoCompleto = $montoPagado >= $montoComision;
+
         $pago = PagoComision::create([
             'empresa_id' => $data['empresa_id'] ?? EmpresaResolver::resolveId(),
             'vendedor_type' => User::class,
             'vendedor_id' => $data['vendedor_id'],
             'periodo_inicio' => $data['periodo_inicio'],
             'periodo_fin' => $data['periodo_fin'],
-            'monto_comision' => $calculo['total_comision'],
-            'monto_pagado' => $data['monto_pagado'] ?? $calculo['total_comision'],
-            'estado' => ($data['monto_pagado'] ?? $calculo['total_comision']) >= $calculo['total_comision'] ? 'pagado' : 'parcial',
+            'monto_comision' => $montoComision,
+            'monto_pagado' => $montoPagado,
+            'estado' => $pagadoCompleto ? 'pagado' : 'parcial',
             'fecha_pago' => $data['fecha_pago'] ?? now(),
             'metodo_pago' => $data['metodo_pago'] ?? null,
             'referencia_pago' => $data['referencia_pago'] ?? null,
@@ -426,13 +562,47 @@ class ComisionCalculatorService
             'created_by' => auth()->id(),
         ]);
 
-        // Marcar las ventas como pagadas
-        Venta::whereIn('id', collect($calculo['detalles'])->pluck('venta_id'))
-            ->update([
-                'comision_pagada' => true,
-                'comision_pagada_at' => now(),
-                'pago_comision_id' => $pago->id
-            ]);
+        // Marcar ventas como pagadas (completas o parciales inteligente)
+        $ventasCollection = collect($calculo['detalles']);
+
+        if ($pagadoCompleto) {
+            // Pago completo: marcar todas como pagadas
+            Venta::whereIn('id', $ventasCollection->pluck('venta_id'))
+                ->update([
+                    'comision_pagada' => true,
+                    'comision_pagada_at' => now(),
+                    'pago_comision_id' => $pago->id
+                ]);
+        } elseif ($montoPagado > 0 && !empty($ventaIds)) {
+            // Pago parcial con IDs específicos: marcar exactamente esas ventas
+            Venta::whereIn('id', $ventaIds)
+                ->update([
+                    'comision_pagada' => true,
+                    'comision_pagada_at' => now(),
+                    'pago_comision_id' => $pago->id
+                ]);
+        } elseif ($montoPagado > 0) {
+            // Pago parcial inteligente: marcar las ventas más antiguas primero
+            // hasta cubrir el monto pagado (de más antigua a más reciente)
+            $acumulado = 0;
+            $ventasAMarcar = [];
+            $ventasOrdenadas = $ventasCollection->sortBy('fecha');
+
+            foreach ($ventasOrdenadas as $vd) {
+                if ($acumulado >= $montoPagado) break;
+                $ventasAMarcar[] = $vd['venta_id'];
+                $acumulado += $vd['comision_total'];
+            }
+
+            if (!empty($ventasAMarcar)) {
+                Venta::whereIn('id', $ventasAMarcar)
+                    ->update([
+                        'comision_pagada' => true,
+                        'comision_pagada_at' => now(),
+                        'pago_comision_id' => $pago->id
+                    ]);
+            }
+        }
 
         return $pago;
     }

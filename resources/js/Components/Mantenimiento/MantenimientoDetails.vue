@@ -3,7 +3,7 @@
         <!-- Badge y Título -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
             <div class="flex items-center gap-3">
-                <div :class="[iconBgClass, 'p-2.5 rounded-lg shadow-sm border border-white/50']">
+                <div :class="[iconBgClass, 'p-2.5 rounded-xl shadow-sm border border-white/50']">
                     <component :is="serviceIcon" class="w-6 h-6" />
                 </div>
                 <div>
@@ -26,7 +26,7 @@
             <div class="space-y-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <div class="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m4-4l-4-4" />
                             </svg>
@@ -35,13 +35,13 @@
                     </div>
                     <div class="pl-11">
                         <p class="text-slate-900 font-semibold">{{ vehiculoLabel }}</p>
-                        <p v-if="mantenimiento.carro?.placa" class="text-xs text-slate-500 font-medium">Placas: <span class="bg-slate-100 px-1.5 py-0.5 rounded">{{ mantenimiento.carro.placa }}</span></p>
+                        <p v-if="mantenimiento.carro?.placa" class="text-xs text-slate-500 font-medium">Placas: <span class="bg-slate-100 px-1.5 py-0.5 rounded-xl">{{ mantenimiento.carro.placa }}</span></p>
                     </div>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                             </svg>
@@ -50,11 +50,11 @@
                     </div>
                     <div class="pl-11 grid grid-cols-2 gap-4">
                         <div>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-tighter mb-0.5">Costo Total</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-0.5">Costo Total</p>
                             <p class="text-slate-900 font-bold text-lg">{{ formatMoney(mantenimiento.costo) }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-tighter mb-0.5">Kilometraje</p>
+                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-0.5">Kilometraje</p>
                             <p class="text-slate-900 font-bold text-lg">{{ formatNumber(mantenimiento.kilometraje_actual) }} <span class="text-xs font-normal text-slate-400">km</span></p>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
             <div class="space-y-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
@@ -78,14 +78,14 @@
                         </div>
                         <div class="flex items-center justify-between py-1">
                             <span class="text-sm text-slate-500 font-medium text-orange-600">Próximo servicio</span>
-                            <span class="text-sm text-orange-800 font-bold bg-orange-50 px-2 py-0.5 rounded">{{ formatearFecha(mantenimiento.proximo_mantenimiento) }}</span>
+                            <span class="text-sm text-orange-800 font-bold bg-orange-50 px-2 py-0.5 rounded-xl">{{ formatearFecha(mantenimiento.proximo_mantenimiento) }}</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="p-2 bg-purple-50 text-purple-600 rounded-lg group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div class="p-2 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
@@ -101,34 +101,35 @@
 
         <!-- Descripciones y Notas con estilo premium -->
         <div v-if="mantenimiento.descripcion || mantenimiento.notas || mantenimiento.observaciones_alerta" class="space-y-4">
-            <div v-if="mantenimiento.descripcion" class="bg-amber-50/30 p-5 rounded-2xl border border-amber-100/50 shadow-inner">
-                <h5 class="text-xs font-black text-amber-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+            <div v-if="mantenimiento.descripcion" class="bg-brand-50/30 p-5 rounded-2xl border border-brand-100/50 shadow-inner">
+                <h5 class="text-xs font-black text-brand-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
                     Descripción detallada
                 </h5>
                 <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{{ mantenimiento.descripcion }}</p>
             </div>
 
             <div v-if="mantenimiento.notas" class="bg-slate-50 p-5 rounded-2xl border border-slate-200/50">
-                <h5 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2">
                     <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
                     Notas internas
                 </h5>
                 <p class="text-slate-600 text-sm italic leading-relaxed whitespace-pre-wrap">{{ mantenimiento.notas }}</p>
             </div>
 
-            <div v-if="mantenimiento.observaciones_alerta" class="bg-red-50/50 p-5 rounded-2xl border border-red-100/50">
-                <h5 class="text-xs font-black text-red-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+            <div v-if="mantenimiento.observaciones_alerta" class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100/50">
+                <h5 class="text-xs font-black text-rose-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
                     Observaciones de alerta
                 </h5>
-                <p class="text-red-900 text-sm font-medium leading-relaxed">{{ mantenimiento.observaciones_alerta }}</p>
+                <p class="text-rose-900 text-sm font-medium leading-relaxed">{{ mantenimiento.observaciones_alerta }}</p>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -168,31 +169,31 @@ const serviceIcon = computed(() => {
 
 const iconBgClass = computed(() => {
     const type = (props.mantenimiento.tipo || '').toLowerCase();
-    if (type.includes('aceite')) return 'bg-amber-100 text-amber-600';
-    if (type.includes('freno')) return 'bg-red-100 text-red-600';
+    if (type.includes('aceite')) return 'bg-brand-100 text-amber-600';
+    if (type.includes('freno')) return 'bg-rose-100 text-rose-600';
     if (type.includes('batería')) return 'bg-yellow-100 text-yellow-600';
-    return 'bg-blue-100 text-blue-600';
+    return 'bg-sky-100 text-sky-700';
 });
 
 // Mapeo de estados
 const statusClasses = computed(() => {
     const estado = (props.mantenimiento.estado || '').toLowerCase();
     if (estado === 'completado') return { bg: 'bg-emerald-100', text: 'text-emerald-700' };
-    if (estado === 'en_proceso') return { bg: 'bg-indigo-100', text: 'text-indigo-700' };
+    if (estado === 'en_proceso') return { bg: 'bg-sky-100', text: 'text-sky-700' };
     return { bg: 'bg-amber-100', text: 'text-amber-700' };
 });
 
 const statusLabel = computed(() => {
-    const labels = { 'completado': 'Finalizado', 'en_proceso': 'En Taller', 'pendiente': 'Pendiente' };
+    const labels = { 'completado': 'Completado', 'en_proceso': 'En Taller', 'pendiente': 'Pendiente' };
     return labels[props.mantenimiento.estado] || props.mantenimiento.estado;
 });
 
 // Mapeo de prioridades
 const priorityClasses = computed(() => {
     const p = (props.mantenimiento.prioridad || 'media').toLowerCase();
-    if (p === 'critica') return { bg: 'bg-red-600', text: 'text-white' };
-    if (p === 'alta') return { bg: 'bg-orange-100', text: 'text-orange-700' };
-    if (p === 'media') return { bg: 'bg-blue-100', text: 'text-blue-700' };
+    if (p === 'critica') return { bg: 'bg-rose-600', text: 'text-white' };
+    if (p === 'alta') return { bg: 'bg-amber-100', text: 'text-orange-700' };
+    if (p === 'media') return { bg: 'bg-sky-100', text: 'text-blue-700' };
     return { bg: 'bg-slate-100', text: 'text-slate-700' };
 });
 

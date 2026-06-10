@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('citas', function (Blueprint $blueprint) {
-            $blueprint->text('trabajo_realizado')->nullable();
-            $blueprint->json('fotos_finales')->nullable();
-        });
+        if (!Schema::hasColumn('citas', 'trabajo_realizado')) {
+            Schema::table('citas', function (Blueprint $blueprint) {
+                $blueprint->text('trabajo_realizado')->nullable();
+                $blueprint->json('fotos_finales')->nullable();
+            });
+        }
     }
 
     /**

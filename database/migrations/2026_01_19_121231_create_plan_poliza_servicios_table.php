@@ -17,22 +17,24 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('plan_poliza_servicios', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('plan_poliza_id')->constrained('plan_polizas')->onDelete('cascade');
-            $table->foreignId('servicio_id')->constrained('servicios')->onDelete('cascade');
+        if (!Schema::hasTable('plan_poliza_servicios')) {
+            Schema::create('plan_poliza_servicios', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('plan_poliza_id')->constrained('plan_polizas')->onDelete('cascade');
+                $table->foreignId('servicio_id')->constrained('servicios')->onDelete('cascade');
 
-            // Prioridad para ordenar en listas
-            $table->integer('orden')->default(0);
+                // Prioridad para ordenar en listas
+                $table->integer('orden')->default(0);
 
-            // Notas adicionales (ej: "Máximo 2 por mes")
-            $table->string('notas')->nullable();
+                // Notas adicionales (ej: "Máximo 2 por mes")
+                $table->string('notas')->nullable();
 
-            $table->timestamps();
+                $table->timestamps();
 
-            // Un servicio solo puede estar una vez por plan
-            $table->unique(['plan_poliza_id', 'servicio_id']);
-        });
+                // Un servicio solo puede estar una vez por plan
+                $table->unique(['plan_poliza_id', 'servicio_id']);
+            });
+        }
 
         // Asegurarnos de que plan_polizas tenga el campo horas_incluidas
         if (!Schema::hasColumn('plan_polizas', 'horas_incluidas')) {

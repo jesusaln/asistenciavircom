@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Proveedor extends Model
+class Proveedor extends Model implements Auditable
 {
-    use HasFactory, BelongsToEmpresa;
+    use HasFactory, BelongsToEmpresa, AuditableTrait;
 
     protected static function booted()
     {
@@ -45,7 +47,21 @@ class Proveedor extends Model
         'estado',
         'pais',
         'activo',
+        'is_repse',
+        'repse_number',
+        'repse_expiry',
+        'repse_activity',
+        'sat_status',
+        'last_sat_validation_at',
     ];
+
+    /**
+     * Documentación de cumplimiento REPSE.
+     */
+    public function repseDocs()
+    {
+        return $this->hasMany(RepseComplianceDoc::class, 'proveedor_id');
+    }
 
     /**
      * Relación con las compras.
@@ -76,4 +92,11 @@ class Proveedor extends Model
     {
         return $this->hasMany(Producto::class);
     }
+
+    protected $casts = [
+        'is_repse' => 'boolean',
+        'repse_expiry' => 'date',
+        'activo' => 'boolean',
+        'last_sat_validation_at' => 'datetime',
+    ];
 }

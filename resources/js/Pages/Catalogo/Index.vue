@@ -7,6 +7,7 @@ import PublicFooter from '@/Components/PublicFooter.vue';
 import SocialProofNotification from '@/Components/SocialProofNotification.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
 import { useDarkMode } from '@/Utils/useDarkMode';
+import axios from 'axios';
 
 const props = defineProps({
     productos: Object,
@@ -43,18 +44,11 @@ const addedToCart = ref(null)
 const searchFocused = ref(false)
 const soloExistencia = ref(props.filters?.existencia ?? true) 
 const soloLocal = ref(props.filters?.local ?? false)
+const soloSinFoto = ref(props.filters?.sin_foto ?? false)
 const cvaPage = ref(1)
 const hasMoreCva = ref(true)
 const suggestions = ref([])
 const isFiltering = ref(false)
-
-const trackEvent = (eventName, payload = {}) => {
-    if (typeof window === 'undefined' || !Array.isArray(window.dataLayer)) return
-    window.dataLayer.push({
-        event: eventName,
-        ...payload,
-    })
-}
 
 // Suggestions Logic
 let suggestionTimeout = null
@@ -146,6 +140,7 @@ const applyFilters = () => {
         orden: selectedOrden.value !== 'recientes' ? selectedOrden.value : undefined,
         existencia: soloExistencia.value ? 1 : undefined,
         local: soloLocal.value ? 1 : undefined,
+        sin_foto: soloSinFoto.value ? 1 : undefined,
         precio_min: precioMin.value != props.priceRange?.min ? precioMin.value : undefined,
         precio_max: precioMax.value != props.priceRange?.max ? precioMax.value : undefined,
     }, {
@@ -166,6 +161,7 @@ const clearFilters = () => {
     selectedCategoria.value = ''
     selectedMarca.value = ''
     selectedOrden.value = 'recientes'
+    soloSinFoto.value = false
     precioMin.value = props.priceRange?.min || 0
     precioMax.value = props.priceRange?.max || 100000
     router.get(route('catalogo.index'))
@@ -204,11 +200,14 @@ const getImageUrl = (producto) => {
     
     // Si ya es una URL absoluta o relativa al protocolo
     if (urlStr.toLowerCase().startsWith('http') || urlStr.startsWith('//')) {
-        try {
-            return route('img.proxy', { u: btoa(urlStr) })
-        } catch (e) {
-            return route('img.proxy', { url: urlStr })
+        if (urlStr.includes('grupocva.com')) {
+            try {
+                return route('img.proxy', { u: btoa(urlStr) })
+            } catch (e) {
+                return route('img.proxy', { url: urlStr })
+            }
         }
+        return urlStr;
     }
     
     // Si ya tiene el prefijo storage o empieza con /
@@ -223,13 +222,6 @@ const handleAskProduct = (producto) => {
     if (!empresaData.value?.whatsapp) return
     const phone = empresaData.value.whatsapp.replace(/\D/g, '')
     const precio = formatCurrency(producto.precio_con_iva)
-
-    trackEvent('whatsapp_click', {
-        source: 'catalog_product',
-        product_id: producto.id,
-        product_name: producto.nombre,
-        value: producto.precio_con_iva || 0,
-    })
     
     let text = `Hola, me interesa el producto:\n\n*${producto.nombre}*`;
     if (producto.origen === 'CVA') {
@@ -250,16 +242,6 @@ const handleAddToCart = (producto) => {
         precio: producto.precio_con_iva
     }
     addItem(item)
-    trackEvent('add_to_cart', {
-        currency: 'MXN',
-        value: producto.precio_con_iva || 0,
-        items: [{
-            item_id: producto.id,
-            item_name: producto.nombre,
-            price: producto.precio_con_iva || 0,
-            quantity: 1,
-        }],
-    })
     addedToCart.value = producto.id
     setTimeout(() => {
         addedToCart.value = null
@@ -287,14 +269,42 @@ if (typeof window !== 'undefined') {
         if (e.key === 'Escape') searchFocused.value = false
     })
 }
+// SEO dinámico basado en filtros
+const pageTitle = computed(() => {
+    let title = 'Tienda de Aires Acondicionados'
+    if (selectedMarca.value) {
+        const marca = props.marcas.find(m => m.id == selectedMarca.value)
+        if (marca) title = `${marca.nombre} - Distribuidor Autorizado`
+    } else if (selectedCategoria.value) {
+        const cat = props.categorias.find(c => c.id == selectedCategoria.value)
+        if (cat) title = `${cat.nombre} en Hermosillo`
+    }
+    
+    if (search.value) title = `Buscar: ${search.value}`
+    
+    return `${title} | ${empresaData.value?.nombre_empresa || 'Climas del Desierto'}`
+})
+
+const metaDescription = computed(() => {
+    let desc = `Explora el catálogo de ${empresaData.value?.nombre_empresa || 'Climas del Desierto'}. Envíos a todo México y entrega inmediata en Hermosillo.`
+    
+    if (selectedMarca.value) {
+        const marca = props.marcas.find(m => m.id == selectedMarca.value)
+        if (marca) desc = `Venta y distribución de equipos ${marca.nombre} en Sonora. Encuentra los mejores precios en minisplits ${marca.nombre} e Inverters con garantía oficial.`
+    }
+    
+    return desc
+})
 </script>
 
 <template>
-    <Head :title="`Tienda - ${empresaData?.nombre || empresaData?.nombre_empresa || 'Catálogo'}`">
-        <meta name="description" :content="`Explora nuestro extenso catálogo de ${empresaData?.nombre_empresa || 'Asistencia Vircom'}. Encuentra computadoras, cámaras de seguridad, redes y accesorios en ${empresaData?.ciudad || 'Hermosillo'}. Envíos a todo México.`" />
+    <Head :title="pageTitle">
+        <meta name="description" :content="metaDescription" />
+        <meta property="og:title" :content="pageTitle" />
+        <meta property="og:description" :content="metaDescription" />
     </Head>
     
-    <div class="min-h-screen bg-white dark:bg-slate-900 dark:bg-gray-900 font-sans transition-colors duration-300">
+    <div class="min-h-screen bg-[var(--ui-surface)] font-sans transition-colors duration-200">
         <!-- Widget Flotante de WhatsApp -->
         <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre || empresaData?.nombre_empresa" />
 
@@ -305,31 +315,41 @@ if (typeof window !== 'undefined') {
         <PublicNavbar :empresa="empresaData" activeTab="tienda" />
 
         <!-- Hero con Búsqueda -->
-        <section class="py-16 bg-white dark:bg-slate-900 dark:bg-gray-900 relative overflow-hidden transition-colors">
+        <section class="py-20 bg-slate-900 relative overflow-hidden transition-colors">
+            <!-- Background Image -->
+            <div class="absolute inset-0">
+                <img 
+                    src="/storage/servicios/tienda-hero.webp" 
+                    alt="Tienda Mirage" 
+                    class="w-full h-full object-cover opacity-25"
+                >
+                <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/50 to-slate-900/90"></div>
+            </div>
+
             <!-- Efecto cristal de fondo -->
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-30 blur-3xl" 
+                <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-20 blur-3xl" 
                      style="background-color: var(--color-primary);"></div>
-                <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full opacity-20 blur-3xl" 
+                <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full opacity-15 blur-3xl" 
                      style="background-color: var(--color-secondary);"></div>
             </div>
             
-            <div class="w-full px-4 sm:px-6 text-center relative">
-                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white dark:text-white mb-4 transition-colors">
+            <div class="w-full px-4 sm:px-6 text-center relative z-10">
+                <h1 class="text-3xl lg:text-5xl font-black text-white mb-4 tracking-tight">
                     Explora nuestros productos
                 </h1>
-                <p class="text-gray-500 dark:text-gray-400 dark:text-gray-400 mb-8 w-full transition-colors">
+                <p class="text-slate-300 mb-8 w-full font-medium">
                     Encuentra lo que necesitas con la mejor calidad y precio
                 </p>
                 
                 <!-- Barra de búsqueda con efecto cristal -->
                 <div class="relative w-full z-50">
                     <div :class="[
-                        'relative bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl transition-all duration-300',
+                        'relative bg-white dark:bg-slate-800 rounded-2xl transition-all duration-200',
                         searchFocused ? 'shadow-xl ring-2 rounded-b-none border-b-0' : 'shadow-md'
                     ]" :style="searchFocused ? { '--tw-ring-color': 'var(--color-primary)' } : {}">
                         <div class="flex items-center">
-                            <svg class="w-5 h-5 ml-5 text-gray-400 dark:text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 ml-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input 
@@ -339,12 +359,12 @@ if (typeof window !== 'undefined') {
                                 @input="debouncedSuggestions"
                                 type="text" 
                                 placeholder="Buscar productos por nombre, código o descripción..." 
-                                class="w-full h-14 px-4 bg-transparent border-0 text-gray-900 dark:text-white dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0"
+                                class="w-full h-14 px-4 bg-transparent border-0 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-0"
                             />
                             <button v-if="search" 
                                     @click="clearFilters"
-                                    class="mr-3 p-1.5 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="mr-3 p-1.5 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
@@ -353,49 +373,49 @@ if (typeof window !== 'undefined') {
 
                     <!-- Autocomplete Dropdown (Premium Version) -->
                     <div v-show="searchFocused && suggestions.length > 0" 
-                         class="absolute w-full bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-b-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
-                        <div class="p-2.5 border-b border-gray-50 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-slate-900/50 dark:bg-gray-800/50 sticky top-0 z-10">
-                            <span class="text-[10px] font-black tracking-widest text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase ml-2">Sugerencias de productos</span>
-                            <button @click="searchFocused = false" class="text-[10px] font-bold text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-300 px-2 uppercase">Cerrar</button>
+                         class="absolute w-full bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto custom-scrollbar ring-1 ring-black/5">
+                        <div class="p-2.5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 sticky top-0 z-10">
+                            <span class="text-[10px] font-black tracking-wide text-slate-400 dark:text-slate-500 uppercase ml-2">Sugerencias de productos</span>
+                            <button @click="searchFocused = false" class="text-[10px] font-bold text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300 px-2 uppercase">Cerrar</button>
                         </div>
-                        <ul class="divide-y divide-gray-50 dark:divide-gray-700">
+                        <ul class="divide-y divide-slate-50 dark:divide-slate-700">
                             <li v-for="sug in suggestions" :key="sug.id">
                                 <Link :href="route('catalogo.show', sug.id)" 
-                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 transition-all relative">
-                                    <div class="w-14 h-14 rounded-xl bg-white dark:bg-slate-900 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                        <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.png')">
+                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-white dark:hover:bg-slate-700 transition-all relative">
+                                    <div class="w-14 h-14 rounded-xl bg-[var(--ui-surface)] border border-slate-100 dark:border-slate-700 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-200">
+                                        <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.webp')">
                                     </div>
                                     <div class="flex-1 min-w-0 text-left">
                                         <div class="flex items-center gap-2 mb-0.5">
-                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded text-[9px] font-black uppercase tracking-tighter">CVA</span>
-                                            <p class="text-sm font-bold text-gray-900 dark:text-white dark:text-white truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
+                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-50 dark:bg-sky-900/20/40 text-sky-800 dark:text-sky-200 dark:text-blue-300 rounded-xl text-[9px] font-black uppercase tracking-wide">CVA</span>
+                                            <p class="text-sm font-bold text-slate-900 dark:text-white truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
                                                 {{ sug.label }}
                                             </p>
                                         </div>
-                                        <div class="flex items-center gap-3">
-                                            <p class="text-[11px] text-gray-500 dark:text-gray-400 dark:text-gray-400 font-medium">{{ sug.category }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ sug.category }}</p>
                                             <div class="flex items-center gap-1.5">
                                                 <span v-if="sug.origen === 'CVA'" 
                                                       :class="[
                                                           'h-2 w-2 rounded-full',
-                                                          sug.stock > 0 ? 'bg-green-500 animate-pulse' : 'bg-amber-400'
+                                                          sug.stock > 0 ? 'bg-brand-500 animate-pulse' : 'bg-amber-400'
                                                       ]"></span>
-                                                <span class="text-[11px] font-black uppercase tracking-tight" :class="sug.stock > 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'">
+                                                <span class="text-[11px] font-black uppercase tracking-wider" :class="sug.stock > 0 ? 'text-emerald-600 dark:text-slate-400' : 'text-brand-600 dark:text-amber-400'">
                                                     {{ sug.stock > 0 ? `Entrega Inmediata (${sug.stock})` : 'Bajo pedido' }}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-[14px] font-black text-gray-900 dark:text-white dark:text-white leading-none">
+                                        <p class="text-[14px] font-black text-slate-900 dark:text-white leading-none">
                                             {{ formatCurrency(sug.price) }}
                                         </p>
-                                        <p class="text-[9px] text-gray-400 dark:text-gray-500 dark:text-gray-400 font-bold uppercase mt-1">IVA Incl.</p>
+                                        <p class="text-[9px] text-emerald-500 dark:text-slate-400 font-black uppercase mt-1 tracking-wide">IVA Incluido</p>
                                     </div>
                                 </Link>
                             </li>
                             <li>
-                                <button @click="applyFilters" class="w-full py-3 text-center bg-white dark:bg-slate-900 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs font-bold text-gray-500 dark:text-gray-400 dark:text-gray-300 transition-colors uppercase tracking-widest">
+                                <button @click="applyFilters" class="w-full py-3 text-center bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-xs font-bold text-slate-500 dark:text-slate-200 transition-colors uppercase tracking-wide">
                                     Ver todos los resultados para "{{ search }}"
                                 </button>
                             </li>
@@ -411,7 +431,7 @@ if (typeof window !== 'undefined') {
                             'px-4 py-2 rounded-full text-sm font-medium transition-all',
                             !selectedCategoria 
                                 ? 'text-white' 
-                                : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
                         ]"
                         :style="!selectedCategoria ? { backgroundColor: 'var(--color-primary)' } : {}">
                         Todos
@@ -424,7 +444,7 @@ if (typeof window !== 'undefined') {
                             'px-4 py-2 rounded-full text-sm font-medium transition-all',
                             selectedCategoria == cat.id 
                                 ? 'text-white' 
-                                : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-600 dark:text-gray-300 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
                         ]"
                         :style="selectedCategoria == cat.id ? { backgroundColor: 'var(--color-primary)' } : {}">
                         {{ cat.nombre }}
@@ -433,11 +453,11 @@ if (typeof window !== 'undefined') {
 
                 <!-- Smart Tags / Sugerencias de búsqueda -->
                 <div v-if="smartFilters.length > 0" class="flex flex-wrap justify-center gap-2 mt-4 animate-fade-in-up">
-                    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider py-1">Quizás buscas:</span>
+                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider py-1">Quizás buscas:</span>
                     <button v-for="tag in smartFilters" 
                             :key="tag"
                             @click="handleSmartFilter(tag)"
-                            class="px-3 py-1 rounded-md text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
+                            class="px-3 py-1 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 border border-blue-100 dark:border-blue-700 hover:bg-sky-100 dark:hover:bg-blue-900/40 transition-colors">
                         + {{ tag }}
                     </button>
                 </div>
@@ -449,29 +469,29 @@ if (typeof window !== 'undefined') {
             <div class="flex flex-col lg:flex-row gap-8">
                 
                 <!-- Sidebar (Filters) -->
-                <aside class="w-full lg:w-72 flex-shrink-0 space-y-8">
+                <aside class="w-full lg:w-72 flex-shrink-0 space-y-6">
                     <!-- Móvil: Botón para mostrar filtros -->
                     <button @click="showMobileFilters = !showMobileFilters" 
-                            class="lg:hidden w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 font-bold text-gray-700 dark:text-gray-200 transition-colors">
+                            class="lg:hidden w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl-sm border border-slate-100 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-200 transition-colors">
                         <span class="flex items-center gap-2">
-                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
                              Filtros y Categorías
                         </span>
-                        <svg class="w-5 h-5 transition-transform" :class="{'rotate-180': showMobileFilters}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        <svg class="w-4 h-4 transition-transform" :class="{'rotate-180': showMobileFilters}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
 
                     <div :class="[
-                        'lg:block space-y-8',
+                        'lg:block space-y-6',
                         showMobileFilters ? 'block animate-fade-in' : 'hidden'
                     ]">
                         <!-- Rango de Precio -->
-                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
-                            <h3 class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center justify-between transition-colors">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
+                            <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center justify-between transition-colors">
                                 Presupuesto
-                                <span class="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400"></span>
+                                <span class="w-2 h-2 rounded-full bg-brand-500 dark:bg-emerald-400"></span>
                             </h3>
                             <div class="space-y-6">
-                                <div class="flex justify-between text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                                <div class="flex justify-between text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                                     <span>Desde {{ formatCurrency(precioMin) }}</span>
                                 </div>
                                 <input type="range" 
@@ -480,8 +500,8 @@ if (typeof window !== 'undefined') {
                                        :max="priceRange?.max" 
                                        step="100"
                                        @change="applyFilters"
-                                       class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
-                                <div class="flex justify-between text-[10px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                                       class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-xl appearance-none cursor-pointer accent-[var(--color-primary)]">
+                                <div class="flex justify-between text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                                     <span>Hasta {{ formatCurrency(precioMax) }}</span>
                                 </div>
                                 <input type="range" 
@@ -490,31 +510,31 @@ if (typeof window !== 'undefined') {
                                        :max="priceRange?.max" 
                                        step="100"
                                        @change="applyFilters"
-                                       class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]">
+                                       class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-xl appearance-none cursor-pointer accent-[var(--color-primary)]">
                             </div>
                         </div>
 
                         <!-- Categorías Populares -->
-                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
-                            <h3 class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-[0.2em] mb-4 transition-colors">Categorías</h3>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
+                            <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-4 transition-colors">Categorías</h3>
                             <div class="space-y-1">
                                 <button v-for="cat in categorias" :key="cat.id"
                                         @click="selectedCategoria = (selectedCategoria == cat.id ? '' : cat.id); applyFilters()"
                                         :class="[
                                             'w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between group',
                                             selectedCategoria == cat.id 
-                                                ? 'bg-gray-900 text-white shadow-lg' 
-                                                : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-300 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-600'
+                                                ? 'bg-slate-900 text-white shadow-xl' 
+                                                : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-600'
                                         ]">
                                     <span class="truncate">{{ cat.nombre }}</span>
-                                    <span :class="selectedCategoria == cat.id ? 'text-gray-400 dark:text-gray-500 dark:text-gray-400' : 'text-gray-300 dark:text-gray-600 dark:text-gray-300'" class="text-[10px] font-black">{{ cat.productos_count }}</span>
+                                    <span :class="selectedCategoria == cat.id ? 'text-slate-400 dark:text-slate-500' : 'text-slate-300 dark:text-slate-500'" class="text-[10px] font-black">{{ cat.productos_count }}</span>
                                 </button>
                             </div>
                         </div>
 
                         <!-- Marcas -->
-                        <div class="bg-white dark:bg-slate-900 dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
-                            <h3 class="text-xs font-black text-gray-900 dark:text-white dark:text-white uppercase tracking-[0.2em] mb-4 transition-colors">Marcas</h3>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
+                            <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-4 transition-colors">Marcas</h3>
                             <div class="grid grid-cols-2 gap-2">
                                 <button v-for="marca in marcas" :key="marca.id"
                                         @click="selectedMarca = (selectedMarca == marca.id ? '' : marca.id); applyFilters()"
@@ -522,7 +542,7 @@ if (typeof window !== 'undefined') {
                                             'px-2 py-2.5 rounded-xl text-[9px] font-black uppercase text-center border-2 transition-all truncate',
                                             selectedMarca == marca.id 
                                                 ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-md' 
-                                                : 'bg-white dark:bg-slate-900 dark:bg-gray-700 border-gray-50 dark:border-gray-600 text-gray-400 dark:text-gray-300 hover:border-gray-200 dark:border-slate-800 dark:hover:border-gray-500'
+                                                : 'bg-white dark:bg-slate-700 border-slate-50 dark:border-slate-700 text-slate-400 dark:text-slate-200 hover:border-brand-500 dark:hover:border-brand-500'
                                         ]">
                                     {{ marca.nombre }}
                                 </button>
@@ -532,7 +552,7 @@ if (typeof window !== 'undefined') {
                         <!-- Botón Limpiar -->
                         <button v-if="selectedCategoria || selectedMarca || search || precioMin > priceRange?.min"
                                 @click="clearFilters"
-                                class="w-full py-4 text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all border border-dashed border-red-100 dark:border-red-700">
+                                class="w-full py-4 text-[10px] font-black text-rose-500 dark:text-rose-400 uppercase tracking-wide hover:bg-slate-50 dark:hover:bg-rose-900/20 rounded-2xl transition-all border border-dashed border-rose-100 dark:border-rose-700">
                             Limpiar todos los filtros
                         </button>
                     </div>
@@ -541,41 +561,49 @@ if (typeof window !== 'undefined') {
                 <!-- Product List Area -->
                 <div class="flex-1 min-w-0">
                     <!-- Toolbar Principal -->
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-900 dark:bg-gray-800 p-4 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm transition-colors">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm transition-colors">
                         <div class="flex items-center gap-6">
                             <div class="flex flex-col">
-                                <p class="text-[10px] font-black text-gray-300 dark:text-gray-600 dark:text-gray-300 uppercase tracking-widest leading-none mb-1 transition-colors">Mostrando</p>
-                                <p class="text-sm font-black text-gray-900 dark:text-white dark:text-white leading-none transition-colors">
-                                    {{ filteredCount }} <span class="text-gray-400 font-bold ml-1 uppercase text-[10px]">Productos</span>
+                                <p class="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-wide leading-none mb-1 transition-colors">Mostrando</p>
+                                <p class="text-sm font-black text-slate-900 dark:text-white leading-none transition-colors">
+                                    {{ filteredCount }} <span class="text-slate-400 font-bold ml-1 uppercase text-[10px]">Productos</span>
                                 </p>
                             </div>
                             
-                            <div class="h-8 w-px bg-gray-100 dark:bg-gray-700 hidden md:block"></div>
+                            <div class="h-8 w-px bg-slate-100 dark:bg-slate-700 hidden md:block"></div>
                             
                             <!-- Toggles rápidos con diseño Premium -->
                             <div class="flex gap-4">
                                 <button @click="soloLocal = !soloLocal; applyFilters()"
                                         :class="[
-                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
-                                            soloLocal ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wide transition-all flex items-center gap-2',
+                                            soloLocal ? 'bg-brand-500 text-white shadow-xl shadow-emerald-500/20' : 'bg-white dark:bg-slate-700 text-slate-400 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
                                         ]">
-                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloLocal ? 'bg-white dark:bg-slate-900 animate-pulse' : 'bg-gray-300 dark:bg-gray-50 dark:bg-slate-9500'"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloLocal ? 'bg-white animate-pulse' : 'bg-slate-300 dark:bg-slate-500'"></div>
                                     Entrega Inmediata
                                 </button>
                                 <button @click="soloExistencia = !soloExistencia; applyFilters()"
                                         :class="[
-                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2',
-                                            soloExistencia ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white dark:bg-slate-900 dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wide transition-all flex items-center gap-2',
+                                            soloExistencia ? 'bg-brand-500 text-white shadow-xl shadow-sky-500/20' : 'bg-white dark:bg-slate-700 text-slate-400 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
                                         ]">
-                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloExistencia ? 'bg-white dark:bg-slate-900' : 'bg-gray-300 dark:bg-gray-50 dark:bg-slate-9500'"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloExistencia ? 'bg-white' : 'bg-slate-300 dark:bg-slate-500'"></div>
                                     Con Stock
+                                </button>
+                                <button @click="soloSinFoto = !soloSinFoto; applyFilters()"
+                                        :class="[
+                                            'px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wide transition-all flex items-center gap-2',
+                                            soloSinFoto ? 'bg-brand-500 text-white shadow-xl shadow-rose-500/20' : 'bg-white dark:bg-slate-700 text-slate-400 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
+                                        ]">
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="soloSinFoto ? 'bg-white' : 'bg-slate-300 dark:bg-slate-500'"></div>
+                                    Sin Foto
                                 </button>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2 w-full md:w-auto">
                             <select v-model="selectedOrden" @change="applyFilters"
-                                    class="w-full md:w-auto px-5 py-2.5 bg-white dark:bg-slate-900 dark:bg-gray-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 dark:text-gray-300 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
+                                    class="w-full md:w-auto px-5 py-2.5 bg-white dark:bg-slate-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-wide text-slate-500 dark:text-slate-200 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
                                 <option value="recientes">Novedades</option>
                                 <option value="precio_asc">Precio: Bajo a Alto</option>
                                 <option value="precio_desc">Precio: Alto a Bajo</option>
@@ -587,23 +615,39 @@ if (typeof window !== 'undefined') {
                     <!-- Grid de Productos -->
                     <div v-if="allProducts.length" class="grid grid-cols-2 lg:grid-cols-3 gap-6">
                         <article v-for="producto in allProducts" :key="producto.id"
-                                 class="group bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-white dark:hover:border-gray-600 transition-all duration-500 flex flex-col relative">
+                                 class="group bg-white dark:bg-slate-800 rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-700 hover:shadow-2xl hover:border-white dark:hover:border-brand-500 transition-all duration-500 flex flex-col relative">
                             
+                            <!-- Badge de Oferta -->
+                            <div v-if="producto.destacado" class="absolute top-4 left-4 z-30">
+                                <div class="bg-[var(--color-primary)] animate-pulse text-white px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-xl shadow-[var(--color-primary)]/40 border border-white/20">
+                                    ¡OFERTA ESPECIAL!
+                                </div>
+                            </div>
+
                             <!-- Badge de Origen Premium -->
                             <div v-if="producto.stock_cedis > 0 && !(producto.stock_local > 0)" class="absolute top-4 right-4 z-30">
-                                <div class="bg-blue-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-600/30">
+                                <div class="bg-blue-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/30">
                                     Envío Nacional
                                 </div>
                             </div>
 
                             <!-- Imagen con Contenedor de Diseño -->
-                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-white dark:bg-slate-900 dark:bg-gray-900 overflow-hidden m-2 rounded-[2rem] transition-colors">
-                                <img v-if="getImageUrl(producto)" 
-                                     :src="getImageUrl(producto)" 
-                                     :alt="producto.nombre"
-                                     class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 p-8" />
-                                <div v-else class="w-full h-full flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-100 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <Link :href="route('catalogo.show', producto.id)" class="block relative aspect-square bg-[var(--ui-surface)] overflow-hidden m-2 rounded-[2rem] transition-colors">
+                                <template v-if="getImageUrl(producto)">
+                                    <img :src="getImageUrl(producto)" 
+                                         :alt="producto.nombre"
+                                         class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 p-8" />
+                                </template>
+                                <div v-else class="w-full h-full flex flex-col items-center justify-center bg-[var(--ui-surface)] dark:bg-slate-800/50">
+                                    <svg class="w-10 h-10 text-slate-200 dark:text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Sin Imagen</span>
+                                </div>
+
+                                <!-- Badge específico para items sin foto -->
+                                <div v-if="!getImageUrl(producto)" class="absolute inset-x-0 bottom-4 flex justify-center px-4">
+                                    <div class="bg-brand-500/10 border border-rose-500/20 text-rose-500 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wide backdrop-blur-sm">
+                                        Pendiente de Foto
+                                    </div>
                                 </div>
                             </Link>
 
@@ -611,13 +655,13 @@ if (typeof window !== 'undefined') {
                             <div class="px-6 py-5 flex-1 flex flex-col">
                                 <div class="mb-4">
                                     <div class="flex items-center gap-1.5 mb-1">
-                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
                                             Entrega Inmediata ({{ producto.stock_local }})
                                         </span>
-                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 dark:text-blue-300 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
                                             Bajo Pedido ({{ producto.stock_cedis }})
                                         </span>
-                                        <span v-else class="text-[9px] font-black text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                                        <span v-else class="text-[9px] font-black text-brand-600 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
                                             Bajo Pedido
                                         </span>
                                     </div>
@@ -625,17 +669,20 @@ if (typeof window !== 'undefined') {
                                         {{ producto.marca?.nombre || producto.marca }}
                                     </p>
                                     <Link :href="route('catalogo.show', producto.id)">
-                                        <h3 class="font-bold text-gray-900 dark:text-white dark:text-white text-xs sm:text-sm line-clamp-2 leading-relaxed group-hover:text-[var(--color-primary)] transition-colors min-h-[40px]">
+                                        <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm line-clamp-2 leading-relaxed group-hover:text-[var(--color-primary)] transition-colors min-h-[40px]">
                                             {{ producto.nombre }}
                                         </h3>
                                     </Link>
                                 </div>
 
-                                <div class="mt-auto flex items-center justify-between pt-4 border-t border-gray-50 dark:border-gray-700 transition-colors">
+                                <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-700 transition-colors">
                                     <div class="flex flex-col">
-                                        <span class="text-[8px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1 transition-colors">Inversión</span>
-                                        <span class="text-lg font-black text-gray-900 dark:text-white dark:text-white leading-none transition-colors">
+                                        <span class="text-[8px] font-black text-emerald-500 dark:text-slate-400 uppercase tracking-wide mb-1 transition-colors">Precio IVA Incluido</span>
+                                        <span class="text-lg font-black text-slate-900 dark:text-white leading-none transition-colors">
                                             {{ formatCurrency(producto.precio_con_iva) }}
+                                            <span v-if="producto.unidad_medida && !['PZA', 'PIEZA', 'PZ'].includes(producto.unidad_medida.toUpperCase())" class="text-[10px] font-bold text-slate-400 lowercase">
+                                                / {{ producto.unidad_medida }}
+                                            </span>
                                         </span>
                                     </div>
                                     
@@ -643,18 +690,18 @@ if (typeof window !== 'undefined') {
                                             @click="handleAddToCart(producto)"
                                             :disabled="addedToCart === producto.id"
                                             :class="[
-                                                'w-11 h-11 rounded-2xl transition-all duration-500 flex items-center justify-center shadow-lg',
+                                                'w-11 h-11 rounded-2xl transition-all duration-500 flex items-center justify-center shadow-xl',
                                                 addedToCart === producto.id 
-                                                    ? 'bg-green-500 text-white shadow-green-500/30' 
-                                                    : 'bg-gray-900 dark:bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] dark:hover:bg-[var(--color-primary-soft)] hover:shadow-[var(--color-primary)]/40 hover:-translate-y-1'
+                                                    ? 'bg-brand-500 text-white shadow-emerald-500/20' 
+                                                    : 'bg-slate-900 dark:bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] dark:hover:bg-[var(--color-primary-soft)] hover:shadow-[var(--color-primary)]/40 hover:shadow-xl hover:shadow-xl'
                                             ]">
-                                        <svg v-if="addedToCart === producto.id" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                                        <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                        <svg v-if="addedToCart === producto.id" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                        <svg v-else class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                     </button>
                                     <button v-else 
                                             @click="handleAskProduct(producto)"
-                                            class="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all flex items-center justify-center group/wa shadow-sm">
-                                        <svg class="w-6 h-6 group-hover/wa:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
+                                            class="w-11 h-11 rounded-2xl bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-all flex items-center justify-center group/wa shadow-sm">
+                                        <svg class="w-10 h-10 group-hover/wa:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
                                     </button>
                                 </div>
                             </div>
@@ -662,15 +709,15 @@ if (typeof window !== 'undefined') {
                     </div>
 
                     <!-- Estado Vacío -->
-                    <div v-else class="text-center py-24 bg-white dark:bg-slate-900 dark:bg-gray-800 rounded-[4rem] border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center transition-colors">
-                        <div class="w-32 h-32 mb-8 bg-white dark:bg-slate-900 dark:bg-gray-900 rounded-full flex items-center justify-center relative">
-                            <svg class="w-16 h-16 text-gray-200 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            <div class="absolute inset-0 border-2 border-dashed border-gray-100 dark:border-gray-700 rounded-full animate-spin-slow"></div>
+                    <div v-else class="text-center py-24 bg-white dark:bg-slate-800 rounded-[4rem] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center transition-colors">
+                        <div class="w-32 h-32 mb-8 bg-[var(--ui-surface)] rounded-full flex items-center justify-center relative">
+                            <svg class="w-16 h-16 text-slate-200 dark:text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <div class="absolute inset-0 border-2 border-dashed border-slate-100 dark:border-slate-700 rounded-full animate-spin-slow"></div>
                         </div>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white dark:text-white mb-2 transition-colors">Búsqueda sin resultados</h3>
-                        <p class="text-gray-400 dark:text-gray-500 dark:text-gray-400 mb-10 w-full font-medium transition-colors">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 transition-colors">Búsqueda sin resultados</h3>
+                        <p class="text-slate-400 dark:text-slate-500 mb-10 w-full font-medium transition-colors">Lamentamos no encontrar lo que buscas. Intenta con una marca general o ajustando el presupuesto.</p>
                         <button @click="clearFilters" 
-                                class="px-10 py-4 bg-gray-900 dark:bg-[var(--color-primary)] text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:-translate-y-2 transition-all shadow-xl shadow-gray-200 dark:shadow-[var(--color-primary)]/40">
+                                class="px-10 py-4 bg-slate-900 dark:bg-[var(--color-primary)] text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:shadow-xl hover:shadow-xl transition-all shadow-xl shadow-slate-200 dark:shadow-[var(--color-primary)]/40">
                             Reiniciar Búsqueda
                         </button>
                     </div>
@@ -682,19 +729,19 @@ if (typeof window !== 'undefined') {
                                 <Link v-if="link.url" 
                                       :href="link.url"
                                       :class="[
-                                          'w-12 h-12 rounded-2xl text-[10px] font-black transition-all flex items-center justify-center shadow-sm',
+                                          'w-10 h-10 rounded-2xl text-[10px] font-black transition-all flex items-center justify-center shadow-sm',
                                           link.active 
-                                            ? 'bg-gray-900 dark:bg-[var(--color-primary)] text-white shadow-xl shadow-gray-900/20 dark:shadow-[var(--color-primary)]/40' 
-                                            : 'bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:bg-white dark:bg-slate-900 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
+                                            ? 'bg-slate-900 dark:bg-[var(--color-primary)] text-white shadow-xl shadow-slate-900/20 dark:shadow-[var(--color-primary)]/40' 
+                                            : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-700'
                                       ]"
                                       v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
                                 <span v-else 
-                                      class="w-12 h-12 rounded-2xl text-[10px] font-black bg-white dark:bg-slate-900 dark:bg-gray-800 text-gray-200 dark:text-gray-600 dark:text-gray-300 flex items-center justify-center border border-gray-100 dark:border-gray-700"
+                                      class="w-10 h-10 rounded-2xl text-[10px] font-black bg-white dark:bg-slate-800 text-slate-200 dark:text-slate-500 flex items-center justify-center border border-slate-100 dark:border-slate-700"
                                       v-html="link.label.replace('Previous', '←').replace('Next', '→')" />
                             </template>
                         </div>
-                        <div class="px-6 py-2 bg-gray-100 dark:bg-gray-700 rounded-full">
-                            <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-[0.4em]">
+                        <div class="px-6 py-2 bg-slate-100 dark:bg-slate-700 rounded-full">
+                            <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.4em]">
                                 Página {{ productos.current_page }} de {{ productos.last_page }}
                             </p>
                         </div>

@@ -2,7 +2,7 @@
   <div class="buscar-equipo">
     <!-- Campo de búsqueda -->
     <div class="mb-6">
-      <label class="block text-sm font-medium text-gray-700 mb-2">
+      <label class="block text-sm font-medium text-slate-700 mb-2">
         Buscar Equipos Disponibles
       </label>
       <div class="relative">
@@ -13,10 +13,10 @@
           @input="filtrarItems"
           @focus="mostrarLista = true"
           placeholder="Buscar por nombre, código, marca, modelo..."
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
@@ -29,8 +29,8 @@
           :class="[
             'px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200',
             filtroActivo === 'todos'
-              ? 'bg-green-100 text-green-800 border-green-300'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300'
+              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-300'
           ]"
         >
           Todos ({{ itemsFiltrados.length }})
@@ -41,8 +41,8 @@
           :class="[
             'px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200',
             filtroActivo === 'disponibles'
-              ? 'bg-blue-100 text-blue-800 border-blue-300'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300'
+              ? 'bg-sky-100 text-sky-800 border-blue-300'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-300'
           ]"
         >
           Disponibles ({{ disponiblesCount }})
@@ -52,8 +52,8 @@
 
     <!-- Equipos agregados recientemente -->
     <div v-if="equiposRecientes.length > 0" class="mt-6">
-      <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <h3 class="text-sm font-medium text-slate-700 mb-3 flex items-center">
+        <svg class="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         Agregados recientemente
@@ -62,10 +62,10 @@
         <span
           v-for="equipo in equiposRecientes"
           :key="`reciente-${equipo.id}`"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800"
         >
           {{ equipo.nombre }}
-          <svg class="w-3 h-3 ml-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3 h-3 ml-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
         </span>
@@ -74,8 +74,8 @@
 
     <!-- Sugerencias rápidas -->
     <div v-if="!busqueda && sugerenciasRapidas.length > 0" class="mt-6">
-      <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <h3 class="text-sm font-medium text-slate-700 mb-3 flex items-center">
+        <svg class="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         Sugerencias rápidas
@@ -85,23 +85,23 @@
           v-for="equipo in sugerenciasRapidas"
           :key="`sugerencia-${equipo.id}`"
           @click="agregarEquipo(equipo)"
-          class="p-3 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 cursor-pointer transition-all duration-200"
+          class="p-3 border border-slate-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50 cursor-pointer transition-all duration-200"
         >
           <div class="flex items-center justify-between">
             <div class="flex-1">
               <div class="flex items-center">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 bg-blue-100 text-blue-800">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 bg-sky-100 text-sky-800">
                   E
                 </span>
-                <span class="text-sm font-medium text-gray-900">{{ equipo.nombre }}</span>
+                <span class="text-sm font-medium text-slate-900">{{ equipo.nombre }}</span>
               </div>
-              <div class="text-xs text-gray-500 mt-1">{{ equipo.marca }} {{ equipo.modelo }}</div>
+              <div class="text-xs text-slate-500 mt-1">{{ equipo.marca }} {{ equipo.modelo }}</div>
             </div>
             <div class="text-right">
-              <div class="text-sm font-semibold text-green-600">
+              <div class="text-sm font-semibold text-emerald-600">
                 ${{ formatearPrecio(equipo.precio_renta_mensual) }}/mes
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-slate-500">
                 Código: {{ equipo.codigo }}
               </div>
             </div>
@@ -137,7 +137,7 @@
         <div class="px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 border-b border-[var(--ui-border)] last:border-b-0">
           <div class="grid grid-cols-12 gap-2 items-center">
             <div class="col-span-1">
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
@@ -155,15 +155,15 @@
               <span class="text-sm text-[var(--ui-text-muted)]">{{ item.marca }} {{ item.modelo }}</span>
             </div>
             <div class="col-span-2">
-              <span class="text-sm font-semibold text-green-600">
+              <span class="text-sm font-semibold text-emerald-600">
                 ${{ formatearPrecio(item.precio_renta_mensual) }}
               </span>
             </div>
             <div class="col-span-1">
               <span :class="[
                 'text-xs px-2 py-1 rounded-full font-medium',
-                item.estado === 'disponible' ? 'bg-green-100 text-green-800' :
-                item.estado === 'rentado' ? 'bg-red-100 text-red-800' :
+                item.estado === 'disponible' ? 'bg-emerald-100 text-emerald-800' :
+                item.estado === 'rentado' ? 'bg-rose-100 text-rose-800' :
                 'bg-yellow-100 text-yellow-800'
               ]">
                 {{ item.estado === 'disponible' ? 'Disp.' : item.estado === 'rentado' ? 'Rent.' : 'Maint.' }}
@@ -175,10 +175,10 @@
                 @click="agregarEquipo(item)"
                 :disabled="item.estado !== 'disponible'"
                 :class="[
-                  'w-full px-2 py-1 text-xs font-medium rounded-md transition-colors duration-200',
+                  'w-full px-2 py-1 text-xs font-medium rounded-xl transition-colors duration-200',
                   item.estado !== 'disponible'
-                    ? 'bg-gray-100/80 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
-                    : 'bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1'
+                    ? 'bg-slate-100/80 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                    : 'bg-emerald-500 text-white hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1'
                 ]"
               >
                 <svg class="w-3 h-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Support\EmpresaResolver;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MermasExport;
+use App\Models\Inventario;
+use App\Models\InventarioMovimiento;
 
 class AlmacenController extends Controller
 {
@@ -53,8 +57,8 @@ class AlmacenController extends Controller
 
             $query->orderBy($sortBy, $sortDirection);
 
-            // Paginación
-            $perPage = min((int) $request->input('per_page', 10), 50);
+            // Paginación segura (Anti-DoS)
+            $perPage = $this->getPerPage(10);
             $almacenes = $query->paginate($perPage)->appends($request->query());
 
             // Estadísticas
@@ -140,6 +144,88 @@ class AlmacenController extends Controller
         Almacen::create($validated);
 
         return redirect()->route('almacenes.index')->with('success', 'Almacén creado correctamente.');
+    }
+
+    public function show(Almacen $almacene)
+    {
+        try {
+            $almacene->load(['responsable:id,name']);
+            $id = $almacene->id;
+
+            // Obtener inventario detallado (Refacciones/Materiales)
+            $inventario = \App\Models\Inventario::with(['producto' => function($q) {
+                    $q->select('id', 'nombre', 'sku', 'categoria_id', 'precio_compra')
+                      ->with('categoria:id,nombre');
+                }])
+                ->where('almacen_id', $id)
+                ->where('cantidad', '>', 0)
+                ->get()
+                ->map(function($inv) {
+                    $producto = $inv->producto;
+                    if (!$producto) return null;
+                    
+                    return [
+                        'id' => $inv->id,
+                        'producto' => $producto->nombre ?? 'Producto no encontrado',
+                        'sku' => $producto->codigo ?? 'N/A',
+                        'categoria' => $producto->categoria->nombre ?? 'Sin categoría',
+                        'cantidad' => $inv->cantidad,
+                        'valor' => (float) ($inv->cantidad * ($producto->precio_compra ?? 0))
+                    ];
+                })
+                ->filter(); // Eliminar nulos
+
+            // Obtener herramientas asignadas al responsable (Activos)
+            $herramientas = [];
+            $responsableId = $almacene->getAttributes()['responsable'] ?? null;
+            
+            if ($responsableId) {
+                $herramientas = \App\Models\Herramienta::where('user_id', $responsableId)
+                    ->with('categoriaHerramienta:id,nombre')
+                    ->get()
+                    ->map(function($h) {
+                        return [
+                            'id' => $h->id,
+                            'nombre' => $h->nombre,
+                            'codigo' => $h->codigo_inventario ?? $h->numero_serie,
+                            'categoria' => $h->categoriaHerramienta->nombre ?? $h->categoria ?? 'Sin categoría',
+                            'estado' => $h->estado,
+                            'marca' => $h->marca ?? 'N/A',
+                            'modelo' => $h->modelo ?? 'N/A'
+                        ];
+                    });
+            }
+
+            return Inertia::render('Almacenes/Show', [
+                'almacen' => $almacene,
+                'inventario' => $inventario,
+                'herramientas' => $herramientas,
+                'stats' => [
+                    'total_refacciones' => $inventario->sum('cantidad'),
+                    'valor_inventario' => $inventario->sum('valor'),
+                    'total_herramientas' => count($herramientas)
+                ],
+                'revisiones' => \App\Models\InventarioMovimiento::where('almacen_id', $almacene->id)
+                    ->where('detalles->estado', 'revision')
+                    ->with(['producto:id,nombre,codigo', 'user:id,name'])
+                    ->latest()
+                    ->get()
+                    ->map(fn($m) => [
+                        'id' => $m->id,
+                        'producto' => $m->producto->nombre ?? 'N/A',
+                        'sku' => $m->producto->codigo ?? 'N/A',
+                        'cantidad' => $m->cantidad,
+                        'tipo' => $m->detalles['tipo_auditoria'] ?? 'AJUSTE',
+                        'anterior' => $m->detalles['cantidad_anterior'] ?? 0,
+                        'nueva' => $m->detalles['cantidad_nueva'] ?? 0,
+                        'fecha' => $m->created_at->format('d/m/Y H:i'),
+                        'usuario' => $m->user->name ?? 'Sistema'
+                    ])
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error en AlmacenController@show: ' . $e->getMessage());
+            return redirect()->route('almacenes.index')->with('error', 'Error al cargar el detalle del almacén.');
+        }
     }
 
     /**
@@ -326,5 +412,120 @@ class AlmacenController extends Controller
             Log::error('Error en exportación de almacenes: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al exportar los almacenes.');
         }
+    }
+
+    /**
+     * Procesa una auditoría completa de almacén y la envía a revisión.
+     * El stock NO se actualiza hasta que el Super Admin apruebe.
+     */
+    public function finalizarAuditoria(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'ajustes' => 'required|array',
+                'ajustes.*.id' => 'required|exists:inventarios,id',
+                'ajustes.*.nueva_cantidad' => 'required|integer|min:0',
+                'observaciones' => 'nullable|string'
+            ]);
+
+            DB::beginTransaction();
+
+            foreach ($validated['ajustes'] as $ajuste) {
+                $inventario = Inventario::findOrFail($ajuste['id']);
+                $cantidadAnterior = $inventario->cantidad;
+                $nuevaCantidad = $ajuste['nueva_cantidad'];
+                $diferencia = $nuevaCantidad - $cantidadAnterior;
+
+                if ($diferencia == 0) continue;
+
+                $esMerma = $diferencia < 0;
+                $etiqueta = $esMerma ? 'MERMA' : 'EXCEDENTE';
+                
+                // Marcamos como REVISIÓN PENDIENTE (No actualizamos stock aún)
+                $motivo = "[PENDIENTE DE REVISIÓN] Auditoría: {$etiqueta}. " . ($validated['observaciones'] ?? '');
+
+                InventarioMovimiento::create([
+                    'empresa_id' => $inventario->empresa_id,
+                    'producto_id' => $inventario->producto_id,
+                    'almacen_id' => $inventario->almacen_id,
+                    'cantidad' => abs($diferencia),
+                    'tipo' => $diferencia > 0 ? 'entrada' : 'salida',
+                    'motivo' => $motivo,
+                    'user_id' => auth()->id(),
+                    'fecha' => now(),
+                    'detalles' => [
+                        'auditoria_pendiente' => true,
+                        'tipo_auditoria' => $etiqueta,
+                        'cantidad_anterior' => $cantidadAnterior,
+                        'cantidad_nueva' => $nuevaCantidad,
+                        'diferencia' => $diferencia,
+                        'estado' => 'revision'
+                    ]
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'mensaje' => 'La auditoría ha sido enviada a revisión por el Super Admin.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error en AlmacenController@finalizarAuditoria: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'No se pudo enviar la auditoría'], 500);
+        }
+    }
+
+    /**
+     * Aprueba una auditoría pendiente y actualiza el stock real.
+     */
+    public function aprobarAuditoria(Request $request, $movimientoId)
+    {
+        try {
+            $movimiento = InventarioMovimiento::findOrFail($movimientoId);
+            
+            if (($movimiento->detalles['estado'] ?? '') !== 'revision') {
+                return response()->json(['success' => false, 'error' => 'Este movimiento no está en revisión'], 400);
+            }
+
+            DB::beginTransaction();
+
+            $inventario = Inventario::where('producto_id', $movimiento->producto_id)
+                ->where('almacen_id', $movimiento->almacen_id)
+                ->firstOrFail();
+
+            // Actualizar stock real
+            $nuevaCantidad = $movimiento->detalles['cantidad_nueva'];
+            $inventario->update(['cantidad' => $nuevaCantidad]);
+
+            // Actualizar movimiento a aprobado
+            $detalles = $movimiento->detalles;
+            $detalles['estado'] = 'aprobado';
+            $detalles['aprobado_por'] = auth()->id();
+            $detalles['fecha_aprobacion'] = now();
+            
+            $movimiento->update([
+                'motivo' => str_replace('[PENDIENTE DE REVISIÓN]', '[AUDITORÍA APROBADA]', $movimiento->motivo),
+                'detalles' => $detalles
+            ]);
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'mensaje' => 'Auditoría aprobada y stock actualizado.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error en AlmacenController@aprobarAuditoria: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'No se pudo aprobar la auditoría'], 500);
+        }
+    }
+
+    /**
+     * Exporta el reporte de mermas y excedentes a Excel.
+     */
+    public function exportarMermas(Request $request, $id = null)
+    {
+        $nombreArchivo = $id ? "mermas_almacen_{$id}.xlsx" : "mermas_global.xlsx";
+        return Excel::download(new MermasExport($id), $nombreArchivo);
     }
 }

@@ -26,21 +26,21 @@ useDarkMode(empresaData.value);
 </script>
 
 <template>
-    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-300">
+    <div class="min-h-screen bg-[var(--ui-surface)] flex flex-col font-sans transition-colors duration-200">
         <!-- Reutilizamos el Navbar Público para consistencia total -->
         <PublicNavbar :empresa="empresaData" activeTab="soporte" />
 
         <!-- Sub-Header del Portal -->
-        <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
+        <div class="bg-[var(--ui-surface)] border-b border-[var(--ui-border)] shadow-sm transition-colors">
             <div class="w-full px-4 h-16 flex items-center justify-between">
                 <div class="flex gap-8">
                     <Link 
                         :href="route('portal.dashboard')" 
                         :class="[
-                            'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
+                            'text-sm font-bold uppercase tracking-wide pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Dashboard' || $page.component.startsWith('Portal/Polizas/'))
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300'
                         ]"
                     >
                         Mis Servicios
@@ -48,10 +48,10 @@ useDarkMode(empresaData.value);
                     <Link 
                         :href="route('portal.tickets.create')" 
                         :class="[
-                            'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
+                            'text-sm font-bold uppercase tracking-wide pb-5 mt-5 transition-all outline-none',
                             $page.component === 'Portal/CreateTicket' 
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300'
                         ]"
                     >
                         Solicitar Soporte
@@ -59,10 +59,10 @@ useDarkMode(empresaData.value);
                     <Link 
                         :href="route('portal.credito.index')" 
                         :class="[
-                            'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
+                            'text-sm font-bold uppercase tracking-wide pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Credito/Index' || $page.component === 'Portal/Credito/FirmarSolicitud')
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300'
                         ]"
                     >
                         Línea de Crédito
@@ -70,19 +70,19 @@ useDarkMode(empresaData.value);
                     <Link 
                         :href="route('portal.rentas.index')" 
                         :class="[
-                            'text-sm font-bold uppercase tracking-widest pb-5 mt-5 transition-all outline-none',
+                            'text-sm font-bold uppercase tracking-wide pb-5 mt-5 transition-all outline-none',
                             ($page.component === 'Portal/Rentas/Index' || $page.component === 'Portal/Rentas/Firmar')
                                 ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
-                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300'
                         ]"
                     >
                         Mis Rentas
                     </Link>
                 </div>
 
-                <div class="hidden sm:flex items-center gap-3 bg-[var(--color-primary-soft)] px-4 py-2 rounded-xl">
+                <div class="hidden sm:flex items-center gap-2 bg-[var(--color-primary-soft)] px-4 py-2 rounded-xl">
                     <span class="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">Portal de Cliente Activo</span>
+                    <span class="text-[10px] font-black uppercase tracking-wide text-[var(--color-primary)]">Portal de Cliente Activo</span>
                 </div>
             </div>
         </div>

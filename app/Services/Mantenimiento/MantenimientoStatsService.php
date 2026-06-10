@@ -4,49 +4,33 @@ namespace App\Services\Mantenimiento;
 
 use App\Models\Mantenimiento;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class MantenimientoStatsService
 {
-    /**
-     * Obtener estadísticas consolidadas para el panel de control
-     */
-    public function getConsolidatedStats(): array
+    public function getConsolidatedStats($query = null): array
     {
-        $mantenimientos = Mantenimiento::with('carro')->get();
-        $activos = $mantenimientos->where('estado', '!=', Mantenimiento::ESTADO_COMPLETADO);
-        $completados = $mantenimientos->where('estado', Mantenimiento::ESTADO_COMPLETADO);
+        $base = $query ? clone $query : Mantenimiento::query();
 
-        $vencidos = 0;
-        $porVencer = 0;
-        $alDia = 0;
-
-        foreach ($activos as $m) {
-            $estado = $this->calcularEstadoDerivado($m);
-            match ($estado) {
-                'vencido' => $vencidos++,
-                'por_vencer' => $porVencer++,
-                'al_dia' => $alDia++,
-                default => null,
-            };
-        }
+        $totalQuery = clone $base;
+        $completadosQuery = clone $base;
+        $vencidosQuery = clone $base;
+        $porVencerQuery = clone $base;
+        $alDiaQuery = clone $base;
+        $costoQuery = clone $base;
 
         return [
-            'total_general' => $mantenimientos->count(),
-            'total_activos' => $activos->count(),
-            'completados' => $completados->count(),
-            'vencidos' => $vencidos,
-            'por_vencer' => $porVencer,
-            'al_dia' => $alDia,
-            'costo_total_mes' => Mantenimiento::whereMonth('fecha', now()->month)
+            'total_general' => $totalQuery->count(),
+            'total_activos' => $completadosQuery->where('estado', '!=', Mantenimiento::ESTADO_COMPLETADO)->count(),
+            'completados' => (clone $base)->where('estado', Mantenimiento::ESTADO_COMPLETADO)->count(),
+            'vencidos' => $vencidosQuery->vencidos()->count(),
+            'por_vencer' => $porVencerQuery->porVencer()->count(),
+            'al_dia' => $alDiaQuery->alDia()->count(),
+            'costo_total_mes' => $costoQuery->whereMonth('fecha', now()->month)
                 ->whereYear('fecha', now()->year)
                 ->sum('costo'),
         ];
     }
 
-    /**
-     * Calcular el estado derivado de un mantenimiento basado en fechas y reglas de negocio
-     */
     public function calcularEstadoDerivado(Mantenimiento $mantenimiento): string
     {
         if ($mantenimiento->estado === Mantenimiento::ESTADO_COMPLETADO) {
@@ -73,14 +57,11 @@ class MantenimientoStatsService
         return 'al_dia';
     }
 
-    /**
-     * Obtener metadatos detallados del estado para la UI
-     */
     public function getEstadoMetadata(Mantenimiento $mantenimiento): array
     {
         $estado = $this->calcularEstadoDerivado($mantenimiento);
         $hoy = Carbon::today();
-        
+
         if ($mantenimiento->estado === Mantenimiento::ESTADO_COMPLETADO) {
             return [
                 'estado' => 'completado',

@@ -24,11 +24,11 @@
               Puedes ajustar automáticamente los precios o revisarlos manualmente.
             </p>
 
-            <div class="space-y-3 max-h-60 overflow-y-auto">
+            <div class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
               <div
                 v-for="item in productosBajoMargen"
                 :key="item.producto.id"
-                class="bg-yellow-50/80 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3"
+                class="bg-yellow-50/80 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3"
               >
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
@@ -42,11 +42,11 @@
                       </div>
                       <div class="flex justify-between">
                         <span>Precio sugerido:</span>
-                        <span class="font-medium text-green-600">${{ formatNumber(item.precio_sugerido) }}</span>
+                        <span class="font-medium text-emerald-600">${{ formatNumber(item.precio_sugerido) }}</span>
                       </div>
                       <div class="flex justify-between">
                         <span>Diferencia:</span>
-                        <span class="font-medium text-red-600">${{ formatNumber(item.diferencia) }}</span>
+                        <span class="font-medium text-rose-600">${{ formatNumber(item.diferencia) }}</span>
                       </div>
                       <div class="flex justify-between">
                         <span>Costo de compra:</span>

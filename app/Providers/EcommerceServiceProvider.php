@@ -38,14 +38,7 @@ class EcommerceServiceProvider extends ServiceProvider
                     ]);
                 }
 
-                // Microsoft OAuth
-                if ($config->microsoft_client_id) {
-                    config([
-                        'services.microsoft.client_id' => $config->microsoft_client_id,
-                        'services.microsoft.client_secret' => $config->microsoft_client_secret,
-                        'services.microsoft.tenant' => $config->microsoft_tenant_id ?? 'common',
-                    ]);
-                }
+
 
                 // MercadoPago
                 if ($config->mercadopago_access_token) {

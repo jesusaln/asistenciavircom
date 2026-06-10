@@ -14,6 +14,8 @@ use App\Models\Traits\PreventsSelectStar;
 
 class Renta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa, PreventsSelectStar;
 
     /**
@@ -92,6 +94,17 @@ class Renta extends Model
         'firmado_ip',
         'firmado_nombre',
         'firma_hash',
+        'ine_frontal',
+        'ine_trasera',
+        'comprobante_domicilio',
+        'solicitud_renta',
+    ];
+
+    /**
+     * Atributos ocultos en JSON por defecto.
+     */
+    protected $hidden = [
+        'firma_digital',
         'ine_frontal',
         'ine_trasera',
         'comprobante_domicilio',

@@ -1,4 +1,6 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
+import Swal from '@/Utils/Swal';
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, toRef } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -24,9 +26,16 @@ import { usePosSounds } from './Composables/usePosSounds';
 import { usePosParkedSales } from './Composables/usePosParkedSales';
 import { usePosOffline } from './Composables/usePosOffline';
 import ParkedSalesModal from './Partials/ParkedSalesModal.vue';
+import { useDarkMode } from '@/Utils/useDarkMode';
+import { usePage } from '@inertiajs/vue3';
+import { normalizeText, includesSearch } from '@/Utils/searchHelper';
 
 const notify = useNotification();
 useCompanyColors();
+
+// --- Dark Mode Persistence ---
+const { props: pageProps } = usePage();
+useDarkMode(pageProps.empresa_config);
 
 const props = defineProps({
     clientes: Array,
@@ -54,17 +63,38 @@ const {
 } = props;
 const defaultsRef = toRef(props, 'defaults');
 
-// POS State
-const search = ref('');
-const selectedItems = ref([]);
-const clienteId = ref('');
+// Multi-Tab POS State
+const activeTabIndex = ref(0);
+const tabs = ref([
+    { id: Date.now(), name: 'Venta 1', items: [], clienteId: '', priceListId: '', paymentMethod: 'efectivo' }
+]);
+
+const currentTab = computed(() => tabs.value[activeTabIndex.value]);
+
+// Synchronize main refs with active tab
+const selectedItems = computed({
+    get: () => currentTab.value.items,
+    set: (val) => currentTab.value.items = val
+});
+const clienteId = computed({
+    get: () => currentTab.value.clienteId,
+    set: (val) => currentTab.value.clienteId = val
+});
+const priceListId = computed({
+    get: () => currentTab.value.priceListId,
+    set: (val) => currentTab.value.priceListId = val
+});
+const paymentMethod = computed({
+    get: () => currentTab.value.paymentMethod,
+    set: (val) => currentTab.value.paymentMethod = val
+});
+
 const almacenId = ref(user?.almacen_venta_id || almacenes[0]?.id || '');
-const priceListId = ref('');
 const processing = ref(false);
 const showPaymentModal = ref(false);
 const showExpenseModal = ref(false);
-const paymentMethod = ref('efectivo');
 const amountReceived = ref(0);
+const search = ref(''); // 🔥 RESTORED: Main product search state
 
 const headerRef = ref(null);
 const focusSearchInput = () => headerRef.value?.focusSearch?.();
@@ -113,12 +143,12 @@ const {
 const showClientModal = ref(false);
 const clientSearch = ref('');
 const filteredClientes = computed(() => {
-    const q = clientSearch.value.trim().toLowerCase();
-    if (!q) return clientes.slice(0, 50); // Mostrar top 50 por defecto
-    return clientes.filter(c => 
-        (c.nombre_razon_social || '').toLowerCase().includes(q) || 
-        (c.rfc || '').toLowerCase().includes(q) ||
-        (c.email || '').toLowerCase().includes(q)
+    if (!clientSearch.value.trim()) return (props.clientes || []).slice(0, 50);
+    const q = clientSearch.value;
+    return (props.clientes || []).filter(c => 
+        includesSearch(c.nombre_razon_social, q) || 
+        includesSearch(c.rfc, q) ||
+        includesSearch(c.email, q)
     ).slice(0, 50);
 });
 
@@ -135,29 +165,61 @@ const selectCliente = (cliente) => {
 
 const { loadDraft, persistDraft } = usePosDraft({
     storageKey: STORAGE_KEY,
-    selectedItems,
-    clienteId,
+    tabs,
+    activeTabIndex,
     almacenId,
-    priceListId,
-    paymentMethod,
     notify,
 });
 
+// Tab Management
+const addNewTab = () => {
+    const newId = Date.now();
+    tabs.value.push({
+        id: newId,
+        name: `Venta ${tabs.value.length + 1}`,
+        items: [],
+        clienteId: props.clientes.find(c => c.id === 10 || c.nombre_razon_social?.toUpperCase().includes('PÚBLICO'))?.id || '',
+        priceListId: props.priceLists[0]?.id || '',
+        paymentMethod: 'efectivo'
+    });
+    activeTabIndex.value = tabs.value.length - 1;
+    playBeep();
+    nextTick(focusSearchInput);
+};
+
+const closeTab = (index) => {
+    if (tabs.value.length === 1) {
+        clearSale();
+        return;
+    }
+    tabs.value.splice(index, 1);
+    if (activeTabIndex.value >= tabs.value.length) {
+        activeTabIndex.value = tabs.value.length - 1;
+    }
+    playDelete();
+    nextTick(focusSearchInput);
+};
+
+const switchTab = (index) => {
+    activeTabIndex.value = index;
+    playBeep();
+    nextTick(focusSearchInput);
+};
+
 // Search and Results
 const searchResults = computed(() => {
-    const q = search.value.trim().toLowerCase();
+    const q = search.value.trim();
     if (q.length < 1) return [];
     
     // Ensure reactivity by using props.productos
     const list = props.productos || [];
-    
     const terms = q.split(' ').filter(term => term.trim() !== '');
     
     return list.filter(p => {
         return terms.every(term => 
-            (p.nombre || '').toLowerCase().includes(term) || 
-            (p.codigo || '').toLowerCase().includes(term) ||
-            (p.descripcion || '').toLowerCase().includes(term)
+            includesSearch(p.nombre, term) || 
+            includesSearch(p.codigo, term) ||
+            includesSearch(p.descripcion, term)
         );
     }).slice(0, 8); // Limit to top 8 results for speed
 });
@@ -244,19 +306,25 @@ const confirmSelection = async (item) => {
 
 const handleKeyDown = (e) => {
     if (e.key === 'F1') { e.preventDefault(); focusSearchInput(); }
-    if (e.key === 'F2') { e.preventDefault(); showClientModal.value = true; } // 🔥 NUEVO: Atajo para clientes
+    if (e.key === 'F2') { e.preventDefault(); showClientModal.value = true; }
+    if (e.key === 'F3') { e.preventDefault(); addNewTab(); } // 🔥 NUEVO: Nueva pestaña
     if (e.key === 'F5') { e.preventDefault(); openPayment(); }
     if (e.key === 'F7') { e.preventDefault(); tryWeight(); }
-    if (e.key === 'F8') { e.preventDefault(); handleParkSale(); } // 🔥 NUEVO: Pausar venta
-    if (e.key === 'F9') { e.preventDefault(); showParkedModal.value = true; } // 🔥 NUEVO: Ver en espera
-    if (e.key === 'F10') { e.preventDefault(); showExpenseModal.value = true; } // 🔥 NUEVO: Registrar gastos
+    if (e.key === 'F8') { e.preventDefault(); handleParkSale(); }
+    if (e.key === 'F9') { e.preventDefault(); showParkedModal.value = true; }
+    if (e.key === 'F10') { e.preventDefault(); showExpenseModal.value = true; }
     if (e.key === 'F12') { e.preventDefault(); prepararCierreCaja(); }
+    if (e.ctrlKey && e.key >= '1' && e.key <= '9') { // Ctrl + 1-9 para cambiar pestañas
+        e.preventDefault();
+        const tabIdx = parseInt(e.key) - 1;
+        if (tabs.value[tabIdx]) switchTab(tabIdx);
+    }
     if (e.key === 'Delete') { e.preventDefault(); if (selectedItems.value.length > 0) showClearConfirm.value = true; }
     if (e.key === 'Escape') { 
         if (showPaymentModal.value) showPaymentModal.value = false;
         else if (showClearConfirm.value) showClearConfirm.value = false;
-        else if (showDeleteConfirm.value) showDeleteConfirm.value = false; // 🔥 NUEVO
-        else if (showExpenseModal.value) showExpenseModal.value = false; // 🔥 NUEVO
+        else if (showDeleteConfirm.value) showDeleteConfirm.value = false;
+        else if (showExpenseModal.value) showExpenseModal.value = false;
         else if (showClientModal.value) showClientModal.value = false;
         else if (showSeriesModal.value) showSeriesModal.value = false;
         else if (showParkedModal.value) showParkedModal.value = false;
@@ -505,9 +573,19 @@ const handleParkSale = () => {
     }
 };
 
-const restoreParkedSale = (index) => {
+const restoreParkedSale = async (index) => {
     if (selectedItems.value.length > 0) {
-        if (!confirm('Hay productos en la venta actual. ¿Deseas reemplazarlos por la venta en espera?')) {
+        const result = await Swal.fire({
+            title: 'Reemplazar venta actual',
+            text: 'Hay productos en la venta actual. ¿Deseas reemplazarlos por la venta en espera?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, reemplazar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3b82f6',
+        });
+
+        if (!result.isConfirmed) {
             return;
         }
     }
@@ -695,8 +773,31 @@ const saveExpense = async (expenseData) => {
 <template>
     <Head title="Caja POS Premium" />
     
-    <div class="h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white flex flex-col overflow-hidden font-sans">
-        <div class="pos-container flex-1 flex flex-col overflow-hidden min-h-0">
+    <div class="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden font-sans transition-colors duration-500">
+        <!-- Browser-like Tabs Bar -->
+        <div class="h-12 bg-slate-200 dark:bg-slate-900 flex items-center px-2 gap-1 overflow-x-auto no-scrollbar shrink-0 border-b border-slate-300 dark:border-white/5">
+            <div v-for="(tab, idx) in tabs" :key="tab.id"
+                @click="switchTab(idx)"
+                :class="[
+                    idx === activeTabIndex 
+                        ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-white shadow-sm' 
+                        : 'bg-slate-300 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-300/80 dark:hover:bg-slate-800'
+                ]"
+                class="flex items-center gap-3 px-4 py-2 h-9 min-w-[140px] max-w-[220px] rounded-t-xl cursor-pointer transition-all duration-200 group border-x border-t border-transparent"
+                :style="idx === activeTabIndex ? 'border-color: rgba(255,255,255,0.05)' : ''"
+            >
+                <svg class="w-3.5 h-3.5 shrink-0" :class="idx === activeTabIndex ? 'text-purple-500' : 'opacity-40'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                <span class="text-[11px] font-black uppercase tracking-wider truncate flex-1">{{ tab.items.length > 0 ? `${tab.items.length} Items` : tab.name }}</span>
+                <button @click.stop="closeTab(idx)" class="w-5 h-5 flex items-center justify-center rounded-xl hover:bg-rose-500/20 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <button @click="addNewTab" class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-300/50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white transition-all ml-1" title="Nueva Venta (F3)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+            </button>
+        </div>
+
+        <div class="pos-container flex-1 flex flex-col overflow-hidden min-h-0 bg-white/50 dark:bg-transparent backdrop-blur-sm">
         
         <PosHeader
             ref="headerRef"
@@ -757,12 +858,14 @@ const saveExpense = async (expenseData) => {
         </main>
         </div> <!-- End pos-container -->
 
-        <footer class="shrink-0 border-t border-white/10 bg-slate-950/90 backdrop-blur-md px-4 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-[10px] text-slate-500 tracking-wide">
-            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-md bg-slate-800/90 border border-white/10 text-slate-300 font-mono text-[9px] shadow-inner">F1</kbd> Buscar</span>
-            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-md bg-slate-800/90 border border-white/10 text-slate-300 font-mono text-[9px] shadow-inner">F2</kbd> Cliente</span>
-            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-md bg-purple-900/50 border border-purple-500/30 text-purple-300 font-mono text-[9px] shadow-inner">F5</kbd> Cobrar</span>
-            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-md bg-slate-800/90 border border-white/10 text-slate-300 font-mono text-[9px] shadow-inner">F8</kbd> Pausar</span>
-            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-md bg-slate-800/90 border border-white/10 text-slate-300 font-mono text-[9px] shadow-inner">F12</kbd> Corte</span>
+        <footer class="shrink-0 border-t border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950/90 backdrop-blur-md px-4 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-[10px] text-slate-400 dark:text-slate-500 tracking-wide transition-colors">
+            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300 font-mono text-[9px] shadow-inner">F1</kbd> Buscar</span>
+            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300 font-mono text-[9px] shadow-inner">F2</kbd> Cliente</span>
+            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300 font-mono text-[9px] shadow-inner">F3</kbd> Nueva Tab</span>
+            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-xl bg-purple-50 dark:bg-purple-900/50 border border-purple-100 dark:border-purple-500/30 text-purple-600 dark:text-purple-300 font-mono text-[9px] shadow-inner">F5</kbd> Cobrar</span>
+            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300 font-mono text-[9px] shadow-inner">F8</kbd> Pausar</span>
+            <span class="inline-flex items-center gap-1.5"><kbd class="px-1.5 py-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300 font-mono text-[9px] shadow-inner">F12</kbd> Corte</span>
+            <span class="inline-flex items-center gap-1.5 ml-4 text-[9px] opacity-50 uppercase tracking-[0.2em] font-black">Multi-Tab System Active</span>
         </footer>
         
         <!-- Payment Modal (Modularized) -->

@@ -13,8 +13,7 @@ return new class extends Migration {
         // Tabla de Regímenes Fiscales SAT
         if (!Schema::hasTable('sat_regimenes_fiscales')) {
             Schema::create('sat_regimenes_fiscales', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 10)->unique();
+                $table->string('clave', 10)->primary();
                 $table->string('descripcion');
                 $table->boolean('persona_fisica')->default(false);
                 $table->boolean('persona_moral')->default(false);
@@ -26,12 +25,10 @@ return new class extends Migration {
         // Tabla de Usos CFDI SAT
         if (!Schema::hasTable('sat_usos_cfdi')) {
             Schema::create('sat_usos_cfdi', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 10)->unique();
+                $table->string('clave', 10)->primary();
                 $table->string('descripcion');
                 $table->boolean('persona_fisica')->default(true);
                 $table->boolean('persona_moral')->default(true);
-                $table->string('regimen_fiscal_receptor')->nullable();
                 $table->boolean('activo')->default(true);
                 $table->timestamps();
             });
@@ -40,8 +37,7 @@ return new class extends Migration {
         // Tabla de Estados SAT
         if (!Schema::hasTable('sat_estados')) {
             Schema::create('sat_estados', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 14)->unique(); // Increased for CDMX support directly
+                $table->string('clave', 10)->primary();
                 $table->string('nombre');
                 $table->boolean('activo')->default(true);
                 $table->timestamps();
@@ -51,8 +47,7 @@ return new class extends Migration {
         // Tabla de Métodos de Pago SAT
         if (!Schema::hasTable('sat_metodos_pago')) {
             Schema::create('sat_metodos_pago', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 10)->unique();
+                $table->string('clave', 10)->primary();
                 $table->string('descripcion');
                 $table->boolean('activo')->default(true);
                 $table->timestamps();
@@ -62,8 +57,7 @@ return new class extends Migration {
         // Tabla de Formas de Pago SAT
         if (!Schema::hasTable('sat_formas_pago')) {
             Schema::create('sat_formas_pago', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 10)->unique();
+                $table->string('clave', 10)->primary();
                 $table->string('descripcion');
                 $table->boolean('bancarizado')->default(false);
                 $table->integer('orden')->default(99);
@@ -75,8 +69,7 @@ return new class extends Migration {
         // Tabla de Claves de Unidad SAT
         if (!Schema::hasTable('sat_claves_unidad')) {
             Schema::create('sat_claves_unidad', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 10)->unique();
+                $table->string('clave', 10)->primary();
                 $table->string('nombre');
                 $table->boolean('activo')->default(true);
                 $table->boolean('uso_comun')->default(false);
@@ -87,8 +80,7 @@ return new class extends Migration {
         // Tabla de Impuestos SAT
         if (!Schema::hasTable('sat_impuestos')) {
             Schema::create('sat_impuestos', function (Blueprint $table) {
-                $table->id();
-                $table->string('clave', 10)->unique();
+                $table->string('clave', 10)->primary();
                 $table->string('descripcion');
                 $table->boolean('retencion')->default(false);
                 $table->boolean('traslado')->default(false);

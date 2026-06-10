@@ -27,7 +27,9 @@ class CobranzaApiController extends Controller
         $finMes = $hoy->copy()->endOfMonth();
 
         $query = CuentasPorCobrar::with(['cobrable.cliente'])
-            ->where('estado', '!=', 'pagado');
+            ->where('estado', '!=', 'pagado')
+            ->where('estado', '!=', 'cancelada')
+            ->where('monto_pendiente', '>', 0);
 
         // Filtrar por tipo si se especifica
         if ($tipo === 'renta') {
@@ -113,6 +115,8 @@ class CobranzaApiController extends Controller
         // Cuentas que vencen hoy + vencidas (para recordatorio)
         $cuentasHoy = CuentasPorCobrar::with(['cobrable.cliente'])
             ->where('estado', '!=', 'pagado')
+            ->where('estado', '!=', 'cancelada')
+            ->where('monto_pendiente', '>', 0)
             ->whereDate('fecha_vencimiento', '<=', $hoy)
             ->get();
 

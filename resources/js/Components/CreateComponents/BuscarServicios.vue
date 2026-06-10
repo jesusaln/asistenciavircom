@@ -2,7 +2,7 @@
   <div class="buscar-servicios">
     <!-- Campo de búsqueda -->
     <div class="mb-6">
-      <label class="block text-sm font-medium text-gray-700 mb-2">
+      <label class="block text-sm font-medium text-slate-700 mb-2">
         Buscar Servicios
       </label>
       <div class="relative">
@@ -13,10 +13,10 @@
           @input="filtrarServicios"
           @focus="mostrarLista = true"
           placeholder="Buscar servicios por nombre, categoría o descripción..."
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
@@ -30,7 +30,7 @@
             'px-3 py-1 text-xs font-medium rounded-full transition-colors duration-200',
             filtroActivo === 'todos'
               ? 'bg-purple-100 text-purple-800 border-purple-300'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-300'
           ]"
         >
           Todos ({{ serviciosFiltrados.length }})
@@ -40,8 +40,8 @@
 
     <!-- Servicios agregados recientemente -->
     <div v-if="serviciosRecientes.length > 0" class="mt-6">
-      <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <h3 class="text-sm font-medium text-slate-700 mb-3 flex items-center">
+        <svg class="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         Servicios recientes
@@ -62,8 +62,8 @@
 
     <!-- Sugerencias rápidas -->
     <div v-if="!busqueda && sugerenciasRapidas.length > 0" class="mt-6">
-      <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <h3 class="text-sm font-medium text-slate-700 mb-3 flex items-center">
+        <svg class="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         Servicios populares
@@ -73,7 +73,7 @@
           v-for="servicio in sugerenciasRapidas"
           :key="`sugerencia-${servicio.id}`"
           @click="seleccionarServicio(servicio)"
-          class="p-3 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 cursor-pointer transition-all duration-200"
+          class="p-3 border border-slate-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 cursor-pointer transition-all duration-200"
         >
           <div class="flex items-center justify-between">
             <div class="flex-1">
@@ -81,15 +81,15 @@
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 bg-purple-100 text-purple-800">
                   S
                 </span>
-                <span class="text-sm font-medium text-gray-900">{{ servicio.nombre }}</span>
+                <span class="text-sm font-medium text-slate-900">{{ servicio.nombre }}</span>
               </div>
-              <div class="text-xs text-gray-500 mt-1">{{ servicio.categoria || 'Sin categoría' }}</div>
+              <div class="text-xs text-slate-500 mt-1">{{ servicio.categoria || 'Sin categoría' }}</div>
             </div>
             <div class="text-right">
               <div class="text-sm font-semibold text-purple-600">
                 ${{ formatearPrecio(servicio.precio) }}
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-slate-500">
                 {{ servicio.duracion || '∞' }} min
               </div>
             </div>
@@ -141,7 +141,7 @@
               <button
                 type="button"
                 @click="seleccionarServicio(item)"
-                class="w-full px-2 py-1 text-xs font-medium rounded-md bg-purple-500 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-colors duration-200"
+                class="w-full px-2 py-1 text-xs font-medium rounded-xl bg-purple-500 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 transition-colors duration-200"
               >
                 <svg class="w-3 h-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

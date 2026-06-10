@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 
 class Vacacion extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected static function booted()

@@ -12,6 +12,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class PolizaServicio extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'polizas_servicio';
@@ -176,6 +178,7 @@ class PolizaServicio extends Model
         'ultima_alerta_exceso_at',
         'ultimo_reset_consumo_at',
         'mantenimiento_frecuencia_meses',
+        'meses_mantenimiento',
         'mantenimiento_dias_anticipacion',
         'proximo_mantenimiento_at',
         'generar_cita_automatica',
@@ -226,9 +229,18 @@ class PolizaServicio extends Model
         'sla_horas_respuesta' => 'integer',
         'sla_horas_resolucion' => 'integer',
         'mantenimientos_anuales' => 'integer',
+        'meses_mantenimiento' => 'array',
         // Firma Digital
         'firmado_at' => 'datetime',
         'firma_empresa_at' => 'datetime',
+    ];
+
+    /**
+     * Atributos ocultos en JSON por defecto.
+     * ✅ PERFORMANCE: Evita enviar datos pesados de firma en cada serialización.
+     */
+    protected $hidden = [
+        'firma_cliente',
     ];
 
     // NOTA: No usar $appends global para evitar N+1 queries.
@@ -476,7 +488,8 @@ class PolizaServicio extends Model
     public function generarCobroMensual(): \App\Models\CuentasPorCobrar
     {
         $monto = $this->monto_mensual;
-        $iva = round($monto * 0.16, 2);
+        $ivaRate = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
+        $iva = round($monto * $ivaRate, 2);
 
         $concepto = "Mensualidad Póliza {$this->folio} - Periodo: " . now()->isoFormat('MMMM YYYY');
 
@@ -542,6 +555,19 @@ class PolizaServicio extends Model
     public function mantenimientos(): HasMany
     {
         return $this->hasMany(PolizaMantenimiento::class, 'poliza_id');
+    }
+
+    /**
+     * Relación con las ejecuciones de mantenimiento (a través de mantenimientos).
+     */
+    public function mantenimientosEjecuciones(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            PolizaMantenimientoEjecucion::class,
+            PolizaMantenimiento::class,
+            'poliza_id',
+            'mantenimiento_id'
+        );
     }
 
     /**
@@ -813,7 +839,7 @@ class PolizaServicio extends Model
         }
 
         // Agregar IVA (16% México)
-        $iva = round($subtotal * 0.16, 2);
+        $iva = round($subtotal * (\App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100), 2);
 
         return $subtotal + $iva;
     }

@@ -11,9 +11,6 @@ class ProyectoTareaController extends Controller
 {
     /**
      * Muestra el tablero de planeación.
-     */
-    /**
-     * Muestra el tablero de planeación.
      * DEPRECADO: Usar ProyectoController@show
      */
     public function index()
@@ -34,6 +31,8 @@ class ProyectoTareaController extends Controller
             'proyecto_id' => 'required|exists:proyectos,id',
         ]);
 
+        $this->checkEditAccess($validated['proyecto_id']);
+
         // Calcular el orden (al final de la columna dentro del proyecto)
         $maxOrden = ProyectoTarea::where('estado', $validated['estado'])
             ->where('proyecto_id', $validated['proyecto_id'])
@@ -51,6 +50,8 @@ class ProyectoTareaController extends Controller
      */
     public function update(Request $request, ProyectoTarea $tarea)
     {
+        $this->checkEditAccess($tarea->proyecto_id);
+
         $validated = $request->validate([
             'titulo' => 'sometimes|required|string|max:255',
             'descripcion' => 'nullable|string',
@@ -69,6 +70,8 @@ class ProyectoTareaController extends Controller
      */
     public function destroy(ProyectoTarea $tarea)
     {
+        $this->checkEditAccess($tarea->proyecto_id);
+
         $tarea->delete();
         return redirect()->back()->with('success', 'Tarea eliminada.');
     }
@@ -85,6 +88,14 @@ class ProyectoTareaController extends Controller
             'tareas.*.estado' => 'required|in:sugerencias,pendiente,en_progreso,completado',
         ]);
 
+        if (empty($request->tareas)) {
+            return response()->json(['success' => true]);
+        }
+
+        // Obtener el proyecto de la primera tarea y verificar acceso
+        $firstTask = ProyectoTarea::findOrFail($request->tareas[0]['id']);
+        $this->checkEditAccess($firstTask->proyecto_id);
+
         DB::transaction(function () use ($request) {
             foreach ($request->tareas as $item) {
                 // Opción: Validar que pertenezcan al mismo proyecto
@@ -96,5 +107,28 @@ class ProyectoTareaController extends Controller
         });
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Verificar permisos de edición sobre el proyecto.
+     */
+    private function checkEditAccess(int $proyectoId): void
+    {
+        $user = auth()->user();
+        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
+            return;
+        }
+
+        $proyecto = \App\Models\Proyecto::findOrFail($proyectoId);
+        if ($proyecto->owner_id === $user->id) {
+            return;
+        }
+
+        $member = $proyecto->members()->where('user_id', $user->id)->first();
+        if ($member && $member->pivot->role === 'editor') {
+            return;
+        }
+
+        abort(403, 'No tienes permiso para modificar este proyecto.');
     }
 }

@@ -40,6 +40,7 @@ Route::prefix('portal')->group(function () {
         Route::get('/polizas', [PortalController::class, 'polizasIndex'])->name('portal.polizas.index');
         Route::get('/polizas/{poliza}', [PortalController::class, 'polizaShow'])->name('portal.polizas.show');
         Route::get('/polizas/{poliza}/historial', [PortalController::class, 'polizaHistorial'])->name('portal.polizas.historial');
+        Route::get('/polizas/{poliza}/historial-equipo', [PortalController::class, 'historialEquipo'])->name('portal.polizas.historial-equipo');
         Route::get('/polizas/{poliza}/imprimir', [PortalController::class, 'imprimirContrato'])->name('portal.polizas.imprimir');
         Route::get('/polizas/{poliza}/beneficios-pdf', [PortalController::class, 'descargarBeneficiosPdf'])->name('portal.polizas.beneficios.pdf');
         Route::get('/polizas/{poliza}/contrato-pdf', [PortalController::class, 'descargarContratoPdf'])->name('portal.polizas.contrato.pdf');
@@ -73,23 +74,19 @@ Route::prefix('portal')->group(function () {
         Route::get('/credito/solicitud/firmar', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'firmarSolicitud'])->name('portal.credito.solicitud.firmar');
         Route::post('/credito/solicitud/firmar', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'storeFirmaSolicitud'])->name('portal.credito.solicitud.firmar.store');
         Route::post('/credito/documentos', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'storeDocumento'])->name('portal.credito.documentos.store');
-        Route::delete('/credito/documentos/{documento}', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'destroyDocumento'])->name('portal.credito.documentos.destroy');
+        Route::delete('/credito/documentos/{documento}', [\App\Http\Controllers\ClientPortal\PortalCreditoController::class, 'destroyDocumento'])
+            ->middleware('throttle:10,1')
+            ->name('portal.credito.documentos.destroy');
 
         // Credenciales (Cliente)
         Route::post('/credenciales/{id}/revelar', [PortalController::class, 'revelarCredencial'])->name('portal.credenciales.revelar');
 
         // Perfil (Cliente)
         Route::post('/perfil', [PortalController::class, 'updateProfile'])->name('portal.perfil.update');
-        Route::get('/soporte/remoto/descargar', [PortalController::class, 'downloadRustDeskClient'])->name('portal.rustdesk.download');
 
         // Pagos con Crédito
         Route::get('/ventas/{id}/pdf', [PortalController::class, 'descargarVentaPdf'])->name('portal.ventas.pdf');
         Route::post('/pagos/venta/credito', [PortalController::class, 'payVentaWithCredit'])->name('portal.ventas.pagar-credito');
         Route::post('/pagos/venta/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'createMercadoPago'])->name('portal.pagos.mercadopago.crear');
-        Route::post('/pagos/cargo/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'createForCargo'])->name('portal.pagos.cargo.mercadopago');
     });
-
-    /* // Webhook público para MercadoPago (Duplicado en public.php)
-    Route::post('/webhook/mercadopago', [\App\Http\Controllers\ClientPortal\PortalPaymentController::class, 'webhookMercadoPago'])->name('portal.pagos.mercadopago.webhook');
-    */
 });

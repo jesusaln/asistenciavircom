@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -9,22 +10,24 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (Schema::hasTable('cuentas_por_cobrar')) {
-            // Actualizar App\Models\Venta -> venta
-            DB::table('cuentas_por_cobrar')
-                ->where('cobrable_type', 'App\Models\Venta')
-                ->update(['cobrable_type' => 'venta']);
-
-            // Actualizar App\Models\Renta -> renta
-            DB::table('cuentas_por_cobrar')
-                ->where('cobrable_type', 'App\Models\Renta')
-                ->update(['cobrable_type' => 'renta']);
-
-            // Actualizar App\Models\PolizaServicio -> poliza_servicio
-            DB::table('cuentas_por_cobrar')
-                ->where('cobrable_type', 'App\Models\PolizaServicio')
-                ->update(['cobrable_type' => 'poliza_servicio']);
+        if (!Schema::hasTable('cuentas_por_cobrar') || !Schema::hasColumn('cuentas_por_cobrar', 'cobrable_type')) {
+            return;
         }
+
+        // Actualizar App\Models\Venta -> venta
+        DB::table('cuentas_por_cobrar')
+            ->where('cobrable_type', 'App\Models\Venta')
+            ->update(['cobrable_type' => 'venta']);
+
+        // Actualizar App\Models\Renta -> renta
+        DB::table('cuentas_por_cobrar')
+            ->where('cobrable_type', 'App\Models\Renta')
+            ->update(['cobrable_type' => 'renta']);
+
+        // Actualizar App\Models\PolizaServicio -> poliza_servicio
+        DB::table('cuentas_por_cobrar')
+            ->where('cobrable_type', 'App\Models\PolizaServicio')
+            ->update(['cobrable_type' => 'poliza_servicio']);
     }
 
     /**
@@ -32,6 +35,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        if (!Schema::hasTable('cuentas_por_cobrar') || !Schema::hasColumn('cuentas_por_cobrar', 'cobrable_type')) {
+            return;
+        }
+
         // Revertir si es necesario
         DB::table('cuentas_por_cobrar')
             ->where('cobrable_type', 'venta')

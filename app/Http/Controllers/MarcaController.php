@@ -104,10 +104,19 @@ class MarcaController extends Controller
             'estado' => 'required|in:activo,inactivo',
         ]);
 
-        Marca::create($validated);
+        $marca = Marca::create($validated);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Marca creada correctamente.',
+                'marca' => $marca
+            ]);
+        }
 
         return redirect()->route('marcas.index')->with('success', 'Marca creada correctamente.');
     }
+
 
     /**
      * Muestra el formulario para editar una marca existente.

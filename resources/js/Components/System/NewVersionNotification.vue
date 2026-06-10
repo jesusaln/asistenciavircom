@@ -3,35 +3,35 @@
         enter-active-class="transform ease-out duration-300 transition"
         enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
         enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-        leave-active-class="transition ease-in duration-100"
+        leave-active-class="transition ease-in duration-150"
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
     >
-        <div v-if="updateAvailable" class="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden">
+        <div v-if="updateAvailable" class="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white shadow-lg rounded-xl pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden">
             <div class="p-4">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
                     <div class="ml-3 w-0 flex-1 pt-0.5">
-                        <p class="text-sm font-medium text-gray-900">
+                        <p class="text-sm font-medium text-slate-900">
                             Nueva actualización disponible
                         </p>
-                        <p class="mt-1 text-sm text-gray-500">
+                        <p class="mt-1 text-sm text-slate-500">
                             Una nueva versión del sistema está lista. Actualiza para ver los cambios.
                         </p>
                         <div class="mt-3 flex space-x-7">
                             <button
                                 @click="refreshPage"
-                                class="bg-white rounded-md text-sm font-medium text-amber-600 hover:text-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                                class="bg-white rounded-xl text-sm font-medium text-brand-600 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
                             >
                                 Actualizar ahora
                             </button>
                             <button
                                 @click="dismiss"
-                                class="bg-white rounded-md text-sm font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                                class="bg-white rounded-xl text-sm font-medium text-slate-700 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
                             >
                                 Ignorar
                             </button>
@@ -40,7 +40,7 @@
                     <div class="ml-4 flex-shrink-0 flex">
                         <button
                             @click="dismiss"
-                            class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                            class="bg-white rounded-xl inline-flex text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
                         >
                             <span class="sr-only">Cerrar</span>
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -93,8 +93,12 @@ const dismiss = () => {
 };
 
 onMounted(() => {
-    // Verificar cada 2 minutos en producción
-    intervalId = setInterval(checkForUpdate, 120000);
+    // Verificar cada 10 minutos en producción si la pestaña está visible
+    intervalId = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+            checkForUpdate();
+        }
+    }, 600000);
 });
 
 onUnmounted(() => {

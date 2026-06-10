@@ -11,6 +11,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class KnowledgeBaseArticle extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected static array $columnExistsCache = [];

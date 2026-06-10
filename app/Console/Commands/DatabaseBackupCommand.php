@@ -140,9 +140,10 @@ class DatabaseBackupCommand extends Command
 
         // Limpiar respaldos antiguos
         if ($cleanDays = $this->option('clean')) {
-            $deleted = $backupService->cleanOldBackups((int) $cleanDays);
+            $cleanupResult = $backupService->cleanOldBackups((int) $cleanDays);
+            $deletedCount = $cleanupResult['deleted_count'] ?? 0;
             $this->newLine();
-            $this->components->info("🧹 Se eliminaron {$deleted} respaldos con más de {$cleanDays} días.");
+            $this->components->info("🧹 Se eliminaron {$deletedCount} respaldos con más de {$cleanDays} días.");
         }
 
         // Mostrar estadísticas de seguridad si están disponibles

@@ -10,19 +10,23 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->integer('visitas_sitio_mensuales')->nullable()->after('horas_consumidas_mes')
-                ->comment('Visitas en sitio incluidas por mes');
-            $table->integer('visitas_sitio_consumidas_mes')->default(0)->after('visitas_sitio_mensuales')
-                ->comment('Visitas en sitio consumidas en el mes actual');
-            $table->decimal('costo_visita_sitio_extra', 10, 2)->nullable()->after('visitas_sitio_consumidas_mes')
-                ->comment('Costo por visita en sitio adicional');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'visitas_sitio_mensuales')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->integer('visitas_sitio_mensuales')->nullable()->after('horas_consumidas_mes')
+                    ->comment('Visitas en sitio incluidas por mes');
+                $table->integer('visitas_sitio_consumidas_mes')->default(0)->after('visitas_sitio_mensuales')
+                    ->comment('Visitas en sitio consumidas en el mes actual');
+                $table->decimal('costo_visita_sitio_extra', 10, 2)->nullable()->after('visitas_sitio_consumidas_mes')
+                    ->comment('Costo por visita en sitio adicional');
+            });
+        }
 
-        Schema::table('plan_polizas', function (Blueprint $table) {
-            $table->integer('visitas_sitio_mensuales')->nullable()->after('horas_incluidas');
-            $table->decimal('costo_visita_sitio_extra', 10, 2)->nullable()->after('visitas_sitio_mensuales');
-        });
+        if (!Schema::hasColumn('plan_polizas', 'visitas_sitio_mensuales')) {
+            Schema::table('plan_polizas', function (Blueprint $table) {
+                $table->integer('visitas_sitio_mensuales')->nullable()->after('horas_incluidas');
+                $table->decimal('costo_visita_sitio_extra', 10, 2)->nullable()->after('visitas_sitio_mensuales');
+            });
+        }
     }
 
     /**

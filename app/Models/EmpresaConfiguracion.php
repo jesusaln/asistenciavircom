@@ -10,7 +10,7 @@ use App\Support\EmpresaResolver;
 
 class EmpresaConfiguracion extends Model
 {
-    use BelongsToEmpresa, Concerns\LogsCredentialRotation;
+    use Concerns\LogsCredentialRotation;
 
     protected $table = 'empresa_configuracion';
 
@@ -22,7 +22,7 @@ class EmpresaConfiguracion extends Model
     }
 
     protected $fillable = [
-        'empresa_id',
+        'id',
         'nombre_empresa',
         'rfc',
         'razon_social',
@@ -160,9 +160,6 @@ class EmpresaConfiguracion extends Model
         'tienda_online_activa',
         'google_client_id',
         'google_client_secret',
-        'microsoft_client_id',
-        'microsoft_client_secret',
-        'microsoft_tenant_id',
         'mercadopago_access_token',
         'mercadopago_public_key',
         'mercadopago_sandbox',
@@ -214,6 +211,20 @@ class EmpresaConfiguracion extends Model
         'chatbot_system_prompt',
         'chatbot_name',
         'pin_auditoria',
+        'repse_number',
+        'repse_expiry',
+        'repse_activity',
+        'repse_constancia_path',
+        'acta_constitutiva_path',
+        'registro_patronal_imss',
+        'repse_alert_days',
+        'audit_contact_email',
+        'curp_pdf_path',
+        'csf_pdf_path',
+        'repse_constancia_name',
+        'acta_constitutiva_name',
+        'curp_pdf_name',
+        'csf_pdf_name'
     ];
 
     protected $casts = [
@@ -242,6 +253,9 @@ class EmpresaConfiguracion extends Model
         'fiel_valid_to' => 'datetime',
         'csd_valid_from' => 'datetime',
         'csd_valid_to' => 'datetime',
+        'repse_expiry' => 'date',
+        'registro_patronal_imss' => 'array',
+        'repse_alert_days' => 'integer',
         // Contraseñas encriptadas
         'fiel_password' => 'encrypted',
         'csd_password' => 'encrypted',
@@ -284,9 +298,7 @@ class EmpresaConfiguracion extends Model
         'pac_apikey',
         // Rutas SSL (seguridad)
         'ssl_key_path',
-        // Credenciales de pago (seguridad)
         'google_client_secret',
-        'microsoft_client_secret',
         'mercadopago_access_token',
         'paypal_client_secret',
         'stripe_secret_key', // Stripe
@@ -331,31 +343,24 @@ class EmpresaConfiguracion extends Model
             }
 
             $empresaId = $empresaId ?: EmpresaResolver::resolveId();
-            $cacheKey = $empresaId ? "empresa_configuracion_{$empresaId}" : 'empresa_configuracion';
+            $connection = config('database.default');
+            $cacheKey = $empresaId ? "empresa_configuracion_{$connection}_{$empresaId}" : "empresa_configuracion_{$connection}";
 
             $config = Cache::remember($cacheKey, 300, function () use ($empresaId) {
-                // Check if column exists to avoid "Column not found" error on single-tenant schemas
-                $hasEmpresaId = \Illuminate\Support\Facades\Schema::hasColumn('empresa_configuracion', 'empresa_id');
-
-                if ($empresaId && $hasEmpresaId) {
-                    return self::where('empresa_id', $empresaId)->first();
+                if ($empresaId) {
+                    return self::find($empresaId);
                 }
                 return self::first();
             });
 
             if (!$config && $empresaId) {
-                // Check column again before insert attempts
-                $hasEmpresaId = \Illuminate\Support\Facades\Schema::hasColumn('empresa_configuracion', 'empresa_id');
-
-                if ($hasEmpresaId) {
-                    $config = self::create([
-                        'empresa_id' => $empresaId,
-                        'nombre_empresa' => $defaultConfig->nombre_empresa,
-                        'rfc' => $defaultConfig->rfc,
-                        'iva_porcentaje' => $defaultConfig->iva_porcentaje,
-                        'moneda' => $defaultConfig->moneda,
-                    ]);
-                }
+                $config = self::create([
+                    'id' => $empresaId,
+                    'nombre_empresa' => $defaultConfig->nombre_empresa,
+                    'rfc' => $defaultConfig->rfc,
+                    'iva_porcentaje' => $defaultConfig->iva_porcentaje,
+                    'moneda' => $defaultConfig->moneda,
+                ]);
             }
 
             return $config ?? $defaultConfig;
@@ -384,6 +389,35 @@ class EmpresaConfiguracion extends Model
 
         Cache::forget('empresa_configuracion');
     }
+
+    public function getEmpresaIdAttribute(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the WhatsApp phone number formatted for international use.
+     * Default country code prefix is 52 (Mexico) for 10-digit Hermosillo/Mexico numbers.
+     */
+    public function getWhatsappAttribute($value)
+    {
+        // Fallback to phone number if whatsapp is empty
+        $numberObj = $value ?: $this->telefono;
+        if (!$numberObj) {
+            return null;
+        }
+
+        // Clean all non-digit characters
+        $clean = preg_replace('/\D/', '', $numberObj);
+
+        // Prepend 52 if it is a standard 10-digit Mexican phone number
+        if (strlen($clean) === 10) {
+            return '52' . $clean;
+        }
+
+        return $clean;
+    }
+
 
     /**
      * Obtener URL completa del logo
@@ -420,12 +454,13 @@ class EmpresaConfiguracion extends Model
         return null;
     }
     /**
-     * Obtener URL completa de la firma digital
+     * Obtener URL completa de la firma digital.
+     * Compatible con rutas de archivo (nuevo) y base64 legacy (datos históricos).
      */
     public function getFirmaDigitalUrlAttribute()
     {
         if ($this->firma_digital) {
-            return \App\Helpers\UrlHelper::storageUrl($this->firma_digital);
+            return \App\Helpers\Base64ToFile::getUrl($this->firma_digital);
         }
         return null;
     }
@@ -478,9 +513,9 @@ class EmpresaConfiguracion extends Model
     /**
      * Obtener información básica de la empresa para documentos
      */
-    public static function getInfoEmpresa()
+    public static function getInfoEmpresa(?int $empresaId = null)
     {
-        $config = self::getConfig();
+        $config = self::getConfig($empresaId);
 
         // Calcular ruta absoluta del logo para DomPDF y convertir a Base64
         $logoPathAbsolute = null;
@@ -554,19 +589,25 @@ class EmpresaConfiguracion extends Model
             }
         }
 
-        // ✅ FIX: Firma Digital Base64
+        // ✅ FIX: Firma Digital Base64 (compatible con rutas de archivo y base64 legacy)
         $firmaBase64 = null;
         if ($config->firma_digital) {
-            $firmaPath = storage_path('app/public/' . $config->firma_digital);
-            if (file_exists($firmaPath)) {
-                try {
-                    $fType = strtolower(pathinfo($firmaPath, PATHINFO_EXTENSION));
-                    $fData = file_get_contents($firmaPath);
-                    if ($fData && $fType !== 'webp') {
-                        $firmaBase64 = 'data:image/' . $fType . ';base64,' . base64_encode($fData);
+            // Si es base64 legacy (aún no migrado), usarlo directamente
+            if (str_starts_with($config->firma_digital, 'data:')) {
+                $firmaBase64 = $config->firma_digital;
+            } else {
+                // Es una ruta de archivo - leer y convertir a base64 para PDF
+                $firmaPath = storage_path('app/public/' . $config->firma_digital);
+                if (file_exists($firmaPath)) {
+                    try {
+                        $fType = strtolower(pathinfo($firmaPath, PATHINFO_EXTENSION));
+                        $fData = file_get_contents($firmaPath);
+                        if ($fData && $fType !== 'webp') {
+                            $firmaBase64 = 'data:image/' . $fType . ';base64,' . base64_encode($fData);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Error convirtiendo firma a base64: ' . $e->getMessage());
                     }
-                } catch (\Exception $e) {
-                    \Log::error('Error convirtiendo firma a base64: ' . $e->getMessage());
                 }
             }
         }
@@ -591,9 +632,9 @@ class EmpresaConfiguracion extends Model
     /**
      * Obtener configuración de colores
      */
-    public static function getColores()
+    public static function getColores(?int $empresaId = null)
     {
-        $config = self::getConfig();
+        $config = self::getConfig($empresaId);
 
         return [
             'principal' => $config->color_principal,
@@ -605,9 +646,9 @@ class EmpresaConfiguracion extends Model
     /**
      * Obtener configuración financiera
      */
-    public static function getConfiguracionFinanciera()
+    public static function getConfiguracionFinanciera(?int $empresaId = null)
     {
-        $config = self::getConfig();
+        $config = self::getConfig($empresaId);
 
         return [
             'iva_porcentaje' => $config->iva_porcentaje,
@@ -619,9 +660,9 @@ class EmpresaConfiguracion extends Model
     /**
      * Obtener pie de página para documentos
      */
-    public static function getPiePagina($tipo = 'facturas')
+    public static function getPiePagina($tipo = 'facturas', ?int $empresaId = null)
     {
-        $config = self::getConfig();
+        $config = self::getConfig($empresaId);
 
         switch ($tipo) {
             case 'cotizaciones':

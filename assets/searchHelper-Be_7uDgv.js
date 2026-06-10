@@ -1,0 +1,1 @@
+var e=e=>e?e.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim():"",r=(r,a)=>!a||!!r&&e(r).includes(e(a));export{e as n,r as t};

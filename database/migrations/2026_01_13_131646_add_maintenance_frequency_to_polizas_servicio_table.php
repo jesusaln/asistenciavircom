@@ -10,14 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->integer('mantenimiento_frecuencia_meses')->nullable()->after('monto_mensual')
-                ->comment('Frecuencia en meses para generar mantenimientos preventivos');
-            $table->date('proximo_mantenimiento_at')->nullable()->after('mantenimiento_frecuencia_meses')
-                ->comment('Fecha programada para el próximo mantenimiento preventivo');
-            $table->boolean('generar_cita_automatica')->default(false)->after('proximo_mantenimiento_at')
-                ->comment('Indica si se debe generar una cita automática al llegar la fecha');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'mantenimiento_frecuencia_meses')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->integer('mantenimiento_frecuencia_meses')->nullable()->after('monto_mensual')
+                    ->comment('Frecuencia en meses para generar mantenimientos preventivos');
+                $table->date('proximo_mantenimiento_at')->nullable()->after('mantenimiento_frecuencia_meses')
+                    ->comment('Fecha programada para el próximo mantenimiento preventivo');
+                $table->boolean('generar_cita_automatica')->default(false)->after('proximo_mantenimiento_at')
+                    ->comment('Indica si se debe generar una cita automática al llegar la fecha');
+            });
+        }
     }
 
     /**

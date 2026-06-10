@@ -6,5 +6,4 @@ return [
     App\Providers\JetstreamServiceProvider::class,
     App\Providers\DynamicUrlServiceProvider::class,
     App\Providers\EcommerceServiceProvider::class,
-    Barryvdh\DomPDF\ServiceProvider::class,
 ];

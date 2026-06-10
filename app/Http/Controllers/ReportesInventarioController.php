@@ -344,4 +344,108 @@ class ReportesInventarioController extends Controller
             'motivo' => $ultimo->motivo,
         ] : null;
     }
+
+    /**
+     * Reporte de Rotación de Inventario
+     */
+    public function rotacionInventario(Request $request)
+    {
+        $empresaId = EmpresaResolver::resolveId();
+        $fechaInicio = $request->get('fecha_inicio', now()->startOfYear()->format('Y-m-d'));
+        $fechaFin = $request->get('fecha_fin', now()->format('Y-m-d'));
+        $categoriaId = $request->get('categoria_id');
+
+        // 1. COGS (Costo de Ventas) en el período
+        $cogsQuery = DB::table('venta_items')
+            ->join('ventas', 'venta_items.venta_id', '=', 'ventas.id')
+            ->join('productos', function($j) {
+                $j->on('venta_items.ventable_id', '=', 'productos.id')
+                  ->where('venta_items.ventable_type', '=', 'App\\Models\\Producto');
+            })
+            ->whereBetween('ventas.fecha', [$fechaInicio, $fechaFin])
+            ->where('ventas.estado', '!=', 'cancelada')
+            ->select(
+                'productos.categoria_id',
+                DB::raw('SUM(venta_items.cantidad * COALESCE(venta_items.costo_unitario, productos.precio_compra, 0)) as costo_total'),
+                DB::raw('SUM(venta_items.cantidad) as unidades_vendidas')
+            );
+
+        if ($categoriaId) {
+            $cogsQuery->where('productos.categoria_id', $categoriaId);
+        }
+
+        $cogs = $cogsQuery->groupBy('productos.categoria_id')->get()->keyBy('categoria_id');
+
+        // 2. Inventario Promedio
+        $invQuery = DB::table('productos')
+            ->leftJoin('categorias', 'productos.categoria_id', '=', 'categorias.id')
+            ->select(
+                'productos.categoria_id',
+                'categorias.nombre as categoria_nombre',
+                DB::raw('COUNT(DISTINCT productos.id) as total_productos'),
+                DB::raw('SUM(productos.stock * COALESCE(productos.costo_promedio, productos.precio_compra, 0)) as valor_inventario'),
+                DB::raw('SUM(productos.stock) as stock_total')
+            )
+            ->where('productos.estado', 'activo');
+
+        if ($categoriaId) {
+            $invQuery->where('productos.categoria_id', $categoriaId);
+        }
+
+        $inventario = $invQuery->groupBy('productos.categoria_id', 'categorias.nombre')->get();
+
+        // 3. Combinar y calcular rotación
+        $totalCostoVentas = 0;
+        $totalValorInventario = 0;
+        $categorias = [];
+
+        foreach ($inventario as $inv) {
+            $costoVentas = (float)($cogs->get($inv->categoria_id)?->costo_total ?? 0);
+            $valorInv = (float)$inv->valor_inventario;
+
+            $totalCostoVentas += $costoVentas;
+            $totalValorInventario += $valorInv;
+
+            $rotacion = $valorInv > 0 ? round($costoVentas / $valorInv, 2) : 0;
+            $diasInventario = $rotacion > 0 ? round(365 / $rotacion, 0) : 0;
+
+            $categorias[] = [
+                'id' => $inv->categoria_id,
+                'nombre' => $inv->categoria_nombre ?? 'Sin categoría',
+                'total_productos' => (int)$inv->total_productos,
+                'stock_total' => (int)$inv->stock_total,
+                'valor_inventario' => round($valorInv, 2),
+                'costo_ventas' => $costoVentas,
+                'unidades_vendidas' => (int)($cogs->get($inv->categoria_id)?->unidades_vendidas ?? 0),
+                'rotacion' => $rotacion,
+                'dias_inventario' => $diasInventario,
+            ];
+        }
+
+        // Calcular totales
+        $rotacionGeneral = $totalValorInventario > 0 ? round($totalCostoVentas / $totalValorInventario, 2) : 0;
+        $diasGeneral = $rotacionGeneral > 0 ? round(365 / $rotacionGeneral, 0) : 0;
+
+        $estadisticas = [
+            'total_costo_ventas' => round($totalCostoVentas, 2),
+            'total_valor_inventario' => round($totalValorInventario, 2),
+            'rotacion_general' => $rotacionGeneral,
+            'dias_inventario_general' => $diasGeneral,
+            'periodo_inicio' => $fechaInicio,
+            'periodo_fin' => $fechaFin,
+        ];
+
+        $allCategorias = \App\Models\Categoria::select('id', 'nombre')->orderBy('nombre')->get();
+
+        return Inertia::render('ReportesInventario/RotacionInventario', [
+            'categorias' => $categorias,
+            'estadisticas' => $estadisticas,
+            'filtros' => [
+                'fecha_inicio' => $fechaInicio,
+                'fecha_fin' => $fechaFin,
+                'categoria_id' => $categoriaId,
+            ],
+            'allCategorias' => $allCategorias,
+        ]);
+    }
 }

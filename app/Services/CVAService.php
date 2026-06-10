@@ -4,5 +4,18 @@ namespace App\Services;
 
 class CVAService
 {
-    // Basic stub to allow tests to run
+    public function getProductDetails($clave, $full = false)
+    {
+        return null;
+    }
+
+    public function getProductosCatalogo()
+    {
+        return collect();
+    }
+
+    public function buscarProductos($query)
+    {
+        return collect();
+    }
 }

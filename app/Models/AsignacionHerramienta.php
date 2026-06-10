@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AsignacionHerramienta extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToEmpresa;
 
     protected $fillable = [
         'herramienta_id',

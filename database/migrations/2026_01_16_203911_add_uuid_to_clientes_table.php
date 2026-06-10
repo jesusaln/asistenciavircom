@@ -14,22 +14,22 @@ return new class extends Migration {
             Schema::table('clientes', function (Blueprint $table) {
                 $table->uuid('uuid')->nullable()->after('id');
             });
-        }
 
-        // Populate existing clients
-        \Illuminate\Support\Facades\DB::table('clientes')->orderBy('id')->chunk(100, function ($clientes) {
-            foreach ($clientes as $cliente) {
-                if (empty($cliente->uuid)) {
-                    \Illuminate\Support\Facades\DB::table('clientes')
-                        ->where('id', $cliente->id)
-                        ->update(['uuid' => \Illuminate\Support\Str::uuid()]);
+            // Populate existing clients
+            \Illuminate\Support\Facades\DB::table('clientes')->orderBy('id')->chunk(100, function ($clientes) {
+                foreach ($clientes as $cliente) {
+                    if (empty($cliente->uuid)) {
+                        \Illuminate\Support\Facades\DB::table('clientes')
+                            ->where('id', $cliente->id)
+                            ->update(['uuid' => \Illuminate\Support\Str::uuid()]);
+                    }
                 }
-            }
-        });
+            });
 
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->uuid('uuid')->nullable(false)->unique()->change();
-        });
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->uuid('uuid')->nullable(false)->unique()->change();
+            });
+        }
     }
 
     /**

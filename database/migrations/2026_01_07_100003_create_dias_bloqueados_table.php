@@ -12,32 +12,47 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('dias_bloqueados', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('empresa_id')->constrained()->onDelete('cascade');
+        try {
+            if (!Schema::hasTable('dias_bloqueados')) {
+                Schema::create('dias_bloqueados', function (Blueprint $table) {
+                    $table->id();
+                    $table->foreignId('empresa_id')->constrained()->onDelete('cascade');
 
-            // Técnico específico o null para todos
-            $table->foreignId('tecnico_id')->nullable()->constrained('users')->onDelete('cascade')
-                ->comment('Null = aplica a todos los técnicos');
+                    // Técnico específico o null para todos
+                    $table->foreignId('tecnico_id')->nullable()->constrained('users')->onDelete('cascade')
+                        ->comment('Null = aplica a todos los técnicos');
 
-            // Fecha bloqueada
-            $table->date('fecha');
+                    // Fecha bloqueada
+                    $table->date('fecha');
 
-            // Motivo
-            $table->string('motivo')->nullable()
-                ->comment('Vacaciones, día festivo, capacitación, etc.');
+                    // Motivo
+                    $table->string('motivo')->nullable()
+                        ->comment('Vacaciones, día festivo, capacitación, etc.');
 
-            // Bloqueo parcial (opcional)
-            $table->time('hora_inicio')->nullable()->comment('Null = todo el día');
-            $table->time('hora_fin')->nullable();
+                    // Bloqueo parcial (opcional)
+                    $table->time('hora_inicio')->nullable()->comment('Null = todo el día');
+                    $table->time('hora_fin')->nullable();
 
-            $table->timestamps();
+                    $table->timestamps();
 
-            // Índices
-            $table->index(['empresa_id', 'fecha']);
-            $table->index(['tecnico_id', 'fecha']);
-            $table->unique(['empresa_id', 'tecnico_id', 'fecha'], 'bloqueo_unico');
-        });
+                    // Índices
+                    $table->index(['empresa_id', 'fecha']);
+                    $table->index(['tecnico_id', 'fecha']);
+                    $table->unique(['empresa_id', 'tecnico_id', 'fecha'], 'bloqueo_unico');
+                });
+            } else {
+                // Si ya existe la tabla, intentamos agregar el índice único bloqueo_unico por robustez
+                try {
+                    Schema::table('dias_bloqueados', function (Blueprint $table) {
+                        $table->unique(['empresa_id', 'tecnico_id', 'fecha'], 'bloqueo_unico');
+                    });
+                } catch (\Throwable $e) {
+                    // Ya existe el índice o falló silenciosamente
+                }
+            }
+        } catch (\Throwable $e) {
+            // Evitar fallos de migración si ya existe de alguna otra forma
+        }
     }
 
     /**

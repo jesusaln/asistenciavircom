@@ -5,14 +5,15 @@ namespace Tests\Unit\Requests;
 use Tests\TestCase;
 use App\Http\Requests\StoreVentaRequest;
 use Illuminate\Support\Facades\Validator;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * ✅ SAFE TESTS: Only validates rules, NO database operations
  */
 class StoreVentaRequestTest extends TestCase
 {
+    #[Test]
     /**
-     * @test
      * Test basic validation rules pass with valid data
      */
     public function validacion_basica_pasa_con_datos_validos()
@@ -43,8 +44,8 @@ class StoreVentaRequestTest extends TestCase
         $this->assertTrue(true); // Placeholder - rules exist
     }
 
+    #[Test]
     /**
-     * @test
      * Test required fields validation
      */
     public function valida_campos_requeridos()
@@ -63,8 +64,8 @@ class StoreVentaRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('metodo_pago'));
     }
 
+    #[Test]
     /**
-     * @test
      * Test metodo_pago only accepts valid values
      */
     public function metodo_pago_solo_acepta_valores_validos()
@@ -98,8 +99,8 @@ class StoreVentaRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('metodo_pago'));
     }
 
+    #[Test]
     /**
-     * @test
      * Test productos array validation
      */
     public function valida_estructura_productos()
@@ -125,8 +126,8 @@ class StoreVentaRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('productos.0.cantidad'));
     }
 
+    #[Test]
     /**
-     * @test
      * Test descuento validation
      */
     public function valida_descuento_no_negativo()
@@ -152,8 +153,8 @@ class StoreVentaRequestTest extends TestCase
         $this->assertTrue($validator->errors()->has('productos.0.descuento'));
     }
 
+    #[Test]
     /**
-     * @test
      * Test precio must be positive
      */
     public function valida_precio_positivo()

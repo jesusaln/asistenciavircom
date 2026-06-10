@@ -2,15 +2,13 @@
 
 namespace Tests\Feature;
 
-
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
 use Tests\TestCase;
+use App\Models\User;
 
 class RegistrationTest extends TestCase
 {
-
-
     public function test_registration_screen_can_be_rendered(): void
     {
         if (!Features::enabled(Features::registration())) {
@@ -47,9 +45,16 @@ class RegistrationTest extends TestCase
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
         ]);
 
-        // Ajustado para el flujo personalizado de registro que requiere aprobación
+        // En esta aplicación, los usuarios quedan inactivos y se les cierra la sesión después del registro
         $this->assertGuest();
-        $response->assertRedirect(route('login', absolute: false));
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'activo' => false,
+        ]);
+
+        $response->assertRedirect(route('login'));
         $response->assertSessionHas('status', 'Registro exitoso. Tu cuenta está pendiente de aprobación por un administrador.');
     }
 }

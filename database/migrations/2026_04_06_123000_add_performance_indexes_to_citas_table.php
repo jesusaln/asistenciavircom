@@ -12,24 +12,45 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('citas', function (Blueprint $table) {
+        $indexExists = function ($indexName) {
+            return !empty(\DB::select("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$indexName]));
+        };
+
+        Schema::table('citas', function (Blueprint $table) use ($indexExists) {
             // Índices simples para búsquedas frecuentes
-            $table->index('tecnico_id', 'idx_citas_tecnico');
-            $table->index('cliente_id', 'idx_citas_cliente');
-            $table->index('estado', 'idx_citas_estado');
-            $table->index('empresa_id', 'idx_citas_empresa');
-            $table->index('fecha_hora', 'idx_citas_fecha_hora');
-            $table->index('fecha_confirmada', 'idx_citas_fecha_confirmada');
+            if (!$indexExists('idx_citas_tecnico')) {
+                $table->index('tecnico_id', 'idx_citas_tecnico');
+            }
+            if (!$indexExists('idx_citas_cliente')) {
+                $table->index('cliente_id', 'idx_citas_cliente');
+            }
+            if (!$indexExists('idx_citas_estado')) {
+                $table->index('estado', 'idx_citas_estado');
+            }
+            if (!$indexExists('idx_citas_empresa')) {
+                $table->index('empresa_id', 'idx_citas_empresa');
+            }
+            if (!$indexExists('idx_citas_fecha_hora')) {
+                $table->index('fecha_hora', 'idx_citas_fecha_hora');
+            }
+            if (!$indexExists('idx_citas_fecha_confirmada')) {
+                $table->index('fecha_confirmada', 'idx_citas_fecha_confirmada');
+            }
             
             // Índice para búsquedas por folio (búsqueda exacta y LIKE 'CIT-%')
-            $table->index('folio', 'idx_citas_folio');
+            if (!$indexExists('idx_citas_folio')) {
+                $table->index('folio', 'idx_citas_folio');
+            }
 
             // Índice compuesto para optimizar la consulta de "Mi Agenda" (Técnico + Fecha)
-            // Esta es la consulta más pesada y frecuente de la App móvil.
-            $table->index(['tecnico_id', 'fecha_hora', 'estado'], 'idx_citas_agenda_tecnico');
+            if (!$indexExists('idx_citas_agenda_tecnico')) {
+                $table->index(['tecnico_id', 'fecha_hora', 'estado'], 'idx_citas_agenda_tecnico');
+            }
             
             // Índice compuesto para validación de conflictos de horario
-            $table->index(['tecnico_id', 'fecha_hora', 'fecha_hora_fin'], 'idx_citas_conflictos');
+            if (!$indexExists('idx_citas_conflictos')) {
+                $table->index(['tecnico_id', 'fecha_hora', 'fecha_hora_fin'], 'idx_citas_conflictos');
+            }
         });
     }
 

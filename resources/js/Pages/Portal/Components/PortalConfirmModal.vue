@@ -38,25 +38,25 @@ defineExpose({ show });
         <Transition name="fade">
             <div v-if="visible" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="handleCancel"></div>
+                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="handleCancel"></div>
                 
                 <!-- Modal Card -->
                 <Transition name="scale">
-                    <div class="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
+                    <div class="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
                         <!-- Upper Detail -->
                         <div class="h-2 w-full" :class="{
                             'bg-[var(--color-primary)]': type === 'primary',
-                            'bg-emerald-500': type === 'success',
-                            'bg-amber-500': type === 'warning',
-                            'bg-red-500': type === 'danger'
+                            'bg-brand-500': type === 'success',
+                            'bg-brand-500': type === 'warning',
+                            'bg-brand-500': type === 'danger'
                         }"></div>
 
                         <div class="p-10 text-center">
                             <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl" :class="{
                                 'bg-orange-50 text-[var(--color-primary)]': type === 'primary',
-                                'bg-emerald-50 text-emerald-600': type === 'success',
-                                'bg-amber-50 text-amber-600': type === 'warning',
-                                'bg-red-50 text-red-600': type === 'danger'
+                                'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600': type === 'success',
+                                'bg-brand-50 dark:bg-brand-900/20 text-amber-600': type === 'warning',
+                                'bg-rose-50 dark:bg-rose-900/20 text-rose-600': type === 'danger'
                             }">
                                 <font-awesome-icon v-if="type === 'primary'" icon="info-circle" />
                                 <font-awesome-icon v-if="type === 'success'" icon="check-circle" />
@@ -64,24 +64,24 @@ defineExpose({ show });
                                 <font-awesome-icon v-if="type === 'danger'" icon="trash" />
                             </div>
 
-                            <h3 class="text-2xl font-black text-gray-900 mb-4 leading-tight">{{ title }}</h3>
-                            <p class="text-gray-500 font-medium leading-relaxed">{{ message }}</p>
+                            <h3 class="text-2xl font-black text-slate-900 mb-4 leading-tight">{{ title }}</h3>
+                            <p class="text-slate-500 font-medium leading-relaxed">{{ message }}</p>
 
                             <div class="mt-10 flex flex-col sm:flex-row gap-3">
                                 <button 
                                     @click="handleCancel" 
-                                    class="flex-1 px-8 py-4 bg-white text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-all"
+                                    class="flex-1 px-8 py-4 bg-white text-slate-400 rounded-2xl font-black text-xs uppercase tracking-wide hover:bg-slate-100 transition-all"
                                 >
                                     {{ cancelLabel }}
                                 </button>
                                 <button 
                                     @click="handleConfirm" 
-                                    class="flex-1 px-8 py-4 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all"
+                                    class="flex-1 px-8 py-4 text-white rounded-2xl font-black text-xs uppercase tracking-wide shadow-xl transition-all"
                                     :class="{
-                                        'bg-[var(--color-primary)] shadow-orange-500/20 hover:bg-[var(--color-primary-dark)]': type === 'primary',
-                                        'bg-emerald-500 shadow-emerald-500/20 hover:bg-emerald-600': type === 'success',
-                                        'bg-amber-500 shadow-amber-500/20 hover:bg-amber-600': type === 'warning',
-                                        'bg-red-500 shadow-red-500/20 hover:bg-red-600': type === 'danger'
+                                        'bg-[var(--color-primary)] shadow-brand-500/20 hover:bg-[var(--color-primary-dark)]': type === 'primary',
+                                        'bg-brand-500 shadow-emerald-500/20 hover:bg-emerald-600': type === 'success',
+                                        'bg-brand-500 shadow-brand-500/20 hover:bg-amber-600': type === 'warning',
+                                        'bg-brand-500 shadow-rose-500/20 hover:bg-rose-600': type === 'danger'
                                     }"
                                 >
                                     {{ confirmLabel }}

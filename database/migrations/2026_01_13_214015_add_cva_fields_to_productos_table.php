@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('productos', function (Blueprint $blueprint) {
-            $blueprint->string('origen')->default('local')->index();
-            $blueprint->string('cva_clave')->nullable()->index();
-            $blueprint->integer('stock_cedis')->default(0);
-            $blueprint->timestamp('cva_last_sync')->nullable();
-        });
+        if (!Schema::hasColumn('productos', 'origen')) {
+            Schema::table('productos', function (Blueprint $blueprint) {
+                $blueprint->string('origen')->default('local')->index();
+                $blueprint->string('cva_clave')->nullable()->index();
+                $blueprint->integer('stock_cedis')->default(0);
+                $blueprint->timestamp('cva_last_sync')->nullable();
+            });
+        }
     }
 
     /**

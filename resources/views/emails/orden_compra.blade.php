@@ -29,7 +29,7 @@ Ubicación: resources/views/emails/orden_compra.blade.php
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #3B82F6;
+            border-bottom: 2px solid #FF6B35;
         }
         .info-section {
             display: table;
@@ -45,7 +45,7 @@ Ubicación: resources/views/emails/orden_compra.blade.php
             border-radius: 8px;
         }
         .info-block h3 {
-            color: #3B82F6;
+            color: #FF6B35;
             margin: 0 0 10px 0;
             font-size: 14px;
         }
@@ -67,11 +67,11 @@ Ubicación: resources/views/emails/orden_compra.blade.php
             padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
-            border-left: 4px solid #3B82F6;
+            border-left: 4px solid #FF6B35;
         }
         .highlight-box h4 {
             margin: 0 0 10px 0;
-            color: #3B82F6;
+            color: #FF6B35;
         }
         .notes-box {
             background-color: #fff3cd;
@@ -135,7 +135,7 @@ Ubicación: resources/views/emails/orden_compra.blade.php
 <body>
     <div class="email-container">
         <div class="header">
-            <h1 style="color: #3B82F6; margin: 0;">Nueva Orden de Compra</h1>
+            <h1 style="color: #FF6B35; margin: 0;">Nueva Orden de Compra</h1>
             <p style="color: #666; margin: 10px 0 0 0;">Se ha generado una nueva orden de compra para su atención</p>
         </div>
 
@@ -209,8 +209,8 @@ Ubicación: resources/views/emails/orden_compra.blade.php
         </div>
         @endif
 
-        <div style="background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3B82F6;">
-            <h4 style="margin: 0 0 10px 0; color: #3B82F6;">⚠️ Acción Requerida</h4>
+        <div style="background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FF6B35;">
+            <h4 style="margin: 0 0 10px 0; color: #FF6B35;">⚠️ Acción Requerida</h4>
             <p style="margin: 0; color: #666;">
                 Por favor, confirme la recepción de esta orden de compra y proporcione la fecha exacta de entrega.
                 Cualquier cambio en precios, cantidades o fechas debe ser comunicado inmediatamente.

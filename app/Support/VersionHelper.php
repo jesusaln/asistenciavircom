@@ -17,7 +17,7 @@ class VersionHelper
             $manifestPath = public_path('build/manifest.json');
 
             if (!File::exists($manifestPath)) {
-                return 'dev-' . time(); // Fallback para desarrollo sin build
+                return 'dev'; // Evitar cambios constantes de versión si no hay build
             }
 
             return md5_file($manifestPath);

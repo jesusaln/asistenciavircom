@@ -9,12 +9,16 @@ use Illuminate\Support\Facades\Log;
 
 class EnviarReportePagos extends Command
 {
-    protected $signature = 'pagos:enviar-reporte';
+    protected $signature = 'pagos:enviar-reporte {--empresa= : ID de la empresa}';
     protected $description = 'Envía el reporte diario de cuentas por pagar al email configurado';
 
     public function handle(): int
     {
-        $configuracion = EmpresaConfiguracion::getConfig();
+        $empresaId = $this->option('empresa') ?: \App\Support\EmpresaResolver::resolveId();
+        if ($empresaId) {
+            \App\Support\EmpresaResolver::setContext($empresaId);
+        }
+        $configuracion = EmpresaConfiguracion::getConfig($empresaId);
         
         if (!$configuracion->pagos_reporte_automatico) {
             $this->info('El reporte automático de pagos está deshabilitado.');
@@ -33,7 +37,14 @@ class EnviarReportePagos extends Command
                 'mail.mailers.smtp.port' => $configuracion->smtp_port,
                 'mail.mailers.smtp.username' => $configuracion->smtp_username,
                 'mail.mailers.smtp.password' => $configuracion->smtp_password,
-                'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption,
+                'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption === 'null' ? null : $configuracion->smtp_encryption,
+                'mail.mailers.smtp.stream' => [
+                    'ssl' => [
+                        'allow_self_signed' => true,
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ],
+                ],
                 'mail.from.address' => $configuracion->email_from_address,
                 'mail.from.name' => $configuracion->email_from_name,
             ]);

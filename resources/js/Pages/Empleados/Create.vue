@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { useFormatters } from '@/Composables/useFormatters';
+import { ref, computed, watch } from 'vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import InputError from '@/Components/InputError.vue'
@@ -22,8 +23,13 @@ const notyf = new Notyf({
   position: { x: 'right', y: 'top' },
 })
 
+const crearNuevoUsuario = ref(false)
+
 const form = useForm({
   user_id: '',
+  nombre: '',
+  apellido: '',
+  email: '',
   numero_empleado: '',
   fecha_nacimiento: '',
   curp: '',
@@ -51,6 +57,16 @@ const form = useForm({
   contacto_emergencia_parentesco: '',
   observaciones: '',
   contrato_adjunto: null,
+})
+
+watch(crearNuevoUsuario, (newVal) => {
+  if (newVal) {
+    form.user_id = ''
+  } else {
+    form.nombre = ''
+    form.apellido = ''
+    form.email = ''
+  }
 })
 
 // Helper to cleaner parsing
@@ -96,16 +112,7 @@ const pagosPorMes = computed(() => {
   return 1
 })
 
-// Formato de moneda seguro
-const formatCurrency = (value) => {
-  try {
-    const num = cleanNumber(value)
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(num)
-  } catch (e) {
-    console.error('Error formatting currency:', e)
-    return '$0.00'
-  }
-}
+const { formatCurrency } = useFormatters()
 
 const submit = () => {
   form.post('/empleados', {
@@ -126,41 +133,62 @@ const usuarioSeleccionado = computed(() => {
 <template>
   <Head title="Nuevo Empleado" />
 
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-[var(--ui-surface)] py-12 px-4 sm:px-6 lg:px-8">
     <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mb-4">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Nuevo Empleado</h1>
-        <p class="text-gray-600">Registra un nuevo empleado en el sistema de RRHH</p>
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Nuevo Empleado</h1>
+        <p class="text-slate-500">Registra un nuevo empleado en el sistema de RRHH</p>
       </div>
 
       <!-- Formulario -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <form @submit.prevent="submit" class="p-8 space-y-8">
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+        <form @submit.prevent="submit" class="p-8 space-y-6">
 
-          <!-- Selección de Usuario -->
+          <!-- Selección o Creación de Usuario -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Usuario del Sistema
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Selecciona el usuario que será registrado como empleado</p>
+              <p class="text-sm text-slate-500 mt-1">Elige si deseas asociar un usuario existente o crear uno nuevo</p>
             </div>
 
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Usuario *</label>
+            <!-- Selector de Modo -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                type="button"
+                @click="crearNuevoUsuario = false"
+                class="flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all font-semibold"
+                :class="!crearNuevoUsuario ? 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300' : 'border-slate-200 text-slate-700 hover:border-slate-300'"
+              >
+                Asociar a Usuario Existente
+              </button>
+              <button
+                type="button"
+                @click="crearNuevoUsuario = true"
+                class="flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all font-semibold"
+                :class="crearNuevoUsuario ? 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300' : 'border-slate-200 text-slate-700 hover:border-slate-300'"
+              >
+                Crear Nuevo Usuario
+              </button>
+            </div>
+
+            <!-- Flow A: Existente -->
+            <div v-if="!crearNuevoUsuario">
+              <label class="block text-sm font-medium text-slate-700 mb-2">Seleccionar Usuario *</label>
               <select
                 v-model="form.user_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                required
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                :required="!crearNuevoUsuario"
               >
                 <option value="">Seleccionar usuario...</option>
                 <option v-for="user in usuariosDisponibles" :key="user.id" :value="user.id">
@@ -168,86 +196,123 @@ const usuarioSeleccionado = computed(() => {
                 </option>
               </select>
               <InputError :message="form.errors.user_id" class="mt-2" />
+
+              <div v-if="usuarioSeleccionado" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 rounded-xl p-4 mt-4">
+                <p class="text-sm text-emerald-800 dark:text-emerald-200">
+                  <strong>Seleccionado:</strong> {{ usuarioSeleccionado.name }} - {{ usuarioSeleccionado.email }}
+                </p>
+              </div>
             </div>
 
-            <div v-if="usuarioSeleccionado" class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-              <p class="text-sm text-emerald-800">
-                <strong>Seleccionado:</strong> {{ usuarioSeleccionado.name }} - {{ usuarioSeleccionado.email }}
-              </p>
+            <!-- Flow B: Nuevo -->
+            <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Nombre(s) *</label>
+                <input
+                  v-model="form.nombre"
+                  type="text"
+                  placeholder="Ej: Juan"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
+                  :required="crearNuevoUsuario"
+                />
+                <InputError :message="form.errors.nombre" class="mt-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Apellido(s) *</label>
+                <input
+                  v-model="form.apellido"
+                  type="text"
+                  placeholder="Ej: Pérez Gómez"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
+                  :required="crearNuevoUsuario"
+                />
+                <InputError :message="form.errors.apellido" class="mt-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Correo Electrónico *</label>
+                <input
+                  v-model="form.email"
+                  type="email"
+                  placeholder="Ej: juan.perez@climasdeldesierto.com"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
+                  :required="crearNuevoUsuario"
+                />
+                <InputError :message="form.errors.email" class="mt-2" />
+              </div>
             </div>
           </div>
 
           <!-- Información Personal -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Personal</h2>
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900">Información Personal</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Empleado</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Número de Empleado</label>
                 <input
                   v-model="form.numero_empleado"
                   type="text"
                   placeholder="Se genera automáticamente"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <InputError :message="form.errors.numero_empleado" class="mt-2" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Nacimiento</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Fecha de Nacimiento</label>
                 <input
                   v-model="form.fecha_nacimiento"
                   type="date"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <InputError :message="form.errors.fecha_nacimiento" class="mt-2" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">CURP</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">CURP</label>
                 <input
                   v-model="form.curp"
                   type="text"
                   maxlength="18"
                   placeholder="18 caracteres"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 uppercase"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 uppercase"
                 />
                 <InputError :message="form.errors.curp" class="mt-2" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">RFC</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">RFC</label>
                 <input
                   v-model="form.rfc"
                   type="text"
                   maxlength="13"
                   placeholder="13 caracteres"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 uppercase"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 uppercase"
                 />
                 <InputError :message="form.errors.rfc" class="mt-2" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">NSS (Seguro Social)</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">NSS (Seguro Social)</label>
                 <input
                   v-model="form.nss"
                   type="text"
                   maxlength="11"
                   placeholder="11 dígitos"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <InputError :message="form.errors.nss" class="mt-2" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Dirección</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Dirección</label>
                 <input
                   v-model="form.direccion"
                   type="text"
                   placeholder="Dirección completa"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <InputError :message="form.errors.direccion" class="mt-2" />
               </div>
@@ -256,19 +321,19 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Laboral -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Laboral</h2>
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900">Información Laboral</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Puesto</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Puesto</label>
                 <input
                   v-model="form.puesto"
                   type="text"
                   list="puestos-list"
                   placeholder="Ej: Desarrollador, Vendedor..."
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <datalist id="puestos-list">
                   <option v-for="p in puestos" :key="p" :value="p" />
@@ -277,13 +342,13 @@ const usuarioSeleccionado = computed(() => {
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Departamento</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Departamento</label>
                 <input
                   v-model="form.departamento"
                   type="text"
                   list="departamentos-list"
                   placeholder="Ej: Ventas, TI, RRHH..."
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <datalist id="departamentos-list">
                   <option v-for="d in departamentos" :key="d" :value="d" />
@@ -292,20 +357,20 @@ const usuarioSeleccionado = computed(() => {
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Contratación</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Fecha de Contratación</label>
                 <input
                   v-model="form.fecha_contratacion"
                   type="date"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
                 <InputError :message="form.errors.fecha_contratacion" class="mt-2" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Contrato *</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Tipo de Contrato *</label>
                 <select
                   v-model="form.tipo_contrato"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 >
                   <option v-for="tipo in tiposContrato" :key="tipo.value" :value="tipo.value">
                     {{ tipo.label }}
@@ -315,10 +380,10 @@ const usuarioSeleccionado = computed(() => {
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Jornada</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Tipo de Jornada</label>
                 <select
                   v-model="form.tipo_jornada"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 >
                   <option v-for="tipo in tiposJornada" :key="tipo.value" :value="tipo.value">
                     {{ tipo.label }}
@@ -328,71 +393,71 @@ const usuarioSeleccionado = computed(() => {
             </div>
 
             <!-- Horario de Trabajo -->
-            <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
-              <h3 class="font-semibold text-blue-800 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-sky-50 dark:bg-sky-900/20 rounded-xl p-4 border border-sky-200 dark:border-sky-800/30">
+              <h3 class="font-semibold text-sky-800 dark:text-sky-200 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Horario de Trabajo
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">Hora de Entrada</label>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Hora de Entrada</label>
                   <input 
                     v-model="form.hora_entrada" 
                     type="time" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-lg"
                   />
                 </div>
                 <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">Hora de Salida</label>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Hora de Salida</label>
                   <input 
                     v-model="form.hora_salida" 
                     type="time" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-lg"
                   />
                 </div>
                 <div class="flex items-end">
-                  <div class="w-full bg-white rounded-lg p-4 border border-blue-100 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide">Horario L-V</p>
+                  <div class="w-full bg-white rounded-xl p-4 border border-blue-100 text-center">
+                    <p class="text-xs text-slate-500 uppercase tracking-wide">Horario L-V</p>
                     <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada }} - {{ form.hora_salida }}</p>
                   </div>
                 </div>
               </div>
 
               <!-- Horario de Sábado -->
-              <div class="mt-4 pt-4 border-t border-blue-200">
+              <div class="mt-4 pt-4 border-t border-sky-200 dark:border-sky-800/30">
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center">
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" v-model="form.trabaja_sabado" class="sr-only peer">
-                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                     </label>
-                    <span class="ml-3 text-sm font-semibold text-gray-700">Trabaja los Sábados</span>
+                    <span class="ml-3 text-sm font-medium text-slate-700">Trabaja los Sábados</span>
                   </div>
-                  <span v-if="form.trabaja_sabado" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Activo</span>
+                  <span v-if="form.trabaja_sabado" class="text-xs bg-sky-100 text-sky-800 dark:text-sky-200 px-2 py-1 rounded-full">Activo</span>
                 </div>
 
                 <div v-if="form.trabaja_sabado" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Entrada Sábado</label>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Entrada Sábado</label>
                     <input 
                       v-model="form.hora_entrada_sabado" 
                       type="time" 
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-lg"
                     />
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Salida Sábado</label>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Salida Sábado</label>
                     <input 
                       v-model="form.hora_salida_sabado" 
                       type="time" 
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-lg"
                     />
                   </div>
                   <div class="flex items-end">
-                    <div class="w-full bg-white rounded-lg p-4 border border-blue-100 text-center">
-                      <p class="text-xs text-gray-500 uppercase tracking-wide">Horario Sábado</p>
+                    <div class="w-full bg-white rounded-xl p-4 border border-blue-100 text-center">
+                      <p class="text-xs text-slate-500 uppercase tracking-wide">Horario Sábado</p>
                       <p class="text-xl font-bold text-blue-600">{{ form.hora_entrada_sabado }} - {{ form.hora_salida_sabado }}</p>
                     </div>
                   </div>
@@ -403,28 +468,28 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Salarial -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Información Salarial
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
+              <p class="text-sm text-slate-500 mt-1">Configura el salario y la frecuencia de pago del empleado</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Frecuencia de Pago -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Frecuencia de Pago *</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Frecuencia de Pago *</label>
                 <div class="grid grid-cols-2 gap-3">
                   <label 
                     class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 hover:border-gray-300'"
+                    :class="form.frecuencia_pago === 'semanal' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200' : 'border-slate-200 hover:border-brand-500'"
                   >
                     <input type="radio" v-model="form.frecuencia_pago" value="semanal" class="sr-only" />
                     <div class="text-center">
-                      <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-10 h-10 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span class="font-semibold">Semanal</span>
@@ -433,11 +498,11 @@ const usuarioSeleccionado = computed(() => {
                   </label>
                   <label 
                     class="relative flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all"
-                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 hover:border-gray-300'"
+                    :class="form.frecuencia_pago === 'quincenal' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200' : 'border-slate-200 hover:border-brand-500'"
                   >
                     <input type="radio" v-model="form.frecuencia_pago" value="quincenal" class="sr-only" />
                     <div class="text-center">
-                      <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-10 h-10 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                       <span class="font-semibold">Quincenal</span>
@@ -450,53 +515,53 @@ const usuarioSeleccionado = computed(() => {
 
               <!-- Salario Base Mensual -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Salario Base Mensual *</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Salario Base Mensual *</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-3 text-gray-500 font-medium">$</span>
+                  <span class="absolute left-3 top-3 text-slate-500 font-medium">$</span>
                   <input
                     v-model="form.salario_base"
                     type="number"
                     step="0.01"
                     min="0"
                     placeholder="0.00"
-                    class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-lg font-semibold"
+                    class="w-full pl-8 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-lg font-semibold"
                   />
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Este es el salario total mensual del empleado</p>
+                <p class="text-xs text-slate-500 mt-1">Este es el salario total mensual del empleado</p>
                 <InputError :message="form.errors.salario_base" class="mt-2" />
               </div>
             </div>
 
             <!-- Resumen de Salarios Calculados -->
-            <div v-if="form.salario_base" class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
-              <h3 class="font-semibold text-emerald-800 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div v-if="form.salario_base" class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200 dark:border-emerald-800/30">
+              <h3 class="font-semibold text-emerald-800 dark:text-emerald-200 mb-4 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 Desglose Salarial
               </h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Salario Diario</p>
-                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(salarioDiario) }}</p>
-                  <p class="text-xs text-gray-400">Base / 30 días</p>
+                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Salario Diario</p>
+                  <p class="text-xl font-bold text-slate-900">{{ formatCurrency(salarioDiario) }}</p>
+                  <p class="text-xs text-slate-400">Base / 30 días</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
+                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Pago {{ form.frecuencia_pago === 'semanal' ? 'Semanal' : 'Quincenal' }}</p>
                   <p class="text-xl font-bold text-emerald-600">{{ formatCurrency(salarioPorPeriodo) }}</p>
-                  <p class="text-xs text-gray-400">{{ pagosPorMes }} pagos/mes</p>
+                  <p class="text-xs text-slate-400">{{ pagosPorMes }} pagos/mes</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Total Mensual</p>
-                  <p class="text-xl font-bold text-gray-900">{{ formatCurrency(totalMensual) }}</p>
-                  <p class="text-xs text-gray-400">Verificación</p>
+                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Total Mensual</p>
+                  <p class="text-xl font-bold text-slate-900">{{ formatCurrency(totalMensual) }}</p>
+                  <p class="text-xs text-slate-400">Verificación</p>
                 </div>
-                <div class="bg-white rounded-lg p-4 border border-emerald-100">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Diferencia</p>
-                  <p class="text-xl font-bold text-green-600">
+                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Diferencia</p>
+                  <p class="text-xl font-bold text-emerald-600">
                     {{ formatCurrency(0) }}
                   </p>
-                  <p class="text-xs text-green-500">
+                  <p class="text-xs text-emerald-500">
                     ✓ Cuadra
                   </p>
                 </div>
@@ -506,39 +571,39 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Información Bancaria -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Información Bancaria</h2>
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900">Información Bancaria</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Banco</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Banco</label>
                 <input
                   v-model="form.banco"
                   type="text"
                   placeholder="Ej: BBVA, Santander..."
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Cuenta</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Número de Cuenta</label>
                 <input
                   v-model="form.numero_cuenta"
                   type="text"
                   placeholder="Número de cuenta"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">CLABE Interbancaria</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">CLABE Interbancaria</label>
                 <input
                   v-model="form.clabe_interbancaria"
                   type="text"
                   maxlength="18"
                   placeholder="18 dígitos"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
@@ -546,38 +611,38 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Contacto de Emergencia -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Contacto de Emergencia</h2>
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900">Contacto de Emergencia</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Nombre</label>
                 <input
                   v-model="form.contacto_emergencia_nombre"
                   type="text"
                   placeholder="Nombre completo"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Teléfono</label>
                 <input
                   v-model="form.contacto_emergencia_telefono"
                   type="tel"
                   placeholder="Teléfono de contacto"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Parentesco</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Parentesco</label>
                 <input
                   v-model="form.contacto_emergencia_parentesco"
                   type="text"
                   placeholder="Ej: Esposo/a, Padre, Madre..."
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
@@ -586,17 +651,17 @@ const usuarioSeleccionado = computed(() => {
           
           <!-- Contrato Adjunto -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Contrato Físico
               </h2>
-              <p class="text-sm text-gray-600 mt-1">Adjunta el contrato firmado en formato PDF o imagen</p>
+              <p class="text-sm text-slate-500 mt-1">Adjunta el contrato firmado en formato PDF o imagen</p>
             </div>
 
-            <div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-emerald-400 group">
+            <div class="bg-white border-2 border-dashed border-slate-300 rounded-xl p-8 flex flex-col items-center justify-center transition-all hover:border-brand-500 group">
               <input
                 type="file"
                 id="contrato_adjunto"
@@ -605,21 +670,21 @@ const usuarioSeleccionado = computed(() => {
                 accept=".pdf,image/*"
               />
               <label for="contrato_adjunto" class="cursor-pointer flex flex-col items-center">
-                <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                  <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
-                <span class="text-sm font-medium text-gray-700">
+                <span class="text-sm font-medium text-slate-700">
                   {{ form.contrato_adjunto ? form.contrato_adjunto.name : 'Seleccionar archivo' }}
                 </span>
-                <span class="text-xs text-gray-500 mt-1">PDF, JPG o PNG hasta 5MB</span>
+                <span class="text-xs text-slate-500 mt-1">PDF, JPG o PNG hasta 5MB</span>
               </label>
               <button
                 v-if="form.contrato_adjunto"
                 type="button"
                 @click="form.contrato_adjunto = null"
-                class="mt-2 text-xs text-red-600 hover:underline"
+                class="mt-2 text-xs text-rose-600 hover:underline"
               >
                 Eliminar archivo
               </button>
@@ -629,28 +694,28 @@ const usuarioSeleccionado = computed(() => {
 
           <!-- Observaciones -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones</label>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Observaciones</label>
             <textarea
               v-model="form.observaciones"
               rows="3"
               placeholder="Notas adicionales sobre el empleado..."
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500"
             ></textarea>
           </div>
 
           <!-- Botones -->
-          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-end space-x-4 pt-6 border-t border-slate-200">
             <button
               type="button"
               @click="cancelar"
-              class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              class="px-6 py-3 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               :disabled="form.processing"
-              class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 disabled:opacity-50"
+              class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-2xl shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 disabled:opacity-50"
             >
               <span v-if="form.processing">Guardando...</span>
               <span v-else>Crear Empleado</span>

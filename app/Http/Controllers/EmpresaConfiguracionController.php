@@ -38,6 +38,7 @@ class EmpresaConfiguracionController extends Controller
                     'whatsapp_template_payment_reminder',
                 ]) : null,
                 'cuentas_bancarias' => \App\Models\CuentaBancaria::activas()->get(),
+                'nom035_config' => \App\Models\Nom035Configuration::where('empresa_id', $empresaId)->first(),
             ]);
         } catch (\Exception $e) {
             Log::error('Error en EmpresaConfiguracionController@index', [

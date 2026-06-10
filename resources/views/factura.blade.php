@@ -314,10 +314,29 @@
 
     <div style="margin: 20px 0; padding: 15px; background-color: #f3f4f6; border-radius: 5px; font-size: 10px;">
         <strong>GARANTÍA AL COMPRAR:</strong><br>
-        Equipos: 365 días | Partes eléctricas: 3 meses.<br>
-        Soporte técnico: <strong>662-460-6840</strong> o <strong>www.asistenciavircom.com</strong>.<br>
-        Para hacer válida la garantía es indispensable presentar este comprobante y cumplir con los requisitos de uso
-        adecuado.
+        Equipos nuevos: 365 días | Partes eléctricas si se instaló con centro de servicio / refacciones: 3 meses.<br>
+        Soporte técnico: <strong>662-460-6840</strong> o <strong>www.climasdeldesierto.com</strong>.<br>
+        <em>La garantía aplica únicamente por defectos de fabricación bajo uso adecuado. No cubre daños por variaciones de voltaje, falta de mantenimiento, siniestros o manipulaciones externas de terceros.</em>
+        @php
+            $tienePreventivo = false;
+            if (isset($factura->productos)) {
+                foreach($factura->productos as $p) {
+                    if (str_contains(strtolower($p->nombre), 'preventivo') || str_contains(strtolower($p->nombre), 'mantenimiento') || str_contains(strtolower($p->nombre), 'limpieza')) {
+                        $tienePreventivo = true; break;
+                    }
+                }
+            }
+            if (!$tienePreventivo && isset($factura->servicios)) {
+                foreach($factura->servicios as $s) {
+                    if (str_contains(strtolower($s->nombre), 'preventivo') || str_contains(strtolower($s->nombre), 'mantenimiento') || str_contains(strtolower($s->nombre), 'limpieza')) {
+                        $tienePreventivo = true; break;
+                    }
+                }
+            }
+        @endphp
+        @if($tienePreventivo)
+            <br><strong style="color: #dc3545;">NOTA IMPORTANTE:</strong> Los servicios preventivos y de limpieza no cuentan con garantía sobre el equipo en general.
+        @endif
     </div>
 
     @if($configuracion['pie_pagina_facturas'] ?? false)

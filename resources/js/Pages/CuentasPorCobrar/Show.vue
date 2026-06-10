@@ -11,13 +11,13 @@
                 <div class="flex flex-wrap gap-2">
                     <Link
                         :href="route('cuentas-por-cobrar.edit', cuenta.id)"
-                        class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-900/25 transition hover:from-amber-400 hover:to-amber-500"
+                        class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-xl shadow-brand-900/25 transition hover:from-brand-400 hover:to-brand-500"
                     >
                         Editar
                     </Link>
                     <Link
                         :href="route('cuentas-por-cobrar.index')"
-                        class="inline-flex items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-700/90"
+                        class="inline-flex items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-brand-500 hover:bg-zinc-700/90"
                     >
                         Volver
                     </Link>
@@ -31,7 +31,7 @@
                     <div class="border-b border-zinc-700/50 bg-zinc-950/40 p-6 md:p-8">
                         <!-- Información General -->
                         <div class="mb-8">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">Información general</h3>
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">Información general</h3>
                             <dl class="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                                 <div>
                                     <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500">ID de cuenta</dt>
@@ -41,11 +41,11 @@
                                     <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500">Estado</dt>
                                     <dd class="mt-1">
                                         <span :class="{
-                                            'bg-rose-500/15 text-rose-200 ring-1 ring-rose-500/30': cuenta.estado === 'vencido',
-                                            'bg-amber-500/15 text-amber-100 ring-1 ring-amber-400/25': cuenta.estado === 'parcial',
-                                            'bg-emerald-500/15 text-emerald-100 ring-1 ring-emerald-400/25': cuenta.estado === 'pagado',
+                                            'bg-brand-500/15 text-rose-200 ring-1 ring-rose-500/30': cuenta.estado === 'vencido',
+                                            'bg-brand-500/15 text-brand-100 ring-1 ring-brand-400/25': cuenta.estado === 'parcial',
+                                            'bg-brand-500/15 text-emerald-100 ring-1 ring-emerald-400/25': cuenta.estado === 'pagado',
                                             'bg-zinc-500/20 text-zinc-200 ring-1 ring-zinc-500/30': cuenta.estado === 'pendiente'
-                                        }" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize">
+                                        }" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
                                             {{ cuenta.estado }}
                                         </span>
                                     </dd>
@@ -65,19 +65,19 @@
 
                         <!-- Información de Origen -->
                         <div class="mb-8">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">Origen</h3>
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">Origen</h3>
                             <div class="rounded-xl border border-zinc-700/60 bg-zinc-950/50 p-5">
                                 <dl class="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                                     <div>
                                         <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500">Referencia</dt>
                                         <dd class="mt-1 text-sm text-zinc-100">
                                             <template v-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta')">
-                                                <Link :href="route('ventas.show', cuenta.cobrable?.id)" class="font-medium text-amber-300 underline decoration-amber-500/40 underline-offset-2 hover:text-amber-200">
+                                                <Link :href="route('ventas.show', cuenta.cobrable?.id)" class="font-medium text-brand-300 hover:underline decoration-brand-500/40 underline-offset-2 hover:text-amber-200">
                                                     Venta #{{ cuenta.cobrable?.numero_venta || '??' }}
                                                 </Link>
                                             </template>
                                             <template v-else-if="cuenta.cobrable_type && cuenta.cobrable_type.includes('Renta')">
-                                                <Link :href="route('rentas.show', cuenta.cobrable?.id)" class="font-medium text-amber-300 underline decoration-amber-500/40 underline-offset-2 hover:text-amber-200">
+                                                <Link :href="route('rentas.show', cuenta.cobrable?.id)" class="font-medium text-brand-300 hover:underline decoration-brand-500/40 underline-offset-2 hover:text-amber-200">
                                                     Renta #{{ cuenta.cobrable?.numero_contrato || '??' }}
                                                 </Link>
                                                 <div class="mt-1 text-xs text-zinc-500">{{ cuenta.notas }}</div>
@@ -105,12 +105,12 @@
 
                         <!-- Detalles de Artículos (Productos o Equipos) -->
                         <div class="mb-8" v-if="(cuenta.cobrable_type && cuenta.cobrable_type.includes('Venta') && cuenta.cobrable?.items?.length) || (cuenta.cobrable_type && cuenta.cobrable_type.includes('Renta') && cuenta.cobrable?.equipos?.length)">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">
                                 {{ cuenta.cobrable_type.includes('Venta') ? 'Productos vendidos' : 'Equipos en renta' }}
                             </h3>
                             <div class="overflow-hidden rounded-xl border border-zinc-700/60">
-                                <table class="min-w-full divide-y divide-zinc-700/60">
-                                    <thead class="bg-zinc-950/80">
+                                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                                    <thead class="bg-slate-50 dark:bg-slate-800/50">
                                         <tr>
                                             <th scope="col" class="px-6 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                                                 Descripción
@@ -126,7 +126,7 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-zinc-800 bg-zinc-900/40">
+                                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                                         <!-- Iteración para Ventas -->
                                         <template v-if="cuenta.cobrable_type.includes('Venta')">
                                             <tr v-for="item in cuenta.cobrable.items" :key="item.id" class="hover:bg-zinc-800/30">
@@ -167,7 +167,7 @@
 
                         <!-- Estado de Cobros -->
                         <div class="mb-8">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">Estado de cobros</h3>
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">Estado de cobros</h3>
                             <div class="rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 to-zinc-950/60 p-6 ring-1 ring-emerald-500/10">
                                 <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                                     <div class="text-center">
@@ -201,13 +201,13 @@
 
                         <!-- Información de Cobro (si está pagada) -->
                         <div v-if="cuenta.estado === 'pagado'" class="mb-8">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">Información de cobro</h3>
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">Información de cobro</h3>
                             <div class="rounded-xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/35 to-zinc-950/50 p-6 ring-1 ring-emerald-500/10">
                                 <div class="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                                     <div>
                                         <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500">Estado de cobro</dt>
                                         <dd class="mt-1">
-                                            <span class="inline-flex items-center rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-400/25">
+                                            <span class="inline-flex items-center rounded-full bg-brand-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-200 ring-1 ring-emerald-400/25">
                                                 Cobrado
                                             </span>
                                         </dd>
@@ -229,25 +229,25 @@
                                 </div>
                                 <div v-if="cuenta.venta?.notas_pago" class="mt-6">
                                     <dt class="text-xs font-medium uppercase tracking-wider text-zinc-500">Notas de cobro</dt>
-                                    <dd class="mt-2 rounded-lg border border-zinc-700/60 bg-zinc-950/60 p-4 text-sm text-zinc-200">{{ cuenta.venta.notas_pago }}</dd>
+                                    <dd class="mt-2 rounded-xl border border-zinc-700/60 bg-zinc-950/60 p-4 text-sm text-zinc-200">{{ cuenta.venta.notas_pago }}</dd>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Notas -->
                         <div v-if="cuenta.notas" class="mb-8">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">Notas</h3>
-                            <div class="rounded-xl border border-amber-500/20 bg-amber-950/25 p-5 ring-1 ring-amber-500/10">
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">Notas</h3>
+                            <div class="rounded-xl border border-brand-500/20 bg-amber-950/25 p-5 ring-1 ring-brand-500/10">
                                 <p class="whitespace-pre-line text-sm leading-relaxed text-zinc-200">{{ cuenta.notas }}</p>
                             </div>
                         </div>
 
                         <!-- Gestión de Cobros -->
                         <div class="mb-2">
-                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-amber-200/90">Gestión de cobros</h3>
+                            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-200/90">Gestión de cobros</h3>
                             <div class="rounded-xl border border-zinc-700/60 bg-zinc-950/40 p-6">
                                 <div class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    <div class="space-y-3 rounded-lg border border-zinc-700/50 bg-zinc-900/50 p-4">
+                                    <div class="space-y-3 rounded-xl border border-zinc-700/50 bg-zinc-900/50 p-4">
                                         <div class="flex justify-between gap-4">
                                             <span class="text-sm text-zinc-400">Total de la cuenta</span>
                                             <span class="font-semibold tabular-nums text-zinc-100">{{ formatCurrency(cuenta.monto_total) }}</span>
@@ -267,7 +267,7 @@
                                             v-if="cuenta.monto_pendiente > 0"
                                             type="button"
                                             @click="showCobroParcialModal = true"
-                                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400"
+                                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-xl shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400"
                                         >
                                             Registrar cobro parcial
                                         </button>
@@ -275,12 +275,12 @@
                                             v-if="cuenta.estado !== 'pagado' && cuenta.monto_pendiente > 0"
                                             type="button"
                                             @click="showCobroModal = true"
-                                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-900/25 transition hover:from-amber-400 hover:to-amber-500"
+                                            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-semibold text-zinc-950 shadow-xl shadow-brand-900/25 transition hover:from-brand-400 hover:to-brand-500"
                                         >
                                             Marcar como cobrado
                                         </button>
                                         <div v-if="cuenta.estado === 'pagado'" class="text-center">
-                                            <span class="inline-flex items-center rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-400/25">
+                                            <span class="inline-flex items-center rounded-full bg-brand-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-200 ring-1 ring-emerald-400/25">
                                                 Cuenta completamente cobrada
                                             </span>
                                         </div>
@@ -293,7 +293,7 @@
                                     </p>
                                     <Link
                                         :href="route('cuentas-por-cobrar.edit', cuenta.id)"
-                                        class="text-sm font-medium text-amber-400 underline decoration-amber-500/40 underline-offset-2 transition hover:text-amber-300"
+                                        class="text-sm font-medium text-brand-400 hover:underline decoration-brand-500/40 underline-offset-2 transition hover:text-amber-300"
                                     >
                                         Ver historial completo de cobros →
                                     </Link>
@@ -306,11 +306,11 @@
         </div>
 
         <!-- Modal para Cobro Parcial -->
-        <div v-if="showCobroParcialModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" @click.self="showCobroParcialModal = false">
-            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-600/80 bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-zinc-500/20">
+        <div v-if="showCobroParcialModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" @click.self="showCobroParcialModal = false">
+            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto custom-scrollbar rounded-2xl border border-zinc-600/80 bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-zinc-500/20">
                 <div class="flex items-center justify-between border-b border-zinc-700/60 px-6 py-5">
                     <h3 class="text-lg font-semibold tracking-tight text-zinc-100">Registrar cobro parcial</h3>
-                    <button type="button" @click="showCobroParcialModal = false" class="rounded-lg p-1 text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200">
+                    <button type="button" @click="showCobroParcialModal = false" class="rounded-xl p-1 text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -342,7 +342,7 @@
                             <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-zinc-400">Método de cobro *</label>
                             <select
                                 v-model="metodoCobroParcial"
-                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                 required
                             >
                                 <option value="" class="bg-zinc-900">Seleccionar método de cobro</option>
@@ -361,7 +361,7 @@
                             <select
                                 v-model="cuentaBancariaParcialId"
                                 :class="{'border-rose-500/60 ring-1 ring-rose-500/30': !cuentaBancariaParcialId}"
-                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                             >
                                 <option value="" class="bg-zinc-900">Seleccionar cuenta bancaria *</option>
                                 <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id" class="bg-zinc-900">
@@ -370,7 +370,7 @@
                             </select>
                             <p class="mt-2 text-xs text-emerald-400/90">El cobro parcial se registra en la cuenta bancaria seleccionada.</p>
                         </div>
-                        <p v-else-if="metodoCobroParcial === 'efectivo'" class="text-xs text-amber-300/90">
+                        <p v-else-if="metodoCobroParcial === 'efectivo'" class="text-xs text-brand-300/90">
                             El efectivo queda registrado en entregas de dinero como pendiente.
                         </p>
 
@@ -382,7 +382,7 @@
                                 step="0.01"
                                 min="0.01"
                                 :max="cuenta.monto_pendiente"
-                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm tabular-nums text-zinc-100 placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm tabular-nums text-zinc-100 placeholder-zinc-600 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                 placeholder="0.00"
                             />
                             <p class="mt-1 text-xs text-zinc-500">
@@ -395,7 +395,7 @@
                             <textarea
                                 v-model="notasCobroParcial"
                                 rows="3"
-                                class="w-full resize-y rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full resize-y rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                 placeholder="Agregar notas sobre este cobro parcial..."
                             ></textarea>
                         </div>
@@ -403,14 +403,14 @@
                 </div>
 
                 <div class="flex justify-end gap-3 border-t border-zinc-700/60 bg-zinc-950/40 px-6 py-4">
-                    <button type="button" @click="showCobroParcialModal = false" class="rounded-xl border border-zinc-600 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-700">
+                    <button type="button" @click="showCobroParcialModal = false" class="rounded-xl border border-zinc-600 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-brand-500 hover:bg-zinc-700">
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="confirmarCobroParcial"
                         :disabled="!canConfirmCobroParcial"
-                        class="rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-45"
+                        class="rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-xl shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-45"
                     >
                         Registrar cobro
                     </button>
@@ -419,11 +419,11 @@
         </div>
 
         <!-- Modal para Marcar como Cobrado -->
-        <div v-if="showCobroModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" @click.self="showCobroModal = false">
-            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-600/80 bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-zinc-500/20">
+        <div v-if="showCobroModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" @click.self="showCobroModal = false">
+            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto custom-scrollbar rounded-2xl border border-zinc-600/80 bg-zinc-900 shadow-2xl shadow-black/60 ring-1 ring-zinc-500/20">
                 <div class="flex items-center justify-between border-b border-zinc-700/60 px-6 py-5">
                     <h3 class="text-lg font-semibold tracking-tight text-zinc-100">Marcar cuenta como cobrada</h3>
-                    <button type="button" @click="showCobroModal = false" class="rounded-lg p-1 text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200">
+                    <button type="button" @click="showCobroModal = false" class="rounded-xl p-1 text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -451,7 +451,7 @@
                             <label class="mb-2 block text-xs font-medium uppercase tracking-wider text-zinc-400">Método de cobro *</label>
                             <select
                                 v-model="metodoCobro"
-                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                 required
                             >
                                 <option value="" class="bg-zinc-900">Seleccionar método de cobro</option>
@@ -470,7 +470,7 @@
                             <select
                                 v-model="cuentaBancariaId"
                                 :class="{'border-rose-500/60 ring-1 ring-rose-500/30': !cuentaBancariaId}"
-                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                             >
                                 <option value="" class="bg-zinc-900">Seleccionar cuenta bancaria *</option>
                                 <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id" class="bg-zinc-900">
@@ -479,7 +479,7 @@
                             </select>
                             <p class="mt-2 text-xs text-emerald-400/90">Tarjeta, transferencia o cheque se registran en la cuenta bancaria seleccionada.</p>
                         </div>
-                        <p v-else-if="metodoCobro === 'efectivo'" class="text-xs text-amber-300/90">
+                        <p v-else-if="metodoCobro === 'efectivo'" class="text-xs text-brand-300/90">
                             El efectivo se registra en entregas de dinero cuando el vendedor lo entregue.
                         </p>
 
@@ -488,7 +488,7 @@
                             <textarea
                                 v-model="notasCobro"
                                 rows="3"
-                                class="w-full resize-y rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                                class="w-full resize-y rounded-xl border border-zinc-600 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                                 placeholder="Agregar notas sobre el cobro..."
                             ></textarea>
                         </div>
@@ -496,14 +496,14 @@
                 </div>
 
                 <div class="flex justify-end gap-3 border-t border-zinc-700/60 bg-zinc-950/40 px-6 py-4">
-                    <button type="button" @click="showCobroModal = false" class="rounded-xl border border-zinc-600 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-700">
+                    <button type="button" @click="showCobroModal = false" class="rounded-xl border border-zinc-600 bg-zinc-800/80 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-brand-500 hover:bg-zinc-700">
                         Cancelar
                     </button>
                     <button
                         type="button"
                         @click="confirmarCobro"
                         :disabled="!canConfirmCobro"
-                        class="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-900/25 transition hover:from-amber-400 hover:to-amber-500 disabled:cursor-not-allowed disabled:opacity-45"
+                        class="rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-xl shadow-brand-900/25 transition hover:from-brand-400 hover:to-brand-500 disabled:cursor-not-allowed disabled:opacity-45"
                     >
                         Marcar como cobrado
                     </button>
@@ -514,6 +514,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -576,7 +577,7 @@ const canConfirmCobroParcial = computed(() => {
     return true;
 });
 
-const currencyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+const { formatCurrency } = useFormatters();
 
 const toNumber = (value) => {
     if (value === null || value === undefined) {
@@ -587,7 +588,6 @@ const toNumber = (value) => {
     return Number.isFinite(number) ? number : 0;
 };
 
-const formatCurrency = (value) => currencyFormatter.format(toNumber(value));
 
 const pagoProgress = computed(() => {
     const total = toNumber(props.cuenta?.monto_total);

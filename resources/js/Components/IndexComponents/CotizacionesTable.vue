@@ -1,276 +1,130 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 px-6 py-4 border-b border-gray-200/60 dark:border-gray-700">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Cotizaciones</h2>
-        <div class="text-sm text-gray-600 dark:text-gray-400 bg-white/70 dark:bg-gray-700/70 px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-600/50">
-          {{ items.length }} de {{ total }} cotizaciones
-        </div>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200/60 dark:divide-gray-700">
-        <thead class="bg-gray-50/60 dark:bg-gray-900/60">
+  <div class="bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-500">
+    <div class="overflow-x-auto custom-scrollbar">
+      <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
+        <thead class="bg-transparent dark:bg-slate-900/50">
           <tr>
-            <!-- Fecha -->
-            <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
-              @click="onSort('fecha')"
-            >
-              <div class="flex items-center space-x-1">
-                <span>Fecha</span>
-                <svg
-                  v-if="sortBy.startsWith('fecha')"
-                  :class="['w-4 h-4 transition-transform duration-200', sortBy === 'fecha-desc' ? 'rotate-180' : '']"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+            <th class="px-8 py-6 text-left cursor-pointer group" @click="onSort('fecha')">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Programación</span>
+                <svg v-if="sortBy.startsWith('fecha')" :class="['w-3 h-3 transition-transform', sortBy === 'fecha-desc' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
               </div>
             </th>
-
-            <!-- Cliente -->
-            <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
-              @click="onSort('cliente')"
-            >
-              <div class="flex items-center space-x-1">
-                <span>Cliente</span>
-                <svg
-                  v-if="sortBy.startsWith('cliente')"
-                  :class="['w-4 h-4 transition-transform duration-200', sortBy === 'cliente-desc' ? 'rotate-180' : '']"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+            <th class="px-8 py-6 text-left cursor-pointer group" @click="onSort('cliente')">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Socio Comercial</span>
+                <svg v-if="sortBy.startsWith('cliente')" :class="['w-3 h-3 transition-transform', sortBy === 'cliente-desc' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
               </div>
             </th>
-
-            <!-- N° Cotización -->
-            <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
-              @click="onSort('numero_cotizacion')"
-            >
-              <div class="flex items-center space-x-1">
-                <span>N° Cotización</span>
-                <svg
-                  v-if="sortBy.startsWith('numero_cotizacion')"
-                  :class="['w-4 h-4 transition-transform duration-200', sortBy === 'numero_cotizacion-desc' ? 'rotate-180' : '']"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+            <th class="px-8 py-6 text-left cursor-pointer group" @click="onSort('numero_cotizacion')">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Identificador</span>
+                <svg v-if="sortBy.startsWith('numero_cotizacion')" :class="['w-3 h-3 transition-transform', sortBy === 'numero_cotizacion-desc' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
               </div>
             </th>
-
-            <!-- Total -->
-            <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
-              @click="onSort('total')"
-            >
-              <div class="flex items-center space-x-1">
-                <span>Total</span>
-                <svg
-                  v-if="sortBy.startsWith('total')"
-                  :class="['w-4 h-4 transition-transform duration-200', sortBy === 'total-desc' ? 'rotate-180' : '']"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+            <th class="px-8 py-6 text-left cursor-pointer group" @click="onSort('total')">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Inversión</span>
+                <svg v-if="sortBy.startsWith('total')" :class="['w-3 h-3 transition-transform', sortBy === 'total-desc' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
               </div>
             </th>
-
-            <!-- Estado -->
-            <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-700/60 transition-colors duration-150"
-              @click="onSort('estado')"
-            >
-              <div class="flex items-center space-x-1">
-                <span>Estado</span>
-                <svg
-                  v-if="sortBy.startsWith('estado')"
-                  :class="['w-4 h-4 transition-transform duration-200', sortBy === 'estado-desc' ? 'rotate-180' : '']"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+            <th class="px-8 py-6 text-left cursor-pointer group" @click="onSort('estado')">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Estatus Comercial</span>
+                <svg v-if="sortBy.startsWith('estado')" :class="['w-3 h-3 transition-transform', sortBy === 'estado-desc' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
               </div>
             </th>
-
-            <!-- Acciones -->
-            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Acciones
+            <th class="px-8 py-6 text-right">
+              <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Acciones</span>
             </th>
           </tr>
         </thead>
+        <tbody class="divide-y divide-slate-50 dark:divide-slate-900 bg-white dark:bg-slate-950">
+          <tr v-for="doc in items" :key="doc.id" class="group hover:bg-slate-50/80 dark:hover:bg-slate-900/50 transition-all duration-300">
+            <!-- Fecha -->
+            <td class="px-8 py-6 whitespace-nowrap">
+              <div class="flex flex-col">
+                <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wide">{{ formatearFecha(doc.created_at || doc.fecha) }}</span>
+                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">{{ formatearHora(doc.created_at || doc.fecha) }}</span>
+              </div>
+            </td>
 
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200/40 dark:divide-gray-700/40">
-          <template v-if="items.length > 0">
-            <tr
-              v-for="doc in items"
-              :key="doc.id"
-              :class="[
-                'group hover:bg-gray-50/60 dark:hover:bg-gray-700/60 transition-all duration-150 hover:shadow-sm',
-                doc.estado === 'cancelado' ? 'opacity-50' : ''
-              ]"
-            >
-              <!-- Fecha -->
-              <td class="px-6 py-4">
-                <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ formatearFecha(doc.created_at || doc.fecha) }}
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ formatearHora(doc.created_at || doc.fecha) }}
-                  </div>
+            <!-- Cliente -->
+            <td class="px-8 py-6">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-[10px] text-slate-400 dark:text-slate-500 shadow-sm border border-slate-200/50 dark:border-slate-700">
+                  {{ (doc.cliente?.nombre || '?').substring(0, 2).toUpperCase() }}
                 </div>
-              </td>
-
-              <!-- Cliente -->
-              <td class="px-6 py-4">
-                <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-800 dark:group-hover:text-gray-100">
-                    {{ doc.cliente?.nombre || 'Sin cliente' }}
-                  </div>
-                  <div v-if="doc.cliente?.email" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-48">
-                    {{ doc.cliente.email }}
-                  </div>
+                <div class="flex flex-col max-w-[200px]">
+                  <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase truncate">{{ doc.cliente?.nombre || 'Desconocido' }}</span>
+                  <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 truncate">{{ doc.cliente?.rfc || 'Sin RFC' }}</span>
                 </div>
-              </td>
+              </div>
+            </td>
 
-              <!-- N° Cotización -->
-              <td class="px-6 py-4">
-                <div class="text-sm font-mono font-medium text-gray-700 dark:text-gray-300 bg-gray-100/60 dark:bg-gray-700/60 px-2 py-1 rounded-md inline-block">
-                  {{ doc.numero_cotizacion_display || doc.numero_cotizacion || doc.id || 'N/A' }}
-                </div>
-              </td>
+            <!-- N° Cotización -->
+            <td class="px-8 py-6">
+              <span class="text-[10px] font-mono font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-sky-900/20 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-800/50 shadow-sm">
+                {{ doc.numero_cotizacion_display || doc.numero_cotizacion || doc.id }}
+              </span>
+            </td>
 
-              <!-- Total -->
-              <td class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900 dark:text-white">
-                  <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
-                    ${{ formatearMoneda(doc.total) }}
-                  </template>
-                  <template v-else>-</template>
-                </div>
-              </td>
+            <!-- Total -->
+            <td class="px-8 py-6">
+              <div class="flex flex-col">
+                <span class="text-xs font-black text-slate-900 dark:text-white tracking-tight">${{ formatearMoneda(doc.total) }}</span>
+                <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">I.V.A. Inc.</span>
+              </div>
+            </td>
 
-              <!-- Estado -->
-              <td class="px-6 py-4">
-                <span
-                  :class="obtenerClasesEstado(doc.estado)"
-                  class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 hover:shadow-sm"
-                >
-                  <span
-                    class="w-2 h-2 rounded-full mr-2 transition-all duration-150"
-                    :class="obtenerColorPuntoEstado(doc.estado)"
-                  ></span>
-                  {{ obtenerLabelEstado(doc.estado) }}
-                </span>
-              </td>
+            <!-- Estado -->
+            <td class="px-8 py-6 whitespace-nowrap">
+              <span :class="obtenerEstadoClase(doc.estado)" class="inline-flex items-center px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.15em] border border-current shadow-sm transition-all duration-300">
+                <span class="w-1.5 h-1.5 rounded-full mr-2 animate-pulse bg-current"></span>
+                {{ obtenerLabelEstado(doc.estado) }}
+              </span>
+            </td>
 
-              <!-- Acciones -->
-              <td class="px-6 py-4">
-                <div class="flex items-center justify-end space-x-1">
-                  <button
-                    @click="onVerDetalles(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
-                    title="Ver detalles"
-                  >
-                    <font-awesome-icon icon="eye" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
-                  </button>
-
-                  <button
-                    v-if="doc.estado !== 'cancelado' && doc.estado !== 'enviado_pedido'"
-                    @click="onEditar(doc.id)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
-                    title="Editar"
-                  >
-                    <font-awesome-icon icon="edit" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
-                  </button>
-
-                  <!-- Enviar a Pedido (solo cotizaciones no enviadas a pedido) -->
-                  <button
-                    v-if="doc.estado !== 'cancelado' && doc.estado !== 'enviado_pedido'"
-                    @click="onEnviarPedido(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 text-amber-600 hover:bg-indigo-100 hover:text-indigo-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
-                    title="Enviar a Pedido"
-                  >
-                    <font-awesome-icon icon="paper-plane" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
-                  </button>
-
-                  <button
-                    v-if="doc.estado !== 'cancelado' && doc.cliente?.email"
-                    @click="onEnviarEmail(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
-                    :title="doc.email_enviado ? 'Reenviar por Email' : 'Enviar por Email'"
-                  >
-                    <font-awesome-icon
-                      :icon="doc.email_enviado ? 'envelope-open' : 'envelope'"
-                      class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110"
-                    />
-                  </button>
-
-                  <button
-                    v-if="doc.estado !== 'cancelado'"
-                    type="button"
-                    @click="onEnviarWhatsApp(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-1"
-                    title="Enviar por WhatsApp"
-                  >
-                    <svg class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                    </svg>
-                  </button>
-
-                  <button
-                    v-if="doc.estado !== 'cancelado'"
-                    @click="onImprimir(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-1"
-                    title="Imprimir"
-                  >
-                    <font-awesome-icon icon="print" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
-                  </button>
-
-                  <button
-                    v-if="doc.estado !== 'cancelada'"
-                    @click="onEliminar(doc.id)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
-                    title="Eliminar"
-                  >
-                    <font-awesome-icon icon="trash" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </template>
+            <!-- Acciones -->
+            <td class="px-8 py-6 text-right whitespace-nowrap">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                <button @click="$emit('ver-detalles', doc)" class="w-10 h-10 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-900 dark:hover:border-slate-700 rounded-2xl transition-all shadow-sm flex items-center justify-center group/btn" title="Análisis de Propuesta">
+                  <svg class="w-5 h-5 transition-transform group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                <button v-if="doc.estado !== 'cancelado'" @click="$emit('editar', doc.id)" class="w-10 h-10 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 text-slate-400 hover:text-brand-600 hover:border-brand-600 rounded-2xl transition-all shadow-sm flex items-center justify-center group/btn" title="Modificar Configuración">
+                  <svg class="w-5 h-5 transition-transform group-hover/btn:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button v-if="doc.estado !== 'cancelado'" @click="$emit('imprimir', doc)" class="w-10 h-10 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 text-slate-400 hover:text-purple-600 hover:border-purple-600 rounded-2xl transition-all shadow-sm flex items-center justify-center group/btn" title="Generar Expediente PDF">
+                  <svg class="w-5 h-5 transition-transform group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                </button>
+                <button v-if="doc.estado !== 'cancelado'" @click="$emit('eliminar', doc.id)" class="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 text-rose-400 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/40 border-2 border-transparent rounded-2xl transition-all shadow-sm flex items-center justify-center group/btn" title="Revocar Propuesta">
+                  <svg class="w-5 h-5 transition-transform group-hover/btn:scale-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
 
           <!-- Empty State -->
-          <tr v-else>
-            <td :colspan="6" class="px-6 py-16 text-center">
-              <div class="flex flex-col items-center space-y-4">
-                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <tr v-if="items.length === 0">
+            <td colspan="6" class="px-8 py-32 text-center">
+              <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                <div class="w-24 h-24 bg-transparent dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner border border-slate-100 dark:border-slate-800 animate-pulse">
+                  <svg class="w-12 h-12 text-slate-300 dark:text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <div class="space-y-1">
-                  <p class="text-gray-700 dark:text-gray-300 font-medium">No hay cotizaciones</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Las cotizaciones aparecerán aquí cuando se creen</p>
-                </div>
+                <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[0.3em] mb-2">Sin Operaciones Comerciales</h4>
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-loose">
+                  No se han registrado cotizaciones bajo los criterios estratégicos actuales.
+                </p>
               </div>
             </td>
           </tr>
@@ -281,169 +135,70 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed } from 'vue'
 
 const props = defineProps({
-  documentos: { type: Array, default: () => [] },
-  searchTerm: { type: String, default: '' },
+  documentos: { type: Array, required: true },
   sortBy: { type: String, default: 'fecha-desc' }
 })
 
-const emit = defineEmits([
-  'ver-detalles',
-  'editar',
-  'eliminar',
-  'imprimir',
-  'sort',
-  'enviar-pedido',
-  'enviar-email',
-  'enviar-whatsapp',
-])
+const emit = defineEmits(['ver-detalles', 'editar', 'eliminar', 'imprimir', 'sort'])
 
-// Estados de cotizaciones
-const estadosConfig = {
-  'borrador': { label: 'Borrador', classes: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300', color: 'bg-yellow-400 dark:bg-yellow-500' },
-  'pendiente': { label: 'Pendiente', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300', color: 'bg-gray-400 dark:bg-gray-500' },
-  'aprobada': { label: 'Aprobada', classes: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300', color: 'bg-blue-400 dark:bg-blue-500' },
-  'rechazada': { label: 'Rechazada', classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300', color: 'bg-red-400 dark:bg-red-500' },
-  'enviada': { label: 'Enviada', classes: 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300', color: 'bg-purple-400 dark:bg-purple-500' },
-  'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300', color: 'bg-orange-400 dark:bg-orange-500' },
-  'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300', color: 'bg-green-400 dark:bg-green-500' },
-  'cancelado': { label: 'Cancelado', classes: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300', color: 'bg-red-400 dark:bg-red-500' },
-  'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400', color: 'bg-gray-400 dark:bg-gray-500' }
-}
-
-const obtenerClasesEstado = (estado) => estadosConfig[estado]?.classes || 'bg-gray-100 text-gray-700'
-const obtenerColorPuntoEstado = (estado) => estadosConfig[estado]?.color || 'bg-gray-400'
-const obtenerLabelEstado = (estado) => estadosConfig[estado]?.label || 'Pendiente'
-
-// Cache de formatos
-const formatCache = new Map()
-
-const formatearFecha = (date) => {
-  if (!date) return 'Fecha no disponible'
-  const cacheKey = `fecha-${date}`
-  if (formatCache.has(cacheKey)) return formatCache.get(cacheKey)
-  try {
-    const time = new Date(date).getTime()
-    if (Number.isNaN(time)) return 'Fecha inválida'
-    const formatted = new Date(time).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    formatCache.set(cacheKey, formatted)
-    return formatted
-  } catch {
-    return 'Fecha inválida'
-  }
-}
-
-const formatearHora = (date) => {
-  if (!date) return ''
-  const cacheKey = `hora-${date}`
-  if (formatCache.has(cacheKey)) return formatCache.get(cacheKey)
-  try {
-    const time = new Date(date).getTime()
-    if (Number.isNaN(time)) return ''
-    const formatted = new Date(time).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-    formatCache.set(cacheKey, formatted)
-    return formatted
-  } catch {
-    return ''
-  }
-}
-
-const formatearMoneda = (num) => {
-  const value = parseFloat(num)
-  const safe = Number.isFinite(value) ? value : 0
-  const cacheKey = `moneda-${safe}`
-  if (formatCache.has(cacheKey)) return formatCache.get(cacheKey)
-  const formatted = new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safe)
-  formatCache.set(cacheKey, formatted)
-  return formatted
-}
-
-// Items filtrados y ordenados
-const items = computed(() => {
-  if (!Array.isArray(props.documentos)) return []
-
-  let filtered = props.documentos.slice()
-
-  if (props.searchTerm) {
-    const term = props.searchTerm.toLowerCase()
-    filtered = filtered.filter(doc => {
-      return (
-        (doc.cliente?.nombre || '').toLowerCase().includes(term) ||
-        (doc.numero_cotizacion || doc.id || '').toString().toLowerCase().includes(term) ||
-        (doc.estado || '').toLowerCase().includes(term)
-      )
-    })
-  }
-
-  const [field, direction] = props.sortBy.split('-')
-
-  return filtered.sort((a, b) => {
-    let aVal, bVal
-
-    switch (field) {
-      case 'fecha':
-        aVal = new Date(a.created_at || a.fecha || 0).getTime()
-        bVal = new Date(b.created_at || b.fecha || 0).getTime()
-        break
-      case 'cliente':
-        aVal = (a.cliente?.nombre || '').toLowerCase()
-        bVal = (b.cliente?.nombre || '').toLowerCase()
-        break
-      case 'numero_cotizacion':
-        aVal = (a.numero_cotizacion || a.id || '').toString().toLowerCase()
-        bVal = (b.numero_cotizacion || b.id || '').toString().toLowerCase()
-        break
-      case 'total':
-        aVal = parseFloat(a.total || 0)
-        bVal = parseFloat(b.total || 0)
-        break
-      case 'estado':
-        aVal = (a.estado || '').toLowerCase()
-        bVal = (b.estado || '').toLowerCase()
-        break
-      default:
-        aVal = (a[field] || '').toLowerCase()
-        bVal = (b[field] || '').toLowerCase()
-    }
-
-    const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0
-    return direction === 'desc' ? -comparison : comparison
-  })
-})
-
-const total = computed(() => props.documentos?.length || 0)
-
-// Emits helpers
-const onVerDetalles = (doc) => emit('ver-detalles', doc)
-const onEditar = (id) => emit('editar', id)
-const onEliminar = (id) => emit('eliminar', id)
-const onImprimir = (doc) => emit('imprimir', doc)
-const onEnviarPedido = (doc) => emit('enviar-pedido', doc)
-const onEnviarEmail = (doc) => emit('enviar-email', doc)
-const onEnviarWhatsApp = (doc) => emit('enviar-whatsapp', doc)
+const items = computed(() => props.documentos || [])
 
 const onSort = (field) => {
   const current = props.sortBy.startsWith(field) ? props.sortBy : `${field}-desc`
   const newOrder = current === `${field}-desc` ? `${field}-asc` : `${field}-desc`
   emit('sort', newOrder)
 }
+
+const formatearFecha = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+const formatearHora = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+}
+
+const formatearMoneda = (num) => {
+  return new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0)
+}
+
+const obtenerEstadoClase = (estado) => {
+  const e = estado?.toLowerCase() || 'pendiente'
+  const m = {
+    'pendiente': 'text-brand-600 dark:text-brand-400 border-brand-100 dark:border-brand-900/30 bg-brand-50/50 dark:bg-brand-900/10',
+    'aprobada': 'text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-brand-900/30 bg-emerald-50/50 dark:bg-emerald-900/10',
+    'rechazada': 'text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-900/10',
+    'enviada': 'text-sky-600 dark:text-sky-400 border-sky-100 dark:border-sky-900/30 bg-sky-50/50 dark:bg-sky-900/10',
+    'enviado_pedido': 'text-sky-600 dark:text-sky-400 border-sky-100 dark:border-sky-900/30 bg-sky-50/50 dark:bg-sky-900/10',
+    'convertida_pedido': 'text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10',
+    'cancelado': 'text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-800 bg-transparent dark:bg-slate-900/50'
+  }
+  return m[e] || m.pendiente
+}
+
+const obtenerLabelEstado = (estado) => {
+  const e = estado?.toLowerCase() || 'pendiente'
+  const m = {
+    'pendiente': 'Pendiente',
+    'aprobada': 'Aprobada',
+    'rechazada': 'Rechazada',
+    'enviada': 'Enviada',
+    'enviado_pedido': 'En Pedido',
+    'convertida_pedido': 'Convertida',
+    'cancelado': 'Cancelada'
+  }
+  return m[e] || 'Desconocido'
+}
 </script>
 
 <style scoped>
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
-
-@media (prefers-contrast: high) {
-  .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 { border-color: #d1d5db; }
-}
-
-button:focus-visible { outline: 2px solid; outline-offset: 2px; }
-
-@media (hover: none) {
-  .hover\:bg-gray-50:hover { background-color: transparent; }
-  .group:hover { transform: none; }
-}
+.custom-scrollbar::-webkit-scrollbar { height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
 </style>
-

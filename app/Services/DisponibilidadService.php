@@ -54,19 +54,18 @@ class DisponibilidadService
             // Calcular capacidad disponible
             $capacidad = $this->getCapacidadDia($empresaId, $fecha);
 
-            if ($capacidad['disponibles'] > 0) {
-                $diasDisponibles[] = [
-                    'fecha' => $fecha->format('Y-m-d'),
-                    'dia_semana' => $diaSemana,
-                    'nombre_dia' => $this->getNombreDia($diaSemana),
-                    'capacidad_total' => $capacidad['total'],
-                    'citas_programadas' => $capacidad['programadas'],
-                    'disponibles' => $capacidad['disponibles'],
-                    'porcentaje_ocupacion' => $capacidad['total'] > 0
-                        ? round(($capacidad['programadas'] / $capacidad['total']) * 100)
-                        : 0,
-                ];
-            }
+            $diasDisponibles[] = [
+                'fecha' => $fecha->format('Y-m-d'),
+                'dia_semana' => $diaSemana,
+                'nombre_dia' => $this->getNombreDia($diaSemana),
+                'capacidad_total' => $capacidad['total'],
+                'citas_programadas' => $capacidad['programadas'],
+                'disponibles' => $capacidad['disponibles'],
+                'porcentaje_ocupacion' => $capacidad['total'] > 0
+                    ? round(($capacidad['programadas'] / $capacidad['total']) * 100)
+                    : 0,
+                'ocupado' => ($capacidad['total'] <= 0 || $capacidad['disponibles'] <= 0),
+            ];
         }
 
         return $diasDisponibles;
@@ -101,20 +100,34 @@ class DisponibilidadService
 
         $tecnicosDisponibles = collect();
 
+        // Obtener la info del bloque horario preferido
+        $slotInfo = Cita::HORARIOS_PREFERIDOS[$horario] ?? null;
+        if (!$slotInfo) {
+            return collect();
+        }
+
+        $slotInicio = Carbon::parse($fecha . ' ' . $slotInfo['inicio']);
+        $slotFin = Carbon::parse($fecha . ' ' . $slotInfo['fin']);
+        $duracionSlot = $slotInicio->diffInMinutes($slotFin);
+
         foreach ($disponibilidades as $disp) {
-            // Verificar si el técnico tiene el día bloqueado
-            if (DiaBloqueado::estaBloqueado($empresaId, $disp->tecnico_id, $fecha)) {
+            // Verificar si el técnico tiene el día bloqueado o está de vacaciones
+            if (DiaBloqueado::estaBloqueado($empresaId, $disp->tecnico_id, $fecha) || ($disp->tecnico && $disp->tecnico->estaDeVacaciones($fecha))) {
                 continue;
+            }
+
+            // Verificar traslape/conflicto de horario para este técnico en este bloque horario
+            if (Cita::hayConflictoHorario($disp->tecnico_id, $slotInicio->toDateTimeString(), null, $duracionSlot)) {
+                continue; // Técnico ya está ocupado en este bloque
             }
 
             // Contar citas del técnico ese día
             $citasDelDia = Cita::where('tecnico_id', $disp->tecnico_id)
-                ->whereDate('fecha_hora', $fecha)
-                ->orWhere(function ($q) use ($disp, $fecha) {
-                    $q->where('tecnico_id', $disp->tecnico_id)
-                        ->whereDate('fecha_confirmada', $fecha);
+                ->where(function ($q) use ($fecha) {
+                    $q->whereDate('fecha_hora', $fecha)
+                        ->orWhereDate('fecha_confirmada', $fecha);
                 })
-                ->whereNotIn('estado', [Cita::ESTADO_CANCELADO])
+                ->whereNotIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada'])
                 ->count();
 
             // Verificar si tiene capacidad
@@ -149,27 +162,39 @@ class DisponibilidadService
             ->get();
 
         $capacidadTotal = 0;
-        $citasProgramadas = 0;
-
+        $citasAsignadas = 0;
         foreach ($disponibilidades as $disp) {
-            // Verificar si el técnico tiene el día bloqueado
-            if (DiaBloqueado::estaBloqueado($empresaId, $disp->tecnico_id, $fecha)) {
+            // Verificar si el técnico tiene el día bloqueado o está de vacaciones
+            $tecnico = User::find($disp->tecnico_id);
+            if (DiaBloqueado::estaBloqueado($empresaId, $disp->tecnico_id, $fecha) || ($tecnico && $tecnico->estaDeVacaciones($fecha))) {
                 continue;
             }
 
             $capacidadTotal += $disp->max_citas_dia;
 
-            // Contar citas del técnico ese día
-            $citas = Cita::where('tecnico_id', $disp->tecnico_id)
+            // Contar citas ya asignadas a este técnico
+            $citasAsignadas += Cita::where('tecnico_id', $disp->tecnico_id)
                 ->where(function ($q) use ($fechaCarbon) {
                     $q->whereDate('fecha_hora', $fechaCarbon->toDateString())
                         ->orWhereDate('fecha_confirmada', $fechaCarbon->toDateString());
                 })
-                ->whereNotIn('estado', [Cita::ESTADO_CANCELADO])
+                ->whereNotIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada'])
                 ->count();
-
-            $citasProgramadas += $citas;
         }
+
+        // CRITICAL: Contar citas públicas pendientes que aún no tienen técnico asignado
+        // Estas también consumen capacidad total del día
+        $citasPendientes = Cita::where('empresa_id', $empresaId)
+            ->whereNull('tecnico_id')
+            ->where('estado', Cita::ESTADO_PENDIENTE_ASIGNACION)
+            ->where(function ($q) use ($fechaCarbon) {
+                // Revisar en dias_preferidos (JSON) si la fecha está incluida
+                $q->whereJsonContains('dias_preferidos', $fechaCarbon->toDateString())
+                  ->orWhereDate('fecha_confirmada', $fechaCarbon->toDateString());
+            })
+            ->count();
+
+        $citasProgramadas = $citasAsignadas + $citasPendientes;
 
         return [
             'total' => $capacidadTotal,
@@ -196,6 +221,7 @@ class DisponibilidadService
 
         foreach (Cita::HORARIOS_PREFERIDOS as $key => $horario) {
             $tecnicos = $this->getTecnicosDisponibles($empresaId, $fecha, $key);
+            $firstTecnico = $tecnicos->first();
 
             $horarios[] = [
                 'key' => $key,
@@ -203,6 +229,9 @@ class DisponibilidadService
                 'emoji' => $horario['emoji'],
                 'inicio' => $horario['inicio'],
                 'fin' => $horario['fin'],
+                'hora_inicio' => $horario['inicio'],
+                'hora_fin' => $horario['fin'],
+                'tecnico_id' => $firstTecnico ? $firstTecnico['tecnico_id'] : null,
                 'disponible' => $tecnicos->isNotEmpty(),
                 'tecnicos_disponibles' => $tecnicos->count(),
             ];

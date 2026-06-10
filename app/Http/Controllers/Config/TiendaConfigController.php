@@ -10,15 +10,17 @@ use Illuminate\Support\Facades\Validator;
 
 class TiendaConfigController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:edit configuracion_empresa');
+    }
+
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'tienda_online_activa' => 'nullable|boolean',
             'google_client_id' => 'nullable|string|max:255',
             'google_client_secret' => 'nullable|string|max:255',
-            'microsoft_client_id' => 'nullable|string|max:255',
-            'microsoft_client_secret' => 'nullable|string|max:255',
-            'microsoft_tenant_id' => 'nullable|string|max:255',
             'mercadopago_access_token' => 'nullable|string|max:255',
             'mercadopago_public_key' => 'nullable|string|max:255',
             'mercadopago_sandbox' => 'nullable|boolean',
@@ -39,10 +41,6 @@ class TiendaConfigController extends Controller
             'cva_codigo_sucursal' => 'nullable|integer',
             'cva_paqueteria_envio' => 'nullable|integer',
             'cva_utility_tiers' => 'nullable|array',
-            'cva_tipo_cambio' => 'nullable|numeric|min:0',
-            'cva_tipo_cambio_buffer' => 'nullable|numeric|min:0|max:100',
-            'cva_tipo_cambio_auto' => 'nullable|boolean',
-            'cva_auto_pago' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -53,7 +51,7 @@ class TiendaConfigController extends Controller
         $data = $validator->validated();
 
         // 1. Manejo de booleanos (checkboxes no enviados = false)
-        $booleanos = ['tienda_online_activa', 'mercadopago_sandbox', 'paypal_sandbox', 'stripe_sandbox', 'cva_active', 'cva_tipo_cambio_auto', 'cva_auto_pago'];
+        $booleanos = ['tienda_online_activa', 'mercadopago_sandbox', 'paypal_sandbox', 'stripe_sandbox', 'cva_active'];
         foreach ($booleanos as $campo) {
             if ($request->has($campo)) {
                 $data[$campo] = $request->boolean($campo);
@@ -67,8 +65,7 @@ class TiendaConfigController extends Controller
             'paypal_client_secret',
             'stripe_secret_key',
             'stripe_webhook_secret',
-            'google_client_secret',
-            'microsoft_client_secret'
+            'google_client_secret'
         ];
 
         foreach ($secretos as $secreto) {
@@ -91,24 +88,5 @@ class TiendaConfigController extends Controller
         }
 
         return redirect()->back()->with('success', 'Configuración de tienda actualizada correctamente.');
-    }
-
-    public function syncMonedero()
-    {
-        $service = new \App\Services\CVAService();
-        $balance = $service->getMonederoBalance();
-
-        if ($balance !== null) {
-            return response()->json([
-                'success' => true,
-                'balance' => $balance,
-                'last_update' => now()->toDateTimeString()
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'No se pudo obtener el saldo de CVA. Verifique sus credenciales.'
-        ], 500);
     }
 }

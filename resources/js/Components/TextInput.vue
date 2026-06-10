@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, useTemplateRef } from 'vue';
 
 defineProps({
     modelValue: String,
@@ -7,7 +7,7 @@ defineProps({
 
 defineEmits(['update:modelValue']);
 
-const input = ref(null);
+const input = useTemplateRef('input');
 
 onMounted(() => {
     if (input.value.hasAttribute('autofocus')) {
@@ -21,7 +21,7 @@ defineExpose({ focus: () => input.value.focus() });
 <template>
     <input
         ref="input"
-        class="border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)] placeholder:text-[var(--ui-text-soft)] focus:border-[var(--ui-accent)] focus:ring-[var(--ui-accent)] rounded-md shadow-sm"
+        class="border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)] placeholder:text-[var(--ui-text-soft)] focus:border-[var(--ui-accent)] focus:ring-[var(--ui-accent)] rounded-xl shadow-sm"
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
     >

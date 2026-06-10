@@ -161,10 +161,7 @@ class BitacoraActividadController extends Controller
 
     public function show(BitacoraActividad $bitacora)
     {
-        $bitacora->load(['usuario:id,name', 'cliente:id,nombre_razon_social']);
-        return Inertia::render('Bitacora/Show', [
-            'actividad' => $bitacora,
-        ]);
+        return redirect()->route('bitacora-actividades.edit', $bitacora->id);
     }
 
     public function edit(BitacoraActividad $bitacora)

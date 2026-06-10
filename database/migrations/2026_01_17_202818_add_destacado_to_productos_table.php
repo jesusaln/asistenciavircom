@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('productos', function (Blueprint $table) {
-            $table->boolean('destacado')->default(false)->after('estado');
-        });
+        if (!Schema::hasColumn('productos', 'destacado')) {
+            Schema::table('productos', function (Blueprint $table) {
+                $table->boolean('destacado')->default(false)->after('estado');
+            });
+        }
     }
 
     /**

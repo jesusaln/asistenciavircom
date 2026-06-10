@@ -21,7 +21,7 @@ const props = defineProps({
   },
   class: {
     type: String,
-    default: 'w-full border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)] focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm'
+    default: 'w-full border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text)] focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm'
   }
 });
 
@@ -32,7 +32,7 @@ const emit = defineEmits(['update:modelValue']);
   <div>
     <label v-if="label" class="block text-sm font-medium text-[var(--ui-text-muted)] mb-1">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span v-if="required" class="text-rose-500">*</span>
     </label>
     <select
       :value="modelValue"

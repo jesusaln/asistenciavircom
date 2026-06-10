@@ -1,6 +1,6 @@
 <template>
   <div
-   class="reporte-w-full w-full bg-white rounded-xl shadow-lg border border-gray-00 p-8
+   class="reporte-w-full w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-8
          print:border-0 print:shadow-none print:rounded-none print:p-0 print:mx-0"
   >
     <!-- Encabezado -->
@@ -8,7 +8,7 @@
       <!-- Datos empresa -->
       <div class="flex items-start gap-4">
         <!-- Logo -->
-        <div class="w-28 h-28 flex items-center justify-center bg-gray-100 rounded-lg border-2 border-gray-300 shadow-sm overflow-hidden">
+        <div class="w-28 h-28 flex items-center justify-center bg-slate-100 rounded-xl border-2 border-slate-300 shadow-sm overflow-hidden">
           <img
             v-if="empresa.logo"
             :src="empresa.logo"
@@ -17,10 +17,10 @@
           >
           <div
             v-else
-            class="w-28 h-28 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-400 text-xs text-center rounded-lg border-2 border-gray-300 shadow-sm"
+            class="w-28 h-28 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xs text-center rounded-xl border-2 border-slate-300 shadow-sm"
           >
             <div class="text-center">
-              <svg class="w-12 h-12 mx-auto mb-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-10 h-10 mx-auto mb-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -35,12 +35,12 @@
 
         <!-- Info empresa -->
         <div class="flex-1">
-          <h1 class="text-3xl font-black text-gray-900 uppercase tracking-tight leading-tight mb-2">
+          <h1 class="text-2xl font-black text-slate-900 uppercase tracking-wider leading-tight mb-2">
             {{ empresa.nombre || 'Nombre de la Empresa' }}
           </h1>
-          <div class="space-y-0.5 text-sm text-gray-600">
+          <div class="space-y-0.5 text-sm text-slate-500">
             <p class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -57,7 +57,7 @@
               {{ empresa.direccion || 'Dirección de la empresa' }}
             </p>
             <p class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -68,7 +68,7 @@
               {{ empresa.telefono || 'Teléfono' }}
             </p>
             <p class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -83,14 +83,14 @@
       </div>
 
       <!-- Datos reporte -->
-      <div class="text-right bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-4 rounded-lg border-2 border-gray-200 shadow-sm">
-        <h2 class="text-xl font-black text-gray-900 uppercase tracking-tight mb-1">
+      <div class="text-right bg-[var(--ui-surface)] px-6 py-4 rounded-xl border-2 border-slate-200 shadow-sm">
+        <h2 class="text-xl font-black text-slate-900 uppercase tracking-wider mb-1">
           Reporte de Asignación
         </h2>
-        <h3 class="text-base text-gray-600 font-semibold mb-3">
+        <h3 class="text-base text-slate-500 font-semibold mb-3">
           Herramientas y Equipos
         </h3>
-        <div class="text-xs text-gray-500 pt-2 border-t border-gray-300">
+        <div class="text-xs text-slate-500 pt-2 border-t border-slate-300">
           <p class="font-medium">Fecha de Emisión:</p>
           <p class="font-mono">
             {{ formatearFecha(new Date()) }}
@@ -102,9 +102,9 @@
     <!-- Información del técnico y Resumen -->
     <div class="grid grid-cols-2 gap-6 mb-10 print:gap-4 print:mb-8">
       <!-- Datos técnico -->
-      <div class="border-2 border-gray-300 rounded-lg p-5 bg-gradient-to-br from-white to-gray-50 shadow-sm">
-        <div class="flex items-center gap-2 mb-4 pb-3 border-b-2 border-gray-200">
-          <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="border-2 border-slate-300 rounded-xl p-5 bg-gradient-to-br from-white to-slate-50 shadow-sm">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b-2 border-slate-200">
+          <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -112,35 +112,35 @@
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <h3 class="text-sm font-black text-gray-800 uppercase tracking-wide">
+          <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">
             Datos del Técnico
           </h3>
         </div>
         <div class="space-y-2.5 text-sm">
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">Nombre:</span>
-            <span class="text-gray-900 font-semibold">
+            <span class="font-bold text-slate-500 w-28 flex-shrink-0">Nombre:</span>
+            <span class="text-slate-900 font-semibold">
               {{ tecnico.nombre_completo }}
             </span>
           </div>
 
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">ID Empleado:</span>
-            <span class="text-gray-900 font-mono">
+            <span class="font-bold text-slate-500 w-28 flex-shrink-0">ID Empleado:</span>
+            <span class="text-slate-900 font-mono">
               {{ tecnico.id }}
             </span>
           </div>
 
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">Email:</span>
-            <span class="text-gray-900">
+            <span class="font-bold text-slate-500 w-28 flex-shrink-0">Email:</span>
+            <span class="text-slate-900">
               {{ tecnico.email || 'N/A' }}
             </span>
           </div>
 
           <div class="flex">
-            <span class="font-bold text-gray-600 w-28 flex-shrink-0">Teléfono:</span>
-            <span class="text-gray-900">
+            <span class="font-bold text-slate-500 w-28 flex-shrink-0">Teléfono:</span>
+            <span class="text-slate-900">
               {{ tecnico.telefono || 'N/A' }}
             </span>
           </div>
@@ -148,9 +148,9 @@
       </div>
 
       <!-- Resumen inventario -->
-      <div class="border-2 border-gray-300 rounded-lg p-5 bg-gradient-to-br from-white to-blue-50 shadow-sm">
-        <div class="flex items-center gap-2 mb-4 pb-3 border-b-2 border-blue-200">
-          <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="border-2 border-slate-300 rounded-xl p-5 bg-gradient-to-br from-white to-blue-50 shadow-sm">
+        <div class="flex items-center gap-2 mb-4 pb-3 border-b-2 border-sky-200 dark:border-sky-800/30">
+          <svg class="w-4 h-4 text-sky-800 dark:text-sky-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -158,34 +158,34 @@
               d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             />
           </svg>
-          <h3 class="text-sm font-black text-gray-800 uppercase tracking-wide">
+          <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">
             Resumen de Inventario
           </h3>
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="bg-white rounded-lg p-3 border border-gray-200">
-            <p class="text-gray-500 text-xs uppercase font-bold mb-1">
+          <div class="bg-white rounded-xl p-3 border border-slate-200">
+            <p class="text-slate-500 text-xs uppercase font-bold mb-1">
               Total Herramientas
             </p>
-            <p class="text-3xl font-black text-gray-900">
+            <p class="text-2xl font-black text-slate-900">
               {{ estadisticas.total_herramientas }}
             </p>
           </div>
 
-          <div class="bg-white rounded-lg p-3 border border-gray-200">
-            <p class="text-gray-500 text-xs uppercase font-bold mb-1">
+          <div class="bg-white rounded-xl p-3 border border-slate-200">
+            <p class="text-slate-500 text-xs uppercase font-bold mb-1">
               Valor Total
             </p>
-            <p class="text-2xl font-black text-green-700">
+            <p class="text-2xl font-black text-emerald-800 dark:text-emerald-200 dark:text-emerald-200">
               ${{ estadisticas.valor_total?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '0.00' }}
             </p>
           </div>
         </div>
 
         <div class="flex gap-3">
-          <div class="flex-1 bg-yellow-50 px-3 py-2 rounded-lg border-2 border-yellow-200 print:border-gray-300">
-            <p class="text-xs text-yellow-900 font-bold print:text-black flex items-center gap-1">
+          <div class="flex-1 bg-brand-50 dark:bg-brand-900/20 px-3 py-2 rounded-xl border-2 border-brand-200 dark:border-brand-800/30 print:border-slate-300">
+            <p class="text-xs text-brand-900 font-bold print:text-black flex items-center gap-1">
               <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fill-rule="evenodd"
@@ -197,7 +197,7 @@
             </p>
           </div>
 
-          <div class="flex-1 bg-orange-50 px-3 py-2 rounded-lg border-2 border-orange-200 print:border-gray-300">
+          <div class="flex-1 bg-orange-50 px-3 py-2 rounded-xl border-2 border-orange-200 print:border-slate-300">
             <p class="text-xs text-orange-900 font-bold print:text-black flex items-center gap-1">
               <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -216,7 +216,7 @@
     <!-- Tabla de herramientas -->
     <div class="mb-10">
       <div class="mb-3 flex items-center gap-2">
-        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -224,67 +224,67 @@
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
           />
         </svg>
-        <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">
+        <h3 class="text-base font-black text-slate-800 uppercase tracking-wide">
           Inventario Asignado
         </h3>
       </div>
 
-      <table class="w-full border-collapse border-2 border-gray-400 text-sm shadow-md rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
         <thead>
-          <tr class="bg-gradient-to-r from-gray-800 to-gray-700 text-white print:bg-gray-800">
-            <th class="border border-gray-400 px-3 py-3 text-left font-bold w-12">ID</th>
-            <th class="border border-gray-400 px-3 py-3 text-left font-bold">Herramienta / Serie</th>
-            <th class="border border-gray-400 px-3 py-3 text-left font-bold">Categoría</th>
-            <th class="border border-gray-400 px-3 py-3 text-center font-bold w-24">Estado</th>
-            <th class="border border-gray-400 px-3 py-3 text-right font-bold w-28">Valor</th>
-            <th class="border border-gray-400 px-3 py-3 text-center font-bold w-28">Último Mant.</th>
-            <th class="border border-gray-400 px-3 py-3 text-left font-bold">Observaciones</th>
+          <tr class="bg-gradient-to-r from-slate-800 to-slate-700 text-white print:bg-slate-800">
+            <th class="border border-slate-400 px-3 py-3 text-left font-bold w-12">ID</th>
+            <th class="border border-slate-400 px-3 py-3 text-left font-bold">Herramienta / Serie</th>
+            <th class="border border-slate-400 px-3 py-3 text-left font-bold">Categoría</th>
+            <th class="border border-slate-400 px-3 py-3 text-center font-bold w-24">Estado</th>
+            <th class="border border-slate-400 px-3 py-3 text-right font-bold w-28">Valor</th>
+            <th class="border border-slate-400 px-3 py-3 text-center font-bold w-28">Último Mant.</th>
+            <th class="border border-slate-400 px-3 py-3 text-left font-bold">Observaciones</th>
           </tr>
         </thead>
-        <tbody class="bg-white">
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
           <tr
             v-for="(herramienta, index) in herramientas"
             :key="herramienta.id"
             :class="{'bg-white print:bg-white': index % 2 !== 0}"
-            class="hover:bg-blue-50 transition-colors"
+            class="hover:bg-slate-50 transition-colors"
           >
-            <td class="border border-gray-300 px-3 py-3 text-center text-gray-600 font-mono font-semibold">
+            <td class="border border-slate-300 px-3 py-3 text-center text-slate-500 font-mono font-semibold">
               {{ herramienta.id }}
             </td>
-            <td class="border border-gray-300 px-3 py-3">
-              <div class="font-bold text-gray-900 leading-tight">
+            <td class="border border-slate-300 px-3 py-3">
+              <div class="font-bold text-slate-900 leading-tight">
                 {{ herramienta.nombre }}
               </div>
               <div
-                class="text-xs text-gray-500 font-mono mt-1 bg-gray-100 px-2 py-0.5 rounded inline-block"
+                class="text-xs text-slate-500 font-mono mt-1 bg-slate-100 px-2 py-0.5 rounded-xl inline-block"
               >
                 SN: {{ herramienta.numero_serie }}
               </div>
             </td>
-            <td class="border border-gray-300 px-3 py-3 text-gray-700 font-medium">
+            <td class="border border-slate-300 px-3 py-3 text-slate-700 font-medium">
               {{ herramienta.categoria }}
             </td>
-            <td class="border border-gray-300 px-3 py-3 text-center">
+            <td class="border border-slate-300 px-3 py-3 text-center">
               <span
                 :class="[
-                  'inline-block px-3 py-1 text-xs font-black rounded-full border-2',
+                  'inline-block px-2.5 py-0.5 text-xs font-black rounded-full border-2',
                   getEstadoColor(herramienta.estado),
-                  'print:bg-white print:text-black print:border-gray-500'
+                  'print:bg-white print:text-black print:border-slate-500'
                 ]"
               >
                 {{ getEstadoLabel(herramienta.estado) }}
               </span>
             </td>
-            <td class="border border-gray-300 px-3 py-3 text-right text-gray-900 font-bold font-mono">
+            <td class="border border-slate-300 px-3 py-3 text-right text-slate-900 font-bold font-mono">
               ${{ herramienta.costo_reemplazo?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) || '0.00' }}
             </td>
-            <td class="border border-gray-300 px-3 py-3 text-center text-gray-700 font-medium">
+            <td class="border border-slate-300 px-3 py-3 text-center text-slate-700 font-medium">
               {{ formatearFecha(herramienta.fecha_ultimo_mantenimiento) || '-' }}
             </td>
-            <td class="border border-gray-300 px-3 py-3 text-xs">
+            <td class="border border-slate-300 px-3 py-3 text-xs">
               <div
                 v-if="herramienta.necesita_mantenimiento"
-                class="flex items-center text-red-700 font-bold mb-1 bg-red-50 px-2 py-1 rounded border border-red-200"
+                class="flex items-center text-rose-800 dark:text-rose-200 dark:text-rose-200 font-bold mb-1 bg-rose-50 dark:bg-rose-900/20 px-2 py-1 rounded-xl border border-rose-200 dark:border-rose-800/30"
               >
                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -297,7 +297,7 @@
               </div>
               <div
                 v-else-if="herramienta.porcentaje_vida_util > 80"
-                class="flex items-center text-orange-700 font-bold mb-1 bg-orange-50 px-2 py-1 rounded border border-orange-200"
+                class="flex items-center text-brand-700 font-bold mb-1 bg-orange-50 px-2 py-1 rounded-xl border border-orange-200"
               >
                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -308,7 +308,7 @@
                 </svg>
                 Vida Útil &gt; 80%
               </div>
-              <div class="text-gray-600 leading-tight">
+              <div class="text-slate-500 leading-tight">
                 {{ herramienta.descripcion || 'Sin observaciones adicionales.' }}
               </div>
             </td>
@@ -319,9 +319,9 @@
       <!-- Sin herramientas -->
       <div
         v-if="herramientas.length === 0"
-        class="text-center py-12 border-2 border-t-0 border-gray-300 text-gray-500 italic bg-white"
+        class="py-12 text-center border-2 border-t-0 border-slate-300 text-slate-500 italic bg-white"
       >
-        <svg class="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-16 h-16 mx-auto mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -336,9 +336,9 @@
     </div>
 
     <!-- Declaración de responsabilidad -->
-    <div class="mb-10 text-xs text-gray-700 leading-relaxed bg-white border-2 border-gray-300 rounded-lg p-5">
+    <div class="mb-10 text-xs text-slate-700 leading-relaxed bg-white border-2 border-slate-300 rounded-xl p-5">
       <div class="flex items-start gap-2 mb-2">
-        <svg class="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -346,7 +346,7 @@
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <p class="font-black uppercase tracking-wide text-gray-800">
+        <p class="font-black uppercase tracking-wide text-slate-800">
           Términos y Condiciones de Uso
         </p>
       </div>
@@ -363,37 +363,37 @@
     <div class="grid grid-cols-2 gap-12 mt-10 mb-8 signature-section">
       <!-- Firma del técnico -->
       <div class="text-center">
-        <div class="border-b-2 border-gray-900 h-20 mb-3 relative">
-          <span class="absolute -top-2 left-0 text-xs text-gray-400 italic">
+        <div class="border-b-2 border-slate-900 h-20 mb-3 relative">
+          <span class="absolute -top-2 left-0 text-xs text-slate-400 italic">
             Firma
           </span>
         </div>
-        <p class="font-black text-gray-900 text-lg mb-1">
+        <p class="font-black text-slate-900 text-lg mb-1">
           {{ tecnico.nombre_completo }}
         </p>
-        <p class="text-xs text-gray-600 uppercase font-bold tracking-wide bg-gray-100 inline-block px-4 py-1 rounded">
+        <p class="text-xs text-slate-500 uppercase font-bold tracking-wide bg-slate-100 inline-block px-4 py-1 rounded-xl">
           Técnico Responsable
         </p>
       </div>
 
       <!-- Firma del supervisor -->
       <div class="text-center">
-        <div class="border-b-2 border-gray-900 h-20 mb-3 relative">
-          <span class="absolute -top-2 left-0 text-xs text-gray-400 italic">
+        <div class="border-b-2 border-slate-900 h-20 mb-3 relative">
+          <span class="absolute -top-2 left-0 text-xs text-slate-400 italic">
             Firma y Sello
           </span>
         </div>
-        <p class="font-black text-gray-900 text-lg mb-1">
+        <p class="font-black text-slate-900 text-lg mb-1">
           AUTORIZADO POR
         </p>
-        <p class="text-xs text-gray-600 uppercase font-bold tracking-wide bg-gray-100 inline-block px-4 py-1 rounded">
+        <p class="text-xs text-slate-500 uppercase font-bold tracking-wide bg-slate-100 inline-block px-4 py-1 rounded-xl">
           Supervisor / Gerente
         </p>
       </div>
     </div>
 
     <!-- Pie de página -->
-    <div class="mt-8 pt-4 border-t-2 border-gray-300 flex justify-between text-[10px] text-gray-500">
+    <div class="mt-8 pt-4 border-t-2 border-slate-300 flex justify-between text-[10px] text-slate-500">
       <p class="flex items-center gap-1">
         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
           <path
@@ -411,11 +411,11 @@
 
     <!-- Botones de acción (solo visibles en pantalla) -->
     <div
-      class="mt-8 flex justify-center gap-4 print:hidden sticky bottom-0 bg-white/95 backdrop-blur p-4 border-t border-gray-200 shadow-lg z-40 -mx-8 -mb-8"
+      class="mt-8 flex justify-center gap-4 print:hidden sticky bottom-0 bg-white/80 backdrop-blur p-4 border-t border-slate-200 shadow-xl z-40 -mx-8 -mb-8"
     >
       <button
         @click="imprimirReporte"
-        class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg hover:from-blue-700 hover:to-blue-800 font-bold flex items-center gap-2 transition-all transform hover:scale-105"
+        class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl shadow-xl hover:shadow-xl hover:from-blue-700 hover:to-blue-800 font-bold flex items-center gap-2 transition-all transform hover:scale-105"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
@@ -430,7 +430,7 @@
 
       <Link
         :href="`/herramientas/gestion/${tecnico.id}/descargar`"
-        class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-800 font-bold flex items-center gap-2 transition-all transform hover:scale-105"
+        class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-2xl shadow-xl hover:shadow-xl hover:from-emerald-700 hover:to-emerald-800 font-bold flex items-center gap-2 transition-all transform hover:scale-105"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
@@ -445,7 +445,7 @@
 
       <Link
         :href="`/herramientas/gestion/${tecnico.id}/edit`"
-        class="px-6 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg shadow-md hover:shadow-lg hover:from-gray-700 hover:to-gray-800 font-bold flex items-center gap-2 transition-all transform hover:scale-105"
+        class="px-6 py-2.5 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-2xl shadow-xl hover:shadow-xl hover:from-slate-700 hover:to-slate-800 font-bold flex items-center gap-2 transition-all transform hover:scale-105"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
@@ -532,13 +532,13 @@ onMounted(() => {
 
 const getEstadoColor = (estado) => {
   const colors = {
-    disponible: 'bg-green-100 text-green-800',
-    asignada: 'bg-blue-100 text-blue-800',
-    mantenimiento: 'bg-yellow-100 text-yellow-800',
-    baja: 'bg-red-100 text-red-800',
-    perdida: 'bg-red-100 text-red-800',
+    disponible: 'bg-emerald-100 text-emerald-800 dark:text-emerald-200',
+    asignada: 'bg-sky-100 text-sky-800 dark:text-sky-200',
+    mantenimiento: 'bg-brand-100 text-brand-800 dark:text-amber-200',
+    baja: 'bg-rose-100 text-rose-800 dark:text-rose-200',
+    perdida: 'bg-rose-100 text-rose-800 dark:text-rose-200',
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-slate-100 text-slate-800'
 }
 
 const getEstadoLabel = (estado) => {
@@ -554,13 +554,13 @@ const getEstadoLabel = (estado) => {
 
 const getCondicionColor = (condicion) => {
   const colors = {
-    excelente: 'bg-green-100 text-green-800',
-    buena: 'bg-blue-100 text-blue-800',
-    regular: 'bg-yellow-100 text-yellow-800',
-    mala: 'bg-red-100 text-red-800',
-    critica: 'bg-red-100 text-red-800',
+    excelente: 'bg-emerald-100 text-emerald-800 dark:text-emerald-200',
+    buena: 'bg-sky-100 text-sky-800 dark:text-sky-200',
+    regular: 'bg-brand-100 text-brand-800 dark:text-amber-200',
+    mala: 'bg-rose-100 text-rose-800 dark:text-rose-200',
+    critica: 'bg-rose-100 text-rose-800 dark:text-rose-200',
   }
-  return colors[condicion] || 'bg-gray-100 text-gray-800'
+  return colors[condicion] || 'bg-slate-100 text-slate-800'
 }
 
 const imprimirReporte = () => {
@@ -635,7 +635,7 @@ const formatearFecha = (fecha) => {
   }
 
   /* Colores de fondo básicos para impresión (por si el navegador los ignora) */
-  .bg-gray-100 {
+  .bg-slate-100 {
     background-color: #f3f4f6 !important;
   }
 
@@ -643,19 +643,19 @@ const formatearFecha = (fecha) => {
     background-color: #f9fafb !important;
   }
 
-  .bg-blue-100 {
+  .bg-sky-100 {
     background-color: #dbeafe !important;
   }
 
-  .bg-green-100 {
+  .bg-emerald-100 {
     background-color: #dcfce7 !important;
   }
 
-  .bg-yellow-100 {
+  .bg-brand-100 {
     background-color: #fef9c3 !important;
   }
 
-  .bg-red-100 {
+  .bg-rose-100 {
     background-color: #fee2e2 !important;
   }
 
@@ -663,11 +663,11 @@ const formatearFecha = (fecha) => {
     background-color: #fff7ed !important;
   }
 
-  .bg-yellow-50 {
+  .bg-brand-50 {
     background-color: #fefce8 !important;
   }
 
-  .bg-red-50 {
+  .bg-rose-50 {
     background-color: #fef2f2 !important;
   }
 

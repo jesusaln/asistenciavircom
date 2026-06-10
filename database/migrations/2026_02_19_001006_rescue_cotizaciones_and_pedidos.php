@@ -76,15 +76,17 @@ return new class extends Migration {
         });
 
         // Add missing columns to kit_items
-        Schema::table('kit_items', function (Blueprint $table) {
-            if (!Schema::hasColumn('kit_items', 'deleted_at')) {
-                $table->timestamp('deleted_at')->nullable();
-            }
-            if (!Schema::hasColumn('kit_items', 'empresa_id')) {
-                $table->unsignedBigInteger('empresa_id')->nullable();
-                $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('set null');
-            }
-        });
+        if (Schema::hasTable('kit_items')) {
+            Schema::table('kit_items', function (Blueprint $table) {
+                if (!Schema::hasColumn('kit_items', 'deleted_at')) {
+                    $table->timestamp('deleted_at')->nullable();
+                }
+                if (!Schema::hasColumn('kit_items', 'empresa_id')) {
+                    $table->unsignedBigInteger('empresa_id')->nullable();
+                    $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('set null');
+                }
+            });
+        }
 
         // Add missing columns to venta_items
         Schema::table('venta_items', function (Blueprint $table) {

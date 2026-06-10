@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresas', function (Blueprint $table) {
-            $table->string('whatsapp_template_maintenance')->nullable()->after('whatsapp_template_payment_reminder');
-        });
+        if (!Schema::hasColumn('empresas', 'whatsapp_template_maintenance')) {
+            Schema::table('empresas', function (Blueprint $table) {
+                $table->string('whatsapp_template_maintenance')->nullable()->after('whatsapp_template_payment_reminder');
+            });
+        }
     }
 
     /**

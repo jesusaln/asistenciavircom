@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('tickets', function (Blueprint $table) {
-            $table->timestamp('servicio_inicio_at')->nullable()->after('horas_trabajadas');
-            $table->timestamp('servicio_fin_at')->nullable()->after('servicio_inicio_at');
-        });
+        if (!Schema::hasColumn('tickets', 'servicio_inicio_at')) {
+            Schema::table('tickets', function (Blueprint $table) {
+                $table->timestamp('servicio_inicio_at')->nullable()->after('horas_trabajadas');
+                $table->timestamp('servicio_fin_at')->nullable()->after('servicio_inicio_at');
+            });
+        }
     }
 
     /**

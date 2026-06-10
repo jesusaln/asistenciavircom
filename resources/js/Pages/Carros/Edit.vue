@@ -4,72 +4,72 @@
     <div class="w-full">
         <!-- Título de la página -->
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Editar Carro</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">Actualiza la información del vehículo</p>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Editar Carro</h1>
+            <p class="text-slate-500 dark:text-slate-200 mt-2">Actualiza la información del vehículo</p>
         </div>
 
         <!-- Formulario para editar un carro -->
-        <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-none rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="bg-white dark:bg-slate-800 shadow-xl dark:shadow-none rounded-xl p-6 border border-slate-200 dark:border-slate-700">
             <form @submit.prevent="submit" class="space-y-6">
                 <!-- Información básica -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Marca <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Marca <span class="text-rose-500">*</span>
                         </label>
                         <input
                             v-model="form.marca"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.marca }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.marca }"
                             placeholder="Ej: Toyota, Ford, BMW"
                             required
                         >
-                        <p v-if="errors.marca" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.marca }}</p>
+                        <p v-if="errors.marca" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.marca }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Modelo <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Modelo <span class="text-rose-500">*</span>
                         </label>
                         <input
                             v-model="form.modelo"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.modelo }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.modelo }"
                             placeholder="Ej: Corolla, Focus, X3"
                             required
                         >
-                        <p v-if="errors.modelo" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.modelo }}</p>
+                        <p v-if="errors.modelo" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.modelo }}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Año <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Año <span class="text-rose-500">*</span>
                         </label>
                         <input
                             v-model.number="form.anio"
                             type="number"
                             :min="1900"
                             :max="new Date().getFullYear() + 1"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.anio }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.anio }"
                             placeholder="2020"
                             required
                         >
-                        <p v-if="errors.anio" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.anio }}</p>
+                        <p v-if="errors.anio" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.anio }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Color <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Color <span class="text-rose-500">*</span>
                         </label>
                         <select
                             v-model="form.color"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.color }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.color }"
                             required
                         >
                             <option value="">Seleccionar Color</option>
@@ -94,54 +94,54 @@
                             <option value="Perla">Perla</option>
                             <option value="Otro">Otro</option>
                         </select>
-                        <p v-if="errors.color" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.color }}</p>
+                        <p v-if="errors.color" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.color }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Precio <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Precio <span class="text-rose-500">*</span>
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-2 text-gray-500 dark:text-gray-400">$</span>
+                            <span class="absolute left-3 top-2 text-slate-500 dark:text-slate-400">$</span>
                             <input
                                 v-model.number="form.precio"
                                 type="number"
                                 step="0.01"
                                 min="0"
-                                class="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                                :class="{ 'border-red-500': errors.precio }"
+                                class="w-full pl-8 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                                :class="{ 'border-rose-500': errors.precio }"
                                 placeholder="15000.00"
                                 required
                             >
                         </div>
-                        <p v-if="errors.precio" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.precio }}</p>
+                        <p v-if="errors.precio" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.precio }}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Número de Serie <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Número de Serie <span class="text-rose-500">*</span>
                         </label>
                         <input
                             v-model="form.numero_serie"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.numero_serie }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.numero_serie }"
                             placeholder="Ej: 1HGBH41JXMN109186"
                             required
                         >
-                        <p v-if="errors.numero_serie" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.numero_serie }}</p>
+                        <p v-if="errors.numero_serie" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.numero_serie }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Combustible <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
+                            Combustible <span class="text-rose-500">*</span>
                         </label>
                         <select
                             v-model="form.combustible"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.combustible }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.combustible }"
                             required
                         >
                             <option value="">Selecciona el tipo de combustible</option>
@@ -151,86 +151,100 @@
                             <option value="Híbrido">Híbrido</option>
                             <option value="Gas Natural">Gas Natural</option>
                         </select>
-                        <p v-if="errors.combustible" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.combustible }}</p>
+                        <p v-if="errors.combustible" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.combustible }}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kilometraje</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Kilometraje</label>
                         <div class="relative">
                             <input
                                 v-model.number="form.kilometraje"
                                 type="number"
                                 min="0"
-                                class="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                                :class="{ 'border-red-500': errors.kilometraje }"
+                                class="w-full px-3 py-2 pr-12 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                                :class="{ 'border-rose-500': errors.kilometraje }"
                                 placeholder="150000"
                             >
-                            <span class="absolute right-3 top-2 text-gray-500 dark:text-gray-400 text-sm">km</span>
+                            <span class="absolute right-3 top-2 text-slate-500 dark:text-slate-400 text-sm">km</span>
                         </div>
-                        <p v-if="errors.kilometraje" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.kilometraje }}</p>
+                        <p v-if="errors.kilometraje" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.kilometraje }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Placa</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Placa</label>
                         <input
                             v-model="form.placa"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 uppercase bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
-                            :class="{ 'border-red-500': errors.placa }"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 uppercase bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                            :class="{ 'border-rose-500': errors.placa }"
                             placeholder="ABC-1234"
                             maxlength="8"
                         >
-                        <p v-if="errors.placa" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.placa }}</p>
+                        <p v-if="errors.placa" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.placa }}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Estado</label>
                         <select
                             v-model="form.activo"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
                         >
                             <option :value="true">Activo</option>
                             <option :value="false">Inactivo</option>
                         </select>
-                        <p v-if="errors.activo" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.activo }}</p>
+                        <p v-if="errors.activo" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.activo }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Técnico Asignado</label>
+                        <select
+                            v-model="form.tecnico_id"
+                            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200"
+                        >
+                            <option :value="null">Sin técnico asignado</option>
+                            <option v-for="tec in props.tecnicos" :key="tec.id" :value="tec.id">
+                                {{ tec.name }}
+                            </option>
+                        </select>
+                        <p v-if="errors.tecnico_id" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.tecnico_id }}</p>
                     </div>
                 </div>
 
                 <!-- Sección de foto -->
-                <div class="border-t dark:border-gray-700 pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Foto del Vehículo</h3>
+                <div class="border-t dark:border-slate-700 pt-6">
+                    <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Foto del Vehículo</h3>
 
                     <!-- Foto actual -->
                     <div v-if="props.carro.foto && !previewImage" class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Foto Actual</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Foto Actual</label>
                         <div class="relative inline-block">
                             <img
                                 :src="props.carro.foto"
                                 alt="Foto actual del carro"
-                                class="w-48 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
+                                class="w-48 h-32 object-cover rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm"
                             >
                         </div>
                     </div>
 
                     <!-- Input de archivo -->
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                             {{ props.carro.foto ? 'Cambiar Foto' : 'Subir Foto' }}
                         </label>
                         <div class="flex items-center justify-center w-full">
-                            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
+                            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 dark:border-slate-700 border-dashed rounded-xl cursor-pointer bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition duration-200">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <svg class="w-10 h-10 mb-4 text-slate-500 dark:text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                     </svg>
-                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <p class="mb-2 text-sm text-slate-500 dark:text-slate-400">
                                         <span class="font-semibold">Click para subir</span> o arrastra y suelta
                                     </p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG o JPEG (MAX. 5MB)</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">PNG, JPG o JPEG (MAX. 5MB)</p>
                                 </div>
                                 <input
                                     type="file"
@@ -240,22 +254,22 @@
                                 >
                             </label>
                         </div>
-                        <p v-if="errors.foto" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ errors.foto }}</p>
+                        <p v-if="errors.foto" class="text-rose-500 dark:text-rose-400 text-sm mt-1">{{ errors.foto }}</p>
                     </div>
 
                     <!-- Vista previa de nueva imagen -->
                     <div v-if="previewImage" class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vista Previa</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Vista Previa</label>
                         <div class="relative inline-block">
                             <img
                                 :src="previewImage"
                                 alt="Vista previa"
-                                class="w-48 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
+                                class="w-48 h-32 object-cover rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm"
                             >
                             <button
                                 type="button"
                                 @click="removeImage"
-                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition duration-200"
+                                class="absolute -top-2 -right-2 bg-brand-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-xs hover:bg-rose-600 transition duration-200"
                             >
                                 ×
                             </button>
@@ -264,11 +278,11 @@
                 </div>
 
                 <!-- Botones de acción -->
-                <div class="flex items-center justify-between pt-6 border-t dark:border-gray-700">
+                <div class="flex items-center justify-between pt-6 border-t dark:border-slate-700">
                     <button
                         type="button"
                         @click="goBack"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
+                        class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm hover:bg-white dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition duration-200"
                     >
                         Cancelar
                     </button>
@@ -276,7 +290,7 @@
                     <button
                         type="submit"
                         :disabled="processing"
-                        class="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+                        class="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-xl shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
                     >
                         <span v-if="processing" class="flex items-center">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -306,6 +320,10 @@ defineOptions({ layout: AppLayout });
 // Recibe el carro como prop y posibles errores
 const props = defineProps({
     carro: Object,
+    tecnicos: {
+        type: Array,
+        default: () => []
+    },
     errors: {
         type: Object,
         default: () => ({})
@@ -343,6 +361,7 @@ const form = reactive({
     placa: props.carro.placa || '',
     foto: null,
     activo: props.carro.activo !== undefined ? props.carro.activo : true,
+    tecnico_id: props.carro.tecnicos?.length > 0 ? props.carro.tecnicos[0].id : null,
 });
 
 const previewImage = ref(null);

@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->boolean('contpaqi_enabled')->default(false)->after('pac_produccion');
-            $table->string('contpaqi_bridge_url')->nullable()->after('contpaqi_enabled');
-            $table->string('contpaqi_ruta_empresa')->nullable()->after('contpaqi_bridge_url');
-            $table->string('contpaqi_codigo_concepto')->nullable()->after('contpaqi_ruta_empresa');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'contpaqi_enabled')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->boolean('contpaqi_enabled')->default(false)->after('pac_produccion');
+                $table->string('contpaqi_bridge_url')->nullable()->after('contpaqi_enabled');
+                $table->string('contpaqi_ruta_empresa')->nullable()->after('contpaqi_bridge_url');
+                $table->string('contpaqi_codigo_concepto')->nullable()->after('contpaqi_ruta_empresa');
+            });
+        }
     }
 
     /**

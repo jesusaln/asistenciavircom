@@ -1,27 +1,27 @@
 <template>
   <AppLayout :title="`Kit: ${kit.nombre}`">
-    <div class="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-amber-500 selection:text-white">
+    <div class="min-h-screen bg-[var(--ui-surface)] text-slate-100 font-sans selection:bg-brand-500 selection:text-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         <!-- Header -->
         <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 tracking-tight">
+            <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-500 tracking-tight">
               {{ kit.nombre }}
             </h1>
             <p class="mt-2 text-slate-400 text-lg">Detalles del kit y desglose de componentes</p>
           </div>
           <div class="flex space-x-3">
             <Link :href="`/kits/${kit.id}/edit`" 
-              class="inline-flex items-center px-5 py-2.5 border border-transparent rounded-xl shadow-lg shadow-amber-900/20 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 transition-all duration-300 transform hover:scale-105 active:scale-95">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="inline-flex items-center px-5 py-2.5 border border-transparent rounded-2xl shadow-xl shadow-brand-900/20 text-sm font-bold text-white bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200 transform hover:scale-105 active:scale-95">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
               Editar Kit
             </Link>
             <Link href="/kits" 
-              class="inline-flex items-center px-5 py-2.5 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 transition-all duration-300">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="inline-flex items-center px-5 py-2.5 border border-slate-600 rounded-2xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
               </svg>
               Volver a Kits
@@ -34,16 +34,16 @@
           <!-- Estado -->
           <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-6 flex items-center">
             <div class="flex-shrink-0">
-              <div :class="kit.estado === 'activo' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'" class="p-3 rounded-xl border border-opacity-20" :style="kit.estado === 'activo' ? 'border-color: rgba(16, 185, 129, 0.2)' : 'border-color: rgba(239, 68, 68, 0.2)'">
+              <div :class="kit.estado === 'activo' ? 'bg-brand-500/10 text-emerald-400' : 'bg-brand-500/10 text-rose-400'" class="p-3 rounded-xl border border-opacity-20" :style="kit.estado === 'activo' ? 'border-color: rgba(16, 185, 129, 0.2)' : 'border-color: rgba(239, 68, 68, 0.2)'">
                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
             </div>
             <div class="ml-5">
-              <p class="text-sm font-medium text-slate-400 uppercase tracking-widest">Estado</p>
+              <p class="text-sm font-medium text-slate-400 uppercase tracking-wide">Estado</p>
               <p class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r" 
-                 :class="kit.estado === 'activo' ? 'from-emerald-400 to-teal-400' : 'from-red-400 to-pink-500'">
+                 :class="kit.estado === 'activo' ? 'from-emerald-400 to-teal-400' : 'from-rose-400 to-pink-500'">
                 {{ kit.estado === 'activo' ? 'Activo' : 'Inactivo' }}
               </p>
             </div>
@@ -52,14 +52,14 @@
           <!-- Precio de Venta -->
           <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-6 flex items-center">
             <div class="flex-shrink-0">
-              <div class="bg-blue-500/10 p-3 rounded-xl border border-blue-500/20">
+              <div class="bg-brand-500/10 p-3 rounded-xl border border-blue-500/20">
                 <svg class="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
             </div>
             <div class="ml-5">
-              <p class="text-sm font-medium text-slate-400 uppercase tracking-widest">Precio de Venta</p>
+              <p class="text-sm font-medium text-slate-400 uppercase tracking-wide">Precio de Venta</p>
               <p class="text-2xl font-bold text-white">{{ formatCurrency(kit.precio_venta) }}</p>
             </div>
           </div>
@@ -74,7 +74,7 @@
               </div>
             </div>
             <div class="ml-5">
-              <p class="text-sm font-medium text-slate-400 uppercase tracking-widest">Componentes</p>
+              <p class="text-sm font-medium text-slate-400 uppercase tracking-wide">Componentes</p>
               <p class="text-2xl font-bold text-white">{{ kit.kit_items?.length || 0 }}</p>
             </div>
           </div>
@@ -82,15 +82,15 @@
 
         <!-- Alerta si no hay componentes -->
         <div v-if="!kit.kit_items || kit.kit_items.length === 0" 
-             class="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4 mb-8 flex items-start gap-4">
+             class="bg-brand-900/20 border border-brand-500/30 rounded-xl p-4 mb-8 flex items-start gap-4">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="h-6 w-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
           </div>
           <div>
             <h3 class="text-lg font-medium text-amber-400">Kit vacío</h3>
-            <p class="mt-1 text-amber-200/80">Este kit no tiene componentes definidos. Agrega componentes para poder utilizarlo.</p>
+            <p class="mt-1 text-brand-200/80">Este kit no tiene componentes definidos. Agrega componentes para poder utilizarlo.</p>
           </div>
         </div>
 
@@ -103,24 +103,24 @@
               </div>
               <div class="px-6 py-6 space-y-6">
                  <div>
-                    <dt class="text-xs font-bold text-slate-500 uppercase tracking-widest">Código</dt>
-                    <dd class="mt-1 text-base text-white font-mono bg-slate-900/50 px-3 py-2 rounded-lg border border-slate-700/50 inline-block">{{ kit.codigo || 'N/A' }}</dd>
+                    <dt class="text-xs font-bold text-slate-500 uppercase tracking-wide">Código</dt>
+                    <dd class="mt-1 text-base text-white font-mono bg-black/50 px-3 py-2 rounded-xl border border-slate-700/50 inline-block">{{ kit.codigo || 'N/A' }}</dd>
                  </div>
                  <div>
-                    <dt class="text-xs font-bold text-slate-500 uppercase tracking-widest">Categoría</dt>
+                    <dt class="text-xs font-bold text-slate-500 uppercase tracking-wide">Categoría</dt>
                     <dd class="mt-1 text-base text-white">{{ kit.categoria?.nombre || 'Sin categoría' }}</dd>
                  </div>
                  <div>
-                    <dt class="text-xs font-bold text-slate-500 uppercase tracking-widest">Descripción</dt>
+                    <dt class="text-xs font-bold text-slate-500 uppercase tracking-wide">Descripción</dt>
                     <dd class="mt-1 text-sm text-slate-300 leading-relaxed">{{ kit.descripcion || 'Sin descripción disponible.' }}</dd>
                  </div>
                  <div class="pt-4 border-t border-slate-700 grid grid-cols-2 gap-4">
                     <div>
-                       <dt class="text-xs font-bold text-slate-500 uppercase tracking-widest">Creado</dt>
+                       <dt class="text-xs font-bold text-slate-500 uppercase tracking-wide">Creado</dt>
                        <dd class="mt-1 text-xs text-slate-400">{{ formatDate(kit.created_at) }}</dd>
                     </div>
                     <div>
-                       <dt class="text-xs font-bold text-slate-500 uppercase tracking-widest">Actualizado</dt>
+                       <dt class="text-xs font-bold text-slate-500 uppercase tracking-wide">Actualizado</dt>
                        <dd class="mt-1 text-xs text-slate-400">{{ formatDate(kit.updated_at) }}</dd>
                     </div>
                  </div>
@@ -131,21 +131,21 @@
            <div class="lg:col-span-2 bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden">
               <div class="px-6 py-4 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
                 <h3 class="text-lg font-bold text-white">Componentes del Kit</h3>
-                <span class="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs font-medium">{{ kit.kit_items?.length || 0 }} items</span>
+                <span class="px-3 py-1 bg-slate-700 text-slate-300 rounded-xl text-xs font-medium">{{ kit.kit_items?.length || 0 }} items</span>
               </div>
               
               <div class="px-6 py-6" v-if="kit.kit_items && kit.kit_items.length > 0">
-                 <div class="space-y-4">
+                 <div class="space-y-6">
                     <div v-for="item in kit.kit_items" :key="item.id"
-                        class="bg-slate-700/20 border border-slate-700/50 rounded-xl p-4 hover:border-slate-600 transition-all duration-200">
+                        class="bg-slate-700/20 border border-slate-700/50 rounded-xl p-4 hover:border-brand-500 transition-all duration-200">
                        <div class="flex flex-col sm:flex-row justify-between gap-4">
                           <div class="flex items-start gap-4">
                              <div class="flex-shrink-0 mt-1">
-                                <div :class="isProducto(item) ? 'bg-slate-700 text-slate-400' : 'bg-blue-900/30 text-blue-400'" class="w-10 h-10 rounded-lg flex items-center justify-center border border-white/5">
-                                   <svg v-if="isProducto(item)" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div :class="isProducto(item) ? 'bg-slate-700 text-slate-400' : 'bg-blue-900/30 text-blue-400'" class="w-10 h-10 rounded-xl flex items-center justify-center border border-white/5">
+                                   <svg v-if="isProducto(item)" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                                    </svg>
-                                   <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <svg v-else class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                    </svg>
                                 </div>
@@ -153,7 +153,7 @@
                              <div>
                                 <h4 class="text-sm font-bold text-white">{{ getItemName(item) }}</h4>
                                 <div class="flex items-center gap-2 mt-1">
-                                   <span class="text-xs font-mono text-slate-400 bg-slate-900/50 px-2 py-0.5 rounded">{{ getItemCode(item) }}</span>
+                                   <span class="text-xs font-mono text-slate-400 bg-black/50 px-2 py-0.5 rounded-xl">{{ getItemCode(item) }}</span>
                                    <span :class="isProducto(item) ? 'text-slate-400' : 'text-blue-400'" class="text-xs font-medium">
                                       {{ isProducto(item) ? 'Producto' : 'Servicio' }}
                                    </span>
@@ -191,7 +191,7 @@
                           <div class="text-2xl font-bold text-white tracking-tight">{{ formatCurrency(costoTotalComponentes) }}</div>
                         </div>
                         <div class="text-right">
-                          <p class="text-xs text-amber-500 font-bold uppercase tracking-wider mb-1">Total Sugerido c/IVA</p>
+                          <p class="text-xs text-brand-500 font-bold uppercase tracking-wider mb-1">Total Sugerido c/IVA</p>
                           <div class="text-xl font-bold text-amber-400">{{ formatCurrency(costoTotalComponentes * 1.16) }}</div>
                         </div>
                       </div>
@@ -218,11 +218,11 @@
                              <div :class="{
                                'text-emerald-400': margen >= 20,
                                'text-amber-400': margen >= 10 && margen < 20,
-                               'text-red-400': margen < 10
+                               'text-rose-400': margen < 10
                              }" class="font-bold text-xl">{{ margen }}%</div>
-                             <span v-if="margen >= 20" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Óptimo</span>
-                             <span v-else-if="margen >= 10" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Aceptable</span>
-                             <span v-else class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Bajo</span>
+                             <span v-if="margen >= 20" class="inline-flex items-center px-1.5 py-0.5 rounded-xl text-[10px] font-bold bg-brand-500/10 text-emerald-400 border border-emerald-500/20">Óptimo</span>
+                             <span v-else-if="margen >= 10" class="inline-flex items-center px-1.5 py-0.5 rounded-xl text-[10px] font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20">Aceptable</span>
+                             <span v-else class="inline-flex items-center px-1.5 py-0.5 rounded-xl text-[10px] font-bold bg-brand-500/10 text-rose-400 border border-rose-500/20">Bajo</span>
                           </div>
                         </div>
                       </div>
@@ -230,7 +230,7 @@
                  </div>
               </div>
 
-              <div v-else class="text-center py-16">
+              <div v-else class="py-16 text-center">
                  <div class="bg-slate-700/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="h-8 w-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
@@ -238,7 +238,7 @@
                  </div>
                  <h3 class="text-lg font-medium text-white">No hay componentes</h3>
                  <p class="mt-2 text-slate-400">Este kit no tiene productos asignados actualmente.</p>
-                 <Link :href="`/kits/${kit.id}/edit`" class="mt-6 inline-flex items-center px-4 py-2 border border-blue-500 rounded-lg text-sm font-medium text-blue-400 hover:bg-blue-500/10 transition-colors">
+                 <Link :href="`/kits/${kit.id}/edit`" class="mt-6 inline-flex items-center px-4 py-2 border border-blue-500 rounded-xl text-sm font-medium text-blue-400 hover:bg-slate-500/10 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -253,6 +253,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, onMounted } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'

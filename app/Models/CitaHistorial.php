@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 
 class CitaHistorial extends Model
 {
+    use BelongsToEmpresa;
+
     protected $table = 'cita_historial';
 
     protected $fillable = [

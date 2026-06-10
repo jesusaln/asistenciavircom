@@ -16,18 +16,20 @@ class SatDescargaMasivaJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 6;
-    public int $timeout = 120;
+    public int $tries = 25;
+    public int $timeout = 180;
 
     private int $descargaId;
     private string $mode;
+    private ?int $empresaId;
 
-    private const VERIFY_BACKOFF = [120, 300, 600, 900, 1200];
+    private const VERIFY_BACKOFF = [120, 300, 600, 900, 900, 900, 1200, 1200, 1200, 1800];
 
-    public function __construct(int $descargaId, string $mode = 'request')
+    public function __construct(int $descargaId, string $mode = 'request', ?int $empresaId = null)
     {
         $this->descargaId = $descargaId;
         $this->mode = $mode;
+        $this->empresaId = $empresaId;
     }
 
     public function handle(SatDescargaMasivaService $service): void
@@ -37,9 +39,32 @@ class SatDescargaMasivaJob implements ShouldQueue
             return;
         }
 
-        // SET TENANT CONTEXT manually because we don't pass empresa_id to constructor
-        if ($descarga->empresa_id) {
-            \App\Support\EmpresaResolver::setContext($descarga->empresa_id);
+        // SET TENANT CONTEXT
+        $resolvedEmpresaId = $this->empresaId;
+        if (!$resolvedEmpresaId && $descarga->empresa_id) {
+            $resolvedEmpresaId = $descarga->empresa_id;
+        }
+        if (!$resolvedEmpresaId && $descarga->created_by) {
+            $resolvedEmpresaId = \Illuminate\Support\Facades\DB::table('users')
+                ->where('id', $descarga->created_by)
+                ->value('empresa_id');
+        }
+        if ($resolvedEmpresaId) {
+            \App\Support\EmpresaResolver::setContext($resolvedEmpresaId);
+        }
+
+        // 1. Evitar concurrencia: si hay otra descarga activa en el SAT en curso (menos de 15 minutos de actualización), posponer con jitter
+        $activeExists = SatDescargaMasiva::where('id', '!=', $descarga->id)
+            ->whereIn('status', ['solicitando', 'verificando', 'revalidando'])
+            ->where('updated_at', '>=', now()->subMinutes(15))
+            ->exists();
+
+        if ($activeExists) {
+            Log::info("SAT Descarga: Concurrencia detectada, posponiendo descarga #{$this->descargaId}...", [
+                'descarga_id' => $this->descargaId
+            ]);
+            $this->release(random_int(60, 180)); // Esperar 1-3 minutos con jitter
+            return;
         }
 
         if ($this->mode === 'recheck') {
@@ -55,6 +80,18 @@ class SatDescargaMasivaJob implements ShouldQueue
                     'last_error' => $result['message'] ?? 'Error al revalidar estatus SAT.',
                     'finished_at' => now(),
                 ]);
+
+                if ($descarga->created_by) {
+                    \App\Models\UserNotification::createForUser(
+                        $descarga->created_by,
+                        'sat_download_error',
+                        'Error en Sincronización SAT',
+                        "Hubo un problema al revalidar el estatus de las facturas: " . ($result['message'] ?? 'Error desconocido'),
+                        ['descarga_id' => $descarga->id, 'error' => $result['message'] ?? ''],
+                        '/cfdi',
+                        'fas fa-exclamation-circle'
+                    );
+                }
                 return;
             }
 
@@ -112,26 +149,30 @@ class SatDescargaMasivaJob implements ShouldQueue
                         2 => 8,   // Segundo reintento: 8 horas
                         default => 24, // Tercer reintento: 24 horas
                     };
-                    $nextRetry = now()->addHours($horasEspera);
+                    
+                    // Añadir un jitter aleatorio de 5 a 45 minutos para evitar que múltiples descargas despierten a la misma vez
+                    $jitterMinutes = random_int(5, 45);
+                    $nextRetry = now()->addHours($horasEspera)->addMinutes($jitterMinutes);
+                    $delaySeconds = ($horasEspera * 3600) + ($jitterMinutes * 60);
 
                     $descarga->update([
                         'status' => 'esperando',
                         'retry_count' => $retryCount,
                         'next_retry_at' => $nextRetry,
                         'limite_tipo' => $limiteTipo,
-                        'mensaje_usuario' => "⏳ Reintento #{$retryCount} programado para " . $nextRetry->format('d/m H:i') . " (en {$horasEspera}h)",
+                        'mensaje_usuario' => "⏳ Reintento #{$retryCount} programado para " . $nextRetry->format('d/m H:i') . " (en {$horasEspera}h y {$jitterMinutes}m)",
                         'last_error' => $message,
                     ]);
 
-                    Log::info('SAT Descarga: Límite detectado, reintento programado', [
+                    Log::info('SAT Descarga: Límite detectado, reintento programado con jitter', [
                         'descarga_id' => $this->descargaId,
                         'retry_count' => $retryCount,
                         'next_retry_at' => $nextRetry,
-                        'horas_espera' => $horasEspera,
+                        'delay_seconds' => $delaySeconds,
                     ]);
 
-                    // Programar reintento con delay largo
-                    $this->release($horasEspera * 3600);
+                    // Programar reintento con delay largo + jitter
+                    $this->release($delaySeconds);
                     return;
                 }
 
@@ -140,6 +181,18 @@ class SatDescargaMasivaJob implements ShouldQueue
                     'last_error' => $result['message'],
                     'finished_at' => now(),
                 ]);
+
+                if ($descarga->created_by) {
+                    \App\Models\UserNotification::createForUser(
+                        $descarga->created_by,
+                        'sat_download_error',
+                        'Error en Solicitud SAT',
+                        "El SAT rechazó la solicitud de descarga: " . ($result['message'] ?? 'Error desconocido'),
+                        ['descarga_id' => $descarga->id, 'error' => $result['message'] ?? ''],
+                        '/cfdi',
+                        'fas fa-exclamation-triangle'
+                    );
+                }
                 return;
             }
 
@@ -153,8 +206,8 @@ class SatDescargaMasivaJob implements ShouldQueue
                 'mensaje_usuario' => null,
             ]);
 
-            // Auto-programar verificación después de 2 minutos (el SAT tarda)
-            self::dispatch($this->descargaId, 'verify')->delay(now()->addMinutes(2));
+            // Auto-programar verificación después de 2 minutos (el SAT tarda) con pequeño jitter
+            self::dispatch($this->descargaId, 'verify', $resolvedEmpresaId)->delay(now()->addMinutes(2)->addSeconds(random_int(1, 30)));
 
             return;
         }
@@ -195,6 +248,18 @@ class SatDescargaMasivaJob implements ShouldQueue
                 'last_error' => $message,
                 'finished_at' => now(),
             ]);
+
+            if ($descarga->created_by) {
+                \App\Models\UserNotification::createForUser(
+                    $descarga->created_by,
+                    'sat_download_error',
+                    'Fallo en Descarga SAT',
+                    "No se pudieron descargar los paquetes del SAT: " . $message,
+                    ['descarga_id' => $descarga->id, 'error' => $message],
+                    '/cfdi',
+                    'fas fa-times-circle'
+                );
+            }
             return;
         }
 
@@ -217,12 +282,25 @@ class SatDescargaMasivaJob implements ShouldQueue
             'status' => 'completado',
             'paquetes' => $result['packages'] ?? null,
             'total_cfdis' => $stats['total'] ?? 0,
-            'inserted_cfdis' => $stats['inserted'] ?? ($stats['staged'] ?? 0),
+            'inserted_cfdis' => $stats['staged'] ?? ($stats['staged'] ?? 0),
             'duplicate_cfdis' => $stats['duplicates'] ?? 0,
             'error_cfdis' => $stats['errors'] ?? 0,
             'errors' => ($errorsPayload['errors'] || $errorsPayload['duplicates']) ? $errorsPayload : null,
             'finished_at' => now(),
         ]);
+
+        // Notificar al usuario que la descarga terminó
+        if ($descarga->created_by) {
+            \App\Models\UserNotification::createForUser(
+                $descarga->created_by,
+                'sat_download_finished',
+                'Sincronización SAT Finalizada',
+                "La descarga de facturas " . ($descarga->direccion === 'emitido' ? 'Emitidas' : 'Recibidas') . " ha terminado. Se encontraron {$descarga->total_cfdis} documentos.",
+                ['descarga_id' => $descarga->id],
+                '/cfdi',
+                'fas fa-cloud-download-alt'
+            );
+        }
     }
 
     public function backoff(): array
@@ -234,7 +312,9 @@ class SatDescargaMasivaJob implements ShouldQueue
     {
         $attempt = max(1, $this->attempts());
         $index = min($attempt - 1, count(self::VERIFY_BACKOFF) - 1);
+        $base = self::VERIFY_BACKOFF[$index];
 
-        return self::VERIFY_BACKOFF[$index];
+        // Añadir jitter aleatorio entre -15 y +45 segundos para romper sincronía
+        return max(30, $base + random_int(-15, 45));
     }
 }

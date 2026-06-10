@@ -73,8 +73,11 @@ class PortalFirmaController extends Controller
         $firmaHash = hash('sha256', $contenidoContrato . $request->firma);
 
         // Guardar la firma
+        // ✅ PERFORMANCE: Guardar firma como archivo en Storage en vez de base64 en la BD
+        $firmaPath = \App\Helpers\Base64ToFile::save($request->firma, 'polizas/firmas', "firma_cliente_{$poliza->id}");
+
         $poliza->update([
-            'firma_cliente' => $request->firma,
+            'firma_cliente' => $firmaPath,
             'firmado_at' => now(),
             'firmado_ip' => $request->ip(),
             'firma_hash' => $firmaHash,

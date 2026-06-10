@@ -38,7 +38,7 @@
                         id="unidad_descripcion"
                         v-model="unidadForm.descripcion"
                         rows="3"
-                        class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm"
                         placeholder="Descripción opcional de la unidad"
                     ></textarea>
                     <InputError :message="unidadForm.errors.descripcion" class="mt-2" />
@@ -49,7 +49,7 @@
                     <select
                         id="unidad_estado"
                         v-model="unidadForm.estado"
-                        class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm"
                     >
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
@@ -73,13 +73,13 @@
                     </PrimaryButton>
                 </div>
 
-                <div class="flex items-start justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    <div class="text-sm text-gray-700">
+                <div class="flex items-start justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                    <div class="text-sm text-slate-700">
                         <span class="font-semibold">Predeterminada:</span>
                         {{ defaultUnidadName }}
-                        <span class="text-gray-500"> - Siempre disponible y no se puede eliminar.</span>
+                        <span class="text-slate-500"> - Siempre disponible y no se puede eliminar.</span>
                     </div>
-                    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">Valor base</span>
+                    <span class="text-xs px-2 py-1 bg-sky-100 text-sky-800 rounded-full">Valor base</span>
                 </div>
 
                 <!-- Loading state -->
@@ -88,23 +88,23 @@
                 </div>
 
                 <!-- Lista de unidades -->
-                <div v-else-if="unidades.length > 0" class="max-h-96 overflow-y-auto">
+                <div v-else-if="unidades.length > 0" class="max-h-96 overflow-y-auto custom-scrollbar">
                     <div
                         v-for="unidad in filteredUnidades"
                         :key="unidad.id"
-                        class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                        class="flex items-center justify-between p-3 border border-slate-200 rounded-xl hover:bg-slate-50"
                     >
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900 flex items-center gap-2">
+                            <div class="font-medium text-slate-900 flex items-center gap-2">
                                 {{ unidad.nombre }}
                                 <span v-if="unidad.nombre === defaultUnidadName" class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                                     Predeterminada
                                 </span>
-                                <span v-if="unidad.abreviatura" class="text-sm text-gray-500 ml-1">
+                                <span v-if="unidad.abreviatura" class="text-sm text-slate-500 ml-1">
                                     ({{ unidad.abreviatura }})
                                 </span>
                             </div>
-                            <div v-if="unidad.descripcion" class="text-sm text-gray-600 mt-1">
+                            <div v-if="unidad.descripcion" class="text-sm text-slate-600 mt-1">
                                 {{ unidad.descripcion }}
                             </div>
                             <div class="flex items-center gap-2 mt-2">
@@ -112,13 +112,13 @@
                                     :class="[
                                         'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                                         unidad.estado === 'activo'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
+                                            ? 'bg-emerald-100 text-emerald-800'
+                                            : 'bg-rose-100 text-rose-800'
                                     ]"
                                 >
                                     {{ unidad.estado }}
                                 </span>
-                                <span v-if="unidad.productos_count > 0" class="text-xs text-gray-500">
+                                <span v-if="unidad.productos_count > 0" class="text-xs text-slate-500">
                                     Usada en {{ unidad.productos_count }} productos
                                 </span>
                             </div>
@@ -140,14 +140,14 @@
                             </DangerButton>
                             <span
                                 v-else-if="unidad.nombre === defaultUnidadName"
-                                class="text-xs text-blue-600 px-2 py-1 bg-blue-50 rounded"
+                                class="text-xs text-blue-600 px-2 py-1 bg-blue-50 rounded-xl"
                                 title="Unidad de medida predeterminada"
                             >
                                 Predeterminada
                             </span>
                             <span
                                 v-else
-                                class="text-xs text-gray-400 px-2 py-1 bg-gray-100 rounded"
+                                class="text-xs text-slate-400 px-2 py-1 bg-slate-100 rounded-xl"
                                 title="No se puede eliminar porque esta unidad esta en uso"
                             >
                                 En uso
@@ -157,7 +157,7 @@
                 </div>
 
                 <!-- Empty state -->
-                <div v-else class="text-center py-8 text-gray-500">
+                <div v-else class="text-center py-8 text-slate-500">
                     No se encontraron unidades de medida
                 </div>
             </div>
@@ -196,8 +196,8 @@
         <template #content>
             ¿Estás seguro de que deseas eliminar la unidad "{{ unidadToDelete?.nombre }}"?
 
-            <div v-if="unidadToDelete?.productos_count > 0" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                <p class="text-red-800 text-sm">
+            <div v-if="unidadToDelete?.productos_count > 0" class="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl">
+                <p class="text-rose-800 text-sm">
                     <strong>Advertencia:</strong> Esta unidad está siendo utilizada por {{ unidadToDelete.productos_count }} productos.
                     No se puede eliminar hasta que se cambie la unidad en todos los productos que la utilizan.
                 </p>
@@ -232,6 +232,7 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
 import LoadingSpinner from '@/Components/LoadingSpinner.vue';
+import Swal from '@/Utils/Swal';
 
 // Props
 const props = defineProps({

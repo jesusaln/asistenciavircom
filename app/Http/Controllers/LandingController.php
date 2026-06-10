@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LandingController extends Controller
@@ -28,76 +28,71 @@ class LandingController extends Controller
     {
         $config = EmpresaConfiguracion::getConfig();
 
-        // 1. Intentar obtener productos marcados manualmente como destacados (NUEVA LÓGICA)
-        $destacadosManuales = Producto::where('estado', 'activo')
-            ->where('destacado', true)
-            ->take(4)
+        // 1. Obtener productos marcados manualmente como destacados (Prioridad 1)
+        $tieneDestacado = Schema::hasColumn('productos', 'destacado');
+
+        $destacadosManuales = Producto::with('categoria')
+            ->where('estado', 'activo')
+            ->when($tieneDestacado, fn ($query) => $query->where('destacado', true))
+            ->orderBy('updated_at', 'desc')
+            ->take($tieneDestacado ? 8 : 0)
             ->get();
 
-        if ($destacadosManuales->count() > 0) {
-            $destacados = $destacadosManuales->map(function ($producto) {
-                $precioSinIva = $producto->precio_venta;
-                $precioConIva = round($precioSinIva * 1.16, 2);
-                return [
-                    'id' => $producto->id,
-                    'nombre' => $producto->nombre,
-                    'precio' => $precioConIva,
-                    'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
-                    'categoria' => $producto->categoria->nombre ?? 'General',
-                    'cva_clave' => $producto->cva_clave,
-                ];
-            });
-        } else {
-            // FALLBACK 1: Productos MÁS VENDIDOS
-            $masVendidosIds = VentaItem::where('ventable_type', Producto::class)
-                ->where('created_at', '>=', now()->subDays(90))
+        $destacadosIds = $destacadosManuales->pluck('id')->toArray();
+        $finalCollection = $destacadosManuales;
+        $limit = 8;
+
+        // 2. Si faltan para llegar a 8, rellenar con MÁS VENDIDOS (Fallback 1)
+        if ($finalCollection->count() < $limit) {
+            $needed = $limit - $finalCollection->count();
+            $masVendidosIds = VentaItem::where('ventable_type', 'producto')
+                ->where('created_at', '>=', now()->subDays(180))
+                ->whereNotIn('ventable_id', $destacadosIds)
                 ->select('ventable_id', DB::raw('SUM(cantidad) as total_vendido'))
                 ->groupBy('ventable_id')
                 ->orderByDesc('total_vendido')
-                ->take(8)
+                ->take($needed)
                 ->pluck('ventable_id')
                 ->toArray();
 
             if (!empty($masVendidosIds)) {
-                $destacados = Producto::whereIn('id', $masVendidosIds)
+                $extras = Producto::with('categoria')
+                    ->whereIn('id', $masVendidosIds)
                     ->where('estado', 'activo')
-                    ->get()
-                    ->sortBy(function ($producto) use ($masVendidosIds) {
-                        return array_search($producto->id, $masVendidosIds);
-                    })
-                    ->take(4)
-                    ->map(function ($producto) {
-                        $precioSinIva = $producto->precio_venta;
-                        $precioConIva = round($precioSinIva * 1.16, 2);
-                        return [
-                            'id' => $producto->id,
-                            'nombre' => $producto->nombre,
-                            'precio' => $precioConIva,
-                            'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
-                            'categoria' => $producto->categoria->nombre ?? 'General',
-                            'cva_clave' => $producto->cva_clave,
-                        ];
-                    });
-            } else {
-                // FALLBACK 2: Productos activos recientes
-                $destacados = Producto::where('estado', 'activo')
-                    ->latest()
-                    ->take(4)
-                    ->get()
-                    ->map(function ($producto) {
-                        $precioSinIva = $producto->precio_venta;
-                        $precioConIva = round($precioSinIva * 1.16, 2);
-                        return [
-                            'id' => $producto->id,
-                            'nombre' => $producto->nombre,
-                            'precio' => $precioConIva,
-                            'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::url($producto->imagen)) : null,
-                            'categoria' => $producto->categoria->nombre ?? 'General',
-                            'cva_clave' => $producto->cva_clave,
-                        ];
-                    });
+                    ->get();
+                $finalCollection = $finalCollection->concat($extras);
+                $destacadosIds = $finalCollection->pluck('id')->toArray();
             }
         }
+
+        // 3. Si aún faltan, rellenar con los más recientes (Fallback 2)
+        if ($finalCollection->count() < $limit) {
+            $needed = $limit - $finalCollection->count();
+            $recientes = Producto::with('categoria')
+                ->where('estado', 'activo')
+                ->whereNotIn('id', $destacadosIds)
+                ->latest()
+                ->take($needed)
+                ->get();
+            $finalCollection = $finalCollection->concat($recientes);
+        }
+
+        // Mapear resultado final
+        $destacados = $finalCollection->map(function ($producto) {
+            $precioSinIva = $producto->precio_venta;
+            $precioConIva = round($precioSinIva * 1.16, 2);
+            return [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,
+                'precio' => $precioConIva,
+                'imagen_url' => $producto->imagen ? (str_starts_with($producto->imagen, 'http') ? $producto->imagen : Storage::disk('public')->url($producto->imagen)) : null,
+                'categoria' => $producto->categoria->nombre ?? 'General',
+                'cva_clave' => $producto->cva_clave,
+                'tipo' => $producto->tipo_producto,
+                'destacado' => $producto->destacado,
+                'unidad_medida' => $producto->unidad_medida,
+            ];
+        });
 
         // Cargar contenido dinámico de la landing
         $faqs = LandingFaq::activo()->ordenado()->get(['id', 'pregunta', 'respuesta']);
@@ -115,11 +110,15 @@ class LandingController extends Controller
         // Obtener la oferta activa y vigente (solo la primera)
         $ofertaActiva = LandingOferta::activo()->vigente()->ordenado()->first();
 
-        return Inertia::render('Landing/Index', [
+        $page = (str_contains(strtolower(config('app.name')), 'vircom') || str_contains(request()->getHost(), 'vircom'))
+            ? 'Landing/VircomIndex'
+            : 'Landing/Index';
+
+        return Inertia::render($page, [
             'empresa' => [
                 'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
                 'logo_url' => $config->logo_url,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_principal' => $config->color_principal ?? '#FF6B35',
                 'color_secundario' => $config->color_secundario ?? '#64748B',
                 'color_terciario' => $config->color_terciario ?? '#fbbf24',
                 'telefono' => $config->telefono,
@@ -169,7 +168,7 @@ class LandingController extends Controller
             ] : null,
             'articulosBlog' => \App\Models\BlogPost::publicado()
                 ->orderByDesc('publicado_at')
-                ->take(3)
+                ->take(6)
                 ->get()
                 ->map(function ($post) {
                     return [
@@ -185,8 +184,8 @@ class LandingController extends Controller
                         'slug' => $post->slug,
                     ];
                 }),
-            'canLogin' => Route::has('login'),
-            'canRegister' => Route::has('register'),
+            'canLogin' => \Route::has('login'),
+            'canRegister' => \Route::has('register'),
         ]);
     }
 
@@ -202,7 +201,7 @@ class LandingController extends Controller
                 'nombre' => $config->razon_social ?? $config->nombre_empresa ?? 'Empresa',
                 'nombre_comercial' => $config->nombre_empresa ?? 'Empresa',
                 'logo_url' => $config->logo_url,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_principal' => $config->color_principal ?? '#FF6B35',
                 'color_secundario' => $config->color_secundario ?? '#64748B',
                 'direccion' => $config->direccion ?? '',
                 'ciudad' => $config->ciudad ?? '',
@@ -211,6 +210,146 @@ class LandingController extends Controller
                 'telefono' => $config->telefono ?? '',
                 'email' => $config->email ?? '',
                 'rfc' => $config->rfc ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de Reparación de Minisplit (Landing para Anuncios)
+     */
+    public function reparacion()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Servicios/Reparacion', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de Mantenimiento Preventivo
+     */
+    public function mantenimiento()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Servicios/Mantenimiento', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de Instalación de Minisplit
+     */
+    public function instalacion()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Servicios/Instalacion', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de Instalación Mirage Sin Costo (Desde tienda departamental)
+     */
+    public function instalacionMirage()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Servicios/InstalacionMirage', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+                'razon_social' => $config->razon_social ?? 'Climas del Desierto',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de Instalación Básica de 1500
+     */
+    public function instalacion1500()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Servicios/Instalacion1500', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+                'razon_social' => $config->razon_social ?? 'Climas del Desierto',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de Recarga de Gas Refrigerante
+     */
+    public function gas()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Servicios/RecargaGas', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
             ],
         ]);
     }
@@ -227,7 +366,7 @@ class LandingController extends Controller
                 'nombre' => $config->razon_social ?? $config->nombre_empresa ?? 'Empresa',
                 'nombre_comercial' => $config->nombre_empresa ?? 'Empresa',
                 'logo_url' => $config->logo_url,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_principal' => $config->color_principal ?? '#FF6B35',
                 'color_secundario' => $config->color_secundario ?? '#64748B',
                 'direccion' => $config->direccion ?? '',
                 'ciudad' => $config->ciudad ?? '',
@@ -252,147 +391,7 @@ class LandingController extends Controller
             'empresa' => [
                 'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
                 'logo_url' => $config->logo_url,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
-                'color_secundario' => $config->color_secundario ?? '#64748B',
-                'color_terciario' => $config->color_terciario ?? '#fbbf24',
-                'telefono' => $config->telefono,
-                'email' => $config->email,
-                'whatsapp' => $config->whatsapp ?? $config->telefono,
-            ],
-        ]);
-    }
-
-    /**
-     * Página Quienes Somos / Curriculum Empresarial
-     */
-    public function quienesSomos()
-    {
-        $config = EmpresaConfiguracion::getConfig();
-
-        $empresaId = $config->empresa_id;
-
-        return Inertia::render('Public/QuienesSomos', [
-            'empresa' => [
-                'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
-                'logo_url' => $config->logo_url,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
-                'color_secundario' => $config->color_secundario ?? '#64748B',
-                'color_terciario' => $config->color_terciario ?? '#fbbf24',
-                'telefono' => $config->telefono,
-                'email' => $config->email,
-                'whatsapp' => $config->whatsapp ?? $config->telefono,
-                'mision' => $config->mision ?? 'Potenciar la tranquilidad y productividad de las empresas en México a través de soluciones tecnológicas de vanguardia en seguridad electrónica y soporte TI. Nos comprometemos a brindar un servicio cercano, confiable y de excelencia, adaptado a las necesidades específicas del mercado nacional.',
-                'vision' => $config->vision ?? 'Ser reconocidos como el socio tecnológico más confiable y visionario de México para finales de esta década. Aspiramos a redefinir los estándares de seguridad y eficiencia operativa en el país, impulsando el crecimiento sostenible de nuestros clientes mediante innovación constante.',
-                'valores' => $config->valores ?? ['Excelencia en Servicio', 'Seguridad Total', 'Innovación Continua', 'Integridad y Ética', 'Compromiso Local', 'Pasión por el Cliente'],
-            ],
-            'logos' => \App\Models\LandingLogoCliente::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
-            'marcas' => \App\Models\LandingMarcaAutorizada::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
-        ]);
-    }
-
-    /**
-     * Generar PDF del Curriculum Empresarial
-     */
-    public function curriculumPdf()
-    {
-        $config = \App\Models\EmpresaConfiguracion::getConfig();
-        $infoEmpresa = \App\Models\EmpresaConfiguracion::getInfoEmpresa();
-        $empresaId = $config->empresa_id;
-
-        // Helper para convertir imágenes locales a base64 para el PDF
-        $toBase64 = function ($path) {
-            if (! is_string($path) || ! is_file($path) || ! is_readable($path)) {
-                return null;
-            }
-
-            $data = file_get_contents($path);
-            if ($data === false) {
-                return null;
-            }
-
-            $mime = mime_content_type($path) ?: 'application/octet-stream';
-            if ($mime === 'image/webp') return null; // DomPDF crash sin GD webp support
-
-            return str_starts_with($mime, 'image/')
-                 ? 'data:' . $mime . ';base64,' . base64_encode($data)
-                 : null;
-        };
-
-        // Buscar imágenes generadas que ahora están en el almacenamiento local del proyecto
-        $localStoragePath = storage_path('app/public/landing/curriculum/');
-        
-        $data = [
-            'empresa' => [
-                'nombre' => $config->nombre_empresa ?? 'ASISTENCIA VIRCOM',
-                'razon_social' => $config->razon_social ?? 'JESUS ALBERTO LOPEZ NORIEGA',
-                'rfc' => $config->rfc ?? 'LONJ880321KMA',
-                'curp' => 'LONJ880321HSONRJ02',
-                'giro' => 'Servicios de Seguridad Electrónica y Soluciones TI',
-                'fundacion' => '2009',
-                'trayectoria' => '15 años',
-                'cobertura' => 'Nacional con presencia fuerte en el Norte de México (Sonora, Sinaloa, Baja California)',
-                'sitio_web' => $config->sitio_web ?? 'www.asistenciavircom.com',
-                'email' => $config->email ?? 'jlopez@asistenciavircom.com',
-                'telefono' => $config->telefono ?? '6622036840',
-                'direccion' => $config->direccion_completa,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
-                'logo_base64' => $infoEmpresa['logo_base64'],
-                'mision' => $config->mision ?? 'Potenciar la tranquilidad y productividad de las empresas en México a través de soluciones tecnológicas de vanguardia en seguridad electrónica y soporte TI.',
-                'vision' => $config->vision ?? 'Ser reconocidos como el socio tecnológico más confiable y visionario de México, redefiniendo los estándares de seguridad y eficiencia operativa.',
-                'valores' => $config->valores ?? ['Excelencia en Servicio', 'Seguridad Total', 'Innovación Continua', 'Integridad y Ética', 'Compromiso Local', 'Pasión por el Cliente'],
-            ],
-            'directivo' => [
-                'nombre' => 'Jesus Lopez Noriega',
-                'puesto' => 'Director General',
-                'telefono' => '6622036840',
-                'email' => 'jlopez@asistenciavircom.com',
-                'foto_base64' => $toBase64(public_path('branding/fotos/jesus_lopez.png')), // Intentar cargar foto
-            ],
-            'certificaciones' => [
-                'SAT' => 'Constancia de Situación Fiscal Actualizada',
-                'REPSE' => 'Registro de Prestadoras de Servicios Especializados',
-                'IMSS' => 'Cumplimiento de Obligaciones de Seguridad Social',
-            ],
-            'experiencia_top' => [
-                'Sector Privado' => 'Carl\'s Jr (Instalaciones y Mantenimiento)',
-                'Sector Público' => 'Gobierno del Estado de Sonora (Sindicatura, Secretaría de Hacienda)',
-            ],
-            'imagenes_servicios' => [
-                'seguridad' => $toBase64($localStoragePath . 'servicios_seguridad_premium_1773449576956.png'),
-                'pos' => $toBase64($localStoragePath . 'puntos_de_venta_modernos_1773449592399.png'),
-                'biometricos' => $toBase64($localStoragePath . 'relojes_checador_biometricos_1773449619368.png'),
-                'equipo' => $toBase64($localStoragePath . 'equipo_tecnico_certificado_1773449631797.png'),
-                'it' => $toBase64($localStoragePath . 'infraestructura_it_empresarial_premium_1773449646580.png'),
-            ],
-            'marcas' => \App\Models\LandingMarcaAutorizada::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
-            'logos' => \App\Models\LandingLogoCliente::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
-            'fecha' => now()->format('d/m/Y')
-        ];
-
-        $pdf = Pdf::loadView('pdf.curriculum', $data)
-            ->setPaper('letter', 'portrait')
-            ->setOptions([
-                'isRemoteEnabled' => true,
-                'isHtml5ParserEnabled' => true,
-                'dpi' => 96,
-                'defaultFont' => 'DejaVu Sans',
-            ]);
-
-        return $pdf->stream('Curriculum_Empresarial_' . str_replace(' ', '_', $data['empresa']['nombre']) . '.pdf');
-    }
-
-    /**
-     * Página de Puntos de Venta (Landing + Simulador)
-     */
-    public function puntosVenta()
-    {
-        $config = EmpresaConfiguracion::getConfig();
-
-        return Inertia::render('Public/PuntosVenta', [
-            'empresa' => [
-                'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
-                'logo_url' => $config->logo_url,
-                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_principal' => $config->color_principal ?? '#FF6B35',
                 'color_secundario' => $config->color_secundario ?? '#64748B',
                 'color_terciario' => $config->color_terciario ?? '#fbbf24',
                 'telefono' => $config->telefono,
@@ -514,7 +513,7 @@ class LandingController extends Controller
                 'telefono' => $infoEmpresa['telefono'],
                 'email' => $infoEmpresa['email'],
                 'whatsapp' => $config->whatsapp ?? $infoEmpresa['telefono'],
-                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_principal' => $config->color_principal ?? '#FF6B35',
                 'color_secundario' => $config->color_secundario ?? '#64748B',
                 'color_terciario' => $config->color_terciario ?? '#fbbf24',
             ],
@@ -537,5 +536,238 @@ class LandingController extends Controller
 
         $pdf = Pdf::loadView('pdf.asesor_reporte', $data);
         return $pdf->stream($isPOS ? 'Propuesta_POS_Personalizada.pdf' : 'Reporte_Tecnico_Climatizacion.pdf');
+    }
+
+    /**
+     * Página de Eliminación de Datos de Usuario
+     */
+    public function eliminacion()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Legal/Eliminacion', [
+            'empresa' => [
+                'nombre' => $config->razon_social ?? $config->nombre_empresa ?? 'Empresa',
+                'nombre_comercial' => $config->nombre_empresa ?? 'Empresa',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'direccion' => $config->direccion ?? '',
+                'ciudad' => $config->ciudad ?? '',
+                'estado' => $config->estado ?? '',
+                'codigo_postal' => $config->codigo_postal ?? '',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'rfc' => $config->rfc ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Propuesta exclusiva SGS Hermosillo (Vue Inertia)
+     */
+    public function propuestaSgs()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+        return Inertia::render('Public/PropuestaSGS', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '6624606840',
+                'email' => $config->email ?? 'contacto@climasdeldesierto.com',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '6624606840',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'estado' => $config->estado ?? 'Sonora',
+                'direccion' => $config->direccion_completa ?? 'Retorno de los Oratorios #2, Col. Bicentenario',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+            ]
+        ]);
+    }
+
+    /**
+     * Página de aterrizaje premium para el minisplit Life 12+ (Inspirada en BYD)
+     */
+    public function life12plus()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Landing/Life12Plus', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Página de aterrizaje premium para el minisplit Magnum 22 Inverter
+     */
+    public function magnum22()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Landing/Magnum22', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Climas del Desierto',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#FF6B35',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'telefono' => $config->telefono ?? '',
+                'email' => $config->email ?? '',
+                'whatsapp' => $config->whatsapp ?? $config->telefono ?? '',
+                'ciudad' => $config->ciudad ?? 'Hermosillo',
+                'facebook_url' => $config->facebook_url ?? '',
+                'instagram_url' => $config->instagram_url ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * Página Quienes Somos / Curriculum Empresarial (Vircom)
+     */
+    public function quienesSomos()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+        $empresaId = $config->empresa_id;
+
+        return Inertia::render('Public/QuienesSomos', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'color_terciario' => $config->color_terciario ?? '#fbbf24',
+                'telefono' => $config->telefono,
+                'email' => $config->email,
+                'whatsapp' => $config->whatsapp ?? $config->telefono,
+                'mision' => $config->mision ?? 'Potenciar la tranquilidad y productividad de las empresas en México a través de soluciones tecnológicas de vanguardia en seguridad electrónica y soporte TI. Nos comprometemos a brindar un servicio cercano, confiable y de excelencia, adaptado a las necesidades específicas del mercado nacional.',
+                'vision' => $config->vision ?? 'Ser reconocidos como el socio tecnológico más confiable y visionario de México para finales de esta década. Aspiramos a redefinir los estándares de seguridad y eficiencia operativa en el país, impulsando el crecimiento sostenible de nuestros clientes mediante innovación constante.',
+                'valores' => $config->valores ?? ['Excelencia en Servicio', 'Seguridad Total', 'Innovación Continua', 'Integridad y Ética', 'Compromiso Local', 'Pasión por el Cliente'],
+            ],
+            'logos' => \App\Models\LandingLogoCliente::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+            'marcas' => \App\Models\LandingMarcaAutorizada::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+        ]);
+    }
+
+    /**
+     * Generar PDF del Curriculum Empresarial (Vircom)
+     */
+    public function curriculumPdf()
+    {
+        $config = \App\Models\EmpresaConfiguracion::getConfig();
+        $infoEmpresa = \App\Models\EmpresaConfiguracion::getInfoEmpresa();
+        $empresaId = $config->empresa_id;
+
+        $toBase64 = function ($path) {
+            if (! is_string($path) || ! is_file($path) || ! is_readable($path)) {
+                return null;
+            }
+
+            $data = file_get_contents($path);
+            if ($data === false) {
+                return null;
+            }
+
+            $mime = mime_content_type($path) ?: 'application/octet-stream';
+            if ($mime === 'image/webp') return null;
+
+            return str_starts_with($mime, 'image/')
+                 ? 'data:' . $mime . ';base64,' . base64_encode($data)
+                 : null;
+        };
+
+        $localStoragePath = storage_path('app/public/landing/curriculum/');
+        
+        $data = [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'ASISTENCIA VIRCOM',
+                'razon_social' => $config->razon_social ?? 'JESUS ALBERTO LOPEZ NORIEGA',
+                'rfc' => $config->rfc ?? 'LONJ880321KMA',
+                'curp' => 'LONJ880321HSONRJ02',
+                'giro' => 'Servicios de Seguridad Electrónica y Soluciones TI',
+                'fundacion' => '2009',
+                'trayectoria' => '15 años',
+                'cobertura' => 'Nacional con presencia fuerte en el Norte de México (Sonora, Sinaloa, Baja California)',
+                'sitio_web' => $config->sitio_web ?? 'www.asistenciavircom.com',
+                'email' => $config->email ?? 'jlopez@asistenciavircom.com',
+                'telefono' => $config->telefono ?? '6622036840',
+                'direccion' => $config->direccion_completa,
+                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'logo_base64' => $infoEmpresa['logo_base64'],
+                'mision' => $config->mision ?? 'Potenciar la tranquilidad y productividad de las empresas en México a través de soluciones tecnológicas de vanguardia en seguridad electrónica y soporte TI.',
+                'vision' => $config->vision ?? 'Ser reconocidos como el socio tecnológico más confiable y visionario de México, redefiniendo los estándares de seguridad y eficiencia operativa.',
+                'valores' => $config->valores ?? ['Excelencia en Servicio', 'Seguridad Total', 'Innovación Continua', 'Integridad y Ética', 'Compromiso Local', 'Pasión por el Cliente'],
+            ],
+            'directivo' => [
+                'nombre' => 'Jesus Lopez Noriega',
+                'puesto' => 'Director General',
+                'telefono' => '6622036840',
+                'email' => 'jlopez@asistenciavircom.com',
+                'foto_base64' => $toBase64(public_path('branding/fotos/jesus_lopez.png')),
+            ],
+            'certificaciones' => [
+                'SAT' => 'Constancia de Situación Fiscal Actualizada',
+                'REPSE' => 'Registro de Prestadoras de Servicios Especializados',
+                'IMSS' => 'Cumplimiento de Obligaciones de Seguridad Social',
+            ],
+            'experiencia_top' => [
+                'Sector Privado' => 'Carl\'s Jr (Instalaciones y Mantenimiento)',
+                'Sector Público' => 'Gobierno del Estado de Sonora (Sindicatura, Secretaría de Hacienda)',
+            ],
+            'imagenes_servicios' => [
+                'seguridad' => $toBase64($localStoragePath . 'servicios_seguridad_premium_1773449576956.png'),
+                'pos' => $toBase64($localStoragePath . 'puntos_de_venta_modernos_1773449592399.png'),
+                'biometricos' => $toBase64($localStoragePath . 'relojes_checador_biometricos_1773449619368.png'),
+                'equipo' => $toBase64($localStoragePath . 'equipo_tecnico_certificado_1773449631797.png'),
+                'it' => $toBase64($localStoragePath . 'infraestructura_it_empresarial_premium_1773449646580.png'),
+            ],
+            'marcas' => \App\Models\LandingMarcaAutorizada::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+            'logos' => \App\Models\LandingLogoCliente::where('empresa_id', $empresaId)->where('activo', true)->ordenado()->get(),
+            'fecha' => now()->format('d/m/Y')
+        ];
+
+        $pdf = Pdf::loadView('pdf.curriculum', $data)
+            ->setPaper('letter', 'portrait')
+            ->setOptions([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'dpi' => 96,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
+
+        return $pdf->stream('Curriculum_Empresarial_' . str_replace(' ', '_', $data['empresa']['nombre']) . '.pdf');
+    }
+
+    /**
+     * Página de Puntos de Venta (Vircom)
+     */
+    public function puntosVenta()
+    {
+        $config = EmpresaConfiguracion::getConfig();
+
+        return Inertia::render('Public/PuntosVenta', [
+            'empresa' => [
+                'nombre' => $config->nombre_empresa ?? 'Mi Empresa',
+                'logo_url' => $config->logo_url,
+                'color_principal' => $config->color_principal ?? '#3B82F6',
+                'color_secundario' => $config->color_secundario ?? '#64748B',
+                'color_terciario' => $config->color_terciario ?? '#fbbf24',
+                'telefono' => $config->telefono,
+                'email' => $config->email,
+                'whatsapp' => $config->whatsapp ?? $config->telefono,
+            ],
+        ]);
     }
 }

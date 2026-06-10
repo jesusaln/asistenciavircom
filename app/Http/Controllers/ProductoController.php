@@ -22,6 +22,7 @@ use App\Models\SatObjetoImp;
 use App\Models\SatClaveProdServ;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
+use App\Support\EmpresaResolver;
 use App\Traits\ImageOptimizerTrait;
 
 class ProductoController extends Controller
@@ -41,7 +42,7 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Producto::query()->with(['categoria', 'marca', 'proveedor', 'almacen']);
+            $query = Producto::query()->with(['categoria', 'marca', 'proveedor', 'almacen', 'inventarios.almacen']);
 
             // Búsqueda optimizada usando Trigram Search (pg_trgm)
             if ($search = trim($request->input('search', ''))) {
@@ -84,8 +85,19 @@ class ProductoController extends Controller
             // Agregar permisos a cada producto (sin N+1: usa withCount)
             foreach ($productos->items() as $producto) {
                 $producto->can_delete = $producto->puedeEliminarseSegunConteosDeListado();
-                $producto->can_toggle_in_index = false; // No mostrar botón de cambiar estado en el índice
-                $producto->can_toggle_in_modal = true; // Sí mostrar en el modal
+                $producto->can_toggle_in_index = false;
+                $producto->can_toggle_in_modal = true;
+            }
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $productos->items(),
+                    'total' => $productos->total(),
+                    'current_page' => $productos->currentPage(),
+                    'last_page' => $productos->lastPage(),
+                    'per_page' => $productos->perPage(),
+                ]);
             }
 
             // Estadísticas optimizadas en una sola consulta
@@ -258,8 +270,16 @@ class ProductoController extends Controller
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255',
                 'descripcion' => 'nullable|string',
-                'codigo' => 'nullable|string|unique:productos,codigo',
-                'codigo_barras' => 'required|string|unique:productos,codigo_barras',
+                'codigo' => [
+                    'nullable',
+                    'string',
+                    Rule::unique('productos', 'codigo')->where('empresa_id', EmpresaResolver::resolveId())
+                ],
+                'codigo_barras' => [
+                    'required',
+                    'string',
+                    Rule::unique('productos', 'codigo_barras')->where('empresa_id', EmpresaResolver::resolveId())
+                ],
                 'categoria_id' => 'required|exists:categorias,id',
                 'marca_id' => 'required|exists:marcas,id',
                 'proveedor_id' => 'nullable|exists:proveedores,id',
@@ -454,11 +474,13 @@ class ProductoController extends Controller
 
             // Limpiar campos SAT
             foreach (['sat_clave_prod_serv', 'sat_clave_unidad', 'sat_objeto_imp'] as $field) {
-                $val = $request->input($field);
-                if (is_array($val) || is_object($val)) {
-                    $val = is_array($val) ? ($val['clave'] ?? null) : null;
+                if ($request->has($field)) {
+                    $val = $request->input($field);
+                    if (is_array($val) || is_object($val)) {
+                        $val = is_array($val) ? ($val['clave'] ?? null) : null;
+                    }
+                    $request->merge([$field => is_string($val) ? $val : null]);
                 }
-                $request->merge([$field => is_string($val) ? $val : null]);
             }
 
             $validated = $request->validate([
@@ -472,12 +494,12 @@ class ProductoController extends Controller
                 'codigo' => [
                     'nullable',
                     'string',
-                    Rule::unique('productos', 'codigo')->ignore($producto->id),
+                    Rule::unique('productos', 'codigo')->ignore($producto->id)->where('empresa_id', EmpresaResolver::resolveId()),
                 ],
                 'codigo_barras' => [
                     'nullable',
                     'string',
-                    Rule::unique('productos', 'codigo_barras')->ignore($producto->id),
+                    Rule::unique('productos', 'codigo_barras')->ignore($producto->id)->where('empresa_id', EmpresaResolver::resolveId()),
                 ],
                 'expires' => 'boolean',
                 'requiere_serie' => 'boolean',
@@ -692,7 +714,7 @@ class ProductoController extends Controller
      */
     public function show($id)
     {
-        $producto = Producto::with(['categoria', 'marca', 'proveedor', 'almacen'])->find($id);
+        $producto = Producto::with(['categoria', 'marca', 'proveedor', 'almacen', 'componentes.item'])->find($id);
 
         if (!$producto) {
             return response()->json(['error' => 'Producto no encontrado'], 404);
@@ -1205,43 +1227,68 @@ class ProductoController extends Controller
      */
     private function generateCorrectStorageUrl($path)
     {
-        $scheme = request()->isSecure() ? 'https' : 'http';
+        // Si ya es una URL absoluta (externa como CVA, etc.), devolverla sin modificar
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        $scheme = (!app()->isLocal() || request()->header('X-Forwarded-Proto') === 'https' || str_contains(request()->getHost(), 'climasdeldesierto.com')) ? 'https' : 'http';
         $host = request()->getHost();
-        $port = request()->getPort();
+        
+        // No agregar puerto en producción o si el host es climasdeldesierto.com
+        if (!app()->isLocal() || str_contains($host, 'climasdeldesierto.com')) {
+            $portString = '';
+        } else {
+            $port = request()->getPort();
+            $portString = (($scheme === 'http' && $port !== 80) || ($scheme === 'https' && $port !== 443)) ? ':' . $port : '';
+        }
 
-        // No agregar puerto si es el puerto estándar
-        $portString = (($scheme === 'http' && $port !== 80) || ($scheme === 'https' && $port !== 443)) ? ':' . $port : '';
-
-        return "{$scheme}://{$host}{$portString}/storage/{$path}";
+        return "{$scheme}://{$host}{$portString}/storage/" . ltrim($path, '/');
     }
     /**
      * Helper para guardar imagen como WebP
      */
     private function saveImageAsWebP($file, $path = 'productos', $disk = 'public')
     {
-        // Ensure directory exists
-        $fullPathDir = storage_path("app/public/{$path}");
-        if (!file_exists($fullPathDir)) {
-            mkdir($fullPathDir, 0755, true);
+        // Fallback: Si no existe soporte para WebP en el servidor, guardar original
+        if (!function_exists('imagewebp')) {
+            return $file->store($path, $disk);
         }
 
-        // Crear imagen desde string
-        $imageString = file_get_contents($file);
-        $image = @imagecreatefromstring($imageString);
+        try {
+            // Ensure directory exists
+            $fullPathDir = storage_path("app/public/{$path}");
+            if (!file_exists($fullPathDir)) {
+                mkdir($fullPathDir, 0755, true);
+            }
 
-        if (!$image) {
-            throw new \Exception("Formato de imagen no soportado o archivo corrupto.");
+            // Crear imagen desde string
+            $imageString = file_get_contents($file);
+            $image = @imagecreatefromstring($imageString);
+
+            if (!$image) {
+                // Si no se puede crear la imagen, guardar original como fallback
+                return $file->store($path, $disk);
+            }
+
+            // Generar nombre único
+            $filename = uniqid() . '.webp';
+            $fullPath = "{$fullPathDir}/{$filename}";
+
+            // Intentar convertir a WebP (calidad 80)
+            if (@imagewebp($image, $fullPath, 80)) {
+                imagedestroy($image);
+                return "{$path}/{$filename}";
+            }
+
+            // Si falla la escritura WebP, guardar original
+            imagedestroy($image);
+            return $file->store($path, $disk);
+
+        } catch (\Exception $e) {
+            \Log::warning("Error convirtiendo a WebP, usando fallback original: " . $e->getMessage());
+            return $file->store($path, $disk);
         }
-
-        // Generar nombre único
-        $filename = uniqid() . '.webp';
-        $fullPath = "{$fullPathDir}/{$filename}";
-
-        // Convertir a WebP (calidad 80)
-        imagewebp($image, $fullPath, 80);
-        imagedestroy($image);
-
-        return "{$path}/{$filename}";
     }
 
     /**

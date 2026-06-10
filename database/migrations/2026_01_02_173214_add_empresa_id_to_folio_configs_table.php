@@ -10,13 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('folio_configs', function (Blueprint $table) {
-            $table->unsignedBigInteger('empresa_id')->nullable()->after('id');
-            $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
+        if (!Schema::hasColumn('folio_configs', 'empresa_id')) {
+            Schema::table('folio_configs', function (Blueprint $table) {
+                $table->unsignedBigInteger('empresa_id')->nullable()->after('id');
+                $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
 
-            // Hacer único por empresa y tipo de documento
-            $table->unique(['empresa_id', 'document_type']);
-        });
+                // Hacer único por empresa y tipo de documento
+                $table->unique(['empresa_id', 'document_type']);
+            });
+        }
     }
 
     /**

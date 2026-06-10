@@ -9,6 +9,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class Equipo extends Model
 {
+    use BelongsToEmpresa;
+
     use SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'equipos';

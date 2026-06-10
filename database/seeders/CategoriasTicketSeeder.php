@@ -20,7 +20,7 @@ class CategoriasTicketSeeder extends Seeder
             [
                 'nombre' => 'Sistema',
                 'descripcion' => 'Problemas relacionados con software o sistemas.',
-                'color' => '#3B82F6', // Blue
+                'color' => '#FF6B35', // Blue
                 'sla_horas' => 24,
                 'activo' => true,
             ],

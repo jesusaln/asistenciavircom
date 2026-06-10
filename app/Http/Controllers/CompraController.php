@@ -264,12 +264,12 @@ class CompraController extends Controller
         // ✅ FIX: Solo mostrar proveedores activos
         $proveedores = Proveedor::where('activo', true)->orderBy('nombre_razon_social')->get();
 
-        // Obtener productos con informaciï¿½n de stock por almacï¿½n
+        // Obtener productos con información de stock por almacén
         $productosBase = Producto::where('estado', 'activo')->get();
         $almacenes = Almacen::where('estado', 'activo')->get();
 
         $productos = $productosBase->map(function ($producto) use ($almacenes) {
-            // Obtener stock disponible en cada almacï¿½n
+            // Obtener stock disponible en cada almacén
             $stockPorAlmacen = [];
             foreach ($almacenes as $almacen) {
                 $inventario = \App\Models\Inventario::where('producto_id', $producto->id)
@@ -308,26 +308,27 @@ class CompraController extends Controller
             ];
         });
 
-        // Obtener almacï¿½n predeterminado del usuario para compras
+        // Obtener almacén predeterminado del usuario para compras
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
+        $almacenUsuario = null;
         if (Auth::check() && $user && $user->almacen_compra_id) {
             $almacenUsuario = Almacen::where('id', $user->almacen_compra_id)
                 ->where('estado', 'activo')
                 ->first();
         }
 
-        // Si el usuario no tiene almacï¿½n predeterminado, usar el principal o el primero activo
+        // Si el usuario no tiene almacén predeterminado, usar el principal o el primero activo
         if (!$almacenUsuario) {
             $almacenUsuario = Almacen::where('estado', 'activo')
                 ->where(function ($query) {
-                    $query->where('nombre', 'Almacï¿½n Principal')
+                    $query->where('nombre', 'Almacén Principal')
                         ->orWhere('nombre', 'LIKE', '%Principal%');
                 })
                 ->orderBy('id', 'asc')
                 ->first();
 
-            // Si no encuentra almacï¿½n principal, usar el primero activo
+            // Si no encuentra almacén principal, usar el primero activo
             if (!$almacenUsuario) {
                 $almacenUsuario = Almacen::where('estado', 'activo')
                     ->orderBy('id', 'asc')
@@ -368,7 +369,7 @@ class CompraController extends Controller
             'productos.*.descuento' => 'nullable|numeric|min:0|max:100',
         ];
 
-        // Agregar validaciï¿½n de lotes para productos que vencen y series por unidad
+        // Agregar validación de lotes para productos que vencen y series por unidad
         foreach ($request->productos ?? [] as $index => $producto) {
             $productoModel = Producto::find($producto['id']);
             if ($productoModel && $productoModel->expires) {
@@ -1191,9 +1192,11 @@ class CompraController extends Controller
             // Crear si no existe
             CuentasPorPagar::create([
                 'compra_id' => $compra->id,
+                'proveedor_id' => $compra->proveedor_id,
                 'monto_total' => $nuevoTotal,
                 'monto_pagado' => 0,
                 'monto_pendiente' => $nuevoTotal,
+                'fecha_emision' => now()->toDateString(),
                 'fecha_vencimiento' => now()->addDays(30),
                 'estado' => 'pendiente',
                 'notas' => 'Cuenta regenerada por edición de compra',

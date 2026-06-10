@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CotizacionItem extends Model
 {
+    use BelongsToEmpresa;
+
 
     use HasFactory, BelongsToEmpresa;
 

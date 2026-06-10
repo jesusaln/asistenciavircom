@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -8,6 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class KitItem extends Model
 {
+    use BelongsToEmpresa;
+
     use SoftDeletes;
     protected $table = 'kit_items';
 
@@ -49,7 +52,7 @@ class KitItem extends Model
      */
     public function kit(): BelongsTo
     {
-        return $this->belongsTo(Producto::class, 'kit_producto_id');
+        return $this->belongsTo(Producto::class, 'kit_id');
     }
 
     /**
@@ -102,15 +105,23 @@ class KitItem extends Model
      */
     public function tieneStockSuficiente(int $cantidadKits = 1): bool
     {
-        // Los servicios no requieren stock
         if ($this->esServicio()) {
             return true;
         }
 
-        // Para productos, verificar stock
         if ($this->esProducto() && $this->item) {
             $cantidadNecesaria = $this->cantidad * $cantidadKits;
-            return $this->item->stock_disponible >= $cantidadNecesaria;
+            $producto = $this->item;
+
+            // Productos con series: verificar disponibilidad de series en_stock
+            if (($producto->requiere_serie ?? false) || ($producto->maneja_series ?? false)) {
+                return $producto->series()
+                    ->where('almacen_id', $producto->almacen_id)
+                    ->where('estado', 'en_stock')
+                    ->count() >= $cantidadNecesaria;
+            }
+
+            return $producto->stock_disponible >= $cantidadNecesaria;
         }
 
         return false;

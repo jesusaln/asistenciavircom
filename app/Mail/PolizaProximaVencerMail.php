@@ -10,9 +10,11 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+
 class PolizaProximaVencerMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public $poliza;
     public $empresa;
@@ -25,7 +27,7 @@ class PolizaProximaVencerMail extends Mailable
     public function __construct(PolizaServicio $poliza)
     {
         $this->poliza = $poliza;
-        $this->empresa = EmpresaConfiguracion::getConfig();
+        $this->empresa = EmpresaConfiguracion::getConfig($poliza->empresa_id);
         $this->diasRestantes = $poliza->dias_para_vencer;
         $this->fechaVencimiento = \Carbon\Carbon::parse($poliza->fecha_fin)->format('d/m/Y');
     }

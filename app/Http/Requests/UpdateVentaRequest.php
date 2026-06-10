@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Producto;
 use App\Enums\EstadoVenta;
+use App\Services\MarginService;
 
 class UpdateVentaRequest extends FormRequest
 {
@@ -21,32 +22,81 @@ class UpdateVentaRequest extends FormRequest
      */
     public function rules(): array
     {
+        $venta = $this->route('venta');
+        
+        // Handle case where route model binding is bypassed (e.g. in some tests)
+        if (is_string($venta) || is_numeric($venta)) {
+            $venta = \App\Models\Venta::find($venta);
+        }
+
+        $isPaid = $venta && $venta->pagado;
+
+        // Si la venta está pagada, solo permitir editar notas
+        if ($isPaid) {
+            return [
+                'notas' => 'nullable|string|max:2000',
+                'vendedor_id' => 'nullable|exists:users,id',
+                'vendedor_type' => 'nullable|string|in:App\\Models\\User',
+                'pagado_por' => 'nullable|exists:users,id',
+                // Permitir que los demás campos pasen sin validación estricta
+                'cliente_id' => 'nullable',
+                'price_list_id' => 'nullable',
+                'numero_venta' => 'nullable|string',
+                'fecha' => 'nullable|date',
+                'estado' => 'nullable|string',
+                'descuento_general' => 'nullable|numeric|min:0',
+                'metodo_pago' => 'nullable|string',
+                'forma_pago_sat' => 'nullable|string|max:10',
+                'metodo_pago_sat' => 'nullable|string|max:10',
+                'cuenta_bancaria_id' => 'nullable|exists:cuentas_bancarias,id',
+                'almacen_id' => 'prohibited',
+                'productos' => 'nullable|array',
+                'productos.*.id' => 'nullable',
+                'productos.*.cantidad' => 'nullable',
+                'productos.*.precio' => 'nullable',
+                'productos.*.descuento' => 'nullable',
+                'productos.*.series' => 'nullable|array',
+                'productos.*.series.*' => 'nullable|string',
+                'productos.*.componentes_series' => 'nullable|array',
+                'servicios' => 'nullable|array',
+                'servicios.*.id' => 'nullable',
+                'servicios.*.cantidad' => 'nullable',
+                'servicios.*.precio' => 'nullable',
+                'servicios.*.descuento' => 'nullable',
+            ];
+        }
+
         return [
             'cliente_id' => 'nullable|exists:clientes,id',
+            'vendedor_id' => 'nullable|exists:users,id',
+            'vendedor_type' => 'nullable|string|in:App\\Models\\User',
+            'pagado_por' => 'nullable|exists:users,id',
             'price_list_id' => 'nullable|exists:price_lists,id',
             'numero_venta' => 'required|string',
             'fecha' => 'required|date',
             'estado' => 'required|string',
             'descuento_general' => 'nullable|numeric|min:0',
             'metodo_pago' => 'required|string',
+            'forma_pago_sat' => 'nullable|string|max:10',
+            'metodo_pago_sat' => 'nullable|string|max:10',
+            'cuenta_bancaria_id' => 'nullable|exists:cuentas_bancarias,id',
             'almacen_id' => 'prohibited', // No se permite cambiar el almacén
-            'productos' => 'required|array|min:1',
+            'productos' => 'nullable|array',
             'productos.*.id' => 'required|exists:productos,id',
-            'productos.*.cantidad' => 'required|integer|min:1',
-            'productos.*.precio' => 'required|numeric|min:0',
+            'productos.*.cantidad' => 'required|numeric|min:0.001',
+            'productos.*.precio' => 'required|numeric|min:0.01',
             'productos.*.descuento' => 'nullable|numeric|min:0|max:100',
             'productos.*.series' => 'nullable|array',
             'productos.*.series.*' => 'required|string|regex:/^[a-zA-Z0-9\-_@]+$/|max:50',
-            // ✅ FIX: Added missing kit component series validation (same as StoreVentaRequest)
             'productos.*.componentes_series' => 'nullable|array',
             'productos.*.componentes_series.*' => 'nullable|array',
             'productos.*.componentes_series.*.*' => 'required|string|regex:/^[a-zA-Z0-9\-_@]+$/|max:50',
             'servicios' => 'nullable|array',
-            'servicios.*.id' => 'nullable|exists:servicios,id',
-            'servicios.*.cantidad' => 'nullable|integer|min:1',
-            'servicios.*.precio' => 'nullable|numeric|min:0',
+            'servicios.*.id' => 'required|exists:servicios,id',
+            'servicios.*.cantidad' => 'required|numeric|min:0.001',
+            'servicios.*.precio' => 'required|numeric|min:0.01',
             'servicios.*.descuento' => 'nullable|numeric|min:0|max:100',
-            'notas' => 'nullable|string|max:1000',
+            'notas' => 'nullable|string|max:2000',
         ];
     }
 
@@ -56,31 +106,34 @@ class UpdateVentaRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $this->validateVentaNotPaid($validator);
-            $this->validateVentaNotCancelled($validator);
-            $this->validateSeriesCount($validator);
-            $this->validateProductosActivos($validator);
-        });
-    }
+            $venta = $this->route('venta');
+            if (is_string($venta) || is_numeric($venta)) {
+                $venta = \App\Models\Venta::find($venta);
+            }
+            
+            $isPaid = $venta && $venta->pagado;
 
-    /**
-     * Validate that the venta is not paid
-     */
-    protected function validateVentaNotPaid($validator)
-    {
-        $venta = $this->route('venta');
-        
-        if ($venta && $venta->pagado) {
-            $validator->errors()->add('venta', 'No se pueden editar ventas pagadas');
-        }
+            $this->validateVentaNotCancelled($validator, $venta);
+
+            if (!$isPaid) {
+                $this->validateSeriesCount($validator);
+                $this->validateProductosActivos($validator);
+                $this->validatePreciosNoMenoresAlCosto($validator);
+            }
+        });
     }
 
     /**
      * Validate that the venta is not cancelled
      */
-    protected function validateVentaNotCancelled($validator)
+    protected function validateVentaNotCancelled($validator, $venta = null)
     {
-        $venta = $this->route('venta');
+        if (!$venta) {
+            $venta = $this->route('venta');
+            if (is_string($venta) || is_numeric($venta)) {
+                $venta = \App\Models\Venta::find($venta);
+            }
+        }
         
         if ($venta && $venta->estado?->value === EstadoVenta::Cancelada->value) {
             $validator->errors()->add('venta', 'No se pueden editar ventas canceladas');
@@ -159,7 +212,7 @@ class UpdateVentaRequest extends FormRequest
     }
 
     /**
-     * Validate that all products are active
+     * Validate that products are active and prices respect minimum margin
      */
     protected function validateProductosActivos($validator)
     {
@@ -178,6 +231,49 @@ class UpdateVentaRequest extends FormRequest
     }
 
     /**
+     * Validate that selling price respects margin policy (configurable).
+     * M-06: Added to UpdateVentaRequest (was only in StoreVentaRequest).
+     */
+    protected function validatePreciosNoMenoresAlCosto($validator)
+    {
+        if (!config('ventas.validar_margen', true)) {
+            return;
+        }
+
+        $user = $this->user();
+        $rolesOverride = config('ventas.roles_override_margen', []);
+        if ($user && method_exists($user, 'hasRole') && !empty($rolesOverride)) {
+            if ($user->hasRole($rolesOverride)) {
+                return;
+            }
+        }
+
+        $productos = $this->input('productos', []);
+        if (empty($productos)) {
+            return;
+        }
+
+        $marginService = new MarginService();
+
+        foreach ($productos as $index => $item) {
+            $producto = Producto::find($item['id']);
+            if (!$producto) {
+                continue;
+            }
+
+            $precio = (float) ($item['precio'] ?? 0);
+            $validacion = $marginService->validarMargen($producto, $precio);
+
+            if (!$validacion['valido']) {
+                $validator->errors()->add(
+                    "productos.{$index}.precio",
+                    "El precio de '{$producto->nombre}' está por debajo del margen mínimo requerido ({$validacion['margen_requerido']}%)."
+                );
+            }
+        }
+    }
+
+    /**
      * Get custom messages for validator errors.
      */
     public function messages(): array
@@ -187,12 +283,15 @@ class UpdateVentaRequest extends FormRequest
             'productos.*.id.required' => 'El ID del producto es requerido',
             'productos.*.id.exists' => 'El producto seleccionado no existe',
             'productos.*.cantidad.required' => 'La cantidad es requerida',
-            'productos.*.cantidad.min' => 'La cantidad debe ser al menos 1',
+            'productos.*.cantidad.min' => 'La cantidad debe ser al menos 0.001',
             'productos.*.precio.required' => 'El precio es requerido',
-            'productos.*.precio.min' => 'El precio no puede ser negativo',
+            'productos.*.precio.min' => 'El precio del producto debe ser al menos 0.01',
             'productos.*.descuento.max' => 'El descuento no puede ser mayor a 100%',
             'productos.*.series.*.regex' => 'El formato de la serie es inválido',
             'productos.*.series.*.max' => 'La serie no puede tener más de 50 caracteres',
+            'servicios.*.precio.min' => 'El precio del servicio debe ser al menos 0.01',
+            'servicios.*.precio.required' => 'El precio del servicio es requerido',
+            'servicios.*.cantidad.min' => 'La cantidad del servicio debe ser al menos 0.001',
             'almacen_id.prohibited' => 'No se permite cambiar el almacén de una venta',
             'numero_venta.required' => 'El número de venta es requerido',
             'fecha.required' => 'La fecha es requerida',

@@ -23,6 +23,7 @@ const props = defineProps({
       whatsapp_chatbot_enabled: false,
       whatsapp_chatbot_mode: 'off_hours',
       whatsapp_chatbot_prompt: '',
+      whatsapp_chatbot_type: 'ai',
     })
   }
 })
@@ -209,23 +210,28 @@ const opcionesModoChatbot = [
   { value: 'off_hours', label: 'Fuera de Horario Laboral' },
   { value: 'off', label: 'Desactivado' },
 ]
+
+const opcionesTipoChatbot = [
+  { value: 'ai', label: 'Asistente de IA (VircomBot)' },
+  { value: 'menu', label: 'Menú de Opciones Estructurado (1, 2, 3...)' },
+]
 </script>
 
 <template>
   <Head title="Configuración de WhatsApp" />
 
-  <div class="whatsapp-config min-h-screen bg-white">
+  <div class="whatsapp-config min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Configuración de WhatsApp Business</h1>
-            <p class="text-gray-600 mt-2">Configure la integración con WhatsApp Business API para envío de recordatorios automáticos</p>
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Configuración de WhatsApp Business</h1>
+            <p class="text-slate-500 mt-2">Configure la integración con WhatsApp Business API para envío de recordatorios automáticos</p>
           </div>
           <router-link
             :to="route('empresa-configuracion.index')"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
           >
             ← Volver a Configuración
           </router-link>
@@ -234,9 +240,9 @@ const opcionesModoChatbot = [
 
       <div class="grid grid-cols-1 gap-8">
         <!-- Formulario principal -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Configuración de WhatsApp</h2>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200">
+            <h2 class="text-lg font-semibold text-slate-900">Configuración de WhatsApp</h2>
           </div>
 
           <form @submit.prevent="submitForm" class="p-6 space-y-6">
@@ -247,26 +253,26 @@ const opcionesModoChatbot = [
                   id="whatsapp_enabled"
                   v-model="form.whatsapp_enabled"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-brand-500 border-slate-300 rounded-xl"
                 />
-                <label for="whatsapp_enabled" class="ml-2 block text-sm font-medium text-gray-700">
+                <label for="whatsapp_enabled" class="ml-2 block text-sm font-medium text-slate-700">
                   Habilitar WhatsApp Business
                 </label>
               </div>
-              <p class="mt-1 text-sm text-gray-500">
+              <p class="mt-1 text-sm text-slate-500">
                 Active esta opción para habilitar el envío automático de recordatorios por WhatsApp
               </p>
             </div>
 
             <!-- Información de la API -->
             <div v-if="form.whatsapp_enabled" class="space-y-6">
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-md font-medium text-gray-900 mb-4">Configuración de la API</h3>
+              <div class="border-t border-slate-200 pt-6">
+                <h3 class="text-md font-medium text-slate-900 mb-4">Configuración de la API</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Business Account ID -->
                   <div>
-                    <label for="whatsapp_business_account_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_business_account_id" class="block text-sm font-medium text-slate-700 mb-2">
                       Business Account ID *
                     </label>
                     <input
@@ -274,16 +280,16 @@ const opcionesModoChatbot = [
                       v-model="form.whatsapp_business_account_id"
                       type="text"
                       placeholder="1234567890123456"
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'border-red-300': errors.whatsapp_business_account_id }"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
+                      :class="{ 'border-rose-300': errors.whatsapp_business_account_id }"
                     />
-                    <p v-if="errors.whatsapp_business_account_id" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_business_account_id }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Obtenible en Facebook Business Manager</p>
+                    <p v-if="errors.whatsapp_business_account_id" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_business_account_id }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Obtenible en Facebook Business Manager</p>
                   </div>
 
                   <!-- Phone Number ID -->
                   <div>
-                    <label for="whatsapp_phone_number_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_phone_number_id" class="block text-sm font-medium text-slate-700 mb-2">
                       Phone Number ID *
                     </label>
                     <input
@@ -291,16 +297,16 @@ const opcionesModoChatbot = [
                       v-model="form.whatsapp_phone_number_id"
                       type="text"
                       placeholder="123456789012345"
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'border-red-300': errors.whatsapp_phone_number_id }"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
+                      :class="{ 'border-rose-300': errors.whatsapp_phone_number_id }"
                     />
-                    <p v-if="errors.whatsapp_phone_number_id" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_phone_number_id }}</p>
-                    <p class="mt-1 text-xs text-gray-500">ID del número de WhatsApp Business</p>
+                    <p v-if="errors.whatsapp_phone_number_id" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_phone_number_id }}</p>
+                    <p class="mt-1 text-xs text-slate-500">ID del número de WhatsApp Business</p>
                   </div>
 
                   <!-- Número de teléfono -->
                   <div>
-                    <label for="whatsapp_sender_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_sender_phone" class="block text-sm font-medium text-slate-700 mb-2">
                       Número de Teléfono *
                     </label>
                     <input
@@ -308,22 +314,22 @@ const opcionesModoChatbot = [
                       v-model="form.whatsapp_sender_phone"
                       type="text"
                       placeholder="+52551234567"
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'border-red-300': errors.whatsapp_sender_phone }"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
+                      :class="{ 'border-rose-300': errors.whatsapp_sender_phone }"
                     />
-                    <p v-if="errors.whatsapp_sender_phone" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_sender_phone }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Formato E.164 con código de país</p>
+                    <p v-if="errors.whatsapp_sender_phone" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_sender_phone }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Formato E.164 con código de país</p>
                   </div>
 
                   <!-- Idioma por defecto -->
                   <div>
-                    <label for="whatsapp_default_language" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_default_language" class="block text-sm font-medium text-slate-700 mb-2">
                       Idioma por Defecto
                     </label>
                     <select
                       id="whatsapp_default_language"
                       v-model="form.whatsapp_default_language"
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option v-for="opcion in opcionesIdioma" :key="opcion.value" :value="opcion.value">
                         {{ opcion.label }}
@@ -334,13 +340,13 @@ const opcionesModoChatbot = [
               </div>
 
               <!-- Credenciales de seguridad -->
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-md font-medium text-gray-900 mb-4">Credenciales de Seguridad</h3>
+              <div class="border-t border-slate-200 pt-6">
+                <h3 class="text-md font-medium text-slate-900 mb-4">Credenciales de Seguridad</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Access Token -->
                   <div class="md:col-span-2">
-                    <label for="whatsapp_access_token" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_access_token" class="block text-sm font-medium text-slate-700 mb-2">
                       Access Token *
                     </label>
                     <textarea
@@ -348,16 +354,16 @@ const opcionesModoChatbot = [
                       v-model="form.whatsapp_access_token"
                       rows="3"
                       placeholder="EAAG..."
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                      :class="{ 'border-red-300': errors.whatsapp_access_token }"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500 font-mono text-sm"
+                      :class="{ 'border-rose-300': errors.whatsapp_access_token }"
                     ></textarea>
-                    <p v-if="errors.whatsapp_access_token" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_access_token }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Token de acceso permanente de Facebook</p>
+                    <p v-if="errors.whatsapp_access_token" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_access_token }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Token de acceso permanente de Facebook</p>
                   </div>
 
                   <!-- App Secret -->
                   <div class="md:col-span-2">
-                    <label for="whatsapp_app_secret" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_app_secret" class="block text-sm font-medium text-slate-700 mb-2">
                       App Secret *
                     </label>
                     <textarea
@@ -365,16 +371,16 @@ const opcionesModoChatbot = [
                       v-model="form.whatsapp_app_secret"
                       rows="3"
                       placeholder="abcd1234..."
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                      :class="{ 'border-red-300': errors.whatsapp_app_secret }"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500 font-mono text-sm"
+                      :class="{ 'border-rose-300': errors.whatsapp_app_secret }"
                     ></textarea>
-                    <p v-if="errors.whatsapp_app_secret" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_app_secret }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Secreto de la aplicación de Facebook</p>
+                    <p v-if="errors.whatsapp_app_secret" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_app_secret }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Secreto de la aplicación de Facebook</p>
                   </div>
 
                   <!-- Webhook Verify Token -->
                   <div>
-                    <label for="whatsapp_webhook_verify_token" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_webhook_verify_token" class="block text-sm font-medium text-slate-700 mb-2">
                       Token de Verificación Webhook *
                     </label>
                     <div class="flex space-x-2">
@@ -383,46 +389,46 @@ const opcionesModoChatbot = [
                         v-model="form.whatsapp_webhook_verify_token"
                         type="text"
                         placeholder="token123456"
-                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        :class="{ 'border-red-300': errors.whatsapp_webhook_verify_token }"
+                        class="flex-1 px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
+                        :class="{ 'border-rose-300': errors.whatsapp_webhook_verify_token }"
                       />
                       <button
                         type="button"
                         @click="generateWebhookToken"
-                        class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="px-3 py-1 text-sm bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
                       >
                         Generar
                       </button>
                     </div>
-                    <p v-if="errors.whatsapp_webhook_verify_token" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_webhook_verify_token }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Token personalizado para verificar webhooks</p>
+                    <p v-if="errors.whatsapp_webhook_verify_token" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_webhook_verify_token }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Token personalizado para verificar webhooks</p>
                   </div>
 
                   <!-- Plantilla de recordatorio -->
                   <div>
-                    <label for="whatsapp_template_payment_reminder" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="whatsapp_template_payment_reminder" class="block text-sm font-medium text-slate-700 mb-2">
                       Plantilla de Recordatorio *
                     </label>
                     <select
                       id="whatsapp_template_payment_reminder"
                       v-model="form.whatsapp_template_payment_reminder"
-                      class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'border-red-300': errors.whatsapp_template_payment_reminder }"
+                      class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
+                      :class="{ 'border-rose-300': errors.whatsapp_template_payment_reminder }"
                     >
                       <option value="">Seleccionar plantilla...</option>
                       <option v-for="opcion in opcionesPlantilla" :key="opcion.value" :value="opcion.value">
                         {{ opcion.label }}
                       </option>
                     </select>
-                    <p v-if="errors.whatsapp_template_payment_reminder" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_template_payment_reminder }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Plantilla aprobada por Meta para recordatorios</p>
+                    <p v-if="errors.whatsapp_template_payment_reminder" class="mt-1 text-sm text-rose-600">{{ errors.whatsapp_template_payment_reminder }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Plantilla aprobada por Meta para recordatorios</p>
                   </div>
                 </div>
               </div>
 
               <!-- Configuración del Chatbot -->
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-md font-medium text-gray-900 mb-4">Configuración del Chatbot (IA)</h3>
+              <div class="border-t border-slate-200 pt-6">
+                <h3 class="text-md font-medium text-slate-900 mb-4">Configuración del Chatbot / Auto-respondedor</h3>
                 
                 <div class="space-y-6">
                   <div class="flex items-center">
@@ -430,32 +436,48 @@ const opcionesModoChatbot = [
                       id="whatsapp_chatbot_enabled"
                       v-model="form.whatsapp_chatbot_enabled"
                       type="checkbox"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      class="h-4 w-4 text-blue-600 focus:ring-brand-500 border-slate-300 rounded-xl"
                     />
-                    <label for="whatsapp_chatbot_enabled" class="ml-2 block text-sm font-medium text-gray-700">
-                      Habilitar Asistente de IA (VircomBot)
+                    <label for="whatsapp_chatbot_enabled" class="ml-2 block text-sm font-medium text-slate-700">
+                      Habilitar Respuesta Automática (Chatbot)
                     </label>
                   </div>
 
                   <div v-if="form.whatsapp_chatbot_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label for="whatsapp_chatbot_mode" class="block text-sm font-medium text-gray-700 mb-2">
+                      <label for="whatsapp_chatbot_type" class="block text-sm font-medium text-slate-700 mb-2">
+                        Tipo de Chatbot
+                      </label>
+                      <select
+                        id="whatsapp_chatbot_type"
+                        v-model="form.whatsapp_chatbot_type"
+                        class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option v-for="opcion in opcionesTipoChatbot" :key="opcion.value" :value="opcion.value">
+                          {{ opcion.label }}
+                        </option>
+                      </select>
+                      <p class="mt-1 text-xs text-slate-500">Seleccione si desea usar un asistente inteligente (IA) o un menú fijo estructurado</p>
+                    </div>
+
+                    <div>
+                      <label for="whatsapp_chatbot_mode" class="block text-sm font-medium text-slate-700 mb-2">
                         Modo de Respuesta
                       </label>
                       <select
                         id="whatsapp_chatbot_mode"
                         v-model="form.whatsapp_chatbot_mode"
-                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500"
                       >
                         <option v-for="opcion in opcionesModoChatbot" :key="opcion.value" :value="opcion.value">
                           {{ opcion.label }}
                         </option>
                       </select>
-                      <p class="mt-1 text-xs text-gray-500">Determine cuándo debe responder el bot automáticamente</p>
+                      <p class="mt-1 text-xs text-slate-500">Determine cuándo debe responder el bot automáticamente</p>
                     </div>
 
-                    <div class="md:col-span-2">
-                      <label for="whatsapp_chatbot_prompt" class="block text-sm font-medium text-gray-700 mb-2">
+                    <div v-if="form.whatsapp_chatbot_type === 'ai'" class="md:col-span-2">
+                      <label for="whatsapp_chatbot_prompt" class="block text-sm font-medium text-slate-700 mb-2">
                         Instrucciones Personalizadas (Prompt)
                       </label>
                       <textarea
@@ -463,9 +485,9 @@ const opcionesModoChatbot = [
                         v-model="form.whatsapp_chatbot_prompt"
                         rows="4"
                         placeholder="Ej: Eres un asistente de ventas para Climas del Desierto. Sé amable y ayuda con citas..."
-                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm font-sans"
+                        class="block w-full px-3 py-2 border border-slate-300 rounded-2xl shadow-sm focus:outline-none focus:ring-brand-500 focus:border-brand-500 text-sm font-sans"
                       ></textarea>
-                      <p class="mt-1 text-xs text-gray-500">Personalice la personalidad y reglas de su asistente virtual</p>
+                      <p class="mt-1 text-xs text-slate-500">Personalice la personalidad y reglas de su asistente virtual</p>
                     </div>
                   </div>
                 </div>
@@ -473,24 +495,24 @@ const opcionesModoChatbot = [
             </div>
 
             <!-- Información de ayuda -->
-            <div v-if="form.whatsapp_enabled" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div v-if="form.whatsapp_enabled" class="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
               <h4 class="text-sm font-medium text-blue-900 mb-2">Información Importante</h4>
-              <div class="text-sm text-blue-800 space-y-1">
+              <div class="text-sm text-sky-800 dark:text-sky-200 space-y-1">
                 <p>• Asegúrese de que las plantillas estén aprobadas en Meta Business</p>
                 <p>• El número de teléfono debe estar en formato E.164 (ej: +52551234567)</p>
-                <p>• Configure el webhook en Meta apuntando a: <code class="bg-blue-100 px-1 rounded">https://sudominio.com/api/webhooks/whatsapp</code></p>
+                <p>• Configure el webhook en Meta apuntando a: <code class="bg-sky-100 px-1 rounded-xl">https://sudominio.com/api/webhooks/whatsapp</code></p>
                 <p>• Use el mismo token de verificación en la configuración de Meta</p>
               </div>
             </div>
 
             <!-- Botones de acción -->
-            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between pt-6 border-t border-slate-200">
               <button
                 v-if="form.whatsapp_enabled"
                 type="button"
                 @click="testConfiguration"
                 :disabled="testing"
-                class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 <span v-if="testing" class="flex items-center">
                   <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -506,14 +528,14 @@ const opcionesModoChatbot = [
                 <button
                   type="button"
                   @click="$inertia.get(route('empresa-configuracion.index'))"
-                  class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  class="px-4 py-2 border border-slate-300 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
                 >
                   ❌ Cancelar
                 </button>
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   <span v-if="loading" class="flex items-center">
                     <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

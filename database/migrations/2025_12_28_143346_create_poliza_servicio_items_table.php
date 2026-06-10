@@ -10,15 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('poliza_servicio_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('poliza_id')->constrained('polizas_servicio')->onDelete('cascade');
-            $table->foreignId('servicio_id')->constrained('servicios')->onDelete('cascade');
-            $table->integer('cantidad')->default(1);
-            $table->decimal('precio_especial', 15, 2)->nullable(); // Precio acordado en la póliza si difiere del catálogo
-            $table->text('notas')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('poliza_servicio_items')) {
+            Schema::create('poliza_servicio_items', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('poliza_id')->constrained('polizas_servicio')->onDelete('cascade');
+                $table->foreignId('servicio_id')->constrained('servicios')->onDelete('cascade');
+                $table->integer('cantidad')->default(1);
+                $table->decimal('precio_especial', 15, 2)->nullable(); // Precio acordado en la póliza si difiere del catálogo
+                $table->text('notas')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -1,9 +1,8 @@
 <template>
-  <Head title="Citas" />
-  <div class="citas-index min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-    <div class="w-full px-4 lg:px-8 py-8">
-      <!-- Header específico de citas -->
-      <CitasHeader
+  <Head title="Citas de Servicio" />
+  <div class="citas-index min-h-screen bg-[var(--ui-surface)] transition-colors duration-500">
+    <div class="w-full px-4 lg:px-10 py-10">
+      <!-- Header Estratégico -->      <CitasHeader
         :total="estadisticas.total"
         :programadas="estadisticas.programadas"
         :por-atender="estadisticas.porAtender"
@@ -19,652 +18,392 @@
         @sort-change="handleSortChange"
         @limpiar-filtros="limpiarFiltros"
         v-model:view-mode="viewMode"
+        v-model:fecha-desde="fechaDesde"
+        v-model:fecha-hasta="fechaHasta"
+        @date-change="handleDateChange"
+        @open-availability="showAvailabilityModal = true"
       />
 
-      <!-- Tabla -->
-      <div v-if="viewMode === 'table'" class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
-            <thead class="bg-gray-50/50 dark:bg-gray-900/50 transition-colors">
-              <tr>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cita</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Folio</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Técnico</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reporte / Fotos</th>
-                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-50 dark:divide-gray-700 transition-colors">
-              <tr v-for="cita in citasDocumentos" :key="cita.id" class="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors duration-150">
-                <td class="px-6 py-4">
-                  <div class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ formatearFecha(cita.raw.fecha_hora) }}</div>
-                  <div class="text-[10px] text-gray-500 dark:text-gray-400">{{ formatearHora(cita.raw.fecha_hora) }} <span v-if="cita.raw.fecha_hora_fin" class="text-gray-400 dark:text-gray-500">- {{ formatearHora(cita.raw.fecha_hora_fin) }}</span></div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ cita.titulo }}</div>
-                  <div class="flex items-center gap-1 mt-1">
-                    <span class="w-1.5 h-1.5 rounded-full" :class="cita.raw.estado === 'completado' ? 'bg-green-500' : 'bg-amber-500'"></span>
-                    <span class="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-tighter">{{ cita.raw.tipo_servicio || 'SERVICIO' }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">{{ cita.raw.folio || '—' }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ cita.subtitulo }}</div>
-                  <div class="text-[10px] text-gray-400 dark:text-gray-500 truncate max-w-[150px]">{{ cita.raw.cliente?.telefono || 'Sin teléfono' }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                      {{ getInitials(cita.raw.tecnico?.name) }}
-                    </div>
-                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ cita.raw.tecnico?.name || 'N/A' }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span :class="obtenerEstadoCitaClase(cita.raw)" class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border">
-                    {{ obtenerEstadoCitaLabel(cita.raw) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <div v-if="cita.raw.fotos_finales?.length > 0" class="flex flex-col items-center gap-2">
-                    <div
-                       @click="openGallery(cita.raw.fotos_finales, `Evidencias - Cita #${cita.id}`)"
-                       class="cursor-pointer group flex flex-col items-center gap-1">
-                    
-                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-800 dark:group-hover:text-indigo-300 uppercase tracking-wide flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full border border-indigo-100 dark:border-indigo-800/50 transition-colors">
-                       📸 Fotos #{{ cita.id }}
-                    </span>
+      <!-- Vista de Tabla Premium -->
+      <div v-if="viewMode === 'table'" class="mt-10 space-y-8">
+        <CitasTable 
+          :items="citasDocumentos" 
+          @ver-detalles="verDetalles" 
+          @editar="editarCita" 
+          @reprogramar="abrirReprogramar"
+          @cancelar="confirmarCancelacion"
+          @ver-galeria="openGallery"
+          @descargar-evidencias="descargarEvidenciasCita"
+        />
 
-                    <div class="flex -space-x-2 overflow-hidden justify-center hover:space-x-1 transition-all mt-1">
-                      <img 
-                        v-for="(foto, idx) in cita.raw.fotos_finales.slice(0, 3)" 
-                        :key="idx"
-                        :src="storageSrc(foto)" 
-                        loading="lazy"
-                        decoding="async"
-                        class="inline-block h-8 w-8 rounded-lg ring-2 ring-white dark:ring-gray-800 object-cover shadow-sm bg-gray-100 dark:bg-gray-700 group-hover:ring-indigo-200 transition-all font-bold"
-                        :title="cita.raw.trabajo_realizado || 'Ver evidencias'"
-                      >
-                      <div v-if="cita.raw.fotos_finales.length > 3" class="flex items-center justify-center h-8 w-8 rounded-lg ring-2 ring-white dark:ring-gray-800 bg-gray-100 dark:bg-gray-700 text-[10px] font-bold text-gray-500 dark:text-gray-400 shadow-sm group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/50 transition-all">
-                        +{{ cita.raw.fotos_finales.length - 3 }}
-                      </div>
-                    </div>
-                    </div>
-                    <button
-                      type="button"
-                      @click.stop="descargarEvidenciasCita(cita.id)"
-                      class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-700 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-600 transition-colors"
-                      title="Descargar todas las evidencias en un ZIP"
-                    >
-                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                      Descargar evidencias
-                    </button>
-                  </div>
-                  <div v-else-if="cita.raw.trabajo_realizado" class="text-[10px] font-bold text-gray-400 dark:text-gray-500 italic text-center">
-                    Reporte sin fotos
-                  </div>
-                  <div v-else class="text-xs text-gray-300 dark:text-gray-600 text-center">—</div>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button @click="verDetalles(cita)" class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-sm" title="Ver detalles">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button @click="editarCita(cita.id)" class="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-all shadow-sm" title="Editar">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button v-if="cita.raw.estado === 'pendiente' || cita.raw.estado === 'programado' || cita.raw.estado === 'pendiente_asignacion' || cita.raw.estado === 'reprogramado'" @click="abrirReprogramar(cita.raw)" class="w-9 h-9 flex items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-all shadow-sm" title="Reprogramar">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </button>
-                    <button v-if="puedeEliminarCita(cita.raw)" @click="confirmarEliminacion(cita.raw)" class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 transition-all shadow-sm" title="Eliminar">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="citasDocumentos.length === 0">
-                <td colspan="7" class="px-6 py-20 text-center">
-                  <div class="flex flex-col items-center space-y-4">
-                    <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center transition-colors">
-                      <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div class="space-y-1">
-                      <p class="text-gray-700 dark:text-gray-300 font-bold text-lg">No hay citas registradas</p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">Intenta ajustar los filtros de búsqueda</p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- Paginación de Alto Rendimiento (Control Central de Datos) -->
+        <div class="bg-slate-900 dark:bg-slate-900 backdrop-blur-2xl rounded-[2.5rem] border border-slate-800 px-10 py-8 transition-all shadow-2xl relative overflow-hidden group">
+          <!-- Efecto decorativo -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+          
+          <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <div class="flex flex-col">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Métricas de Vista</span>
+                <p class="text-[11px] font-black text-slate-200 uppercase tracking-widest">
+                  Resultados: <span class="text-blue-400">{{ paginationData.from }} - {{ paginationData.to }}</span> de <span class="text-white">{{ paginationData.total }}</span>
+                </p>
+              </div>
+              
+              <div class="h-8 w-px bg-slate-800 hidden md:block"></div>
 
-        <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700 px-6 py-4 transition-colors">
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-              <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
-                Mostrando <span class="font-bold text-gray-900 dark:text-white">{{ paginationData.from }}</span> a <span class="font-bold text-gray-900 dark:text-white">{{ paginationData.to }}</span> de <span class="font-bold text-gray-900 dark:text-white">{{ paginationData.total }}</span> resultados
-              </p>
-              <select
-                :value="paginationData.perPage"
-                @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-bold py-1.5 px-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500/50 transition-all outline-none"
-              >
-                <option value="10">10 por página</option>
-                <option value="15">15 por página</option>
-                <option value="25">25 por página</option>
-                <option value="50">50 por página</option>
-              </select>
+              <div class="flex flex-col">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Densidad de Datos</span>
+                <select
+                  :value="paginationData.perPage"
+                  @change="handlePerPageChange(parseInt($event.target.value))"
+                  class="bg-slate-800 border-2 border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-wider py-2.5 px-5 text-white focus:ring-2 focus:ring-blue-500/50 transition-all outline-none cursor-pointer hover:border-slate-600 shadow-lg"
+                >
+                  <option value="10">10 REG / PÁG</option>
+                  <option value="25">25 REG / PÁG</option>
+                  <option value="50">50 REG / PÁG</option>
+                  <option value="100">100 REG / PÁG</option>
+                  <option value="500">VER TODOS (500)</option>
+                </select>
+              </div>
             </div>
 
-            <nav class="flex items-center gap-2">
-              <button
-                v-if="paginationData.prevPageUrl"
-                @click="handlePageChange(paginationData.currentPage - 1)"
-                class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-              </button>
-
-              <div class="flex items-center gap-1">
-                <button
-                  v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
-                  :key="page"
-                  @click="handlePageChange(page)"
-                  :class="page === paginationData.currentPage ? 'bg-blue-600 text-white border-blue-600 shadow-blue-200 dark:shadow-none' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
-                  class="w-9 h-9 flex items-center justify-center rounded-xl border text-sm font-bold transition-all shadow-sm"
-                >
-                  {{ page }}
-                </button>
-              </div>
-
-              <button
-                v-if="paginationData.nextPageUrl"
-                @click="handlePageChange(paginationData.currentPage + 1)"
-                class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-              </button>
-            </nav>
+            <div class="w-full lg:w-auto">
+              <Pagination 
+                :pagination-data="citasPaginator"
+                @page-change="handlePageChange"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Calendario -->
-      <div v-else class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
-        <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50 transition-colors">
-          <div class="flex items-center gap-4">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-white capitalize transition-colors">{{ monthYearLabel }}</h2>
+      <!-- Vista de Calendario Operativo -->
+      <div v-else class="mt-10 bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-500">
+        <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/30 dark:bg-slate-900/50">
+          <div class="flex items-center gap-6">
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-wider capitalize">{{ monthYearLabel }}</h2>
             <div class="flex gap-2">
-              <button @click="changeMonth(-1)" class="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm">
-                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+              <button @click="changeMonth(-1)" class="w-11 h-11 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-700 rounded-2xl transition-all shadow-sm">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
               </button>
-              <button @click="currentMonth = new Date()" class="px-4 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+              <button @click="currentMonth = new Date()" class="px-6 h-11 text-[10px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:white uppercase tracking-wide border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl transition-all shadow-sm">
                 Hoy
               </button>
-              <button @click="changeMonth(1)" class="w-9 h-9 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm">
-                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              <button @click="changeMonth(1)" class="w-11 h-11 flex items-center justify-center bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-700 rounded-2xl transition-all shadow-sm">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
               </button>
             </div>
           </div>
-          <div class="flex flex-wrap justify-end gap-x-4 gap-y-2 text-[10px] font-bold uppercase tracking-wider max-w-xl">
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-200 dark:shadow-none"></div>
-              <span class="text-gray-500 dark:text-gray-400 transition-colors">Programado</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-sm shadow-yellow-200 dark:shadow-none"></div>
-              <span class="text-gray-500 dark:text-gray-400 transition-colors">Pendiente</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-amber-600 shadow-sm shadow-amber-200 dark:shadow-none"></div>
-              <span class="text-gray-500 dark:text-gray-400 transition-colors">Sin asignar</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-200 dark:shadow-none"></div>
-              <span class="text-gray-500 dark:text-gray-400 transition-colors">Proceso</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-200 dark:shadow-none"></div>
-              <span class="text-gray-500 dark:text-gray-400 transition-colors">Hecho</span>
-            </div>
+          
+          <div class="flex flex-wrap items-center gap-4">
+             <div v-for="(color, label) in legendColors" :key="label" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+               <div :class="color" class="w-2 h-2 rounded-full shadow-sm"></div>
+               <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">{{ label }}</span>
+             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-7 border-b border-gray-100 dark:border-gray-700 transition-colors">
-          <div v-for="day in ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']" :key="day" class="py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 transition-colors">
+        <div class="grid grid-cols-7 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+          <div v-for="day in ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']" :key="day" class="py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
             {{ day }}
           </div>
         </div>
 
-        <div class="grid grid-cols-7 auto-rows-[130px]">
+        <div class="grid grid-cols-7 border-slate-100 dark:border-slate-800">
           <div v-for="(day, idx) in daysInMonth" :key="idx" 
-               :class="['border-r border-b border-gray-100 dark:border-gray-700 p-2 transition-all relative group', 
-                        day.month === 'current' ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-900/30 opacity-60']">
-            <div class="flex justify-between items-start mb-2">
-              <span :class="['text-xs font-bold w-7 h-7 flex items-center justify-center rounded-full transition-colors', 
-                             isToday(day.date) ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none' : 'text-gray-400 dark:text-gray-500']">
+               :class="['border-r border-b border-slate-100 dark:border-slate-800 p-4 transition-all relative group min-h-[180px]', 
+                        day.month === 'current' ? 'bg-white dark:bg-slate-950' : 'bg-slate-50/30 dark:bg-slate-900/20 opacity-40']">
+            <div class="flex justify-between items-start mb-3">
+              <span :class="['text-sm font-black w-10 h-10 flex items-center justify-center rounded-2xl transition-all shadow-sm', 
+                             isToday(day.date) ? 'bg-blue-600 text-white shadow-sky-500/30' : 'text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-800']">
                 {{ day.day }}
               </span>
             </div>
             
-            <div class="space-y-1 overflow-y-auto max-h-[85px] custom-scrollbar pr-1">
-              <div v-for="cita in getCitasForDay(day.date)" :key="cita.id"
-                   @click="verDetalles({ raw: cita, titulo: `Cita #${cita.id}` })"
-                   :class="['p-1.5 rounded-lg text-[9px] font-bold cursor-pointer truncate transition-all hover:scale-[1.02] shadow-sm active:scale-95',
-                            obtenerEstadoCitaClase(cita.raw || cita),
-                            bordeCalendarioPorEstado(cita.raw?.estado || cita.estado)]"
-                   :title="`${cita.raw?.cliente?.nombre_razon_social || cita.cliente?.nombre_razon_social} - ${cita.raw?.descripcion || cita.raw?.problema_reportado || cita.descripcion || cita.problema_reportado}`">
-                <span class="opacity-70">{{ formatearHora(cita.raw?.fecha_hora || cita.fecha_hora) }}</span> {{ cita.raw?.cliente?.nombre_razon_social || cita.cliente?.nombre_razon_social }}
-              </div>
+            <div class="space-y-2">
+              <template v-for="item in getCitasForDay(day.date)" :key="item.id">
+                <div v-if="item.isCita"
+                    @click="verDetalles({ raw: item, titulo: `Cita #${item.id}` })"
+                    :class="['p-2.5 rounded-xl text-[11px] font-black cursor-pointer truncate transition-all hover:scale-[1.03] shadow-sm border-l-4',
+                             obtenerEstadoCitaClase(item.raw || item)]"
+                    :title="`${item.raw?.cliente?.nombre_razon_social || item.cliente?.nombre_razon_social} - ${item.raw?.problema_reportado || item.problema_reportado}`">
+                  <div class="flex items-center justify-between mb-2">
+                     <span class="opacity-100 dark:text-white font-black text-[9px] tracking-tighter">
+                        {{ formatearHora(item.raw?.fecha_hora || item.fecha_hora) }} - {{ formatearHora(item.raw?.fecha_hora_fin || item.fecha_hora_fin) }}
+                     </span>
+                  </div>
+                  <div class="uppercase truncate dark:text-white font-black text-[11px] leading-tight mb-1">{{ item.raw?.cliente?.nombre_razon_social || item.cliente?.nombre_razon_social }}</div>
+                  
+                  <!-- Técnico Asignado (NUEVO: Full Name) -->
+                  <div v-if="item.raw?.tecnico || item.tecnico" class="flex items-center gap-1.5 mt-1.5 py-1 px-2 bg-black/5 dark:bg-white/5 rounded-lg border border-black/5 dark:border-white/5">
+                     <span class="w-1.5 h-1.5 rounded-full shrink-0" :style="{ backgroundColor: (item.raw?.tecnico?.color || item.tecnico?.color || '#94a3b8') }"></span>
+                     <span class="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-black truncate">
+                        {{ item.raw?.tecnico?.name || item.tecnico_nombre || item.tecnico?.name }}
+                     </span>
+                  </div>
+
+                  <div v-if="item.raw?.problema_reportado" class="text-[8px] opacity-60 truncate italic mt-1.5">"{{ item.raw.problema_reportado }}"</div>
+                </div>
+                <div v-else-if="item.isBloqueo"
+                    class="p-2 rounded-xl text-[9px] font-black truncate transition-all bg-slate-100 dark:bg-slate-800 text-slate-400 border-l-4 border-slate-300 dark:border-slate-700"
+                    :title="`${item.tecnico}: ${item.motivo}`">
+                  🌴 {{ item.tecnico }}: {{ item.motivo }}
+                </div>
+              </template>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Modal de Detalles (Expediente 360°) -->
+      <CitasModal 
+        :show="showModal && modalMode === 'details'" 
+        :selected="selectedCita" 
+        :auditoria="auditoriaForModal"
+        @close="cerrarModalCita"
+        @editar="editarCita"
+        @cancelar="confirmarCancelacion"
+        @descargar-evidencias="descargarEvidenciasCita"
+        @ver-galeria="openGallery"
+      />
 
-      <!-- Modal mejorado -->
-      <Transition name="modal">
-        <div v-if="showModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all" @click.self="showModal = false">
-          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col transition-colors border border-gray-100 dark:border-gray-700">
-            <!-- Header del modal -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 transition-colors">
-              <div class="flex items-center gap-3">
-                <div :class="[modalMode === 'details' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400']" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
-                  <svg v-if="modalMode === 'details'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-                </div>
-                <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">
-                    {{ modalMode === 'details' ? 'Detalles de la Cita' : 'Confirmar Eliminación' }}
-                  </h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Cita #{{ selectedCita?.id || selectedId }}</p>
-                </div>
-              </div>
-              <button @click="showModal = false" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-              </button>
+      <!-- Modal de Confirmación de Cancelación -->
+      <Transition name="modal-fade">
+        <div v-if="showModal && modalMode === 'confirm'" class="fixed inset-0 z-[100] flex items-center justify-center p-4" @click.self="cerrarModalCita">
+          <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-md"></div>
+          <div class="relative w-full max-w-md bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 p-8 text-center">
+            <div class="w-20 h-20 bg-rose-50 dark:bg-rose-900/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-rose-600 border border-rose-100 dark:border-rose-800">
+               <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
             </div>
-
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-gray-800 transition-colors">
-              <div v-if="modalMode === 'details' && selectedCita">
-                <div class="space-y-6">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                      <div>
-                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Cliente</label>
-                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-colors">
-                          <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs">
-                            {{ getInitials(selectedCita.cliente?.nombre_razon_social) }}
-                          </div>
-                          <div>
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">{{ selectedCita.cliente?.nombre_razon_social || 'N/A' }}</p>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[150px]">{{ selectedCita.cliente?.telefono || selectedCita.cliente?.email || 'Sin contacto' }}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Técnico Asignado</label>
-                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-colors">
-                          <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
-                            {{ getInitials(selectedCita.tecnico?.name) }}
-                          </div>
-                          <p class="text-sm font-bold text-gray-900 dark:text-white">{{ selectedCita.tecnico?.name || 'N/A' }}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="space-y-4">
-                      <div>
-                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Programación</label>
-                        <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-colors space-y-2">
-                          <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Fecha:</span>
-                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatearFecha(selectedCita.fecha_hora) }}</span>
-                          </div>
-                          <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Hora:</span>
-                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatearHora(selectedCita.fecha_hora) }}</span>
-                          </div>
-                          <div v-if="selectedCita.fecha_hora_fin" class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Fin estimado:</span>
-                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatearHora(selectedCita.fecha_hora_fin) }}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Información Extra</label>
-                        <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700/50 transition-colors space-y-2">
-                          <div v-if="selectedCita.folio" class="flex items-center justify-between gap-2">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium shrink-0">Folio:</span>
-                            <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-300 truncate">{{ selectedCita.folio }}</span>
-                          </div>
-                          <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Servicio:</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg uppercase transition-colors text-right max-w-[60%]">{{ formatearTipoServicio(selectedCita.tipo_servicio) }}</span>
-                          </div>
-                          <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Prioridad:</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg border border-gray-200 dark:border-gray-600 uppercase transition-colors">{{ etiquetaPrioridad(selectedCita.prioridad) }}</span>
-                          </div>
-                          <div v-if="selectedCita.tiempo_servicio_formateado" class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Duración:</span>
-                            <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ selectedCita.tiempo_servicio_formateado }}</span>
-                          </div>
-                          <div class="flex items-center justify-between">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Estado:</span>
-                            <span :class="obtenerEstadoCitaClase(selectedCita)" class="text-[10px] font-bold px-2 py-0.5 rounded-lg border uppercase transition-colors">
-                              {{ obtenerEstadoCitaLabel(selectedCita) }}
-                            </span>
-                          </div>
-                          <div v-if="selectedCita.es_publica" class="pt-2 mt-2 border-t border-gray-200 dark:border-gray-600 space-y-1.5">
-                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cita pública / tienda</p>
-                            <div v-if="selectedCita.origen_tienda" class="flex justify-between gap-2 text-xs">
-                              <span class="text-gray-500">Origen:</span>
-                              <span class="font-bold text-gray-800 dark:text-gray-200">{{ etiquetaOrigenTienda(selectedCita.origen_tienda) }}</span>
-                            </div>
-                            <div v-if="selectedCita.numero_ticket_tienda" class="flex justify-between gap-2 text-xs">
-                              <span class="text-gray-500">Ticket:</span>
-                              <span class="font-mono font-bold text-gray-800 dark:text-gray-200">{{ selectedCita.numero_ticket_tienda }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="textoUbicacionServicio(selectedCita)" class="rounded-xl border border-gray-100 dark:border-gray-700 bg-slate-50/80 dark:bg-gray-900/40 p-4">
-                    <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Ubicación del servicio</label>
-                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{{ textoUbicacionServicio(selectedCita) }}</p>
-                  </div>
-
-                  <div class="rounded-xl border border-amber-100 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20 p-4">
-                    <label class="block text-[10px] font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest mb-3">Equipo a atender</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Tipo</span>
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatearTipoEquipo(selectedCita.tipo_equipo) }}</p>
-                      </div>
-                      <div>
-                        <span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Marca</span>
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ selectedCita.marca_equipo || '—' }}</p>
-                      </div>
-                      <div>
-                        <span class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Modelo</span>
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ selectedCita.modelo_equipo || '—' }}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="selectedCita.problema_reportado" class="rounded-xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20 p-4">
-                    <label class="block text-[10px] font-black text-rose-700 dark:text-rose-300 uppercase tracking-widest mb-2">Problema reportado</label>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{{ selectedCita.problema_reportado }}</p>
-                  </div>
-
-                  <div v-if="selectedCita.descripcion && selectedCita.descripcion.trim() !== (selectedCita.problema_reportado || '').trim()" class="rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/30 p-4">
-                    <label class="block text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Descripción / detalle</label>
-                    <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap italic">{{ selectedCita.descripcion }}</p>
-                  </div>
-
-                  <div v-if="selectedCita.notas" class="rounded-xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/40 dark:bg-indigo-950/20 p-4">
-                    <label class="block text-[10px] font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-widest mb-2">Notas internas</label>
-                    <p class="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{{ selectedCita.notas }}</p>
-                  </div>
-
-                  <!-- Reporte de técnico (Cierre) -->
-                  <div v-if="selectedCita.trabajo_realizado || selectedCita.fotos_finales" class="pt-6 border-t border-gray-100 dark:border-gray-700 transition-colors">
-                    <h4 class="text-md font-black text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                      <span class="text-green-500">✨</span> Reporte Final del Técnico
-                    </h4>
-                    
-                    <div v-if="selectedCita.trabajo_realizado" class="mb-5">
-                      <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Trabajo Realizado</label>
-                      <div class="p-4 bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-2xl text-sm text-gray-900 dark:text-gray-200 transition-colors italic leading-relaxed">
-                        "{{ selectedCita.trabajo_realizado }}"
-                      </div>
-                    </div>
-
-                    <div v-if="selectedCita.fotos_finales?.length > 0">
-                      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-                        <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Evidencias Fotográficas ({{ selectedCita.fotos_finales.length }})</label>
-                        <button
-                          type="button"
-                          @click="descargarEvidenciasCita(selectedCita.id)"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wide bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors"
-                          title="Descargar todas las evidencias en un ZIP"
-                        >
-                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                          Descargar evidencias
-                        </button>
-                      </div>
-                      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <div v-for="(foto, idx) in selectedCita.fotos_finales" :key="idx" class="aspect-square rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 group cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all">
-                          <a :href="storageSrc(foto)" target="_blank" class="block w-full h-full" @click.prevent="openGallery([foto], 'Evidencia')">
-                            <img :src="storageSrc(foto)" loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Evidencia final">
-                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="modalMode === 'confirm'" class="py-8">
-                <div class="text-center">
-                  <div class="w-20 h-20 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6 transition-colors ring-4 ring-red-50 dark:ring-red-900/20">
-                    <svg class="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                    </svg>
-                  </div>
-                  <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2 transition-colors">¿Eliminar Cita?</h3>
-                  <p class="text-gray-500 dark:text-gray-400 max-w-sm mx-auto transition-colors">
-                    ¿Estás seguro de que deseas eliminar la cita <strong>#{{ selectedCita?.id || selectedId }}</strong>? Esta acción es irreversible.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer del modal -->
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 transition-colors">
-              <button @click="showModal = false" class="px-6 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all active:scale-95">
-                {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
-              </button>
-              <div v-if="modalMode === 'details'" class="flex flex-wrap items-center gap-2 justify-end">
-                <Link
-                  :href="route('citas.show', selectedCita.id)"
-                  class="px-6 py-2.5 text-sm font-bold text-indigo-700 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl transition-all active:scale-95"
-                >
-                  Ver ficha completa
-                </Link>
-                <button type="button" @click="editarCita(selectedCita.id)" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-amber-200 dark:shadow-none active:scale-95">
-                  Editar Cita
-                </button>
-              </div>
-              <button v-if="modalMode === 'confirm' && puedeEliminarCita(selectedCita)" @click="eliminarCita" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-200 dark:shadow-none active:scale-95">
-                Eliminar Permanente
-              </button>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2">¿Cancelar Cita?</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-2">
+               Cita <strong>#{{ selectedCita?.folio || selectedCita?.id }}</strong> — {{ selectedCita?.cliente?.nombre_razon_social || 'Cliente' }}
+            </p>
+            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-loose mb-8">
+               Esta acción cambiará el estado a cancelado y liberará el horario del técnico.
+            </p>
+            <div class="flex gap-4">
+               <button @click="cerrarModalCita" class="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide rounded-2xl transition-all hover:bg-slate-200 dark:hover:bg-slate-700">Regresar</button>
+               <button @click="cancelarCita" class="flex-1 py-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-wide rounded-2xl shadow-xl shadow-rose-600/20 transition-all hover:bg-rose-700">Confirmar Cancelación</button>
             </div>
           </div>
         </div>
       </Transition>
 
       <!-- Modal Reprogramar -->
-      <Transition name="modal">
-        <div v-if="showReprogramarModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all" @click.self="showReprogramarModal = false">
-          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col transition-colors border border-gray-100 dark:border-gray-700">
-            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 transition-colors">
-              <div class="flex items-center gap-3">
-                <div class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <Transition name="modal-fade">
+        <div v-if="showReprogramarModal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-8" @click.self="showReprogramarModal = false">
+          <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-md"></div>
+          
+          <div class="relative w-full max-w-6xl bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col transition-all max-h-[90vh]">
+            <!-- Header -->
+            <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 bg-transparent/30 dark:bg-slate-900/50 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-lg">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white transition-colors">Reprogramar Cita</h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Cita #{{ citaReprogramar?.id }}</p>
+                  <h3 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">Reajustar Cronograma</h3>
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide">
+                    Cita #{{ citaReprogramar?.id }} - Cliente: {{ citaReprogramar?.cliente?.nombre_razon_social || citaReprogramar?.raw?.cliente?.nombre_razon_social || 'N/D' }}
+                  </p>
                 </div>
               </div>
-              <button @click="showReprogramarModal = false" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              <button @click="showReprogramarModal = false" class="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
             
-            <form @submit.prevent="submitReprogramar" class="p-6 space-y-4">
-              <div class="space-y-6">
-                <!-- Selección de Técnico -->
+            <form @submit.prevent="submitReprogramar" class="flex-1 overflow-hidden flex flex-col md:flex-row min-h-0">
+              <!-- Sidebar: Configuración -->
+              <div class="w-full md:w-80 border-r border-slate-100 dark:border-slate-800 p-8 space-y-8 bg-transparent/20 dark:bg-slate-900/10 flex flex-col shrink-0 overflow-y-auto">
+                <!-- Fecha -->
                 <div>
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Asignar Especialista</label>
-                    <select 
-                      v-model="reprogramarForm.tecnico_id" 
-                      @change="fetchBusySlotsReprogramar"
-                      class="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 block p-3 dark:bg-slate-900/50 dark:border-slate-700 dark:text-white transition-all font-bold"
-                      required
+                  <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Fecha de Reajuste</label>
+                  <input 
+                    type="date" 
+                    v-model="reprogramarDate" 
+                    @change="handleReprogramarDateChange"
+                    class="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl p-4 text-xs font-black uppercase text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all shadow-sm"
+                  >
+                </div>
+
+                <!-- Técnicos List -->
+                <div class="flex-1 flex flex-col min-h-[250px]">
+                  <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Asignar Especialista</label>
+                  <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1">
+                    <button 
+                      v-for="t in props.tecnicos" 
+                      :key="t.id"
+                      type="button"
+                      @click="seleccionarTecnicoReprogramar(t)"
+                      :class="[
+                        'w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left',
+                        reprogramarForm.tecnico_id === t.id 
+                          ? 'bg-purple-50 dark:bg-purple-900/30 border-purple-500 shadow-md' 
+                          : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      ]"
                     >
-                      <option v-for="t in props.tecnicos" :key="t.id" :value="t.id">{{ t.nombre }}</option>
-                    </select>
-                </div>
-
-                <!-- Selector de Fecha -->
-                <div>
-                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Fecha de la Cita</label>
-                    <input 
-                      type="date" 
-                      v-model="reprogramarDate" 
-                      @change="syncReprogramarForm(); fetchBusySlotsReprogramar();"
-                      class="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 block p-3 dark:bg-slate-900/50 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500 transition-all font-bold cursor-pointer"
-                      required
-                    >
-                </div>
-                
-                <!-- Grid de Horarios -->
-                <div class="w-full pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Selecciona el Horario (Clic: Inicio y Fin)
-                    </p>
-                    <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                        <button 
-                            v-for="hora in 13" :key="hora"
-                            type="button"
-                            @click="seleccionarBloque(hora + 7)"
-                            :class="[
-                                'py-2 rounded-xl text-xs font-bold transition-all border',
-                                (hora + 7) === selectedStart
-                                    ? 'bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/30 ring-2 ring-offset-1 ring-emerald-400 dark:ring-offset-slate-900'
-                                    : ((hora + 7) === selectedEnd
-                                        ? 'bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/30 ring-2 ring-offset-1 ring-rose-400 dark:ring-offset-slate-900'
-                                        : (isBloqueDentroDeRango(hora + 7) 
-                                            ? 'bg-purple-100 border-purple-300 text-purple-700 dark:bg-purple-900/40 dark:border-purple-700/60 dark:text-purple-300 scale-105'
-                                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'))
-                            ]"
-                        >
-                            {{ formatearHoraBloque(hora + 7) }}
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-900/30">
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-black text-purple-500 uppercase tracking-widest">Inicia</span>
-                        <span class="text-sm font-bold text-slate-800 dark:text-white">{{ formatearHoraBloque(selectedStart) || '--:--' }}</span>
-                    </div>
-                    <div class="text-purple-300 dark:text-purple-700"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
-                    <div class="flex flex-col text-right">
-                        <span class="text-[9px] font-black text-rose-500 uppercase tracking-widest">Finaliza</span>
-                        <span class="text-sm font-bold text-slate-800 dark:text-white">{{ formatearHoraBloque(selectedEnd) || '--:--' }}</span>
-                    </div>
-                </div>
-
-                <p v-if="reprogramarForm.errors.fecha_hora" class="mt-1 text-xs text-red-500">{{ reprogramarForm.errors.fecha_hora }}</p>
-                <p v-if="reprogramarForm.errors.fecha_hora_fin" class="mt-1 text-xs text-red-500">{{ reprogramarForm.errors.fecha_hora_fin }}</p>
-                
-                <!-- Availability Warning -->
-                <div v-if="availabilityError" class="animate-shake p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-xl flex items-center gap-3">
-                    <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <p class="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-tight">{{ availabilityError }}</p>
-                </div>
-
-                <!-- Lista de Horarios Ocupados -->
-                <div v-if="busySlotsReprogramar.length > 0" class="w-full space-y-2">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Horarios Ocupados del Técnico</p>
-                    <div class="flex flex-wrap justify-center gap-2">
-                        <div 
-                            v-for="slot in busySlotsReprogramar" :key="slot.id"
-                            class="px-3 py-1 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-[9px] font-bold text-red-500 uppercase flex items-center gap-1"
-                        >
-                            <div class="w-1 h-1 rounded-full bg-red-500"></div>
-                            {{ slot.start }} - {{ slot.end }}
+                      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black text-white uppercase shadow-sm" :style="{ backgroundColor: t.color || '#8b5cf6' }">
+                        {{ (t.name || t.nombre || 'T')?.charAt(0) }}
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-2">
+                          <p :class="['text-[11px] font-black truncate uppercase tracking-tight', reprogramarForm.tecnico_id === t.id ? 'text-purple-600 dark:text-purple-400' : 'text-slate-700 dark:text-slate-300']">
+                            {{ t.name || t.nombre }}
+                          </p>
+                          <span v-if="t.citas_asignadas_count > 0" class="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[7px] font-black text-slate-500 dark:text-slate-400 uppercase">
+                            {{ t.citas_asignadas_count }} Serv
+                          </span>
                         </div>
-                    </div>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase">Seleccionar para reasignar</p>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div class="flex justify-end gap-3 mt-6">
-                <button type="button" @click="showReprogramarModal = false" class="px-5 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all">
-                  Cancelar
-                </button>
-                <button type="submit" :disabled="reprogramarForm.processing" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-purple-200 dark:shadow-none disabled:opacity-50">
-                  Guardar Cambios
-                </button>
+              <!-- Main View: Grid de Horas -->
+              <div class="flex-1 p-8 flex flex-col overflow-y-auto">
+                <div v-if="tecnicoSeleccionadoObj" class="flex-1 flex flex-col">
+                  <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-3">
+                      <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+                      <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                        Especialista: {{ tecnicoSeleccionadoObj.name || tecnicoSeleccionadoObj.nombre }}
+                      </h4>
+                    </div>
+                    <div class="flex gap-4">
+                      <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-400"></div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase">Libre</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-purple-600 border border-purple-500"></div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase">Seleccionado</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-rose-500 border border-rose-400"></div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase">Ocupado</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Grid Horario -->
+                  <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <div 
+                      v-for="hora in 13" 
+                      :key="'rep-slot-' + hora"
+                      :class="getSlotClassesReprogramar(hora + 7)"
+                      @click="seleccionarBloque(hora + 7)"
+                    >
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-black uppercase text-white">
+                          {{ formatearHoraIntervalo(hora + 7) }}
+                        </span>
+                        <div v-if="isSlotBusyReprogramar(hora + 7)" class="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      <div class="flex items-center justify-between">
+                        <p class="text-[9px] font-bold uppercase tracking-tighter text-white/90">
+                          {{ getSlotStatusTextReprogramar(hora + 7) }}
+                        </p>
+                        <span v-if="!isSlotBusyReprogramar(hora + 7) && !isSlotSelectedReprogramar(hora + 7)" class="text-[8px] font-black text-white opacity-0 group-hover:opacity-100 transition-all uppercase">
+                          Seleccionar
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-if="availabilityError || Object.keys(reprogramarForm.errors).length > 0" class="mb-8 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded-2xl flex items-center gap-3">
+                    <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="text-[9px] font-black text-rose-600 dark:text-rose-400 uppercase leading-tight">
+                      <p v-if="availabilityError">{{ availabilityError }}</p>
+                      <p v-for="(err, key) in reprogramarForm.errors" :key="key">{{ err }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Resumen y Botones -->
+                  <div class="mt-auto p-6 bg-slate-900 dark:bg-white rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl transition-all">
+                    <div class="flex items-center gap-6">
+                      <div class="flex flex-col">
+                        <span class="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Horario Propuesto</span>
+                        <p class="text-xs font-black text-white dark:text-slate-900 uppercase tracking-wider">
+                          {{ selectedStart !== null ? formatearHoraBloque(selectedStart) : '--:--' }} 
+                          <span class="text-purple-500 mx-2">-></span> 
+                          {{ selectedEnd !== null ? formatearHoraBloque(selectedEnd) : '--:--' }}
+                        </p>
+                      </div>
+                      <div class="h-8 w-px bg-slate-800 dark:bg-slate-200 hidden sm:block"></div>
+                      <div class="flex flex-col hidden sm:flex">
+                        <span class="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Duración</span>
+                        <p class="text-xs font-black text-purple-400 dark:text-purple-600 uppercase tracking-wider">
+                          {{ (selectedStart !== null && selectedEnd !== null) ? (selectedEnd - selectedStart) : 0 }} Hora(s)
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                      <button type="button" @click="showReprogramarModal = false" class="flex-1 sm:flex-none px-6 py-3 bg-slate-800 dark:bg-slate-100 text-slate-300 dark:text-slate-700 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all">
+                        Cancelar
+                      </button>
+                      <button type="submit" :disabled="reprogramarForm.processing || !!availabilityError || selectedStart === null" class="flex-1 sm:flex-none px-8 py-3 bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-purple-600/20 disabled:opacity-50">
+                        Confirmar Reajuste
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else class="flex-1 flex flex-col items-center justify-center text-center p-12">
+                   <div class="w-24 h-24 bg-transparent dark:bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-slate-300 dark:text-slate-700 mb-6 border-2 border-dashed border-slate-200 dark:border-slate-800">
+                      <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                   </div>
+                   <h4 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2">Selecciona un Especialista</h4>
+                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest max-w-xs leading-loose">
+                     Elige un técnico de la lista lateral para visualizar su carga de trabajo y reasignar la cita.
+                   </p>
+                </div>
               </div>
             </form>
           </div>
         </div>
       </Transition>
 
-      <!-- Nuevo Modal de Galería de Fotos -->
-      <Transition name="modal">
-        <div v-if="showGalleryModal" class="fixed inset-0 bg-black/95 z-[60] flex flex-col" @click.self="closeGallery">
-          <!-- Toolbar -->
-          <div class="flex justify-between items-center p-6 text-white bg-gradient-to-b from-black/80 to-transparent">
-             <div class="flex items-center gap-4">
-               <div>
-                 <p class="text-sm font-bold uppercase tracking-widest text-white/70">{{ imageTitle }}</p>
-                 <p class="text-[10px] text-white/50">Imagen {{ currentImageIndex + 1 }} de {{ galleryImages.length }}</p>
-               </div>
+      <!-- Galería Inmersiva -->
+      <Transition name="modal-fade">
+        <div v-if="showGalleryModal" class="fixed inset-0 z-[150] bg-slate-950/98 backdrop-blur-2xl flex flex-col" @click.self="closeGallery">
+          <div class="flex justify-between items-center p-8 bg-gradient-to-b from-black/50 to-transparent">
+             <div class="flex items-center gap-6">
+                <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white border border-white/10"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">{{ imageTitle }}</p>
+                  <p class="text-xs font-bold text-white uppercase tracking-wide">Archivo {{ currentImageIndex + 1 }} / {{ galleryImages.length }}</p>
+                </div>
              </div>
-             <button @click="closeGallery" class="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-md">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-             </button>
+             <button @click="closeGallery" class="w-14 h-14 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all border border-white/10 group"><svg class="w-8 h-8 group-hover:rotate-90 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
           </div>
 
-          <!-- Main Image Area -->
-          <div class="flex-1 flex items-center justify-center relative p-4">
-             <button v-if="galleryImages.length > 1" @click.stop="prevImage" class="absolute left-8 w-14 h-14 flex items-center justify-center bg-black/50 hover:bg-indigo-600 text-white rounded-full backdrop-blur-md transition-all hover:scale-110 shadow-2xl z-10 group">
+          <div class="flex-1 flex items-center justify-center relative px-4">
+             <button v-if="galleryImages.length > 1" @click.stop="prevImage" class="absolute left-10 w-16 h-16 flex items-center justify-center bg-black/40 hover:bg-white text-white hover:text-black rounded-full backdrop-blur-xl transition-all hover:scale-110 z-10 group border border-white/10 hover:border-white shadow-2xl">
                 <svg class="w-8 h-8 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
              </button>
              
-             <img :src="galleryImages[currentImageIndex]" loading="eager" decoding="async" class="max-h-[85vh] max-w-[90vw] object-contain rounded-2xl shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-500 animate-in fade-in zoom-in-95" :key="currentImageIndex">
+             <img :src="galleryImages[currentImageIndex]" class="max-h-[75vh] max-w-[85vw] object-contain rounded-3xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-700 animate-in fade-in zoom-in-95" :key="currentImageIndex">
 
-             <button v-if="galleryImages.length > 1" @click.stop="nextImage" class="absolute right-8 w-14 h-14 flex items-center justify-center bg-black/50 hover:bg-indigo-600 text-white rounded-full backdrop-blur-md transition-all hover:scale-110 shadow-2xl z-10 group">
+             <button v-if="galleryImages.length > 1" @click.stop="nextImage" class="absolute right-10 w-16 h-16 flex items-center justify-center bg-black/40 hover:bg-white text-white hover:text-black rounded-full backdrop-blur-xl transition-all hover:scale-110 z-10 group border border-white/10 hover:border-white shadow-2xl">
                 <svg class="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
              </button>
           </div>
 
-          <!-- Thumbnails Strip -->
-          <div v-if="galleryImages.length > 1" class="p-8 bg-gradient-to-t from-black/80 to-transparent flex justify-center gap-4">
+          <div v-if="galleryImages.length > 1" class="p-10 flex justify-center gap-4 bg-gradient-to-t from-black/50 to-transparent">
              <button 
-               v-for="(img, idx) in galleryImages" 
-               :key="idx" 
+               v-for="(img, idx) in galleryImages" :key="idx" 
                @click.stop="currentImageIndex = idx"
-               :class="['w-20 h-20 rounded-2xl overflow-hidden border-4 transition-all shadow-xl', currentImageIndex === idx ? 'border-indigo-500 scale-110 ring-4 ring-indigo-500/20' : 'border-transparent opacity-40 hover:opacity-100 hover:scale-105']"
+               :class="['w-20 h-20 rounded-2xl overflow-hidden border-4 transition-all shadow-2xl transform hover:scale-110', currentImageIndex === idx ? 'border-blue-500 scale-125' : 'border-transparent opacity-30 hover:opacity-100']"
              >
                <img :src="img" class="w-full h-full object-cover">
              </button>
@@ -672,18 +411,35 @@
         </div>
       </Transition>
 
+      <!-- Quick Availability Modal -->
+      <QuickAvailabilityModal 
+        :show="showAvailabilityModal"
+        :tecnicos="props.tecnicos"
+        @close="showAvailabilityModal = false"
+      />
+
+      <!-- Capa de bloqueo para evitar Click-Through al cerrar modales -->
+      <div v-if="blockingClicks" class="fixed inset-0 z-[999] bg-transparent pointer-events-auto cursor-default"></div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { Head, router, usePage, Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 import { SUPER_ADMIN_ROLES } from '@/constants/systemRoles'
+
+// Componentes Premium
 import CitasHeader from '@/Components/IndexComponents/CitasHeader.vue'
+import CitasTable from '@/Components/IndexComponents/CitasTable.vue'
+import CitasModal from '@/Components/IndexComponents/CitasModal.vue'
+import Pagination from '@/Components/Pagination.vue'
+import Modal from '@/Components/IndexComponents/Modales.vue'
+import QuickAvailabilityModal from '@/Components/IndexComponents/QuickAvailabilityModal.vue'
 
 const page = usePage()
 
@@ -692,127 +448,69 @@ const isSuperAdmin = computed(() => {
   return roles.some(r => SUPER_ADMIN_ROLES.includes(r.name))
 })
 
-const puedeEliminarCita = (cita) => {
+const puedeCancelarCita = (cita) => {
   if (!cita) return false
-  
-  // Si la cita está completada o cancelada, solo super_admin puede ver el botón
-  if (['completado', 'cancelado'].includes(cita.estado)) {
-    return isSuperAdmin.value
-  }
-  
-  // Para otros estados (pendiente, en_proceso), se permite el botón (sujeto a validación backend si está en proceso)
+  if (['completado', 'cancelado'].includes(cita.estado)) return isSuperAdmin.value
   return true
 }
 
-defineOptions({ layout: AppLayout })
+defineOptions({ layout: AppLayout, inheritAttrs: false })
 
-// Colores e Iniciales
-const getInitials = (name) => {
-  if (!name) return '?'
-  const parts = name.split(' ')
-  if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase()
-  return parts[0][0].toUpperCase()
-}
-
-// Notificaciones
 const notyf = new Notyf({
   duration: 4000,
   position: { x: 'right', y: 'top' },
   types: [
     { type: 'success', background: '#10b981', icon: false },
-    { type: 'error', background: '#ef4444', icon: false },
-    { type: 'warning', background: '#f59e0b', icon: false }
+    { type: 'error', background: '#ef4444', icon: false }
   ]
 })
 
 // Props
 const props = defineProps({
-  citas: { type: [Object, Array], required: true },
+  citas: { type: Object, required: true },
   stats: { type: Object, default: () => ({}) },
   filters: { type: Object, default: () => ({}) },
-  sorting: { type: Object, default: () => ({ sort_by: 'created_at', sort_direction: 'desc' }) },
+  sorting: { type: Object, default: () => ({ sort_by: 'fecha_hora', sort_direction: 'desc' }) },
   pagination: { type: Object, default: () => ({}) },
   tecnicos: { type: Array, default: () => [] },
+  clientes: { type: Array, default: () => [] },
+  estados: { type: Array, default: () => [] },
+  bloqueos: { type: Object, default: () => ({ vacaciones: [], dias_bloqueados: [] }) },
 })
 
-// Estado UI
+// UI State
 const showModal = ref(false)
 const modalMode = ref('details')
 const selectedCita = ref(null)
 const selectedId = ref(null)
-const viewMode = ref('table') // 'table' or 'calendar'
+const viewMode = ref('table') 
 const currentMonth = ref(new Date())
-
-// Galería de imágenes
 const showGalleryModal = ref(false)
 const galleryImages = ref([])
 const currentImageIndex = ref(0)
 const imageTitle = ref('')
+const showAvailabilityModal = ref(false)
+const blockingClicks = ref(false)
 
-// Estado reactivo para Modo Oscuro
-const isDark = ref(false)
-let observer = null
+const cerrarModalCita = () => {
+  showModal.value = false
+  blockingClicks.value = true
+  setTimeout(() => {
+    blockingClicks.value = false
+  }, 350)
+}
 
 onMounted(() => {
-  const flash = page.props.flash
-  if (flash?.success) notyf.success(flash.success)
-  if (flash?.error) notyf.error(flash.error)
-
+  if (page.props.flash?.success) notyf.success(page.props.flash.success)
+  if (page.props.flash?.error) notyf.error(page.props.flash.error)
   window.addEventListener('keydown', handleKeydown)
-
-  // Observer para modo oscuro
-  isDark.value = document.documentElement.classList.contains('dark')
-  observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class') {
-        isDark.value = document.documentElement.classList.contains('dark')
-      }
-    })
-  })
-  observer.observe(document.documentElement, { attributes: true })
 })
 
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
-  if (observer) observer.disconnect()
-})
+onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 
-
-const storageSrc = (path) => {
-  if (!path || typeof path !== 'string') return ''
-  const p = path.trim()
-  if (!p) return ''
-  if (/^https?:\/\//i.test(p)) return p
-  if (p.startsWith('/storage/')) return p
-  if (p.startsWith('storage/')) return `/${p}`
-  return `/storage/${p.replace(/^\/+/, '')}`
-}
-
-const openGallery = (images, title = 'Galería') => {
-  if (!images || images.length === 0) return
-  galleryImages.value = images.map((img) => storageSrc(img))
-  currentImageIndex.value = 0
-  imageTitle.value = title
-  showGalleryModal.value = true
-}
-
-const closeGallery = () => {
-  showGalleryModal.value = false
-  galleryImages.value = []
-}
-
-const nextImage = () => {
-  currentImageIndex.value = (currentImageIndex.value + 1) % galleryImages.value.length
-}
-
-const prevImage = () => {
-  currentImageIndex.value = (currentImageIndex.value - 1 + galleryImages.value.length) % galleryImages.value.length
-}
-
-// Navegación con teclado para la galería
 const handleKeydown = (e) => {
   if (!showGalleryModal.value) {
-    if (e.key === 'Escape' && showModal.value) showModal.value = false
+    if (e.key === 'Escape' && showModal.value) cerrarModalCita()
     return
   }
   if (e.key === 'Escape') closeGallery()
@@ -820,49 +518,45 @@ const handleKeydown = (e) => {
   if (e.key === 'ArrowLeft') prevImage()
 }
 
-// Filtros
-const searchTerm = ref(props.filters?.search ?? '')
-const sortBy = ref('created_at-desc')
-const filtroEstadoCita = ref(props.filters?.estado ?? '')
+// Filtros y Paginación
+// Persistencia de filtros en localStorage para que sobrevivan al reload
+const STORAGE_KEY = 'citas_filtros_v1'
 
-// Paginación
-const perPage = ref(10)
-
-watch(
-  () => props.filters?.estado,
-  (v) => {
-    const next = v ?? ''
-    if ((filtroEstadoCita.value || '') !== next) {
-      filtroEstadoCita.value = next
-    }
+const cargarFiltrosGuardados = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch (e) {
+    return null
   }
-)
-
-// Función para crear nueva cita
-const crearNuevaCita = () => {
-  router.visit(route('citas.create'))
 }
 
-// Función para limpiar filtros
-const limpiarFiltros = () => {
-  searchTerm.value = ''
-  sortBy.value = 'created_at-desc'
-  filtroEstadoCita.value = ''
-  router.visit(route('citas.index'))
-  notyf.success('Filtros limpiados correctamente')
+const filtrosGuardados = cargarFiltrosGuardados()
+const filtrosIniciales = filtrosGuardados || props.filters || {}
+
+const searchTerm = ref(filtrosIniciales.search ?? '')
+const sortBy = ref(`${props.sorting.sort_by}-${props.sorting.sort_direction}`)
+const filtroEstadoCita = ref(filtrosIniciales.estado ?? '')
+const perPage = ref(props.pagination?.per_page || 10)
+const fechaDesde = ref(filtrosIniciales.fecha_desde ?? '')
+const fechaHasta = ref(filtrosIniciales.fecha_hasta ?? '')
+
+const guardarFiltros = () => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      search: searchTerm.value,
+      estado: filtroEstadoCita.value,
+      fecha_desde: fechaDesde.value,
+      fecha_hasta: fechaHasta.value,
+    }))
+  } catch (e) {
+    // localStorage no disponible o cuota llena — ignorar silenciosamente
+  }
 }
 
-/** ZIP con evidencias de una sola cita. */
-const descargarEvidenciasCita = (citaId) => {
-  window.location.href = route('citas.download-evidencias', citaId)
-}
+watch([searchTerm, filtroEstadoCita, fechaDesde, fechaHasta], guardarFiltros)
 
-// Datos
-const citasPaginator = computed(() => props.citas)
-const citasData = computed(() => citasPaginator.value?.data || [])
-
-
-// Estadísticas
 const estadisticas = computed(() => ({
   total: props.stats?.total ?? 0,
   programadas: props.stats?.programadas ?? 0,
@@ -872,84 +566,64 @@ const estadisticas = computed(() => ({
   canceladas: props.stats?.canceladas ?? 0
 }))
 
-// Transformación de datos
+const citasPaginator = computed(() => props.citas)
+
 const citasDocumentos = computed(() => {
-  let citas = [...citasData.value];
-
-  const sortKey = sortBy.value.split('-')[0]
-  const sortDir = sortBy.value.split('-')[1] || 'desc'
-
-  if (sortKey === 'created_at') {
-    const grupoAgenda = (estado) => {
-      if (estado === 'cancelado') return 2
-      if (estado === 'completado') return 1
-      return 0
-    }
-    citas.sort((a, b) => {
-      const gA = grupoAgenda(a.estado)
-      const gB = grupoAgenda(b.estado)
-      if (gA !== gB) return gA - gB
-      const ta = new Date(a.fecha_hora).getTime()
-      const tb = new Date(b.fecha_hora).getTime()
-      if (gA === 0) return ta - tb
-      return tb - ta
-    })
-  } else {
-    const field = sortKey === 'fecha_hora' ? 'fecha_hora' : 'created_at'
-    citas.sort((a, b) => {
-      const ta = new Date(a[field]).getTime()
-      const tb = new Date(b[field]).getTime()
-      return sortDir === 'asc' ? ta - tb : tb - ta
-    })
-  }
-
-  return citas.map(c => ({
+  const data = props.citas?.data || []
+  return data.map(c => ({
     id: c.id,
-    titulo: `Cita #${c.id}`,
-    subtitulo: (c.cliente?.nombre_razon_social || 'Cliente no disponible').toUpperCase(),
-    estado: c.activo ? 'activo' : 'inactivo',
-    extra: `Técnico: ${c.tecnico?.name || 'N/A'} | Estado: ${c.estado}`,
-    fecha: c.created_at,
     raw: c
   }))
 })
 
-// Handlers
-function handleSearchChange(newSearch) {
-  searchTerm.value = newSearch
-  router.get(route('citas.index'), {
-    search: newSearch,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    estado: filtroEstadoCita.value,
-    per_page: perPage.value,
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
-}
+const paginationData = computed(() => ({
+  currentPage: props.pagination?.current_page || citasPaginator.value.current_page || 1,
+  lastPage:    props.pagination?.last_page || citasPaginator.value.last_page || 1,
+  perPage:     props.pagination?.per_page || citasPaginator.value.per_page || 10,
+  from:        props.pagination?.from || citasPaginator.value.from || 0,
+  to:          props.pagination?.to || citasPaginator.value.to || 0,
+  total:       props.pagination?.total || citasPaginator.value.total || 0,
+}))
 
-function handleEstadoCitaChange(newEstadoCita) {
-  if (filtroEstadoCita.value === newEstadoCita) return
-  filtroEstadoCita.value = newEstadoCita
+// Handlers Operativos
+const fetchData = (params = {}) => {
   router.get(route('citas.index'), {
     search: searchTerm.value,
     sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    estado: newEstadoCita,
+    sort_direction: sortBy.value.split('-')[1],
+    estado: filtroEstadoCita.value,
     per_page: perPage.value,
-    page: 1
+    view_mode: viewMode.value,
+    fecha_desde: fechaDesde.value,
+    fecha_hasta: fechaHasta.value,
+    ...params
   }, { preserveState: true, preserveScroll: true })
 }
 
-function handleSortChange(newSort) {
-  sortBy.value = newSort
-  router.get(route('citas.index'), {
-    search: searchTerm.value,
-    sort_by: newSort.split('-')[0],
-    sort_direction: newSort.split('-')[1] || 'desc',
-    estado: filtroEstadoCita.value,
-    per_page: perPage.value,
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
+watch(viewMode, (newMode) => {
+  if (newMode === 'calendar') {
+    // Al entrar a calendario, limpiamos filtros de estado para ver todo el panorama
+    filtroEstadoCita.value = '';
+    fetchData({ page: 1 });
+  }
+})
+
+const handleSearchChange = (val) => { searchTerm.value = val; fetchData({ page: 1 }); }
+const handleEstadoCitaChange = (val) => { filtroEstadoCita.value = val; fetchData({ page: 1 }); }
+const handleSortChange = (val) => { sortBy.value = val; fetchData({ page: 1 }); }
+const handlePerPageChange = (val) => { perPage.value = val; fetchData({ page: 1 }); }
+const handlePageChange = (val) => { fetchData({ page: val }); }
+const handleDateChange = () => { fetchData({ page: 1 }); }
+
+const limpiarFiltros = () => {
+  searchTerm.value = ''
+  sortBy.value = 'fecha_hora-desc'
+  filtroEstadoCita.value = ''
+  fechaDesde.value = ''
+  fechaHasta.value = ''
+  localStorage.removeItem(STORAGE_KEY)
+  fetchData({ page: 1 })
+  notyf.success('Filtros limpiados')
 }
 
 const verDetalles = (doc) => {
@@ -958,427 +632,374 @@ const verDetalles = (doc) => {
   showModal.value = true
 }
 
-const editarCita = (id) => {
-  router.visit(route('citas.edit', id))
-}
+const editarCita = (id) => router.visit(route('citas.edit', id))
 
-const confirmarEliminacion = (cita) => {
+const confirmarCancelacion = (cita) => {
   selectedCita.value = cita
-  selectedId.value = cita.id
   modalMode.value = 'confirm'
   showModal.value = true
 }
 
-const eliminarCita = () => {
-  router.delete(route('citas.destroy', selectedId.value), {
-    preserveScroll: true,
+const cancelarCita = () => {
+  router.post(route('citas.cancelar', selectedCita.value.id), {
+    motivo: 'Cancelado desde el panel administrativo.'
+  }, {
     onSuccess: () => {
-      notyf.success('Cita eliminada correctamente')
-      showModal.value = false
-      selectedId.value = null
-      router.reload()
+      notyf.success('Cita cancelada exitosamente y horario liberado')
+      cerrarModalCita()
     },
-    onError: () => {
-      notyf.error('No se pudo eliminar la cita')
+    onError: (errors) => {
+      const msg = errors.general || 'Ocurrió un error al intentar cancelar la cita';
+      notyf.error(msg);
     }
   })
 }
 
-// Reprogramar Modal
+const crearNuevaCita = () => {
+  router.visit(route('citas.create'))
+}
+
+const descargarEvidenciasCita = (citaId) => {
+  if (!citaId) return
+  window.open(route('citas.download-evidencias', citaId), '_blank')
+}
+
+// Auditoría para Modal
+const auditoriaForModal = computed(() => {
+  if (!selectedCita.value) return {}
+  const meta = selectedCita.value.metadata || {}
+  return {
+    creado_por: selectedCita.value.creado_por_nombre || meta.creado_por || 'Sistema',
+    creado_en: selectedCita.value.created_at,
+    actualizado_en: selectedCita.value.updated_at
+  }
+})
+
+// Utils Galería
+const storageSrc = (foto) => {
+  if (!foto) return ''
+  const path = typeof foto === 'object' && foto !== null ? (foto.path || foto.url || '') : String(foto || '')
+  const p = path.trim()
+  if (!p) return ''
+  if (/^https?:\/\//i.test(p)) return p
+  return p.startsWith('/') ? p : `/storage/${p}`
+}
+
+const openGallery = (images, title) => {
+  galleryImages.value = images.map(i => storageSrc(i))
+  currentImageIndex.value = 0
+  imageTitle.value = title
+  showGalleryModal.value = true
+}
+
+const closeGallery = () => showGalleryModal.value = false
+const nextImage = () => currentImageIndex.value = (currentImageIndex.value + 1) % galleryImages.value.length
+const prevImage = () => currentImageIndex.value = (currentImageIndex.value - 1 + galleryImages.value.length) % galleryImages.value.length
+
+// Reprogramar Logic
 const showReprogramarModal = ref(false)
 const citaReprogramar = ref(null)
+const reprogramarDate = ref('')
+const selectedStart = ref(null)
+const selectedEnd = ref(null)
+const clickStep = ref(0)
+const availabilityError = ref('')
+const busySlotsReprogramar = ref([])
 
 const reprogramarForm = useForm({
   fecha_hora: '',
   fecha_hora_fin: '',
   tecnico_id: '',
-  estado: 'reprogramado',
+  estado: 'reprogramado'
 })
 
-const busySlotsReprogramar = ref([])
-const availabilityError = ref('')
-const isCheckingAvailability = ref(false)
-
-const reprogramarDate = ref('')
-const clickStep = ref(0)
-const selectedStart = ref(null)
-const selectedEnd = ref(null)
-
-const formatForDateTimeLocal = (dateString) => {
-  if (!dateString) return ''
-  const d = new Date(dateString)
-  if (isNaN(d)) return ''
-  const pad = (n) => n.toString().padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
-
-const syncReprogramarForm = () => {
-    if (reprogramarDate.value && selectedStart.value !== null) {
-        reprogramarForm.fecha_hora = `${reprogramarDate.value}T${String(selectedStart.value).padStart(2, '0')}:00`;
-        const endTemp = selectedEnd.value !== null ? selectedEnd.value : selectedStart.value + 1;
-        reprogramarForm.fecha_hora_fin = `${reprogramarDate.value}T${String(endTemp).padStart(2, '0')}:00`;
-    }
-}
-
-const seleccionarBloque = (hora) => {
-    if (clickStep.value === 0) {
-        selectedStart.value = hora;
-        selectedEnd.value = null; // Wait for end time click
-        clickStep.value = 1;
-    } else {
-        if (hora <= selectedStart.value) {
-            if (hora === selectedStart.value) {
-                selectedEnd.value = hora + 1; // Double click same block = 1 hour
-                clickStep.value = 0;
-            } else {
-                selectedStart.value = hora; // Clicked earlier time, reset start
-            }
-        } else {
-            selectedEnd.value = hora;
-            clickStep.value = 0;
-        }
-    }
-    seleccionarBloque(hora);
-    checkAvailabilityReprogramar();
-}
-
-const fetchBusySlotsReprogramar = async () => {
-    if (!reprogramarForm.tecnico_id || !reprogramarDate.value) {
-        busySlotsReprogramar.value = [];
-        return;
-    }
-    try {
-        const response = await fetch(route('api.citas.busy-slots', {
-            tecnico_id: reprogramarForm.tecnico_id,
-            fecha: reprogramarDate.value
-        }));
-        const data = await response.json();
-        if (data.success) {
-            busySlotsReprogramar.value = data.slots;
-        }
-    } catch (err) {
-        console.error('Failed to fetch busy slots', err);
-    }
-};
-
-const checkAvailabilityReprogramar = async () => {
-    if (!reprogramarForm.tecnico_id || !reprogramarForm.fecha_hora) return;
-    
-    isCheckingAvailability.value = true;
-    availabilityError.value = '';
-    
-    try {
-        const response = await fetch(route('api.citas.check-availability', {
-            tecnico_id: reprogramarForm.tecnico_id,
-            fecha_hora: reprogramarForm.fecha_hora,
-            fecha_hora_fin: reprogramarForm.fecha_hora_fin,
-            cliente_id: citaReprogramar.value?.cliente_id,
-            cita_id: citaReprogramar.value?.id
-        }));
-        const data = await response.json();
-        
-        if (!data.available) {
-            availabilityError.value = data.message;
-        }
-    } catch (err) {
-        console.error('Availability check failed', err);
-    } finally {
-        isCheckingAvailability.value = false;
-    }
-};
-
-const isBloqueDentroDeRango = (hora) => {
-    return selectedStart.value !== null && selectedEnd.value !== null && hora > selectedStart.value && hora < selectedEnd.value;
-}
-
-const formatearHoraBloque = (hora) => {
-    if (!hora) return '';
-    const ampm = hora >= 12 ? 'PM' : 'AM';
-    const h12 = hora > 12 ? hora - 12 : (hora === 0 ? 12 : hora);
-    return `${h12}:00 ${ampm}`;
-}
+const originalStart = ref(null)
+const originalEnd = ref(null)
 
 const abrirReprogramar = (cita) => {
   citaReprogramar.value = cita
-  reprogramarForm.clearErrors()
   
-  if (cita.fecha_hora) {
-    const d = new Date(cita.fecha_hora)
-    const pad = (n) => n.toString().padStart(2, '0')
-    reprogramarDate.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-    reprogramarForm.tecnico_id = cita.tecnico_id
-    selectedStart.value = d.getHours()
-    
-    if (cita.fecha_hora_fin) {
-        const d2 = new Date(cita.fecha_hora_fin)
-        selectedEnd.value = d2.getHours() || (d2.getMinutes() > 0 ? d2.getHours() + 1 : d2.getHours())
-    } else {
-        selectedEnd.value = selectedStart.value + 1
-    }
-    clickStep.value = 0
-    syncReprogramarForm()
-    fetchBusySlotsReprogramar()
+  let fechaPart = ''
+  let startHour = 8
+  let endHour = 9
+
+  if (cita?.fecha_hora) {
+    const rawStr = String(cita.fecha_hora)
+    // Extraer fecha directamente YYYY-MM-DD sin desfase de zona horaria
+    fechaPart = rawStr.split('T')[0].split(' ')[0]
+    const d = new Date(rawStr.replace(' ', 'T'))
+    if (!isNaN(d.getTime())) startHour = d.getHours()
   }
+
+  if (cita?.fecha_hora_fin) {
+    const rawFinStr = String(cita.fecha_hora_fin)
+    const dFin = new Date(rawFinStr.replace(' ', 'T'))
+    if (!isNaN(dFin.getTime())) endHour = dFin.getHours()
+  } else {
+    endHour = startHour + 1
+  }
+
+  reprogramarDate.value = fechaPart || new Date().toISOString().split('T')[0]
+  reprogramarForm.tecnico_id = cita.tecnico_id
+  originalStart.value = startHour
+  originalEnd.value = endHour
+  selectedStart.value = startHour
+  selectedEnd.value = endHour
+  
+  syncReprogramarForm()
   showReprogramarModal.value = true
+  fetchBusySlotsReprogramar()
+  checkAvailabilityReprogramar()
+}
+
+const syncReprogramarForm = () => {
+  if (reprogramarDate.value && selectedStart.value !== null) {
+    reprogramarForm.fecha_hora = `${reprogramarDate.value} ${String(selectedStart.value).padStart(2, '0')}:00:00`
+    const end = selectedEnd.value || selectedStart.value + 1
+    reprogramarForm.fecha_hora_fin = `${reprogramarDate.value} ${String(end).padStart(2, '0')}:00:00`
+    reprogramarForm.estado = 'reprogramado'
+  }
+}
+
+const isSlotBusyReprogramar = (h) => {
+  if (!busySlotsReprogramar.value.length) return false
+  return busySlotsReprogramar.value.some(slot => {
+    const startH = parseInt(slot.start.split(':')[0])
+    const endH = parseInt(slot.end.split(':')[0])
+    return h >= startH && h < endH
+  })
+}
+
+const seleccionarBloque = (h) => {
+  if (isSlotBusyReprogramar(h)) {
+    notyf.error('Este bloque de horario ya está ocupado')
+    return
+  }
+
+  if (clickStep.value === 0) { 
+    selectedStart.value = h; 
+    
+    // Lógica Inteligente: Intentar mantener la duración original
+    const duracionOriginal = originalEnd.value - originalStart.value;
+    const finPropuesto = h + duracionOriginal;
+    
+    // Verificar si el rango propuesto está libre (max 20:00)
+    let rangoLibre = finPropuesto <= 20;
+    if (rangoLibre) {
+      for (let i = h; i < finPropuesto; i++) {
+        if (isSlotBusyReprogramar(i)) {
+          rangoLibre = false;
+          break;
+        }
+      }
+    }
+
+    if (rangoLibre) {
+      selectedEnd.value = finPropuesto;
+      clickStep.value = 0; // Terminado con 1 solo clic
+    } else {
+      selectedEnd.value = null; 
+      clickStep.value = 1; // Esperar segundo clic para fin manual
+    }
+  }
+  else { 
+    if (h <= selectedStart.value) { 
+      selectedStart.value = h; 
+      selectedEnd.value = h + 1; 
+    }
+    else { 
+      // Validar si hay bloques ocupados en medio
+      for (let i = selectedStart.value; i < h; i++) {
+        if (isSlotBusyReprogramar(i)) {
+          notyf.error('El rango seleccionado incluye bloques ocupados')
+          return
+        }
+      }
+      selectedEnd.value = h; 
+    }
+    clickStep.value = 0;
+  }
+  syncReprogramarForm();
+  checkAvailabilityReprogramar();
+}
+
+const isBloqueDentroDeRango = (h) => selectedStart.value !== null && selectedEnd.value !== null && h > selectedStart.value && h < selectedEnd.value
+const formatearHoraBloque = (h) => h ? `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? 'PM' : 'AM'}` : ''
+
+const tecnicoSeleccionadoObj = computed(() => {
+  return props.tecnicos.find(t => t.id === reprogramarForm.tecnico_id)
+})
+
+const validarRangoSeleccionado = () => {
+  if (selectedStart.value !== null) {
+    const end = selectedEnd.value || selectedStart.value + 1
+    for (let h = selectedStart.value; h < end; h++) {
+      if (isSlotBusyReprogramar(h)) {
+        availabilityError.value = '⚠️ El horario propuesto incluye bloques ocupados. Por favor, selecciona un espacio libre.'
+        selectedStart.value = null
+        selectedEnd.value = null
+        syncReprogramarForm()
+        break
+      }
+    }
+  }
+}
+
+const handleReprogramarDateChange = async () => {
+  syncReprogramarForm()
+  await fetchBusySlotsReprogramar()
+  await checkAvailabilityReprogramar()
+  validarRangoSeleccionado()
+}
+
+const seleccionarTecnicoReprogramar = async (t) => {
+  reprogramarForm.tecnico_id = t.id
+  syncReprogramarForm()
+  await fetchBusySlotsReprogramar()
+  await checkAvailabilityReprogramar()
+  validarRangoSeleccionado()
+}
+
+const formatearHoraIntervalo = (h) => {
+  const h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h)
+  const nextH = h + 1
+  const nextH12 = nextH > 12 ? nextH - 12 : nextH
+  const ampm = nextH >= 12 ? 'PM' : 'AM'
+  return `${h12}:00 - ${nextH12}:00 ${ampm}`
+}
+
+const isSlotSelectedReprogramar = (h) => {
+  if (selectedStart.value === null) return false
+  if (selectedEnd.value === null) return h === selectedStart.value
+  return h >= selectedStart.value && h < selectedEnd.value
+}
+
+const getSlotStatusTextReprogramar = (h) => {
+  if (isSlotBusyReprogramar(h)) return 'No Disponible'
+  if (isSlotSelectedReprogramar(h)) return 'Seleccionado'
+  return 'Espacio Libre'
+}
+
+const getSlotClassesReprogramar = (h) => {
+  const base = 'relative p-4 rounded-2xl border-2 transition-all group overflow-hidden'
+  if (isSlotBusyReprogramar(h)) return `${base} bg-rose-500 border-rose-400 shadow-sm cursor-not-allowed opacity-80 text-white`
+  if (isSlotSelectedReprogramar(h)) return `${base} bg-purple-600 border-purple-500 shadow-xl scale-[1.02] z-10 text-white`
+  return `${base} bg-emerald-500 border-emerald-400 hover:bg-emerald-600 hover:shadow-lg cursor-pointer text-white`
+}
+
+const fetchBusySlotsReprogramar = async () => {
+  if (!reprogramarForm.tecnico_id || !reprogramarDate.value) return
+  const res = await fetch(route('api.citas.busy-slots', { 
+    tecnico_id: reprogramarForm.tecnico_id, 
+    fecha: reprogramarDate.value,
+    exclude_id: citaReprogramar.value?.id 
+  }))
+  const data = await res.json()
+  if (data.success) busySlotsReprogramar.value = data.slots
+}
+
+const checkAvailabilityReprogramar = async () => {
+  if (!reprogramarForm.tecnico_id || !reprogramarForm.fecha_hora) return
+  const res = await fetch(route('api.citas.check-availability', { 
+    tecnico_id: reprogramarForm.tecnico_id, 
+    fecha_hora: reprogramarForm.fecha_hora,
+    fecha_hora_fin: reprogramarForm.fecha_hora_fin,
+    cita_id: citaReprogramar.value.id
+  }))
+  const data = await res.json()
+  availabilityError.value = data.available ? '' : data.message
 }
 
 const submitReprogramar = () => {
   reprogramarForm.put(route('citas.update', citaReprogramar.value.id), {
     preserveScroll: true,
-    onSuccess: () => {
-      showReprogramarModal.value = false
-      notyf.success('Cita reprogramada correctamente')
+    onSuccess: () => { 
+      showReprogramarModal.value = false; 
+      notyf.success('Cronograma reajustado exitosamente'); 
     },
     onError: (errors) => {
-      notyf.error(Object.values(errors)[0] || 'Error al reprogramar la cita')
+      const firstErr = Object.values(errors)[0];
+      availabilityError.value = firstErr || 'Verifica la disponibilidad del técnico en este horario.';
+      notyf.error(firstErr || 'No se pudo reajustar. Horario no disponible.');
     }
   })
 }
 
-// Paginación
-const paginationData = computed(() => {
-  const p = citasPaginator.value || {}
-  return {
-    currentPage: props.pagination?.current_page || p.current_page || 1,
-    lastPage:    props.pagination?.last_page || p.last_page || 1,
-    perPage:     props.pagination?.per_page || p.per_page || 10,
-    from:        props.pagination?.from || p.from || 0,
-    to:          props.pagination?.to || p.to || 0,
-    total:       props.pagination?.total || p.total || 0,
-    prevPageUrl: p.prev_page_url ?? null,
-    nextPageUrl: p.next_page_url ?? null,
-    links:       p.links ?? []
-  }
-})
-
-
-const handlePerPageChange = (newPerPage) => {
-  perPage.value = newPerPage
-  router.get(route('citas.index'), {
-    search: searchTerm.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    estado: filtroEstadoCita.value,
-    per_page: perPage.value,
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
+// Calendario Logic
+const legendColors = {
+  'Programado': 'bg-blue-500',
+  'En Proceso': 'bg-indigo-500',
+  'Completado': 'bg-emerald-500',
+  'Cancelado': 'bg-rose-500',
+  'Reprogramado': 'bg-purple-500'
 }
 
-const handlePageChange = (newPage) => {
-  router.get(route('citas.index'), {
-    search: searchTerm.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    estado: filtroEstadoCita.value,
-    per_page: perPage.value,
-    page: newPage
-  }, { preserveState: true, preserveScroll: true })
-}
-
-
-// Helpers
-const formatearFecha = (date) => {
-  if (!date) return '—'
-  try {
-    const d = new Date(date)
-    return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  } catch { return '—' }
-}
-
-const formatearHora = (date) => {
-  if (!date) return '—'
-  try {
-    const d = new Date(date)
-    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  } catch { return '—' }
-}
-
-const formatearTipoServicio = (tipo) => {
-  const tipos = {
-    instalacion: 'Instalación',
-    diagnostico: 'Diagnóstico',
-    reparacion: 'Reparación',
-    garantia: 'Garantía',
-    mantenimiento: 'Mantenimiento',
-    servicio_limpieza: 'Servicio limpieza',
-    otro: 'Otro',
-  }
-  return tipos[tipo] || tipo || '—'
-}
-
-const formatearTipoEquipo = (tipo) => {
-  const tipos = {
-    minisplit: 'Minisplit',
-    aire_acondicionado: 'Aire acondicionado',
-    paquete: 'Unidad paquete',
-    refrigerador: 'Refrigerador',
-    congelador: 'Congelador',
-    enfriador_agua: 'Enfriador de agua',
-    lavadora: 'Lavadora',
-    secadora: 'Secadora',
-    estufa: 'Estufa',
-    microondas: 'Microondas',
-    lavavajillas: 'Lavavajillas',
-    campana: 'Campana',
-    boiler: 'Boiler',
-  }
-  return tipos[tipo] || tipo || '—'
-}
-
-const etiquetaPrioridad = (p) => {
-  const m = { baja: 'Baja', media: 'Media', alta: 'Alta', urgente: 'Urgente' }
-  return m[p] || (p ? String(p) : '—')
-}
-
-const ORIGEN_TIENDA_LABELS = {
-  liverpool: 'Liverpool',
-  coppel: 'Coppel',
-  elektra: 'Elektra',
-  sears: 'Sears',
-  costco: 'Costco',
-  home_depot: 'Home Depot',
-  walmart: 'Walmart',
-  soriana: 'Soriana',
-  otro: 'Otro',
-}
-
-const etiquetaOrigenTienda = (clave) => ORIGEN_TIENDA_LABELS[clave] || clave || '—'
-
-/** Dirección escrita en la cita o armada desde calles de cita / cliente. */
-const textoUbicacionServicio = (c) => {
-  if (!c) return ''
-  const ds = c.direccion_servicio && String(c.direccion_servicio).trim()
-  if (ds) return ds
-  const partes = []
-  if (c.direccion_calle) partes.push(String(c.direccion_calle).trim())
-  if (c.direccion_colonia) partes.push(`Col. ${String(c.direccion_colonia).trim()}`)
-  if (c.direccion_cp) partes.push(`C.P. ${String(c.direccion_cp).trim()}`)
-  if (c.direccion_referencias) partes.push(`Ref: ${String(c.direccion_referencias).trim()}`)
-  if (partes.length) return partes.join(' · ')
-  const cl = c.cliente
-  if (!cl) return ''
-  const calle = [cl.calle, cl.numero_exterior].filter(Boolean).join(' ').trim()
-  const col = [cl.colonia, cl.municipio, cl.estado].filter(Boolean).join(', ')
-  if (calle || col) return [calle, col].filter(Boolean).join(' · ')
-  return ''
-}
-
-const bordeCalendarioPorEstado = (estado) => {
-  const m = {
-    programado: 'border-l-2 border-blue-500',
-    pendiente: 'border-l-2 border-yellow-500',
-    pendiente_asignacion: 'border-l-2 border-amber-600',
-    en_proceso: 'border-l-2 border-indigo-500',
-    completado: 'border-l-2 border-green-500',
-    cancelado: 'border-l-2 border-red-500',
-    reprogramado: 'border-l-2 border-purple-500',
-  }
-  return m[estado] || ''
-}
-
-const isAtrasada = (cita) => {
-  if (!cita || !cita.fecha_hora) return false;
-  const estadosAtrasables = ['pendiente', 'pendiente_asignacion', 'programado', 'reprogramado'];
-  if (!estadosAtrasables.includes(cita.estado)) return false;
-  
-  const citaDate = new Date(cita.fecha_hora);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  return citaDate < today;
-}
-
-const obtenerEstadoCitaClase = (citaObj) => {
-  if (isAtrasada(citaObj)) {
-    return 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/30';
-  }
-  const estado = typeof citaObj === 'string' ? citaObj : (citaObj?.estado || 'desconocido');
-  const clases = {
-    'pendiente': 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-100 dark:border-yellow-900/30',
-    'pendiente_asignacion': 'bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 border-amber-100 dark:border-amber-900/30',
-    'programado': 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-900/30',
-    'en_proceso': 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30',
-    'completado': 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-100 dark:border-green-900/30',
-    'cancelado': 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-100 dark:border-red-900/30',
-    'reprogramado': 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-900/30'
-  }
-  return clases[estado] || 'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 border-gray-100 dark:border-gray-900/30'
-}
-
-const obtenerEstadoCitaLabel = (citaObj) => {
-  if (isAtrasada(citaObj)) return 'Atrasada';
-  const estado = typeof citaObj === 'string' ? citaObj : (citaObj?.estado || 'desconocido');
-  const labels = {
-    'pendiente': 'Pendiente',
-    'pendiente_asignacion': 'Sin asignar',
-    'programado': 'Programado',
-    'en_proceso': 'En Proceso',
-    'completado': 'Completado',
-    'cancelado': 'Cancelado',
-    'reprogramado': 'Reprogramado'
-  }
-  return labels[estado] || 'Desconocido'
-}
-
-// Lógica de Calendario
 const daysInMonth = computed(() => {
-  const year = currentMonth.value.getFullYear()
-  const month = currentMonth.value.getMonth()
-  const date = new Date(year, month, 1)
+  const y = currentMonth.value.getFullYear(), m = currentMonth.value.getMonth()
+  const first = new Date(y, m, 1).getDay()
+  const last = new Date(y, m + 1, 0).getDate()
+  const prevLast = new Date(y, m, 0).getDate()
   const days = []
-  
-  const firstDayOfWeek = date.getDay()
-  const prevMonthLastDay = new Date(year, month, 0).getDate()
-  for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-    days.push({ day: prevMonthLastDay - i, month: 'prev', date: new Date(year, month - 1, prevMonthLastDay - i) })
-  }
-
-  const lastDay = new Date(year, month + 1, 0).getDate()
-  for (let i = 1; i <= lastDay; i++) {
-    days.push({ day: i, month: 'current', date: new Date(year, month, i) })
-  }
-
-  const remainingCells = 42 - days.length
-  for (let i = 1; i <= remainingCells; i++) {
-    days.push({ day: i, month: 'next', date: new Date(year, month + 1, i) })
-  }
-
+  for (let i = first - 1; i >= 0; i--) days.push({ day: prevLast - i, month: 'prev', date: new Date(y, m - 1, prevLast - i) })
+  for (let i = 1; i <= last; i++) days.push({ day: i, month: 'current', date: new Date(y, m, i) })
+  const rem = 42 - days.length
+  for (let i = 1; i <= rem; i++) days.push({ day: i, month: 'next', date: new Date(y, m + 1, i) })
   return days
 })
 
 const monthYearLabel = computed(() => currentMonth.value.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }))
+const changeMonth = (o) => currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + o, 1)
+const isToday = (d) => d.toDateString() === new Date().toDateString()
 
-const changeMonth = (offset) => {
-  currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + offset, 1)
+const getCitasForDay = (d) => {
+  // Usar formato YYYY-MM-DD local para evitar problemas de zona horaria (UTC vs Local)
+  const formatLocal = (date) => {
+    const dt = new Date(date);
+    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+  };
+  
+  const s = formatLocal(d);
+  const c = (props.citas?.data || []).filter(i => formatLocal(i.fecha_hora) === s).map(i => ({ ...i, isCita: true }))
+  const b = (props.bloqueos?.dias_bloqueados || []).filter(i => i.fecha === s).map(i => ({ ...i, isBloqueo: true, tecnico: i.tecnico_nombre }))
+  return [...c, ...b]
 }
 
-const getCitasForDay = (date) => {
-  const dateStr = date.toISOString().split('T')[0]
-  return citasData.value.filter(c => {
-    const citaDate = new Date(c.fecha_hora).toISOString().split('T')[0]
-    return citaDate === dateStr
-  })
+const formatearHora = (d) => d ? new Date(d).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''
+const bordeCalendarioPorEstado = (e) => legendColors[obtenerLabelEstado(e)] || ''
+const obtenerLabelEstado = (e) => ({ pendiente: 'Pendiente', programado: 'Programado', en_proceso: 'En Proceso', completado: 'Completado', cancelado: 'Cancelado', reprogramado: 'Reprogramado' }[e] || 'Pendiente')
+
+const isAtrasada = (c) => {
+  if (!c?.fecha_hora || !['pendiente', 'programado'].includes(c.estado)) return false
+  const d = new Date(c.fecha_hora)
+  const t = new Date(); t.setHours(0,0,0,0)
+  return d < t
 }
 
-const isToday = (date) => {
-  const today = new Date()
-  return date.getDate() === today.getDate() && 
-         date.getMonth() === today.getMonth() && 
-         date.getFullYear() === today.getFullYear()
+const obtenerEstadoCitaClase = (c) => {
+  if (isAtrasada(c)) return 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-200 border-rose-200 dark:border-rose-800'
+  const e = c?.estado || 'pendiente'
+  const m = {
+    pendiente: 'bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-200 border-orange-200 dark:border-orange-800',
+    programado: 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-200 border-blue-200 dark:border-blue-800',
+    en_proceso: 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-200 border-indigo-200 dark:border-indigo-800',
+    completado: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800',
+    cancelado: 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-800',
+    reprogramado: 'bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-200 border-purple-200 dark:border-purple-800'
+  }
+  return m[e] || m.pendiente
 }
 </script>
 
 <style scoped>
-.modal-enter-active, .modal-leave-active { transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-.modal-enter-from, .modal-leave-to { opacity: 0; transform: scale(0.95); }
+.modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.5s ease, transform 0.5s ease; }
+.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; transform: scale(0.95); }
 
-.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
 
-/* Animaciones suaves para la galería */
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes zoom-in { from { transform: scale(0.95); } to { transform: scale(1); } }
-.animate-in { animation: fade-in 0.3s ease-out, zoom-in 0.3s ease-out; }
+@keyframes zoom-in { from { transform: scale(0.9); } to { transform: scale(1); } }
+.animate-in { animation: fade-in 0.5s ease-out, zoom-in 0.5s ease-out; }
 </style>

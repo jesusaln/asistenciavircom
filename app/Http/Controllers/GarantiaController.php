@@ -30,6 +30,7 @@ class GarantiaController extends Controller
             ->leftJoin('ventas as v', 'v.id', '=', 'vi.venta_id')
             ->leftJoin('clientes as c', 'c.id', '=', 'v.cliente_id')
             ->leftJoin('productos as p', 'p.id', '=', 'ps.producto_id')
+            ->leftJoin('marcas as m', 'm.id', '=', 'p.marca_id')
             ->select(
                 'ps.id as producto_serie_id',
                 'ps.numero_serie',
@@ -76,6 +77,7 @@ class GarantiaController extends Controller
             ->join('ventas as v', 'v.id', '=', 'vi.venta_id')
             ->join('clientes as c', 'c.id', '=', 'v.cliente_id')
             ->join('productos as p', 'p.id', '=', 'ps.producto_id')
+            ->leftJoin('marcas as m', 'm.id', '=', 'p.marca_id')
             ->leftJoin('almacenes as a', 'ps.almacen_id', '=', 'a.id')
             ->select(
                 'ps.id as producto_serie_id',
@@ -94,6 +96,7 @@ class GarantiaController extends Controller
                 'c.nombre_razon_social as cliente_nombre',
                 'c.email as cliente_email',
                 'c.telefono as cliente_telefono',
+                'm.nombre as marca_nombre',
                 'c.calle',
                 'c.numero_exterior',
                 'c.numero_interior',
@@ -232,6 +235,7 @@ class GarantiaController extends Controller
                         'ps.cita_id',
                         'p.id as producto_id',
                         'p.nombre as producto_nombre',
+                        'p.marca_id',
                         'p.dias_garantia',
                         'c.id as cliente_id',
                         'c.nombre_razon_social as cliente_nombre',
@@ -251,6 +255,12 @@ class GarantiaController extends Controller
 
                 if (!$serieInfo) {
                     return response()->json(['error' => 'Serie no encontrada'], 404);
+                }
+
+                // Buscar el nombre de la marca de forma independiente para evitar error con lockForUpdate en PGSQL
+                $marcaNombre = null;
+                if ($serieInfo->marca_id) {
+                    $marcaNombre = DB::table('marcas')->where('id', $serieInfo->marca_id)->value('nombre');
                 }
 
                 // Validar estado de serie
@@ -318,12 +328,59 @@ class GarantiaController extends Controller
                 $queryString = http_build_query($params);
                 $url = route('citas.create') . '?' . $queryString;
 
+                // Intentar limpiar marca y modelo si es posible
+                $marcaRaw = $marcaNombre;
+                $productoNombre = $serieInfo->producto_nombre;
+                $marcaFinal = $marcaRaw;
+                $modeloFinal = $productoNombre;
+
+                if ($marcaRaw) {
+                    // Si tenemos la marca, intentamos extraer un modelo más limpio
+                    // Quitamos la marca y palabras comunes como "Evaporador", "Minisplit", etc.
+                    $remover = [
+                        $marcaRaw, 
+                        'Evaporador', 'Condensadora', 'Minisplit', 'Aire Acondicionado', 
+                        'Paquete', 'Fan & Coil', 'Chiller', 'Cassette', 'Piso Techo'
+                    ];
+                    
+                    $modeloFinal = trim(str_ireplace($remover, '', $productoNombre));
+                    // Si después de limpiar queda algo con " - " o " | ", agarramos lo primero
+                    $modeloFinal = trim(explode(' - ', $modeloFinal)[0]);
+                    $modeloFinal = trim(explode(' | ', $modeloFinal)[0]);
+                    
+                    if (empty($modeloFinal)) {
+                        $modeloFinal = $productoNombre;
+                    }
+                } else {
+                    // Si no hay marca en DB, intentamos buscar marcas comunes en el nombre
+                    $marcasComunes = ['Mirage', 'Carrier', 'York', 'Trane', 'Midea', 'LG', 'Samsung', 'Daikin', 'McQuay', 'Rheem'];
+                    foreach ($marcasComunes as $m) {
+                        if (stripos($productoNombre, $m) !== false) {
+                            $marcaFinal = $m;
+                            $modeloFinal = trim(str_ireplace([$m, 'Evaporador', 'Condensadora', 'Minisplit'], '', $productoNombre));
+                            $modeloFinal = trim(explode(' - ', $modeloFinal)[0]);
+                            $modeloFinal = trim(explode(' | ', $modeloFinal)[0]);
+                            break;
+                        }
+                    }
+                }
+
                 return response()->json([
                     'success' => true,
-                    'url' => $url,
-                    'cliente' => $serieInfo->cliente_nombre,
-                    'serie' => $serieInfo->numero_serie,
-                    'direccion' => $direccion,
+                    'url' => $url, // Legacy support
+                    'data' => [
+                        'cliente_id' => $serieInfo->cliente_id,
+                        'cliente_nombre' => $serieInfo->cliente_nombre,
+                        'cliente_telefono' => $serieInfo->cliente_telefono,
+                        'producto_id' => $serieInfo->producto_id,
+                        'producto_nombre' => $serieInfo->producto_nombre,
+                        'numero_serie' => $serieInfo->numero_serie,
+                        'direccion' => $direccion,
+                        'tipo_servicio' => 'garantia',
+                        'producto_serie_id' => $serieId,
+                        'equipo_marca' => $marcaFinal ?? $serieInfo->producto_nombre,
+                        'equipo_modelo' => $modeloFinal ?? $serieInfo->producto_nombre,
+                    ],
                     'garantia_info' => [
                         'dias_restantes' => max(0, $diasRestantes),
                         'fecha_vencimiento' => $fechaVencimiento->format('d/m/Y'),

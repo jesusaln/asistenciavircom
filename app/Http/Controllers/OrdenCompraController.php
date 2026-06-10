@@ -235,6 +235,9 @@ class OrdenCompraController extends Controller
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Throwable $e) {
             DB::rollBack();
+            if (app()->environment('testing')) {
+                throw $e;
+            }
             Log::error('Error al crear la orden de compra', ['msg' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
             return redirect()->back()->with('error', 'Ocurrió un error al crear la orden de compra.');
         }
@@ -445,6 +448,17 @@ class OrdenCompraController extends Controller
         return Inertia::render('OrdenesCompra/Show', [
             'ordenCompra' => $orden,
         ]);
+    }
+
+    public function generarPDF($id)
+    {
+        $ordenCompra = OrdenCompra::with(['proveedor', 'productos', 'almacen'])->findOrFail($id);
+        $pdfService = app(\App\Services\PdfGeneratorService::class);
+        $pdf = $pdfService->loadView('orden_compra_pdf', [
+            'ordenCompra' => $ordenCompra,
+            'money' => fn($val) => number_format((float) $val, 2),
+        ]);
+        return $pdfService->stream($pdf, "orden-compra-{$ordenCompra->numero_orden}.pdf");
     }
 
     /**
@@ -671,6 +685,16 @@ class OrdenCompraController extends Controller
                     'success' => false,
                     'error' => 'Esta orden no puede ser cancelada en su estado actual'
                 ], 400);
+            }
+
+            if ($orden->estado === 'convertida') {
+                $almacenId = $orden->almacen_id ?? Almacen::where('estado', 'activo')->first()?->id;
+                foreach ($orden->productos as $producto) {
+                    $this->inventarioService->salida($producto, (float)$producto->pivot->cantidad, [
+                        'almacen_id' => $almacenId,
+                        'motivo' => "Reversión por cancelación de Orden de Compra #{$orden->numero_orden}"
+                    ]);
+                }
             }
 
             $orden->update(['estado' => 'cancelada']);
@@ -1000,14 +1024,6 @@ class OrdenCompraController extends Controller
                         'compra_id' => $compra->id,
                     ],
                 ]);
-
-                if (!$inventarioResult) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'error' => "Error al procesar inventario para producto {$producto->id}"
-                    ], 500);
-                }
 
                 // Registrar series si el producto las requiere
                 if ($producto->requiere_serie && !empty($validatedSeries['series'])) {

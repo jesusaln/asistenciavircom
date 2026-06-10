@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('ventas', function (Blueprint $table) {
-            $table->uuid('sharing_token')->nullable()->unique()->after('id');
-        });
+        if (!Schema::hasColumn('ventas', 'sharing_token')) {
+            Schema::table('ventas', function (Blueprint $table) {
+                $table->uuid('sharing_token')->nullable()->unique()->after('id');
+            });
+        }
     }
 
     /**

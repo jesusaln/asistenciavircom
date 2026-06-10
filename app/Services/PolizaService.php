@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\PolizaServicio;
 use App\Models\PolizaAuditLog;
+use App\Support\EmpresaResolver;
 use Illuminate\Support\Facades\DB;
 
 class PolizaService
@@ -14,11 +15,16 @@ class PolizaService
     public function createPoliza(array $data): PolizaServicio
     {
         return DB::transaction(function () use ($data) {
+            $empresaId = auth()->user()?->empresa_id ?? EmpresaResolver::resolveId();
+            if (!$empresaId) {
+                throw new \RuntimeException('No se pudo determinar la empresa para crear la poliza.');
+            }
+
             $condiciones = $data['condiciones_especiales'] ?? [];
             $condiciones['equipos_cliente'] = $data['equipos_cliente'] ?? [];
 
             $poliza = PolizaServicio::create([
-                'empresa_id' => auth()->user()->empresa_id ?? 1,
+                'empresa_id' => $empresaId,
                 'cliente_id' => $data['cliente_id'],
                 'nombre' => $data['nombre'],
                 'descripcion' => $data['descripcion'] ?? null,

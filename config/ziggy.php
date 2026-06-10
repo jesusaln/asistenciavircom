@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'url' => config('app.url'),
+    'url' => env('APP_URL', 'http://localhost'),
 
     'port' => env('APP_PORT', 8000),
 
@@ -37,17 +37,13 @@ return [
         ],
     ],
 
-    'blacklist' => [
+    // 'whitelist' removed to prevent silent failures. Using blacklist/except strategy instead.
+    'except' => [
         'debugbar.*',
         'clockwork.*',
         'telescope.*',
         'horizon.*',
-    ],
-
-    'whitelist' => [
-        'mantenimientos*', // Incluir todas las rutas de mantenimientos
-        'mantenimientos.completar',
-        'mantenimientos.generar-recurrentes',
-        'herramientas*', // Incluir todas las rutas de herramientas
+        'sanctum.*',
+        'ignition.*',
     ],
 ];

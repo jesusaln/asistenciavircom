@@ -1,6 +1,6 @@
 <template>
     <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <div class="bg-white p-6 rounded-xl shadow-lg w-96">
         <h2 class="text-xl font-semibold mb-4">Detalles de la Empresa</h2>
         <p><strong>Nombre:</strong> {{ empresa.nombre_razon_social }}</p>
         <p><strong>RFC:</strong> {{ empresa.rfc }}</p>
@@ -11,7 +11,7 @@
         <p><strong>Dirección:</strong> {{ empresa.calle }} {{ empresa.numero_exterior }} {{ empresa.numero_interior }},
           {{ empresa.colonia }}, {{ empresa.codigo_postal }},
           {{ empresa.municipio }}, {{ empresa.estado }}, {{ empresa.pais }}</p>
-        <button @click="$emit('close')" class="mt-4 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition">
+        <button @click="$emit('close')" class="mt-4 bg-slate-400 text-white px-4 py-2 rounded-xl hover:bg-slate-500 transition">
           Cerrar
         </button>
       </div>

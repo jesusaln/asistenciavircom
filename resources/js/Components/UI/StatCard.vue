@@ -10,14 +10,14 @@
         <!-- Content -->
         <div class="flex-1 min-w-0">
             <!-- Label -->
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate transition-colors">
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 truncate transition-colors">
                 {{ label }}
             </p>
             
             <!-- Value -->
             <div class="mt-1 flex items-baseline gap-2">
                 <p :class="valueClasses">
-                    <span v-if="prefix" class="text-lg font-medium text-gray-500 dark:text-gray-400 transition-colors">{{ prefix }}</span>
+                    <span v-if="prefix" class="text-lg font-medium text-slate-500 dark:text-slate-400 transition-colors">{{ prefix }}</span>
                     {{ formattedValue }}
                 </p>
                 
@@ -34,7 +34,7 @@
             </div>
             
             <!-- Description -->
-            <p v-if="description" class="mt-1 text-xs text-gray-400 dark:text-gray-500 transition-colors">
+            <p v-if="description" class="mt-1 text-xs text-slate-400 dark:text-slate-500 transition-colors">
                 {{ description }}
             </p>
         </div>
@@ -115,22 +115,22 @@ const formattedValue = computed(() => {
 
 // Card container classes
 const cardClasses = computed(() => [
-    'relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors',
+    'relative bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors',
     'flex items-start gap-4',
     props.compact ? 'p-4' : 'p-6',
-    props.href ? 'hover:shadow-md hover:border-amber-200 transition-all duration-200 cursor-pointer' : '',
+    props.href ? 'hover:shadow-md hover:border-brand-200 transition-all duration-200 cursor-pointer' : '',
 ]);
 
 // Icon container classes based on variant
 const iconContainerClasses = computed(() => {
-    const baseClasses = 'flex-shrink-0 p-3 rounded-lg';
+    const baseClasses = 'flex-shrink-0 p-3 rounded-xl';
     const variantClasses = {
-        default: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
-        primary: 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-        success: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+        default: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
+        primary: 'bg-brand-50 dark:bg-brand-900/20/30 text-brand-600 dark:text-amber-400',
+        success: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
         warning: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400',
-        danger: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
-        info: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+        danger: 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
+        info: 'bg-blue-50 dark:bg-sky-900/20/30 text-blue-600 dark:text-blue-400',
     };
     return [baseClasses, variantClasses[props.variant]];
 });
@@ -138,17 +138,17 @@ const iconContainerClasses = computed(() => {
 // Value classes
 const valueClasses = computed(() => [
     'text-2xl font-bold',
-    props.variant === 'success' ? 'text-green-600 dark:text-green-400' :
-    props.variant === 'danger' ? 'text-red-600 dark:text-red-400' :
+    props.variant === 'success' ? 'text-emerald-600 dark:text-emerald-400' :
+    props.variant === 'danger' ? 'text-rose-600 dark:text-rose-400' :
     props.variant === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
     props.variant === 'info' ? 'text-blue-600 dark:text-blue-400' :
-    props.variant === 'primary' ? 'text-amber-600 dark:text-amber-400' :
-    'text-gray-900 dark:text-white'
+    props.variant === 'primary' ? 'text-brand-600 dark:text-amber-400' :
+    'text-slate-900 dark:text-white'
 ]);
 
 // Trend indicator classes
 const trendClasses = computed(() => [
     'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-    props.trend > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+    props.trend > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
 ]);
 </script>

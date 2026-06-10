@@ -1,9 +1,9 @@
 <template>
   <Head title="Gestión de Vacaciones" />
-  <div class="vacaciones-index min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="vacaciones-index min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Flash success -->
-      <div v-if="$page.props.flash && $page.props.flash.success" class="mb-4 rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/40 px-4 py-3 text-green-800 dark:text-green-300">
+      <div v-if="$page.props.flash && $page.props.flash.success" class="mb-4 rounded-xl border border-emerald-200 dark:border-emerald-800/30 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/50 px-4 py-3 text-emerald-800 dark:text-emerald-200 dark:text-emerald-300">
         {{$page.props.flash.success}}
       </div>
 
@@ -11,24 +11,24 @@
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Gestión de Vacaciones</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">Administra las solicitudes de vacaciones de los empleados</p>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Gestión de Vacaciones</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Administra las solicitudes de vacaciones de los empleados</p>
           </div>
           <div class="flex gap-3">
             <Link
               :href="route('vacaciones.create')"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200"
             >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
               </svg>
               Nueva Solicitud
             </Link>
             <button
               @click="showCrearParaEmpleado = true"
-              class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors duration-200"
             >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               Crear para Empleado
@@ -36,9 +36,9 @@
             <button
               @click="irRegistro"
               :disabled="!selectedEmpleadoId"
-              class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="inline-flex items-center px-4 py-2 bg-brand-500 text-white rounded-xl hover:bg-brand-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
               </svg>
               Ver Registro
@@ -48,58 +48,58 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-blue-50 dark:bg-sky-900/20/40 rounded-xl">
+              <svg class="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Solicitudes</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.total }}</p>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-200">Total Solicitudes</p>
+              <p class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ stats.total }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/40 rounded-lg">
-              <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-brand-50 dark:bg-brand-900/20/40 rounded-xl">
+              <svg class="w-10 h-10 text-brand-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Pendientes</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.pendientes }}</p>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-200">Pendientes</p>
+              <p class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ stats.pendientes }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
-              <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-emerald-100 dark:bg-slate-800/50 rounded-xl">
+              <svg class="w-10 h-10 text-emerald-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Aprobadas</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.aprobadas }}</p>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-200">Aprobadas</p>
+              <p class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ stats.aprobadas }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           <div class="flex items-center">
-            <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
-              <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 bg-rose-50 dark:bg-rose-900/20/40 rounded-xl">
+              <svg class="w-10 h-10 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Rechazadas</p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.rechazadas }}</p>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-200">Rechazadas</p>
+              <p class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ stats.rechazadas }}</p>
             </div>
           </div>
         </div>
@@ -107,11 +107,11 @@
 
       <!-- Modal para crear vacaciones para empleado específico -->
       <div v-if="showCrearParaEmpleado" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showCrearParaEmpleado = false">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-          <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Crear Vacaciones para Empleado</h3>
-            <button @click="showCrearParaEmpleado = false" class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md">
+          <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100">Crear Vacaciones para Empleado</h3>
+            <button @click="showCrearParaEmpleado = false" class="text-slate-400 dark:text-slate-400 hover:text-brand-600 dark:hover:text-slate-300">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
@@ -119,10 +119,10 @@
 
           <div class="p-6">
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccionar Empleado</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Seleccionar Empleado</label>
               <select
                 v-model="empleadoSeleccionado"
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               >
                 <option value="">Elegir empleado...</option>
                 <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
@@ -134,14 +134,14 @@
             <div class="flex justify-end gap-3">
               <button
                 @click="showCrearParaEmpleado = false"
-                class="px-4 py-2 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-white dark:hover:bg-gray-700"
+                class="px-4 py-2 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-white dark:hover:bg-slate-700"
               >
                 Cancelar
               </button>
               <button
                 @click="crearParaEmpleado"
                 :disabled="!empleadoSeleccionado"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Crear Vacaciones
               </button>
@@ -151,14 +151,14 @@
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Empleado</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Empleado</label>
             <select
               v-model="filters.empleado"
               @change="applyFilters"
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="">Todos los empleados</option>
               <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
@@ -168,11 +168,11 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Estado</label>
             <select
               v-model="filters.estado"
               @change="applyFilters"
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
@@ -182,86 +182,86 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Desde</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Fecha Desde</label>
             <input
               v-model="filters.fecha_desde"
               type="date"
               @change="applyFilters"
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Hasta</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Fecha Hasta</label>
             <input
               v-model="filters.fecha_hasta"
               type="date"
               @change="applyFilters"
-              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
         </div>
       </div>
 
       <!-- Tabla -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Empleado
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Fechas
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Días
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Estado
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Motivo
                 </th>
-                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Registro</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Registro</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="vacacion in vacaciones.data" :key="vacacion.id" class="hover:bg-white transition-colors duration-150" :class="vacacion.id === Number(props.highlightId) ? 'bg-green-50 ring-2 ring-green-300' : ''" :ref="el => { if (vacacion.id && el) { rowRefs.value = rowRefs.value || {}; rowRefs.value[String(vacacion.id)] = el } }">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+              <tr v-for="vacacion in vacaciones.data" :key="vacacion.id" class="hover:bg-white transition-colors duration-150" :class="vacacion.id === Number(props.highlightId) ? 'bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-300' : ''" :ref="el => { if (vacacion.id && el) { rowRefs.value = rowRefs.value || {}; rowRefs.value[String(vacacion.id)] = el } }">
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-slate-900">
                 {{ vacacion.empleado.name }}
                   </div>
-                  <div class="text-sm text-gray-500">{{ vacacion.empleado.puesto }}</div>
+                  <div class="text-sm text-slate-500">{{ vacacion.empleado.puesto }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">
+                  <div class="text-sm text-slate-900">
                     {{ formatDate(vacacion.fecha_inicio) }} - {{ formatDate(vacacion.fecha_fin) }}
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ vacacion.dias_solicitados }} días</div>
+                  <div class="text-sm text-slate-900">{{ vacacion.dias_solicitados }} días</div>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="getEstadoClasses(vacacion.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <span :class="getEstadoClasses(vacacion.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-medium">
                     {{ getEstadoLabel(vacacion.estado) }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900 max-w-xs truncate" :title="vacacion.motivo">
+                  <div class="text-sm text-slate-900 max-w-xs truncate" :title="vacacion.motivo">
                     {{ vacacion.motivo || 'Sin motivo especificado' }}
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center">
-                  <Link :href="route('registro-vacaciones.por-empleado', vacacion.user_id)" class="text-amber-600 hover:underline">Ver</Link>
+                  <Link :href="route('registro-vacaciones.por-empleado', vacacion.user_id)" class="text-brand-600 hover:underline">Ver</Link>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end space-x-2">
                     <Link
                       :href="route('vacaciones.show', vacacion.id)"
-                      class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-150 flex items-center justify-center"
+                      class="w-10 h-10 bg-sky-50 dark:bg-sky-900/20 text-blue-600 rounded-xl hover:bg-sky-100 transition-colors duration-150 flex items-center justify-center"
                       title="Ver detalles"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +273,7 @@
                     <button
                       v-if="vacacion.estado === 'pendiente'"
                       @click="aprobarVacacion(vacacion)"
-                      class="w-8 h-8 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors duration-150 flex items-center justify-center"
+                      class="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors duration-150 flex items-center justify-center"
                       title="Aprobar"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -284,7 +284,7 @@
                     <button
                       v-if="vacacion.estado === 'pendiente'"
                       @click="rechazarVacacion(vacacion)"
-                      class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-150 flex items-center justify-center"
+                      class="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors duration-150 flex items-center justify-center"
                       title="Rechazar"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,15 +297,15 @@
 
               <tr v-if="vacaciones.data.length === 0">
                 <td colspan="6" class="px-6 py-16 text-center">
-                  <div class="flex flex-col items-center space-y-4">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="flex flex-col items-center space-y-6">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                      <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                       </svg>
                     </div>
                     <div class="space-y-1">
-                      <p class="text-gray-700 font-medium">No hay solicitudes de vacaciones</p>
-                      <p class="text-sm text-gray-500">Las solicitudes aparecerán aquí cuando se creen</p>
+                      <p class="text-slate-700 font-medium">No hay solicitudes de vacaciones</p>
+                      <p class="text-sm text-slate-500">Las solicitudes aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -315,9 +315,9 @@
         </div>
 
         <!-- Paginación -->
-        <div v-if="vacaciones.last_page > 1" class="bg-white border-t border-gray-200 px-4 py-3">
+        <div v-if="vacaciones.last_page > 1" class="bg-white border-t border-slate-200 px-4 py-3">
           <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-700">
+            <div class="text-sm text-slate-700">
               Mostrando {{ vacaciones.from }} - {{ vacaciones.to }} de {{ vacaciones.total }} resultados
             </div>
 
@@ -326,7 +326,7 @@
                 v-for="page in getPageNumbers()"
                 :key="page"
                 @click="changePage(page)"
-                :class="page === vacaciones.current_page ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === vacaciones.current_page ? 'bg-sky-50 dark:bg-sky-900/20 border-blue-500 text-blue-600' : 'bg-white border-slate-300 text-slate-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -340,10 +340,10 @@
   <!-- Botón flotante para Ajustar días (abre el modal) -->
   <button
     @click="showAjuste = true"
-    class="fixed bottom-6 right-6 inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700"
+    class="fixed bottom-6 right-6 inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-full shadow-xl hover:bg-purple-700"
     title="Ajustar días de vacaciones"
   >
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
     </svg>
     Ajustar días
@@ -351,19 +351,19 @@
 
   <!-- Modal de ajuste de días por Admin -->
   <div v-if="showAjuste" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="closeAjuste()">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Ajustar días de vacaciones</h3>
-        <button @click="closeAjuste" class="text-gray-400 hover:text-gray-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div class="flex items-center justify-between p-6 border-b border-slate-200">
+        <h3 class="text-lg font-medium text-slate-900">Ajustar días de vacaciones</h3>
+        <button @click="closeAjuste" class="text-slate-400 hover:text-amber-600">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
-      <div class="p-6 space-y-4">
+      <div class="p-6 space-y-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Empleado</label>
-          <select v-model="ajuste.empleadoId" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Empleado</label>
+          <select v-model="ajuste.empleadoId" class="w-full border border-slate-300 rounded-xl px-3 py-2">
             <option value="">Seleccione un empleado</option>
                 <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
                   {{ empleado.name }}
@@ -372,23 +372,23 @@
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Año</label>
-            <input type="number" v-model.number="ajuste.anio" class="w-full border rounded-lg px-3 py-2" />
+            <label class="block text-sm font-medium text-slate-700 mb-2">Año</label>
+            <input type="number" v-model.number="ajuste.anio" class="w-full border rounded-xl px-3 py-2" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Días (+/-)</label>
-            <input type="number" v-model.number="ajuste.dias" class="w-full border rounded-lg px-3 py-2" />
+            <label class="block text-sm font-medium text-slate-700 mb-2">Días (+/-)</label>
+            <input type="number" v-model.number="ajuste.dias" class="w-full border rounded-xl px-3 py-2" />
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Motivo (opcional)</label>
-          <textarea v-model="ajuste.motivo" rows="3" class="w-full border rounded-lg px-3 py-2"></textarea>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Motivo (opcional)</label>
+          <textarea v-model="ajuste.motivo" rows="3" class="w-full border rounded-xl px-3 py-2"></textarea>
         </div>
-        <p v-if="ajusteError" class="text-sm text-red-600">{{ ajusteError }}</p>
+        <p v-if="ajusteError" class="text-sm text-rose-600">{{ ajusteError }}</p>
       </div>
-      <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
-        <button @click="closeAjuste" class="px-4 py-2 border rounded-lg">Cancelar</button>
-        <button @click="submitAjuste" :disabled="ajusteLoading" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50">
+      <div class="p-6 border-t border-slate-200 flex justify-end gap-3">
+        <button @click="closeAjuste" class="px-4 py-2 border rounded-xl">Cancelar</button>
+        <button @click="submitAjuste" :disabled="ajusteLoading" class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50">
           {{ ajusteLoading ? 'Aplicando...' : 'Aplicar ajuste' }}
         </button>
       </div>
@@ -398,6 +398,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { Head, router, Link } from '@inertiajs/vue3'
 import { Notyf } from 'notyf'
@@ -563,11 +564,11 @@ const formatDate = (date) => {
 
 const getEstadoClasses = (estado) => {
   const classes = {
-    'pendiente': 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300',
-    'aprobada': 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
-    'rechazada': 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+    'pendiente': 'bg-brand-50 dark:bg-brand-900/20/40 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-amber-300',
+    'aprobada': 'bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-emerald-300',
+    'rechazada': 'bg-rose-50 dark:bg-rose-900/20/40 text-rose-800 dark:text-rose-200 dark:text-rose-200 dark:text-rose-300',
   }
-  return classes[estado] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+  return classes[estado] || 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
 }
 
 const getEstadoLabel = (estado) => {

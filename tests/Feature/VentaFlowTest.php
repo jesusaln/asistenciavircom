@@ -18,7 +18,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class VentaFlowTest extends TestCase
-
 {
 
 
@@ -152,7 +151,7 @@ class VentaFlowTest extends TestCase
                 'moneda' => 'MXN',
                 'enable_retencion_iva' => false,
                 'enable_retencion_isr' => false,
-                'color_principal' => '#3B82F6',
+                'color_principal' => '#FF6B35',
                 'color_secundario' => '#1E40AF',
                 'formato_numeros' => 'es-ES',
                 'formato_fecha' => 'd/m/Y',

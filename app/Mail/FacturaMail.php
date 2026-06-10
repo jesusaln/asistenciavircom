@@ -16,20 +16,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+
 class FacturaMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public $cfdi;
     public $venta;
+    public bool $isConciliacion;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Cfdi $cfdi)
+    public function __construct(Cfdi $cfdi, bool $isConciliacion = false)
     {
         $this->cfdi = $cfdi;
-        $this->venta = $cfdi->venta;
+        $this->venta = $cfdi->venta ?? null;
+        $this->isConciliacion = $isConciliacion;
     }
 
     /**
@@ -38,11 +42,18 @@ class FacturaMail extends Mailable
     public function envelope(): Envelope
     {
         $folio = $this->cfdi->serie . $this->cfdi->folio;
-        $empresaConfig = EmpresaConfiguracion::getConfig();
-        $empresaName = $empresaConfig->nombre_empresa ?? config('app.name', 'Empresa');
+        $empresaConfig = EmpresaConfiguracion::getConfig($this->cfdi->empresa_id);
+        $miEmpresa = $empresaConfig->razon_social ?: ($empresaConfig->nombre_empresa ?: config('app.name', 'Empresa'));
+        $empresaName = $this->cfdi->nombre_emisor ?: $miEmpresa;
         
+        $subject = "Factura {$folio} - {$empresaName}";
+        if ($this->isConciliacion) {
+            $isRecibido = $this->cfdi->direccion === 'recibido';
+            $subject = $isRecibido ? "Solicitud de REP / Conciliación: Factura {$folio} - {$miEmpresa}" : "Aviso de Conciliación: Factura {$folio} - {$miEmpresa}";
+        }
+
         return new Envelope(
-            subject: "Factura {$folio} - {$empresaName}",
+            subject: $subject,
         );
     }
 
@@ -51,12 +62,20 @@ class FacturaMail extends Mailable
      */
     public function content(): Content
     {
+        $isRecibido = $this->cfdi->direccion === 'recibido';
+        if ($isRecibido) {
+            $cliente = (object)['nombre_razon_social' => $this->cfdi->nombre_emisor ?: 'Proveedor'];
+        } else {
+            $cliente = $this->cfdi->cliente ?? ($this->venta ? $this->venta->cliente : null) ?? (object)['nombre_razon_social' => $this->cfdi->nombre_receptor ?? 'Cliente'];
+        }
+
         return new Content(
             view: 'emails.factura',
             with: [
                 'cfdi' => $this->cfdi,
                 'venta' => $this->venta,
-                'cliente' => $this->venta->cliente,
+                'cliente' => $cliente,
+                'isConciliacion' => $this->isConciliacion,
             ],
         );
     }
@@ -66,6 +85,10 @@ class FacturaMail extends Mailable
      */
     public function attachments(): array
     {
+        if ($this->isConciliacion) {
+            return []; // No adjuntar XML ni PDF en avisos de conciliación contable
+        }
+
         $attachments = [];
 
         // 1. Adjuntar XML
@@ -164,8 +187,8 @@ class FacturaMail extends Mailable
         } catch (\Exception $e) { }
 
         // Empresa Config para logo
-        $empresaConfig = EmpresaConfiguracion::getInfoEmpresa();
-        $colores = EmpresaConfiguracion::getColores();
+        $empresaConfig = EmpresaConfiguracion::getInfoEmpresa($this->cfdi->empresa_id);
+        $colores = EmpresaConfiguracion::getColores($this->cfdi->empresa_id);
         $color_principal = $colores['principal'] ?? '#2563eb';
 
         // QR URL

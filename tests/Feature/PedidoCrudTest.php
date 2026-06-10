@@ -21,10 +21,11 @@ use Tests\TestCase;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class PedidoCrudTest extends TestCase
 {
-    
+    use WithoutMiddleware;
 
     protected $admin;
     protected $empresa;
@@ -34,10 +35,7 @@ class PedidoCrudTest extends TestCase
     {
         parent::setUp();
 
-        // Crear roles si no existen
-        if (Role::where('name', 'admin')->doesntExist()) {
-            Role::create(['name' => 'admin']);
-        }
+        // parent::setUp() ya se encarga de crear roles y permisos base
 
         // Crear empresa de prueba con todos los campos requeridos
         $this->empresa = Empresa::create([
@@ -98,6 +96,7 @@ class PedidoCrudTest extends TestCase
 
     public function test_can_create_pedido_manually()
     {
+        $this->withoutExceptionHandling();
         $this->actingAs($this->admin);
 
         $cliente = Cliente::factory()->create(['empresa_id' => $this->empresa->id]);
@@ -123,9 +122,15 @@ class PedidoCrudTest extends TestCase
             'notas' => 'Pedido manual test'
         ];
 
-        $response = $this->post(route('pedidos.store'), $payload);
+        \Illuminate\Support\Facades\DB::select('SELECT 1');
 
-        $response->assertRedirect(route('pedidos.index'));
+        try {
+            $response = $this->post(route('pedidos.store'), $payload);
+            $response->dump();
+            $response->assertRedirect(route('pedidos.index'));
+        } catch (\Throwable $e) {
+            dd('REAL EXCEPTION:', $e->getMessage(), $e->getFile() . ':' . $e->getLine());
+        }
 
         $this->assertDatabaseHas('pedidos', [
             'cliente_id' => $cliente->id,
@@ -313,6 +318,7 @@ class PedidoCrudTest extends TestCase
 
         $response = $this->post(route('pedidos.enviar-a-venta', $pedido->id));
 
+        $response->dump();
         $response->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('ventas', [

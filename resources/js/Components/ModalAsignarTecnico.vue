@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 
@@ -124,16 +125,16 @@ const close = () => {
 
 <template>
     <Teleport to="body">
-        <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 z-50 overflow-y-auto custom-scrollbar">
             <div class="flex min-h-full items-center justify-center p-4">
                 <!-- Backdrop -->
-                <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="close"></div>
+                <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="close"></div>
                 
                 <!-- Modal -->
                 <div class="relative bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl shadow-[var(--ui-shadow)] w-full max-w-lg transform transition-all border border-[var(--ui-border)]">
                     
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 rounded-t-3xl">
+                    <div class="bg-gradient-to-r from-brand-500 to-brand-500 px-6 py-4 rounded-t-3xl">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-white">Asignar Técnico</h3>
@@ -151,18 +152,18 @@ const close = () => {
                         <div class="p-6 space-y-5">
                             
                             <!-- Info de la cita -->
-                            <div class="bg-orange-50/80 dark:bg-orange-900/20 rounded-2xl p-4 border border-orange-100/70 dark:border-orange-900/40">
+                            <div class="bg-orange-50/80 dark:bg-brand-900/20 rounded-2xl p-4 border border-orange-100/70 dark:border-orange-900/40">
                                 <div class="grid grid-cols-2 gap-3 text-sm">
                                     <div>
-                                        <p class="text-orange-600 font-medium">📱 Teléfono</p>
+                                        <p class="text-brand-600 font-medium">📱 Teléfono</p>
                                         <p class="text-[var(--ui-text-muted)]">{{ cita?.cliente?.telefono }}</p>
                                     </div>
                                     <div v-if="cita?.origen_tienda">
-                                        <p class="text-orange-600 font-medium">🏪 Tienda</p>
+                                        <p class="text-brand-600 font-medium">🏪 Tienda</p>
                                         <p class="text-[var(--ui-text-muted)]">{{ tiendas[cita.origen_tienda] }}</p>
                                     </div>
                                     <div v-if="cita?.horario_preferido" class="col-span-2">
-                                        <p class="text-orange-600 font-medium">⏰ Horario preferido</p>
+                                        <p class="text-brand-600 font-medium">⏰ Horario preferido</p>
                                         <p class="text-[var(--ui-text-muted)]">
                                             {{ horarios[cita.horario_preferido]?.emoji }}
                                             {{ horarios[cita.horario_preferido]?.nombre }}
@@ -170,7 +171,7 @@ const close = () => {
                                         </p>
                                     </div>
                                     <div v-if="cita?.direccion_calle" class="col-span-2">
-                                        <p class="text-orange-600 font-medium">📍 Dirección</p>
+                                        <p class="text-brand-600 font-medium">📍 Dirección</p>
                                         <p class="text-[var(--ui-text-muted)]">
                                             {{ cita.direccion_calle }}, {{ cita.direccion_colonia }}
                                         </p>
@@ -190,9 +191,9 @@ const close = () => {
                                         type="button"
                                         @click="form.fecha_confirmada = dia"
                                         :class="[
-                                            'px-3 py-2 rounded-lg text-sm font-medium border-2 transition-all',
+                                            'px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all',
                                             form.fecha_confirmada === dia
-                                                ? 'border-orange-500 bg-orange-100 text-orange-800'
+                                                ? 'border-brand-500 bg-brand-100 text-amber-800'
                                                 : 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-[var(--ui-text-muted)] hover:border-orange-300'
                                         ]"
                                     >
@@ -210,11 +211,11 @@ const close = () => {
                                     v-model="form.fecha_confirmada"
                                     type="date"
                                     :min="new Date().toISOString().split('T')[0]"
-                                    class="w-full px-4 py-3 border-2 border-[var(--ui-border)] rounded-xl focus:border-orange-500 focus:ring-0 transition-colors bg-[var(--ui-surface)]"
-                                    :class="{ 'border-red-400': form.errors.fecha_confirmada }"
+                                    class="w-full px-4 py-3 border-2 border-[var(--ui-border)] rounded-xl focus:border-brand-500 focus:ring-0 transition-colors bg-[var(--ui-surface)]"
+                                    :class="{ 'border-rose-400': form.errors.fecha_confirmada }"
                                     required
                                 />
-                                <p v-if="form.errors.fecha_confirmada" class="text-red-500 text-xs mt-1">
+                                <p v-if="form.errors.fecha_confirmada" class="text-rose-500 text-xs mt-1">
                                     {{ form.errors.fecha_confirmada }}
                                 </p>
                             </div>
@@ -229,8 +230,8 @@ const close = () => {
                                 </label>
                                 <select
                                     v-model="form.hora_confirmada"
-                                    class="w-full px-4 py-3 border-2 border-[var(--ui-border)] rounded-xl focus:border-orange-500 focus:ring-0 transition-colors appearance-none bg-[var(--ui-surface)]"
-                                    :class="{ 'border-red-400': form.errors.hora_confirmada }"
+                                    class="w-full px-4 py-3 border-2 border-[var(--ui-border)] rounded-xl focus:border-brand-500 focus:ring-0 transition-colors appearance-none bg-[var(--ui-surface)]"
+                                    :class="{ 'border-rose-400': form.errors.hora_confirmada }"
                                     required
                                 >
                                     <option value="">Seleccionar hora...</option>
@@ -238,7 +239,7 @@ const close = () => {
                                         {{ hora.label }}
                                     </option>
                                 </select>
-                                <p v-if="form.errors.hora_confirmada" class="text-red-500 text-xs mt-1">
+                                <p v-if="form.errors.hora_confirmada" class="text-rose-500 text-xs mt-1">
                                     {{ form.errors.hora_confirmada }}
                                 </p>
                             </div>
@@ -257,7 +258,7 @@ const close = () => {
                                         :class="[
                                             'p-3 rounded-xl border-2 text-sm font-medium transition-all text-left',
                                             form.tecnico_id === tec.id
-                                                ? 'border-orange-500 bg-orange-50'
+                                                ? 'border-brand-500 bg-orange-50'
                                                 : 'border-[var(--ui-border)] hover:border-orange-300'
                                         ]"
                                     >
@@ -273,13 +274,13 @@ const close = () => {
                                         </p>
                                     </button>
                                 </div>
-                                <p v-if="form.errors.tecnico_id" class="text-red-500 text-xs mt-1">
+                                <p v-if="form.errors.tecnico_id" class="text-rose-500 text-xs mt-1">
                                     {{ form.errors.tecnico_id }}
                                 </p>
                             </div>
                             
                             <!-- Citas del técnico en la fecha seleccionada -->
-                            <div v-if="citasTecnicoFecha.length > 0" class="p-4 bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/40 rounded-2xl">
+                            <div v-if="citasTecnicoFecha.length > 0" class="p-4 bg-blue-50/80 dark:bg-sky-900/20 border border-blue-200 dark:border-blue-900/40 rounded-2xl">
                                 <p class="font-medium text-blue-800 mb-2 flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -290,7 +291,7 @@ const close = () => {
                                     <div 
                                         v-for="citaExis in citasTecnicoFecha" 
                                         :key="citaExis.id"
-                                        class="flex items-center justify-between text-sm bg-[var(--ui-surface)] rounded-lg px-3 py-2 border border-[var(--ui-border)]"
+                                        class="flex items-center justify-between text-sm bg-[var(--ui-surface)] rounded-xl px-3 py-2 border border-[var(--ui-border)]"
                                     >
                                         <span class="font-medium text-[var(--ui-text-muted)]">
                                             {{ formatHoraDisplay(citaExis.hora_confirmada || (citaExis.fecha_hora ? citaExis.fecha_hora.split('T')[1]?.substring(0, 5) : '')) }}
@@ -303,7 +304,7 @@ const close = () => {
                             </div>
                             
                             <!-- Advertencia de conflicto -->
-                            <div v-if="tieneConflicto" class="p-3 bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-2xl text-red-700 dark:text-red-300 text-sm flex items-center gap-2">
+                            <div v-if="tieneConflicto" class="p-3 bg-rose-50/80 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 rounded-2xl text-rose-700 dark:text-rose-300 text-sm flex items-center gap-2">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                                 </svg>
@@ -313,7 +314,7 @@ const close = () => {
                             </div>
                             
                             <!-- Error general -->
-                            <div v-if="form.errors.general" class="p-3 bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-2xl text-red-600 dark:text-red-300 text-sm">
+                            <div v-if="form.errors.general" class="p-3 bg-rose-50/80 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 rounded-2xl text-rose-600 dark:text-rose-300 text-sm">
                                 {{ form.errors.general }}
                             </div>
                             
@@ -331,7 +332,7 @@ const close = () => {
                             <button
                                 type="submit"
                                 :disabled="form.processing || !form.tecnico_id || !form.fecha_confirmada || !form.hora_confirmada"
-                                class="px-6 py-2.5 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                class="px-6 py-2.5 bg-brand-500 text-white font-bold rounded-xl hover:bg-brand-600 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 <svg v-if="form.processing" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>

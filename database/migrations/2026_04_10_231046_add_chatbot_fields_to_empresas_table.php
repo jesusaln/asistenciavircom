@@ -9,16 +9,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('empresas', function (Blueprint $table) {
-            $table->boolean('whatsapp_chatbot_enabled')->default(false)->after('whatsapp_enabled');
-            $table->text('whatsapp_chatbot_prompt')->nullable()->after('whatsapp_chatbot_enabled');
-            $table->string('whatsapp_chatbot_mode')->default('off_hours'); // always, off_hours, off
+            if (!Schema::hasColumn('empresas', 'whatsapp_chatbot_enabled')) {
+                $table->boolean('whatsapp_chatbot_enabled')->default(false)->after('whatsapp_enabled');
+            }
+            if (!Schema::hasColumn('empresas', 'whatsapp_chatbot_prompt')) {
+                $table->text('whatsapp_chatbot_prompt')->nullable()->after('whatsapp_chatbot_enabled');
+            }
+            if (!Schema::hasColumn('empresas', 'whatsapp_chatbot_mode')) {
+                $table->string('whatsapp_chatbot_mode')->default('off_hours'); // always, off_hours, off
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('empresas', function (Blueprint $table) {
-            $table->dropColumn(['whatsapp_chatbot_enabled', 'whatsapp_chatbot_prompt', 'whatsapp_chatbot_mode']);
+            $cols = [];
+            if (Schema::hasColumn('empresas', 'whatsapp_chatbot_enabled')) {
+                $cols[] = 'whatsapp_chatbot_enabled';
+            }
+            if (Schema::hasColumn('empresas', 'whatsapp_chatbot_prompt')) {
+                $cols[] = 'whatsapp_chatbot_prompt';
+            }
+            if (Schema::hasColumn('empresas', 'whatsapp_chatbot_mode')) {
+                $cols[] = 'whatsapp_chatbot_mode';
+            }
+            if (!empty($cols)) {
+                $table->dropColumn($cols);
+            }
         });
     }
 };

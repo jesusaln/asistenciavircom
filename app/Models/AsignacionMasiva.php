@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 
 class AsignacionMasiva extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'asignaciones_masivas';

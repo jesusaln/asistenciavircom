@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use App\Services\Cfdi\CfdiPdfService;
 use App\Services\Cfdi\CfdiFileService;
+use App\Services\Contab\ContabilidadService;
 
 class CfdiController extends Controller
 {
@@ -41,23 +42,129 @@ class CfdiController extends Controller
     protected $satDescargaService;
     protected $pdfService;
     protected $fileService;
+    protected $satConsultaService;
 
     public function __construct(
         CfdiService $cfdiService,
         SatDescargaMasivaService $satDescargaService,
         CfdiPdfService $pdfService,
-        CfdiFileService $fileService
+        CfdiFileService $fileService,
+        \App\Services\SatConsultaDirectaService $satConsultaService
     ) {
         $this->cfdiService = $cfdiService;
         $this->satDescargaService = $satDescargaService;
         $this->pdfService = $pdfService;
         $this->fileService = $fileService;
+        $this->satConsultaService = $satConsultaService;
+    }
+
+    public function syncSatStatusByMonth(Request $request)
+    {
+        set_time_limit(180); // 3 minutos para consultas masivas al SAT
+
+        $request->validate([
+            'month' => 'required|numeric|between:1,12',
+            'year' => 'required|numeric|min:2020',
+        ]);
+
+        $user = $request->user();
+        $month = (int) $request->month;
+        $year = (int) $request->year;
+
+        \Log::info("Iniciando sincronización SAT para Empresa: {$user->empresa_id}, Periodo: {$month}/{$year}");
+
+        $cfdis = Cfdi::where('empresa_id', $user->empresa_id)
+            ->whereYear('fecha_emision', $year)
+            ->whereMonth('fecha_emision', $month)
+            ->get();
+
+        $updatedCount = 0;
+        $failedCfdis = [];
+
+        foreach ($cfdis as $cfdi) {
+            try {
+                if (empty($cfdi->uuid) || empty($cfdi->rfc_emisor) || empty($cfdi->rfc_receptor)) {
+                    $failedCfdis[] = [
+                        'id' => $cfdi->id,
+                        'folio' => $cfdi->folio ?? 'S/F',
+                        'uuid' => $cfdi->uuid ?? 'S/UUID',
+                        'error' => 'Datos incompletos (RFC/UUID)'
+                    ];
+                    continue;
+                }
+
+                $status = $this->satConsultaService->consultarEstado(
+                    $cfdi->uuid,
+                    $cfdi->rfc_emisor,
+                    $cfdi->rfc_receptor,
+                    (float) $cfdi->total
+                );
+
+                if (isset($status['estado'])) {
+                    $cfdi->update(['estado_sat' => $status['estado']]);
+                    $updatedCount++;
+                } else {
+                    $failedCfdis[] = [
+                        'id' => $cfdi->id,
+                        'folio' => $cfdi->folio,
+                        'uuid' => $cfdi->uuid,
+                        'error' => 'No se obtuvo respuesta del SAT'
+                    ];
+                }
+            } catch (\Exception $e) {
+                $failedCfdis[] = [
+                    'id' => $cfdi->id,
+                    'folio' => $cfdi->folio,
+                    'uuid' => $cfdi->uuid,
+                    'error' => $e->getMessage()
+                ];
+                \Log::error("Error sincronizando CFDI {$cfdi->uuid}: " . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => count($failedCfdis) === 0,
+            'message' => count($failedCfdis) === 0
+                ? "¡Éxito! Todos los CFDI ({$updatedCount}) han sido validados correctamente."
+                : "Sincronización finalizada con algunos inconvenientes.",
+            'updatedCount' => $updatedCount,
+            'failedCount' => count($failedCfdis),
+            'failedCfdis' => $failedCfdis
+        ]);
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:cfdis,id'
+        ]);
+
+        $ids = $request->ids;
+        $count = count($ids);
+
+        try {
+            Cfdi::whereIn('id', $ids)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$count} CFDIs eliminados correctamente."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function index(Request $request)
     {
-        // (Sin cambios en index...)
-        $query = Cfdi::with(['cliente', 'venta', 'conceptos']);
+        $user = $request->user();
+        $empresaConfig = EmpresaConfiguracion::getConfig();
+        $empresaId = $user->empresa_id ?? $empresaConfig->empresa_id ?? 1;
+
+        $query = Cfdi::where('empresa_id', $empresaId)->with(['cliente', 'venta', 'conceptos', 'cuentaPorCobrar', 'cuentaPorPagar']);
         $hasDireccionColumn = Schema::hasColumn('cfdis', 'direccion');
 
         if ($request->filled('search')) {
@@ -68,7 +175,6 @@ class CfdiController extends Controller
                     ->orWhere('serie', 'like', "%{$search}%")
                     ->orWhere('nombre_emisor', 'like', "%{$search}%")
                     ->orWhere('rfc_emisor', 'like', "%{$search}%")
-                    // Buscar en receptor almacenado en datos_adicionales (JSON) - PostgreSQL syntax
                     ->orWhereRaw("datos_adicionales->'receptor'->>'Nombre' ilike ?", ["%{$search}%"])
                     ->orWhereRaw("datos_adicionales->'receptor'->>'Rfc' ilike ?", ["%{$search}%"]);
             });
@@ -112,6 +218,23 @@ class CfdiController extends Controller
             $query->where('folio', 'like', "%{$request->folio}%");
         }
 
+        if ($request->filled('contabilizada')) {
+            $contabFilter = $request->contabilizada;
+            if ($contabFilter === 'si') {
+                $query->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('contab_polizas')
+                        ->whereRaw("contab_polizas.cfdi_uuid::text = cfdis.uuid::text OR contab_polizas.cfdi_uuids::text LIKE '%' || cfdis.uuid || '%'");
+                });
+            } elseif ($contabFilter === 'no') {
+                $query->whereNotExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('contab_polizas')
+                        ->whereRaw("contab_polizas.cfdi_uuid::text = cfdis.uuid::text OR contab_polizas.cfdi_uuids::text LIKE '%' || cfdis.uuid || '%'");
+                });
+            }
+        }
+
         $sort = $request->input('sort');
         $sortDir = strtolower($request->input('sort_dir', 'desc')) === 'asc' ? 'asc' : 'desc';
 
@@ -143,54 +266,76 @@ class CfdiController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-        // Calcular contadores generales
+        $subExists = "EXISTS (SELECT 1 FROM contab_polizas WHERE contab_polizas.cfdi_uuid::text = cfdis.uuid::text OR contab_polizas.cfdi_uuids::text LIKE '%' || cfdis.uuid || '%')";
+        $query->select('cfdis.*')->selectRaw("({$subExists}) as contabilidad_integrada");
+
+        // Calcular contadores generales (Filtrados por Empresa)
         $contadores = [
-            'total' => Cfdi::count(),
-            'emitidos' => $hasDireccionColumn ? Cfdi::where('direccion', 'emitido')->count() : 0,
-            'recibidos' => $hasDireccionColumn ? Cfdi::where('direccion', 'recibido')->count() : 0,
+            'total' => Cfdi::where('empresa_id', $empresaId)->count(),
+            'emitidos' => $hasDireccionColumn ? Cfdi::where('empresa_id', $empresaId)->where('direccion', 'emitido')->count() : 0,
+            'recibidos' => $hasDireccionColumn ? Cfdi::where('empresa_id', $empresaId)->where('direccion', 'recibido')->count() : 0,
+            'contabilizadas' => Cfdi::where('empresa_id', $empresaId)->whereRaw($subExists)->count(),
+            'no_contabilizadas' => Cfdi::where('empresa_id', $empresaId)->whereRaw('NOT ' . $subExists)->count(),
         ];
 
         // Obtener historial de descargas masivas
-        $descargas = SatDescargaMasiva::orderBy('created_at', 'desc')
-            ->take(5)
-            ->get()
-            ->map(function (SatDescargaMasiva $descarga) {
-                return [
-                    'id' => $descarga->id,
-                    'direccion' => $descarga->direccion,
-                    'fecha_inicio' => $descarga->fecha_inicio ? Carbon::parse($descarga->fecha_inicio)->toDateString() : null,
-                    'fecha_fin' => $descarga->fecha_fin ? Carbon::parse($descarga->fecha_fin)->toDateString() : null,
-                    'status' => $descarga->status,
-                    'total_cfdis' => $descarga->total_cfdis ?? 0,
-                    'inserted_cfdis' => $descarga->inserted_cfdis ?? 0,
-                    'imported_cfdis' => $descarga->detalles()->where('importado', true)->count(),
-                    'pending_cfdis' => $descarga->detalles()->where('importado', false)->count(),
-                    'duplicate_cfdis' => $descarga->duplicate_cfdis ?? 0,
-                    'error_cfdis' => $descarga->error_cfdis ?? 0,
-                    'request_id' => $descarga->request_id,
-                    'last_error' => $descarga->last_error,
-                    'errors' => $descarga->errors,
-                ];
+        $descargas = SatDescargaMasiva::orderBy('created_at', 'desc')->take(5)->get()->map(fn($d) => [
+            'id' => $d->id,
+            'direccion' => $d->direccion,
+            'fecha_inicio' => $d->fecha_inicio ? Carbon::parse($d->fecha_inicio)->toDateString() : null,
+            'fecha_fin' => $d->fecha_fin ? Carbon::parse($d->fecha_fin)->toDateString() : null,
+            'status' => $d->status,
+            'total_cfdis' => $d->total_cfdis ?? 0,
+            'inserted_cfdis' => $d->inserted_cfdis ?? 0,
+            'request_id' => $d->request_id,
+            'last_error' => $d->last_error,
+        ]);
+
+        // =====================================================================
+        // ESTADÍSTICAS FINANCIERAS (Basadas en filtros de fecha/búsqueda solamente)
+        // =====================================================================
+        $statsBaseQuery = Cfdi::where('empresa_id', $empresaId);
+
+        // Aplicar solo filtros de búsqueda y fecha a las estadísticas
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $statsBaseQuery->where(function ($q) use ($search) {
+                $q->where(DbExpression::castText('uuid'), 'like', "%{$search}%")
+                    ->orWhere('folio', 'like', "%{$search}%")
+                    ->orWhere('serie', 'like', "%{$search}%")
+                    ->orWhere('nombre_emisor', 'like', "%{$search}%")
+                    ->orWhere('rfc_emisor', 'like', "%{$search}%")
+                    ->orWhereRaw("datos_adicionales->'receptor'->>'Nombre' ilike ?", ["%{$search}%"])
+                    ->orWhereRaw("datos_adicionales->'receptor'->>'Rfc' ilike ?", ["%{$search}%"]);
             });
+        }
+        if ($request->filled('fecha_inicio')) {
+            $statsBaseQuery->whereDate('fecha_emision', '>=', $request->input('fecha_inicio'));
+        }
+        if ($request->filled('fecha_fin')) {
+            $statsBaseQuery->whereDate('fecha_emision', '<=', $request->input('fecha_fin'));
+        }
 
-        // =====================================================================
-        // ESTADÍSTICAS FINANCIERAS (Basadas en filtros actuales)
-        // =====================================================================
-        $statsQuery = clone $query;
-        $statsQuery->setEagerLoads([]);
-        $statsQuery->reorder();
-
-        $statsRaw = $statsQuery->selectRaw('
-            SUM(CASE WHEN tipo_comprobante = \'I\' THEN total ELSE 0 END) as total_ingresos,
-            SUM(CASE WHEN tipo_comprobante = \'E\' THEN total ELSE 0 END) as total_egresos,
-            SUM(CASE WHEN tipo_comprobante = \'P\' THEN total ELSE 0 END) as total_pagos,
+        $statsRaw = (clone $statsBaseQuery)->select(DB::raw("
+            SUM(CASE WHEN tipo_comprobante = 'I' AND direccion = 'emitido' THEN total ELSE 0 END) as total_ingresos,
+            SUM(CASE WHEN tipo_comprobante = 'I' AND direccion = 'recibido' THEN total ELSE 0 END) as total_egresos,
             COUNT(*) as total_count
-        ')->first();
+        "))->first();
+
+        // Calcular monto de pagos (tipo P) recorriendo el JSONB para precisión
+        $pagosMonto = (clone $statsBaseQuery)->where('tipo_comprobante', 'P')->get()->sum(function ($c) {
+            $t = 0;
+            if (!empty($c->complementos['pagos'])) {
+                foreach ($c->complementos['pagos'] as $p)
+                    $t += (float) ($p['monto'] ?? 0);
+            }
+            return $t;
+        });
 
         $stats = [
             'ingresos' => $statsRaw->total_ingresos ?? 0,
             'egresos' => $statsRaw->total_egresos ?? 0,
-            'pagos' => $statsRaw->total_pagos ?? 0,
+            'pagos' => $pagosMonto,
             'count' => $statsRaw->total_count ?? 0,
         ];
 
@@ -249,7 +394,9 @@ class CfdiController extends Controller
                 ]),
                 // Usar servicio para checar existencia
                 'tiene_pdf' => (bool) $this->fileService->getPdfPath($cfdi->uuid, $cfdi->pdf_url),
-                'tiene_xml' => (bool) $this->fileService->getXmlPath($cfdi->uuid, $cfdi->getRawOriginal('fecha_emision'), $cfdi->direccion),
+                'tiene_xml' => (bool) $this->fileService->hasXml($cfdi),
+                // Usar el valor obtenido en la consulta principal (is_accounted)
+                'contabilidad_integrada' => (bool) $cfdi->contabilidad_integrada,
             ];
         }));
         $cfdis->appends($request->query());
@@ -275,18 +422,20 @@ class CfdiController extends Controller
             'filters' => $filters,
             'contadores' => $contadores,
             'descargasMasivas' => $descargas,
-            'stats' => $stats
-        ]);
-    }
-
-    public function create()
-    {
-        return Inertia::render('Cfdi/Create', [
-            'clientes' => Cliente::orderBy('nombre_razon_social')
-                ->get(['id', 'nombre_razon_social', 'rfc']),
-            'productos' => Producto::orderBy('nombre')
-                ->get(['id', 'nombre', 'sku', 'precio']),
-            'empresa' => EmpresaConfiguracion::getConfig(),
+            'stats' => $stats,
+            'cuentasBancarias' => \App\Models\Bancos\BancoCuenta::where('empresa_id', $empresaId)
+                ->select('id', 'nombre_banco', 'alias', 'numero_cuenta', 'tipo', 'moneda', 'saldo_inicial')
+                ->orderBy('nombre_banco')
+                ->get()
+                ->map(fn($c) => [
+                    'id' => $c->id,
+                    'nombre' => $c->alias ?: $c->nombre_banco,
+                    'banco' => $c->nombre_banco,
+                    'cuenta' => $c->numero_cuenta,
+                    'tipo' => $c->tipo,
+                    'moneda' => $c->moneda,
+                    'saldo' => (float) $c->saldo_inicial,
+                ]),
         ]);
     }
 
@@ -417,7 +566,7 @@ class CfdiController extends Controller
         $sustitucion = $request->input('uuid_sustitucion');
 
         try {
-            $this->cfdiService->cancelar($cfdi->uuid, $motivo, $sustitucion);
+            $this->cfdiService->cancelar($cfdi, $motivo, $sustitucion);
             return back()->with('success', 'Solicitud de cancelación enviada');
         } catch (\Exception $e) {
             return back()->with('error', 'Error al cancelar: ' . $e->getMessage());
@@ -487,12 +636,35 @@ class CfdiController extends Controller
 
     public function destroy(Cfdi $cfdi)
     {
-        $this->fileService->deleteFiles($cfdi->uuid);
+        try {
+            $this->fileService->deleteFiles($cfdi->uuid);
+        } catch (\Exception $e) {
+            \Log::warning("No se pudieron eliminar archivos del CFDI {$cfdi->uuid}: " . $e->getMessage());
+        }
         $cfdi->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'CFDI eliminado correctamente.',
+        ]);
+    }
+
+    public function anularPolizaDeCfdi(Cfdi $cfdi)
+    {
+        $poliza = \App\Models\Contab\PolizaContable::where('cfdi_uuid', $cfdi->uuid)
+            ->orWhere('xml_content', 'ilike', '%' . $cfdi->uuid . '%')
+            ->first();
+
+        if (!$poliza) {
+            return response()->json(['success' => false, 'message' => 'No se encontró póliza vinculada.'], 404);
+        }
+
+        $poliza->update(['estado' => 'anulada']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Póliza ' . $poliza->numero . ' anulada.',
+            'poliza' => ['id' => $poliza->id, 'numero' => $poliza->numero]
         ]);
     }
 
@@ -788,6 +960,7 @@ class CfdiController extends Controller
         return $this->importarSeleccionadosNueva($request);
     }
 
+
     private function solicitarDescargaMasivaNueva(Request $request)
     {
         $validated = $request->validate([
@@ -797,7 +970,19 @@ class CfdiController extends Controller
         ]);
 
         $config = EmpresaConfiguracion::getConfig();
-        if (!$config || empty($config->fiel_cer_path) || empty($config->fiel_key_path) || empty($config->fiel_password)) {
+
+        try {
+            $fielPassword = $config->fiel_password;
+            $fielCer = $config->fiel_cer_path;
+            $fielKey = $config->fiel_key_path;
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de seguridad: Las credenciales del SAT no pudieron ser desencriptadas. Es posible que la llave de la aplicación (APP_KEY) haya cambiado. Por favor, vuelve a ingresar tu contraseña de la FIEL en la configuración de la empresa.',
+            ], 422);
+        }
+
+        if (!$config || empty($fielCer) || empty($fielKey) || empty($fielPassword)) {
             return response()->json([
                 'success' => false,
                 'message' => 'No hay una FIEL configurada para la descarga masiva.',
@@ -819,14 +1004,14 @@ class CfdiController extends Controller
         );
 
         foreach ($descargas as $descarga) {
-            SatDescargaMasivaJob::dispatch($descarga->id, 'request');
+            SatDescargaMasivaJob::dispatch($descarga->id, 'request', \App\Support\EmpresaResolver::resolveId());
         }
 
         return response()->json([
             'success' => true,
             'message' => count($descargas) > 1
-                ? 'Se enviaron ' . count($descargas) . ' solicitudes. Podras consultar el resultado en unos minutos.'
-                : 'Solicitud enviada. Podras consultar el resultado en unos minutos.',
+                ? 'Se enviaron ' . count($descargas) . ' solicitudes. Podrás consultar el resultado en unos minutos.'
+                : 'Solicitud enviada. Podrás consultar el resultado en unos minutos.',
             'descarga_id' => $descargas[0]->id ?? null,
             'descarga_ids' => collect($descargas)->pluck('id')->all(),
         ]);
@@ -835,7 +1020,7 @@ class CfdiController extends Controller
     private function verificarDescargaMasivaNueva(int $id)
     {
         $descarga = SatDescargaMasiva::findOrFail($id);
-        SatDescargaMasivaJob::dispatch($descarga->id, 'verify');
+        SatDescargaMasivaJob::dispatch($descarga->id, 'verify', \App\Support\EmpresaResolver::resolveId());
 
         return response()->json([
             'success' => true,
@@ -866,6 +1051,7 @@ class CfdiController extends Controller
 
     public function eliminarDescargaMasiva(SatDescargaMasiva $descarga)
     {
+        $descarga->detalles()->delete();
         $descarga->delete();
 
         return response()->json([
@@ -874,9 +1060,33 @@ class CfdiController extends Controller
         ]);
     }
 
+    public function eliminarDescargasMasivas(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'No se proporcionaron IDs.'], 422);
+        }
+
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $validIds = SatDescargaMasiva::where('empresa_id', $empresaId)
+            ->whereIn('id', $ids)
+            ->pluck('id')
+            ->toArray();
+
+        if (!empty($validIds)) {
+            \App\Models\SatDescargaDetalle::whereIn('sat_descarga_masiva_id', $validIds)->delete();
+            SatDescargaMasiva::whereIn('id', $validIds)->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => count($validIds) . ' descargas eliminadas.',
+        ]);
+    }
+
     public function revalidarDescargaMasiva(SatDescargaMasiva $descarga)
     {
-        SatDescargaMasivaJob::dispatch($descarga->id, 'recheck');
+        SatDescargaMasivaJob::dispatch($descarga->id, 'recheck', \App\Support\EmpresaResolver::resolveId());
 
         return response()->json([
             'success' => true,
@@ -909,7 +1119,7 @@ class CfdiController extends Controller
         ]);
 
         // Disparar nuevo Job
-        SatDescargaMasivaJob::dispatch($descarga->id, 'request');
+        SatDescargaMasivaJob::dispatch($descarga->id, 'request', \App\Support\EmpresaResolver::resolveId());
 
         return response()->json([
             'success' => true,
@@ -1072,6 +1282,11 @@ class CfdiController extends Controller
     // Método para generar PDF al vuelo de CFDI importado
     private function generarPdfAlVuelo($uuid, bool $download = false)
     {
+        // Validar formato de UUID para mayor seguridad
+        if (!\Illuminate\Support\Str::isUuid($uuid)) {
+            return abort(400, 'Formato de UUID inválido');
+        }
+
         $cfdiRecord = Cfdi::where('uuid', $uuid)->first();
         if (!$cfdiRecord) {
             return abort(404, 'CFDI no encontrado');
@@ -1083,15 +1298,22 @@ class CfdiController extends Controller
             return abort(500, 'Error al generar el PDF');
         }
 
+        $filename = $uuid . '.pdf';
+
         if ($download) {
             return response()->streamDownload(function () use ($pdfContent) {
-                echo $pdfContent;
-            }, $uuid . '.pdf');
+                // Usar un stream de memoria para mayor seguridad y control
+                $stream = fopen('php://memory', 'r+');
+                fwrite($stream, $pdfContent);
+                rewind($stream);
+                fpassthru($stream);
+                fclose($stream);
+            }, $filename);
         }
 
         return response($pdfContent, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $uuid . '.pdf"'
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
         ]);
     }
     /**
@@ -1260,5 +1482,284 @@ class CfdiController extends Controller
         // Si no soy el emisor, asumo recibido (gastos, nómina recibida, etc)
         // Podría validar también contra rfc_receptor, pero el default recibido es más seguro para visualización
         return 'recibido';
+    }
+
+    public function previsualizarContabilidad(Request $request, string $uuid, ContabilidadService $contabService)
+    {
+        $cfdi = Cfdi::where('uuid', $uuid)->firstOrFail();
+        $user = $request->user();
+
+        $prevPoliza = \App\Models\Contab\PolizaContable::where('cfdi_uuid', $uuid)
+            ->orWhere('xml_content', 'ilike', '%' . $uuid . '%')
+            ->first();
+        $esSoloPago = $prevPoliza && $prevPoliza->cfdi_uuid !== $uuid
+            && str_contains(strtoupper($prevPoliza->concepto ?? ''), 'PAGO')
+            && in_array($cfdi->tipo_comprobante, ['I', 'E', 'N']);
+        if ($prevPoliza && !$esSoloPago) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este CFDI ya fue integrado a contabilidad en otra póliza.',
+            ], 422);
+        }
+
+        $xmlContent = $this->fileService->getXmlContent($cfdi);
+        if (!$xmlContent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró el archivo XML de este CFDI.',
+            ], 404);
+        }
+
+        try {
+            $clasificacion = $request->input('clasificacion');
+            $preview = $contabService->previsualizarPolizaDesdeXml($xmlContent, $user->empresa_id, $user->id, $clasificacion);
+            return response()->json([
+                'success' => true,
+                'preview' => $preview,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al previsualizar: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function enviarAContabilidad(Request $request, string $uuid, ContabilidadService $contabService)
+    {
+        $cfdi = Cfdi::where('uuid', $uuid)->firstOrFail();
+        $user = $request->user();
+
+        $prevPoliza = \App\Models\Contab\PolizaContable::where('cfdi_uuid', $uuid)
+            ->orWhere('xml_content', 'ilike', '%' . $uuid . '%')
+            ->first();
+        $esSoloPago = $prevPoliza && $prevPoliza->cfdi_uuid !== $uuid
+            && str_contains(strtoupper($prevPoliza->concepto ?? ''), 'PAGO')
+            && in_array($cfdi->tipo_comprobante, ['I', 'E', 'N']);
+        if ($prevPoliza && !$esSoloPago) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este CFDI ya fue integrado a contabilidad en otra póliza.',
+            ], 422);
+        }
+
+        $xmlContent = $this->fileService->getXmlContent($cfdi);
+        if (!$xmlContent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró el archivo XML de este CFDI.',
+            ], 404);
+        }
+
+        try {
+            $bancoId = $request->input('banco_id');
+            $clasificacion = $request->input('clasificacion');
+            $poliza = $contabService->generarPolizaDesdeXml(
+                $xmlContent,
+                $user->empresa_id,
+                $user->id,
+                $bancoId,
+                $clasificacion
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => "Póliza {$poliza->numero} generada correctamente.",
+                'poliza_id' => $poliza->id,
+                'poliza_numero' => $poliza->numero,
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error al integrar CFDI a contabilidad: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar la póliza: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function exportarMensualPdf(Request $request)
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+        $direccion = $request->input('direccion', 'todos'); // emitido, recibido, todos
+
+        $empresa = \App\Models\EmpresaConfiguracion::getConfig();
+        $empresaId = $request->user()->empresa_id ?? $empresa->empresa_id ?? 1;
+
+        $query = Cfdi::where('empresa_id', $empresaId)
+            ->where(function ($q) use ($anio, $mes) {
+                // Caso normal: Fecha de emisión en el mes
+                $q->whereYear('fecha_emision', $anio)
+                    ->whereMonth('fecha_emision', $mes)
+                    // Caso Nómina: Emitida después pero pagada en el mes
+                    ->orWhere(function ($sq) use ($anio, $mes) {
+                    $inicio = "{$anio}-{$mes}-01";
+                    $fin = date('Y-m-t', strtotime($inicio));
+                    $sq->where('tipo_comprobante', 'N')
+                        ->whereRaw("complementos->'nomina'->>'fecha_pago' BETWEEN ? AND ?", [$inicio, $fin]);
+                })
+                    // Caso Pagos: Emitidos después pero pagados en el mes
+                    ->orWhere(function ($sq) use ($anio, $mes) {
+                    $inicio = "{$anio}-{$mes}-01";
+                    $sq->where('tipo_comprobante', 'P')
+                        ->whereRaw("EXISTS (SELECT 1 FROM jsonb_array_elements(complementos::jsonb->'pagos') as p WHERE p->>'fecha_pago' LIKE ?)", ["{$anio}-{$mes}%"]);
+                });
+            })
+            ->orderBy('fecha_emision', 'asc');
+
+        if ($direccion !== 'todos') {
+            $query->where('direccion', $direccion);
+        }
+
+        $cfdis = $query->get();
+
+        // Obtener números de póliza vinculados para mostrar en el reporte
+        $uuids = $cfdis->pluck('uuid')->toArray();
+        $polizasMap = \App\Models\Contab\PolizaContable::where('empresa_id', $empresaId)
+            ->where(function($q) use ($uuids) {
+                foreach (array_chunk($uuids, 100) as $chunk) {
+                    $q->orWhereIn('cfdi_uuid', $chunk)
+                      ->orWhere(function($sq) use ($chunk) {
+                          foreach($chunk as $uuid) {
+                              $sq->orWhereJsonContains('cfdi_uuids', $uuid);
+                          }
+                      });
+                }
+            })
+            ->select('id', 'numero', 'tipo', 'cfdi_uuid', 'cfdi_uuids')
+            ->get();
+
+        // Vincular los números de póliza a los objetos CFDI en memoria
+        foreach ($cfdis as $cfdi) {
+            $poliza = $polizasMap->first(function($p) use ($cfdi) {
+                return $p->cfdi_uuid === $cfdi->uuid || (is_array($p->cfdi_uuids) && in_array($cfdi->uuid, $p->cfdi_uuids));
+            });
+            $cfdi->poliza_referencia = $poliza ? strtoupper(substr($poliza->tipo, 0, 1)) . '-' . $poliza->numero : null;
+        }
+
+        $meses = [
+            '01' => 'Enero',
+            '02' => 'Febrero',
+            '03' => 'Marzo',
+            '04' => 'Abril',
+            '05' => 'Mayo',
+            '06' => 'Junio',
+            '07' => 'Julio',
+            '08' => 'Agosto',
+            '09' => 'Septiembre',
+            '10' => 'Octubre',
+            '11' => 'Noviembre',
+            '12' => 'Diciembre'
+        ];
+
+        $contabService = app(\App\Services\Contab\ContabilidadService::class);
+        $inicio = "{$anio}-{$mes}-01";
+        $fin = date('Y-m-t', strtotime($inicio));
+        $taxReport = $contabService->obtenerReporteIva($empresaId, $inicio, $fin);
+        $xmlReport = $contabService->obtenerReporteIvaXml($empresaId, $inicio, $fin);
+
+        $stats = [
+            // BLOQUE 1: INGRESOS (Emitidos)
+            'ingresos' => [
+                'total_subtotal' => $cfdis->where('direccion', 'emitido')->where('tipo_comprobante', 'I')->sum('subtotal'),
+                'total_iva' => $cfdis->where('direccion', 'emitido')->where('tipo_comprobante', 'I')->sum('total_impuestos_trasladados'),
+                'count' => $cfdis->where('direccion', 'emitido')->where('tipo_comprobante', 'I')->count(),
+            ],
+            // BLOQUE 2: EGRESOS (Recibidos)
+            'egresos' => [
+                'total_subtotal' => $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'I')->sum('subtotal'),
+                'total_iva' => $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'I')->sum('total_impuestos_trasladados'),
+                'count' => $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'I')->count(),
+            ],
+            // BLOQUE 3: NOMINA (Informativo)
+            'nomina' => [
+                'total' => $cfdis->where('tipo_comprobante', 'N')->sum('total'),
+                'count' => $cfdis->where('tipo_comprobante', 'N')->count(),
+            ],
+            // BLOQUE 4: NOTAS DE CRÉDITO (Devoluciones en Gastos - Suman al pago)
+            'notas_credito_recibidas' => [
+                'total_iva' => $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'E')->sum('total_impuestos_trasladados'),
+                'count' => $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'E')->count(),
+            ],
+            // BLOQUE 5: PAGOS (Informativo - Separados)
+            'pagos_recibidos' => [
+                'monto_total' => $cfdis->where('direccion', 'emitido')->where('tipo_comprobante', 'P')->sum(function ($c) {
+                    $t = 0;
+                    if (!empty($c->complementos['pagos'])) {
+                        foreach ($c->complementos['pagos'] as $p)
+                            $t += (float) ($p['monto'] ?? 0);
+                    }
+                    return $t;
+                }) + $cfdis->where('direccion', 'emitido')->where('tipo_comprobante', 'I')->where('metodo_pago', 'PUE')->sum('total'),
+                'count' => $cfdis->where('direccion', 'emitido')->whereIn('tipo_comprobante', ['P', 'I'])->count(),
+            ],
+            'pagos_realizados' => [
+                'monto_total' => $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'P')->sum(function ($c) {
+                    $t = 0;
+                    if (!empty($c->complementos['pagos'])) {
+                        foreach ($c->complementos['pagos'] as $p)
+                            $t += (float) ($p['monto'] ?? 0);
+                    }
+                    return $t;
+                }) + $cfdis->where('direccion', 'recibido')->where('tipo_comprobante', 'I')->where('metodo_pago', 'PUE')->sum('total'),
+                'count' => $cfdis->where('direccion', 'recibido')->whereIn('tipo_comprobante', ['P', 'I'])->count(),
+            ],
+            // Datos para cálculo de impuestos (Contabilidad vs SAT)
+            'iva_trasladado' => $taxReport['trasladado'],
+            'iva_acreditable' => $taxReport['acreditable'],
+            'iva_devoluciones_gastos' => $taxReport['iva_devoluciones_gastos'] ?? 0,
+            'iva_pagar' => $taxReport['diferencia'],
+            'ingresos_brutos' => $xmlReport['ingresos_brutos'], // Base ISR RESICO
+            'isr_tasa' => $xmlReport['tasa_isr'] * 100,
+            'isr_pagar' => $xmlReport['isr_resico'],
+            'isr_retenido_clientes' => $xmlReport['isr_retenido_clientes'] ?? 0,
+            'isr_retenido_nomina' => $taxReport['isr_retenido_nomina'] ?? 0,
+            'isr_neto_pagar' => $xmlReport['isr_neto_pagar'] ?? 0,
+            'total_sueldos' => $taxReport['total_sueldos'] ?? 0,
+            'total_bruto_mixto' => $cfdis->sum('subtotal'), // Solo como referencia
+            'detalle_flujo' => $xmlReport['detalle_flujo'] ?? [],
+        ];
+
+        // MARCA DE AUDITORÍA: Sellar los CFDI como reportados en este periodo
+        // Esto evita duplicidades y da trazabilidad
+        $cfdisToMark = $cfdis->whereNull('datos_adicionales.reporte_fiscal');
+        foreach ($cfdisToMark as $cfdi) {
+            $currentData = $cfdi->datos_adicionales ?? [];
+            $currentData['reporte_fiscal'] = "{$anio}-{$mes}";
+            $currentData['fecha_reportado'] = now()->toDateTimeString();
+
+            // Actualización silenciosa para no disparar eventos innecesarios
+            \DB::table('cfdis')->where('id', $cfdi->id)->update([
+                'datos_adicionales' => json_encode($currentData)
+            ]);
+        }
+
+        $meses = [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.cfdi_reporte_mensual', [
+            'cfdis' => $cfdis,
+            'mes_nombre' => $meses[(int) $mes] ?? 'Desconocido',
+            'mes' => $mes,
+            'anio' => $anio,
+            'empresa' => $empresa,
+            'stats' => $stats,
+        ]);
+
+        $pdf->setPaper('letter', 'landscape');
+
+        $filename = "Reporte_Fiscal_{$mes}_{$anio}.pdf";
+        return $pdf->stream($filename);
     }
 }

@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/70 p-4">
-    <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
+    <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-800">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
         <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Gestión de Categorías</h3>
@@ -20,16 +20,16 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">
-                Nombre <span class="text-red-500">*</span>
+                Nombre <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="categoriaForm.nombre"
                 type="text"
-                class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 :placeholder="editingCategoria ? categoriaForm.nombre : 'Ej: Herramientas Eléctricas'"
                 required
               />
-              <div v-if="errors.nombre" class="mt-1 text-sm text-red-600">{{ errors.nombre }}</div>
+              <div v-if="errors.nombre" class="mt-1 text-sm text-rose-600">{{ errors.nombre }}</div>
             </div>
 
             <div>
@@ -37,10 +37,10 @@
               <input
                 v-model="categoriaForm.descripcion"
                 type="text"
-                class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 :placeholder="editingCategoria ? categoriaForm.descripcion : 'Descripción opcional...'"
               />
-              <div v-if="errors.descripcion" class="mt-1 text-sm text-red-600">{{ errors.descripcion }}</div>
+              <div v-if="errors.descripcion" class="mt-1 text-sm text-rose-600">{{ errors.descripcion }}</div>
             </div>
           </div>
 
@@ -49,7 +49,7 @@
               v-if="editingCategoria"
               type="button"
               @click="cancelEdit"
-              class="px-4 py-2 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800"
+              class="px-4 py-2 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
             >
               Cancelar Edición
             </button>
@@ -57,7 +57,7 @@
             <button
               type="submit"
               :disabled="processing"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50"
             >
               <span v-if="processing" class="flex items-center">
                 <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -78,29 +78,29 @@
         <div v-if="categorias.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400">
           No hay categorías creadas aún
         </div>
-        <div v-else class="space-y-3 max-h-96 overflow-y-auto">
+        <div v-else class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
           <div
             v-for="categoria in categorias"
             :key="categoria.id"
-            class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60"
+            class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50"
           >
             <div class="flex-1">
               <div class="font-medium text-slate-900 dark:text-slate-100">{{ categoria.nombre }}</div>
               <div v-if="categoria.descripcion" class="text-sm text-slate-600 dark:text-slate-400">{{ categoria.descripcion }}</div>
             </div>
             <div class="flex items-center space-x-2">
-              <span :class="categoria.activo ? 'text-green-600' : 'text-red-600'" class="text-sm">
+              <span :class="categoria.activo ? 'text-emerald-600' : 'text-rose-600'" class="text-sm">
                 {{ categoria.activo ? 'Activa' : 'Inactiva' }}
               </span>
               <button
                 @click="editCategoria(categoria)"
-                class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                class="px-3 py-1 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700"
               >
                 Editar
               </button>
               <button
                 @click="toggleCategoria(categoria)"
-                class="px-3 py-1 text-sm border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
+                class="px-3 py-1 text-sm border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 {{ categoria.activo ? 'Desactivar' : 'Activar' }}
               </button>
@@ -115,6 +115,7 @@
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 const props = defineProps({
   show: {

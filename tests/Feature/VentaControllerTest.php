@@ -10,6 +10,7 @@ use App\Models\Cliente;
 use App\Models\User;
 use App\Models\Empresa;
 use App\Support\EmpresaResolver;
+use Illuminate\Foundation\Testing\WithoutMiddleware; // Add this line
 
 /**
  * ✅ SAFE TESTS: Uses DatabaseTransactions to rollback ALL changes
@@ -21,26 +22,25 @@ use App\Support\EmpresaResolver;
  * - Automatically rollback everything
  * - Leave database unchanged
  */
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-class VentaControllerTest extends TestCase
 
+class VentaControllerTest extends TestCase
 {
     use RefreshDatabase;
-    use \Illuminate\Foundation\Testing\WithoutMiddleware;
 
     protected User $user;
     protected Cliente $cliente;
     protected Almacen $almacen;
     protected Producto $producto;
-    protected Empresa $empresa;
+    private Empresa $empresa;
+
     private static int $clienteCounter = 1;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        $this->withoutMiddleware();
 
         // 1. Crear Empresa base para el contexto
         $this->empresa = Empresa::factory()->create();
@@ -51,12 +51,8 @@ class VentaControllerTest extends TestCase
             'empresa_id' => $this->empresa->id,
             'activo' => true
         ]);
-
         $this->user->assignRole('admin');
-
         $this->actingAs($this->user);
-
-        // Probe query to check if transaction is healthy
 
         // 3. Asegurar que existan datos básicos asociados a la empresa
         $this->cliente = Cliente::factory()->create([
@@ -118,8 +114,7 @@ class VentaControllerTest extends TestCase
     {
         $ventasCountBefore = Venta::count();
 
-        $this->withoutExceptionHandling();
-        $response = $this->post(route('ventas.store'), [
+        $response = $this->postJson(route('ventas.store'), [
             'cliente_id' => $this->cliente->id,
             'almacen_id' => $this->almacen->id,
             'metodo_pago' => 'efectivo',
@@ -136,12 +131,14 @@ class VentaControllerTest extends TestCase
             'notas' => 'Test venta - will be rolled back',
         ]);
 
-        // Should redirect on success
-        $response->assertRedirect(route('ventas.index'));
-        $response->assertSessionHas('success');
+        // Should return JSON on success
+        $response->assertStatus(201);
+        $response->assertJson(['success' => true]);
 
         // Verify venta was created (temporarily)
         $this->assertEquals($ventasCountBefore + 1, Venta::count());
+        $venta = Venta::latest()->first();
+        $this->assertEquals('Efectivo', $venta->metodo_pago);
 
         // ✅ After test finishes, DatabaseTransactions will ROLLBACK everything
     }
@@ -152,11 +149,12 @@ class VentaControllerTest extends TestCase
      */
     public function valida_datos_requeridos_al_crear()
     {
-        $response = $this->post(route('ventas.store'), [
+        $response = $this->postJson(route('ventas.store'), [
             // Missing required fields
         ]);
 
-        $response->assertSessionHasErrors(['almacen_id', 'metodo_pago']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['almacen_id', 'metodo_pago']);
     }
 
     /**
@@ -165,7 +163,7 @@ class VentaControllerTest extends TestCase
      */
     public function no_acepta_cantidad_cero()
     {
-        $response = $this->post(route('ventas.store'), [
+        $response = $this->postJson(route('ventas.store'), [
             'cliente_id' => $this->cliente->id,
             'almacen_id' => $this->almacen->id,
             'metodo_pago' => 'efectivo',
@@ -180,7 +178,8 @@ class VentaControllerTest extends TestCase
             'servicios' => [],
         ]);
 
-        $response->assertSessionHasErrors();
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['productos.0.cantidad']);
     }
 
     /**
@@ -189,7 +188,7 @@ class VentaControllerTest extends TestCase
      */
     public function calcula_totales_correctamente_con_iva()
     {
-        $response = $this->post(route('ventas.store'), [
+        $response = $this->postJson(route('ventas.store'), [
             'cliente_id' => $this->cliente->id,
             'almacen_id' => $this->almacen->id,
             'metodo_pago' => 'efectivo',
@@ -250,11 +249,12 @@ class VentaControllerTest extends TestCase
     {
         // 1. Setup: Create a second company and a vendor in it
         $empresaB = Empresa::factory()->create();
-        $vendedorB = User::factory()->create(['empresa_id' => $empresaB->id]);
+        $vendedorB = User::withoutEvents(fn() => User::factory()->create(['empresa_id' => $empresaB->id, 'email' => 'other@company.com']));
+
         $ventasCountBefore = Venta::count();
 
         // 2. Act: Try to create a sale as user from empresa A, but using vendor from empresa B
-        $response = $this->post(route('ventas.store'), [
+        $response = $this->postJson(route('ventas.store'), [
             'cliente_id' => $this->cliente->id,
             'almacen_id' => $this->almacen->id,
             'metodo_pago' => 'efectivo',
@@ -270,8 +270,8 @@ class VentaControllerTest extends TestCase
         ]);
 
         // 3. Assert: Check for authorization error and no new sale
-        $response->assertRedirect();
-        $response->assertSessionHasErrors('message');
+        $response->assertStatus(422); // Validation error
+        $response->assertJson(['success' => false, 'message' => 'El vendedor seleccionado no pertenece a su empresa.']);
         $this->assertEquals($ventasCountBefore, Venta::count());
     }
 
@@ -283,11 +283,12 @@ class VentaControllerTest extends TestCase
     {
         // 1. Setup: Create a second company and a warehouse in it
         $empresaB = Empresa::factory()->create();
-        $almacenB = Almacen::factory()->create(['empresa_id' => $empresaB->id]);
+        $almacenB = Almacen::withoutEvents(fn() => Almacen::factory()->create(['empresa_id' => $empresaB->id]));
+
         $ventasCountBefore = Venta::count();
 
         // 2. Act: Try to create a sale using a warehouse from the wrong company
-        $response = $this->post(route('ventas.store'), [
+        $response = $this->postJson(route('ventas.store'), [
             'cliente_id' => $this->cliente->id,
             'almacen_id' => $almacenB->id, // Cross-company ID
             'metodo_pago' => 'efectivo',
@@ -301,14 +302,132 @@ class VentaControllerTest extends TestCase
             ],
         ]);
 
+        if ($response->status() >= 500) {
+            dump($response->getContent());
+        }
+
         // 3. Assert: Check for authorization error and no new sale
-        $response->assertRedirect();
-        $response->assertSessionHasErrors();
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['almacen_id']);
         $this->assertEquals($ventasCountBefore, Venta::count());
     }
 
     /**
-     * NOTE: NO delete/destroy tests to protect data!
-     * Update and cancel tests would also rollback, but skipped for extra safety
+     * @test
+     * ✅ SAFE: Tests update functionality with rollback
      */
+    public function puede_actualizar_venta()
+    {
+        $venta = Venta::factory()->create([
+            'empresa_id' => $this->empresa->id,
+            'cliente_id' => $this->cliente->id,
+            'almacen_id' => $this->almacen->id,
+            'metodo_pago' => 'efectivo',
+            'estado' => 'aprobada',
+            'subtotal' => 100,
+            'iva' => 16,
+            'total' => 116
+        ]);
+
+        $response = $this->putJson(route('ventas.update', $venta), [
+            'cliente_id' => $this->cliente->id,
+            'metodo_pago' => 'transferencia',
+            'numero_venta' => (string) ($venta->numero_venta ?? 'V-TEST-UPD'),
+            'fecha' => $venta->fecha->toDateString(),
+            'estado' => $venta->estado->value,
+            'productos' => [
+                [
+                    'id' => $this->producto->id,
+                    'cantidad' => 2,
+                    'precio' => 100,
+                    'descuento' => 0,
+                ],
+            ],
+            'notas' => 'Venta actualizada',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        
+        $venta->refresh();
+        $this->assertEquals('Transferencia', $venta->metodo_pago);
+        $this->assertEquals(200, $venta->subtotal);
+        $this->assertEquals('Venta actualizada', $venta->notas);
+    }
+
+    /**
+     * @test
+     * ✅ SAFE: Tests cancellation functionality with rollback
+     */
+    public function puede_cancelar_venta()
+    {
+        $venta = Venta::factory()->create([
+            'empresa_id' => $this->empresa->id,
+            'cliente_id' => $this->cliente->id,
+            'almacen_id' => $this->almacen->id,
+            'estado' => 'aprobada'
+        ]);
+
+        $response = $this->postJson(route('ventas.cancelar', $venta), [
+            'motivo' => 'Error en el pedido',
+            'force_with_payments' => true
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $venta->refresh();
+        $this->assertEquals(\App\Enums\EstadoVenta::Cancelada, $venta->estado);
+    }
+
+    /**
+     * @test
+     * ✅ SAFE: Tests deletion functionality with rollback
+     */
+    public function puede_eliminar_venta()
+    {
+        $venta = Venta::factory()->create([
+            'empresa_id' => $this->empresa->id,
+            'cliente_id' => $this->cliente->id,
+            'almacen_id' => $this->almacen->id,
+            'estado' => 'aprobada'
+        ]);
+
+        $response = $this->deleteJson(route('ventas.destroy', $venta));
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $this->assertSoftDeleted('ventas', ['id' => $venta->id]);
+    }
+
+    /**
+     * @test
+     * ✅ SAFE: Tests payment functionality with rollback
+     */
+    public function puede_marcar_venta_como_pagada()
+    {
+        $this->withoutExceptionHandling();
+        $venta = Venta::factory()->create([
+            'empresa_id' => $this->empresa->id,
+            'cliente_id' => $this->cliente->id,
+            'almacen_id' => $this->almacen->id,
+            'estado' => 'aprobada',
+            'pagado' => false
+        ]);
+
+        // Necesitamos una cuenta bancaria para el test
+        $cuenta = \App\Models\CuentaBancaria::factory()->create(['empresa_id' => $this->empresa->id]);
+
+        $response = $this->postJson(route('ventas.marcar-pagado', $venta), [
+            'metodo_pago' => 'transferencia',
+            'cuenta_bancaria_id' => $cuenta->id,
+            'fecha_pago' => now()->toDateString(),
+            'monto' => $venta->total
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+        $venta->refresh();
+        $this->assertTrue($venta->pagado);
+        $this->assertEquals('Transferencia', $venta->metodo_pago);
+    }
 }

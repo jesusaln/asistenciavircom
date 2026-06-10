@@ -168,7 +168,7 @@ class CfdiXmlParserService
                 $tipoRelacion = (string) ($relacionadosGroup['TipoRelacion'] ?? '');
                 $uuids = [];
                 foreach ($relacionadosGroup->xpath('cfdi:CfdiRelacionado') as $relacionado) {
-                    $uuids[] = strtoupper(trim((string) ($relacionado['UUID'] ?? '')));
+                    $uuids[] = strtolower(trim((string) ($relacionado['UUID'] ?? '')));
                 }
                 if (!empty($uuids)) {
                     $cfdiRelacionadosData[] = [
@@ -202,7 +202,8 @@ class CfdiXmlParserService
             'impuestos' => $impuestosData,
             'cfdi_relacionados' => $cfdiRelacionadosData,
 
-            'complementos' => $this->extraerComplementos($xml), // Extract complements
+            'complementos' => $complements = $this->extraerComplementos($xml), // Extract complements
+            'doctos_relacionados_uuids' => $this->extraerUuidsRelacionados($complements),
             'es_factura_valida' => $this->esFacturaValida((string) ($attrs['TipoDeComprobante'] ?? '')),
             'tipo_comprobante_nombre' => $this->getNombreTipoComprobante((string) ($attrs['TipoDeComprobante'] ?? '')),
         ];
@@ -646,7 +647,7 @@ class CfdiXmlParserService
                     }
 
                     $doctosRelacionados[] = [
-                        'id_documento' => trim((string) ($docAttrs['IdDocumento'] ?? '')),
+                        'id_documento' => strtolower(trim((string) ($docAttrs['IdDocumento'] ?? ''))),
                         'serie' => trim((string) ($docAttrs['Serie'] ?? '')),
                         'folio' => trim((string) ($docAttrs['Folio'] ?? '')),
                         'moneda_dr' => trim((string) ($docAttrs['MonedaDR'] ?? '')),
@@ -714,7 +715,7 @@ class CfdiXmlParserService
                     foreach ($pago->xpath('pago10:DoctoRelacionado') as $docto) {
                         $docAttrs = $docto->attributes();
                         $doctosRelacionados[] = [
-                            'id_documento' => trim((string) ($docAttrs['IdDocumento'] ?? '')),
+                            'id_documento' => strtolower(trim((string) ($docAttrs['IdDocumento'] ?? ''))),
                             'serie' => trim((string) ($docAttrs['Serie'] ?? '')),
                             'folio' => trim((string) ($docAttrs['Folio'] ?? '')),
                             'moneda_dr' => trim((string) ($docAttrs['MonedaDR'] ?? '')),
@@ -858,5 +859,25 @@ class CfdiXmlParserService
         }
 
         return $complementos;
+    }
+
+    /**
+     * Extrae todos los UUIDs de documentos relacionados en complementos de pago
+     */
+    private function extraerUuidsRelacionados(array $complements): array
+    {
+        $uuids = [];
+        if (!empty($complements['pagos'])) {
+            foreach ($complements['pagos'] as $pago) {
+                if (!empty($pago['doctos_relacionados'])) {
+                    foreach ($pago['doctos_relacionados'] as $doc) {
+                        if (!empty($doc['id_documento'])) {
+                            $uuids[] = strtolower(trim($doc['id_documento']));
+                        }
+                    }
+                }
+            }
+        }
+        return array_unique($uuids);
     }
 }

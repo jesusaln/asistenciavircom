@@ -8,17 +8,28 @@ class UrlHelper
      * Generar URL de storage correcta usando el dominio actual de la petición
      * Esta función es útil cuando APP_URL está mal configurado en producción
      */
+    /**
+     * Generar URL de storage correcta usando el dominio configurado o el actual
+     */
     public static function storageUrl($path = '')
     {
-        return '/storage/' . ltrim($path, '/');
+        if (empty($path)) return null;
+        
+        // Si ya es una URL absoluta, devolverla tal cual
+        if (str_starts_with($path, 'http')) return $path;
+
+        return config('app.url') . '/storage/' . ltrim($path, '/');
     }
 
     /**
-     * Generar URL de asset correcta usando el dominio actual
+     * Generar URL de asset correcta usando el dominio configurado
      */
     public static function assetUrl($path = '')
     {
-        return '/' . ltrim($path, '/');
+        if (empty($path)) return null;
+        if (str_starts_with($path, 'http')) return $path;
+
+        return config('app.url') . '/' . ltrim($path, '/');
     }
 
     /**

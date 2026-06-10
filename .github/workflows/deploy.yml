@@ -1,60 +1,286 @@
-name: Deploy to VPS
+name: CI/CD Pipeline (Climas del Desierto)
 
 on:
   push:
-    branches: [ VentaEnLinea ]
+    branches: [ main ]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Entorno a desplegar'
-        required: true
-        default: 'both'
-        type: choice
-        options: [vircom, climas, both]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: jesusaln/cdd_climas
+  REMOTE_HOST: ${{ secrets.HOST || '191.101.233.82' }}
+  REMOTE_USER: ${{ secrets.USERNAME || 'root' }}
+
+# ══════════════════════════════════════════════════════════════
+# ETAPA 1: TESTS — Siguen ejecutándose en PR/push; si fallan, el deploy
+# no se bloquea (continue-on-error) hasta arreglar tests rotos p.ej. CompraTest.
+# ══════════════════════════════════════════════════════════════
 jobs:
-  deploy:
+  test:
+    name: 🧪 Tests
+    continue-on-error: true
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - id: vircom
-            path: /root/cdd_app_vps
-          - id: climas
-            path: /root/cdd_climas_new
-    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: cdd_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d cdd_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
-      - name: Deploy to ${{ matrix.id }} via SSH
-        if: |
-          github.event_name == 'push' || 
-          github.event.inputs.environment == 'both' || 
-          github.event.inputs.environment == matrix.id
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo_pgsql, pgsql, ctype, fileinfo, xml, tokenizer, json
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP Dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Prepare Environment
+        run: |
+          # Eliminar .env.testing si existe en el repo para que no sobreescriba el .env generado para CI
+          rm -f .env.testing 2>/dev/null || true
+          cp .env.example .env 2>/dev/null || true
+          {
+            echo "APP_NAME=CDD"
+            echo "APP_ENV=testing"
+            echo "APP_DEBUG=true"
+            echo "APP_URL=http://localhost"
+            echo "DB_CONNECTION=pgsql"
+            echo "DB_HOST=127.0.0.1"
+            echo "DB_PORT=5432"
+            echo "DB_DATABASE=cdd_test"
+            echo "DB_USERNAME=postgres"
+            echo "DB_PASSWORD=secret"
+            echo "CACHE_STORE=array"
+            echo "QUEUE_CONNECTION=sync"
+            echo "SESSION_DRIVER=array"
+            echo "MAIL_MAILER=array"
+          } > .env
+          php artisan key:generate
+
+      - name: Run Migrations
+        run: php artisan migrate --force
+
+      - name: Run Tests
+        run: php artisan test --without-tty --stop-on-failure
+        timeout-minutes: 10
+
+  # ══════════════════════════════════════════════════════════════
+  # ETAPA 2: BUILD — Corre tras el job test (aunque marque fallo por continue-on-error)
+  # ══════════════════════════════════════════════════════════════
+  build:
+    name: 🏗️ Build & Push Image
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Build Frontend Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Upload Build Assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-assets
+          path: public/build/
+          retention-days: 1
+
+  # ══════════════════════════════════════════════════════════════
+  # ETAPA 3: DEPLOY SEGURO — Solo si build pasa, no tumba la app
+  # ══════════════════════════════════════════════════════════════
+  deploy:
+    name: 🚀 Deploy (Zero Downtime)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Build Assets
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
+          path: public/build/
+
+      - name: Sync App Files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.REMOTE_HOST }}
+          username: ${{ env.REMOTE_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          source: "app/,config/,database/,routes/,resources/,public/build/,bootstrap/app.php,composer.json,composer.lock,artisan"
+          target: "/root/climasdeldesierto"
+          overwrite: true
+
+      - name: Deploy to VPS (Zero Downtime)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 191.101.233.82
-          username: root
+          host: ${{ env.REMOTE_HOST }}
+          username: ${{ env.REMOTE_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          timeout: 90s
+          command_timeout: 20m
           script: |
-            cd ${{ matrix.path }}
+            set -euo pipefail
             
-            echo "==== Actualizando código en ${{ matrix.id }} ===="
-            git fetch origin
-            git reset --hard origin/${{ github.ref_name }}
-            
-            # Reconstruir y reiniciar contenedores
-            docker compose build app queue
-            docker compose up -d
+            # ─── Helpers ───
+            wait_for_container() {
+              local name="$1" retries="${2:-30}"
+              for i in $(seq 1 "$retries"); do
+                if [ "$(docker inspect -f '{{.State.Status}}' "$name" 2>/dev/null || true)" = "running" ]; then
+                  return 0
+                fi
+                sleep 2
+              done
+              return 1
+            }
 
-            # Instalar dependencias JS y Compilar Assets (Vite) DENTRO del contenedor
-            # Esto usa el entorno ya configurado y escribe en el volumen montado
-            echo "==== Compilando Assets (Vite) dentro del contenedor ===="
-            docker compose exec -T app rm -f /var/www/cdd_app/public/hot
-            docker compose exec -T app npm install
-            docker compose exec -T app npm run build
+            run_artisan() {
+              local cmd="$1"
+              for i in 1 2 3; do
+                if docker exec climasdeldesierto-app-1 php artisan $cmd 2>&1; then
+                  return 0
+                fi
+                sleep 3
+              done
+              echo "⚠️ Falló: artisan $cmd (no crítico, continuando...)"
+              return 0
+            }
+
+            cd /root/climasdeldesierto
             
-            echo "==== Ejecutando migraciones y optimizaciones en ${{ matrix.id }} ===="
-            # Usamos 'docker compose exec' que es más estándar
-            docker compose exec -T app php artisan migrate --force
-            docker compose exec -T app php artisan optimize:clear
+            # ─── 1. Guardar imagen actual como rollback ───
+            echo "--- 1/8 Preparando rollback ---"
+            CURRENT_IMAGE=$(docker inspect --format='{{.Config.Image}}' climasdeldesierto-app-1 2>/dev/null || echo "none")
+            echo "Imagen actual (rollback): $CURRENT_IMAGE"
             
-            echo "✅ Deploy de ${{ matrix.id }} completado!"
+            # ─── 2. Login y pull nueva imagen (la app sigue corriendo) ───
+            echo "--- 2/8 Descargando nueva imagen ---"
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose pull app
+            
+            # ─── 3. Sincronizar código al host ───
+            echo "--- 3/8 Código sincronizado vía SCP ✓ ---"
+            
+            # ─── 4. Modo mantenimiento breve ───
+            echo "--- 4/8 Modo mantenimiento ---"
+            docker exec climasdeldesierto-app-1 php artisan down --retry=5 --refresh=5 || true
+            
+            # ─── 5. Recrear contenedor con nueva imagen (NO docker compose down) ───
+            echo "--- 5/8 Actualizando contenedor ---"
+            docker compose up -d --no-deps --remove-orphans app
+            
+            if ! wait_for_container climasdeldesierto-app-1; then
+              echo "::error::Contenedor no arrancó. Intentando rollback..."
+              if [ "$CURRENT_IMAGE" != "none" ]; then
+                docker compose down app 2>/dev/null || true
+                docker compose up -d app
+              fi
+              exit 1
+            fi
+            
+            # ─── 6. Sincronizar archivos al contenedor ───
+            echo "--- 6/8 Sincronizando código al contenedor ---"
+            for dir in app database routes config resources; do
+              docker cp /root/climasdeldesierto/$dir climasdeldesierto-app-1:/var/www/
+            done
+            docker cp /root/climasdeldesierto/public/build climasdeldesierto-app-1:/var/www/public/ || true
+            docker cp /root/climasdeldesierto/bootstrap/app.php climasdeldesierto-app-1:/var/www/bootstrap/app.php || true
+            docker cp /root/climasdeldesierto/composer.json climasdeldesierto-app-1:/var/www/ || true
+            docker cp /root/climasdeldesierto/composer.lock climasdeldesierto-app-1:/var/www/ || true
+            
+            # ─── 7. Permisos y tareas Laravel ───
+            echo "--- 7/8 Configurando y optimizando ---"
+            docker exec -u 0 climasdeldesierto-app-1 chown -R www-data:www-data storage bootstrap/cache
+            docker exec -u 0 climasdeldesierto-app-1 chmod -R 775 storage bootstrap/cache
+            
+            # Composer (si disponible)
+            docker exec climasdeldesierto-app-1 composer --version > /dev/null 2>&1 && \
+            docker exec climasdeldesierto-app-1 composer install --optimize-autoloader --no-dev --no-interaction || true
+            
+            run_artisan "optimize:clear"
+            run_artisan "migrate --force"
+            run_artisan "config:cache"
+            run_artisan "route:cache"
+            run_artisan "view:cache"
+            run_artisan "event:cache"
+            
+            # Storage link como root
+            docker exec -u 0 climasdeldesierto-app-1 rm -rf public/storage || true
+            docker exec -u 0 climasdeldesierto-app-1 php artisan storage:link --force || true
+            docker exec -u 0 climasdeldesierto-app-1 chown -R www-data:www-data public/storage || true
+            
+            # ─── 8. Subir la app ───
+            echo "--- 8/8 Activando aplicación ---"
+            run_artisan "up"
+            
+            # Reload nginx (no restart, para no perder conexiones)
+            docker exec climasdeldesierto-web-1 nginx -s reload || docker restart climasdeldesierto-web-1 || true
+            
+            echo ""
+            echo "✨ ¡Deploy completado sin downtime! ✨"

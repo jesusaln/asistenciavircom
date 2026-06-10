@@ -30,7 +30,7 @@ class ProyectoController extends Controller
             $proyectosCompartidos = collect(); // Los admins ven todo en la sección principal
         } else {
             $misProyectosQuery = $user->ownedProjects();
-            $proyectosCompartidos = $user->joinedProjects()->with('cliente')->limit($maxRows)->get();
+            $proyectosCompartidos = $user->joinedProjects()->with(['cliente', 'owner'])->limit($maxRows)->get();
         }
 
         $misProyectosConCliente = $misProyectosQuery->with(['cliente', 'owner'])->limit($maxRows)->get();
@@ -81,10 +81,21 @@ class ProyectoController extends Controller
         $user = Auth::user();
         $maxRows = 500;
 
-        // Validar acceso (Dueño o Miembro)
-        if ($proyecto->owner_id !== $user->id && !$proyecto->members->contains($user->id)) {
+        // Validar acceso (Dueño, Miembro, o Admin)
+        if ($proyecto->owner_id !== $user->id && !$user->hasRole('super-admin') && !$user->hasRole('admin') && !$proyecto->members->contains($user->id)) {
             abort(403, 'No tienes permiso para ver este proyecto.');
         }
+
+        $proyecto->load(['owner', 'cliente']);
+
+        $isOwner = $proyecto->owner_id === $user->id || $user->hasRole('admin') || $user->hasRole('super-admin');
+
+        $isEditor = false;
+        if (!$isOwner) {
+            $member = $proyecto->members()->where('user_id', $user->id)->first();
+            $isEditor = $member && $member->pivot->role === 'editor';
+        }
+        $canEdit = $isOwner || $isEditor;
 
         // Cargar tareas agrupadas
         $tareas = $proyecto->tareas()->orderBy('orden')->limit($maxRows)->get();
@@ -107,8 +118,8 @@ class ProyectoController extends Controller
 
         $totalGastos = $gastos->sum('total');
 
-        // Lista de usuarios para compartir (excluyendo al dueño) (Limited for performance)
-        $usuarios = User::where('id', '!=', $user->id)
+        // Lista de usuarios para compartir (excluyendo al dueño y a mí mismo) (Limited for performance)
+        $usuarios = User::whereNotIn('id', [$proyecto->owner_id, $user->id])
             ->orderBy('name')
             ->limit(100)
             ->get(['id', 'name', 'email']);
@@ -131,7 +142,8 @@ class ProyectoController extends Controller
             'proyecto' => $proyecto,
             'columnas' => $columnas,
             'members' => $proyecto->members,
-            'isOwner' => $proyecto->owner_id === $user->id || $user->hasRole('admin') || $user->hasRole('super-admin'),
+            'isOwner' => $isOwner,
+            'canEdit' => $canEdit,
             'gastos' => $gastos,
             'totalGastos' => $totalGastos,
             'usuarios' => $usuarios,
@@ -155,7 +167,7 @@ class ProyectoController extends Controller
     {
         // $this->authorize('update', $proyecto); // Implementar Policy luego si es necesario simple check aqui
 
-        if ($proyecto->owner_id !== Auth::id()) {
+        if ($proyecto->owner_id !== Auth::id() && !Auth::user()->hasRole('super-admin') && !Auth::user()->hasRole('admin')) {
             abort(403);
         }
 
@@ -209,7 +221,7 @@ class ProyectoController extends Controller
      */
     public function share(Request $request, Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id()) {
+        if ($proyecto->owner_id !== Auth::id() && !Auth::user()->hasRole('super-admin') && !Auth::user()->hasRole('admin')) {
             abort(403);
         }
 
@@ -236,7 +248,7 @@ class ProyectoController extends Controller
      */
     public function removeMember(Proyecto $proyecto, User $user)
     {
-        if ($proyecto->owner_id !== Auth::id()) {
+        if ($proyecto->owner_id !== Auth::id() && !Auth::user()->hasRole('super-admin') && !Auth::user()->hasRole('admin')) {
             abort(403);
         }
 
@@ -250,7 +262,7 @@ class ProyectoController extends Controller
      */
     public function addProducto(Request $request, Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+        if (!$this->hasEditAccess($proyecto)) {
             abort(403);
         }
 
@@ -282,7 +294,7 @@ class ProyectoController extends Controller
      */
     public function removeProducto(Proyecto $proyecto, $productoId)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+        if (!$this->hasEditAccess($proyecto)) {
             abort(403);
         }
 
@@ -296,7 +308,7 @@ class ProyectoController extends Controller
      */
     public function addGasto(Request $request, Proyecto $proyecto)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+        if (!$this->hasEditAccess($proyecto)) {
             abort(403);
         }
 
@@ -328,7 +340,7 @@ class ProyectoController extends Controller
      */
     public function removeGasto(Proyecto $proyecto, $gastoId)
     {
-        if ($proyecto->owner_id !== Auth::id() && !$proyecto->members->contains(Auth::id())) {
+        if (!$this->hasEditAccess($proyecto)) {
             abort(403);
         }
 
@@ -357,5 +369,21 @@ class ProyectoController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Categoría de gasto creada con éxito.');
+    }
+
+    /**
+     * Verificar si el usuario actual tiene permisos de edición sobre el proyecto.
+     */
+    private function hasEditAccess(Proyecto $proyecto): bool
+    {
+        $user = Auth::user();
+        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
+            return true;
+        }
+        if ($proyecto->owner_id === $user->id) {
+            return true;
+        }
+        $member = $proyecto->members()->where('user_id', $user->id)->first();
+        return $member && $member->pivot->role === 'editor';
     }
 }

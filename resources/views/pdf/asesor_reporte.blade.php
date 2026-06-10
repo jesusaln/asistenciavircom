@@ -7,7 +7,7 @@
     <style>
         :root {
             --primary:
-                {{ $empresa['color_principal'] ?? '#3B82F6' }}
+                {{ $empresa['color_principal'] ?? '#FF6B35' }}
             ;
             --secondary:
                 {{ $empresa['color_secundario'] ?? '#64748B' }}

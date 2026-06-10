@@ -7,6 +7,7 @@ use App\Services\CVAService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class CVAProxyController extends Controller
 {
@@ -65,6 +66,7 @@ class CVAProxyController extends Controller
                         $q->where('nombre', 'like', "%{$query}%");
                     });
             })
+            ->paraVentaDirectaSegunUsuario(Auth::user())
             ->limit(5)
             ->get();
 

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CompraItem extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $fillable = [
@@ -28,6 +30,11 @@ class CompraItem extends Model
     public function comprable()
     {
         return $this->morphTo();
+    }
+
+    public function series()
+    {
+        return $this->hasMany(ProductoSerie::class, 'compra_item_id');
     }
 
     public function compra()

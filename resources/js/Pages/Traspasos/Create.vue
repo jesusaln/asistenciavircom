@@ -3,6 +3,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { Head, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import BuscarProducto from '@/Components/CreateComponents/BuscarProducto.vue'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 
@@ -138,46 +139,80 @@ const cargarSeriesDisponibles = async () => {
   }
 }
 
-const agregarProducto = () => {
-  if (!nuevoItem.value.producto_id) {
-    notyf.error('Selecciona un producto')
+const seleccionarProducto = (item) => {
+  if (!form.value.almacen_origen_id) {
+    notyf.error('Selecciona primero el almacén origen')
     return
   }
 
-  if (requiereSerie.value) {
-    if (seriesSeleccionadas.value.length === 0) {
-      notyf.error('Selecciona al menos una serie')
-      return
-    }
-    nuevoItem.value.cantidad = seriesSeleccionadas.value.length
-    nuevoItem.value.series = [...seriesSeleccionadas.value]
-  } else {
-    if (nuevoItem.value.cantidad < 1) {
-      notyf.error('La cantidad debe ser al menos 1')
-      return
-    }
-    if (nuevoItem.value.cantidad > stockProductoEnOrigen.value) {
-      notyf.error('La cantidad excede el stock disponible')
-      return
-    }
+  const inv = props.inventarios.find(i =>
+    i.producto_id == item.id &&
+    i.almacen_id == form.value.almacen_origen_id
+  )
+  const stockEnOrigen = inv ? inv.cantidad : 0
+
+  if (stockEnOrigen <= 0) {
+    notyf.error(`No hay stock disponible para "${item.nombre}" en el almacén seleccionado`)
+    return
   }
 
-  const producto = props.productos.find(p => p.id == nuevoItem.value.producto_id)
-  
-  form.value.items.push({
-    producto_id: nuevoItem.value.producto_id,
-    producto_nombre: producto?.nombre || 'Producto',
-    cantidad: nuevoItem.value.cantidad,
-    series: [...nuevoItem.value.series],
-    requiere_serie: requiereSerie.value
-  })
+  const itemExistente = form.value.items.find(i => i.producto_id == item.id)
 
-  // Reset
+  if (item.requiere_serie) {
+    nuevoItem.value.producto_id = item.id
+    cargarSeriesDisponibles()
+    notyf.success(`Seleccionado: "${item.nombre}". Elige las series en el recuadro inferior.`)
+  } else {
+    if (itemExistente) {
+      if (itemExistente.cantidad < stockEnOrigen) {
+        itemExistente.cantidad++
+        notyf.success(`Se aumentó la cantidad de "${item.nombre}" (Total: ${itemExistente.cantidad})`)
+      } else {
+        notyf.error('Se ha alcanzado el máximo de stock disponible en origen')
+      }
+    } else {
+      form.value.items.push({
+        producto_id: item.id,
+        producto_nombre: item.nombre || 'Producto',
+        cantidad: 1,
+        series: [],
+        requiere_serie: false,
+        stock_maximo: stockEnOrigen
+      })
+      notyf.success(`Producto "${item.nombre}" agregado al traspaso`)
+    }
+  }
+}
+
+const agregarProductoConSerie = () => {
+  if (!nuevoItem.value.producto_id) return
+  if (seriesSeleccionadas.value.length === 0) {
+    notyf.error('Selecciona al menos una serie')
+    return
+  }
+  
+  const producto = props.productos.find(p => p.id == nuevoItem.value.producto_id)
+  const itemExistente = form.value.items.find(i => i.producto_id == nuevoItem.value.producto_id)
+  
+  if (itemExistente) {
+    const seriesNuevas = seriesSeleccionadas.value.filter(s => !itemExistente.series.includes(s))
+    itemExistente.series.push(...seriesNuevas)
+    itemExistente.cantidad = itemExistente.series.length
+  } else {
+    form.value.items.push({
+      producto_id: nuevoItem.value.producto_id,
+      producto_nombre: producto?.nombre || 'Producto',
+      cantidad: seriesSeleccionadas.value.length,
+      series: [...seriesSeleccionadas.value],
+      requiere_serie: true
+    })
+  }
+
   nuevoItem.value = { producto_id: '', cantidad: 1, series: [] }
   seriesSeleccionadas.value = []
   seriesDisponibles.value = []
-
-  notyf.success('Producto agregado al traspaso')
+  
+  notyf.success('Series agregadas al traspaso')
 }
 
 const eliminarItem = (index) => {
@@ -238,18 +273,18 @@ onMounted(() => {
 <template>
   <Head title="Nuevo Traspaso" />
 
-  <div class="min-h-screen bg-white">
+  <div class="min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Nuevo Traspaso</h1>
-            <p class="text-gray-600 mt-1">Transfiere múltiples productos entre almacenes</p>
+            <h1 class="text-3xl font-bold text-slate-900">Nuevo Traspaso</h1>
+            <p class="text-slate-500 mt-1">Transfiere múltiples productos entre almacenes</p>
           </div>
           <button
             @click="cancel"
-            class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            class="inline-flex items-center px-4 py-2 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -262,9 +297,9 @@ onMounted(() => {
       <!-- Formulario Principal -->
       <div class="space-y-6">
         <!-- Almacenes Origen/Destino -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+            <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
             Almacenes
@@ -273,10 +308,10 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Almacén Origen -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Almacén Origen *</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Almacén Origen *</label>
               <select
                 v-model="form.almacen_origen_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               >
                 <option value="">Seleccionar origen</option>
                 <option v-for="almacen in almacenes" :key="almacen.id" :value="almacen.id">
@@ -287,11 +322,11 @@ onMounted(() => {
 
             <!-- Almacén Destino -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Almacén Destino *</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Almacén Destino *</label>
               <select
                 v-model="form.almacen_destino_id"
                 :disabled="!form.almacen_origen_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:bg-slate-100"
               >
                 <option value="">Seleccionar destino</option>
                 <option v-for="almacen in almacenesDestino" :key="almacen.id" :value="almacen.id">
@@ -303,71 +338,28 @@ onMounted(() => {
         </div>
 
         <!-- Agregar Productos -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" v-if="form.almacen_origen_id">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Agregar Producto
-          </h2>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <!-- Producto -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Producto</label>
-              <select
-                v-model="nuevoItem.producto_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Seleccionar producto</option>
-                <option v-for="producto in productosConStock" :key="producto.id" :value="producto.id">
-                  {{ producto.nombre }} {{ producto.requiere_serie ? '(Serie)' : '' }}
-                </option>
-              </select>
-              <p v-if="nuevoItem.producto_id && stockProductoEnOrigen > 0" class="mt-1 text-sm text-gray-500">
-                Stock disponible: <strong>{{ stockProductoEnOrigen }}</strong>
-              </p>
-            </div>
-
-            <!-- Cantidad (solo si no requiere serie) -->
-            <div v-if="!requiereSerie">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad</label>
-              <input
-                v-model.number="nuevoItem.cantidad"
-                type="number"
-                min="1"
-                :max="stockProductoEnOrigen"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <!-- Botón Agregar -->
-            <div class="flex items-end">
-              <button
-                @click="agregarProducto"
-                :disabled="!nuevoItem.producto_id"
-                class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Agregar
-              </button>
-            </div>
-          </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6" v-if="form.almacen_origen_id">
+          <BuscarProducto
+            :productos="productosConStock"
+            :almacen-id="form.almacen_origen_id"
+            :solo-productos="true"
+            label="Buscar Producto a Traspasar"
+            placeholder="Escribe nombre, código o descripción para teclear y buscar..."
+            @agregar-producto="seleccionarProducto"
+          />
 
           <!-- Selector de Series -->
-          <div v-if="requiereSerie" class="border border-blue-200 bg-blue-50 rounded-lg p-4 mt-4">
+          <div v-if="requiereSerie" class="border border-sky-200 dark:border-sky-800/30 bg-sky-50 dark:bg-sky-900/20 rounded-xl p-4 mt-6">
             <div class="flex items-center justify-between mb-3">
               <div>
-                <p class="font-medium text-blue-800">Series disponibles en {{ almacenes.find(a => a.id == form.almacen_origen_id)?.nombre }}</p>
-                <p class="text-sm text-blue-700">Selecciona las series que deseas traspasar</p>
+                <p class="font-medium text-sky-800 dark:text-sky-200">Series disponibles para "{{ productoSeleccionado?.nombre }}" en {{ almacenes.find(a => a.id == form.almacen_origen_id)?.nombre }}</p>
+                <p class="text-sm text-sky-800 dark:text-sky-200">Selecciona las series específicas que deseas traspasar</p>
               </div>
               <button
                 type="button"
                 @click="cargarSeriesDisponibles"
                 :disabled="cargandoSeries"
-                class="text-sm text-blue-700 hover:underline disabled:opacity-50"
+                class="text-sm text-sky-800 dark:text-sky-200 hover:underline disabled:opacity-50"
               >
                 {{ cargandoSeries ? 'Cargando...' : 'Recargar' }}
               </button>
@@ -379,40 +371,50 @@ onMounted(() => {
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </div>
-            <div v-else-if="!seriesDisponibles.length" class="text-sm text-blue-700">
+            <div v-else-if="!seriesDisponibles.length" class="text-sm text-sky-800 dark:text-sky-200">
               No hay series en stock en este almacén para este producto.
             </div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
               <label
                 v-for="serie in seriesDisponibles"
                 :key="serie.id"
-                class="flex items-center gap-3 p-2 bg-white border border-blue-200 rounded-md hover:bg-blue-100 cursor-pointer"
+                class="flex items-center gap-2 p-2 bg-white border border-sky-200 dark:border-sky-800/30 rounded-xl hover:bg-sky-100 cursor-pointer"
               >
                 <input
                   type="checkbox"
                   :value="serie.id"
                   v-model="seriesSeleccionadas"
-                  class="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  class="text-blue-600 border-slate-300 rounded-xl focus:ring-brand-500"
                 />
-                <span class="text-sm text-gray-800 font-mono">{{ serie.numero_serie }}</span>
+                <span class="text-sm text-slate-800 font-mono">{{ serie.numero_serie }}</span>
               </label>
             </div>
-            <p class="mt-3 text-sm text-blue-800 font-medium">
-              Seleccionadas: {{ seriesSeleccionadas.length }}
-            </p>
+            <div class="mt-4 flex items-center justify-between pt-3 border-t border-sky-200 dark:border-sky-800/30">
+              <p class="text-sm text-sky-800 dark:text-sky-200 font-medium">
+                Series seleccionadas: <strong>{{ seriesSeleccionadas.length }}</strong>
+              </p>
+              <button
+                type="button"
+                @click="agregarProductoConSerie"
+                :disabled="seriesSeleccionadas.length === 0"
+                class="px-6 py-2.5 bg-blue-600 text-white font-semibold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Agregar Series al Traspaso
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Lista de Productos Agregados -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" v-if="form.items.length > 0">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-between">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6" v-if="form.items.length > 0">
+          <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center justify-between">
             <span class="flex items-center">
-              <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               Productos a Traspasar
             </span>
-            <span class="text-sm font-normal text-gray-500">
+            <span class="text-sm font-normal text-slate-500">
               {{ totalProductos }} producto(s) • {{ totalUnidades }} unidad(es)
             </span>
           </h2>
@@ -421,23 +423,33 @@ onMounted(() => {
             <div
               v-for="(item, index) in form.items"
               :key="index"
-              class="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
+              class="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200"
             >
               <div class="flex-1">
-                <p class="font-medium text-gray-900">{{ item.producto_nombre }}</p>
-                <p class="text-sm text-gray-500">
-                  Cantidad: <strong>{{ item.cantidad }}</strong>
-                  <span v-if="item.requiere_serie" class="ml-2 text-blue-600">
-                    ({{ item.series.length }} series)
+                <p class="font-medium text-slate-900">{{ item.producto_nombre }}</p>
+                <div class="flex items-center mt-1 space-x-4">
+                  <div v-if="!item.requiere_serie" class="flex items-center space-x-2">
+                    <label class="text-xs text-slate-500 font-semibold uppercase">Cantidad:</label>
+                    <input
+                      type="number"
+                      v-model.number="item.cantidad"
+                      min="1"
+                      :max="item.stock_maximo"
+                      class="w-20 px-2 py-1 text-sm font-bold border border-slate-300 rounded-lg text-center bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-500"
+                    />
+                    <span class="text-xs text-slate-400">/ {{ item.stock_maximo }} disp. en origen</span>
+                  </div>
+                  <span v-else class="text-xs font-semibold text-blue-600 bg-sky-50 dark:bg-sky-900/20 px-3 py-1 rounded-full">
+                    {{ item.series.length }} serie(s) agregadas
                   </span>
-                </p>
+                </div>
               </div>
               <button
                 @click="eliminarItem(index)"
-                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                class="p-2 text-rose-600 hover:bg-slate-50 rounded-xl transition-colors"
                 title="Eliminar"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
@@ -446,34 +458,34 @@ onMounted(() => {
         </div>
 
         <!-- Información Adicional -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4">Información Adicional</h2>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h2 class="text-lg font-semibold text-slate-800 mb-4">Información Adicional</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Referencia</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Referencia</label>
               <input
                 v-model="form.referencia"
                 type="text"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 placeholder="Ej: TRSP-001"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Costo transporte</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Costo transporte</label>
               <input
                 v-model.number="form.costo_transporte"
                 type="number"
                 min="0"
                 step="0.01"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
             </div>
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Observaciones</label>
               <textarea
                 v-model="form.observaciones"
                 rows="3"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 placeholder="Notas adicionales sobre el traspaso..."
               ></textarea>
             </div>
@@ -486,14 +498,14 @@ onMounted(() => {
             type="button"
             @click="cancel"
             :disabled="loading"
-            class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            class="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             @click="submit"
             :disabled="loading || form.items.length === 0 || !form.almacen_origen_id || !form.almacen_destino_id"
-            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

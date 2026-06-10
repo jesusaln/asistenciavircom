@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->string('pin_auditoria', 10)->default('1234')->after('whatsapp');
+            if (!Schema::hasColumn('empresa_configuracion', 'pin_auditoria')) {
+                $table->string('pin_auditoria', 10)->default('1234')->after('whatsapp');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->dropColumn('pin_auditoria');
+            if (Schema::hasColumn('empresa_configuracion', 'pin_auditoria')) {
+                $table->dropColumn('pin_auditoria');
+            }
         });
     }
 };

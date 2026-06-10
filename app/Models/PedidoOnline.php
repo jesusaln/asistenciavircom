@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 
 class PedidoOnline extends Model
 {
+    use BelongsToEmpresa;
+
     use BelongsToEmpresa, Notifiable;
 
     protected $table = 'pedidos_online';

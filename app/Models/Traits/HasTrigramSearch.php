@@ -50,7 +50,8 @@ trait HasTrigramSearch
                 // (si falta la extensión, la API respondía 500). MySQL/SQLite: LIKE estándar.
                 if ($driver === 'pgsql') {
                     $safe = str_replace('"', '', $column);
-                    $subQuery->orWhereRaw("\"{$safe}\"::text ILIKE ?", [$searchPattern]);
+                    // Use unaccent for accent-insensitive search if PostgreSQL
+                    $subQuery->orWhereRaw("unaccent(\"{$safe}\"::text) ILIKE unaccent(?)", [$searchPattern]);
                 } elseif ($driver === 'sqlite') {
                     $subQuery->orWhere($column, 'like', $searchPattern);
                 } else {
@@ -61,18 +62,38 @@ trait HasTrigramSearch
     }
 
     /**
-     * Scope para ordenar por similitud (ranking).
-     * Útil para mostrar los resultados más relevantes primero.
+     * Scope para ordenar por relevancia inteligente.
+     * Prioriza coincidencias al inicio del nombre, luego similitud.
      */
-    public function scopeOrderBySimilarity(Builder $query, string $term, string $column): Builder
+    public function scopeOrderByRelevance(Builder $query, string $term, string $column = 'nombre'): Builder
     {
         if (empty($term)) {
             return $query;
         }
 
-        // requires extension: pg_trgm
-        $term = str_replace("'", "''", trim($term)); // SQL injection basic protection for raw
+        $driver = $query->getConnection()->getDriverName();
+        $term = trim($term);
+        $escapedTerm = str_replace("'", "''", $term);
 
-        return $query->orderByRaw("similarity({$column}, ?) DESC", [$term]);
+        if ($driver === 'pgsql') {
+            // PostgreSQL: 
+            // 1. Prioridad: Empieza con el término (unaccented)
+            // 2. Prioridad: Similaridad trigram
+            return $query->orderByRaw("
+                CASE 
+                    WHEN unaccent(\"{$column}\"::text) ILIKE unaccent(?) THEN 0 
+                    ELSE 1 
+                END ASC,
+                similarity(unaccent(\"{$column}\"::text), unaccent(?)) DESC
+            ", ["{$escapedTerm}%", $escapedTerm]);
+        }
+
+        // Fallback para otros drivers
+        return $query->orderByRaw("
+            CASE 
+                WHEN \"{$column}\" LIKE ? THEN 0 
+                ELSE 1 
+            END ASC
+        ", ["{$term}%"]);
     }
 }

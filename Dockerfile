@@ -1,58 +1,81 @@
-FROM php:8.2-fpm
+# --- Stage 1: Composer Dependencies ---
+FROM composer:latest AS composer_deps
+WORKDIR /app
+COPY composer.json composer.lock ./
+# Install dependencies without scripts to avoid database connection issues during build
+RUN composer install --no-interaction --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
+COPY . .
+RUN composer dump-autoload --optimize --no-scripts
 
-# Instalar dependencias del sistema incluyendo PostgreSQL
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
+# --- Stage 2: Frontend Build ---
+FROM node:20-alpine AS frontend
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps || npm install
+COPY . .
+# Copy vendor from composer stage - needed for Ziggy (Laravel routes in JS)
+COPY --from=composer_deps /app/vendor /app/vendor
+RUN npm run build
+
+# --- Stage 3: Production PHP Image ---
+FROM php:8.3-fpm-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
     curl \
     libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
     libxml2-dev \
-    libzip-dev \
     zip \
     unzip \
-    libpq-dev \
-    libicu-dev \
+    git \
+    postgresql-dev \
     postgresql-client \
-    supervisor \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip intl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    libzip-dev \
+    icu-dev \
+    oniguruma-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    bash \
+    $PHPIZE_DEPS
 
-# Instalar Node.js 22 y OpenClaw
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g openclaw \
-    && apt-get clean
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_pgsql gd zip intl opcache bcmath exif mbstring pcntl \
+    && pecl install redis \
+    && docker-php-ext-enable redis
 
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Set working directory
+WORKDIR /var/www
 
-# Establecer directorio de trabajo
-WORKDIR /var/www/cdd_app
+# Copy application code
+COPY . /var/www
 
-# Copiar archivos de la aplicación
-COPY . .
+# Copy pre-built vendor and frontend assets
+COPY --from=composer_deps /app/vendor /var/www/vendor
+COPY --from=frontend /app/public/build /var/www/public/build
 
-# Eliminar caché de bootstrap que pudo haberse copiado del host (CRUCIAL para evitar error de PailServiceProvider)
-RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
+# PWA Fix: Move manifest and sw.js from build to public (as expected by deploy.sh logic)
+RUN cp -f /var/www/public/build/sw.js /var/www/public/sw.js || true \
+    && cp -f /var/www/public/build/manifest.webmanifest /var/www/public/manifest.json || true \
+    && cp -f /var/www/public/build/manifest.webmanifest /var/www/public/manifest.webmanifest || true
 
-# Instalar dependencias PHP (--no-scripts evita conexión a BD durante build)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+# Set permissions
+RUN mkdir -p /var/www/storage /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Instalar dependencias Node.js (borramos package-lock.json para evitar errores de plataforma Windows/Linux)
-RUN rm -f package-lock.json && npm install && rm -rf node_modules && npm install --omit=dev
+# Production Opcache config
+RUN echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/opcache.ini
 
-# Establecer permisos
-RUN chown -R www-data:www-data /var/www/cdd_app \
-    && chmod -R 755 /var/www/cdd_app \
-    && chmod -R 775 /var/www/cdd_app/storage \
-    && chmod -R 775 /var/www/cdd_app/bootstrap/cache
+# Increase upload limits
+RUN echo "upload_max_filesize=100M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=100M" >> /usr/local/etc/php/conf.d/uploads.ini
 
-# Exponer puerto 9000 para PHP-FPM
+USER www-data
+
 EXPOSE 9000
-
-# Comando por defecto (php-fpm es el default de la imagen base)
 CMD ["php-fpm"]

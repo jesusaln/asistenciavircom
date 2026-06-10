@@ -356,12 +356,39 @@ class SatDescargaMasivaService
 
     public function importarDesdeStaging(array $ids): array
     {
+        $originalEmpresaId = EmpresaResolver::resolveId();
         $stats = ['inserted' => 0, 'errors' => 0];
         $detalles = SatDescargaDetalle::whereIn('id', $ids)->where('importado', false)->get();
         $importedIds = [];
 
         foreach ($detalles as $detalle) {
             /** @var SatDescargaDetalle $detalle */
+            $empresaId = null;
+
+            // 1. Try to resolve from SatDescargaMasiva without global scopes
+            try {
+                $masiva = SatDescargaMasiva::withoutGlobalScopes()->find($detalle->sat_descarga_masiva_id);
+                if ($masiva) {
+                    $empresaId = $masiva->empresa_id;
+                }
+            } catch (\Throwable $e) {
+            }
+
+            // 2. Fallback to matching RFC in detail record
+            if (!$empresaId) {
+                $tenantRfc = $detalle->direccion === Cfdi::DIRECCION_RECIBIDO
+                    ? $detalle->rfc_receptor
+                    : $detalle->rfc_emisor;
+                
+                if ($tenantRfc) {
+                    $empresaId = Empresa::where('rfc', $tenantRfc)->orderBy('id')->value('id');
+                }
+            }
+
+            if ($empresaId) {
+                EmpresaResolver::setContext($empresaId);
+            }
+
             $result = $this->importarXml($detalle->uuid, $detalle->xml_content, $detalle->direccion);
             if ($result === 'inserted' || $result === 'duplicate') {
                 $importedIds[] = $detalle->id;
@@ -371,6 +398,12 @@ class SatDescargaMasivaService
             }
         }
 
+        if ($originalEmpresaId) {
+            EmpresaResolver::setContext($originalEmpresaId);
+        } else {
+            EmpresaResolver::clearCache();
+        }
+
         if (!empty($importedIds)) {
             SatDescargaDetalle::whereIn('id', $importedIds)->update(['importado' => true]);
         }
@@ -378,11 +411,17 @@ class SatDescargaMasivaService
         return $stats;
     }
 
+
     private function buildService(?string $password = null): ?Service
     {
         $config = EmpresaConfiguracion::getConfig();
-        // Use provided password or fallback to config
-        $fielPassword = $password ?: $config->fiel_password;
+
+        try {
+            $fielPassword = $password ?: $config->fiel_password;
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            Log::error("Error de desencriptación de FIEL: MAC inválida. Es posible que la APP_KEY haya cambiado.");
+            return null;
+        }
 
         if (!$config || empty($config->fiel_cer_path) || empty($config->fiel_key_path) || empty($fielPassword)) {
             Log::warning('FIEL incompleta para descarga masiva SAT.');
@@ -418,7 +457,10 @@ class SatDescargaMasivaService
             }
         }
 
-        $guzzleOptions = [];
+        $guzzleOptions = [
+            'timeout' => 45,          // 45 segundos de timeout máximo de respuesta
+            'connect_timeout' => 15,  // 15 segundos para establecer conexión
+        ];
         if ($verify === false) {
             $guzzleOptions['verify'] = false;
         } else {
@@ -435,7 +477,7 @@ class SatDescargaMasivaService
         }
 
         $requestBuilder = new FielRequestBuilder($fiel);
-        $client = empty($guzzleOptions) ? new Client() : new Client($guzzleOptions);
+        $client = new Client($guzzleOptions);
         $webClient = new GuzzleWebClient($client);
 
         return new Service($requestBuilder, $webClient);
@@ -486,7 +528,7 @@ class SatDescargaMasivaService
 
             $cfdiData = [
                 'uuid' => $uuid,
-                'empresa_id' => $this->resolveEmpresaId(),
+                'empresa_id' => $this->resolveEmpresaId($direccion, $data),
                 'tipo_comprobante' => $data['tipo_comprobante'] ?? 'I',
                 'serie' => $data['serie'] ?? null,
                 'folio' => $data['folio'] ?? null,
@@ -563,6 +605,17 @@ class SatDescargaMasivaService
 
             $this->validarEstadoSat($cfdi, $data);
 
+            // ✅ AUTO-PROCESS PAYMENTS IF TYPE P (Complementos de Pago)
+            if (($cfdi->tipo_comprobante ?? $data['tipo_comprobante'] ?? '') === 'P') {
+                try {
+                    $paymentService = app(\App\Services\PaymentProcessingService::class);
+                    $paymentService->processAndApplyAuto($xmlContent);
+                    Log::info("Auto-procesamiento de pago completado para CFDI importado SAT: {$cfdi->uuid}");
+                } catch (\Throwable $e) {
+                    Log::error("Error en auto-procesamiento de pago para CFDI importado SAT {$cfdi->uuid}: " . $e->getMessage());
+                }
+            }
+
             return 'inserted';
         } catch (\Throwable $e) {
             Log::error('Error importando CFDI SAT', [
@@ -575,15 +628,17 @@ class SatDescargaMasivaService
 
     private function resolveClienteId(string $direccion, array $data): ?int
     {
-        $target = $direccion === Cfdi::DIRECCION_RECIBIDO
-            ? ($data['emisor'] ?? [])
-            : ($data['receptor'] ?? []);
+        if ($direccion === Cfdi::DIRECCION_RECIBIDO) {
+            return null;
+        }
+
+        $target = $data['receptor'] ?? [];
 
         $rfc = trim((string) ($target['rfc'] ?? $target['Rfc'] ?? ''));
         $nombre = trim((string) ($target['nombre'] ?? $target['Nombre'] ?? ''));
 
         if (!$rfc && !$nombre) {
-            // Si es CFDI de nómina o traslado, podría no tener emisor/receptor claro en el parser básico
+            // Si es CFDI de nómina o traslado, podría no tener receptor claro en el parser básico
             return Cliente::query()->value('id');
         }
 
@@ -593,15 +648,6 @@ class SatDescargaMasivaService
             if ($cliente) {
                 return $cliente->id;
             }
-        }
-
-        // 2. Si es recibido, buscar en Proveedores por RFC
-        if ($direccion === Cfdi::DIRECCION_RECIBIDO && $rfc) {
-            $proveedor = Proveedor::where('rfc', $rfc)->first();
-            // Nota: Si el sistema requiere cliente_id, y encontramos un proveedor, 
-            // no podemos usar su ID directamente en cliente_id.
-            // Pero podríamos crear un Cliente "espejo" o usar un cliente genérico.
-            // Dada la restricción NOT NULL, crearemos un cliente para este RFC si no existe.
         }
 
         // 3. Buscar en Clientes por Nombre
@@ -634,17 +680,40 @@ class SatDescargaMasivaService
         }
     }
 
-    private function resolveEmpresaId(): int
+    private function resolveEmpresaId(?string $direccion = null, array $data = []): int
     {
+        // 1. Try to resolve using current context
         $empresaId = EmpresaResolver::resolveId();
         $empresa = $empresaId ? Empresa::find($empresaId) : null;
         if ($empresa) {
             return $empresa->id;
         }
 
-        // Si no hay empresa, crear una por defecto usando la configuración
+        // 2. Try to resolve by tenant RFC in the CFDI data
+        $tenantRfc = null;
+        if ($direccion && !empty($data)) {
+            $tenantRfc = $direccion === Cfdi::DIRECCION_RECIBIDO
+                ? ($data['receptor']['rfc'] ?? $data['receptor']['Rfc'] ?? null)
+                : ($data['emisor']['rfc'] ?? $data['emisor']['Rfc'] ?? null);
+        }
+
+        if ($tenantRfc) {
+            $empresa = Empresa::where('rfc', $tenantRfc)->orderBy('id')->first();
+            if ($empresa) {
+                return $empresa->id;
+            }
+        }
+
+        // 3. Try to resolve using default configuration RFC
         $config = EmpresaConfiguracion::getConfig();
         $rfc = $config->rfc ?: 'XAXX010101000';
+        
+        $empresa = Empresa::where('rfc', $rfc)->orderBy('id')->first();
+        if ($empresa) {
+            return $empresa->id;
+        }
+
+        // 4. Fallback: Create a new company if absolutely none exists matching the RFC
         $tipoPersona = strlen($rfc) === 12 ? 'Moral' : 'Fisica';
 
         $nuevaEmpresa = Empresa::create([

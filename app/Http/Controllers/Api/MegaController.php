@@ -120,7 +120,23 @@ class MegaController extends Controller
     {
         $localPath = $request->input('local_path');
 
-        if (!$localPath || !file_exists($localPath)) {
+        if (!$localPath) {
+            return response()->json(['success' => false, 'message' => 'Archivo local no especificado']);
+        }
+
+        // VALIDACIÓN DE SEGURIDAD: Prevenir Path Traversal y exfiltración de archivos sensibles
+        $realPath = realpath($localPath);
+        $storagePath = storage_path();
+
+        if (!$realPath || !str_starts_with($realPath, $storagePath)) {
+            \Log::error("SECURITY ALERT: Intento de subida de archivo fuera de storage: " . $localPath, [
+                'user_id' => auth()->id(),
+                'ip' => $request->ip()
+            ]);
+            return response()->json(['success' => false, 'message' => 'Acceso denegado a la ruta especificada']);
+        }
+
+        if (!file_exists($realPath)) {
             return response()->json(['success' => false, 'message' => 'Archivo local no existe']);
         }
 
@@ -134,8 +150,8 @@ class MegaController extends Controller
 
         $mega = new MegaService($config->mega_email, $password);
 
-        $remotePath = rtrim($config->mega_folder, '/') . '/' . basename($localPath);
-        $result = $mega->upload($localPath, $remotePath);
+        $remotePath = rtrim($config->mega_folder, '/') . '/' . basename($realPath);
+        $result = $mega->upload($realPath, $remotePath);
 
         // Actualizar última sincronización
         if ($result['success']) {

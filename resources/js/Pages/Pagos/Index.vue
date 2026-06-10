@@ -1,5 +1,6 @@
 <!-- /resources/js/Pages/Pagos/Index.vue -->
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -272,22 +273,22 @@ const eliminarPago = async () => {
 const configEstados = {
   'pendiente': {
     label: 'Pendiente',
-    classes: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+    classes: 'bg-brand-500/10 text-brand-400 border border-brand-500/20',
     color: 'bg-amber-400'
   },
   'pagado': {
     label: 'Pagado',
-    classes: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    classes: 'bg-brand-500/10 text-emerald-400 border border-emerald-500/20',
     color: 'bg-emerald-400'
   },
   'atrasado': {
     label: 'Atrasado',
-    classes: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+    classes: 'bg-brand-500/10 text-rose-400 border border-rose-500/20',
     color: 'bg-rose-400'
   },
   'parcial': {
     label: 'Pago Parcial',
-    classes: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+    classes: 'bg-brand-500/10 text-blue-400 border border-blue-500/20',
     color: 'bg-blue-400'
   }
 };
@@ -364,7 +365,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 <template>
   <Head title="Pagos de Préstamos" />
 
-  <div class="pagos-index min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
+  <div class="pagos-index min-h-screen bg-[var(--ui-surface)] text-slate-200 font-sans selection:bg-indigo-500/30">
     <!-- Contenido principal -->
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       
@@ -372,9 +373,9 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
         <div class="flex items-center gap-6">
            <div class="relative group">
-              <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+              <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-brand-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
               <div class="relative w-16 h-16 rounded-2xl bg-slate-900 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl">
-                 <svg class="w-8 h-8 text-indigo-400 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <svg class="w-10 h-10 text-indigo-400 group-hover:scale-105 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                  </svg>
               </div>
@@ -383,13 +384,13 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <h1 class="text-4xl font-black text-white tracking-tighter mb-1 uppercase">
                 Pagos de <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">Préstamos</span>
               </h1>
-              <p class="text-slate-500 text-sm font-bold uppercase tracking-widest">Control financiero y seguimiento de cobranza</p>
+              <p class="text-slate-500 text-sm font-bold uppercase tracking-wide">Control financiero y seguimiento de cobranza</p>
            </div>
         </div>
  
         <Link
           href="/prestamos"
-          class="px-5 py-2.5 bg-slate-900/50 border border-white/10 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 hover:text-white transition-all shadow-xl backdrop-blur-md flex items-center gap-2 group"
+          class="px-5 py-2.5 bg-black/50 border border-white/10 text-slate-400 text-[10px] font-black uppercase tracking-wide rounded-2xl hover:bg-slate-800 hover:text-white transition-all shadow-xl backdrop-blur-md flex items-center gap-2 group"
         >
           <svg class="w-4 h-4 text-slate-500 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           Volver a Préstamos
@@ -400,65 +401,65 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <!-- Total Vencido -->
           <div class="relative group h-full">
-              <div class="absolute -inset-0.5 bg-gradient-to-r from-rose-500 to-red-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+              <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-500 to-brand-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
               <div class="relative h-full bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-2xl flex flex-col justify-between overflow-hidden">
                   <div class="flex justify-between items-start">
                     <div class="space-y-1">
                         <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em]">Total Vencido</p>
-                        <h3 class="text-3xl font-black text-white tracking-tight">${{ formatearMoneda(estadisticas.total_vencido) }}</h3>
+                        <h3 class="text-2xl font-black text-white tracking-tight">${{ formatearMoneda(estadisticas.total_vencido) }}</h3>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-105 transition-transform duration-200">
+                        <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                         </svg>
                     </div>
                   </div>
                   <div class="mt-4 flex items-center gap-2">
-                     <span class="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[10px] font-black rounded-lg uppercase tracking-tighter">{{ estadisticas.pagos_vencidos }} Pagos</span>
-                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest italic">Vencido</span>
+                     <span class="px-2 py-0.5 bg-brand-500/10 text-rose-500 text-[10px] font-black rounded-xl uppercase tracking-wide">{{ estadisticas.pagos_vencidos }} Pagos</span>
+                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wide italic">Vencido</span>
                   </div>
               </div>
           </div>
  
           <!-- Total Pendiente -->
           <div class="relative group h-full">
-              <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+              <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-500 to-brand-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
               <div class="relative h-full bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-2xl flex flex-col justify-between overflow-hidden">
                   <div class="flex justify-between items-start">
                     <div class="space-y-1">
-                        <p class="text-[10px] font-black text-amber-400 uppercase tracking-[0.2em]">Total Pendiente</p>
-                        <h3 class="text-3xl font-black text-white tracking-tight">${{ formatearMoneda(estadisticas.total_pendiente) }}</h3>
+                        <p class="text-[10px] font-black text-brand-400 uppercase tracking-[0.2em]">Total Pendiente</p>
+                        <h3 class="text-2xl font-black text-white tracking-tight">${{ formatearMoneda(estadisticas.total_pendiente) }}</h3>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center border border-brand-500/20 group-hover:scale-105 transition-transform duration-200">
+                        <svg class="w-10 h-10 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                   </div>
                   <div class="mt-4 flex items-center gap-2">
-                     <span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-black rounded-lg uppercase tracking-tighter">{{ estadisticas.pagos_pendientes }} Pagos</span>
-                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest italic">Pendiente</span>
+                     <span class="px-2 py-0.5 bg-brand-500/10 text-brand-500 text-[10px] font-black rounded-xl uppercase tracking-wide">{{ estadisticas.pagos_pendientes }} Pagos</span>
+                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wide italic">Pendiente</span>
                   </div>
               </div>
           </div>
  
           <!-- Conteo Pendientes -->
           <div class="relative group h-full">
-              <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-3xl blur opacity-10 group-hover:opacity-30 transition duration-500"></div>
+              <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-500 to-brand-600 rounded-3xl blur opacity-10 group-hover:opacity-30 transition duration-500"></div>
               <div class="relative h-full bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-2xl flex flex-col justify-between overflow-hidden">
                   <div class="flex justify-between items-start">
                     <div class="space-y-1">
                         <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Registros Pend.</p>
-                        <h3 class="text-3xl font-black text-white tracking-tight">{{ estadisticas.pagos_pendientes }}</h3>
+                        <h3 class="text-2xl font-black text-white tracking-tight">{{ estadisticas.pagos_pendientes }}</h3>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+                        <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                     </div>
                   </div>
                   <div class="mt-4 flex items-center gap-2">
-                     <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-500 text-[10px] font-black rounded-lg uppercase tracking-tighter">Acción requerida</span>
+                     <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-500 text-[10px] font-black rounded-xl uppercase tracking-wide">Acción requerida</span>
                   </div>
               </div>
           </div>
@@ -470,16 +471,16 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                   <div class="flex justify-between items-start">
                     <div class="space-y-1">
                         <p class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Cuentas Críticas</p>
-                        <h3 class="text-3xl font-black text-white tracking-tight">{{ estadisticas.pagos_vencidos }}</h3>
+                        <h3 class="text-2xl font-black text-white tracking-tight">{{ estadisticas.pagos_vencidos }}</h3>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-105 transition-transform duration-200">
+                        <svg class="w-10 h-10 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                   </div>
                   <div class="mt-4 flex items-center gap-2">
-                     <span class="px-2 py-0.5 bg-rose-500/10 text-rose-600 text-[10px] font-black rounded-lg uppercase tracking-tighter">Prioridad Alta</span>
+                     <span class="px-2 py-0.5 bg-brand-500/10 text-rose-600 text-[10px] font-black rounded-xl uppercase tracking-wide">Prioridad Alta</span>
                   </div>
               </div>
           </div>
@@ -488,7 +489,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       <!-- Filtros Toolbar -->
       <div class="bg-slate-900/80 border border-white/5 rounded-2xl p-1 mb-8 backdrop-blur-xl shadow-2xl">
         <div class="px-5 py-4">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 gap-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-6 md:space-y-0 gap-4">
             <!-- Filtros Group -->
             <div class="flex flex-wrap items-center gap-3 w-full">
               <!-- Filtro de préstamo -->
@@ -499,7 +500,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                  <select
                     v-model="filtroPrestamo"
                     @change="handleFilter"
-                    class="block w-full pl-10 pr-10 py-2.5 text-sm bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-200 placeholder-slate-500 appearance-none transition-all hover:bg-slate-950/80"
+                    class="block w-full pl-10 pr-10 py-2.5 text-sm bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-200 placeholder-slate-500 appearance-none transition-all hover:bg-slate-950/80"
                   >
                     <option value="" class="bg-slate-900">Todos los préstamos</option>
                     <option v-for="prestamo in prestamos" :key="prestamo.id" :value="prestamo.id" class="bg-slate-900 text-slate-200">
@@ -516,10 +517,10 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                  <select
                     v-model="filtroEstado"
                     @change="handleFilter"
-                    class="block w-full pl-10 pr-10 py-2.5 text-sm bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-200 appearance-none transition-all hover:bg-slate-950/80"
+                    class="block w-full pl-10 pr-10 py-2.5 text-sm bg-slate-950/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-200 appearance-none transition-all hover:bg-slate-950/80"
                   >
                     <option value="" class="bg-slate-900">Todos los estados</option>
-                    <option value="pendiente" class="text-amber-400 bg-slate-900">Pendientes</option>
+                    <option value="pendiente" class="text-brand-400 bg-slate-900">Pendientes</option>
                     <option value="pagado" class="text-emerald-400 bg-slate-900">Pagados</option>
                     <option value="atrasado" class="text-rose-400 bg-slate-900">Atrasados</option>
                     <option value="parcial" class="text-blue-400 bg-slate-900">Parciales</option>
@@ -529,7 +530,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <!-- Limpiar filtros -->
               <button
                 @click="handleLimpiarFiltros"
-                class="inline-flex items-center px-4 py-2.5 border border-white/10 text-sm font-bold rounded-xl text-slate-400 bg-white/5 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 transition-all duration-300"
+                class="inline-flex items-center px-4 py-2.5 border border-white/10 text-sm font-bold rounded-xl text-slate-400 bg-white/5 hover:bg-slate-500/10 hover:text-rose-400 hover:border-brand-500/30 transition-all duration-200"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 Limpiar
@@ -549,7 +550,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
           <select
             :value="paginationData.per_page"
             @change="changePerPage"
-            class="bg-slate-900/80 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer hover:bg-slate-800 transition-colors"
+            class="bg-slate-900/80 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white font-bold focus:ring-1 focus:ring-brand-500 focus:border-brand-500 cursor-pointer hover:bg-slate-800 transition-colors"
           >
             <option value="10">10</option>
             <option value="15">15</option>
@@ -561,9 +562,9 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       </div>
 
       <!-- Tabla de pagos -->
-      <div class="bg-slate-900/50 border border-white/5 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm">
+      <div class="bg-black/50 border border-white/5 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-white/5">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead>
               <tr class="bg-slate-950/50">
                 <th scope="col" class="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Fecha Programada</th>
@@ -575,12 +576,12 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                 <th scope="col" class="px-6 py-5 text-right text-xs font-black text-slate-500 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white/5 bg-transparent">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
               <template v-if="props.pagos.data && props.pagos.data.length > 0">
                 <tr
                   v-for="pago in props.pagos.data"
                   :key="pago.id"
-                  class="group hover:bg-white/[0.03] transition-all duration-300 hover:scale-[1.002] hover:shadow-xl relative z-0 hover:z-10"
+                  class="group hover:bg-white/[0.03] transition-all duration-200 hover:scale-[1.002] hover:shadow-xl relative z-0 hover:z-10"
                 >
                   <!-- Fecha Programada -->
                   <td class="px-6 py-5 whitespace-nowrap">
@@ -588,7 +589,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       <div class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
                         {{ formatearFecha(pago.fecha_programada) }}
                       </div>
-                      <div class="text-xs text-slate-500 mt-1 font-mono bg-white/5 px-2 py-0.5 rounded w-fit">
+                      <div class="text-xs text-slate-500 mt-1 font-mono bg-white/5 px-2 py-0.5 rounded-xl w-fit">
                         Pago #{{ pago.numero_pago }}
                       </div>
                     </div>
@@ -611,7 +612,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
                   <!-- Monto Programado -->
                   <td class="px-6 py-5 whitespace-nowrap">
-                    <div class="text-sm font-black text-white bg-slate-800/50 px-3 py-1 rounded-lg inline-block border border-white/5">
+                    <div class="text-sm font-black text-white bg-slate-800/50 px-3 py-1 rounded-xl inline-block border border-white/5">
                       ${{ formatearMoneda(pago.monto_programado) }}
                     </div>
                   </td>
@@ -633,7 +634,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                   <td class="px-6 py-5 whitespace-nowrap">
                     <span
                       :class="obtenerClasesEstado(pago.estado)"
-                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm"
+                      class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm"
                     >
                       <span
                         class="w-1.5 h-1.5 rounded-full mr-2 animate-pulse"
@@ -645,7 +646,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
                   <!-- Días Atraso -->
                   <td class="px-6 py-5 whitespace-nowrap">
-                    <div v-if="pago.dias_atraso > 0" class="flex items-center text-rose-400 bg-rose-500/10 px-3 py-1 rounded-lg border border-rose-500/20 w-fit">
+                    <div v-if="pago.dias_atraso > 0" class="flex items-center text-rose-400 bg-brand-500/10 px-3 py-1 rounded-xl border border-rose-500/20 w-fit">
                       <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       <span class="text-xs font-black">{{ pago.dias_atraso }} días</span>
                     </div>
@@ -661,7 +662,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       <!-- Ver detalles -->
                       <button
                         @click="verDetalles(pago)"
-                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-indigo-500 hover:text-white hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all duration-300"
+                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-indigo-500 hover:text-white hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all duration-200"
                         title="Ver detalles"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -676,7 +677,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                         :href="route('pagos.comprobante', { historial: idHistorialParaComprobante(pago) })"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-cyan-500 hover:text-white hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all duration-300 inline-flex"
+                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-cyan-500 hover:text-white hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all duration-200 inline-flex"
                         title="Nota de pago (comprobante)"
                         @click.stop
                       >
@@ -689,7 +690,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       <button
                         v-if="pago.estado === 'pendiente' || pago.estado === 'parcial' || pago.estado === 'atrasado'"
                         @click="registrarPago(pago)"
-                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-300"
+                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-slate-500 hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-200"
                         title="Registrar pago"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -701,7 +702,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       <button
                         v-if="pago.estado === 'pagado'"
                         @click="editarPago(pago.id)"
-                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-amber-500 hover:text-white hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all duration-300"
+                        class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:bg-slate-500 hover:text-white hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all duration-200"
                         title="Editar pago"
                       >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -717,8 +718,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
               <tr v-else>
                 <td :colspan="7" class="px-6 py-24 text-center">
                   <div class="flex flex-col items-center justify-center">
-                    <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center border border-white/5 mb-6 shadow-xl">
-                      <svg class="w-10 h-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center border border-white/5 mb-6 shadow-xl">
+                      <svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                     </div>
@@ -726,7 +727,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                     <p class="text-slate-500 max-w-sm mx-auto">No hay registros que coincidan con tus criterios de búsqueda o filtros seleccionados.</p>
                     <button
                       @click="handleLimpiarFiltros"
-                      class="mt-6 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all duration-300"
+                      class="mt-6 px-6 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold shadow-xl shadow-indigo-500/20 transition-all duration-200"
                     >
                       Limpiar Filtros
                     </button>
@@ -739,11 +740,11 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
       </div>
 
       <!-- Controles de paginación Bottom -->
-      <div v-if="paginationData.last_page > 1" class="flex justify-center items-center space-x-2 mt-8">
+      <div v-if="paginationData.last_page > 1" class="flex items-center justify-center space-x-2 mt-8">
         <button
           @click="prevPage"
           :disabled="paginationData.current_page === 1"
-          class="px-4 py-2 text-sm font-bold text-slate-400 bg-slate-900/50 border border-white/10 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          class="px-4 py-2 text-sm font-bold text-slate-400 bg-black/50 border border-white/10 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           Anterior
         </button>
@@ -756,8 +757,8 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
             :class="[
               'w-10 h-10 flex items-center justify-center text-sm font-bold rounded-xl transition-all',
               page === paginationData.current_page
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-105'
-                : 'text-slate-400 bg-slate-900/50 border border-white/5 hover:bg-slate-800 hover:text-white'
+                ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20 scale-105'
+                : 'text-slate-400 bg-black/50 border border-white/5 hover:bg-slate-800 hover:text-white'
             ]"
           >
             {{ page }}
@@ -767,7 +768,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
         <button
           @click="nextPage"
           :disabled="paginationData.current_page === paginationData.last_page"
-          class="px-4 py-2 text-sm font-bold text-slate-400 bg-slate-900/50 border border-white/10 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          class="px-4 py-2 text-sm font-bold text-slate-400 bg-black/50 border border-white/10 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           Siguiente
         </button>
@@ -778,11 +779,11 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
     <Transition name="modal">
       <div
         v-if="showModal"
-        class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         @click.self="onClose"
       >
         <div
-          class="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto outline-none"
+          class="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar outline-none"
           role="dialog"
           aria-modal="true"
           ref="modalRef"
@@ -794,14 +795,14 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                  {{ modalMode === 'confirm' ? 'Confirmar Acción' : 'Detalles del Pago' }}
               </h3>
               <button @click="onClose" class="text-slate-500 hover:text-white transition-colors">
-                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                 <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
            </div>
 
            <div class="p-8">
             <!-- Modo: Confirmación de eliminación -->
             <div v-if="modalMode === 'confirm'" class="text-center py-6">
-              <div class="w-20 h-20 mx-auto bg-rose-500/10 border border-rose-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(244,63,94,0.2)]">
+              <div class="w-16 h-16 mx-auto bg-brand-500/10 border border-rose-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(244,63,94,0.2)]">
                 <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
@@ -821,7 +822,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                 </button>
                 <button
                   @click="onConfirm"
-                  class="px-6 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-500 shadow-lg shadow-rose-600/20 transition-all"
+                  class="px-6 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-slate-500 shadow-xl shadow-rose-600/20 transition-all"
                 >
                   Sí, Eliminar
                 </button>
@@ -829,25 +830,25 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
             </div>
 
             <!-- Modo: Detalles -->
-            <div v-else-if="modalMode === 'details'" class="space-y-8">
+            <div v-else-if="modalMode === 'details'" class="space-y-6">
               <div v-if="selectedPago" class="space-y-6">
                 <!-- Info Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Columna 1 -->
-                  <div class="space-y-4">
+                  <div class="space-y-6">
                     <div>
-                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Cliente</label>
+                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-wide mb-1">Cliente</label>
                        <p class="text-base font-bold text-white">{{ selectedPago.prestamo?.cliente?.nombre_razon_social || 'Sin cliente' }}</p>
                     </div>
                     <div>
-                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Folio Préstamo</label>
+                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-wide mb-1">Folio Préstamo</label>
                        <p class="text-sm font-mono text-indigo-400">#{{ selectedPago.prestamo_id }}</p>
                     </div>
                      <div>
-                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Estado</label>
+                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-wide mb-1">Estado</label>
                        <span
                         :class="obtenerClasesEstado(selectedPago.estado)"
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-bold"
                       >
                         {{ obtenerLabelEstado(selectedPago.estado) }}
                       </span>
@@ -855,18 +856,18 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                   </div>
 
                   <!-- Columna 2 -->
-                  <div class="space-y-4">
+                  <div class="space-y-6">
                      <div>
-                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Fecha Programada</label>
+                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-wide mb-1">Fecha Programada</label>
                        <p class="text-sm font-medium text-slate-200">{{ formatearFecha(selectedPago.fecha_programada) }}</p>
                     </div>
                     <div v-if="selectedPago.fecha_pago">
-                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Fecha de Pago Real</label>
+                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-wide mb-1">Fecha de Pago Real</label>
                        <p class="text-sm font-medium text-emerald-400">{{ formatearFecha(selectedPago.fecha_pago) }}</p>
                     </div>
                     <div>
-                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Número de Pago</label>
-                       <div class="bg-slate-800/50 px-3 py-1 rounded inline-block text-xs font-mono text-white">
+                       <label class="block text-[10px] uppercase font-bold text-slate-500 tracking-wide mb-1">Número de Pago</label>
+                       <div class="bg-slate-800/50 px-3 py-1 rounded-xl inline-block text-xs font-mono text-white">
                           {{ selectedPago.numero_pago }}
                        </div>
                     </div>
@@ -888,11 +889,11 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                       </div>
                    </div>
                    <!-- Decor -->
-                   <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl"></div>
+                   <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl"></div>
                 </div>
 
-                <div v-if="selectedPago.dias_atraso > 0" class="bg-rose-500/5 border border-rose-500/10 rounded-xl p-4 flex items-center">
-                   <svg class="w-5 h-5 text-rose-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div v-if="selectedPago.dias_atraso > 0" class="bg-brand-500/5 border border-rose-500/10 rounded-xl p-4 flex items-center">
+                   <svg class="w-4 h-4 text-rose-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                    <div>
                       <p class="text-xs font-bold text-rose-400 uppercase">Atraso registrado</p>
                       <p class="text-rose-300 text-sm font-medium">Este pago tiene {{ selectedPago.dias_atraso }} días de retraso.</p>
@@ -924,7 +925,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
                 <button
                   v-if="selectedPago?.estado !== 'pagado'"
                   @click="registrarPago(selectedPago)"
-                  class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all font-bold text-sm flex items-center"
+                  class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-slate-500 shadow-xl shadow-emerald-600/20 transition-all font-bold text-sm flex items-center"
                 >
                   <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                   Registrar Pago
@@ -938,7 +939,7 @@ const onClose = () => { showModal.value = false; selectedPago.value = null; sele
 
     <!-- Loading overlay -->
     <div v-if="loading" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[100]">
-      <div class="bg-slate-900 border border-white/10 p-8 rounded-2xl shadow-2xl flex flex-col items-center">
+      <div class="bg-slate-900 border border-white/10 p-8 rounded-2xl shadow-xl flex flex-col items-center">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mb-4"></div>
         <span class="text-slate-200 font-bold animate-pulse">Procesando solicitud...</span>
       </div>

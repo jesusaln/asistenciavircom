@@ -6,15 +6,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\CatalogoController;
-use App\Http\Controllers\Publico\ContactoController;
-use App\Http\Controllers\Publico\SoportePublicoController; // Import Controller
-// use App\Http\Controllers\Public\FacebookCatalogController;
-// use App\Http\Controllers\Public\SitemapController;
+use App\Http\Controllers\Public\ContactoController;
+use App\Http\Controllers\Public\SoportePublicoController; // Import Controller
+use App\Http\Controllers\Public\FacebookCatalogController;
+use App\Http\Controllers\Public\SitemapController;
 
 Route::get('/soporte-tecnico', [SoportePublicoController::class, 'index'])->name('public.soporte'); // Nueva Ruta
-// Route::get('/facebook-catalog', [FacebookCatalogController::class, 'index'])->name('public.facebook-catalog');
+Route::get('/facebook-catalog', [FacebookCatalogController::class, 'index'])->name('public.facebook-catalog');
 Route::get('/feed/facebook-products.xml', \App\Http\Controllers\FacebookProductFeedController::class)->name('public.facebook-feed');
-// Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('public.sitemap');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('public.sitemap');
 
 
 // Tienda (Público)
@@ -67,6 +67,7 @@ Route::post('/asesor-lead', [LandingController::class, 'storeLead'])->name('publ
 Route::get('/asesor-pdf', [LandingController::class, 'downloadReport'])->name('public.asesor.pdf');
 Route::get('/propuesta-sgs', [LandingController::class, 'propuestaSgs'])->name('public.propuesta-sgs');
 Route::get('/life-12-plus', [LandingController::class, 'life12plus'])->name('public.life12plus');
+Route::get('/magnum-22-inverter', [LandingController::class, 'magnum22'])->name('public.magnum22');
 
 // Servicios (Público)
 Route::get('/reparacion-minisplit', [LandingController::class, 'reparacion'])->name('public.reparacion');
@@ -82,6 +83,8 @@ Route::post('/contacto', [ContactoController::class, 'store'])->name('public.con
 Route::post('/cita', [ContactoController::class, 'storeCita'])->name('public.cita.store')->middleware(['throttle:5,1']);
 Route::get('/agendar-cita', [ContactoController::class, 'agendaRapida'])->name('public.agenda-rapida');
 Route::post('/agendar-cita', [ContactoController::class, 'storeAgendaRapida'])->name('public.agenda-rapida.store')->middleware(['throttle:5,1']);
+Route::get('/facturar', [\App\Http\Controllers\Public\FacturacionPublicaController::class, 'index'])->name('public.facturar');
+Route::post('/facturar', [\App\Http\Controllers\Public\FacturacionPublicaController::class, 'store'])->name('public.facturar.store')->middleware(['throttle:5,1']);
 
 // Tienda (Público)
 Route::get('/tienda', [CatalogoController::class, 'index'])->name('catalogo.index');
@@ -111,11 +114,12 @@ Route::get('/share/cotizacion/{token}/pdf', [CotizacionDocumentoController::clas
 Route::get('/share/pedido/{token}/pdf', [PedidoDocumentoController::class, 'generarPDFPublico'])->name('pedidos.pdf.public');
 
 // Agendamiento Público Detallado
+Route::redirect('/citas/agendar', '/agendar', 301);
 Route::prefix('agendar')->name('agendar.')->group(function () {
     Route::get('/', [CitaPublicaController::class, 'index'])->name('index');
-    Route::post('/', [CitaPublicaController::class, 'store'])->name('store');
-    Route::get('/disponibilidad', [CitaPublicaController::class, 'disponibilidad'])->name('disponibilidad');
-    Route::get('/horarios', [CitaPublicaController::class, 'horariosDisponibles'])->name('horarios');
+    Route::post('/', [CitaPublicaController::class, 'store'])->name('store')->middleware('throttle:5,1');
+    Route::get('/disponibilidad', [CitaPublicaController::class, 'disponibilidad'])->name('disponibilidad')->middleware('throttle:20,1');
+    Route::get('/horarios', [CitaPublicaController::class, 'horariosDisponibles'])->name('horarios')->middleware('throttle:20,1');
     Route::get('/seguimiento/{uuid}', [CitaPublicaController::class, 'seguimiento'])->name('seguimiento');
 });
 Route::get('/mi-cita/{uuid}', [CitaPublicaController::class, 'seguimiento'])->name('mi-cita');
@@ -176,6 +180,17 @@ Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->group(function ()
 Route::get('/profile-photo/{filename}', [App\Http\Controllers\ImageController::class, 'serveProfilePhoto'])->name('serve-profile-photo');
 Route::get('/api/profile-photos', [App\Http\Controllers\ImageController::class, 'listProfilePhotos'])->name('list-profile-photos')->middleware(['auth:sanctum']);
 
+// Ruta alternativa para servir imágenes de servicios (evita colisiones con rutas tipo recurso)
+Route::get('/servicios/{filename}', function ($filename) {
+    $path = 'servicios/' . $filename;
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        return response('Imagen no encontrada', 404);
+    }
+    $mimeType = mime_content_type($fullPath) ?: 'image/webp';
+    return response()->file($fullPath, ['Content-Type' => $mimeType]);
+})->where('filename', '.*\.(webp|png|jpg|jpeg|gif)$');
+
 Route::get('/img/profile-photos/{filename}', function ($filename) {
     $path = 'profile-photos/' . $filename;
     $fullPath = storage_path('app/public/' . $path);
@@ -191,14 +206,15 @@ Route::post('/webhooks/portal/mercadopago', [\App\Http\Controllers\ClientPortal\
     ->middleware('throttle:60,1')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
-// Rutas específicas de Asistencia Vircom
+// =====================================================
+// RUTAS EXCLUSIVAS DE ASISTENCIA VIRCOM
+// =====================================================
+Route::get('/quienes-somos', [LandingController::class, 'quienesSomos'])->name('public.quienes-somos');
+Route::get('/curriculum-pdf', [LandingController::class, 'curriculumPdf'])->name('public.curriculum-pdf');
+Route::get('/puntos-de-venta', [LandingController::class, 'puntosVenta'])->name('public.puntos-venta');
+
+// === RUTAS UNICAS PUBLIC ASISTENCIA ===
 Route::get('/marcar/{token}', [\App\Http\Controllers\AsistenciaController::class, 'showByToken'])->name('asistencia.token');
 Route::post('/marcar/{token}', [\App\Http\Controllers\AsistenciaController::class, 'storeByToken'])->middleware('throttle:10,1')->name('asistencia.token.store');
-
-Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::get('/newsletter/unsubscribe', [\App\Http\Controllers\NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
-
-// Rutas recuperadas de Vircom original
-Route::get('/quienes-somos', [\App\Http\Controllers\LandingController::class, 'quienesSomos'])->name('public.quienes-somos');
-Route::get('/curriculum-pdf', [\App\Http\Controllers\LandingController::class, 'curriculumPdf'])->name('public.curriculum.pdf');
-Route::get('/puntos-de-venta', [\App\Http\Controllers\LandingController::class, 'puntosVenta'])->name('public.puntos-venta');
+Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');

@@ -23,9 +23,13 @@ return new class extends Migration {
 
         foreach ($satTables as $table => $column) {
             if (Schema::hasTable($table) && Schema::hasColumn($table, $column)) {
-                Schema::table($table, function (Blueprint $table) use ($column) {
-                    $table->index($column);
-                });
+                $indexName = "{$table}_{$column}_index";
+                $exists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$indexName]);
+                if (empty($exists)) {
+                    Schema::table($table, function (Blueprint $table) use ($column) {
+                        $table->index($column);
+                    });
+                }
             }
         }
 
@@ -33,10 +37,18 @@ return new class extends Migration {
         if (Schema::hasTable('productos')) {
             Schema::table('productos', function (Blueprint $table) {
                 if (Schema::hasColumn('productos', 'nombre')) {
-                    $table->index('nombre');
+                    $indexName = 'productos_nombre_index';
+                    $exists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$indexName]);
+                    if (empty($exists)) {
+                        $table->index('nombre');
+                    }
                 }
                 if (Schema::hasColumn('productos', 'sku')) {
-                    $table->index('sku');
+                    $indexName = 'productos_sku_index';
+                    $exists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$indexName]);
+                    if (empty($exists)) {
+                        $table->index('sku');
+                    }
                 }
             });
         }
@@ -44,10 +56,18 @@ return new class extends Migration {
         if (Schema::hasTable('clientes')) {
             Schema::table('clientes', function (Blueprint $table) {
                 if (Schema::hasColumn('clientes', 'nombre_fiscal')) {
-                    $table->index('nombre_fiscal');
+                    $indexName = 'clientes_nombre_fiscal_index';
+                    $exists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$indexName]);
+                    if (empty($exists)) {
+                        $table->index('nombre_fiscal');
+                    }
                 }
                 if (Schema::hasColumn('clientes', 'email')) {
-                    $table->index('email');
+                    $indexName = 'clientes_email_index';
+                    $exists = \DB::select("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$indexName]);
+                    if (empty($exists)) {
+                        $table->index('email');
+                    }
                 }
             });
         }

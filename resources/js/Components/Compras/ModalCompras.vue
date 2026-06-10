@@ -7,14 +7,14 @@
       @click.self="$emit('close')"
     >
       <div
-        class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 outline-none"
+        class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 outline-none"
         role="dialog"
         aria-modal="true"
         @keydown.esc.prevent="$emit('close')"
       >
         <!-- Modo: Confirmación de cancelación -->
         <div v-if="mode === 'cancel'" class="text-center">
-          <div class="w-12 h-12 mx-auto bg-orange-100 rounded-full flex items-center justify-center mb-4">
+          <div class="w-12 h-12 mx-auto bg-brand-100 rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -27,19 +27,19 @@
           <h3 class="text-lg font-medium mb-2">
             ¿Cancelar compra?
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-slate-600 mb-6">
             La compra será cancelada y el inventario será revertido. Esta acción no se puede deshacer.
           </p>
           <div class="flex gap-3">
             <button
               @click="$emit('close')"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               No, volver
             </button>
             <button
               @click="$emit('confirm')"
-              class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors"
             >
               Sí, cancelar compra
             </button>
@@ -48,8 +48,8 @@
 
         <!-- Modo: Confirmación de eliminación -->
         <div v-else-if="mode === 'delete'" class="text-center">
-          <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-12 h-12 mx-auto bg-rose-100 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -61,19 +61,19 @@
           <h3 class="text-lg font-medium mb-2">
             ¿Eliminar compra?
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-slate-600 mb-6">
             Esta acción no se puede deshacer.
           </p>
           <div class="flex gap-3">
             <button
               @click="$emit('close')"
-              class="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              class="flex-1 px-4 py-2 bg-slate-200 rounded-xl hover:bg-slate-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="$emit('confirm')"
-              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors"
             >
               Eliminar
             </button>

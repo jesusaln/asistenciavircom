@@ -1,249 +1,203 @@
 import { ref, computed, onMounted, watch } from 'vue'
 
-/**
- * Composable para manejar el tema oscuro de la aplicación
- * @param {Object} empresaConfig - Configuración de la empresa desde props
- * @returns {Object} - Objeto con estado y funciones del tema oscuro
- */
+const THEME_KEY = 'cdd_theme'
+
+const THEME_VALUES = ['dark', 'light', 'system']
+
+const DEFAULT_LIGHT_COLORS = {
+    primary: '#FF6B35',
+    secondary: '#E55A2B',
+}
+
+const DEFAULT_DARK_COLORS = {
+    primary: '#FF6B35',
+    secondary: '#E55A2B',
+    background: '#020617',
+    surface: '#0f172a',
+}
+
+const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    return result
+        ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+        : '255, 107, 53'
+}
+
+function migrateLegacyKeys() {
+    const legacy = {
+        theme: localStorage.getItem('theme'),
+        darkMode: localStorage.getItem('darkMode'),
+        darkModePreference: localStorage.getItem('darkModePreference'),
+    }
+
+    let resolved = null
+
+    if (legacy.darkModePreference === 'manual') {
+        resolved = legacy.theme === 'dark' || legacy.darkMode === 'true'
+            ? 'dark'
+            : legacy.theme === 'light'
+                ? 'light'
+                : 'system'
+    } else if (legacy.theme === 'dark') {
+        resolved = 'dark'
+    } else if (legacy.theme === 'light') {
+        resolved = 'light'
+    } else if (legacy.darkMode === 'true') {
+        resolved = 'dark'
+    } else if (legacy.darkMode === 'false') {
+        resolved = 'light'
+    } else {
+        resolved = 'system'
+    }
+
+    localStorage.setItem(THEME_KEY, resolved)
+
+    if (legacy.theme) localStorage.removeItem('theme')
+    if (legacy.darkMode) localStorage.removeItem('darkMode')
+    if (legacy.darkModePreference) localStorage.removeItem('darkModePreference')
+
+    return resolved
+}
+
+function getSystemPrefersDark() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+function resolveIsDark(mode) {
+    if (mode === 'dark') return true
+    if (mode === 'light') return false
+    return getSystemPrefersDark()
+}
+
+const MEDIA_QUERY_LISTENERS = new Map()
+
+function subscribeToSystemThemeChanges(callback) {
+    const key = 'system-theme-watcher'
+    if (MEDIA_QUERY_LISTENERS.has(key)) return
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e) => callback(!!e.matches)
+    mq.addEventListener('change', handler)
+    MEDIA_QUERY_LISTENERS.set(key, { mq, handler })
+}
+
+function unsubscribeFromSystemThemeChanges() {
+    const entry = MEDIA_QUERY_LISTENERS.get('system-theme-watcher')
+    if (!entry) return
+    entry.mq.removeEventListener('change', entry.handler)
+    MEDIA_QUERY_LISTENERS.delete('system-theme-watcher')
+}
+
 export function useDarkMode(empresaConfig = null) {
-    // Estado reactivo del tema oscuro
-    const isDarkMode = ref(false)
-    const isSystemPreference = ref(true)
+    const themeMode = ref('system')
+    const isDarkMode = ref(getSystemPrefersDark())
 
-    // Colores del tema claro (por defecto)
-    const lightTheme = {
-        primary: empresaConfig?.color_principal || '#3B82F6',
-        secondary: empresaConfig?.color_secundario || '#1E40AF',
-        background: '#FFFFFF',
-        surface: '#F9FAFB',
-        text: '#111827',
-        textSecondary: '#6B7280',
-        border: '#E5E7EB',
-        hover: '#F3F4F6',
-    }
-
-    // Colores del tema oscuro (Alineados a Dark Premium Slate)
-    const darkTheme = {
-        primary: empresaConfig?.dark_mode_primary_color || '#4f46e5', // Indigo-600
-        secondary: empresaConfig?.dark_mode_secondary_color || '#0ea5e9', // Sky-500
-        background: empresaConfig?.dark_mode_background_color || '#020617', // Slate-950 (rgb 2, 6, 23)
-        surface: empresaConfig?.dark_mode_surface_color || '#0f172a', // Slate-900
-        text: '#f8fafc', // Slate-50
-        textSecondary: '#cbd5e1', // Slate-300
-        border: '#1e293b', // Slate-800
-        hover: '#1e293b', // Slate-800
-    }
-
-    // Tema actual basado en el modo
-    const currentTheme = computed(() => {
-        return isDarkMode.value ? darkTheme : lightTheme
+    const resolvedPrimary = computed(() => {
+        if (isDarkMode.value) return empresaConfig?.dark_mode_primary_color || DEFAULT_DARK_COLORS.primary
+        return empresaConfig?.color_principal || DEFAULT_LIGHT_COLORS.primary
     })
 
-    const hexToRgb = (hex) => {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '59, 130, 246';
+    const resolvedSecondary = computed(() => {
+        if (isDarkMode.value) return empresaConfig?.dark_mode_secondary_color || DEFAULT_DARK_COLORS.secondary
+        return empresaConfig?.color_secundario || DEFAULT_LIGHT_COLORS.secondary
+    })
+
+    function setTheme(mode) {
+        if (!THEME_VALUES.includes(mode)) return
+        themeMode.value = mode
+        isDarkMode.value = resolveIsDark(mode)
+        localStorage.setItem(THEME_KEY, mode)
+        applyThemeClasses()
+        applyThemeCSSVariables()
+
+        if (mode === 'system') {
+            subscribeToSystemThemeChanges((prefersDark) => {
+                if (themeMode.value === 'system') {
+                    isDarkMode.value = prefersDark
+                    applyThemeClasses()
+                    applyThemeCSSVariables()
+                }
+            })
+        } else {
+            unsubscribeFromSystemThemeChanges()
+        }
     }
 
-    /**
-     * Aplicar colores CSS personalizados al documento
-     */
-    const applyThemeColors = () => {
+    function applyThemeClasses() {
         const root = document.documentElement
-
         if (isDarkMode.value) {
-            // Aplicar colores del tema oscuro
-            root.style.setProperty('--empresa-color-primary', darkTheme.primary)
-            root.style.setProperty('--empresa-color-secondary', darkTheme.secondary)
-            root.style.setProperty('--empresa-bg-primary', darkTheme.background)
-            root.style.setProperty('--empresa-bg-surface', darkTheme.surface)
-            root.style.setProperty('--empresa-text-primary', darkTheme.text)
-            root.style.setProperty('--empresa-text-secondary', darkTheme.textSecondary)
-            root.style.setProperty('--empresa-border-color', darkTheme.border)
-            root.style.setProperty('--empresa-hover-color', darkTheme.hover)
-
-            // Compatibilidad con Landing y Portal
-            root.style.setProperty('--color-primary', darkTheme.primary)
-            root.style.setProperty('--color-primary-rgb', hexToRgb(darkTheme.primary))
-            root.style.setProperty('--color-primary-soft', darkTheme.primary + '25')
-            root.style.setProperty('--color-primary-dark', darkTheme.primary + 'dd')
-            root.style.setProperty('--color-secondary', darkTheme.secondary)
-            root.style.setProperty('--color-secondary-rgb', hexToRgb(darkTheme.secondary))
-            root.style.setProperty('--color-secondary-soft', darkTheme.secondary + '25')
-            root.style.setProperty('--color-terciary', darkTheme.secondary) // Usamos secondary como fallback
-            root.style.setProperty('--color-terciary-soft', darkTheme.secondary + '15')
-
-            // UNIFICACIÓN: Agregar clase dark a documentElement y body para máxima compatibilidad
             root.classList.add('dark')
             root.classList.remove('light')
-            document.body.classList.add('dark')
-            document.body.classList.remove('light')
         } else {
-            // Aplicar colores del tema claro
-            root.style.setProperty('--empresa-color-primary', lightTheme.primary)
-            root.style.setProperty('--empresa-color-secondary', lightTheme.secondary)
-            root.style.setProperty('--empresa-bg-primary', lightTheme.background)
-            root.style.setProperty('--empresa-bg-surface', lightTheme.surface)
-            root.style.setProperty('--empresa-text-primary', lightTheme.text)
-            root.style.setProperty('--empresa-text-secondary', lightTheme.textSecondary)
-            root.style.setProperty('--empresa-border-color', lightTheme.border)
-            root.style.setProperty('--empresa-hover-color', lightTheme.hover)
-
-            // Compatibilidad con Landing y Portal
-            root.style.setProperty('--color-primary', lightTheme.primary)
-            root.style.setProperty('--color-primary-rgb', hexToRgb(lightTheme.primary))
-            root.style.setProperty('--color-primary-soft', lightTheme.primary + '15')
-            root.style.setProperty('--color-primary-dark', lightTheme.primary + 'dd')
-            root.style.setProperty('--color-secondary', lightTheme.secondary)
-            root.style.setProperty('--color-secondary-rgb', hexToRgb(lightTheme.secondary))
-            root.style.setProperty('--color-secondary-soft', lightTheme.secondary + '15')
-            root.style.setProperty('--color-terciary', lightTheme.secondary) // Fallback
-            root.style.setProperty('--color-terciary-soft', lightTheme.secondary + '15')
-
-            // UNIFICACIÓN: Quitar clase dark
             root.classList.remove('dark')
             root.classList.add('light')
-            document.body.classList.remove('dark')
-            document.body.classList.add('light')
         }
+        document.body.classList.toggle('dark', isDarkMode.value)
+        document.body.classList.toggle('light', !isDarkMode.value)
     }
 
-    /**
-     * Cambiar al modo oscuro
-     */
-    const enableDarkMode = () => {
-        isDarkMode.value = true
-        isSystemPreference.value = false
-        // Estandarización de llaves de localStorage
-        localStorage.setItem('theme', 'dark')
-        localStorage.setItem('darkMode', 'true') // Retrocompatibilidad
-        localStorage.setItem('darkModePreference', 'manual')
-        applyThemeColors()
+    function applyThemeCSSVariables() {
+        const root = document.documentElement
+        const primary = resolvedPrimary.value
+        const secondary = resolvedSecondary.value
+
+        root.style.setProperty('--color-primary', primary)
+        root.style.setProperty('--color-primary-rgb', hexToRgb(primary))
+        root.style.setProperty('--color-primary-soft', primary + (isDarkMode.value ? '25' : '15'))
+        root.style.setProperty('--color-primary-dark', primary + 'dd')
+        root.style.setProperty('--color-secondary', secondary)
+        root.style.setProperty('--color-secondary-rgb', hexToRgb(secondary))
+        root.style.setProperty('--color-secondary-soft', secondary + (isDarkMode.value ? '25' : '15'))
+        root.style.setProperty('--color-terciary', secondary)
+        root.style.setProperty('--color-terciary-soft', secondary + '15')
     }
 
-    /**
-     * Cambiar al modo claro
-     */
-    const enableLightMode = () => {
-        isDarkMode.value = false
-        isSystemPreference.value = false
-        // Estandarización de llaves de localStorage
-        localStorage.setItem('theme', 'light')
-        localStorage.setItem('darkMode', 'false') // Retrocompatibilidad
-        localStorage.setItem('darkModePreference', 'manual')
-        applyThemeColors()
+    function enableDarkMode() { setTheme('dark') }
+    function enableLightMode() { setTheme('light') }
+    function enableSystemMode() { setTheme('system') }
+
+    function toggleDarkMode() {
+        setTheme(isDarkMode.value ? 'light' : 'dark')
     }
 
-    /**
-     * Cambiar al modo automático (basado en preferencia del sistema)
-     */
-    const enableSystemMode = () => {
-        isSystemPreference.value = true
-        localStorage.setItem('darkModePreference', 'system')
-
-        // Detectar preferencia del sistema
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        isDarkMode.value = prefersDark
-        applyThemeColors()
-    }
-
-    /**
-     * Alternar entre modo oscuro y claro
-     */
-    const toggleDarkMode = () => {
-        if (isDarkMode.value) {
-            enableLightMode()
+    function initializeTheme() {
+        const saved = localStorage.getItem(THEME_KEY)
+        if (!saved) {
+            const migrated = migrateLegacyKeys()
+            setTheme(migrated)
         } else {
-            enableDarkMode()
+            const valid = THEME_VALUES.includes(saved) ? saved : 'system'
+            setTheme(valid)
         }
     }
 
-    /**
-     * Inicializar el tema oscuro
-     */
-    const initializeDarkMode = () => {
-        // Verificar si hay una preferencia guardada preferida (theme o darkMode)
-        const savedPreference = localStorage.getItem('darkModePreference')
-        const savedTheme = localStorage.getItem('theme')
-        const savedDarkMode = localStorage.getItem('darkMode')
-
-        if (savedPreference === 'manual') {
-            if (savedTheme === 'dark' || savedDarkMode === 'true') {
-                enableDarkMode()
-            } else {
-                enableLightMode()
-            }
-        } else {
-            // Si no hay preferencia manual, verificar si hay un theme guardado de antes sin preferencia marcada
-            if (savedTheme === 'dark') {
-                enableDarkMode()
-            } else if (savedTheme === 'light') {
-                enableLightMode()
-            } else {
-                // Usar preferencia del sistema por defecto
-                enableSystemMode()
-            }
-        }
-
-        // Escuchar cambios en la preferencia del sistema
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-        mediaQuery.addEventListener('change', (e) => {
-            if (isSystemPreference.value) {
-                isDarkMode.value = e.matches
-                applyThemeColors()
-            }
-        })
-    }
-
-    /**
-     * Actualizar colores del tema cuando cambia la configuración de empresa
-     */
-    const updateThemeColors = (newEmpresaConfig) => {
+    function updateThemeColors(newEmpresaConfig) {
         if (newEmpresaConfig) {
-            // Actualizar colores del tema claro
-            lightTheme.primary = newEmpresaConfig.color_principal || '#3B82F6'
-            lightTheme.secondary = newEmpresaConfig.color_secundario || '#1E40AF'
-
-            // Actualizar colores del tema oscuro si están configurados
-            if (newEmpresaConfig.dark_mode_enabled) {
-                darkTheme.primary = newEmpresaConfig.dark_mode_primary_color || '#1E40AF'
-                darkTheme.secondary = newEmpresaConfig.dark_mode_secondary_color || '#3B82F6'
-                darkTheme.background = newEmpresaConfig.dark_mode_background_color || '#020617'
-                darkTheme.surface = newEmpresaConfig.dark_mode_surface_color || '#0f172a'
-            }
-
-            // Aplicar los nuevos colores
-            applyThemeColors()
+            applyThemeCSSVariables()
         }
     }
 
-    // Inicializar cuando se monte el componente
-    onMounted(() => {
-        initializeDarkMode()
-    })
-
-    // Observar cambios en la configuración de empresa
     if (empresaConfig) {
         watch(
             () => empresaConfig,
-            (newConfig) => {
-                updateThemeColors(newConfig)
-            },
+            (newConfig) => updateThemeColors(newConfig),
             { deep: true, immediate: true }
         )
     }
 
-    return {
-        // Estado
-        isDarkMode: computed(() => isDarkMode.value),
-        isSystemPreference: computed(() => isSystemPreference.value),
-        currentTheme,
+    onMounted(() => {
+        initializeTheme()
+    })
 
-        // Funciones
+    return {
+        isDarkMode: computed(() => isDarkMode.value),
+        themeMode: computed(() => themeMode.value),
+        isSystemPreference: computed(() => themeMode.value === 'system'),
         enableDarkMode,
         enableLightMode,
         enableSystemMode,
         toggleDarkMode,
-        applyThemeColors,
+        applyThemeColors: applyThemeCSSVariables,
         updateThemeColors,
     }
 }

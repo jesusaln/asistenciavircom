@@ -26,6 +26,9 @@ class ApiKeysConfigController extends Controller
             'gemini_api_key' => 'nullable|string|max:500',
             'gemini_model' => 'nullable|string|max:100',
             'gemini_temperature' => 'nullable|numeric|min:0|max:1',
+            // WhatsApp (Meta)
+            'whatsapp_business_account_id' => 'nullable|string|max:255',
+            'whatsapp_phone_number_id' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -33,25 +36,38 @@ class ApiKeysConfigController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $data = $validator->validated();
+        $validatedData = $validator->validated();
+        
+        // Separar datos para Empresa y EmpresaConfiguracion
+        $whatsappData = [
+            'whatsapp_business_account_id' => $validatedData['whatsapp_business_account_id'] ?? null,
+            'whatsapp_phone_number_id' => $validatedData['whatsapp_phone_number_id'] ?? null,
+        ];
+
+        $aiData = array_diff_key($validatedData, $whatsappData);
 
         // Manejar booleanos
         if ($request->has('chatbot_enabled')) {
-            $data['chatbot_enabled'] = $request->boolean('chatbot_enabled');
+            $aiData['chatbot_enabled'] = $request->boolean('chatbot_enabled');
         }
 
-        // No sobreescribir API keys si vienen vacías (campo sensible no precargado)
-        if (empty($data['groq_api_key'])) {
-            unset($data['groq_api_key']);
-        }
-        if (empty($data['gemini_api_key'])) {
-            unset($data['gemini_api_key']);
-        }
+        // No sobreescribir API keys si vienen vacías
+        if (empty($aiData['groq_api_key'])) unset($aiData['groq_api_key']);
+        if (empty($aiData['gemini_api_key'])) unset($aiData['gemini_api_key']);
 
+        // 1. Actualizar EmpresaConfiguracion
         $configuracion = EmpresaConfiguracion::getConfig();
-        $configuracion->update($data);
+        $configuracion->update($aiData);
         EmpresaConfiguracion::clearCache();
 
-        return redirect()->back()->with('success', 'Configuración de IA actualizada correctamente.');
+        // 2. Actualizar Empresa (modelo real de WhatsApp)
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $empresa = $empresaId ? \App\Models\Empresa::find($empresaId) : \App\Models\Empresa::first();
+        
+        if ($empresa) {
+            $empresa->update(array_filter($whatsappData));
+        }
+
+        return redirect()->back()->with('success', 'Configuración de API Keys e IA actualizada correctamente.');
     }
 }

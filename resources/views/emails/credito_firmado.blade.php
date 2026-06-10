@@ -142,7 +142,7 @@
             <div class="signature-preview">
                 <p style="font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase;">Vista previa
                     de firma</p>
-                <img src="{{ $cliente->credito_firma }}" style="max-height: 80px; mix-blend-multiply: multiply;"
+                <img src="{{ \App\Helpers\Base64ToFile::getUrl($cliente->credito_firma) }}" style="max-height: 80px; mix-blend-multiply: multiply;"
                     alt="Firma">
             </div>
 

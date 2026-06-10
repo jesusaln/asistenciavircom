@@ -396,14 +396,14 @@
             </tr>
         </table>
 
-        @if($poliza->equipos->count() > 0)
+        @if($poliza->equipos->count() > 0 || count($equiposCliente) > 0)
             <h3>EQUIPOS PROTEGIDOS</h3>
             <table class="info-table">
                 <thead>
                     <tr>
                         <th>Equipo</th>
-                        <th>Serie / ID</th>
-                        <th>Ubicación</th>
+                        <th>Serie Evaporador</th>
+                        <th>Serie Condensadora</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -411,7 +411,14 @@
                         <tr>
                             <td>{{ $equipo->nombre }}</td>
                             <td>{{ $equipo->serie ?? 'N/A' }}</td>
-                            <td>{{ $equipo->ubicacion ?? 'Oficina Principal' }}</td>
+                            <td>—</td>
+                        </tr>
+                    @endforeach
+                    @foreach($equiposCliente as $equipo)
+                        <tr>
+                            <td>{{ $equipo['nombre'] }}</td>
+                            <td>{{ $equipo['serie_evaporador'] ?? 'N/A' }}</td>
+                            <td>{{ $equipo['serie_condensadora'] ?? 'N/A' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -440,7 +447,7 @@
             <div class="sig-block">
                 <div class="sig-image-container">
                     @if($poliza->firma_cliente)
-                        <img src="{{ $poliza->firma_cliente }}" style="max-height: 80px;">
+                        <img src="{{ \App\Helpers\Base64ToFile::getUrl($poliza->firma_cliente) }}" style="max-height: 80px;">
                     @else
                         <div
                             style="height: 60px; color: #cbd5e1; display: flex; align-items: flex-end; justify-content: center; font-size: 10px;">

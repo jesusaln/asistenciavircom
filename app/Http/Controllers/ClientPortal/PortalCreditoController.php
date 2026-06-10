@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Support\SafeStorage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
@@ -19,12 +20,9 @@ use App\Models\User;
 use App\Models\UserNotification;
 use App\Mail\CreditSignatureMail;
 use App\Models\PolizaServicio;
-use App\Traits\ImageOptimizerTrait;
 
 class PortalCreditoController extends Controller
 {
-    use ImageOptimizerTrait;
-
     private function getEmpresaBranding()
     {
         $empresaId = EmpresaResolver::resolveId();
@@ -82,16 +80,16 @@ class PortalCreditoController extends Controller
         try {
             $file = $request->file('documento');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $this->storeFileOptimized($file, "clientes/{$cliente->id}/documentos", 'public', $filename);
+            $path = $file->storeAs("clientes/{$cliente->id}/documentos", $filename, 'public');
 
             ClienteDocumento::create([
                 'cliente_id' => $cliente->id,
                 'tipo' => $request->tipo,
-                'nombre_archivo' => basename($path),
+                'nombre_archivo' => $file->getClientOriginalName(),
                 'ruta' => $path,
-                'extension' => pathinfo($path, PATHINFO_EXTENSION),
-                'tamano' => Storage::disk('public')->size($path),
-                'mime_type' => Storage::disk('public')->mimeType($path),
+                'extension' => $file->getClientOriginalExtension(),
+                'tamano' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
             ]);
 
             return back()->with('success', 'Documento enviado correctamente. Nuestro equipo lo revisará a la brevedad.');
@@ -113,16 +111,13 @@ class PortalCreditoController extends Controller
             abort(403);
         }
 
-        // Solo permitir eliminar si no está autorizado ya? 
-        // Por ahora dejamos libre, pero idealmente solo si en_revision o sin_credito
+        // Solo permitir eliminar si el crédito no está autorizado
         if ($cliente->estado_credito === 'autorizado') {
             return back()->with('error', 'No puedes eliminar documentos de un crédito ya autorizado. Contacta a soporte si necesitas actualizarlos.');
         }
 
         try {
-            if (Storage::disk('public')->exists($documento->ruta)) {
-                Storage::disk('public')->delete($documento->ruta);
-            }
+            SafeStorage::deletePublic($documento->ruta);
             $documento->delete();
             return back()->with('success', 'Documento eliminado.');
         } catch (\Exception $e) {
@@ -136,7 +131,7 @@ class PortalCreditoController extends Controller
         $empresaId = EmpresaResolver::resolveId();
         $empresa = EmpresaConfiguracion::getConfig($empresaId);
 
-        $logo = $empresa->logo_url ?? asset('images/logo.png');
+        $logo = $empresa->logo_url ?? asset('images/logo.webp');
 
         return view('portal.impresion.solicitud_credito', [
             'cliente' => $cliente,
@@ -172,7 +167,20 @@ class PortalCreditoController extends Controller
         }
 
         $request->validate([
-            'firma' => 'required|string', // Base64
+            'firma' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('#^data:image/\w+;base64,#i', $value)) {
+                        $fail('El formato de la firma digital es inválido.');
+                        return;
+                    }
+                    $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $value);
+                    if (base64_decode($base64, true) === false) {
+                        $fail('El archivo de firma está corrupto.');
+                    }
+                }
+            ],
             'nombre_firmante' => 'required|string|min:3|max:255',
             'acepta_terminos' => 'accepted',
             'limite_solicitado' => 'required|numeric|min:0',
@@ -193,8 +201,11 @@ class PortalCreditoController extends Controller
         $firmaHash = hash('sha256', $contenidoSolicitud . $request->firma);
 
         // Guardar la firma en el modelo Cliente
+        // ✅ PERFORMANCE: Guardar firma como archivo en Storage en vez de base64 en la BD
+        $firmaPath = \App\Helpers\Base64ToFile::save($request->firma, 'clientes/firmas', "credito_firma_{$cliente->id}");
+
         $cliente->update([
-            'credito_firma' => $request->firma,
+            'credito_firma' => $firmaPath,
             'credito_firmado_at' => now(),
             'credito_firmado_ip' => $request->ip(),
             'credito_firmado_nombre' => $request->nombre_firmante,

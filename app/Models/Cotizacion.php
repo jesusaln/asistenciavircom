@@ -17,6 +17,8 @@ use App\Models\Concerns\Blameable;
 
 class Cotizacion extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa;
 
     protected $table = 'cotizaciones';
@@ -24,6 +26,8 @@ class Cotizacion extends Model
     protected $fillable = [
         'empresa_id',
         'cliente_id',
+        'poliza_id',
+        'equipo_nombre',
         'almacen_id',          // ✅ agregado para conversión a venta
         'numero_cotizacion',   // ✅ agregado
         'fecha_cotizacion',    // ✅ agregado
@@ -63,6 +67,11 @@ class Cotizacion extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    public function polizaServicio(): BelongsTo
+    {
+        return $this->belongsTo(PolizaServicio::class, 'poliza_id');
     }
 
     /** Ítems de la cotización (tabla cotizacion_items) */

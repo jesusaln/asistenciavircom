@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Schema;
 
 class CuentasPorPagar extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa;
 
     const SALDO_MINIMO_CIERRE = 0.90;

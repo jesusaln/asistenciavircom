@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->string('whatsapp')->nullable()->after('telefono');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'whatsapp')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->string('whatsapp')->nullable()->after('telefono');
+            });
+        }
     }
 
     /**

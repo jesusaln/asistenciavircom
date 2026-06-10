@@ -16,6 +16,10 @@ class CustomVerifyCsrfToken extends Middleware
     protected $except = [
         'prestamos/calcular-pagos',
         'sanctum/csrf-cookie',
+        'api/webhooks/*',
+        'login',
+        'logout',
+        'register',
     ];
 
     /**
@@ -27,11 +31,14 @@ class CustomVerifyCsrfToken extends Middleware
      */
     public function handle($request, Closure $next)
     {
+        \Illuminate\Support\Facades\Log::info('CustomVerifyCsrfToken hit', ['url' => $request->url(), 'path' => $request->path(), 'is_login' => $request->is('login')]);
         // Para rutas excluidas específicamente, saltar verificación CSRF
         if ($this->inExceptArray($request)) {
+            \Illuminate\Support\Facades\Log::info('Skipping CSRF for: ' . $request->path());
             return $next($request);
         }
 
+        \Illuminate\Support\Facades\Log::info('Checking standard CSRF for: ' . $request->path());
         // Para otras rutas, usar la verificación estándar de Laravel
         return parent::handle($request, $next);
     }
@@ -87,6 +94,7 @@ class CustomVerifyCsrfToken extends Middleware
             'password/email',
             'password/confirm',
             'sanctum/csrf-cookie',
+        'api/webhooks/*',
             'prestamos/calcular-pagos' // Excluir cálculo de pagos para evitar problemas CSRF
         ];
 

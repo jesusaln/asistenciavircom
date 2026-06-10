@@ -17,23 +17,45 @@ use Tests\TestCase;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class CotizacionCrudTest extends TestCase
 {
-    
+    use DatabaseTransactions;
+
 
     protected $admin;
     protected $empresa;
     protected $almacen;
+    protected $producto;
+    protected $servicio;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Crear roles si no existen
-        if (Role::where('name', 'admin')->doesntExist()) {
-            Role::create(['name' => 'admin']);
+        // Limpiar caché de permisos
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Crear roles y permisos si no existen
+        $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+
+        $permissions = [
+            'view cotizaciones',
+            'create cotizaciones',
+            'edit cotizaciones',
+            'delete cotizaciones',
+            'view ventas',
+            'view pedidos',
+            'create ventas',
+            'create pedidos'
+        ];
+
+        foreach ($permissions as $p) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $p, 'guard_name' => 'web']);
         }
+
+        $role->syncPermissions($permissions);
 
         // Crear empresa de prueba
         $this->empresa = Empresa::create([
@@ -55,9 +77,17 @@ class CotizacionCrudTest extends TestCase
 
         EmpresaResolver::setContext($this->empresa->id);
 
+        $this->almacen = Almacen::create([
+            'empresa_id' => $this->empresa->id,
+            'nombre' => 'Almacén Test',
+            'codigo' => 'ALM-TEST',
+            'estado' => 'activo'
+        ]);
+
         $this->admin = User::factory()->create([
             'empresa_id' => $this->empresa->id,
-            'email' => 'admin_' . uniqid() . '@test.com'
+            'email' => 'admin_' . uniqid() . '@test.com',
+            'almacen_venta_id' => $this->almacen->id
         ]);
         $this->admin->assignRole('admin');
 
@@ -106,6 +136,7 @@ class CotizacionCrudTest extends TestCase
 
     public function test_can_create_cotizacion_with_products_and_services()
     {
+        $this->withoutExceptionHandling();
         $this->actingAs($this->admin);
 
         $cliente = Cliente::factory()->create(['empresa_id' => $this->empresa->id]);
@@ -114,6 +145,16 @@ class CotizacionCrudTest extends TestCase
             'precio_venta' => 1000,
             'precio_compra' => 500, // Margen suficiente (50%)
             'estado' => 'activo'
+        ]);
+
+        // Inicializar stock en tabla inventarios
+        DB::table('inventarios')->insert([
+            'empresa_id' => $this->empresa->id,
+            'producto_id' => $producto->id,
+            'almacen_id' => $this->almacen->id,
+            'cantidad' => 10,
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
         $servicio = Servicio::factory()->create([
             'empresa_id' => $this->empresa->id,
@@ -341,7 +382,7 @@ class CotizacionCrudTest extends TestCase
             'descuento_monto' => 0
         ]);
 
-        $response = $this->post(route('cotizaciones.enviar-pedido', $cotizacion->id));
+        $response = $this->post(route('cotizaciones.enviar-a-pedido', $cotizacion->id));
 
         $response->assertJsonPath('success', true);
 

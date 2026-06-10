@@ -99,4 +99,11 @@ class Cobranza extends Model
         return $query->whereYear('fecha_cobro', $anio)
             ->whereMonth('fecha_cobro', $mes);
     }
+    /**
+     * Relación con EntregaDinero (dinero entregado por esta cobranza).
+     */
+    public function entregas()
+    {
+        return $this->morphMany(EntregaDinero::class, 'origen', 'tipo_origen', 'id_origen');
+    }
 }

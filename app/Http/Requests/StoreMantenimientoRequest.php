@@ -57,8 +57,8 @@ class StoreMantenimientoRequest extends FormRequest
             'kilometraje_actual' => [
                 'required',
                 'integer',
-                'min:' . ($carroKilometraje + 1), // Debe ser mayor al kilometraje actual
-                'max:' . ($carroKilometraje + 100000) // Máximo 100k km más que el actual
+                'min:' . max(0, (int) $carroKilometraje),
+                'max:' . ((int) $carroKilometraje + 100000),
             ],
             'costo' => [
                 'required',
@@ -118,7 +118,7 @@ class StoreMantenimientoRequest extends FormRequest
             'proximo_mantenimiento.after' => 'El próximo mantenimiento debe ser posterior a la fecha del servicio.',
             'proximo_mantenimiento.before_or_equal' => 'El próximo mantenimiento no puede ser posterior a 5 años.',
             'kilometraje_actual.required' => 'El kilometraje actual es requerido.',
-            'kilometraje_actual.min' => 'El kilometraje debe ser mayor al kilometraje actual del vehículo.',
+            'kilometraje_actual.min' => 'El kilometraje no puede ser menor al kilometraje registrado del vehículo.',
             'kilometraje_actual.max' => 'El kilometraje parece demasiado alto. Verifica los datos.',
             'prioridad.required' => 'Debes seleccionar una prioridad.',
             'prioridad.in' => 'La prioridad debe ser: baja, media, alta o crítica.',
@@ -222,44 +222,6 @@ class StoreMantenimientoRequest extends FormRequest
                 }
             }
 
-            // Validación personalizada: costo sugerido vs tipo de servicio
-            if ($this->tipo && $this->costo !== null) {
-                $costoSugerido = $this->getCostoSugeridoPorTipo($this->tipo);
-
-                // ⚠️ ALERTA: Si el costo es 0, advertir
-                if ($this->costo == 0) {
-                    $validator->errors()->add('costo', '⚠️ ADVERTENCIA: El costo es $0. ¿Estás seguro de que el servicio fue gratuito?');
-                }
-                // ⚠️ ALERTA: Si el costo es mucho menor al sugerido, advertir
-                elseif ($costoSugerido > 0 && $this->costo < ($costoSugerido * 0.3)) {
-                    $validator->errors()->add('costo', "⚠️ ADVERTENCIA: El costo (\${$this->costo}) es significativamente menor al sugerido (\${$costoSugerido}). Verifica que sea correcto.");
-                }
-                // ⚠️ ALERTA: Si el costo es mucho mayor al sugerido, advertir
-                elseif ($costoSugerido > 0 && $this->costo > ($costoSugerido * 3)) {
-                    $validator->errors()->add('costo', "⚠️ ADVERTENCIA: El costo (\${$this->costo}) es significativamente mayor al sugerido (\${$costoSugerido}). Verifica que sea correcto.");
-                }
-            }
         });
-    }
-
-    /**
-     * Get suggested cost by service type
-     */
-    private function getCostoSugeridoPorTipo(string $tipo): float
-    {
-        return match ($tipo) {
-            'Cambio de aceite' => 800.00,
-            'Revisión periódica' => 1200.00,
-            'Servicio de frenos' => 2500.00,
-            'Servicio de llantas' => 600.00,
-            'Servicio de batería' => 1800.00,
-            'Servicio de motor' => 3500.00,
-            'Revisión de luces' => 300.00,
-            'Alineación y balanceo' => 800.00,
-            'Cambio de filtros' => 400.00,
-            'Revisión de transmisión' => 2000.00,
-            'Otro servicio' => 0.00,
-            default => 0.00,
-        };
     }
 }

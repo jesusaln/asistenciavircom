@@ -1,7 +1,7 @@
-﻿<!-- Resources/js/Pages/Compras/CrearCompra.vue -->
+<!-- Resources/js/Pages/Compras/CrearCompra.vue -->
 <template>
   <Head title="Crear Compra" />
-  <div class="compras-create min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+  <div class="compras-create min-h-screen bg-[var(--ui-surface)] dark:from-slate-950 dark:to-slate-900 p-6">
     <div class="w-full">
       <!-- Header -->
       <div class="mb-6">
@@ -13,40 +13,41 @@
           :show-shortcuts="mostrarAtajos"
           @preview="handlePreview"
           @close-shortcuts="mostrarAtajos = false"
+          class="dark:text-white"
         />
-        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-md p-3">
+        <div class="mt-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
           <div class="flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="h-5 w-5 text-sky-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
               </svg>
             </div>
             <div class="ml-3">
-              <p class="text-sm text-blue-700">
-                <strong>Nota:</strong> El IVA se calcula automaticamente segun la configuracion de la empresa. Ingrese los precios SIN IVA.
+              <p class="text-sm text-sky-800 dark:text-sky-200 ">
+                <strong>Nota:</strong> El IVA se calcula automáticamente según la configuración de la empresa. Ingrese los precios SIN IVA.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <form @submit.prevent="crearCompra" class="space-y-8">
+      <form @submit.prevent="crearCompra" class="space-y-6">
         <!-- Informacion General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
-              Informacion General
+              Información General
             </h2>
           </div>
           <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
             <!-- Numero de Compra -->
             <div>
-              <label for="numero_compra" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="numero_compra" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
                 Numero de Compra *
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 dark:bg-sky-900/20/30 text-sky-800 dark:text-sky-200 text-xs font-medium rounded-xl">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -58,27 +59,27 @@
                   id="numero_compra"
                   v-model="form.numero_compra"
                   type="text"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   placeholder="C0001"
                   readonly
                   required
                 />
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Este numero es fijo para todas las compras
               </p>
             </div>
 
             <!-- Fecha de Compra -->
             <div>
-              <label for="fecha_compra" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="fecha_compra" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
                 Fecha de Compra *
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 dark:bg-sky-900/20/30 text-sky-800 dark:text-sky-200 text-xs font-medium rounded-xl">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -90,26 +91,26 @@
                   id="fecha_compra"
                   v-model="form.fecha_compra"
                   type="date"
-                  class="w-full bg-white text-gray-500 cursor-not-allowed border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  class="w-full bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   readonly
                   required
                 />
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Esta fecha se establece automaticamente con la fecha de creacion
               </p>
             </div>
 
             <!-- Almacen -->
             <div>
-              <label for="almacen_id" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label for="almacen_id" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
                 Almacen *
-                <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20/30 text-emerald-800 dark:text-emerald-200 text-xs font-medium rounded-xl">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
@@ -120,7 +121,7 @@
                 <select
                   id="almacen_id"
                   v-model="form.almacen_id"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  
                   required
                 >
                   <option value="">Selecciona un almacen</option>
@@ -135,12 +136,12 @@
                   </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Selecciona el almacen donde se recibiran los productos
                 <span v-if="props.almacen_predeterminado" class="text-blue-600">
                   {{ props.recordatorio_almacen }}
@@ -151,29 +152,29 @@
         </div>
 
         <!-- Información Fiscal (CFDI) -->
-        <div v-if="form.cfdi_uuid" class="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden animate-fadeIn">
-          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
+        <div v-if="form.cfdi_uuid" class="bg-white dark:bg-slate-800 rounded-xl border border-sky-200 dark:border-sky-800/30 shadow-sm overflow-hidden animate-fadeIn">
+          <div class="bg-gradient-to-r from-sky-500 to-sky-600 dark:from-sky-600 dark:to-sky-700 px-6 py-4 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
               Información Fiscal (CFDI Vinculado)
             </h2>
-            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">XML Importado</span>
+            <span class="bg-blue-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-200  px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider">XML Importado</span>
           </div>
           <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">UUID Fiscal</span>
-                <span class="block text-sm font-mono font-bold text-slate-700 truncate" :title="form.cfdi_uuid">{{ form.cfdi_uuid }}</span>
+              <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                <span class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">UUID Fiscal</span>
+                <span class="block text-sm font-mono font-bold text-slate-700 dark:text-slate-200 truncate" :title="form.cfdi_uuid">{{ form.cfdi_uuid }}</span>
               </div>
-              <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Folio / Serie</span>
-                <span class="block text-sm font-bold text-slate-700">{{ form.cfdi_serie }}{{ form.cfdi_folio || '---' }}</span>
+              <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                <span class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Folio / Serie</span>
+                <span class="block text-sm font-bold text-slate-700 dark:text-slate-200">{{ form.cfdi_serie }}{{ form.cfdi_folio || '---' }}</span>
               </div>
-              <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Emisor (RFC)</span>
-                <span class="block text-sm font-bold text-slate-700 truncate" :title="form.cfdi_emisor_nombre">
+              <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                <span class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Emisor (RFC)</span>
+                <span class="block text-sm font-bold text-slate-700 dark:text-slate-200 truncate" :title="form.cfdi_emisor_nombre">
                   {{ form.cfdi_emisor_rfc }} - {{ form.cfdi_emisor_nombre }}
                 </span>
               </div>
@@ -182,13 +183,13 @@
         </div>
 
         <!-- Proveedor -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
-              Informacion del Proveedor
+              Información del Proveedor
             </h2>
           </div>
           <div class="p-6">
@@ -206,21 +207,21 @@
 
 
         <!-- Productos Disponibles -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
               </svg>
               Productos
             </h2>
           </div>
           <div class="p-6">
-            <div class="mb-6 text-sm text-gray-600">
+            <div class="mb-6 text-sm text-slate-500 dark:text-slate-400">
               Usa el buscador para agregar productos; no se listan todos para evitar sobrecarga.
             </div>
 
-            <div class="pt-2 border-t border-gray-200">
+            <div class="pt-2 border-t border-slate-200">
               <BuscarProducto
                 ref="buscarProductoRef"
                 :productos="props.productos"
@@ -243,68 +244,76 @@
          @eliminar-producto="eliminarProducto"
          @update-quantity="updateQuantity"
          @update-discount="updateDiscount"
+         @update-price="(k, p) => prices[k] = p"
          @update-serials="updateSerials"
        />
     
        <!-- Modal para capturar series -->
-       <div v-if="showSerialsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-         <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-           <div class="p-6">
-             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-               Capturar Series - {{ currentSerialProduct?.nombre }}
-             </h3>
-    
-             <div class="mb-4">
-               <p class="text-sm text-gray-600">
-                 Cantidad: {{ currentSerialQty }} unidades
-               </p>
-               <p class="text-xs text-gray-500 mt-1">
-                 Debe capturar exactamente {{ currentSerialQty }} series unicas
-               </p>
-             </div>
-    
-             <div class="space-y-2 max-h-60 overflow-y-auto">
-               <div
-                 v-for="(serie, index) in serialsForEntry"
-                 :key="index"
-                 class="flex items-center space-x-2"
-               >
-                 <span class="text-sm font-medium text-gray-500 w-6">{{ index + 1 }}.</span>
-                 <input
-                   v-model="serialsForEntry[index]"
-                   type="text"
-                   :placeholder="`Serie ${index + 1}`"
-                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                   required
-                 />
-               </div>
-             </div>
-    
-             <div class="flex justify-end space-x-3 mt-6">
-               <button
-                 @click="cancelSerials"
-                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
-               >
-                 Cancelar
-               </button>
-               <button
-                 @click="saveSerials"
-                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
-               >
-                 Guardar Series
-               </button>
-             </div>
-           </div>
-         </div>
-       </div>
+        <!-- Modal para capturar series -->
+        <div v-if="showSerialsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100]">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-100 dark:border-slate-700 animate-scale-in">
+            <div class="p-8">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/20/30 flex items-center justify-center text-sky-600 dark:text-sky-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                Capturar Series
+              </h3>
+              
+              <div class="mb-6 p-4 bg-[var(--ui-surface)] dark:bg-slate-700/50 rounded-xl border border-slate-600">
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                  {{ currentSerialProduct?.nombre }}
+                </p>
+                <div class="mt-2 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+                  <span class="text-slate-500 dark:text-slate-400">Cantidad requerida:</span>
+                  <span class="text-blue-600 dark:text-blue-400">{{ currentSerialQty }} unidades</span>
+                </div>
+              </div>
+     
+              <div class="space-y-3 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+                <div
+                  v-for="(serie, index) in serialsForEntry"
+                  :key="index"
+                  class="flex items-center gap-3"
+                >
+                  <span class="text-xs font-bold text-slate-500 dark:text-slate-400 w-6 text-right">{{ index + 1 }}.</span>
+                  <input
+                    v-model="serialsForEntry[index]"
+                    type="text"
+                    :placeholder="`Serie ${index + 1}`"
+                    class="flex-1 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+              </div>
+     
+              <div class="flex justify-end gap-3 mt-8">
+                <button
+                  @click="cancelSerials"
+                  class="px-6 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border border-transparent rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  @click="saveSerials"
+                  class="px-6 py-2 text-sm font-bold text-white bg-brand-500 border border-transparent rounded-xl hover:bg-brand-600 shadow-xl shadow-brand-500/20 active:scale-95 transition-all"
+                >
+                  Guardar Series
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
           </div>
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
               Notas Adicionales
@@ -313,27 +322,27 @@
           <div class="p-6">
             <textarea
               v-model="form.notas"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+              class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-vertical text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all"
               rows="4"
-              placeholder="Agrega notas adicionales, terminos y condiciones, o informacion relevante para la compra..."
+              placeholder="Agrega notas adicionales, términos y condiciones, o información relevante para la compra..."
             ></textarea>
           </div>
         </div>
 
         <!-- Descuento General -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
               </svg>
               Descuento General
             </h2>
           </div>
           <div class="p-6">
-            <div class="space-y-4">
+            <div class="space-y-6">
               <div>
-                <label for="descuento_general" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="descuento_general" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                   Descuento General ($)
                 </label>
                 <input
@@ -342,11 +351,11 @@
                   step="0.01"
                   min="0"
                   v-model="form.descuento_general"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  
                   placeholder="0.00"
                 />
-                <p class="mt-1 text-xs text-gray-500">
-                  Este descuento se aplica al subtotal despues de los descuentos por item
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Este descuento se aplica al subtotal después de los descuentos por item
                 </p>
               </div>
             </div>
@@ -382,7 +391,7 @@
       <!-- Atajos de teclado -->
       <button
         @click="mostrarAtajos = !mostrarAtajos"
-        class="fixed bottom-4 left-4 bg-gray-600 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors duration-200"
+        class="fixed bottom-4 left-4 bg-slate-600 text-white p-3 rounded-full shadow-xl hover:bg-slate-700 transition-colors duration-200"
         title="Mostrar atajos de teclado"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,9 +443,9 @@ const notyf = new Notyf({
   duration: 5000,
   position: { x: 'right', y: 'top' },
   types: [
-    { type: 'success', background: '#10B981', icon: { className: 'notyf__icon--success', tagName: 'i', text: 'âœ“' } },
-    { type: 'error', background: '#EF4444', icon: { className: 'notyf__icon--error', tagName: 'i', text: 'âœ—' } },
-    { type: 'info', background: '#FF6B35', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'â„¹' } },
+    { type: 'success', background: '#10B981', icon: { className: 'notyf__icon--success', tagName: 'i', text: '✓' } },
+    { type: 'error', background: '#EF4444', icon: { className: 'notyf__icon--error', tagName: 'i', text: '✕' } },
+    { type: 'info', background: '#FF6B35', icon: { className: 'notyf__icon--info', tagName: 'i', text: 'ℹ' } },
   ],
 });
 

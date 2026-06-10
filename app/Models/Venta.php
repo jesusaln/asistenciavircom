@@ -14,7 +14,24 @@ use \OwenIt\Auditing\Auditable;
 
 class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa, Auditable;
+
+    /**
+     * Only audit changes to financial/status fields.
+     */
+    protected $auditInclude = [
+        'estado',
+        'total',
+        'subtotal',
+        'descuento_general',
+        'iva',
+        'pagado',
+        'metodo_pago',
+        'vendedor_id',
+        'pagado_por',
+    ];
 
     protected $table = 'ventas';
 
@@ -84,6 +101,7 @@ class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'created_by',
         'updated_by',
         'cita_id',
+        'taller_orden_id',
         'comision_pagada',
         'comision_pagada_at',
         'pago_comision_id',
@@ -141,8 +159,7 @@ class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function entregas()
     {
-        return $this->hasMany(EntregaDinero::class, 'id_origen')
-            ->where('tipo_origen', 'venta');
+        return $this->morphMany(EntregaDinero::class, 'origen', 'tipo_origen', 'id_origen');
     }
 
     // Relaciï¿½n polimï¿½rfica para productos
@@ -199,6 +216,11 @@ class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return $this->belongsTo(Cita::class);
     }
 
+    public function tallerOrden()
+    {
+        return $this->belongsTo(TallerOrden::class, 'taller_orden_id');
+    }
+
     /**
      * Relación con Facturas (CFDIs)
      */
@@ -236,7 +258,9 @@ class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function entregaDinero()
     {
         return $this->hasOne(EntregaDinero::class, 'id_origen')
-            ->where('tipo_origen', 'venta');
+            ->where('tipo_origen', 'venta')
+            ->where('estado', '!=', 'rechazado')
+            ->latestOfMany();
     }
 
     // Calcular ganancia total de la venta

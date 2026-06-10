@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm" @click.self="$emit('close')">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm" @click.self="$emit('close')">
     <div class="bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl shadow-[var(--ui-shadow)] w-full max-w-2xl mx-4 overflow-hidden border border-[var(--ui-border)]">
       <!-- Header -->
       <div class="p-6 border-b border-[var(--ui-border)]">
@@ -18,7 +18,7 @@
       <div class="p-6 bg-[var(--ui-surface-alt)]">
         <div class="flex items-center justify-between">
           <div>
-            <span :class="movimiento.tipo === 'deposito' ? 'text-green-600' : 'text-red-600'" class="text-2xl font-bold">
+            <span :class="movimiento.tipo === 'deposito' ? 'text-emerald-600' : 'text-rose-600'" class="text-2xl font-bold">
               {{ movimiento.tipo === 'deposito' ? '+' : '-' }}${{ formatMonto(Math.abs(movimiento.monto)) }}
             </span>
             <span class="ml-2 text-sm text-[var(--ui-text-soft)]">
@@ -42,14 +42,14 @@
               v-for="sug in sugerencias"
               :key="`${sug.tipo}-${sug.cuenta_id}`"
               @click="seleccionarSugerencia(sug)"
-              class="p-4 border rounded-lg cursor-pointer transition-all"
-              :class="sugerenciaSeleccionada?.cuenta_id === sug.cuenta_id ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-900/20' : 'border-[var(--ui-border)] hover:border-blue-300'"
+              class="p-4 border rounded-xl cursor-pointer transition-all"
+              :class="sugerenciaSeleccionada?.cuenta_id === sug.cuenta_id ? 'border-blue-500 bg-blue-50/80 dark:bg-sky-900/20' : 'border-[var(--ui-border)] hover:border-blue-300'"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-2">
                     <span class="font-medium">{{ sug.numero }}</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full" :class="sug.tipo === 'CXC' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                    <span class="text-xs px-2 py-0.5 rounded-full" :class="sug.tipo === 'CXC' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
                       {{ sug.tipo }}
                     </span>
                   </div>
@@ -60,7 +60,7 @@
                   <p class="font-bold">${{ formatMonto(sug.monto_pendiente) }}</p>
                   <div class="flex items-center gap-1 mt-1">
                     <div class="w-16 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div class="h-full bg-green-500" :style="`width: ${sug.score}%`"></div>
+                      <div class="h-full bg-emerald-500" :style="`width: ${sug.score}%`"></div>
                     </div>
                     <span class="text-xs text-[var(--ui-text-soft)]">{{ sug.score }}%</span>
                   </div>
@@ -72,7 +72,7 @@
         </div>
 
         <div v-else class="text-center py-8">
-          <FontAwesomeIcon :icon="['fas', 'search']" class="h-12 w-12 text-gray-300 mb-3" />
+          <FontAwesomeIcon :icon="['fas', 'search']" class="h-12 w-12 text-slate-300 mb-3" />
           <p class="text-[var(--ui-text-muted)] font-medium">No se encontraron coincidencias</p>
           <p class="text-sm text-[var(--ui-text-soft)]">No hay cuentas pendientes que coincidan con este monto</p>
         </div>
@@ -80,13 +80,13 @@
 
       <!-- Botones -->
       <div class="p-6 border-t border-[var(--ui-border)] bg-[var(--ui-surface-alt)] flex justify-end gap-3">
-        <button @click="$emit('close')" class="px-4 py-2 border border-[var(--ui-border)] rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
+        <button @click="$emit('close')" class="px-4 py-2 border border-[var(--ui-border)] rounded-xl hover:bg-black/5 dark:hover:bg-white/5">
           Cancelar
         </button>
         <button
           @click="conciliar"
           :disabled="!sugerenciaSeleccionada || conciliando"
-          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
           <FontAwesomeIcon v-if="conciliando" :icon="['fas', 'spinner']" class="animate-spin mr-2" />
           <FontAwesomeIcon v-else :icon="['fas', 'link']" class="mr-2" />
@@ -98,8 +98,10 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
+import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps({
@@ -126,8 +128,7 @@ const formatFecha = (fecha) => {
 const cargarSugerencias = async () => {
   loading.value = true
   try {
-    const response = await fetch(route('conciliacion.sugerencias', props.movimiento.id))
-    const data = await response.json()
+    const { data } = await axios.get(route('conciliacion.sugerencias', props.movimiento.id))
     sugerencias.value = data.sugerencias || []
     
     // Pre-seleccionar la mejor sugerencia si tiene score alto

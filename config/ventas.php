@@ -113,6 +113,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Listas de Precios para Servicios
+    |--------------------------------------------------------------------------
+    |
+    | Si está en true, los servicios intentarán resolver precio por lista
+    | (si se provee precios_listas). Si está en false, se usa precio base.
+    |
+    */
+    'servicios_usan_listas_precios' => env('VENTAS_SERVICIOS_USAN_LISTAS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Configuración de PDF
     |--------------------------------------------------------------------------
     |
@@ -171,6 +182,5 @@ return [
     | - 'promedio': Costo promedio ponderado
     |
     */
-    'metodo_costo_historico' => env('VENTAS_METODO_COSTO', 'fifo'),
+    'metodo_costo_historico' => env('VENTAS_METODO_COSTO', 'promedio'),
 ];
-

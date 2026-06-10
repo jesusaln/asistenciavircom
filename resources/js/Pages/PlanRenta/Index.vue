@@ -1,6 +1,8 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import Swal from '@/Utils/Swal';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -27,25 +29,33 @@ const toggleActivo = (plan) => {
     router.put(route('planes-renta.toggle', plan.id), {}, { preserveScroll: true });
 };
 
-const eliminarPlan = (plan) => {
-    if (confirm(`¿Eliminar el plan "${plan.nombre}"?`)) {
+const eliminarPlan = async (plan) => {
+    const result = await Swal.fire({
+        title: 'Eliminar plan',
+        text: `¿Eliminar el plan "${plan.nombre}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#ef4444',
+    });
+
+    if (result.isConfirmed) {
         router.delete(route('planes-renta.destroy', plan.id));
     }
 };
 
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const getTipoBadge = (tipo) => {
     const colores = {
-        pdv: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-        oficina: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+        pdv: 'bg-sky-100 text-sky-800 dark:text-sky-200 dark:bg-blue-900/50 dark:text-blue-300',
+        oficina: 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:bg-slate-800/50 dark:text-emerald-300',
         gaming: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
-        laptop: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+        laptop: 'bg-brand-100 text-brand-800 dark:text-brand-200 dark:bg-brand-900/50 dark:text-amber-300',
         personalizado: 'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300',
     };
-    return colores[tipo] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    return colores[tipo] || 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200';
 };
 </script>
 
@@ -58,35 +68,35 @@ const getTipoBadge = (tipo) => {
                 <!-- Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Planes de Renta PDV</h1>
-                        <p class="text-gray-600 dark:text-gray-400">Administra los paquetes de arrendamiento de equipos</p>
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Planes de Renta PDV</h1>
+                        <p class="text-slate-500 dark:text-slate-400">Administra los paquetes de arrendamiento de equipos</p>
                     </div>
                     <div class="flex gap-3">
-                        <Link :href="route('planes-renta.create')" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg hover:from-emerald-700 hover:to-teal-700 transition shadow-lg shadow-emerald-500/30 flex items-center gap-2 font-semibold">
+                        <Link :href="route('planes-renta.create')" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition shadow-xl shadow-emerald-500/20 flex items-center gap-2 font-semibold">
                             <span>+</span> Nuevo Plan
                         </Link>
                     </div>
                 </div>
 
                 <!-- Filtros -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6 border border-gray-100 dark:border-gray-700">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 mb-6 border border-slate-100 dark:border-slate-700">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <input 
                             v-model="filtros.search"
                             type="text"
                             placeholder="🔍 Buscar por nombre..."
-                            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 bg-[var(--ui-surface)] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400"
                             @keyup.enter="aplicarFiltros"
                         />
-                        <select v-model="filtros.tipo" class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white" @change="aplicarFiltros">
+                        <select v-model="filtros.tipo" class="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 bg-[var(--ui-surface)] text-slate-900 dark:text-white" @change="aplicarFiltros">
                             <option value="">Todos los tipos</option>
                             <option v-for="(nombre, key) in tipos" :key="key" :value="key">{{ nombre }}</option>
                         </select>
                         <div class="flex items-center gap-2">
-                            <button @click="aplicarFiltros" class="px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-gray-600 transition font-semibold">
+                            <button @click="aplicarFiltros" class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-xl hover:bg-slate-900 dark:hover:bg-slate-600 transition font-semibold">
                                 Filtrar
                             </button>
-                            <button @click="limpiarFiltros" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                            <button @click="limpiarFiltros" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
                                 Limpiar
                             </button>
                         </div>
@@ -94,49 +104,49 @@ const getTipoBadge = (tipo) => {
                 </div>
 
                 <!-- Tabla de Planes -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-900/50">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Plan</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo</th>
-                                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio/Mes</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mín. Meses</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Precio/Mes</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mín. Meses</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <tr v-for="plan in planes.data" :key="plan.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+                            <tr v-for="plan in planes.data" :key="plan.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2">
                                         <span class="text-2xl">{{ plan.icono || '🖥️' }}</span>
                                         <div>
-                                            <div class="font-semibold text-gray-900 dark:text-white">{{ plan.nombre }}</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{{ plan.descripcion_corta }}</div>
+                                            <div class="font-semibold text-slate-900 dark:text-white">{{ plan.nombre }}</div>
+                                            <div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{{ plan.descripcion_corta }}</div>
                                         </div>
-                                        <span v-if="plan.destacado" class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 text-xs rounded-full font-semibold">
+                                        <span v-if="plan.destacado" class="px-2 py-0.5 bg-brand-50 dark:bg-brand-900/20/50 text-brand-800 dark:text-brand-200 dark:text-brand-300 text-xs rounded-full font-semibold">
                                             ⭐ Destacado
                                         </span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span :class="['px-2 py-1 text-xs font-semibold rounded-full', getTipoBadge(plan.tipo)]">
+                                    <span :class="['px-2.5 py-0.5 text-xs font-medium rounded-full', getTipoBadge(plan.tipo)]">
                                         {{ tipos[plan.tipo] || plan.tipo }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right font-bold text-gray-900 dark:text-white text-lg">
+                                <td class="px-6 py-4 text-right font-bold text-slate-900 dark:text-white text-lg">
                                     {{ formatCurrency(plan.precio_mensual) }}
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ plan.meses_minimos }} meses</span>
+                                    <span class="font-semibold text-emerald-600 dark:text-slate-400">{{ plan.meses_minimos }} meses</span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <button 
                                         @click="toggleActivo(plan)"
                                         :class="[
-                                            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500',
-                                            plan.activo ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'
+                                            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500',
+                                            plan.activo ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-600'
                                         ]"
                                     >
                                         <span 
@@ -149,17 +159,17 @@ const getTipoBadge = (tipo) => {
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2">
-                                        <Link :href="route('planes-renta.edit', plan.id)" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition">
+                                        <Link :href="route('planes-renta.edit', plan.id)" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-blue-900/30 rounded-xl transition">
                                             ✏️
                                         </Link>
-                                        <button @click="eliminarPlan(plan)" class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition">
+                                        <button @click="eliminarPlan(plan)" class="p-2 text-rose-600 dark:text-rose-400 hover:bg-slate-50 dark:hover:bg-rose-900/30 rounded-xl transition">
                                             🗑️
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                             <tr v-if="!planes.data?.length">
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
                                     <div class="text-4xl mb-2">📦</div>
                                     No hay planes de renta registrados.
                                 </td>
@@ -175,10 +185,10 @@ const getTipoBadge = (tipo) => {
                         :key="link.label"
                         :href="link.url || '#'"
                         :class="[
-                            'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                            'px-3 py-1.5 rounded-xl text-sm font-medium transition-colors',
                             link.active 
                                 ? 'bg-emerald-600 text-white shadow-md' 
-                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700',
+                                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700',
                             !link.url ? 'opacity-50 cursor-not-allowed' : ''
                         ]"
                         v-html="link.label"

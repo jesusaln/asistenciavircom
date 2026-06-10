@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import axios from 'axios';
+import Swal from '@/Utils/Swal';
 
 export const usePosCaja = ({ almacenId, formatCurrency, notify, focusSearchInput }) => {
     const cajaAbierta = ref(false);
@@ -98,7 +99,17 @@ export const usePosCaja = ({ almacenId, formatCurrency, notify, focusSearchInput
             const data = response.data;
 
             if (data.status === 'confirmation_required') {
-                if (confirm(`${data.message}\n\nFaltante: ${formatCurrency(data.shortage_amount)}\n\n¿Desea cerrar la caja de todos modos?`)) {
+                const result = await Swal.fire({
+                    title: 'Faltante detectado',
+                    text: `${data.message} — Faltante: ${formatCurrency(data.shortage_amount)}. ¿Desea cerrar la caja de todos modos?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, cerrar caja',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#ef4444',
+                });
+
+                if (result.isConfirmed) {
                     await cerrarCaja(true);
                 } else {
                     loadingCaja.value = false;

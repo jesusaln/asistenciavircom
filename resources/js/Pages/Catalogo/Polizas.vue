@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
@@ -19,21 +19,81 @@ const empresaData = computed(() => {
     return { ...globalConfig, ...localProp };
 });
 
-const billingCycle = ref('monthly'); // 'monthly' or 'yearly'
+const periodoSeleccionado = ref('mensual');
+const cantidadesEquipos = ref({}); // plan.id => cantidad (simple)
+const cantidadesPorTipo = ref({}); // plan.id => { 'tipo_index': cantidad }
 
-// Variables CSS con fallback
+// Variables CSS con fallback al naranja corporativo de Climas del Desierto
 const cssVars = computed(() => ({
-    '--color-primary': empresaData.value.color_principal || '#3B82F6',
-    '--color-primary-soft': (empresaData.value.color_principal || '#3B82F6') + '15',
-    '--color-primary-dark': (empresaData.value.color_principal || '#3B82F6') + 'dd',
+    '--color-primary': empresaData.value.color_principal || '#FF6B35',
+    '--color-primary-soft': (empresaData.value.color_principal || '#FF6B35') + '15',
+    '--color-primary-dark': (empresaData.value.color_principal || '#FF6B35') + 'dd',
     '--color-secondary': empresaData.value.color_secundario || '#D97706',
-    '--color-terciary': empresaData.value.color_terciario || '#fbbf24',
-    '--color-terciary-soft': (empresaData.value.color_terciario || '#fbbf24') + '15',
+    '--color-terciary': empresaData.value.color_terciario || '#FBBF24',
+    '--color-terciary-soft': (empresaData.value.color_terciario || '#FBBF24') + '15',
 }));
 
-const formatPrice = (precio) => {
-    const num = parseFloat(precio);
-    return isNaN(num) ? '0.00' : num.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('es-MX', { 
+        style: 'currency', 
+        currency: 'MXN',
+        minimumFractionDigits: 2
+    }).format(value || 0);
+};
+
+const getCantidadTotal = (plan) => {
+    if (plan.precios_por_tipo?.length) {
+        const tipos = cantidadesPorTipo.value[plan.id] || {};
+        return Object.values(tipos).reduce((a, b) => a + (b || 0), 0);
+    }
+    return cantidadesEquipos.value[plan.id] || plan.min_equipos || 1;
+};
+
+const getCantidadTipo = (plan, idx) => {
+    const tipos = cantidadesPorTipo.value[plan.id] || {};
+    return tipos[idx] || 0;
+};
+
+const setCantidadTipo = (plan, idx, val) => {
+    if (!cantidadesPorTipo.value[plan.id]) {
+        cantidadesPorTipo.value[plan.id] = {};
+    }
+    cantidadesPorTipo.value[plan.id][idx] = Math.max(0, val);
+};
+
+const getSubtotalTipo = (plan, idx) => {
+    const tipo = plan.precios_por_tipo[idx];
+    if (!tipo) return 0;
+    return (tipo.precio || 0) * getCantidadTipo(plan, idx);
+};
+
+const getTotalAnual = (plan) => {
+    if (plan.precios_por_tipo?.length) {
+        return plan.precios_por_tipo.reduce((total, tipo, idx) => {
+            return total + getSubtotalTipo(plan, idx);
+        }, 0);
+    }
+    const cant = getCantidadTotal(plan);
+    if (plan.precio_por_equipo > 0) {
+        return plan.precio_por_equipo * cant;
+    }
+    return plan.precio_mensual * 12;
+};
+
+const getPrecio = (plan) => {
+    const anual = getTotalAnual(plan);
+    if (periodoSeleccionado.value === 'anual') {
+        return anual * (1 - 0.15);
+    }
+    return anual / 12;
+};
+
+const getColorPlan = (plan) => {
+    // Si el plan tiene un color específico en BD, lo usamos
+    if (plan.color) return plan.color;
+    
+    // Si no, usamos el color corporativo por defecto
+    return empresaData.value.color_principal || '#FF6B35';
 };
 
 const getFaIcon = (plan) => {
@@ -45,321 +105,237 @@ const getFaIcon = (plan) => {
         garantia: 'shield-halved',
         premium: 'crown',
         personalizado: 'building-shield',
-        cctv: 'camera',
-        alarmas: 'bell',
-        pos: 'cash-register',
-        asesoria: 'handshake'
     };
-    
-    const name = plan.nombre.toLowerCase();
-    if (name.includes('cctv')) return 'camera';
-    if (name.includes('alarma')) return 'bell';
-    if (name.includes('pos')) return 'cash-register';
-    if (name.includes('asesor')) return 'handshake';
-    
     return iconos[plan.tipo] || 'shield-halved';
 };
-
 // Procesar planes para asegurar cálculo de descuento del 15%
 const planesCalculados = computed(() => {
     return (props.planes || []).map(plan => {
-        if (parseFloat(plan.precio_mensual) > 0) {
-             const mensual = parseFloat(plan.precio_mensual);
-             const anualSinDescuento = mensual * 12;
-             const descuento = 0.15; // 15% estándar
-             const precioAnual = plan.precio_anual && plan.precio_anual > 0 ? parseFloat(plan.precio_anual) : (anualSinDescuento * (1 - descuento));
-             const ahorro = anualSinDescuento - precioAnual;
-             
-             return {
-                 ...plan,
-                 precio_mensual: mensual,
-                 precio_anual: precioAnual,
-                 ahorro_anual: ahorro
-             };
-        }
-        return plan;
+        const mensual = parseFloat(plan.precio_mensual) || 0;
+        const anualSinDescuento = mensual * 12;
+        const descuento = 0.15;
+        const precioAnual = anualSinDescuento > 0 ? anualSinDescuento * (1 - descuento) : 0;
+        const ahorro = anualSinDescuento - precioAnual;
+        
+        return {
+            ...plan,
+            precio_mensual: mensual,
+            precio_anual: precioAnual,
+            ahorro_anual: ahorro,
+        };
     });
-});
-
-const isVisible = ref(false);
-onMounted(() => {
-    isVisible.value = true;
-});
-
-// Simulador State
-const simulador = ref({
-    pcs: 5,
-    addons: {
-        'CONTPAQi': false,
-        'Servidores': false,
-        'CCTV': false,
-        'Redes': false
-    },
-    addonsConfig: {
-        'CONTPAQi': 850,
-        'Servidores': 1200,
-        'CCTV': 600,
-        'Redes': 750
-    }
-});
-
-const toggleAddon = (name) => {
-    simulador.value.addons[name] = !simulador.value.addons[name];
-};
-
-const costoSimulado = computed(() => {
-    let base = 1500;
-    const pcs = simulador.value.pcs;
-    if (pcs > 5) {
-        let pcPrice = 250;
-        if (pcs > 20) pcPrice = 200;
-        base = pcs * pcPrice;
-    }
-    let totalAddons = 0;
-    Object.keys(simulador.value.addons).forEach(key => {
-        if (simulador.value.addons[key]) {
-            totalAddons += simulador.value.addonsConfig[key];
-        }
-    });
-    return base + totalAddons;
-});
-
-const horasSimuladas = computed(() => {
-    const pcs = simulador.value.pcs;
-    if (pcs <= 5) return 3;
-    return Math.ceil(pcs / 2);
 });
 </script>
 
 <template>
-    <Head :title="`Pólizas de Servicio - ${empresaData?.nombre_empresa || 'Servicios'}`">
-        <meta name="description" :content="`Protección total con nuestras pólizas de soporte técnico y mantenimiento en ${empresaData?.ciudad || 'Hermosillo'}.`" />
+    <Head :title="`Planes de Póliza - ${empresaData?.nombre_empresa || 'Servicios'}`">
+        <meta name="description" :content="`Contrata planes de mantenimiento y soporte técnico para tu empresa u hogar en ${empresaData?.ciudad || 'Hermosillo'}. Pólizas mensuales y anuales con descuentos exclusivos.`" />
     </Head>
 
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-x-hidden" :style="cssVars">
-        <!-- Floating Elements -->
-        <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre_empresa" />
+    <div class="min-h-screen bg-[var(--ui-surface)] transition-colors duration-200" :style="cssVars">
+        <!-- Widget Flotante de WhatsApp -->
+        <WhatsAppWidget :whatsapp="empresaData?.whatsapp" :empresaNombre="empresaData?.nombre_empresa || empresaData?.nombre" />
+
+        <!-- Navbar -->
         <PublicNavbar :empresa="empresaData" activeTab="polizas" />
 
-        <!-- Hero Section con Diseño de Landing -->
-        <section class="relative pt-32 pb-24 overflow-hidden">
-            <div class="absolute inset-0 z-0 opacity-30 dark:opacity-20 pointer-events-none">
-                <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[var(--color-primary)] blur-[120px] rounded-full animate-pulse-slow"></div>
-                <div class="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600 blur-[100px] rounded-full"></div>
-            </div>
+        <!-- Hero Section con Estética Premium -->
+        <section class="relative pt-24 pb-32 overflow-hidden">
+            <!-- Background Elements -->
+            <div class="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 -z-20 transition-colors"></div>
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[var(--color-primary)] opacity-[0.03] rounded-full blur-[120px] -z-10"></div>
+            <div class="absolute -bottom-24 left-0 w-[600px] h-[600px] bg-[var(--color-terciary)] opacity-[0.05] rounded-full blur-[100px] -z-10"></div>
 
-            <div class="w-full px-4 relative z-10 text-center">
-                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/50 dark:bg-white/5 border border-white dark:border-white/10 shadow-xl backdrop-blur-md mb-10 transform hover:scale-105 transition-all duration-300">
-                    <span class="relative flex h-3 w-3">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary)] opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-[var(--color-primary)]"></span>
-                    </span>
-                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 dark:text-gray-300">Pólizas Premium 2026</span>
+            <div class="w-full px-4 text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-terciary-soft)] border border-[var(--color-terciary-soft)] mb-8 animate-fade-in shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-[var(--color-terciary)] animate-pulse"></span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-terciary)]">Pólizas Premium de Servicio</span>
                 </div>
-
-                <h1 class="text-6xl md:text-8xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight mb-8">
-                    Tranquilidad <br/>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] via-blue-600 to-indigo-600">Total 24/7</span>
+                
+                <h1 class="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[1.1] transition-colors">
+                    Seguridad y Confort <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Sin Límites</span>
                 </h1>
                 
-                <p class="text-xl text-gray-500 dark:text-gray-400 font-medium max-w-3xl mx-auto mb-16 leading-relaxed">
-                    Soporte técnico de alto nivel, mantenimiento preventivo y respuesta prioritaria para asegurar que su negocio nunca se detenga.
+                <p class="text-xl text-slate-500 dark:text-slate-400 font-medium mb-12 w-full leading-relaxed transition-colors">
+                    Protección total para sus equipos de climatización. Atención prioritaria, mantenimientos preventivos incluidos y la tranquilidad que su hogar necesita.
                 </p>
-
-                <!-- Billing Toggle Estilo Landing -->
-                <div class="flex items-center justify-center gap-6 mb-20">
-                    <span :class="billingCycle === 'monthly' ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'" class="text-sm tracking-widest uppercase transition-colors cursor-pointer" @click="billingCycle = 'monthly'">Mensual</span>
-                    <button @click="billingCycle = billingCycle === 'monthly' ? 'yearly' : 'monthly'" class="w-20 h-10 bg-gray-200 dark:bg-gray-800 rounded-full relative p-1 transition-all duration-300 shadow-inner border border-gray-300 dark:border-gray-700 focus:outline-none">
-                        <div :class="billingCycle === 'yearly' ? 'translate-x-10 bg-[var(--color-primary)] shadow-[0_0_15px_var(--color-primary)]' : 'translate-x-0 bg-gray-400'" class="w-8 h-8 rounded-full transition-all duration-500"></div>
+                
+                <!-- Toggle Mensual/Anual Premium -->
+                <div class="inline-flex p-1.5 bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none rounded-2xl border border-slate-100 dark:border-slate-700 transition-colors">
+                    <button 
+                        @click="periodoSeleccionado = 'mensual'"
+                        :class="[
+                            'px-8 py-3 rounded-xl font-black text-xs uppercase tracking-wide transition-all',
+                            periodoSeleccionado === 'mensual' ? 'bg-[var(--color-primary)] text-white shadow-xl' : 'text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300'
+                        ]"
+                    >
+                        Mensual
                     </button>
-                    <span :class="billingCycle === 'yearly' ? 'text-[var(--color-primary)] font-bold' : 'text-gray-400'" class="text-sm flex items-center gap-3 tracking-widest uppercase transition-colors cursor-pointer" @click="billingCycle = 'yearly'">
-                        Anual <span class="px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20 rounded-lg text-[10px] font-black">-15% Ahorro</span>
-                    </span>
+                    <button 
+                        @click="periodoSeleccionado = 'anual'"
+                        :class="[
+                            'px-8 py-3 rounded-xl font-black text-xs uppercase tracking-wide transition-all gap-3 flex items-center',
+                            periodoSeleccionado === 'anual' ? 'bg-[var(--color-primary)] text-white shadow-xl' : 'text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300'
+                        ]"
+                    >
+                        Anual
+                        <span v-if="periodoSeleccionado !== 'anual'" class="px-2 py-0.5 bg-emerald-100 dark:bg-slate-800/20 text-emerald-600 dark:text-emerald-300 rounded-full text-[8px]">-15%</span>
+                        <span v-else class="px-2 py-0.5 bg-white/20 text-white rounded-full text-[8px]">Ahorro</span>
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- Main Plans Grid -->
-        <main class="w-full px-4 pb-40">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+        <!-- Planes Grid -->
+        <main class="w-full px-4 pb-32">
+            <div v-if="planesCalculados?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <article 
                     v-for="plan in planesCalculados" 
                     :key="plan.id"
                     :class="[
-                        'relative p-10 rounded-[3.5rem] border transition-all duration-700 flex flex-col group',
-                        plan.destacado 
-                            ? 'bg-white dark:bg-slate-900 border-[var(--color-primary)] shadow-[0_0_60px_-15px_rgba(59,130,246,0.3)] lg:-translate-y-8 z-20' 
-                            : 'bg-white/80 dark:bg-slate-900/40 border-gray-100 dark:border-gray-800 backdrop-blur-xl hover:-translate-y-3 hover:shadow-2xl'
+                        'relative bg-white dark:bg-slate-800 p-10 rounded-[3rem] border shadow-2xl transition-all duration-500 flex flex-col group',
+                        plan.destacado ? 'border-[var(--color-primary)] ring-4 ring-[var(--color-primary-soft)] lg:-translate-y-4 shadow-xl' : 'border-slate-50 dark:border-slate-700 shadow-slate-100/50 dark:shadow-none hover:shadow-xl hover:shadow-xl'
                     ]"
                 >
-                    <!-- Featured Badge -->
-                    <div v-if="plan.destacado" class="absolute -top-6 left-1/2 -translate-x-1/2">
-                        <div class="relative px-8 py-3 bg-[var(--color-primary)] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl flex items-center gap-2">
-                            <font-awesome-icon icon="crown" class="animate-bounce" /> Recomendado
-                        </div>
+                    <!-- Badge Destacado -->
+                    <div v-if="plan.destacado" class="absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 bg-[var(--color-primary)] text-white text-[10px] font-black uppercase tracking-wide rounded-full shadow-xl">
+                        Recomendado
                     </div>
 
-                    <!-- Plan Header -->
-                    <div class="mb-12 text-center">
+                    <!-- Cabecera del Plan -->
+                    <div class="mb-10 text-center">
                         <div 
-                            class="w-24 h-24 rounded-3xl flex items-center justify-center text-4xl mb-8 mx-auto transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-2xl relative"
+                            class="w-16 h-16 rounded-[2rem] flex items-center justify-center text-3xl mb-6 mx-auto transition-all duration-500 group-hover:scale-105 shadow-xl group-hover:shadow-xl"
                             :style="{ 
-                                background: plan.destacado ? `linear-gradient(135deg, var(--color-primary), #1e40af)` : 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
-                                color: plan.destacado ? 'white' : 'var(--color-primary)'
+                                backgroundColor: plan.destacado ? 'var(--color-primary)' : 'var(--color-primary-soft)', 
+                                color: plan.destacado ? 'white' : 'var(--color-primary)' 
                             }"
                         >
-                             <div class="dark:hidden" v-if="!plan.destacado"></div>
-                             <!-- Dark mode adjustments for icon bg -->
-                             <div v-if="!plan.destacado" class="absolute inset-0 dark:bg-slate-800 rounded-3xl -z-10 hidden dark:block"></div>
-                             
-                             <font-awesome-icon :icon="getFaIcon(plan)" class="drop-shadow-lg" />
+                            <font-awesome-icon :icon="getFaIcon(plan)" />
                         </div>
-                        <h2 class="text-4xl font-black text-gray-900 dark:text-white mb-3 tracking-tight group-hover:text-[var(--color-primary)] transition-colors">{{ plan.nombre }}</h2>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em]">{{ plan.tipo_label }}</p>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white mb-2 leading-tight transition-colors">{{ plan.nombre }}</h2>
+                        <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] transition-colors">{{ plan.tipo_label }}</span>
                     </div>
 
-                    <!-- Pricing Section -->
-                    <div class="mb-12 text-center flex-shrink-0">
-                        <template v-if="parseFloat(plan.precio_mensual) > 0">
-                            <div class="flex items-baseline justify-center gap-1 mb-2">
-                                <span class="text-2xl text-gray-400 font-bold">$</span>
-                                <span class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-500 dark:from-white dark:to-slate-400 tracking-tighter">
-                                    {{ billingCycle === 'monthly' ? formatPrice(plan.precio_mensual).split('.')[0] : formatPrice(plan.precio_anual / 12).split('.')[0] }}
-                                </span>
-                                <span class="text-2xl text-gray-400 font-bold">.{{ formatPrice(plan.precio_mensual).split('.')[1] }}</span>
+                    <!-- Selector de equipos por tipo (precios_por_tipo) -->
+                    <div v-if="plan.precios_por_tipo?.length" class="mb-6 px-4">
+                        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700">
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3 block text-center">Selecciona tus equipos</label>
+                            <div class="space-y-3">
+                                <div v-for="(tipo, idx) in plan.precios_por_tipo" :key="idx"
+                                    class="flex items-center gap-3 p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600">
+                                    <div class="w-9 h-9 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-sm shrink-0">
+                                        <font-awesome-icon :icon="tipo.icono || 'microchip'" />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{{ tipo.nombre }}</div>
+                                        <div class="text-[9px] text-slate-400 dark:text-slate-500 font-mono">{{ tipo.descripcion || '' }}</div>
+                                        <div class="text-[10px] text-indigo-600 dark:text-indigo-400 font-black mt-0.5">{{ formatCurrency(tipo.precio) }}/mes</div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button @click="setCantidadTipo(plan, idx, getCantidadTipo(plan, idx) - 1)"
+                                            class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-500 font-bold flex items-center justify-center hover:bg-slate-100 transition-all text-sm"
+                                            :disabled="getCantidadTipo(plan, idx) <= 0">−</button>
+                                        <span class="w-10 text-center text-lg font-black text-slate-900 dark:text-white tabular-nums">{{ getCantidadTipo(plan, idx) }}</span>
+                                        <button @click="setCantidadTipo(plan, idx, getCantidadTipo(plan, idx) + 1)"
+                                            class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-500 font-bold flex items-center justify-center hover:bg-slate-100 transition-all text-sm">+</button>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-xs text-gray-400 font-black uppercase tracking-widest">pesos por mes</p>
-                            
-                            <div v-if="billingCycle === 'yearly'" class="mt-6 animate-fade-in">
-                                <span class="px-5 py-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-xl text-[10px] font-black uppercase tracking-tighter">
-                                    Ahorras ${{ formatPrice(plan.ahorro_anual) }} al año
-                                </span>
+                            <div class="mt-3 pt-2 border-t border-slate-200 dark:border-slate-600 flex justify-between text-xs">
+                                <span class="text-slate-500 dark:text-slate-400 font-medium">Total equipos: <strong class="text-slate-900 dark:text-white">{{ getCantidadTotal(plan) }}</strong></span>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-black">Subtotal: {{ formatCurrency(getPrecio(plan)) }}/mes</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Selector simple de cantidad (para precio por equipo sin tipos) -->
+                    <div v-else-if="plan.precio_por_equipo > 0" class="mb-6 px-4">
+                        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700">
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 block text-center">¿Cuántos equipos?</label>
+                            <div class="flex items-center justify-center gap-4">
+                                <button @click="cantidadesEquipos[plan.id] = Math.max(1, (cantidadesEquipos[plan.id] || plan.min_equipos || 1) - 1)" 
+                                    class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-lg hover:bg-slate-100 transition-all flex items-center justify-center shadow-sm"
+                                    :disabled="(cantidadesEquipos[plan.id] || plan.min_equipos || 1) <= 1">−</button>
+                                <span class="text-2xl font-black text-slate-900 dark:text-white w-16 text-center tabular-nums">{{ cantidadesEquipos[plan.id] || plan.min_equipos || 1 }}</span>
+                                <button @click="cantidadesEquipos[plan.id] = Math.min(plan.max_equipos || 100, (cantidadesEquipos[plan.id] || plan.min_equipos || 1) + 1)" 
+                                    class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-lg hover:bg-slate-100 transition-all flex items-center justify-center shadow-sm"
+                                    :disabled="plan.max_equipos && (cantidadesEquipos[plan.id] || plan.min_equipos || 1) >= plan.max_equipos">+</button>
+                            </div>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2">{{ formatCurrency(plan.precio_por_equipo) }} por equipo/mes</p>
+                        </div>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="mb-10 text-center pt-6 border-t border-slate-50 dark:border-slate-700 transition-colors">
+                        <template v-if="getPrecio(plan) > 0">
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span class="text-slate-400 dark:text-slate-500 text-2xl font-bold">$</span>
+                                <Transition mode="out-in">
+                                    <span :key="periodoSeleccionado + '-' + getCantidad(plan)" class="text-6xl font-black text-slate-900 dark:text-white tracking-tighter transition-colors">
+                                        {{ formatCurrency(getPrecio(plan)).replace('$', '').replace('.00', '') }}
+                                    </span>
+                                </Transition>
+                            </div>
+                            <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-2">{{ periodoSeleccionado === 'anual' ? 'Pesos por año' : 'Pesos por mes' }}</p>
+                            <p v-if="plan.precios_por_tipo?.length" class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">{{ getCantidadTotal(plan) }} equipo(s) seleccionados</p>
+                            <p v-else-if="plan.precio_por_equipo > 0" class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">{{ formatCurrency(plan.precio_por_equipo) }}/año × {{ getCantidadTotal(plan) }} equipo(s)</p>
+                            <p v-else-if="plan.precio_mensual > 0" class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">{{ formatCurrency(plan.precio_mensual) }}/mes precio fijo</p>
                         </template>
                         <template v-else>
-                            <div class="py-4">
-                                <h3 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase leading-none mb-4">Soluciones <br/> a Medida</h3>
-                                <p class="text-[var(--color-primary)] text-[10px] font-black uppercase tracking-[0.25em]">Diseño y Soporte VIP</p>
+                            <div class="py-2">
+                                <span class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase transition-colors">Plan Empresa</span>
                             </div>
+                            <p class="text-xs font-black text-brand-600 dark:text-orange-400 uppercase tracking-wide mt-2">Soluciones a Medida</p>
                         </template>
+                        
+                        <!-- Ahorro Anual -->
+                        <div v-if="periodoSeleccionado === 'anual' && getTotalAnual(plan) > 0" class="mt-4 inline-block px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 rounded-2xl border border-emerald-100 dark:border-emerald-700 animate-fade-in shadow-sm">
+                            <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-300 uppercase">Ahorras {{ formatCurrency(getTotalAnual(plan) * 0.15) }} al año</p>
+                        </div>
+                        <div v-else class="h-[42px]"></div>
                     </div>
 
-                    <!-- Features List -->
+                    <!-- Beneficios -->
                     <ul class="space-y-6 mb-12 flex-grow">
-                        <li v-for="beneficio in plan.beneficios_array" :key="beneficio" class="flex items-start gap-4 group/item">
-                            <div class="w-6 h-6 rounded-full bg-[var(--color-primary-soft)] dark:bg-white/5 flex items-center justify-center text-[var(--color-primary)] text-[10px] flex-shrink-0 group-hover/item:bg-[var(--color-primary)] group-hover/item:text-white transition-all duration-300">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" /></svg>
-                            </div>
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300 leading-snug group-hover/item:text-gray-900 dark:group-hover/item:text-white transition-colors">{{ beneficio }}</span>
+                        <li v-for="beneficio in plan.beneficios_array" :key="beneficio" class="flex items-start gap-4">
+                            <span class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold" :style="{ backgroundColor: getColorPlan(plan) }">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                            </span>
+                            <span class="text-sm font-medium text-slate-500 dark:text-slate-200 leading-relaxed transition-colors">{{ beneficio }}</span>
                         </li>
                     </ul>
 
-                    <!-- Call to Action -->
+                    <!-- Botón de Acción -->
                     <Link 
-                        v-if="parseFloat(plan.precio_mensual) > 0"
+                        v-if="getPrecio(plan) > 0"
                         :href="route('contratacion.show', plan.slug)"
-                        class="w-full py-6 rounded-3xl font-black text-[11px] uppercase tracking-widest text-center transition-all duration-500 relative overflow-hidden group/btn shadow-xl"
-                        :class="plan.destacado ? 'bg-[var(--color-primary)] text-white hover:shadow-[var(--color-primary)]/50' : 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:opacity-90'"
+                        class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl"
+                        :class="plan.destacado ? 'bg-slate-900 text-white hover:bg-black shadow-slate-200' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 shadow-slate-100 dark:shadow-none'"
                     >
-                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
-                        <span class="relative z-10">Contratar Plan</span>
+                        Contratar Plan
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                     </Link>
                     <a 
                         v-else
                         :href="'https://wa.me/' + (empresaData.whatsapp || '521234567890')"
                         target="_blank"
-                        class="w-full py-6 rounded-3xl font-black text-[11px] uppercase tracking-widest text-center border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all duration-500 shadow-xl"
+                        class="w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-xl bg-[var(--color-primary)] text-white hover:opacity-90"
                     >
                         Contactar Ventas
+                        <font-awesome-icon :icon="['fab', 'whatsapp']" class="text-lg" />
                     </a>
                 </article>
             </div>
+
+            <!-- Empty State -->
+            <div v-else class="py-24 text-center">
+                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">🏷️</div>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 transition-colors">Próximamente estaremos listos</h3>
+                <p class="text-slate-500 dark:text-slate-400 font-medium transition-colors">Estamos preparando nuestros nuevos planes para ti.</p>
+            </div>
         </main>
-
-        <!-- SECCIÓN: SIMULADOR INTELIGENTE (ESTÉTICA LANDING) -->
-        <section class="w-full px-4 py-32 bg-gray-900 dark:bg-black text-white relative overflow-hidden">
-             <!-- Cyber background effects -->
-             <div class="absolute inset-0">
-                <div class="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_50%)]"></div>
-             </div>
-
-             <div class="max-w-7xl mx-auto relative z-10">
-                <div class="grid lg:grid-cols-2 gap-24 items-center">
-                    <div>
-                        <div class="inline-block px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8">Calculadora de Inversión</div>
-                        <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-tight">
-                            Personalice su <br/>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-cyan-400">Protección TI</span>
-                        </h2>
-                        <p class="text-xl text-gray-400 font-medium mb-12 leading-relaxed">
-                            Ajuste su póliza según el tamaño de su empresa. Obtenga una estimación instantánea y transparente de su inversión mensual.
-                        </p>
-                        
-                        <div class="space-y-8">
-                            <div class="flex items-start gap-6 group">
-                                <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl group-hover:bg-[var(--color-primary)] transition-all duration-500">⚡</div>
-                                <div>
-                                    <h4 class="font-bold text-lg mb-1">Cálculo en Tiempo Real</h4>
-                                    <p class="text-gray-400 text-sm">Visualice el impacto de cada equipo adicional al instante.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-6 group">
-                                <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl group-hover:bg-[var(--color-primary)] transition-all duration-500">🛡️</div>
-                                <div>
-                                    <h4 class="font-bold text-lg mb-1">Garantía de Servicio</h4>
-                                    <p class="text-gray-400 text-sm">Nuestros algoritmos aseguran el mejor SLA según su carga.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Calculadora Layout -->
-                    <div class="bg-gray-800 dark:bg-indigo-950/20 backdrop-blur-3xl rounded-[4rem] p-12 lg:p-16 border border-white/10 shadow-3xl">
-                        <div class="space-y-12">
-                            <div>
-                                <div class="flex justify-between items-center mb-6">
-                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estaciones de Trabajo (PC/Laptop)</label>
-                                    <span class="px-4 py-2 bg-blue-500 text-white font-black rounded-xl text-xl shadow-lg shadow-blue-500/30">{{ simulador.pcs }}</span>
-                                </div>
-                                <input type="range" v-model="simulador.pcs" min="1" max="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]" />
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 block">Módulos Especializados</label>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <button 
-                                        v-for="(costo, serv) in simulador.addonsConfig" 
-                                        :key="serv"
-                                        @click="toggleAddon(serv)"
-                                        :class="[
-                                            'px-6 py-4 rounded-2xl border-2 transition-all duration-500 text-[10px] font-black uppercase tracking-widest flex items-center justify-center',
-                                            simulador.addons[serv] ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-lg' : 'border-white/5 bg-white/5 text-gray-400 hover:border-gray-600'
-                                        ]"
-                                    >
-                                        {{ serv }}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-10">
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Inversión Mensual Estimada</p>
-                                    <div class="flex items-baseline gap-2">
-                                        <span class="text-gray-400 text-2xl font-bold">$</span>
-                                        <span class="text-6xl font-black text-white tracking-tighter">{{ formatPrice(costoSimulado).split('.')[0] }}</span>
-                                        <span class="text-2xl text-gray-400 font-bold">.{{ formatPrice(costoSimulado).split('.')[1] }}</span>
-                                    </div>
-                                    <p class="text-[10px] text-blue-400 font-bold mt-3 uppercase tracking-tighter">* Basado en {{ horasSimuladas }} horas de soporte incluidas</p>
-                                </div>
-                                <button class="w-full md:w-auto px-10 py-6 bg-white text-gray-900 rounded-[2rem] font-black text-[11px] uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
-                                    Lo quiero
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-             </div>
-        </section>
 
         <!-- Footer -->
         <PublicFooter :empresa="empresaData" />
@@ -367,23 +343,27 @@ const horasSimuladas = computed(() => {
 </template>
 
 <style scoped>
-@keyframes pulse-slow {
-    0%, 100% { opacity: 0.1; transform: scale(1); }
-    50% { opacity: 0.2; transform: scale(1.1); }
-}
-.animate-pulse-slow {
-    animation: pulse-slow 8s ease-in-out infinite;
-}
 .animate-fade-in {
     animation: fadeIn 0.8s ease-out forwards;
 }
+
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Custom pricing text-fill effect */
-.dark span.text-transparent {
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+.v-enter-active,
+.v-leave-active {
+    transition: all 0.3s ease;
+}
+
+.v-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.v-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 </style>

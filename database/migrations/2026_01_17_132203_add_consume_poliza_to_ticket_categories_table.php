@@ -10,17 +10,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('ticket_categories', function (Blueprint $table) {
-            $table->boolean('consume_poliza')->default(true)->after('activo')
-                ->comment('Determina si los tickets de esta categoría descuentan folios de la póliza');
-        });
+        if (!Schema::hasColumn('ticket_categories', 'consume_poliza')) {
+            Schema::table('ticket_categories', function (Blueprint $table) {
+                $table->boolean('consume_poliza')->default(true)->after('activo')
+                    ->comment('Determina si los tickets de esta categoría descuentan folios de la póliza');
+            });
 
-        // Por defecto, lo que suene a asesoría o consulta no debería consumir póliza
-        \DB::table('ticket_categories')
-            ->where('nombre', 'like', '%Asesoría%')
-            ->orWhere('nombre', 'like', '%Consultoría%')
-            ->orWhere('nombre', 'like', '%Duda%')
-            ->update(['consume_poliza' => false]);
+            // Por defecto, lo que suene a asesoría o consulta no debería consumir póliza
+            \DB::table('ticket_categories')
+                ->where('nombre', 'like', '%Asesoría%')
+                ->orWhere('nombre', 'like', '%Consultoría%')
+                ->orWhere('nombre', 'like', '%Duda%')
+                ->update(['consume_poliza' => false]);
+        }
     }
 
     /**

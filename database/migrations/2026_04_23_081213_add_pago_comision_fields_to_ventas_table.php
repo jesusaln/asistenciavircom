@@ -11,16 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ventas', function (Blueprint $table) {
-            $table->boolean('comision_pagada')->default(false)->after('total');
-            $table->timestamp('comision_pagada_at')->nullable()->after('comision_pagada');
-            $table->unsignedBigInteger('pago_comision_id')->nullable()->after('comision_pagada_at');
-            
-            // Si existe la tabla de pagos de comisión, añadir la llave foránea
-            if (Schema::hasTable('pago_comisiones')) {
-                $table->foreign('pago_comision_id')->references('id')->on('pago_comisiones')->onDelete('set null');
-            }
-        });
+        if (Schema::hasTable('ventas')) {
+            Schema::table('ventas', function (Blueprint $table) {
+                if (!Schema::hasColumn('ventas', 'comision_pagada')) {
+                    $table->boolean('comision_pagada')->default(false)->after('total');
+                }
+                if (!Schema::hasColumn('ventas', 'comision_pagada_at')) {
+                    $table->timestamp('comision_pagada_at')->nullable()->after('comision_pagada');
+                }
+                if (!Schema::hasColumn('ventas', 'pago_comision_id')) {
+                    $table->unsignedBigInteger('pago_comision_id')->nullable()->after('comision_pagada_at');
+                }
+                
+                // Si existe la tabla de pagos de comisión, añadir la llave foránea
+                if (Schema::hasTable('pagos_comisiones') && Schema::hasColumn('ventas', 'pago_comision_id')) {
+                    // Check if foreign key already exists (optional but safer)
+                    $table->foreign('pago_comision_id')->references('id')->on('pagos_comisiones')->onDelete('set null');
+                }
+            });
+        }
     }
 
     /**

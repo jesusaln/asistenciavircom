@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PagoComision extends Model
 {
+    use BelongsToEmpresa;
+
     use SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'pagos_comisiones';

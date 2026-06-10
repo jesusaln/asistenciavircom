@@ -9,6 +9,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class LandingMarcaAutorizada extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'landing_marcas_autorizadas';

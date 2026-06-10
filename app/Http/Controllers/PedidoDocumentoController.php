@@ -64,6 +64,13 @@ class PedidoDocumentoController extends Controller
                 'mail.mailers.smtp.username' => $configuracion->smtp_username,
                 'mail.mailers.smtp.password' => $configuracion->smtp_password,
                 'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption,
+                'mail.mailers.smtp.stream' => [
+                    'ssl' => [
+                        'allow_self_signed' => true,
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ],
+                ],
                 'mail.from.address' => $configuracion->email_from_address,
                 'mail.from.name' => $configuracion->email_from_name,
             ]);

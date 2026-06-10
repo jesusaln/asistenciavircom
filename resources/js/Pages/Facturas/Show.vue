@@ -1,15 +1,19 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, watch } from 'vue'
-import { Link, router, usePage } from '@inertiajs/vue3'
+import { Link, router, usePage, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import Swal from '@/Utils/Swal'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
+const { formatDateTime } = useFormatters();
 
 defineOptions({ layout: AppLayout })
 const { colors, cssVars } = useCompanyColors()
 
 const props = defineProps({
   factura: Object,
-  cfdi: Object
+  cfdi: Object,
+  catalogos: Object
 })
 
 const formatearMoneda = (monto) => {
@@ -26,7 +30,7 @@ const getStatusClasses = (status) => {
     pagada: 'bg-emerald-400/10 text-emerald-400 ring-1 ring-inset ring-emerald-400/20',
     vencida: 'bg-rose-400/10 text-rose-400 ring-1 ring-inset ring-rose-400/20',
     cancelada: 'bg-pink-400/10 text-pink-400 ring-1 ring-inset ring-pink-400/20',
-    anulada: 'bg-gray-400/10 text-gray-400 ring-1 ring-inset ring-gray-400/20',
+    anulada: 'bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-400/20',
   }
   return classes[status] || 'bg-slate-700/50 text-slate-300 ring-1 ring-inset ring-slate-600/20'
 }
@@ -37,8 +41,9 @@ const motivoCancelacion = ref('02')
 const uuidSustitucion = ref('')
 const processingCancel = ref(false)
 
-const cancelarFactura = () => {
-  if (!confirm('¿Estás seguro de cancelar esta factura? Esta acción no se puede deshacer.')) return
+const cancelarFactura = async () => {
+  const { isConfirmed } = await Swal.fire({ title: 'Cancelar factura', text: '¿Estás seguro de cancelar esta factura? Esta acción no se puede deshacer.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, cancelar', cancelButtonText: 'No' })
+  if (!isConfirmed) return
 
   processingCancel.value = true
   router.post(route('facturas.cancelar', props.factura.id), {
@@ -61,34 +66,53 @@ const timbrarFactura = () => {
     })
 }
 
-const eliminarBorrador = () => {
-  if (!confirm('¿Eliminar este borrador? La venta será liberada para volver a facturarla.')) return
+const eliminarBorrador = async () => {
+  const { isConfirmed } = await Swal.fire({ title: 'Eliminar borrador', text: '¿Eliminar este borrador? La venta será liberada para volver a facturarla.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar', cancelButtonText: 'No' })
+  if (!isConfirmed) return
   
   router.delete(route('facturas.destroy', props.factura.id))
 }
 
-// Error Modal Logic
+// Error Modal & Quick Edit Logic
 const page = usePage()
 const showStampingErrorModal = ref(false)
 const stampingErrorMessage = ref('')
 
+const clienteForm = useForm({
+    rfc: '',
+    regimen_fiscal: '',
+    codigo_postal: '',
+    uso_cfdi: 'G03',
+})
+
 watch(() => page.props.flash?.stamping_error, (newVal) => {
     if (newVal) {
         stampingErrorMessage.value = newVal
+        if (props.factura?.cliente) {
+            clienteForm.rfc = props.factura.cliente.rfc || ''
+            clienteForm.regimen_fiscal = props.factura.cliente.regimen_fiscal || ''
+            clienteForm.codigo_postal = props.factura.cliente.domicilio_fiscal_cp || props.factura.cliente.codigo_postal || ''
+            clienteForm.uso_cfdi = props.factura.cliente.uso_cfdi || 'G03'
+        }
         showStampingErrorModal.value = true
     }
 }, { immediate: true })
 
-const retryStampingFromModal = () => {
-    showStampingErrorModal.value = false
-    timbrarFactura()
+const guardarYReintentar = () => {
+    if (!props.factura?.cliente?.id) return
+    clienteForm.post(route('clientes.quick-fiscal', props.factura.cliente.id), {
+        onSuccess: () => {
+            showStampingErrorModal.value = false
+            timbrarFactura()
+        }
+    })
 }
 </script>
 
 <template>
-  <div :style="cssVars" class="min-h-screen bg-slate-900 font-sans text-slate-300">
+  <div :style="cssVars" class="min-h-screen bg-[var(--ui-surface)] font-sans text-slate-300">
     <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         
         <!-- Breadcrumb & Header -->
         <div class="mb-8">
@@ -102,7 +126,7 @@ const retryStampingFromModal = () => {
                     </h2>
                     <div class="mt-2 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-4">
                         <div class="flex items-center text-sm text-slate-400 mt-1">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-medium capitalize"
                             :class="getStatusClasses(factura.estado)">
                             {{ factura.estado }}
                             </span>
@@ -126,7 +150,7 @@ const retryStampingFromModal = () => {
                     <a v-if="factura.estado !== 'borrador' && factura.estado !== 'cancelada'" 
                     :href="route('facturas.pdf', factura.id)" 
                     target="_blank"
-                    class="inline-flex items-center px-4 py-2 border border-slate-700 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all">
+                    class="inline-flex items-center px-4 py-2 border border-slate-700 rounded-2xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all">
                         <svg class="-ml-1 mr-2 h-5 w-5 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -137,7 +161,7 @@ const retryStampingFromModal = () => {
                     <a v-if="cfdi && cfdi.xml_url" 
                     :href="route('facturas.xml', factura.id)" 
                     target="_blank"
-                    class="inline-flex items-center px-4 py-2 border border-slate-700 rounded-xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all">
+                    class="inline-flex items-center px-4 py-2 border border-slate-700 rounded-2xl shadow-sm text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all">
                         <svg class="-ml-1 mr-2 h-5 w-5 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                         </svg>
@@ -146,7 +170,7 @@ const retryStampingFromModal = () => {
 
                     <button v-if="factura.estado === 'borrador'" 
                         @click="eliminarBorrador"
-                        class="inline-flex items-center px-4 py-2 border border-slate-600 rounded-xl shadow-sm text-sm font-medium text-rose-400 bg-transparent hover:bg-rose-900/20 hover:text-rose-300 transition-all mr-2">
+                        class="inline-flex items-center px-4 py-2 border border-slate-600 rounded-2xl shadow-sm text-sm font-medium text-rose-400 bg-transparent hover:bg-rose-900/20 hover:text-rose-300 transition-all mr-2">
                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -156,7 +180,7 @@ const retryStampingFromModal = () => {
                     <button v-if="factura.estado === 'borrador'" 
                         @click="timbrarFactura"
                         :disabled="processingTimbrar"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-2xl shadow-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg v-if="processingTimbrar" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -169,7 +193,7 @@ const retryStampingFromModal = () => {
 
                     <button v-if="factura.estado === 'enviada' || factura.estado === 'pagada'" 
                         @click="showCancelModal = true"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-rose-600/90 hover:bg-rose-500 transition-all">
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-2xl shadow-sm text-sm font-medium text-white bg-rose-600/90 hover:bg-slate-500 transition-all">
                         Cancelar Factura
                     </button>
                 </div>
@@ -178,15 +202,15 @@ const retryStampingFromModal = () => {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Left Column: Items -->
-            <div class="md:col-span-2 space-y-8">
+            <div class="md:col-span-2 space-y-6">
                 <!-- Conceptos Table -->
                 <div class="bg-slate-800 shadow-xl border border-slate-700/50 rounded-2xl overflow-hidden">
-                    <div class="px-6 py-5 border-b border-slate-700/50 flex justify-between items-center bg-slate-900/30">
+                    <div class="px-6 py-5 border-b border-slate-700/50 flex justify-between items-center bg-slate-900/50">
                         <h3 class="text-lg font-medium text-white">Conceptos Facturados</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-slate-700/50">
-                            <thead class="bg-slate-900/50">
+                        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Cant</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Concepto</th>
@@ -194,7 +218,7 @@ const retryStampingFromModal = () => {
                                     <th class="px-6 py-3 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Importe</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-700/50 bg-slate-800">
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                                 <template v-for="venta in factura.ventas" :key="venta.id">
                                     <tr class="bg-slate-900/20">
                                         <td colspan="4" class="px-6 py-2 text-xs font-bold text-indigo-400/80 border-b border-slate-700/30">
@@ -218,18 +242,18 @@ const retryStampingFromModal = () => {
 
                 <!-- Timbre Fiscal info -->
                 <div class="bg-slate-800 shadow-xl border border-slate-700/50 rounded-2xl overflow-hidden" v-if="cfdi">
-                    <div class="px-6 py-5 border-b border-slate-700/50 bg-slate-900/30">
+                    <div class="px-6 py-5 border-b border-slate-700/50 bg-slate-900/50">
                         <h3 class="text-lg font-medium text-white">Timbre Fiscal Digital</h3>
                     </div>
                     <div class="px-6 py-5">
                         <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                             <div class="sm:col-span-1">
                                 <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Folio Fiscal (UUID)</dt>
-                                <dd class="mt-1 text-sm text-white font-mono bg-slate-900/50 p-2 rounded-lg border border-slate-700/50">{{ cfdi.uuid }}</dd>
+                                <dd class="mt-1 text-sm text-white font-mono bg-black/50 p-2 rounded-xl border border-slate-700/50">{{ cfdi.uuid }}</dd>
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Fecha Timbrado</dt>
-                                <dd class="mt-1 text-sm text-white">{{ new Date(cfdi.fecha_timbrado).toLocaleString() }}</dd>
+                                <dd class="mt-1 text-sm text-white">{{ formatDateTime(cfdi.fecha_timbrado) }}</dd>
                             </div>
                             <div class="sm:col-span-2">
                                 <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Sello SAT</dt>
@@ -241,7 +265,7 @@ const retryStampingFromModal = () => {
             </div>
 
             <!-- Right Column: Info & Totals -->
-            <div class="md:col-span-1 space-y-8">
+            <div class="md:col-span-1 space-y-6">
                  <!-- Totals Card -->
                  <div class="bg-slate-800 shadow-xl border border-slate-700/50 rounded-2xl p-6 relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-5">
@@ -268,7 +292,7 @@ const retryStampingFromModal = () => {
 
                 <div class="bg-slate-800 shadow-xl border border-slate-700/50 rounded-2xl p-6">
                     <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-700 pb-2">Cliente</h3>
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div>
                              <div class="text-xs text-slate-500 uppercase">Razón Social</div>
                              <div class="text-white font-medium">{{ cfdi?.nombre_receptor || factura.cliente.nombre_razon_social }}</div>
@@ -304,7 +328,7 @@ const retryStampingFromModal = () => {
     </div>
 
     <!-- Modal Cancelación -->
-    <div v-if="showCancelModal" class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div v-if="showCancelModal" class="fixed z-50 inset-0 overflow-y-auto custom-scrollbar" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showCancelModal = false"></div>
 
@@ -320,10 +344,10 @@ const retryStampingFromModal = () => {
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-white" id="modal-title">Cancelar Factura</h3>
-                            <div class="mt-4 space-y-4">
+                            <div class="mt-4 space-y-6">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-400 mb-1">Motivo de Cancelación (SAT)</label>
-                                    <select v-model="motivoCancelacion" class="block w-full pl-3 pr-10 py-2 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl">
+                                    <select v-model="motivoCancelacion" class="block w-full pl-3 pr-10 py-2 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-xl">
                                         <option value="01">01 - Comprobante emitido con errores con relación</option>
                                         <option value="02">02 - Comprobante emitido con errores sin relación</option>
                                         <option value="03">03 - No se llevó a cabo la operación</option>
@@ -335,7 +359,7 @@ const retryStampingFromModal = () => {
                                     <input
                                         type="text"
                                         v-model="uuidSustitucion"
-                                        class="block w-full pl-3 pr-3 py-2 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl"
+                                        class="block w-full pl-3 pr-3 py-2 text-base bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-xl"
                                         placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
                                         maxlength="36"
                                         pattern="[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}"
@@ -347,16 +371,16 @@ const retryStampingFromModal = () => {
                         </div>
                     </div>
                 </div>
-                <div class="bg-slate-900/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-700/50">
+                <div class="bg-black/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-700/50">
                     <button type="button" 
-                        class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-rose-600 text-base font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+                        class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-rose-600 text-base font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
                         @click="cancelarFactura"
                         :disabled="processingCancel"
                     >
                         {{ processingCancel ? 'Cancelando...' : 'Confirmar Cancelación' }}
                     </button>
                     <button type="button" 
-                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-600 shadow-sm px-4 py-2 bg-transparent text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-600 shadow-sm px-4 py-2 bg-transparent text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
                         @click="showCancelModal = false"
                     >
                         Cancelar
@@ -367,7 +391,7 @@ const retryStampingFromModal = () => {
     </div>
 
     <!-- Modal Error Timbrado -->
-    <div v-if="showStampingErrorModal" class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div v-if="showStampingErrorModal" class="fixed z-50 inset-0 overflow-y-auto custom-scrollbar" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showStampingErrorModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -380,25 +404,58 @@ const retryStampingFromModal = () => {
                             </svg>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-bold text-white mb-2">Error de Timbrado CONTPAQi</h3>
-                            <div class="mt-2 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 max-h-60 overflow-y-auto">
+                            <h3 class="text-lg leading-6 font-bold text-white mb-2">Error de Timbrado SAT en Nube</h3>
+                            <div class="mt-2 bg-black/50 p-3 rounded-xl border border-slate-700/50 max-h-60 overflow-y-auto custom-scrollbar">
                                 <p class="text-sm text-rose-300 font-mono whitespace-pre-wrap">{{ stampingErrorMessage }}</p>
                             </div>
                             <p class="mt-3 text-sm text-slate-400">
                                 La factura ha sido generada pero no timbrada. Se ha guardado el folio para evitar duplicados. Verifique los datos fiscales e intente de nuevo.
                             </p>
+
+                            <!-- Formulario Editable de Corrección Fiscal Rápida -->
+                            <div class="mt-6 pt-6 border-t border-slate-700/50 text-left space-y-4">
+                                <h4 class="text-sm font-bold text-indigo-400 flex items-center">
+                                    <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Corregir Datos Fiscales del Cliente
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block font-medium text-slate-400 mb-1">RFC</label>
+                                        <input type="text" v-model="clienteForm.rfc" maxlength="13" class="w-full bg-slate-900 border border-slate-700 text-white uppercase rounded-xl px-3 py-2 focus:ring-brand-500 focus:border-brand-500">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-slate-400 mb-1">C.P. Domicilio Fiscal</label>
+                                        <input type="text" v-model="clienteForm.codigo_postal" maxlength="5" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 focus:ring-brand-500 focus:border-brand-500">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-slate-400 mb-1">Régimen Fiscal</label>
+                                        <select v-model="clienteForm.regimen_fiscal" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 focus:ring-brand-500 focus:border-brand-500">
+                                            <option v-for="r in catalogos?.regimenes" :key="r.clave" :value="r.clave">{{ r.clave }} - {{ r.descripcion }}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-slate-400 mb-1">Uso de CFDI</label>
+                                        <select v-model="clienteForm.uso_cfdi" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 focus:ring-brand-500 focus:border-brand-500">
+                                            <option v-for="u in catalogos?.usosCfdi" :key="u.clave" :value="u.clave">{{ u.clave }} - {{ u.descripcion }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
-                <div class="bg-slate-900/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-700/50">
+                <div class="bg-black/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-700/50">
                     <button type="button" 
-                        class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
-                        @click="retryStampingFromModal"
+                        :disabled="clienteForm.processing"
+                        class="w-full inline-flex items-center justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-base font-bold text-white hover:from-indigo-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-brand-500 sm:ml-3 sm:w-auto sm:text-sm transition-all disabled:opacity-50"
+                        @click="guardarYReintentar"
                     >
-                        Reintentar Timbrado
+                        <svg v-if="clienteForm.processing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Guardar y Reintentar Timbrado
                     </button>
                     <button type="button" 
-                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-600 shadow-sm px-4 py-2 bg-transparent text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
+                        class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-600 shadow-sm px-4 py-2 bg-transparent text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
                         @click="showStampingErrorModal = false"
                     >
                         Cerrar

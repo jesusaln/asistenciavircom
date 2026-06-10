@@ -12,6 +12,8 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class HistorialPagoPrestamo extends Model implements AuditableContract
 {
+    use BelongsToEmpresa;
+
     use HasFactory, AuditableTrait, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'historial_pagos_prestamos';

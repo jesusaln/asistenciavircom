@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Support\EmpresaResolver;
-use Illuminate\Support\Facades\Auth;
 
 class EnforceEmpresaContext
 {
@@ -17,22 +16,24 @@ class EnforceEmpresaContext
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (!auth()->check()) {
             return $next($request);
         }
-
-
+        $userId = auth()->id();
 
         // Rutas excluidas
         $excludedRoutes = [
+            'login',
+            'register',
+            'forgot-password',
+            'reset-password/*',
             'setup',
             'setup/*',
             'logout',
             'user/profile',
             'livewire/*',
             'sanctum/*',
-            'empresas',      // Whitelist para crear empresa
-            'empresas/*',    // Whitelist para guardar empresa
+            'empresas*',     // Whitelist para crear y guardar empresa (evita loops)
             'notifications/unread-count', // Ajax global
             'empresa/configuracion/api',  // Ajax global
             'portal',                     // Portal de clientes
@@ -41,6 +42,7 @@ class EnforceEmpresaContext
 
         foreach ($excludedRoutes as $route) {
             if ($request->is($route)) {
+                \Illuminate\Support\Facades\Log::info('EnforceEmpresaContext: Path is EXCLUDED: ' . $request->path() . ' matched rule: ' . $route);
                 return $next($request);
             }
         }
@@ -52,7 +54,7 @@ class EnforceEmpresaContext
         $empresaId = EmpresaResolver::resolveId();
 
         if (!$empresaId) {
-            \Illuminate\Support\Facades\Log::info('Middleware 403: No empresaId resolved for user: ' . Auth::id() . ' at path: ' . $request->path());
+            \Illuminate\Support\Facades\Log::info('EnforceEmpresaContext REDIRECTING to empresas.index from path: ' . $request->path() . ' (resolved userId: ' . $userId . ')');
             // Si hay usuario pero no hay empresa, es un estado inconsistente o usuario sin asignar
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'No se ha detectado un contexto de empresa válido para este usuario.'], 403);
@@ -60,9 +62,10 @@ class EnforceEmpresaContext
 
             // Redirigir a la pantalla de crear su primera empresa
             return redirect()->route('empresas.index')->with('warning', 'Debe crear o seleccionar una empresa para continuar.');
-
-            // abort(403, 'Acceso Denegado: Su usuario no tiene una empresa asignada o el contexto no pudo ser resuelto.');
         }
+
+        $request->attributes->set('empresa_id', $empresaId);
+        EmpresaResolver::setContext($empresaId);
 
         return $next($request);
     }

@@ -12,7 +12,7 @@ use App\Models\Venta;
 
 class TestVentaConcurrency extends Command
 {
-    protected $signature = 'test:concurrency:ventas {--threads=5 : Number of concurrent requests}';
+    protected $signature = 'debug:test-concurrency-ventas {--threads=5 : Number of concurrent requests}';
     protected $description = 'Test concurrency in sales module';
 
     public function handle()

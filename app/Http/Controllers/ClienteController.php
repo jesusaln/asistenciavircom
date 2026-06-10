@@ -26,6 +26,8 @@ use App\Exports\ClientesExport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClientAccountApprovedMail;
+use App\Models\Empresa;
+use App\Jobs\SendWhatsAppTemplate;
 
 
 
@@ -257,8 +259,8 @@ class ClienteController extends Controller
         try {
             $query = $this->buildSearchQuery($request);
 
-            $sortBy = $request->get('sort_by', self::DEFAULT_SORT_BY);
-            $sortDirection = $request->get('sort_direction', self::DEFAULT_SORT_DIRECTION);
+            $sortBy = $request->input('sort_by', self::DEFAULT_SORT_BY);
+            $sortDirection = $request->input('sort_direction', self::DEFAULT_SORT_DIRECTION);
 
             if (!in_array($sortBy, self::VALID_SORT_FIELDS))
                 $sortBy = self::DEFAULT_SORT_BY;
@@ -339,6 +341,40 @@ class ClienteController extends Controller
 
         try {
             $data = $request->validated();
+
+            $nombreLimpio = trim($data['nombre_razon_social']);
+            $empresaId = $data['empresa_id'] ?? \App\Support\EmpresaResolver::resolveId() ?? 1;
+
+            $existente = Cliente::where(function($q) use ($empresaId) {
+                if ($empresaId) {
+                    $q->where('empresa_id', $empresaId)->orWhereNull('empresa_id');
+                } else {
+                    $q->whereNull('empresa_id');
+                }
+            })
+                ->whereNull('deleted_at')
+                ->where(function($q) use ($nombreLimpio, $data) {
+                    $q->whereRaw("unaccent(lower(trim(nombre_razon_social))) = unaccent(lower(trim(?)))", [$nombreLimpio]);
+                    if (!empty($data['telefono']) && strlen(trim($data['telefono'])) >= 7) {
+                        $q->orWhere('telefono', trim($data['telefono']));
+                    }
+                    if (!empty($data['email']) && filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL)) {
+                        $q->orWhere('email', strtolower(trim($data['email'])));
+                    }
+                })->lockForUpdate()->first();
+
+            if ($existente) {
+                DB::rollBack();
+                Log::info('ClienteController: Evitando duplicado via Web, retornando cliente existente', ['id' => $existente->id]);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'El cliente ya estaba registrado y ha sido seleccionado automáticamente.',
+                        'cliente' => $existente
+                    ]);
+                }
+                return redirect()->route('clientes.index')->with('success', 'El cliente ya estaba registrado en el sistema.');
+            }
 
             // Si no se muestra la dirección en el formulario, evitar sobrescribirla con null/''
             $camposDireccion = ['calle', 'numero_exterior', 'numero_interior', 'colonia', 'codigo_postal', 'municipio', 'estado'];
@@ -428,8 +464,6 @@ class ClienteController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            // En lugar de redirect()->back()->with('error'), lanza el error
-            // Inertia lo manejará y lo mostrará en form.errors
             throw $e;
         }
     }
@@ -439,7 +473,7 @@ class ClienteController extends Controller
         try {
             // Optimizar carga de relaciones - solo cargar las necesarias para mostrar
             $cliente->load(['regimen', 'uso', 'estadoSat', 'credenciales', 'documentos']);
-            $cliente->loadCount(['cotizaciones', 'ventas', 'pedidos', 'facturas', 'tickets', 'citas', 'polizas']);
+            $cliente->loadCount(['cotizaciones', 'ventas', 'pedidos', 'facturas', 'tickets', 'citas', 'polizas', 'tallerOrdenes']);
             $cliente = $this->formatClienteForView($cliente);
             // Append expensive attributes only here
             $cliente->append(['saldo_pendiente', 'credito_disponible']);
@@ -479,6 +513,13 @@ class ClienteController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            // Ordenes de Taller (Historial de revisiones)
+            $taller = \App\Models\TallerOrden::where('cliente_id', $cliente->id)
+                ->with(['tecnico:id,name'])
+                ->orderBy('fecha_recepcion', 'desc')
+                ->limit(10)
+                ->get();
+
             return Inertia::render('Clientes/Show', [
                 'cliente' => $cliente,
                 'historialCompras' => $historialCompras,
@@ -486,6 +527,7 @@ class ClienteController extends Controller
                 'tickets' => $tickets,
                 'citas' => $citas,
                 'polizas' => $polizas,
+                'taller' => $taller,
             ]);
         } catch (ModelNotFoundException $e) {
             Log::warning('Cliente no encontrado', ['id' => request()->route('cliente')]);
@@ -1072,5 +1114,62 @@ class ClienteController extends Controller
         ]);
     }
 
-    // Servicios extraidos: ClienteRelationsService
+    public function initWhatsApp(Cliente $cliente)
+    {
+        if (!$cliente->telefono) {
+            return response()->json(['success' => false, 'message' => 'El cliente no tiene teléfono registrado.'], 422);
+        }
+
+        // Limpiar el teléfono de guiones y espacios
+        $telefonoLimpio = preg_replace('/[^0-9]/', '', $cliente->telefono);
+        
+        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json(['success' => false, 'message' => 'No se pudo identificar la empresa correspondiente.'], 422);
+        }
+        $empresa = Empresa::find($empresaId);
+
+        if (!$empresa || !$empresa->whatsapp_enabled) {
+            return response()->json(['success' => false, 'message' => 'WhatsApp no está habilitado para esta empresa.'], 422);
+        }
+
+        // Obtener la plantilla de saludo (por defecto 'saludo')
+        $template = $empresa->whatsapp_default_template ?? 'saludo';
+
+        // Disparar el Job para enviar el mensaje inicial (plantilla oficial de Meta)
+        SendWhatsAppTemplate::dispatch(
+            $empresaId,
+            $telefonoLimpio,
+            $template,
+            'es_MX',
+            ['1' => $cliente->nombre_razon_social] // Asumiendo que la plantilla saludo tiene 1 variable
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mensaje de WhatsApp enviado. Redirigiendo al Inbox...',
+            'redirect_url' => route('marketing.whatsapp.inbox')
+        ]);
+    }
+
+    public function quickFiscalUpdate(Request $request, Cliente $cliente)
+    {
+        $validated = $request->validate([
+            'rfc' => 'required|string|min:12|max:13',
+            'regimen_fiscal' => 'required|string',
+            'codigo_postal' => 'required|string|size:5',
+            'uso_cfdi' => 'required|string',
+        ]);
+
+        $cliente->update([
+            'rfc' => strtoupper($validated['rfc']),
+            'regimen_fiscal' => $validated['regimen_fiscal'],
+            'domicilio_fiscal_cp' => $validated['codigo_postal'],
+            'codigo_postal' => $validated['codigo_postal'],
+            'uso_cfdi' => $validated['uso_cfdi'],
+            'requiere_factura' => true,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Datos fiscales actualizados correctamente.']);
+    }
 }

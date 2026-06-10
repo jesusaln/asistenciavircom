@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('servicios', function (Blueprint $table) {
-            $table->string('tipo_comision_tecnica')->nullable()->default('otro')
-                ->comment('instalacion, desinstalacion, refrigeracion, tierra, diagnostico, preventivo, otro');
+            if (!Schema::hasColumn('servicios', 'tipo_comision_tecnica')) {
+                $table->string('tipo_comision_tecnica')->nullable()->default('otro')
+                    ->comment('instalacion, desinstalacion, refrigeracion, tierra, diagnostico, preventivo, otro');
+            }
         });
     }
 
@@ -23,7 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('servicios', function (Blueprint $table) {
-            $table->dropColumn('tipo_comision_tecnica');
+            if (Schema::hasColumn('servicios', 'tipo_comision_tecnica')) {
+                $table->dropColumn('tipo_comision_tecnica');
+            }
         });
     }
 };

@@ -11,15 +11,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::hasTable('citas')) {
+        if (!Schema::hasTable('citas') || !Schema::hasColumn('citas', 'fecha_hora')) {
             return;
         }
 
         Schema::table('citas', function (Blueprint $table) {
             // fecha_hora se confirma después por el administrador
-            if (Schema::hasColumn('citas', 'fecha_hora')) {
-                $table->dateTime('fecha_hora')->nullable()->change();
-            }
+            $table->dateTime('fecha_hora')->nullable()->change();
         });
     }
 
@@ -28,14 +26,12 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        if (!Schema::hasTable('citas')) {
+        if (!Schema::hasTable('citas') || !Schema::hasColumn('citas', 'fecha_hora')) {
             return;
         }
 
         Schema::table('citas', function (Blueprint $table) {
-            if (Schema::hasColumn('citas', 'fecha_hora')) {
-                $table->dateTime('fecha_hora')->nullable(false)->change();
-            }
+            $table->dateTime('fecha_hora')->nullable(false)->change();
         });
     }
 };

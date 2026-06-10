@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cita_historial', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('cita_id')->constrained('citas')->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('estado_anterior')->nullable();
-            $table->string('estado_nuevo');
-            $table->text('comentario')->nullable();
-            $table->json('metadatos')->nullable(); // Para guardar IP, User-Agent, etc.
-            $table->timestamps();
+        if (!Schema::hasTable('cita_historial')) {
+            Schema::create('cita_historial', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('cita_id')->constrained('citas')->onDelete('cascade');
+                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->string('estado_anterior')->nullable();
+                $table->string('estado_nuevo');
+                $table->text('comentario')->nullable();
+                $table->json('metadatos')->nullable(); // Para guardar IP, User-Agent, etc.
+                $table->timestamps();
 
-            $table->index('cita_id');
-            $table->index('user_id');
-        });
+                $table->index('cita_id');
+                $table->index('user_id');
+            });
+        }
     }
 
     /**

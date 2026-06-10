@@ -16,17 +16,19 @@ return new class extends Migration {
             }
         });
 
-        Schema::create('cliente_documentos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('cliente_id')->constrained()->onDelete('cascade');
-            $table->string('tipo'); // ine_frontal, ine_trasera, comprobante_domicilio, contrato_firmado, etc.
-            $table->string('nombre_archivo');
-            $table->string('ruta');
-            $table->string('extension')->nullable();
-            $table->bigInteger('tamano')->nullable();
-            $table->string('mime_type')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('cliente_documentos')) {
+            Schema::create('cliente_documentos', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('cliente_id')->constrained()->onDelete('cascade');
+                $table->string('tipo'); // ine_frontal, ine_trasera, comprobante_domicilio, contrato_firmado, etc.
+                $table->string('nombre_archivo');
+                $table->string('ruta');
+                $table->string('extension')->nullable();
+                $table->bigInteger('tamano')->nullable();
+                $table->string('mime_type')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

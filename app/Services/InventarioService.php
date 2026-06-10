@@ -20,7 +20,7 @@ class InventarioService
     {
     }
 
-    public function entrada(Producto $producto, int $cantidad, array $contexto = []): void
+    public function entrada(Producto $producto, float $cantidad, array $contexto = []): void
     {
         if ($producto->expires) {
             $this->entradaConLote($producto, $cantidad, $contexto);
@@ -29,7 +29,7 @@ class InventarioService
         }
     }
 
-    public function salida(Producto $producto, int $cantidad, array $contexto = []): array
+    public function salida(Producto $producto, float $cantidad, array $contexto = []): array
     {
         if ($producto->expires) {
             return $this->salidaConLote($producto, $cantidad, $contexto);
@@ -39,7 +39,7 @@ class InventarioService
         }
     }
 
-    protected function ajustar(Producto $producto, string $tipo, int $cantidad, array $contexto = []): void
+    protected function ajustar(Producto $producto, string $tipo, float $cantidad, array $contexto = []): void
     {
         if (!in_array($tipo, ['entrada', 'salida'], true)) {
             throw new InvalidArgumentException('Tipo de movimiento inválido.');
@@ -68,7 +68,7 @@ class InventarioService
      * Execute the actual inventory adjustment logic
      * ✅ CRITICAL FIX: Extracted from ajustar() to allow reuse with/without transactions
      */
-    protected function ejecutarAjuste(Producto $producto, string $tipo, int $cantidad, array $contexto = []): void
+    protected function ejecutarAjuste(Producto $producto, string $tipo, float $cantidad, array $contexto = []): void
     {
         // ✅ BLINDAJE KITS: Si es un Kit, procesar recursivamente sus componentes
         if ($producto->tipo_producto === 'kit') {
@@ -202,7 +202,7 @@ class InventarioService
      * Verifica si un producto tiene stock suficiente para una salida.
      *
      * @param Producto $producto
-     * @param int $cantidad
+     * @param float $cantidad
      * @return bool
      */
     public function tieneStockSuficiente(Producto $producto, int $cantidad): bool
@@ -313,7 +313,7 @@ class InventarioService
     /**
      * Entrada de productos con manejo de lotes
      */
-    protected function entradaConLote(Producto $producto, int $cantidad, array $contexto = []): void
+    protected function entradaConLote(Producto $producto, float $cantidad, array $contexto = []): void
     {
         $numeroLote = Arr::get($contexto, 'numero_lote');
         $fechaCaducidad = Arr::get($contexto, 'fecha_caducidad');
@@ -339,7 +339,7 @@ class InventarioService
     /**
      * Execute entrada con lote logic
      */
-    protected function ejecutarEntradaConLote(Producto $producto, int $cantidad, array $contexto, string $numeroLote, $fechaCaducidad, $costoUnitario): void
+    protected function ejecutarEntradaConLote(Producto $producto, float $cantidad, array $contexto, string $numeroLote, $fechaCaducidad, $costoUnitario): void
     {
         $almacenId = Arr::get($contexto, 'almacen_id');
         if (!$almacenId) {
@@ -441,7 +441,7 @@ class InventarioService
      * Salida de productos con manejo de lotes (FIFO)
      * @return array Returns array of used lots [['lote' => Lote, 'cantidad' => int], ...]
      */
-    protected function salidaConLote(Producto $producto, int $cantidad, array $contexto = []): array
+    protected function salidaConLote(Producto $producto, float $cantidad, array $contexto = []): array
     {
         // ✅ CRITICAL FIX: Check if we're already inside a transaction
         $skipTransaction = Arr::get($contexto, 'skip_transaction', false);
@@ -459,7 +459,7 @@ class InventarioService
     /**
      * Execute salida con lote logic
      */
-    protected function ejecutarSalidaConLote(Producto $producto, int $cantidad, array $contexto): array
+    protected function ejecutarSalidaConLote(Producto $producto, float $cantidad, array $contexto): array
     {
         $almacenId = Arr::get($contexto, 'almacen_id');
         if (!$almacenId) {

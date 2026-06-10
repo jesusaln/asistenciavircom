@@ -58,11 +58,16 @@ class CfdiUploadService
         // Guardar el archivo XML con organización por Año/Mes
         $xmlPath = $this->storeXmlFile($file, $data['uuid'], $data['fecha'] ?? null);
 
+        // Determinar dirección dinámicamente
+        $empresaRfc = \App\Models\EmpresaConfiguracion::getConfig()->rfc;
+        $direccion = ($data['emisor']['rfc'] ?? '') === $empresaRfc ? Cfdi::DIRECCION_EMITIDO : Cfdi::DIRECCION_RECIBIDO;
+
         // Crear el registro en la base de datos
         $cfdi = Cfdi::create([
             'uuid' => $data['uuid'],
-            'direccion' => Cfdi::DIRECCION_RECIBIDO,
+            'direccion' => $direccion,
             'tipo_comprobante' => $data['tipo_comprobante'] ?? 'I',
+            'complementos' => $data['complementos'] ?? null,
             'serie' => $data['serie'] ?? null,
             'folio' => $data['folio'] ?? null,
             'fecha_emision' => $data['fecha'] ?? now(),
@@ -113,13 +118,23 @@ class CfdiUploadService
             $this->storeConceptos($cfdi, $data['conceptos']);
         }
 
-        // ✅ FIX: Auto-procesar pagos si es tipo P
+        // ✅ FIX: Auto-procesar pagos si es tipo P (REP)
         if ($cfdi->tipo_comprobante === 'P') {
             try {
                 $this->paymentService->processAndApplyAuto($xmlContent);
                 Log::info("Auto-procesamiento de pago completado para CFDI: {$cfdi->uuid}");
             } catch (\Exception $e) {
                 Log::error("Error en auto-procesamiento de pago para CFDI {$cfdi->uuid}: " . $e->getMessage());
+            }
+        }
+
+        // ✅ FIX: Auto-procesar notas de crédito si es tipo E (Egreso)
+        if ($cfdi->tipo_comprobante === 'E') {
+            try {
+                $this->processCreditNote($cfdi, $data);
+                Log::info("Nota de crédito procesada automáticamente: {$cfdi->uuid}");
+            } catch (\Exception $e) {
+                Log::error("Error en procesamiento de nota de crédito {$cfdi->uuid}: " . $e->getMessage());
             }
         }
 
@@ -139,10 +154,15 @@ class CfdiUploadService
         // Actualizar el archivo XML
         $xmlPath = $this->storeXmlFile($file, $data['uuid'], $data['fecha'] ?? null);
 
+        // Determinar dirección dinámicamente
+        $empresaRfc = \App\Models\EmpresaConfiguracion::getConfig()->rfc;
+        $direccion = ($data['emisor']['rfc'] ?? '') === $empresaRfc ? Cfdi::DIRECCION_EMITIDO : Cfdi::DIRECCION_RECIBIDO;
+
         // Actualizar el registro
         $cfdi->update([
-            'direccion' => Cfdi::DIRECCION_RECIBIDO,
+            'direccion' => $direccion,
             'tipo_comprobante' => $data['tipo_comprobante'] ?? 'I',
+            'complementos' => $data['complementos'] ?? null,
             'serie' => $data['serie'] ?? null,
             'folio' => $data['folio'] ?? null,
             'fecha_emision' => $data['fecha'] ?? now(),
@@ -262,5 +282,63 @@ class CfdiUploadService
                 'total' => $existing->total,
             ] : null,
         ];
+    }
+
+    /**
+     * Procesa automáticamente una nota de crédito (Tipo E):
+     * busca la factura original por UUID y descuenta el monto de la cuenta por pagar.
+     */
+    protected function processCreditNote(Cfdi $cfdi, array $data): void
+    {
+        $fecha = $cfdi->fecha_emision ? \Carbon\Carbon::parse($cfdi->fecha_emision) : now();
+        $xmlPath = "cfdis/recibidos/{$fecha->format('Y')}/{$fecha->format('m')}/{$cfdi->uuid}.xml";
+        
+        if (!Storage::disk('public')->exists($xmlPath)) {
+            Log::warning("Nota de crédito {$cfdi->uuid}: XML no encontrado en {$xmlPath}");
+            return;
+        }
+
+        $xml = Storage::disk('public')->get($xmlPath);
+        preg_match_all('/UUID="([^"]+)"/i', $xml, $matches);
+        $uuids = array_unique($matches[1] ?? []);
+
+        // El primer UUID es el del propio CFDI, los demás son relacionados
+        $montoCredito = abs($cfdi->total);
+        $aplicado = 0;
+
+        foreach ($uuids as $uuidRel) {
+            if (strcasecmp($uuidRel, $cfdi->uuid) === 0) continue; // saltar el propio UUID
+
+            $cfdiOriginal = Cfdi::whereRaw("LOWER(uuid::text) = ?", [strtolower($uuidRel)])->first();
+            if (!$cfdiOriginal) continue;
+
+            $cuenta = \App\Models\CuentasPorPagar::where('cfdi_id', $cfdiOriginal->id)
+                ->whereIn('estado', ['pendiente', 'parcial', 'vencido'])
+                ->where('monto_pendiente', '>', 0)
+                ->first();
+
+            if (!$cuenta) continue;
+
+            $montoAplicar = min($montoCredito, $cuenta->monto_pendiente);
+            $nuevoPendiente = $cuenta->monto_pendiente - $montoAplicar;
+            $nuevoPagado = $cuenta->monto_total - $nuevoPendiente;
+
+            $cuenta->update([
+                'monto_pagado' => $nuevoPagado,
+                'monto_pendiente' => $nuevoPendiente,
+                'notas' => trim(($cuenta->notas ? $cuenta->notas . ' | ' : '') . "NC: {$cfdi->serie}{$cfdi->folio} (\${$montoAplicar})"),
+            ]);
+
+            if ($nuevoPendiente <= 0.01) {
+                $cuenta->update(['estado' => 'pagado', 'pagado_con_rep' => true]);
+            }
+
+            $montoCredito -= $montoAplicar;
+            $aplicado++;
+
+            if ($montoCredito <= 0) break;
+        }
+
+        Log::info("Nota de crédito {$cfdi->uuid}: {$aplicado} cuentas actualizadas");
     }
 }

@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden index-header-root">
+  <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden index-header-root">
     <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
+    <div class="px-6 py-6 border-b border-slate-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
@@ -10,8 +10,8 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Usuarios</h1>
-            <p class="text-sm text-gray-600 mt-0.5">Gestiona todos los usuarios del sistema</p>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Usuarios</h1>
+            <p class="text-sm text-slate-600 mt-0.5">Gestiona todos los usuarios del sistema</p>
           </div>
         </div>
         <button
@@ -29,10 +29,10 @@
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50 shadow-sm">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total</p>
+              <p class="text-sm font-medium text-slate-600">Total</p>
               <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ total }}</p>
             </div>
             <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{ backgroundColor: `${colors.principal}20` }">
@@ -43,38 +43,38 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Activos</p>
-              <p class="text-2xl font-bold text-green-600">{{ activos }}</p>
+              <p class="text-sm font-medium text-slate-600">Activos</p>
+              <p class="text-2xl font-bold text-emerald-600">{{ activos }}</p>
             </div>
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Inactivos</p>
-              <p class="text-2xl font-bold text-red-600">{{ inactivos }}</p>
+              <p class="text-sm font-medium text-slate-600">Inactivos</p>
+              <p class="text-2xl font-bold text-rose-600">{{ inactivos }}</p>
             </div>
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Administradores</p>
+              <p class="text-sm font-medium text-slate-600">Administradores</p>
               <p class="text-2xl font-bold text-purple-600">{{ administradores }}</p>
             </div>
             <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
@@ -85,13 +85,13 @@
           </div>
         </div>
 
-        <div class="bg-white/70 rounded-lg p-4 border border-gray-200/50">
+        <div class="bg-white/70 rounded-xl p-4 border border-slate-200/50">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Con 2FA</p>
+              <p class="text-sm font-medium text-slate-600">Con 2FA</p>
               <p class="text-2xl font-bold text-amber-600">{{ con2FA }}</p>
             </div>
-            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+            <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
@@ -102,13 +102,13 @@
     </div>
 
     <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
+    <div class="px-6 py-4 bg-transparent border-b border-slate-200/60">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <!-- Búsqueda -->
         <div class="flex-1 max-w-md">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -116,7 +116,7 @@
               v-model="searchTerm"
               type="text"
               placeholder="Buscar por nombre, email o rol..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 text-sm"
               @input="onSearchChange"
             />
           </div>
@@ -128,7 +128,7 @@
           <select
             v-model="filtroEstado"
             @change="onFiltroEstadoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="">Todos los Estados</option>
             <option value="activo">Activos</option>
@@ -139,7 +139,7 @@
           <select
             v-model="filtroRol"
             @change="onFiltroRolChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="">Todos los Roles</option>
             <option value="admin">Administrador</option>
@@ -153,7 +153,7 @@
           <select
             v-model="filtroVerificacion"
             @change="onFiltroVerificacionChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="">Todas las Verificaciones</option>
             <option value="verificado">Verificado</option>
@@ -166,7 +166,7 @@
           <select
             v-model="sortBy"
             @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            class="block w-48 pl-3 pr-10 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 bg-white"
           >
             <option value="created_at-desc">Fecha (Más reciente)</option>
             <option value="created_at-asc">Fecha (Más antiguo)</option>
@@ -179,7 +179,7 @@
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-3 py-2 border border-slate-300 text-sm leading-4 font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

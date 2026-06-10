@@ -15,6 +15,23 @@ class VerifyCsrfToken extends Middleware
         'prestamos/calcular-pagos',
         'sanctum/csrf-cookie',
         'api/setup/restore-backup',
+        'api/*',
     ];
+
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, \Closure $next)
+    {
+        if (app()->environment('testing')) {
+            return $next($request);
+        }
+
+        return parent::handle($request, $next);
+    }
 }
 

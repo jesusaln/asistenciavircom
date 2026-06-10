@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CatalogoConceptoNomina extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'catalogo_conceptos_nomina';

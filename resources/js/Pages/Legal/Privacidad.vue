@@ -1,16 +1,16 @@
 <template>
   <Head title="Aviso de Privacidad" />
-  <div class="min-h-screen bg-slate-50 py-12 px-6 sm:px-8">
+  <div class="min-h-screen bg-[var(--ui-surface)] py-12 px-6 sm:px-8">
     <div class="max-w-4xl mx-auto bg-white p-10 rounded-[2.5rem] shadow-xl border border-slate-200/50">
       <div class="flex items-center gap-4 mb-8">
-        <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+        <div class="w-10 h-10 bg-brand-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-brand-500/20">
           <FontAwesomeIcon icon="shield-alt" class="text-xl" />
         </div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Aviso de Privacidad</h1>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight uppercase">Aviso de Privacidad</h1>
       </div>
 
-      <div class="prose prose-slate max-w-none space-y-6 text-slate-600 font-medium">
-        <p class="text-slate-400 text-xs font-black uppercase tracking-widest">Última actualización: 17 de marzo, 2026</p>
+      <div class="prose prose-slate max-w-none space-y-6 text-slate-500 font-medium">
+        <p class="text-slate-400 text-xs font-black uppercase tracking-wide">Última actualización: 17 de marzo, 2026</p>
 
         <section>
           <h2 class="text-lg font-black text-slate-900 uppercase tracking-wider mb-2">1. Identidad y Domicilio del Responsable</h2>
@@ -45,7 +45,7 @@
       </div>
 
       <div class="mt-12 pt-8 border-t border-slate-100 flex justify-center">
-        <a href="/" class="text-xs font-black text-amber-500 uppercase tracking-widest hover:underline">← Volver al sitio principal</a>
+        <a href="/" class="text-xs font-black text-brand-500 uppercase tracking-wide hover:underline">← Volver al sitio principal</a>
       </div>
     </div>
   </div>

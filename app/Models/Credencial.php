@@ -9,6 +9,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class Credencial extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'credenciales';

@@ -12,6 +12,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class Cfdi extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa, SoftDeletes;
 
     protected $table = 'cfdis';
@@ -41,6 +43,7 @@ class Cfdi extends Model
         'sello_cfdi',
         'cadena_original',
         'estatus',
+        'estado_sat',
         'fecha_emision',
         'fecha_cancelacion',
         'moneda',
@@ -257,6 +260,17 @@ class Cfdi extends Model
         ];
 
         return $estatus[$this->estatus] ?? 'Desconocido';
+    }
+
+    public function getEstadoSistemaAttribute(): ?string
+    {
+        if ($this->relationLoaded('cuentaPorCobrar') && $this->cuentaPorCobrar) {
+            return $this->cuentaPorCobrar->estado;
+        }
+        if ($this->relationLoaded('cuentaPorPagar') && $this->cuentaPorPagar) {
+            return $this->cuentaPorPagar->estado;
+        }
+        return null;
     }
 
     // ------------------------------------------------------------------

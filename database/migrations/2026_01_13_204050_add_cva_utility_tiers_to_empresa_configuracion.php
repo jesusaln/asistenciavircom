@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->jsonb('cva_utility_tiers')->nullable()->after('cva_utility_percentage');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'cva_utility_tiers')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->jsonb('cva_utility_tiers')->nullable()->after('cva_utility_percentage');
+            });
+        }
     }
 
     /**

@@ -24,6 +24,10 @@ class ContratacionRentaController extends Controller
     public function show(Request $request, string $slug)
     {
         $empresaId = EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            abort(404, 'No se pudo determinar la empresa para esta contratacion.');
+        }
+
         $empresaModel = \App\Models\Empresa::find($empresaId);
         $configuracion = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
 
@@ -118,7 +122,12 @@ class ContratacionRentaController extends Controller
         ]);
 
         $plan = PlanRenta::where('slug', $slug)->firstOrFail();
-        $empresaId = EmpresaResolver::resolveId() ?? 1;
+        $empresaId = EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return back()->withErrors([
+                'error' => 'No se pudo determinar la empresa para esta contratacion.',
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -196,10 +205,10 @@ class ContratacionRentaController extends Controller
                 'renovacion_automatica' => true,
                 'meses_duracion' => $plan->meses_minimos,
                 'condiciones_especiales' => "Plan Rentado: {$plan->nombre}. Meses mínimos: {$plan->meses_minimos}",
-                // Documentos y firma
-                'ine_frontal' => $validated['ine_frontal'] ?? null,
-                'ine_trasera' => $validated['ine_trasera'] ?? null,
-                'comprobante_domicilio' => $validated['comprobante_domicilio'] ?? null,
+                // ✅ PERFORMANCE: Documentos y firma como archivos en Storage
+                'ine_frontal' => \App\Helpers\Base64ToFile::save($validated['ine_frontal'] ?? null, 'rentas/documentos/ine', "ine_frontal_{$cliente->id}"),
+                'ine_trasera' => \App\Helpers\Base64ToFile::save($validated['ine_trasera'] ?? null, 'rentas/documentos/ine', "ine_trasera_{$cliente->id}"),
+                'comprobante_domicilio' => \App\Helpers\Base64ToFile::save($validated['comprobante_domicilio'] ?? null, 'rentas/documentos/comprobante', "comprobante_{$cliente->id}"),
                 'firma_digital' => $firmaPath,
                 'firmado_nombre' => $validated['nombre_firmante'],
                 'firmado_at' => now(),
@@ -208,7 +217,8 @@ class ContratacionRentaController extends Controller
 
             // 3. Crear Venta (Primer mes + Deposito)
             $subtotal = $plan->precio_mensual + $plan->deposito_garantia;
-            $iva = round($subtotal * 0.16, 2);
+            $ivaRate = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
+            $iva = round($subtotal * $ivaRate, 2);
             $total = $subtotal + $iva;
 
             $venta = Venta::create([

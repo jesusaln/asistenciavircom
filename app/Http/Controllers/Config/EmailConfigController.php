@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use App\Support\ConfigValidationRules;
 
 /**
  * Controller para gestión de configuración de email
@@ -19,21 +20,20 @@ class EmailConfigController extends Controller
 {
     use ApiResponse;
 
+    public function __construct()
+    {
+        $this->middleware('can:edit configuracion_empresa');
+    }
+
     /**
      * Actualizar configuración SMTP
      */
     public function update(Request $request)
     {
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'smtp_host' => 'nullable|string|max:255',
-            'smtp_port' => 'nullable|integer|min:1|max:65535',
-            'smtp_username' => 'nullable|string|max:255',
-            'smtp_password' => 'nullable|string|max:255',
-            'smtp_encryption' => 'nullable|string|in:tls,ssl',
-            'email_from_address' => 'nullable|email|max:255',
-            'email_from_name' => 'nullable|string|max:255',
-            'email_reply_to' => 'nullable|email|max:255',
-        ]);
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            $request->all(),
+            ConfigValidationRules::smtpConfig()
+        );
 
         if ($validator->fails()) {
             Log::error('Validación fallida en configuracion correo', ['errors' => $validator->errors()]);
@@ -52,9 +52,7 @@ class EmailConfigController extends Controller
      */
     public function testEmail(Request $request)
     {
-        $data = $request->validate([
-            'email_destino' => ['required', 'email'],
-        ]);
+        $data = $request->validate(ConfigValidationRules::emailDestino());
 
         try {
             $configuracion = EmpresaConfiguracion::getConfig();
@@ -100,10 +98,7 @@ class EmailConfigController extends Controller
      */
     public function enviarReporteCobros(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'test_mode' => 'nullable|boolean',
-        ]);
+        $request->validate(ConfigValidationRules::reportEmail());
 
         $isTestMode = $request->boolean('test_mode', true);
 
@@ -146,10 +141,7 @@ class EmailConfigController extends Controller
      */
     public function enviarReportePagos(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'test_mode' => 'nullable|boolean',
-        ]);
+        $request->validate(ConfigValidationRules::reportEmail());
 
         $isTestMode = $request->boolean('test_mode', false);
         $configuracion = EmpresaConfiguracion::getConfig();
@@ -193,6 +185,13 @@ class EmailConfigController extends Controller
             'mail.mailers.smtp.username' => $configuracion->smtp_username,
             'mail.mailers.smtp.password' => $configuracion->smtp_password,
             'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption,
+            'mail.mailers.smtp.stream' => [
+                'ssl' => [
+                    'allow_self_signed' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ],
             'mail.from.address' => $configuracion->email_from_address,
             'mail.from.name' => $configuracion->email_from_name,
         ]);

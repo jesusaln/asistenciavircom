@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import ClientLayout from '../Layout/ClientLayout.vue';
@@ -251,9 +252,7 @@ const enviarFirma = () => {
     });
 };
 
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -269,54 +268,54 @@ const formatDate = (dateString) => {
             <!-- Header con Badge de Seguridad -->
             <div class="mb-8 text-center relative">
                 <div class="absolute top-0 right-0 hidden md:block">
-                    <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-widest shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-wide shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
                         Firma Electrónica Avanzada
                     </div>
                 </div>
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white text-4xl mb-6 shadow-2xl transform hover:rotate-3 transition-transform">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white text-4xl mb-6 shadow-2xl transform hover:rotate-3 transition-transform">
                     <font-awesome-icon icon="file-signature" />
                 </div>
-                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Firma de Contrato</h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">
+                <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Firma de Contrato</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2">
                     Contrato de Renta #{{ renta.numero_contrato || renta.id }}
                 </p>
             </div>
 
             <!-- Resumen del Contrato -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">📄</span>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 mb-8">
+                <h2 class="font-black text-slate-800 dark:text-white uppercase text-xs tracking-wide mb-6 flex items-center gap-2">
+                    <span class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-sky-900/20/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">📄</span>
                     Resumen del Acuerdo
                 </h2>
                 
                 <div class="grid md:grid-cols-2 gap-8 text-sm">
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest">Arrendatario</p>
-                            <p class="font-bold text-gray-800 dark:text-white text-lg">{{ renta.cliente.nombre_razon_social }}</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-wide">Arrendatario</p>
+                            <p class="font-bold text-slate-800 dark:text-white text-lg">{{ renta.cliente.nombre_razon_social }}</p>
                         </div>
                         <div>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest">Monto Mensual</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-wide">Monto Mensual</p>
                             <p class="font-black text-blue-600 dark:text-blue-400 text-2xl">{{ formatCurrency(renta.monto_mensual) }}</p>
                         </div>
                     </div>
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest">Vencimiento</p>
-                                <p class="font-bold text-gray-800 dark:text-white uppercase">{{ formatDate(renta.fecha_fin) }}</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-wide">Vencimiento</p>
+                                <p class="font-bold text-slate-800 dark:text-white uppercase">{{ formatDate(renta.fecha_fin) }}</p>
                             </div>
                             <div>
-                                <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest">Día de Pago</p>
-                                <p class="font-bold text-gray-800 dark:text-white">Día {{ renta.dia_pago }} de cada mes</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-wide">Día de Pago</p>
+                                <p class="font-bold text-slate-800 dark:text-white">Día {{ renta.dia_pago }} de cada mes</p>
                             </div>
                         </div>
                         <div>
-                            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest">Equipos Arrendados</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-wide">Equipos Arrendados</p>
                             <ul class="mt-1 space-y-1">
-                                <li v-for="equipo in renta.equipos" :key="equipo.id" class="text-xs font-bold text-gray-600 dark:text-gray-300 flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                <li v-for="equipo in renta.equipos" :key="equipo.id" class="text-xs font-bold text-slate-500 dark:text-slate-200 flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
                                     {{ equipo.nombre }} - S/N: {{ equipo.serie || 'N/A' }}
                                 </li>
                             </ul>
@@ -324,102 +323,102 @@ const formatDate = (dateString) => {
                     </div>
                 </div>
 
-                <div class="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                    <p class="text-xs text-blue-800 dark:text-blue-300 font-medium leading-relaxed">
+                <div class="mt-8 p-4 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <p class="text-xs text-sky-800 dark:text-sky-200 dark:text-blue-300 font-medium leading-relaxed">
                         🔍 <strong>Lectura Importante:</strong> Al firmar este documento, usted acepta los términos y condiciones estipulados en el contrato de arrendamiento oficial, incluyendo sus responsabilidades de cuidado del equipo y los periodos de pago.
                     </p>
                 </div>
             </div>
 
                 <!-- PASO 1: SUBIR DOCUMENTOS -->
-                <div v-if="currentStep === 1" class="space-y-8 animate-fade-in">
-                    <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-700 p-8">
-                        <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-8 flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">📁</span>
+                <div v-if="currentStep === 1" class="space-y-6 animate-fade-in">
+                    <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 p-8">
+                        <h2 class="font-black text-slate-800 dark:text-white uppercase text-xs tracking-wide mb-8 flex items-center gap-2">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-slate-800/50 text-emerald-600 dark:text-slate-400 flex items-center justify-center text-sm">📁</span>
                             Paso 1: Documentación Requerida
                         </h2>
 
                         <div class="grid md:grid-cols-2 gap-6">
                             <!-- INE Frontal -->
                             <div class="relative group">
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">INE Frontal *</label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.ine_frontal ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-gray-700 hover:border-emerald-400']">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wide mb-3">INE Frontal *</label>
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.ine_frontal ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20/10' : 'border-slate-300 dark:border-slate-600 hover:border-brand-500']">
                                     <template v-if="uploading.ine_frontal">
                                         <font-awesome-icon icon="spinner" spin class="text-2xl text-emerald-500 mb-2" />
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.ine_frontal">
-                                        <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">INE Frontal Lista</span>
-                                        <button @click="form.ine_frontal = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
+                                        <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
+                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-200">INE Frontal Lista</span>
+                                        <button @click="form.ine_frontal = ''" class="mt-2 text-[10px] text-rose-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
-                                        <font-awesome-icon icon="id-card" class="text-3xl text-gray-200 mb-3 group-hover:text-emerald-400" />
+                                        <font-awesome-icon icon="id-card" class="text-3xl text-slate-200 mb-3 group-hover:text-emerald-400" />
                                         <input type="file" @change="e => handleFileUpload(e, 'ine_frontal')" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf" />
-                                        <span class="text-xs font-bold text-gray-400">Seleccionar Archivo</span>
+                                        <span class="text-xs font-bold text-slate-400">Seleccionar Archivo</span>
                                     </template>
                                 </div>
                             </div>
 
                             <!-- INE Trasera -->
                             <div class="relative group">
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">INE Trasera *</label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.ine_trasera ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-gray-700 hover:border-emerald-400']">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wide mb-3">INE Trasera *</label>
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.ine_trasera ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20/10' : 'border-slate-300 dark:border-slate-600 hover:border-brand-500']">
                                     <template v-if="uploading.ine_trasera">
                                         <font-awesome-icon icon="spinner" spin class="text-2xl text-emerald-500 mb-2" />
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.ine_trasera">
-                                        <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">INE Trasera Lista</span>
-                                        <button @click="form.ine_trasera = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
+                                        <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
+                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-200">INE Trasera Lista</span>
+                                        <button @click="form.ine_trasera = ''" class="mt-2 text-[10px] text-rose-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
-                                        <font-awesome-icon icon="id-card" class="text-3xl text-gray-200 mb-3 group-hover:text-emerald-400" />
+                                        <font-awesome-icon icon="id-card" class="text-3xl text-slate-200 mb-3 group-hover:text-emerald-400" />
                                         <input type="file" @change="e => handleFileUpload(e, 'ine_trasera')" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf" />
-                                        <span class="text-xs font-bold text-gray-400">Seleccionar Archivo</span>
+                                        <span class="text-xs font-bold text-slate-400">Seleccionar Archivo</span>
                                     </template>
                                 </div>
                             </div>
 
                             <!-- Comprobante Domicilio -->
                             <div class="relative group">
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Comprobante de Domicilio *</label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.comprobante_domicilio ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-gray-700 hover:border-emerald-400']">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wide mb-3">Comprobante de Domicilio *</label>
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.comprobante_domicilio ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20/10' : 'border-slate-300 dark:border-slate-600 hover:border-brand-500']">
                                     <template v-if="uploading.comprobante_domicilio">
                                         <font-awesome-icon icon="spinner" spin class="text-2xl text-emerald-500 mb-2" />
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.comprobante_domicilio">
-                                        <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Comprobante Listo</span>
-                                        <button @click="form.comprobante_domicilio = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
+                                        <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
+                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-200">Comprobante Listo</span>
+                                        <button @click="form.comprobante_domicilio = ''" class="mt-2 text-[10px] text-rose-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
-                                        <font-awesome-icon icon="home" class="text-3xl text-gray-200 mb-3 group-hover:text-emerald-400" />
+                                        <font-awesome-icon icon="home" class="text-3xl text-slate-200 mb-3 group-hover:text-emerald-400" />
                                         <input type="file" @change="e => handleFileUpload(e, 'comprobante_domicilio')" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf" />
-                                        <span class="text-xs font-bold text-gray-400">Seleccionar Archivo</span>
+                                        <span class="text-xs font-bold text-slate-400">Seleccionar Archivo</span>
                                     </template>
                                 </div>
                             </div>
 
                             <!-- Solicitud de Renta -->
                             <div class="relative group">
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Solicitud de Renta (Opcional)</label>
-                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.solicitud_renta ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-200 dark:border-gray-700 hover:border-emerald-400']">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wide mb-3">Solicitud de Renta (Opcional)</label>
+                                <div :class="['relative border-2 border-dashed rounded-3xl p-6 transition-all h-40 flex flex-col items-center justify-center text-center', form.solicitud_renta ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20/10' : 'border-slate-300 dark:border-slate-600 hover:border-brand-500']">
                                     <template v-if="uploading.solicitud_renta">
                                         <font-awesome-icon icon="spinner" spin class="text-2xl text-emerald-500 mb-2" />
                                         <span class="text-[10px] font-bold text-emerald-500 uppercase">Subiendo...</span>
                                     </template>
                                     <template v-else-if="form.solicitud_renta">
-                                        <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Solicitud Lista</span>
-                                        <button @click="form.solicitud_renta = ''" class="mt-2 text-[10px] text-red-500 font-bold uppercase hover:underline">Cambiar</button>
+                                        <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center text-xl mb-2">✅</div>
+                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-200">Solicitud Lista</span>
+                                        <button @click="form.solicitud_renta = ''" class="mt-2 text-[10px] text-rose-500 font-bold uppercase hover:underline">Cambiar</button>
                                     </template>
                                     <template v-else>
-                                        <font-awesome-icon icon="file-alt" class="text-3xl text-gray-200 mb-3 group-hover:text-emerald-400" />
+                                        <font-awesome-icon icon="file-alt" class="text-3xl text-slate-200 mb-3 group-hover:text-emerald-400" />
                                         <input type="file" @change="e => handleFileUpload(e, 'solicitud_renta')" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf" />
-                                        <span class="text-xs font-bold text-gray-400">Seleccionar Archivo</span>
+                                        <span class="text-xs font-bold text-slate-400">Seleccionar Archivo</span>
                                     </template>
                                 </div>
                             </div>
@@ -429,7 +428,7 @@ const formatDate = (dateString) => {
                             <button 
                                 @click="currentStep = 2"
                                 :disabled="!canProceedToSignature"
-                                class="px-10 py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 hover:-translate-y-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-3"
+                                class="px-10 py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wide shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 hover:shadow-xl hover:shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 Continuar a la Firma
                                 <font-awesome-icon icon="arrow-right" />
@@ -440,9 +439,9 @@ const formatDate = (dateString) => {
 
                 <!-- PASO 2: FIRMA DIGITAL -->
                 <div v-if="currentStep === 2" class="animate-fade-in">
-                    <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-700 p-8 mb-8">
-                        <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-lg bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 flex items-center justify-center text-sm">✍️</span>
+                    <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 p-8 mb-8">
+                        <h2 class="font-black text-slate-800 dark:text-white uppercase text-xs tracking-wide mb-6 flex items-center gap-2">
+                            <span class="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-orange-400 flex items-center justify-center text-sm">✍️</span>
                             Paso 2: Firma del Titular o Representante
                         </h2>
 
@@ -455,19 +454,19 @@ const formatDate = (dateString) => {
                                 ref="canvasRef"
                                 width="640"
                                 height="280"
-                                class="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-3xl cursor-crosshair touch-none shadow-inner transition-colors"
-                                :class="{ 'border-blue-500 border-solid bg-blue-50/10 dark:bg-blue-900/20': hasDrawn }"
+                                class="w-full border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl cursor-crosshair touch-none shadow-inner transition-colors"
+                                :class="{ 'border-blue-500 border-solid bg-sky-50 dark:bg-sky-900/20/10 dark:bg-sky-900/20': hasDrawn }"
                             ></canvas>
                             
-                            <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300 group-hover:opacity-60">
-                                <div class="w-16 h-16 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center mb-4 shadow-lg border border-gray-100 dark:border-gray-600">
+                            <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-200 group-hover:opacity-60">
+                                <div class="w-16 h-16 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center mb-4 shadow-xl border border-slate-100 dark:border-slate-700">
                                     <span class="text-2xl animate-bounce">🖋️</span>
                                 </div>
-                                <p class="text-gray-900 dark:text-white text-lg font-black tracking-tight">Dibuja tu firma en este recuadro</p>
-                                <p class="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-2 font-black">Certificado Digital</p>
+                                <p class="text-slate-900 dark:text-white text-lg font-black tracking-tight">Dibuja tu firma en este recuadro</p>
+                                <p class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-[0.3em] mt-2 font-black">Certificado Digital</p>
                             </div>
 
-                            <div v-if="hasDrawn" class="absolute bottom-6 right-6 flex items-center gap-3 px-4 py-2 bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                            <div v-if="hasDrawn" class="absolute bottom-6 right-6 flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase tracking-wide shadow-xl">
                                 <font-awesome-icon icon="check-circle" />
                                 Firma Lista
                             </div>
@@ -477,33 +476,33 @@ const formatDate = (dateString) => {
                             <button 
                                 @click="limpiarFirma" 
                                 type="button"
-                                class="inline-flex items-center gap-2 text-[10px] text-gray-400 font-black hover:text-red-500 transition-colors uppercase tracking-[0.2em] px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-xl"
+                                class="inline-flex items-center gap-2 text-[10px] text-slate-400 font-black hover:text-rose-500 transition-colors uppercase tracking-[0.2em] px-4 py-2 bg-[var(--ui-surface)] rounded-xl"
                             >
                                 <font-awesome-icon icon="eraser" /> Borrar y reintentar
                             </button>
-                            <div class="text-[9px] text-gray-300 dark:text-gray-600 font-mono font-bold">SHA-256 DIGITAL ENCRYPTION ENABLED</div>
+                            <div class="text-[9px] text-slate-300 dark:text-slate-500 font-mono font-bold">SHA-256 DIGITAL ENCRYPTION ENABLED</div>
                         </div>
 
                         <!-- Campos de Validación -->
                         <div class="grid md:grid-cols-2 gap-8 mb-10">
                             <div class="space-y-2">
-                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                                     Nombre Completo del Firmante
                                 </label>
                                 <input
                                     v-model="form.nombre_firmante"
                                     type="text"
                                     placeholder="Nombre y Apellidos"
-                                    class="w-full px-6 py-4 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all font-black text-gray-900 dark:text-white shadow-inner"
-                                    :class="{ 'ring-2 ring-red-400': form.errors.nombre_firmante }"
+                                    class="w-full px-6 py-4 bg-[var(--ui-surface)] border-none rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-black text-slate-900 dark:text-white shadow-inner"
+                                    :class="{ 'ring-2 ring-rose-400': form.errors.nombre_firmante }"
                                 />
                             </div>
                             <div class="flex items-end">
-                                <label class="flex items-start gap-4 cursor-pointer group p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-800/30 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                <label class="flex items-start gap-4 cursor-pointer group p-4 bg-sky-50 dark:bg-sky-900/20/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-800/30 transition-all hover:bg-slate-50 dark:hover:bg-blue-900/20">
                                     <input
                                         v-model="form.acepta_terminos"
                                         type="checkbox"
-                                        class="mt-1 w-6 h-6 rounded-lg border-2 border-blue-200 text-blue-600 focus:ring-blue-500 transition-all"
+                                        class="mt-1 w-10 h-10 rounded-xl border-2 border-sky-200 dark:border-sky-800/30 text-blue-600 focus:ring-brand-500 transition-all"
                                     />
                                     <span class="text-xs font-bold text-blue-900 dark:text-blue-300 leading-relaxed">
                                         Acepto que mi firma electrónica tiene la misma validez legal que una firma autógrafa para este contrato de renta.
@@ -516,7 +515,7 @@ const formatDate = (dateString) => {
                         <div class="flex flex-col sm:flex-row gap-6">
                             <button 
                                 @click="currentStep = 1" 
-                                class="px-8 py-5 bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest text-center border-2 border-gray-100 dark:border-gray-600 hover:bg-gray-50 transition-all"
+                                class="px-8 py-5 bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-2xl font-black text-xs uppercase tracking-wide text-center border-2 border-slate-100 dark:border-slate-700 hover:bg-slate-50 transition-all"
                             >
                                 <font-awesome-icon icon="arrow-left" class="mr-2" />
                                 Modificar Documentos
@@ -524,7 +523,7 @@ const formatDate = (dateString) => {
                             <button
                                 @click="enviarFirma"
                                 :disabled="form.processing || !hasDrawn || !form.nombre_firmante || !form.acepta_terminos"
-                                class="flex-1 px-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest text-center shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed group/submit"
+                                class="flex-1 px-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl font-black text-sm uppercase tracking-wide text-center shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:shadow-xl hover:shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed group/submit"
                             >
                                 <div v-if="form.processing" class="flex items-center justify-center gap-3">
                                     <font-awesome-icon icon="spinner" spin />
@@ -541,7 +540,7 @@ const formatDate = (dateString) => {
 
             <!-- Footer Legal -->
             <div class="text-center px-10">
-                <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.2em] leading-relaxed">
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-[0.2em] leading-relaxed">
                     Este proceso de firma cumple con lo establecido en el Código de Comercio 
                     <br> y la Ley de Firma Electrónica Avanzada de México.
                 </p>

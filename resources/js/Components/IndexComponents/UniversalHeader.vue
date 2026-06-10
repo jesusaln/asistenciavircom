@@ -1,5 +1,6 @@
 <!-- resources/js/Components/IndexComponents/UniversalHeader.vue -->
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Link } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
@@ -82,7 +83,7 @@ const defaultConfigs = {
       { value: 'borrador', label: 'Borrador', color: 'gray' },
       { value: 'pendiente', label: 'Pendientes', color: 'yellow' },
       { value: 'enviado_pedido', label: 'Enviado a Pedido', color: 'blue' },
-      { value: 'enviado_venta', label: 'Enviado a Venta', color: 'indigo' },
+      { value: 'enviado_venta', label: 'Enviado a Venta', color: 'sky' },
       { value: 'aprobado', label: 'Aprobadas', color: 'green' },
       { value: 'rechazado', label: 'Rechazadas', color: 'red' },
       { value: 'cancelado', label: 'Canceladas', color: 'gray' }
@@ -108,7 +109,7 @@ const defaultConfigs = {
       total: { label: 'Total', icon: 'document', description: 'Total de pedidos' },
       pendientes: { label: 'En Proceso', icon: 'clock', color: 'blue', description: 'Pedidos en proceso' },
       borrador: { label: 'Borrador', icon: 'document-text', color: 'gray', description: 'Pedidos en borrador' },
-      enviado_venta: { label: 'Enviado a Venta', icon: 'paper-plane', color: 'indigo', description: 'Pedidos enviados a venta' },
+      enviado_venta: { label: 'Enviado a Venta', icon: 'paper-plane', color: 'sky', description: 'Pedidos enviados a venta' },
       cancelado: { label: 'Cancelado', icon: 'x-circle', color: 'red', description: 'Pedidos cancelados' }
     },
     estados: [
@@ -117,9 +118,9 @@ const defaultConfigs = {
       { value: 'pendiente', label: 'Pendientes', color: 'yellow' },
       { value: 'confirmado', label: 'Confirmados', color: 'blue' },
       { value: 'preparando', label: 'En Preparación', color: 'orange' },
-      { value: 'enviado', label: 'Enviados', color: 'indigo' },
+      { value: 'enviado', label: 'Enviados', color: 'sky' },
       { value: 'entregado', label: 'Entregados', color: 'green' },
-      { value: 'enviado_venta', label: 'Enviado a Venta', color: 'indigo' },
+      { value: 'enviado_venta', label: 'Enviado a Venta', color: 'sky' },
       { value: 'cancelado', label: 'Cancelados', color: 'red' }
     ],
     sortOptions: [
@@ -510,13 +511,13 @@ const icons = {
 const colorClasses = {
   green:  { text: 'text-emerald-600', bg: 'bg-emerald-50',  border: 'border-emerald-200', ring: 'ring-emerald-500/20' },
   blue:   { text: 'text-blue-600',    bg: 'bg-blue-50',     border: 'border-blue-200',    ring: 'ring-blue-500/20' },
-  yellow: { text: 'text-amber-600',   bg: 'bg-amber-50',    border: 'border-amber-200',   ring: 'ring-amber-500/20' },
-  orange: { text: 'text-orange-600',  bg: 'bg-orange-50',   border: 'border-orange-200',  ring: 'ring-orange-500/20' },
-  red:    { text: 'text-red-600',     bg: 'bg-red-50',      border: 'border-red-200',     ring: 'ring-red-500/20' },
-  slate:  { text: 'text-slate-600',   bg: 'bg-slate-50',    border: 'border-slate-200',   ring: 'ring-slate-500/20' },
-  indigo: { text: 'text-amber-600',  bg: 'bg-indigo-50',   border: 'border-indigo-200',  ring: 'ring-amber-500/20' },
+  yellow: { text: 'text-amber-600',   bg: 'bg-amber-50',    border: 'border-amber-200',   ring: 'ring-brand-500/20' },
+  orange: { text: 'text-orange-600',  bg: 'bg-orange-50',   border: 'border-orange-200',  ring: 'ring-brand-500/20' },
+  red:    { text: 'text-rose-600',     bg: 'bg-rose-50',      border: 'border-rose-200',     ring: 'ring-rose-500/20' },
+  slate:  { text: 'text-slate-600',   bg: 'bg-transparent',    border: 'border-slate-200',   ring: 'ring-slate-500/20' },
+  indigo: { text: 'text-amber-600',  bg: 'bg-indigo-50',   border: 'border-indigo-200',  ring: 'ring-brand-500/20' },
   emerald:{ text: 'text-emerald-600', bg: 'bg-emerald-50',  border: 'border-emerald-200', ring: 'ring-emerald-500/20' },
-  gray:   { text: 'text-gray-600',    bg: 'bg-gray-50',     border: 'border-gray-200',    ring: 'ring-gray-500/20' }
+  gray:   { text: 'text-slate-600',    bg: 'bg-transparent',     border: 'border-slate-200',    ring: 'ring-slate-500/20' }
 };
 const getColorClasses = (color) => colorClasses[color] || colorClasses.slate;
 
@@ -552,7 +553,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               'opacity-50 cursor-not-allowed pointer-events-none': disabled,
               'hover:from-blue-700 hover:via-blue-700 hover:to-blue-800 hover:scale-[1.02] hover:shadow-xl': !disabled
             }"
-            class="group inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 text-white font-semibold rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 active:scale-[0.98] transition-all duration-200 shadow-lg flex-shrink-0"
+            class="group inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 text-white font-semibold rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-500/20 active:scale-[0.98] transition-all duration-200 shadow-lg flex-shrink-0"
           >
             <svg :class="{ 'animate-spin': loading, 'group-hover:rotate-90': !loading && !disabled }" class="w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
               <path :d="loading ? getIconPath('loading') : getIconPath('plus')" />
@@ -565,9 +566,9 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               v-if="showExport || finalConfig.module === 'clientes' || finalConfig.module === 'productos' || finalConfig.module === 'servicios'"
               @click="handleExport"
               :disabled="disabled"
-              class="group inline-flex items-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 focus:outline-none focus:ring-4 focus:ring-green-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-green-200"
+              class="group inline-flex items-center gap-2 px-4 py-3 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-emerald-200"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath('export')" />
               </svg>
               <span class="text-sm font-medium">Exportar</span>
@@ -577,9 +578,9 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               v-if="showImport"
               @click="$emit('importar')"
               :disabled="disabled"
-              class="group inline-flex items-center gap-2 px-4 py-3 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 focus:outline-none focus:ring-4 focus:ring-amber-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-indigo-200"
+              class="group inline-flex items-center gap-2 px-4 py-3 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-sky-100 focus:outline-none focus:ring-4 focus:ring-brand-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-indigo-200"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath('import')" />
               </svg>
               <span class="text-sm font-medium">Importar</span>
@@ -590,7 +591,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
         <!-- Estadísticas con porcentajes -->
         <div class="flex flex-wrap items-center gap-4 text-sm">
           <!-- Total -->
-          <div class="group flex items-center gap-2 px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 flex-shrink-0 hover:bg-slate-100 transition-all duration-200 cursor-default" :title="finalConfig.estadisticas.total.description">
+          <div class="group flex items-center gap-2 px-4 py-3 bg-transparent rounded-xl border border-slate-200 flex-shrink-0 hover:bg-slate-100 transition-all duration-200 cursor-default" :title="finalConfig.estadisticas.total.description">
             <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath(finalConfig.estadisticas.total.icon)" />
             </svg>
@@ -969,7 +970,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
           />
 
           <div v-if="!searchTerm && !isSearchFocused && !disabled" class="absolute inset-y-0 right-12 flex items-center pointer-events-none">
-            <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-mono text-slate-400 bg-slate-100 rounded border border-slate-200">
+            <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-mono text-slate-400 bg-slate-100 rounded-xl border border-slate-200">
               <span class="text-xs">⌘</span>K
             </kbd>
           </div>
@@ -978,10 +979,10 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
             <button
               v-if="searchTerm"
               @click="$emit('update:searchTerm', '')"
-              class="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 focus:text-blue-500 focus:outline-none transition-colors duration-200 p-1 rounded-md hover:bg-slate-100"
+              class="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 focus:text-blue-500 focus:outline-none transition-colors duration-200 p-1 rounded-xl hover:bg-slate-100"
               title="Limpiar búsqueda (Esc)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath('x')" />
               </svg>
             </button>
@@ -995,7 +996,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
             @change="$emit('update:sortBy', $event.target.value)"
             :disabled="disabled"
             :class="{ 'opacity-50 cursor-not-allowed': disabled, 'hover:bg-slate-50 cursor-pointer': !disabled }"
-            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all duration-200"
           >
             <option v-for="option in finalConfig.sortOptions" :key="option.value" :value="option.value">
               {{ option.label }}
@@ -1020,7 +1021,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               'opacity-50 cursor-not-allowed': disabled,
               'hover:bg-slate-50 cursor-pointer': !disabled
             }"
-            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border rounded-xl bg-white text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
+            class="appearance-none w-full sm:w-auto px-4 py-3 pr-10 border rounded-xl bg-white text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all duration-200"
           >
             <option v-for="estado in finalConfig.estados" :key="estado.value" :value="estado.value">
               {{ estado.label }}
@@ -1047,7 +1048,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath('filter-x')" />
             </svg>
             <span class="font-medium">Limpiar</span>
-            <div class="absolute -top-1 -right-1 min-w-[1.25rem] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+            <div class="absolute -top-1 -right-1 min-w-[1.25rem] h-5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
               {{ (searchTerm ? 1 : 0) + (filtroEstado ? 1 : 0) }}
             </div>
           </button>
@@ -1066,11 +1067,11 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
     <span>{{ estadisticasConPorcentaje.aprobadas.porcentaje }}% {{ finalConfig.estadisticas.aprobadas.label }}</span>
   </div>
   <div class="flex items-center gap-1">
-    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+    <div class="w-3 h-3 rounded-full bg-brand-500"></div>
     <span>{{ estadisticasConPorcentaje.pendientes.porcentaje }}% {{ finalConfig.estadisticas.pendientes.label }}</span>
   </div>
   <div class="flex items-center gap-1">
-    <div class="w-3 h-3 rounded-full bg-gray-500"></div>
+    <div class="w-3 h-3 rounded-full bg-slate-500"></div>
     <span>{{ estadisticasConPorcentaje.borrador?.porcentaje || 0 }}% {{ finalConfig.estadisticas.borrador.label }}</span>
   </div>
   <div class="flex items-center gap-1">
@@ -1078,7 +1079,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
     <span>{{ estadisticasConPorcentaje.enviado_pedido?.porcentaje || 0 }}% {{ finalConfig.estadisticas.enviado_pedido.label }}</span>
   </div>
   <div class="flex items-center gap-1">
-    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+    <div class="w-3 h-3 rounded-full bg-rose-500"></div>
     <span>{{ estadisticasConPorcentaje.cancelado?.porcentaje || 0 }}% {{ finalConfig.estadisticas.cancelado.label }}</span>
   </div>
 </template>
@@ -1097,7 +1098,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
     <span>{{ estadisticasConPorcentaje.enviado_venta?.porcentaje || 0 }}% {{ finalConfig.estadisticas.enviado_venta.label }}</span>
   </div>
   <div class="flex items-center gap-1">
-    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+    <div class="w-3 h-3 rounded-full bg-rose-500"></div>
     <span>{{ estadisticasConPorcentaje.cancelado?.porcentaje || 0 }}% {{ finalConfig.estadisticas.cancelado.label }}</span>
   </div>
 </template>
@@ -1116,7 +1117,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
     <span>{{ estadisticasConPorcentaje.aprobadas.porcentaje }}% {{ finalConfig.estadisticas.aprobadas.label }}</span>
   </div>
   <div class="flex items-center gap-1">
-    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+    <div class="w-3 h-3 rounded-full bg-rose-500"></div>
     <span>{{ estadisticasConPorcentaje.cancelada?.porcentaje || 0 }}% {{ finalConfig.estadisticas.cancelada.label }}</span>
   </div>
 </template>
@@ -1206,22 +1207,22 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
       <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden flex">
   <template v-if="finalConfig.module === 'cotizaciones'">
     <div class="h-full bg-emerald-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.aprobadas?.porcentaje || 0}%` }"></div>
-    <div class="h-full bg-amber-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.pendientes?.porcentaje || 0}%` }"></div>
-    <div class="h-full bg-gray-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.borrador?.porcentaje || 0}%` }"></div>
+    <div class="h-full bg-brand-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.pendientes?.porcentaje || 0}%` }"></div>
+    <div class="h-full bg-slate-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.borrador?.porcentaje || 0}%` }"></div>
     <div class="h-full bg-blue-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.enviado_pedido?.porcentaje || 0}%` }"></div>
-    <div class="h-full bg-red-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.cancelado?.porcentaje || 0}%` }"></div>
+    <div class="h-full bg-rose-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.cancelado?.porcentaje || 0}%` }"></div>
   </template>
   <template v-else-if="finalConfig.module === 'pedidos'">
     <div :class="getColorClasses(finalConfig.estadisticas.pendientes.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.pendientes?.porcentaje || 0}%` }"></div>
     <div :class="getColorClasses(finalConfig.estadisticas.borrador.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.borrador?.porcentaje || 0}%` }"></div>
     <div :class="getColorClasses(finalConfig.estadisticas.enviado_venta.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.enviado_venta?.porcentaje || 0}%` }"></div>
-    <div class="h-full bg-red-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.cancelado?.porcentaje || 0}%` }"></div>
+    <div class="h-full bg-rose-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.cancelado?.porcentaje || 0}%` }"></div>
   </template>
   <template v-else-if="finalConfig.module === 'ventas'">
     <div :class="getColorClasses(finalConfig.estadisticas.borrador.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.borrador?.porcentaje || 0}%` }"></div>
     <div :class="getColorClasses(finalConfig.estadisticas.pendientes.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.pendientes?.porcentaje || 0}%` }"></div>
     <div :class="getColorClasses(finalConfig.estadisticas.aprobadas.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.aprobadas?.porcentaje || 0}%` }"></div>
-    <div class="h-full bg-red-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.cancelada?.porcentaje || 0}%` }"></div>
+    <div class="h-full bg-rose-500 transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.cancelada?.porcentaje || 0}%` }"></div>
   </template>
   <template v-else-if="finalConfig.module === 'compras'">
     <div :class="getColorClasses(finalConfig.estadisticas.procesadas.color).text.replace('text-', 'bg-')" class="h-full transition-all duration-500 ease-out" :style="{ width: `${estadisticasConPorcentaje.procesadas?.porcentaje || 0}%` }"></div>
@@ -1261,7 +1262,7 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
         <div class="flex flex-wrap items-center gap-2 text-sm">
           <span class="text-slate-500 font-medium">Filtros activos:</span>
 
-          <div v-if="searchTerm" class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+          <div v-if="searchTerm" class="inline-flex items-center gap-1 px-3 py-1 bg-sky-100 text-sky-800 rounded-full">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath('search')" />
             </svg>
@@ -1274,11 +1275,11 @@ const getIconPath = (iconName) => icons[iconName] || icons.document;
             </button>
           </div>
 
-          <div v-if="filtroEstado" class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full">
+          <div v-if="filtroEstado" class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">
             <div class="w-2 h-2 rounded-full" :class="getColorClasses(finalConfig.estados.find(e => e.value === filtroEstado)?.color || 'slate').text.replace('text-', 'bg-')"></div>
             <span class="font-medium">Estado:</span>
             <span>{{ finalConfig.estados.find(e => e.value === filtroEstado)?.label }}</span>
-            <button @click="$emit('update:filtroEstado', '')" class="ml-1 hover:bg-green-200 rounded-full p-0.5 transition-colors duration-150">
+            <button @click="$emit('update:filtroEstado', '')" class="ml-1 hover:bg-emerald-200 rounded-full p-0.5 transition-colors duration-150">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getIconPath('x')" />
               </svg>

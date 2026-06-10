@@ -1,7 +1,9 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { ref, computed } from 'vue';
+import Swal from '@/Utils/Swal'
 
 // Función local $can reactiva
 const page = usePage()
@@ -21,8 +23,9 @@ const props = defineProps({
   roles: Array
 });
 
-const confirmarEliminacion = (id, name) => {
-  if (confirm(`¿Estás seguro de que deseas eliminar el rol "${name}"?`)) {
+const confirmarEliminacion = async (id, name) => {
+  const { isConfirmed } = await Swal.fire({ title: '¿Eliminar rol?', text: `¿Estás seguro de que deseas eliminar el rol "${name}"?`, icon: 'warning', showCancelButton: true, confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar' })
+  if (isConfirmed) {
     router.delete(route('roles.destroy', id));
   }
 };
@@ -37,11 +40,11 @@ const confirmarEliminacion = (id, name) => {
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
           <div>
-            <h2 class="text-2xl font-bold text-gray-900">Gestión de Roles y Permisos</h2>
-            <p class="text-sm text-gray-600">Administra los roles de usuario y sus niveles de acceso</p>
+            <h2 class="text-2xl font-bold text-slate-900">Gestión de Roles y Permisos</h2>
+            <p class="text-sm text-slate-500">Administra los roles de usuario y sus niveles de acceso</p>
           </div>
           <Link v-if="$can('create roles')" :href="route('roles.create')" 
-                class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700 active:bg-purple-900 focus:outline-none focus:border-purple-900 focus:ring focus:ring-purple-300 disabled:opacity-25 transition">
+                class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-purple-700 active:bg-purple-900 focus:outline-none focus:border-brand-500 focus:ring focus:ring-brand-500 disabled:opacity-25 transition">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -50,17 +53,17 @@ const confirmarEliminacion = (id, name) => {
         </div>
 
         <!-- Tabla -->
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Rol
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Permisos
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Creado
                 </th>
                 <th scope="col" class="relative px-6 py-3">
@@ -68,32 +71,32 @@ const confirmarEliminacion = (id, name) => {
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
               <tr v-for="role in roles" :key="role.id" class="hover:bg-white">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                       </svg>
                     </div>
                     <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900 capitalize">{{ role.name }}</div>
+                      <div class="text-sm font-medium text-slate-900 capitalize">{{ role.name }}</div>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:text-emerald-200">
                     {{ role.permissions_count }} permisos asignados
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                   {{ new Date(role.created_at).toLocaleDateString() }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                   <Link v-if="$can('edit roles')" :href="route('roles.show', role.id)" class="text-blue-600 hover:text-blue-900">Usuarios</Link>
                   <Link v-if="$can('edit roles')" :href="route('roles.edit', role.id)" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
-                  <button v-if="role.name !== 'admin' && $can('delete roles')" @click="confirmarEliminacion(role.id, role.name)" class="text-red-600 hover:text-red-900">
+                  <button v-if="role.name !== 'admin' && $can('delete roles')" @click="confirmarEliminacion(role.id, role.name)" class="text-rose-600 hover:text-rose-900">
                     Eliminar
                   </button>
                 </td>

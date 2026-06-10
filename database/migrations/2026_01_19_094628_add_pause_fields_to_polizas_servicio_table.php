@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->timestamp('pausada_at')->nullable()->after('estado');
-            $table->timestamp('reanudada_at')->nullable()->after('pausada_at');
-            $table->string('motivo_pausa')->nullable()->after('reanudada_at');
-            $table->integer('total_dias_pausa')->default(0)->after('motivo_pausa');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'pausada_at')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->timestamp('pausada_at')->nullable()->after('estado');
+                $table->timestamp('reanudada_at')->nullable()->after('pausada_at');
+                $table->string('motivo_pausa')->nullable()->after('reanudada_at');
+                $table->integer('total_dias_pausa')->default(0)->after('motivo_pausa');
+            });
+        }
     }
 
     /**

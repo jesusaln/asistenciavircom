@@ -81,6 +81,13 @@ class CotizacionDocumentoController extends Controller
                 'mail.mailers.smtp.username' => $configuracion->smtp_username,
                 'mail.mailers.smtp.password' => $configuracion->smtp_password,
                 'mail.mailers.smtp.encryption' => $configuracion->smtp_encryption,
+                'mail.mailers.smtp.stream' => [
+                    'ssl' => [
+                        'allow_self_signed' => true,
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ],
+                ],
                 'mail.mailers.smtp.timeout' => 30,
                 'mail.from.address' => $configuracion->email_from_address,
                 'mail.from.name' => $configuracion->email_from_name,
@@ -138,7 +145,7 @@ class CotizacionDocumentoController extends Controller
                     'encryption' => $configuracion->smtp_encryption,
                 ],
                 'bcc_enviado' => $configuracion->email_from_address,
-                'timestamp' => now()->toISOString(),
+                'timestamp' => now()->toIso8601String(),
                 'contexto' => 'web_interface',
                 'user_agent' => $request->userAgent(),
                 'ip' => $request->ip(),

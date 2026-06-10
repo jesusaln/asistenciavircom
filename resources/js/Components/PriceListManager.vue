@@ -1,50 +1,50 @@
 <template>
-  <div class="bg-white shadow-sm rounded-lg p-6 mt-6">
+  <div class="bg-white shadow-sm rounded-xl p-6 mt-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-medium text-gray-900">Precios por Lista</h2>
+      <h2 class="text-lg font-medium text-slate-900">Precios por Lista</h2>
       <button
         v-if="hasChanges"
         @click="savePrices"
         :disabled="saving"
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span v-if="saving">Guardando...</span>
         <span v-else>Guardar Cambios</span>
       </button>
     </div>
 
-    <div class="text-sm text-gray-600 mb-4">
+    <div class="text-sm text-slate-600 mb-4">
       Define precios específicos para cada lista. Si un precio está vacío, se usará el precio de venta base ({{ formatCurrency(basePrice) }}).
     </div>
 
     <!-- Mensaje de éxito -->
-    <div v-if="showSuccess" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-      <p class="text-sm font-medium text-green-800">Precios actualizados correctamente</p>
+    <div v-if="showSuccess" class="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+      <p class="text-sm font-medium text-emerald-800">Precios actualizados correctamente</p>
     </div>
 
     <!-- Mensaje de error -->
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-      <p class="text-sm font-medium text-red-800">{{ errorMessage }}</p>
+    <div v-if="errorMessage" class="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl">
+      <p class="text-sm font-medium text-rose-800">{{ errorMessage }}</p>
     </div>
 
     <div class="space-y-4">
       <div
         v-for="lista in priceLists"
         :key="lista.id"
-        class="flex items-center gap-4 p-4 border border-gray-200 rounded-md hover:bg-gray-50"
+        class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl hover:bg-slate-50"
       >
         <div class="flex-1">
-          <label :for="`price-${lista.id}`" class="block text-sm font-medium text-gray-700">
+          <label :for="`price-${lista.id}`" class="block text-sm font-medium text-slate-700">
             {{ lista.nombre }}
           </label>
-          <p v-if="lista.descripcion" class="text-xs text-gray-500 mt-1">
+          <p v-if="lista.descripcion" class="text-xs text-slate-500 mt-1">
             {{ lista.descripcion }}
           </p>
         </div>
         
         <div class="w-48">
           <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
               $
             </span>
             <input
@@ -55,14 +55,14 @@
               v-model.number="prices[lista.id]"
               @input="markAsChanged"
               placeholder="Usar precio base"
-              class="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              class="pl-7 block w-full rounded-xl border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
             />
           </div>
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-slate-500 mt-1">
             <span v-if="prices[lista.id]">
               {{ formatCurrency(prices[lista.id]) }}
             </span>
-            <span v-else class="text-gray-400">
+            <span v-else class="text-slate-400">
               Fallback: {{ formatCurrency(basePrice) }}
             </span>
           </p>
@@ -75,7 +75,7 @@
       <button
         @click="savePrices"
         :disabled="saving"
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span v-if="saving">Guardando...</span>
         <span v-else>Guardar Cambios</span>

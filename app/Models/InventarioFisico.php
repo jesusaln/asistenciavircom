@@ -10,6 +10,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class InventarioFisico extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'inventarios_fisicos';

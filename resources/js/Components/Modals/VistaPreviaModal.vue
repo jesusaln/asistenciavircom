@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 bg-black/60 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
+    <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar border border-slate-200 dark:border-slate-800">
       <!-- Encabezado del modal -->
       <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
         <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">
@@ -23,7 +23,7 @@
         </div>
 
         <!-- Información del cliente -->
-        <div v-if="cliente" class="mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+        <div v-if="cliente" class="mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
           <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Cliente</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -41,8 +41,8 @@
         <div class="mb-8">
           <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Detalles</h2>
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-              <thead class="bg-slate-50 dark:bg-slate-800">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+              <thead class="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Descripción</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cant.</th>
@@ -51,7 +51,7 @@
                   <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Subtotal</th>
                 </tr>
               </thead>
-              <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800">
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                 <tr v-for="item in items" :key="item.id">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">
                     {{ item.nombre || item.descripcion }}
@@ -62,7 +62,7 @@
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                     ${{ (item.precio || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600 dark:text-orange-300">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-brand-600 dark:text-orange-300">
                     {{ item.descuento }}%
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-slate-100">
@@ -75,18 +75,18 @@
         </div>
 
         <!-- Resumen de totales -->
-        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-6 mb-8">
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 mb-8">
           <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Resumen</h3>
           <div class="space-y-3">
             <div class="flex justify-between items-center text-slate-700 dark:text-slate-300">
               <span>Subtotal:</span>
               <span class="font-semibold">${{ totals.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
             </div>
-            <div v-if="totals.descuentoItems > 0" class="flex justify-between items-center text-orange-600 dark:text-orange-300">
+            <div v-if="totals.descuentoItems > 0" class="flex justify-between items-center text-brand-600 dark:text-orange-300">
               <span>Descuentos por ítem:</span>
               <span class="font-semibold">-${{ totals.descuentoItems.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
             </div>
-            <div v-if="totals.descuentoGeneral > 0" class="flex justify-between items-center text-orange-600 dark:text-orange-300">
+            <div v-if="totals.descuentoGeneral > 0" class="flex justify-between items-center text-brand-600 dark:text-orange-300">
               <span>Descuento general ({{ descuentoGeneral }}%):</span>
               <span class="font-semibold">-${{ totals.descuentoGeneral.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
             </div>
@@ -98,7 +98,7 @@
               <span>IVA (16%):</span>
               <span class="font-semibold">${{ totals.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
             </div>
-            <div v-if="depositoGarantia && depositoGarantia > 0" class="flex justify-between items-center text-green-600 dark:text-green-300">
+            <div v-if="depositoGarantia && depositoGarantia > 0" class="flex justify-between items-center text-emerald-600 dark:text-emerald-300">
               <span>Depósito de Garantía:</span>
               <span class="font-semibold">${{ Number(depositoGarantia).toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</span>
             </div>
@@ -112,7 +112,7 @@
         </div>
 
         <!-- Notas -->
-        <div v-if="notas" class="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/40 rounded-lg">
+        <div v-if="notas" class="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/40 rounded-xl">
           <h3 class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Notas:</h3>
           <p class="text-sm text-yellow-700 dark:text-yellow-200">{{ notas }}</p>
         </div>
@@ -121,7 +121,7 @@
         <div class="flex justify-end gap-3">
           <button
             @click="imprimir"
-            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-xl text-sm font-medium text-white hover:bg-blue-700 transition-colors duration-200 shadow-sm"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
@@ -130,7 +130,7 @@
           </button>
           <button
             @click="close"
-            class="px-4 py-2 bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors duration-200"
+            class="px-4 py-2 bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors duration-200"
           >
             Cerrar
           </button>
@@ -141,6 +141,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed } from 'vue';
 
 // --- PROPS ---

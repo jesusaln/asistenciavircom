@@ -12,6 +12,7 @@ use App\Models\PriceList;
 use App\Models\SatRegimenFiscal;
 use App\Models\SatUsoCfdi;
 use App\Models\SatEstado;
+use App\Models\SatFormaPago;
 use App\Models\User;
 use App\Models\Pedido;
 use App\Services\EmpresaConfiguracionService;
@@ -19,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TallerOrden;
 
 class VentaQueryService
 {
@@ -173,47 +175,74 @@ class VentaQueryService
                 'name' => $venta->vendedor->name ?? $venta->vendedor->nombre ?? 'N/A',
                 'type' => $venta->vendedor_type
             ] : null,
-            'fecha' => $venta->fecha ? $venta->fecha->toISOString() : null,
-            'fecha_pago' => $venta->fecha_pago ? $venta->fecha_pago->toISOString() : null,
-            'created_at' => $venta->created_at ? $venta->created_at->toISOString() : null,
-            'updated_at' => $venta->updated_at ? $venta->updated_at->toISOString() : null,
+            'fecha' => $venta->fecha ? $venta->fecha->toIso8601String() : null,
+            'fecha_pago' => $venta->fecha_pago ? $venta->fecha_pago->toIso8601String() : null,
+            'created_at' => $venta->created_at ? $venta->created_at->toIso8601String() : null,
+            'updated_at' => $venta->updated_at ? $venta->updated_at->toIso8601String() : null,
             'created_by_user_name' => $venta->createdBy->name ?? 'N/A',
             'updated_by_user_name' => $venta->updatedBy->name ?? 'N/A',
             'esta_facturada' => $venta->cfdis->whereIn('estatus', ['timbrado', 'vigente'])->isNotEmpty(),
             'cfdi_cancelado' => $venta->cfdis->where('estatus', 'cancelado')->isNotEmpty(),
             'factura_uuid' => $venta->cfdis->whereIn('estatus', ['timbrado', 'vigente'])->last()?->uuid,
             'sharing_token' => $venta->sharing_token,
+            'tiene_entrega_dinero' => $venta->entregaDinero !== null,
+            'entrega_dinero_estado' => $venta->entregaDinero?->estado,
         ];
     }
 
     private function getVentasSummaryStats(): array
     {
         $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $cacheKey = "ventas_summary_stats_empresa_{$empresaId}";
+        
+        // ✅ FIX (A-04): Ensure we have an empresa_id for the cache key to avoid cross-tenant leakage
+        if (!$empresaId) {
+            return $this->calculateVentasSummaryStats();
+        }
+
+        $connection = config('database.default');
+        $cacheKey = "ventas_summary_stats_{$connection}_empresa_{$empresaId}";
 
         return Cache::remember($cacheKey, 300, function () {
-            $stats = Venta::selectRaw("
-                COUNT(*) as total,
-                COUNT(CASE WHEN estado = 'borrador' THEN 1 END) as borrador,
-                COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
-                COUNT(CASE WHEN estado = 'aprobada' THEN 1 END) as aprobadas,
-                COUNT(CASE WHEN estado = 'enviada' THEN 1 END) as enviadas,
-                COUNT(CASE WHEN estado = 'facturada' THEN 1 END) as facturadas,
-                COUNT(CASE WHEN estado = 'pagado' THEN 1 END) as pagadas,
-                COUNT(CASE WHEN estado = 'cancelada' THEN 1 END) as cancelada
-            ")->first();
-
-            return [
-                'total' => (int) $stats->total,
-                'borrador' => (int) $stats->borrador,
-                'pendientes' => (int) $stats->pendientes,
-                'aprobadas' => (int) $stats->aprobadas,
-                'enviadas' => (int) $stats->enviadas,
-                'facturadas' => (int) $stats->facturadas,
-                'pagadas' => (int) $stats->pagadas,
-                'cancelada' => (int) $stats->cancelada,
-            ];
+            return $this->calculateVentasSummaryStats();
         });
+    }
+
+    private function calculateVentasSummaryStats(): array
+    {
+        $stats = Venta::selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN estado = 'borrador' THEN 1 END) as borrador,
+            COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
+            COUNT(CASE WHEN estado = 'aprobada' THEN 1 END) as aprobadas,
+            COUNT(CASE WHEN estado = 'enviada' THEN 1 END) as enviadas,
+            COUNT(CASE WHEN estado = 'facturada' THEN 1 END) as facturadas,
+            COUNT(CASE WHEN estado = 'pagado' THEN 1 END) as pagadas,
+            COUNT(CASE WHEN estado = 'cancelada' THEN 1 END) as cancelada
+        ")->first();
+
+        return [
+            'total' => (int) $stats->total,
+            'borrador' => (int) $stats->borrador,
+            'pendientes' => (int) $stats->pendientes,
+            'aprobadas' => (int) $stats->aprobadas,
+            'enviadas' => (int) $stats->enviadas,
+            'facturadas' => (int) $stats->facturadas,
+            'pagadas' => (int) $stats->pagadas,
+            'cancelada' => (int) $stats->cancelada,
+        ];
+    }
+
+    /**
+     * ✅ FIX (A-03): Invalidate stats cache
+     */
+    public static function invalidateStatsCache(?int $empresaId = null): void
+    {
+        $empresaId = $empresaId ?? \App\Support\EmpresaResolver::resolveId();
+        $connection = config('database.default');
+        $cacheKey = "ventas_summary_stats_{$connection}_empresa_{$empresaId}";
+        Cache::forget($cacheKey);
+        
+        Log::info("VentaQueryService: Invalidadas estadísticas de ventas para empresa #{$empresaId}");
     }
 
     /**
@@ -255,18 +284,35 @@ class VentaQueryService
 
     public function getCreateData(Request $request): array
     {
+        $startTime = microtime(true);
+        Log::info('VentaQueryService: Iniciando carga de datos para crear venta');
+
         $clienteSelect = ['id', 'nombre_razon_social', 'rfc', 'email', 'price_list_id', 'tipo_persona', 'credito_activo', 'limite_credito'];
 
         $citaParaVenta = $request->filled('cita_id')
             ? \App\Models\Cita::with(['cliente', 'items.citable', 'venta:id,cita_id,numero_venta,total,fecha,cliente_id'])->find($request->cita_id)
             : null;
 
-        $clientes = Cliente::select($clienteSelect)
-            ->whereNotNull('nombre_razon_social')
-            ->orderBy('created_at', 'desc')
-            ->limit(500)
-            ->with('priceList:id,nombre,clave')
-            ->get();
+        $tallerParaVenta = $request->filled('taller_id')
+            ? TallerOrden::with(['cliente'])->find($request->taller_id)
+            : null;
+
+        $connection = config('database.default');
+        $empresaId = $this->empresaIdParaListas();
+        
+        // OPTIMIZACIÓN: Cargar clientes de forma más eficiente
+        // ✅ FIX (A-04): Secure cache key with mandatory empresaId
+        $cacheKey = $empresaId 
+            ? "clientes_venta_directa_{$connection}_{$empresaId}"
+            : "clientes_venta_directa_{$connection}_anonymous_" . session()->getId();
+
+        $clientes = Cache::remember($cacheKey, 300, function () use ($clienteSelect) {
+            return Cliente::select($clienteSelect)
+                ->orderBy('nombre_razon_social')
+                ->limit(50)
+                ->with('priceList:id,nombre,clave')
+                ->get();
+        });
 
         if ($citaParaVenta?->cliente_id && ! $clientes->contains(fn ($c) => (int) $c->id === (int) $citaParaVenta->cliente_id)) {
             $clienteCita = Cliente::select($clienteSelect)
@@ -278,82 +324,126 @@ class VentaQueryService
             }
         }
 
-        $productos = Producto::select('id', 'nombre', 'codigo', 'precio_venta', 'stock', 'categoria_id', 'marca_id', 'requiere_serie', 'tipo_producto', 'unidad_medida', 'sat_clave_unidad', 'reservado', 'bloquear_venta_directa')
-            ->with(['categoria:id,nombre', 'marca:id,nombre', 'precios', 'kitItems.item', 'inventarios.almacen'])
+        if ($tallerParaVenta?->cliente_id && ! $clientes->contains(fn ($c) => (int) $c->id === (int) $tallerParaVenta->cliente_id)) {
+            $clienteTaller = Cliente::select($clienteSelect)
+                ->whereKey($tallerParaVenta->cliente_id)
+                ->with('priceList:id,nombre,clave')
+                ->first();
+            if ($clienteTaller) {
+                $clientes = $clientes->prepend($clienteTaller)->values();
+            }
+        }
+
+        // OPTIMIZACIÓN: Cargar productos de forma más eficiente para evitar N+1 queries
+        $productosQuery = Producto::select('id', 'nombre', 'codigo', 'precio_venta', 'stock', 'categoria_id', 'marca_id', 'requiere_serie', 'tipo_producto', 'unidad_medida', 'sat_clave_unidad', 'reservado', 'bloquear_venta_directa')
+            ->with([
+                'categoria:id,nombre',
+                'marca:id,nombre',
+                // Cargar solo precios básicos inicialmente (lazy load details si es necesario)
+                'precios' => function($q) {
+                    $q->select('id', 'producto_id', 'price_list_id', 'precio');
+                }
+            ])
             ->where('estado', 'activo')
-            // Removido el filtro de stock > 0 para que aparezcan todos los productos activos del catálogo
             ->paraVentaDirectaSegunUsuario(Auth::user())
             ->orderBy('nombre')
-            ->limit(500)
-            ->get()
-            ->map(function ($p) {
-                // Mapear precios por lista
-                $p->precios_listas = $p->precios->mapWithKeys(fn($pr) => [$pr->price_list_id => (float) $pr->precio]);
+            ->limit(100); // Reducido de 300 a 100 para carga instantánea
 
-                // Mapear stock por almacén (restando reservas globales de forma proporcional o simple)
-                // Para simplificar, enviaremos la cantidad física por almacén
-                $p->stock_almacenes = $p->inventarios->mapWithKeys(fn($inv) => [
-                    $inv->almacen_id => max(0, (float) $inv->cantidad - (float) ($p->reservado ?? 0))
-                ]);
+        $productos = $productosQuery->get()->map(function ($p) {
+            // Mapear precios por lista (solo si tiene precios)
+            $p->precios_listas = $p->precios ? $p->precios->mapWithKeys(fn($pr) => [$pr->price_list_id => (float) $pr->precio]) : collect();
 
-                unset($p->precios);
-                unset($p->inventarios);
-                return $p;
-            });
+            // Stock simplificado: usar stock global por ahora, lazy load por almacén si es necesario
+            $p->stock_total = max(0, (float) $p->stock - (float) ($p->reservado ?? 0));
 
-        $servicios = Servicio::select('id', 'nombre', 'descripcion', 'precio', 'comision_vendedor', 'estado')
-            ->where('estado', 'activo')
-            ->orderBy('nombre')
-            ->limit(200)
-            ->get();
+            // Remover datos pesados que no se necesitan inicialmente
+            unset($p->precios, $p->stock);
+            return $p;
+        });
 
-        $almacenes = Almacen::select('id', 'nombre', 'descripcion', 'ubicacion', 'estado')
-            ->where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
+        // Cargar stock por almacén de forma separada y cacheada (lazy load)
+        $productoIds = $productos->pluck('id');
+        $stockPorAlmacen = Cache::remember("productos_stock_{$connection}_{$this->empresaIdParaListas()}", 300, function() use ($productoIds) {
+            return \DB::table('inventarios')
+                ->whereIn('producto_id', $productoIds)
+                ->where('cantidad', '>', 0)
+                ->select('producto_id', 'almacen_id', 'cantidad')
+                ->get()
+                ->groupBy('producto_id')
+                ->map(function($inventarios) {
+                    return $inventarios->mapWithKeys(fn($inv) => [$inv->almacen_id => (float) $inv->cantidad]);
+                });
+        });
 
-        $catalogs = Cache::remember('ventas_catalogs', 604800, fn() => [
+        // Asignar stock por almacén a productos
+        $productos->each(function($producto) use ($stockPorAlmacen) {
+            $producto->stock_almacenes = $stockPorAlmacen->get($producto->id, collect());
+        });
+
+        $empresaId = $this->empresaIdParaListas();
+
+        // OPTIMIZACIÓN: Cachear servicios activos
+        $servicios = Cache::remember("ventas_servicios_activos_{$connection}_{$empresaId}", 1800, function() {
+            return Servicio::select('id', 'nombre', 'descripcion', 'precio', 'comision_vendedor', 'estado')
+                ->where('estado', 'activo')
+                ->orderBy('nombre')
+                ->limit(50) // Reducido de 100 a 50
+                ->get();
+        });
+
+        // OPTIMIZACIÓN: Cachear almacenes activos
+        $almacenes = Cache::remember("ventas_almacenes_activos_{$connection}_{$empresaId}", 3600, function() {
+            return Almacen::select('id', 'nombre', 'descripcion', 'ubicacion', 'estado')
+                ->where('estado', 'activo')
+                ->orderBy('nombre')
+                ->get();
+        });
+
+        $catalogs = Cache::remember("ventas_catalogs_{$connection}_{$empresaId}", 604800, fn() => [
             'regimenes_fiscales' => SatRegimenFiscal::select('clave', 'descripcion')->get(),
             'usos_cfdi' => SatUsoCfdi::select('clave', 'descripcion')->get(),
+            'formas_pago' => SatFormaPago::select('clave', 'descripcion')->get(),
+            'metodos_pago' => ['PUE' => 'Pago en una sola exhibición', 'PPD' => 'Pago en parcialidades o diferido'],
             'estados' => SatEstado::select('clave', 'nombre')->get(),
         ]);
 
-        $vendedores = User::select('id', 'name', 'email', 'almacen_venta_id', 'almacen_compra_id')
-            ->where('activo', true)
-            ->where(function ($q) {
-                $q->whereHas('roles', fn ($r) => $r->whereIn('name', [
-                    'ventas',
-                    'admin',
-                    'tecnico',
-                    'vendedor',
-                    'cajero',
-                    'cobranza',
-                    'almacenista',
-                    'super-admin',
-                ]))
-                    ->orWhere('es_tecnico', true)
-                    ->orWhere('es_vendedor', true);
-            })
-            ->orderBy('name')
-            ->get()
-            ->map(fn ($u) => [
-                'id' => $u->id, 
-                'type' => 'user', 
-                'nombre' => $u->name,
-                'almacen_venta_id' => $u->almacen_venta_id,
-                'almacen_compra_id' => $u->almacen_compra_id,
-            ]);
+        // OPTIMIZACIÓN: Cachear vendedores activos con mejor query
+        $vendedores = Cache::remember("ventas_vendedores_{$connection}_{$empresaId}", 1800, function() {
+            return User::select('id', 'name', 'email', 'almacen_venta_id', 'almacen_compra_id', 'es_tecnico', 'es_vendedor')
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereHas('roles', fn ($r) => $r->whereIn('name', [
+                        'ventas', 'admin', 'tecnico', 'vendedor', 'cajero',
+                        'cobranza', 'almacenista', 'super-admin',
+                    ]))
+                        ->orWhere('es_tecnico', true)
+                        ->orWhere('es_vendedor', true);
+                })
+                ->with(['roles:id,name']) // Eager load roles para evitar N+1
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($u) => [
+                    'id' => $u->id,
+                    'type' => 'user',
+                    'nombre' => $u->name,
+                    'almacen_venta_id' => $u->almacen_venta_id,
+                    'almacen_compra_id' => $u->almacen_compra_id,
+                ]);
+        });
 
-        return [
+        $result = [
             'clientes' => $clientes,
             'productos' => $productos,
             'servicios' => $servicios,
             'almacenes' => $almacenes,
-            'priceLists' => PriceList::activas()->select('id', 'nombre')->get(),
+            'priceLists' => Cache::remember("ventas_price_lists_activas_{$connection}_{$empresaId}", 3600, function() {
+                return PriceList::activas()->select('id', 'nombre')->get();
+            }),
             'catalogs' => $catalogs,
             'user' => Auth::user(),
             'pedido' => $request->has('pedido_id') ? Pedido::with(['cliente', 'items.pedible'])->find($request->pedido_id) : null,
             'cita' => $citaParaVenta,
+            'taller' => $tallerParaVenta,
             'vendedores' => $vendedores,
             'puedeVenderComponentesSueltos' => Auth::user()?->can('venta componentes sueltos') ?? false,
             'defaults' => [
@@ -367,6 +457,50 @@ class VentaQueryService
                 'serviciosUsanListasPrecios' => (bool) config('ventas.servicios_usan_listas_precios', false),
             ],
         ];
+
+        $endTime = microtime(true);
+        $duration = round(($endTime - $startTime) * 1000, 2); // en milisegundos
+
+        Log::info('VentaQueryService: Datos cargados exitosamente', [
+            'duration_ms' => $duration,
+            'clientes_count' => $clientes->count(),
+            'productos_count' => $productos->count(),
+            'servicios_count' => $servicios->count(),
+            'almacenes_count' => $almacenes->count(),
+            'vendedores_count' => $vendedores->count(),
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Limpiar cache de datos de ventas (llamar cuando se modifiquen productos, clientes, etc.)
+     */
+    public function clearCreateDataCache(): void
+    {
+        $empresaId = $this->empresaIdParaListas();
+
+        Cache::forget("ventas_clientes_{$empresaId}");
+        Cache::forget("clientes_venta_directa_{$empresaId}");
+        Cache::forget("ventas_vendedores_{$empresaId}");
+        Cache::forget("productos_stock_{$empresaId}");
+        Cache::forget("ventas_servicios_activos_{$empresaId}");
+        Cache::forget("ventas_almacenes_activos_{$empresaId}");
+        Cache::forget("ventas_price_lists_activas_{$empresaId}");
+        Cache::forget("ventas_catalogs_{$empresaId}");
+
+        Log::info('VentaQueryService: Cache limpiado para datos de creación de ventas');
+    }
+
+    /**
+     * Invalidar caché de estadísticas de ventas (llamar tras crear/cancelar/eliminar ventas).
+     */
+    public function invalidateSummaryStatsCache(): void
+    {
+        $empresaId = \App\Support\EmpresaResolver::resolveId();
+        $connection = config('database.default');
+        $cacheKey = "ventas_summary_stats_{$connection}_empresa_{$empresaId}";
+        Cache::forget($cacheKey);
     }
 
     public function getVentaDetails(Venta $venta): array
@@ -437,6 +571,14 @@ class VentaQueryService
                 'factura_uuid' => $venta->cfdis()->timbrados()->latest()->first()?->uuid,
                 'factura' => $venta->cfdis()->timbrados()->latest()->first(),
                 'tiene_entrega_dinero' => $venta->entregaDinero !== null,
+                'entrega_dinero' => $venta->entregaDinero ? [
+                    'id' => $venta->entregaDinero->id,
+                    'fecha_entrega' => $venta->entregaDinero->fecha_entrega?->toIso8601String(),
+                    'fecha_recibido' => $venta->entregaDinero->fecha_recibido?->toIso8601String(),
+                    'monto_efectivo' => $venta->entregaDinero->monto_efectivo,
+                    'estado' => $venta->entregaDinero->estado,
+                    'recibido_por_nombre' => $venta->entregaDinero->recibidoPor?->name ?? 'N/A',
+                ] : null,
             ],
             'canEdit' => $venta->estado?->value !== 'cancelada' && $venta->entregaDinero === null,
             'canDelete' => $venta->estado?->value === 'cancelada',
@@ -482,7 +624,7 @@ class VentaQueryService
                 'total' => $venta->total,
                 'estado' => $venta->estado,
                 'pagado' => $venta->pagado ?? false,
-                'fecha' => $venta->fecha->toISOString(),
+                'fecha' => $venta->fecha->toIso8601String(),
                 'almacen_id' => $venta->almacen_id,
                 'metodo_pago' => $venta->metodo_pago ?? 'efectivo',
                 'forma_pago_sat' => $venta->forma_pago_sat,
@@ -493,6 +635,7 @@ class VentaQueryService
                 'tiene_entrega_dinero' => $venta->entregaDinero()->exists(),
                 'vendedor_id' => $venta->vendedor_id,
                 'vendedor_type' => $venta->vendedor_type,
+                'pagado_por' => $venta->pagado_por,
             ]
         ]);
     }

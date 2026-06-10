@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch, nextTick } from 'vue'
 
 const props = defineProps({
@@ -287,7 +288,7 @@ const clearDate = () => {
 
 // Clases CSS computadas
 const inputClasses = computed(() => {
-  const base = 'block w-full px-3 py-2 border rounded-md shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1'
+  const base = 'block w-full px-3 py-2 border rounded-xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1'
   const variants = {
     default: 'sm:text-sm',
     compact: 'text-xs py-1',
@@ -297,15 +298,15 @@ const inputClasses = computed(() => {
   let classes = `${base} ${variants[props.variant]}`
 
   if (props.error || validationMessage.value) {
-    classes += ' border-red-300 focus:border-red-500 focus:ring-red-500'
+    classes += ' border-rose-300 focus:border-rose-500 focus:ring-brand-500'
   } else if (isValid.value && internalStartValue.value) {
-    classes += ' border-green-300 focus:border-green-500 focus:ring-green-500'
+    classes += ' border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500'
   } else {
-    classes += ' border-gray-300 focus:border-amber-500 focus:ring-amber-500'
+    classes += ' border-slate-300 focus:border-brand-500 focus:ring-brand-500'
   }
 
   if (props.disabled) {
-    classes += ' bg-gray-100 text-gray-500 cursor-not-allowed'
+    classes += ' bg-slate-100 text-slate-500 cursor-not-allowed'
   }
 
   return classes
@@ -324,11 +325,11 @@ const containerClasses = computed(() => {
       <!-- Label -->
       <label
         v-if="label && variant !== 'inline'"
-        class="block text-sm font-medium text-gray-700 mb-1"
-        :class="{ 'text-red-600': error || validationMessage }"
+        class="block text-sm font-medium text-slate-700 mb-1"
+        :class="{ 'text-rose-600': error || validationMessage }"
       >
         {{ label }}
-        <span v-if="required" class="text-red-500 ml-1">*</span>
+        <span v-if="required" class="text-rose-500 ml-1">*</span>
       </label>
 
       <!-- Input container -->
@@ -352,7 +353,7 @@ const containerClasses = computed(() => {
           v-if="internalStartValue && !disabled"
           type="button"
           @click="clearDate"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -368,19 +369,19 @@ const containerClasses = computed(() => {
           type="button"
           @click="setQuickDate(action.days)"
           :disabled="disabled"
-          class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ action.label }}
         </button>
       </div>
 
       <!-- Help text -->
-      <p v-if="helpText && !error && !validationMessage" class="mt-1 text-xs text-gray-500">
+      <p v-if="helpText && !error && !validationMessage" class="mt-1 text-xs text-slate-500">
         {{ helpText }}
       </p>
 
       <!-- Error message -->
-      <p v-if="error || validationMessage" class="mt-1 text-xs text-red-600 flex items-center">
+      <p v-if="error || validationMessage" class="mt-1 text-xs text-rose-600 flex items-center">
         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
@@ -392,10 +393,10 @@ const containerClasses = computed(() => {
     <div v-if="showEndDate && calculatedEndDate" class="relative flex-1">
       <label
         v-if="variant !== 'inline'"
-        class="block text-sm font-medium text-gray-700 mb-1"
+        class="block text-sm font-medium text-slate-700 mb-1"
       >
         Fecha de fin
-        <span class="text-xs font-normal text-gray-500 ml-1">({{ durationText }})</span>
+        <span class="text-xs font-normal text-slate-500 ml-1">({{ durationText }})</span>
       </label>
 
       <div class="relative">
@@ -403,12 +404,12 @@ const containerClasses = computed(() => {
           type="text"
           :value="formatDate(calculatedEndDate)"
           readonly
-          class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 cursor-default"
+          class="block w-full px-3 py-2 border border-slate-300 rounded-xl shadow-sm bg-slate-50 text-slate-600 cursor-default"
           :class="variant === 'compact' ? 'text-xs py-1' : 'sm:text-sm'"
         />
 
         <!-- Info icon -->
-        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -416,13 +417,13 @@ const containerClasses = computed(() => {
       </div>
 
       <!-- Duration info -->
-      <div v-if="calculatedEndDate && variant === 'default'" class="mt-1 text-xs text-gray-500">
+      <div v-if="calculatedEndDate && variant === 'default'" class="mt-1 text-xs text-slate-500">
         {{ formatDateLong(calculatedEndDate) }}
       </div>
     </div>
 
     <!-- Compact summary for inline variant -->
-    <div v-if="variant === 'inline' && internalStartValue" class="text-xs text-gray-600 whitespace-nowrap">
+    <div v-if="variant === 'inline' && internalStartValue" class="text-xs text-slate-600 whitespace-nowrap">
       {{ durationText }}
     </div>
   </div>

@@ -23,8 +23,8 @@ class CotizacionResource extends JsonResource
     //         'total' => $this->formatTotal(),
     //         'fecha' => $this->formatFecha(),
     //         'estado' => $this->getEstadoData(),
-    //         'created_at' => $this->created_at?->toISOString(),
-    //         'updated_at' => $this->updated_at?->toISOString(),
+    //         'created_at' => $this->created_at?->toIso8601String(),
+    //         'updated_at' => $this->updated_at?->toIso8601String(),
     //         'cliente_info' => $this->getClienteInfo(),
     //         'resumen' => $this->getResumen(),
     //         'metadatos' => $this->getMetadatos(),
@@ -168,7 +168,7 @@ class CotizacionResource extends JsonResource
         }
 
         return [
-            'iso' => $fecha->toISOString(),
+            'iso' => $fecha->toIso8601String(),
             'formatted' => $fecha->format('d/m/Y H:i:s'),
             'fecha_corta' => $fecha->format('d/m/Y'),
             'timestamp' => $fecha->timestamp,
@@ -226,7 +226,7 @@ class CotizacionResource extends JsonResource
             'nombre' => $cliente->nombre_razon_social ?? $cliente->nombre ?? 'Sin nombre',
             'email' => $cliente->email ?? null,
             'telefono' => $cliente->telefono ?? null,
-            'direccion' => $cliente->direccion ?? null,
+            'direccion' => $cliente->direccion_completa ?? null,
             'documento' => $cliente->documento ?? null,
             'tipo_documento' => $cliente->tipo_documento ?? null,
         ];
@@ -257,7 +257,7 @@ class CotizacionResource extends JsonResource
     // {
     //     return [
     //         'version' => '1.0',
-    //         'generado_en' => now()->toISOString(),
+    //         'generado_en' => now()->toIso8601String(),
     //         'usuario_id' => auth()->id() ?? null,
     //         'ip' => request()->ip() ?? null,
     //         'user_agent' => request()->userAgent() ?? null,
@@ -288,7 +288,7 @@ class CotizacionResource extends JsonResource
     {
         return [
             'meta' => [
-                'timestamp' => now()->toISOString(),
+                'timestamp' => now()->toIso8601String(),
                 'version' => 'v1.0',
             ]
         ];

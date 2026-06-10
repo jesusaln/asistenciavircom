@@ -1,21 +1,21 @@
 <template>
-    <div class="space-y-8">
+    <div class="space-y-6">
         <div>
-            <h2 class="text-xl font-semibold text-red-600 mb-2 flex items-center gap-2">
+            <h2 class="text-xl font-semibold text-rose-600 mb-2 flex items-center gap-2">
                 <FontAwesomeIcon icon="exclamation-triangle" />
                 Zona de Peligro
             </h2>
-            <p class="text-sm text-gray-500 mb-6">
+            <p class="text-sm text-slate-500 mb-6">
                 ⚠️ Las acciones en esta sección son <strong>irreversibles</strong>. Los datos eliminados no se pueden recuperar.
             </p>
 
             <!-- Advertencia Principal -->
-            <div class="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-8">
+            <div class="bg-rose-50 dark:bg-rose-900/20 border-2 border-rose-300 rounded-xl p-6 mb-8">
                 <div class="flex items-start gap-3">
-                    <FontAwesomeIcon icon="skull-crossbones" class="text-red-600 text-2xl mt-1" />
+                    <FontAwesomeIcon icon="skull-crossbones" class="text-rose-600 text-2xl mt-1" />
                     <div>
-                        <h3 class="font-bold text-red-800">¡CUIDADO!</h3>
-                        <p class="text-sm text-red-700">
+                        <h3 class="font-bold text-rose-800 dark:text-rose-200">¡CUIDADO!</h3>
+                        <p class="text-sm text-rose-800 dark:text-rose-200 dark:text-rose-200">
                             Estas acciones eliminarán permanentemente los datos seleccionados de la base de datos.
                             Asegúrate de tener un respaldo antes de continuar.
                         </p>
@@ -27,21 +27,21 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 
                 <!-- Eliminar Productos -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="boxes" class="text-orange-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Productos</h4>
-                                <p class="text-xs text-gray-500">Todos los productos del catálogo</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Productos</h4>
+                                <p class="text-xs text-slate-500">Todos los productos del catálogo</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('productos', 'todos los productos')"
                             :disabled="isDeleting.productos"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.productos" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -51,21 +51,21 @@
                 </div>
 
                 <!-- Eliminar Compras -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="shopping-cart" class="text-blue-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Compras</h4>
-                                <p class="text-xs text-gray-500">Todas las compras e items</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Compras</h4>
+                                <p class="text-xs text-slate-500">Todas las compras e items</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('compras', 'todas las compras')"
                             :disabled="isDeleting.compras"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.compras" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -75,21 +75,21 @@
                 </div>
 
                 <!-- Eliminar Ventas -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="cash-register" class="text-emerald-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Ventas</h4>
-                                <p class="text-xs text-gray-500">Todas las ventas y facturas</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Ventas</h4>
+                                <p class="text-xs text-slate-500">Todas las ventas y facturas</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('ventas', 'todas las ventas')"
                             :disabled="isDeleting.ventas"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.ventas" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -99,21 +99,21 @@
                 </div>
 
                 <!-- Eliminar Bancos -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="university" class="text-purple-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Bancos</h4>
-                                <p class="text-xs text-gray-500">Cuentas bancarias y movimientos</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Bancos</h4>
+                                <p class="text-xs text-slate-500">Cuentas bancarias y movimientos</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('bancos', 'todos los bancos y movimientos')"
                             :disabled="isDeleting.bancos"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.bancos" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -123,21 +123,21 @@
                 </div>
 
                 <!-- Eliminar Inventario -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="warehouse" class="text-amber-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Inventario</h4>
-                                <p class="text-xs text-gray-500">Stock, series y movimientos</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Inventario</h4>
+                                <p class="text-xs text-slate-500">Stock, series y movimientos</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('inventario', 'todo el inventario')"
                             :disabled="isDeleting.inventario"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.inventario" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -147,21 +147,21 @@
                 </div>
 
                 <!-- Eliminar Clientes -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="users" class="text-cyan-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Clientes</h4>
-                                <p class="text-xs text-gray-500">Todos los clientes</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Clientes</h4>
+                                <p class="text-xs text-slate-500">Todos los clientes</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('clientes', 'todos los clientes')"
                             :disabled="isDeleting.clientes"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.clientes" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -171,21 +171,21 @@
                 </div>
 
                 <!-- Eliminar Proveedores -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="truck" class="text-indigo-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar Proveedores</h4>
-                                <p class="text-xs text-gray-500">Todos los proveedores</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar Proveedores</h4>
+                                <p class="text-xs text-slate-500">Todos los proveedores</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('proveedores', 'todos los proveedores')"
                             :disabled="isDeleting.proveedores"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.proveedores" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -195,21 +195,21 @@
                 </div>
 
                 <!-- Eliminar CFDIs -->
-                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:border-red-300 transition-colors">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon="file-invoice" class="text-rose-600" />
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar CFDIs</h4>
-                                <p class="text-xs text-gray-500">Todos los documentos fiscales</p>
+                                <h4 class="font-semibold text-slate-900">Eliminar CFDIs</h4>
+                                <p class="text-xs text-slate-500">Todos los documentos fiscales</p>
                             </div>
                         </div>
                         <button 
                             @click="confirmarEliminacion('cfdis', 'todos los CFDIs')"
                             :disabled="isDeleting.cfdis"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2"
                         >
                             <FontAwesomeIcon v-if="isDeleting.cfdis" icon="spinner" class="animate-spin" />
                             <FontAwesomeIcon v-else icon="trash" />
@@ -220,29 +220,29 @@
             </div>
 
             <!-- Sección Crítica: Eliminar Todo -->
-            <div class="border-t-4 border-red-500 pt-8">
-                <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
+            <div class="border-t-4 border-rose-500 pt-8">
+                <h3 class="text-lg font-bold text-rose-800 dark:text-rose-200 dark:text-rose-200 mb-4 flex items-center gap-2">
                     <FontAwesomeIcon icon="bomb" />
                     Acciones Críticas
                 </h3>
 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <!-- Eliminar TODO -->
-                    <div class="bg-red-100 border-2 border-red-400 rounded-xl p-6">
+                    <div class="bg-rose-100 border-2 border-rose-400 rounded-xl p-6">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
+                                <div class="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center">
                                     <FontAwesomeIcon icon="skull" class="text-white text-xl" />
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-red-900 text-lg">🔥 ELIMINAR TODO</h4>
-                                    <p class="text-sm text-red-700">Elimina TODOS los datos del sistema (excepto usuarios)</p>
+                                    <h4 class="font-bold text-rose-900 text-lg">🔥 ELIMINAR TODO</h4>
+                                    <p class="text-sm text-rose-800 dark:text-rose-200 dark:text-rose-200">Elimina TODOS los datos del sistema (excepto usuarios)</p>
                                 </div>
                             </div>
                             <button 
                                 @click="confirmarEliminacionTotal()"
                                 :disabled="isDeleting.todo"
-                                class="px-6 py-3 bg-red-700 text-white rounded-xl font-bold hover:bg-red-800 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-red-500/30"
+                                class="px-6 py-3 bg-rose-700 text-white rounded-xl font-bold hover:bg-rose-800 disabled:opacity-50 flex items-center gap-2 shadow-xl shadow-rose-500/30"
                             >
                                 <FontAwesomeIcon v-if="isDeleting.todo" icon="spinner" class="animate-spin" />
                                 <FontAwesomeIcon v-else icon="trash-alt" />
@@ -252,21 +252,21 @@
                     </div>
 
                     <!-- Eliminar TODO + Usuarios (excepto SuperAdmin) -->
-                    <div class="bg-gray-900 border-2 border-gray-700 rounded-xl p-6">
+                    <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-6">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center">
-                                    <FontAwesomeIcon icon="user-slash" class="text-red-400 text-xl" />
+                                <div class="w-10 h-10 bg-slate-700 rounded-xl flex items-center justify-center">
+                                    <FontAwesomeIcon icon="user-slash" class="text-rose-400 text-xl" />
                                 </div>
                                 <div>
                                     <h4 class="font-bold text-white text-lg">☠️ REINICIAR SISTEMA</h4>
-                                    <p class="text-sm text-gray-400">Elimina TODO incluyendo usuarios (excepto SuperAdmin)</p>
+                                    <p class="text-sm text-slate-400">Elimina TODO incluyendo usuarios (excepto SuperAdmin)</p>
                                 </div>
                             </div>
                             <button 
                                 @click="confirmarReinicio()"
                                 :disabled="isDeleting.reinicio"
-                                class="px-6 py-3 bg-gray-700 text-red-400 border-2 border-red-500 rounded-xl font-bold hover:bg-red-900 hover:text-white disabled:opacity-50 flex items-center gap-2"
+                                class="px-6 py-3 bg-slate-700 text-rose-400 border-2 border-rose-500 rounded-xl font-bold hover:bg-rose-900 hover:text-white disabled:opacity-50 flex items-center gap-2"
                             >
                                 <FontAwesomeIcon v-if="isDeleting.reinicio" icon="spinner" class="animate-spin" />
                                 <FontAwesomeIcon v-else icon="power-off" />
@@ -308,14 +308,14 @@ const confirmarEliminacion = async (modulo, descripcion) => {
         title: `¿Eliminar ${descripcion}?`,
         html: `
             <div class="text-left">
-                <p class="text-red-600 font-bold mb-4">⚠️ Esta acción es IRREVERSIBLE</p>
-                <div class="space-y-4">
+                <p class="text-rose-600 font-bold mb-4">⚠️ Esta acción es IRREVERSIBLE</p>
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Confirma escribiendo "${modulo.toUpperCase()}"</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Confirma escribiendo "${modulo.toUpperCase()}"</label>
                         <input id="swal-input-confirm" class="swal2-input !mt-0 !w-full" placeholder="${modulo.toUpperCase()}">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tu contraseña de administrador</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tu contraseña de administrador</label>
                         <input id="swal-input-password" type="password" class="swal2-input !mt-0 !w-full" placeholder="••••••••">
                     </div>
                 </div>
@@ -351,15 +351,15 @@ const confirmarEliminacionTotal = async () => {
         title: '🔥 ¿ELIMINAR TODO?',
         html: `
             <div class="text-left">
-                <p class="text-red-600 font-bold mb-3">⚠️ ADVERTENCIA CRÍTICA</p>
-                <p class="text-gray-700 mb-2">Esto eliminará la mayoría de los datos operativos del sistema.</p>
-                <div class="space-y-4 mt-4">
+                <p class="text-rose-600 font-bold mb-3">⚠️ ADVERTENCIA CRÍTICA</p>
+                <p class="text-slate-700 mb-2">Esto eliminará la mayoría de los datos operativos del sistema.</p>
+                <div class="space-y-6 mt-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Confirma escribiendo "ELIMINAR TODO"</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Confirma escribiendo "ELIMINAR TODO"</label>
                         <input id="swal-input-confirm" class="swal2-input !mt-0 !w-full" placeholder="ELIMINAR TODO">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tu contraseña de administrador</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tu contraseña de administrador</label>
                         <input id="swal-input-password" type="password" class="swal2-input !mt-0 !w-full" placeholder="••••••••">
                     </div>
                 </div>
@@ -394,15 +394,15 @@ const confirmarReinicio = async () => {
         title: '☠️ ¿REINICIAR SISTEMA?',
         html: `
             <div class="text-left">
-                <p class="text-red-600 font-bold mb-3">⚠️ PELIGRO EXTREMO</p>
-                <p class="text-gray-700 mb-2">Se borrarán todos los datos y usuarios (excepto tú).</p>
-                <div class="space-y-4 mt-4">
+                <p class="text-rose-600 font-bold mb-3">⚠️ PELIGRO EXTREMO</p>
+                <p class="text-slate-700 mb-2">Se borrarán todos los datos y usuarios (excepto tú).</p>
+                <div class="space-y-6 mt-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Confirma escribiendo "REINICIAR"</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Confirma escribiendo "REINICIAR"</label>
                         <input id="swal-input-confirm" class="swal2-input !mt-0 !w-full" placeholder="REINICIAR">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tu contraseña de administrador</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tu contraseña de administrador</label>
                         <input id="swal-input-password" type="password" class="swal2-input !mt-0 !w-full" placeholder="••••••••">
                     </div>
                 </div>
@@ -451,8 +451,8 @@ const ejecutarEliminacion = async (modulo, confirmValue, password) => {
                 icon: 'success',
                 title: '✅ Eliminación Completada',
                 html: `
-                    <p class="text-gray-700">${response.data.message}</p>
-                    <p class="text-sm text-gray-500 mt-2">Registros eliminados: ${response.data.count || 0}</p>
+                    <p class="text-slate-700">${response.data.message}</p>
+                    <p class="text-sm text-slate-500 mt-2">Registros eliminados: ${response.data.count || 0}</p>
                 `,
                 confirmButtonColor: '#10b981'
             });

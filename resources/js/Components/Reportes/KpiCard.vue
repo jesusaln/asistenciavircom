@@ -3,7 +3,7 @@
         <div class="p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div :class="`rounded-md p-3 ${colorClass}`">
+                    <div :class="`rounded-xl p-3 ${colorClass}`">
                         <i :class="`${icon} text-white text-lg`"></i>
                     </div>
                 </div>
@@ -45,13 +45,13 @@ defineEmits(['click']);
 const colorClass = computed(() => {
     const colors = {
         blue: 'bg-blue-500',
-        green: 'bg-green-500',
-        red: 'bg-red-500',
+        green: 'bg-emerald-500',
+        red: 'bg-rose-500',
         yellow: 'bg-yellow-500',
         purple: 'bg-purple-500',
-        indigo: 'bg-amber-500',
+        indigo: 'bg-brand-500',
         teal: 'bg-teal-500',
-        gray: 'bg-gray-500',
+        gray: 'bg-slate-500',
         orange: 'bg-orange-500'
     };
     return colors[props.color] || colors.blue;

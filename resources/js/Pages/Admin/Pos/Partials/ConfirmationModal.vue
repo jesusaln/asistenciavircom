@@ -19,8 +19,8 @@ const emit = defineEmits(['confirm', 'cancel']);
             <div class="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-200">
                 <div class="p-8 text-center">
                     <!-- Icon -->
-                    <div :class="variant === 'danger' ? 'bg-rose-500/20 text-rose-500' : 'bg-amber-500/20 text-amber-500'" 
-                         class="w-20 h-20 rounded-[30%] flex items-center justify-center mx-auto mb-6">
+                    <div :class="variant === 'danger' ? 'bg-brand-500/20 text-rose-500' : 'bg-brand-500/20 text-brand-500'" 
+                         class="w-16 h-16 rounded-[30%] flex items-center justify-center mx-auto mb-6">
                         <svg v-if="variant === 'danger'" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -29,7 +29,7 @@ const emit = defineEmits(['confirm', 'cancel']);
                         </svg>
                     </div>
 
-                    <h3 class="text-2xl font-black text-white mb-2 uppercase tracking-tight">{{ title }}</h3>
+                    <h3 class="text-2xl font-black text-white mb-2 uppercase tracking-wider">{{ title }}</h3>
                     <p class="text-slate-400 mb-8">{{ message }}</p>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -38,8 +38,8 @@ const emit = defineEmits(['confirm', 'cancel']);
                             {{ cancelText }}
                         </button>
                         <button @click="emit('confirm')" 
-                                :class="variant === 'danger' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-amber-600 hover:bg-amber-500'"
-                                class="py-4 text-white rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                                :class="variant === 'danger' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-brand-600 hover:bg-amber-700'"
+                                class="py-4 text-white rounded-2xl font-bold shadow-xl transition-all active:scale-95">
                             {{ confirmText }}
                         </button>
                     </div>

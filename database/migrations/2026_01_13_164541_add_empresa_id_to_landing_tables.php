@@ -10,19 +10,25 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('landing_marcas_autorizadas', function (Blueprint $table) {
-            $table->foreignId('empresa_id')->nullable()->constrained()->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('landing_marcas_autorizadas', 'empresa_id')) {
+            Schema::table('landing_marcas_autorizadas', function (Blueprint $table) {
+                $table->foreignId('empresa_id')->nullable()->constrained()->onDelete('cascade');
+            });
+        }
 
-        Schema::table('landing_procesos', function (Blueprint $table) {
-            $table->foreignId('empresa_id')->nullable()->constrained()->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('landing_procesos', 'empresa_id')) {
+            Schema::table('landing_procesos', function (Blueprint $table) {
+                $table->foreignId('empresa_id')->nullable()->constrained()->onDelete('cascade');
+            });
+        }
 
         // Assign existing records to the first company if it exists
-        $firstEmpresa = \DB::table('empresas')->first();
-        if ($firstEmpresa) {
-            \DB::table('landing_marcas_autorizadas')->update(['empresa_id' => $firstEmpresa->id]);
-            \DB::table('landing_procesos')->update(['empresa_id' => $firstEmpresa->id]);
+        if (Schema::hasTable('empresas')) {
+            $firstEmpresa = \DB::table('empresas')->first();
+            if ($firstEmpresa) {
+                \DB::table('landing_marcas_autorizadas')->update(['empresa_id' => $firstEmpresa->id]);
+                \DB::table('landing_procesos')->update(['empresa_id' => $firstEmpresa->id]);
+            }
         }
     }
 

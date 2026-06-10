@@ -82,13 +82,104 @@ class VentaDocumentoController extends Controller
      */
     public function generarPDFPublico(Request $request, $token)
     {
-        $venta = Venta::findByToken($token);
+        if (!\Illuminate\Support\Str::isUuid($token)) {
+            abort(404, 'Token inválido');
+        }
+
+        $venta = Venta::withoutGlobalScope('empresa')
+            ->where('sharing_token', $token)
+            ->first();
 
         if (!$venta) {
             abort(404, 'Comprobante no encontrado');
         }
 
+        // Establecer el contexto de la empresa para evitar bloqueos del multi-tenancy
+        // en las consultas de relaciones anidadas del PDF (items, productos, cliente, etc).
+        \App\Support\EmpresaResolver::setContext($venta->empresa_id);
+
         return $this->generarPDF($request, $venta->id);
+    }
+
+    /**
+     * Generate PDF (Public Base64).
+     */
+    public function generarPDFPublicoBase64(Request $request, $token)
+    {
+        if (!\Illuminate\Support\Str::isUuid($token)) {
+            abort(404, 'Token inválido');
+        }
+
+        $venta = Venta::withoutGlobalScope('empresa')
+            ->where('sharing_token', $token)
+            ->first();
+
+        if (!$venta) {
+            abort(404, 'Comprobante no encontrado');
+        }
+
+        \App\Support\EmpresaResolver::setContext($venta->empresa_id);
+
+        $piePagina = \App\Models\EmpresaConfiguracion::getPiePagina('ventas');
+        
+        $pdf = $this->pdfService->loadView('ventas.pdf', [
+            'venta' => $venta,
+            'piePagina' => $piePagina
+        ]);
+
+        $output = $pdf->output(); 
+        $base64 = base64_encode($output);
+
+        return response()->json([
+            'success' => true,
+            'base64' => $base64,
+            'filename' => 'venta-' . ($venta->numero_venta ?? $venta->id) . '.pdf'
+        ]);
+    }
+
+    /**
+     * Generate PDF as Base64 JSON.
+     */
+    public function generarPDFBase64(Request $request, $id)
+    {
+        try {
+            $venta = Venta::with([
+                'cliente',
+                'almacen',
+                'items.series.productoSerie',
+                'vendedor'
+            ])
+            ->with([
+                'items.ventable' => function ($morphTo) {
+                    $morphTo->morphWith([
+                        \App\Models\Producto::class => ['kitItems.item'],
+                    ]);
+                }
+            ])
+            ->findOrFail($id);
+
+            $piePagina = \App\Models\EmpresaConfiguracion::getPiePagina('ventas');
+            
+            $pdf = $this->pdfService->loadView('ventas.pdf', [
+                'venta' => $venta,
+                'piePagina' => $piePagina
+            ]);
+
+            $output = $pdf->output(); 
+            $base64 = base64_encode($output);
+
+            return response()->json([
+                'success' => true,
+                'base64' => $base64,
+                'filename' => 'venta-' . ($venta->numero_venta ?? $venta->id) . '.pdf'
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error generando PDF Base64 de venta: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Error generando PDF: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

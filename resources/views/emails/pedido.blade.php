@@ -22,12 +22,12 @@
         }
         .header {
             text-align: center;
-            border-bottom: 2px solid #3B82F6;
+            border-bottom: 2px solid #FF6B35;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
         .header h1 {
-            color: #3B82F6;
+            color: #FF6B35;
             margin: 0;
             font-size: 28px;
         }
@@ -45,7 +45,7 @@
             margin: 0 10px;
         }
         .info-block h3 {
-            color: #3B82F6;
+            color: #FF6B35;
             margin-top: 0;
         }
         .total {
@@ -68,7 +68,7 @@
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #3B82F6;
+            background-color: #FF6B35;
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -109,7 +109,7 @@
         <h3>Productos/Servicios</h3>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
-                <tr style="background-color: #3B82F6; color: white;">
+                <tr style="background-color: #FF6B35; color: white;">
                     <th style="padding: 10px; text-align: left;">Producto/Servicio</th>
                     <th style="padding: 10px; text-align: center;">Cantidad</th>
                     <th style="padding: 10px; text-align: right;">Precio</th>

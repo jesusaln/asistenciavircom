@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto custom-scrollbar">
       <!-- Backdrop -->
       <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="close"></div>
 
@@ -16,7 +16,7 @@
                 </svg>
                 Importar Gasto desde XML (CFDI)
               </h3>
-              <button @click="close" class="text-white hover:text-gray-200 transition-colors">
+              <button @click="close" class="text-white hover:text-slate-200 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -29,8 +29,8 @@
             <!-- Estado: Subir archivo -->
             <div v-if="!cfdiData && !loading">
               <div
-                class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors cursor-pointer"
-                :class="{ 'border-amber-500 bg-indigo-50': isDragging }"
+                class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors cursor-pointer"
+                :class="{ 'border-brand-500 bg-indigo-50': isDragging }"
                 @dragover.prevent="isDragging = true"
                 @dragleave.prevent="isDragging = false"
                 @drop.prevent="handleDrop"
@@ -43,22 +43,22 @@
                   class="hidden"
                   @change="handleFileSelect"
                 />
-                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-16 h-16 mx-auto text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p class="text-lg font-medium text-gray-700 mb-2">
+                <p class="text-lg font-medium text-slate-700 mb-2">
                   Arrastra tu archivo XML aquí
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-slate-500">
                   o haz clic para seleccionar
                 </p>
-                <p class="text-xs text-gray-400 mt-2">
+                <p class="text-xs text-slate-400 mt-2">
                   Archivos XML de CFDI (Facturas de gastos/servicios)
                 </p>
               </div>
 
-              <div v-if="error" class="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                <div class="flex items-center text-red-700">
+              <div v-if="error" class="mt-4 bg-rose-50 border border-rose-200 rounded-xl p-4">
+                <div class="flex items-center text-rose-700">
                   <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                   </svg>
@@ -69,8 +69,8 @@
 
             <!-- Estado: Cargando -->
             <div v-if="loading" class="text-center py-12">
-              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
-              <p class="text-gray-600">Procesando XML...</p>
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+              <p class="text-slate-600">Procesando XML...</p>
             </div>
 
             <!-- Estado: Datos del CFDI -->
@@ -91,22 +91,22 @@
               </div>
 
               <!-- Desglose de montos -->
-              <div class="mb-6 bg-white border border-gray-200 rounded-xl overflow-hidden">
-                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                  <h4 class="text-sm font-semibold text-gray-700">Desglose de Montos</h4>
+              <div class="mb-6 bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div class="bg-slate-50 px-4 py-2 border-b border-slate-200">
+                  <h4 class="text-sm font-semibold text-slate-700">Desglose de Montos</h4>
                 </div>
                 <div class="p-4 space-y-2">
                   <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Subtotal:</span>
-                    <span class="font-medium text-gray-900">${{ formatMoney(cfdiData.subtotal) }}</span>
+                    <span class="text-slate-600">Subtotal:</span>
+                    <span class="font-medium text-slate-900">${{ formatMoney(cfdiData.subtotal) }}</span>
                   </div>
-                  <div v-if="cfdiData.descuento > 0" class="flex justify-between items-center text-red-600">
+                  <div v-if="cfdiData.descuento > 0" class="flex justify-between items-center text-rose-600">
                     <span>Descuento:</span>
                     <span class="font-medium">-${{ formatMoney(cfdiData.descuento) }}</span>
                   </div>
                   <div class="flex justify-between items-center border-t pt-2">
-                    <span class="text-gray-600">Base para IVA:</span>
-                    <span class="font-medium text-gray-900">${{ formatMoney(cfdiData.subtotal - (cfdiData.descuento || 0)) }}</span>
+                    <span class="text-slate-600">Base para IVA:</span>
+                    <span class="font-medium text-slate-900">${{ formatMoney(cfdiData.subtotal - (cfdiData.descuento || 0)) }}</span>
                   </div>
                   <div class="flex justify-between items-center text-blue-600">
                     <span>IVA (16%):</span>
@@ -117,7 +117,7 @@
                     <span class="font-medium">-${{ formatMoney(cfdiData.impuestos.total_impuestos_retenidos) }}</span>
                   </div>
                   <div class="flex justify-between items-center border-t pt-2 text-lg font-bold">
-                    <span class="text-gray-900">Total:</span>
+                    <span class="text-slate-900">Total:</span>
                     <span class="text-amber-600">${{ formatMoney(cfdiData.total) }}</span>
                   </div>
                 </div>
@@ -125,40 +125,40 @@
 
               <!-- Información del CFDI -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Tipo Comprobante</p>
-                  <p class="font-semibold text-gray-900 text-sm">{{ cfdiData.tipo_comprobante_nombre || cfdiData.tipo_comprobante }}</p>
+                <div class="bg-slate-50 rounded-xl p-3">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Tipo Comprobante</p>
+                  <p class="font-semibold text-slate-900 text-sm">{{ cfdiData.tipo_comprobante_nombre || cfdiData.tipo_comprobante }}</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Forma de Pago</p>
-                  <p class="font-semibold text-gray-900 text-sm">{{ getFormaPagoNombre(cfdiData.forma_pago) }}</p>
+                <div class="bg-slate-50 rounded-xl p-3">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Forma de Pago</p>
+                  <p class="font-semibold text-slate-900 text-sm">{{ getFormaPagoNombre(cfdiData.forma_pago) }}</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Método de Pago</p>
-                  <p class="font-semibold text-gray-900 text-sm">{{ cfdiData.metodo_pago === 'PUE' ? 'Pago en Una Exhibición' : cfdiData.metodo_pago === 'PPD' ? 'Pago en Parcialidades' : cfdiData.metodo_pago || 'N/A' }}</p>
+                <div class="bg-slate-50 rounded-xl p-3">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Método de Pago</p>
+                  <p class="font-semibold text-slate-900 text-sm">{{ cfdiData.metodo_pago === 'PUE' ? 'Pago en Una Exhibición' : cfdiData.metodo_pago === 'PPD' ? 'Pago en Parcialidades' : cfdiData.metodo_pago || 'N/A' }}</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <p class="text-xs text-gray-500 uppercase tracking-wide">Moneda</p>
-                  <p class="font-semibold text-gray-900 text-sm">{{ cfdiData.moneda || 'MXN' }}</p>
+                <div class="bg-slate-50 rounded-xl p-3">
+                  <p class="text-xs text-slate-500 uppercase tracking-wide">Moneda</p>
+                  <p class="font-semibold text-slate-900 text-sm">{{ cfdiData.moneda || 'MXN' }}</p>
                 </div>
               </div>
 
               <!-- Receptor (Tu empresa) -->
-              <div v-if="cfdiData.receptor" class="mb-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <p class="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Receptor (Tu empresa)</p>
-                <p class="text-sm text-gray-900">{{ cfdiData.receptor.nombre }}</p>
-                <p class="text-xs text-gray-600">RFC: {{ cfdiData.receptor.rfc }} | Uso CFDI: {{ cfdiData.receptor.uso_cfdi }}</p>
+              <div v-if="cfdiData.receptor" class="mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium mb-1">Receptor (Tu empresa)</p>
+                <p class="text-sm text-slate-900">{{ cfdiData.receptor.nombre }}</p>
+                <p class="text-xs text-slate-600">RFC: {{ cfdiData.receptor.rfc }} | Uso CFDI: {{ cfdiData.receptor.uso_cfdi }}</p>
               </div>
 
               <!-- Emisor (Proveedor) -->
-              <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-xs text-blue-600 uppercase tracking-wide font-medium">Proveedor (Emisor)</p>
-                    <p class="font-semibold text-gray-900">{{ cfdiData.emisor?.nombre }}</p>
-                    <p class="text-sm text-gray-600">RFC: {{ cfdiData.emisor?.rfc }}</p>
+                    <p class="font-semibold text-slate-900">{{ cfdiData.emisor?.nombre }}</p>
+                    <p class="text-sm text-slate-600">RFC: {{ cfdiData.emisor?.rfc }}</p>
                   </div>
-                  <div v-if="cfdiData.proveedor_encontrado" class="flex items-center text-green-600">
+                  <div v-if="cfdiData.proveedor_encontrado" class="flex items-center text-emerald-600">
                     <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
@@ -174,7 +174,7 @@
                     <button 
                       @click="registrarProveedorExpress"
                       :disabled="registrandoProveedor"
-                      class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                      class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                     >
                       <svg v-if="!registrandoProveedor" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -191,35 +191,35 @@
 
               <!-- Conceptos / Descripción Editable -->
               <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-slate-700 mb-2">
                   Descripción del Gasto (Editable)
                 </label>
                 <textarea
                   v-model="descripcionEditada"
                   rows="4"
-                  class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                  class="w-full border-slate-300 rounded-xl shadow-sm focus:ring-brand-500 focus:border-brand-500"
                   placeholder="Edita la descripción del gasto..."
                 ></textarea>
-                <p class="text-xs text-gray-500 mt-1">
+                <p class="text-xs text-slate-500 mt-1">
                   Esta descripción se usará para el gasto. Puedes editarla según necesites.
                 </p>
               </div>
 
               <!-- Lista de conceptos para referencia -->
               <div class="mb-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">Conceptos del CFDI ({{ cfdiData.conceptos?.length || 0 }})</p>
-                <div class="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
-                  <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                <p class="text-sm font-medium text-slate-700 mb-2">Conceptos del CFDI ({{ cfdiData.conceptos?.length || 0 }})</p>
+                <div class="max-h-40 overflow-y-auto custom-scrollbar border border-slate-200 rounded-xl">
+                  <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50">
                       <tr>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Importe</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Descripción</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Importe</th>
                       </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                       <tr v-for="(concepto, index) in cfdiData.conceptos" :key="index">
-                        <td class="px-3 py-2 text-gray-900">{{ concepto.descripcion }}</td>
-                        <td class="px-3 py-2 text-gray-900 text-right">${{ formatMoney(concepto.importe) }}</td>
+                        <td class="px-3 py-2 text-slate-900">{{ concepto.descripcion }}</td>
+                        <td class="px-3 py-2 text-slate-900 text-right">${{ formatMoney(concepto.importe) }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -229,25 +229,25 @@
           </div>
 
           <!-- Footer -->
-          <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-between items-center">
+          <div class="bg-slate-50 px-6 py-4 rounded-b-xl flex justify-between items-center">
             <button
               v-if="cfdiData"
               @click="resetUpload"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
             >
               Subir otro archivo
             </button>
             <div class="flex space-x-3">
               <button
                 @click="close"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 v-if="cfdiData && cfdiData.es_factura_valida"
                 @click="confirmarImportacion"
-                class="px-6 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center"
+                class="px-6 py-2 text-sm font-medium text-white bg-brand-500 rounded-xl hover:bg-brand-600 transition-colors flex items-center"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -263,8 +263,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { useFormatters } from '@/Composables/useFormatters';
+import { ref, useTemplateRef, watch } from 'vue';
 import axios from 'axios';
+import Swal from '@/Utils/Swal';
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -276,7 +278,7 @@ const loading = ref(false);
 const error = ref('');
 const isDragging = ref(false);
 const cfdiData = ref(null);
-const fileInput = ref(null);
+const fileInput = useTemplateRef('fileInput');
 const descripcionEditada = ref('');
 const registrandoProveedor = ref(false);
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+  <div class="min-h-screen bg-[var(--ui-surface)] transition-colors duration-200">
     <Head :title="`${cuenta.nombre} - Cuenta Bancaria`" />
 
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
@@ -8,7 +8,7 @@
         <div class="flex items-start gap-3 min-w-0">
           <Link
             :href="route('cuentas-bancarias.index')"
-            class="shrink-0 p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
+            class="shrink-0 p-2 rounded-xl text-slate-500 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 border border-transparent hover:border-brand-500 dark:hover:border-brand-500 transition-colors"
           >
             <FontAwesomeIcon :icon="['fas', 'arrow-left']" />
           </Link>
@@ -16,7 +16,7 @@
             <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
               {{ cuenta.nombre }}
             </h1>
-            <p class="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base">
+            <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm sm:text-base">
               {{ cuenta.banco }} · {{ cuenta.numero_cuenta || '****' }}
             </p>
           </div>
@@ -25,21 +25,21 @@
           <button
             type="button"
             @click="showModal = true"
-            class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500 text-white shadow-md shadow-amber-500/20 hover:bg-amber-600 dark:bg-amber-500 dark:hover:bg-amber-400 transition-colors"
+            class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-brand-500 text-white shadow-md shadow-brand-500/20 hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-400 transition-colors"
           >
             <FontAwesomeIcon :icon="['fas', 'plus-circle']" class="mr-2" />
             Registrar Movimiento
           </button>
           <Link
             :href="route('cuentas-bancarias.edit', { cuentas_bancaria: cuenta.id })"
-            class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 shadow-md shadow-blue-600/15 transition-colors"
+            class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 dark:bg-brand-500 dark:hover:bg-blue-400 shadow-md shadow-blue-600/15 transition-colors"
           >
             <FontAwesomeIcon :icon="['fas', 'edit']" class="mr-2" />
             Editar
           </Link>
           <Link
             :href="route('cuentas-bancarias.movimientos', { cuentas_bancaria: cuenta.id })"
-            class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 shadow-md shadow-emerald-600/15 transition-colors"
+            class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-brand-500 dark:hover:bg-emerald-400 shadow-md shadow-emerald-600/15 transition-colors"
           >
             <FontAwesomeIcon :icon="['fas', 'list']" class="mr-2" />
             Ver Movimientos
@@ -80,10 +80,10 @@
       <!-- Info de la cuenta -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div
-          class="rounded-2xl p-6 border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+          class="rounded-2xl p-6 border bg-white dark:bg-slate-800 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
         >
           <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <span class="w-1 h-6 rounded-full bg-blue-500 dark:bg-blue-400" />
+            <span class="w-1 h-6 rounded-full bg-brand-500 dark:bg-blue-400" />
             Información de la cuenta
           </h3>
           <dl class="space-y-3 text-sm sm:text-base">
@@ -117,10 +117,10 @@
                 <span
                   :class="
                     cuenta.activa
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                      : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                      ? 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:bg-slate-800/50 dark:text-emerald-300'
+                      : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
                   "
-                  class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                  class="px-2.5 py-1 rounded-xl text-xs font-medium"
                 >
                   {{ cuenta.activa ? 'Activa' : 'Inactiva' }}
                 </span>
@@ -130,13 +130,13 @@
         </div>
 
         <div
-          class="rounded-2xl p-6 border bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+          class="rounded-2xl p-6 border bg-white dark:bg-slate-800 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
         >
           <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <span class="w-1 h-6 rounded-full bg-amber-500 dark:bg-amber-400" />
+            <span class="w-1 h-6 rounded-full bg-brand-500 dark:bg-amber-400" />
             Notas
           </h3>
-          <p class="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+          <p class="text-slate-500 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
             {{ cuenta.notas || 'Sin notas' }}
           </p>
         </div>
@@ -144,39 +144,39 @@
 
       <!-- Últimos movimientos -->
       <div
-        class="rounded-2xl border overflow-hidden bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+        class="rounded-2xl border overflow-hidden bg-white dark:bg-slate-800 border-slate-200/80 dark:border-slate-800 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
       >
         <div
-          class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40"
+          class="px-6 py-4 border-b border-slate-300 dark:border-slate-600 bg-slate-50/80 dark:bg-slate-800/50"
         >
           <h3 class="text-lg font-bold text-slate-900 dark:text-white">Últimos movimientos</h3>
         </div>
         <div v-if="movimientos.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-            <thead class="bg-slate-50 dark:bg-slate-800/60">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
                 <th
-                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-200 uppercase tracking-wider"
                 >
                   Fecha
                 </th>
                 <th
-                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-200 uppercase tracking-wider"
                 >
                   Concepto
                 </th>
                 <th
-                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-200 uppercase tracking-wider"
                 >
                   Tipo
                 </th>
                 <th
-                  class="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                  class="px-4 sm:px-6 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-200 uppercase tracking-wider"
                 >
                   Monto
                 </th>
                 <th
-                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
+                  class="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-200 uppercase tracking-wider"
                 >
                   Estado
                 </th>
@@ -186,7 +186,7 @@
               <tr
                 v-for="mov in movimientos"
                 :key="mov.id"
-                class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
                 <td class="px-4 sm:px-6 py-4 text-sm text-slate-900 dark:text-slate-100 whitespace-nowrap">
                   {{ formatFecha(mov.fecha) }}
@@ -201,10 +201,10 @@
                   <span
                     :class="
                       mov.tipo === 'deposito'
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                        : 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'
+                        ? 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:bg-slate-800/50 dark:text-emerald-300'
+                        : 'bg-rose-100 text-rose-800 dark:text-rose-200 dark:bg-rose-900/40 dark:text-rose-300'
                     "
-                    class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                    class="px-2.5 py-1 rounded-xl text-xs font-medium"
                   >
                     {{ mov.tipo === 'deposito' ? 'Depósito' : 'Retiro' }}
                   </span>
@@ -213,14 +213,14 @@
                   class="px-4 sm:px-6 py-4 text-sm text-right font-semibold tabular-nums"
                   :class="
                     mov.tipo === 'deposito'
-                      ? 'text-emerald-600 dark:text-emerald-400'
+                      ? 'text-emerald-600 dark:text-slate-400'
                       : 'text-rose-600 dark:text-rose-400'
                   "
                 >
                   {{ mov.tipo === 'deposito' ? '+' : '−' }}${{ formatMonto(Math.abs(Number(mov.monto))) }}
                 </td>
                 <td class="px-4 sm:px-6 py-4">
-                  <span :class="getEstadoClass(mov.estado)" class="px-2.5 py-1 rounded-full text-xs font-semibold">
+                  <span :class="getEstadoClass(mov.estado)" class="px-2.5 py-1 rounded-xl text-xs font-medium">
                     {{ getEstadoLabel(mov.estado) }}
                   </span>
                 </td>
@@ -229,7 +229,7 @@
           </table>
         </div>
         <div v-else class="p-12 text-center">
-          <FontAwesomeIcon :icon="['fas', 'receipt']" class="h-12 w-12 text-slate-300 dark:text-slate-600 mb-4 mx-auto" />
+          <FontAwesomeIcon :icon="['fas', 'receipt']" class="h-12 w-12 text-slate-300 dark:text-slate-500 mb-4 mx-auto" />
           <p class="text-slate-500 dark:text-slate-400 font-medium">No hay movimientos registrados</p>
         </div>
       </div>
@@ -242,54 +242,54 @@
       @click.self="showModal = false"
     >
       <div
-        class="rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+        class="rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
       >
         <div
-          class="px-6 py-4 border-b border-amber-200/80 dark:border-slate-700 bg-amber-50 dark:bg-slate-800/80"
+          class="px-6 py-4 border-b border-brand-200 dark:border-brand-800/30/80 dark:border-slate-700 bg-brand-50 dark:bg-brand-900/20 dark:bg-slate-800/80"
         >
           <h3 class="text-xl font-bold text-slate-900 dark:text-white">Registrar movimiento manual</h3>
-          <p class="text-slate-600 dark:text-slate-400 text-sm mt-0.5">Ingresos o egresos fuera del flujo habitual</p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Ingresos o egresos fuera del flujo habitual</p>
         </div>
-        <form @submit.prevent="registrarMovimiento" class="p-6 space-y-4">
+        <form @submit.prevent="registrarMovimiento" class="p-6 space-y-6">
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipo de movimiento</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Tipo de movimiento</label>
             <div class="flex flex-wrap gap-4">
               <label class="flex items-center cursor-pointer">
                 <input v-model="form.tipo" type="radio" value="deposito" class="mr-2 accent-emerald-600" />
-                <span class="text-emerald-700 dark:text-emerald-400 font-medium">Depósito (ingreso)</span>
+                <span class="text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-slate-400 font-medium">Depósito (ingreso)</span>
               </label>
               <label class="flex items-center cursor-pointer">
                 <input v-model="form.tipo" type="radio" value="retiro" class="mr-2 accent-rose-600" />
-                <span class="text-rose-700 dark:text-rose-400 font-medium">Retiro (egreso)</span>
+                <span class="text-rose-800 dark:text-rose-200 dark:text-rose-200 dark:text-rose-400 font-medium">Retiro (egreso)</span>
               </label>
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Monto</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Monto</label>
             <input
               v-model="form.monto"
               type="number"
               step="0.01"
               min="0.01"
               required
-              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Concepto / descripción</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Concepto / descripción</label>
             <input
               v-model="form.concepto"
               type="text"
               required
               placeholder="Ej. ajuste, préstamo, venta de activo…"
-              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoría (opcional)</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Categoría (opcional)</label>
             <select
               v-model="form.categoria"
-              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="otro">Otro</option>
               <option value="prestamo">Préstamo recibido/dado</option>
@@ -299,18 +299,18 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Referencia (opcional)</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Referencia (opcional)</label>
             <input
               v-model="form.referencia"
               type="text"
               placeholder="Folio, referencia bancaria…"
-              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
-          <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-300 dark:border-slate-600">
             <button
               type="button"
-              class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               @click="showModal = false"
             >
               Cancelar
@@ -318,7 +318,7 @@
             <button
               type="submit"
               :disabled="form.processing"
-              class="px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400 transition-colors"
+              class="px-4 py-2 rounded-xl bg-brand-500 text-white font-semibold hover:bg-brand-600 disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400 transition-colors"
             >
               {{ form.processing ? 'Guardando…' : 'Registrar movimiento' }}
             </button>
@@ -330,6 +330,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -406,11 +407,11 @@ const formatFecha = (date) => {
 
 const getEstadoClass = (estado) => {
   const clases = {
-    pendiente: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-    conciliado: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-    ignorado: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+    pendiente: 'bg-brand-100 text-brand-800 dark:text-brand-200 dark:bg-brand-900/40 dark:text-amber-300',
+    conciliado: 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:bg-slate-800/50 dark:text-emerald-300',
+    ignorado: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200',
   }
-  return clases[estado] || 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+  return clases[estado] || 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
 }
 
 const getEstadoLabel = (estado) => {

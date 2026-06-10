@@ -16,11 +16,14 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Traits\ApiResponse;
 use App\Traits\ImageOptimizerTrait;
+use Illuminate\Validation\Rule;
+use App\Support\EmpresaResolver;
 
 class ProductoController extends Controller
 {
-    use ImageOptimizerTrait;
+    use ImageOptimizerTrait, ApiResponse;
     /**
      * Obtener el siguiente código disponible para un nuevo producto.
      */
@@ -28,19 +31,9 @@ class ProductoController extends Controller
     {
         try {
             $siguienteCodigo = Producto::generateNextCodigo();
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'siguiente_codigo' => $siguienteCodigo
-                ],
-                'message' => 'Código siguiente disponible obtenido correctamente'
-            ]);
+            return $this->success(['siguiente_codigo' => $siguienteCodigo], 'Código siguiente disponible obtenido correctamente');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener el siguiente código',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->serverError('Error al obtener el siguiente código', $e);
         }
     }
 
@@ -50,16 +43,18 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Producto::query()->with(['categoria', 'marca', 'proveedor', 'almacen']);
+            $query = Producto::query()->with([
+                'categoria',
+                'marca',
+                'proveedor',
+                'almacen',
+                'kitItems.item',
+                'inventarios.almacen'
+            ]);
 
             // Filtros
             if ($search = trim($request->input('search', ''))) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nombre', 'like', "%{$search}%")
-                        ->orWhere('codigo', 'like', "%{$search}%")
-                        ->orWhere('codigo_barras', 'like', "%{$search}%")
-                        ->orWhere('descripcion', 'like', "%{$search}%");
-                });
+                $query->search($search);
             }
 
             if ($estado = $request->input('estado')) {
@@ -79,12 +74,18 @@ class ProductoController extends Controller
             }
 
             if ($almacenId = $request->input('almacen_id')) {
-                $query->whereHas('inventarios', function ($inv) use ($almacenId) {
-                    $inv->where('almacen_id', $almacenId);
+                $query->where(function($q) use ($almacenId) {
+                    $q->where('tipo_producto', 'kit')
+                      ->orWhereHas('inventarios', function ($inv) use ($almacenId) {
+                          $inv->where('almacen_id', $almacenId);
+                      });
                 });
             }
 
+            $query->paraVentaDirectaSegunUsuario($request->user());
+
             // Ordenamiento
+            $search = trim($request->input('search', ''));
             $sortBy = $request->input('sort_by', 'nombre');
             $sortDirection = $request->input('sort_direction', 'asc');
 
@@ -93,7 +94,9 @@ class ProductoController extends Controller
                 $sortBy = 'nombre';
             }
 
-            if ($sortBy === 'disponibilidad') {
+            if (!empty($search)) {
+                $query->orderByRelevance($search, 'nombre');
+            } elseif ($sortBy === 'disponibilidad') {
                 // Ordenar: Con stock primero, luego por nombre
                 $query->orderByRaw('CASE WHEN stock > 0 THEN 1 ELSE 0 END DESC')
                     ->orderBy('nombre', 'asc');
@@ -102,24 +105,12 @@ class ProductoController extends Controller
             }
 
             // Paginación
-            $perPage = min((int) $request->input('per_page', 30), 100);
+            // Paginación: límite más bajo por defecto para móviles para evitar saturación
+            $perPage = min((int) $request->input('per_page', 20), 500);
 
             if ($request->has('nopaginate') || $request->input('all') == '1') {
-                $productos = $query->get()->map(function (Producto $producto) {
+                $productos = $query->limit(100)->get()->map(function ($producto) {
                     $producto->imagen_url = $producto->imagen ? $this->generateCorrectStorageUrl($producto->imagen) : null;
-
-                    $producto->stock_por_almacen = $producto->inventarios()
-                        ->with('almacen:id,nombre')
-                        ->where('cantidad', '>', 0)
-                        ->get()
-                        ->map(function ($inv) {
-                            return [
-                                'almacen_id' => $inv->almacen_id,
-                                'almacen_nombre' => $inv->almacen?->nombre ?? 'Desconocido',
-                                'cantidad' => $inv->cantidad,
-                            ];
-                        });
-
                     return $producto;
                 });
                 return response()->json([
@@ -134,10 +125,9 @@ class ProductoController extends Controller
             $paginator->getCollection()->transform(function ($producto) {
                 $producto->imagen_url = $producto->imagen ? $this->generateCorrectStorageUrl($producto->imagen) : null;
 
-                $producto->stock_por_almacen = $producto->inventarios()
-                    ->with('almacen:id,nombre')
+                $producto->stock_por_almacen = $producto->inventarios
                     ->where('cantidad', '>', 0)
-                    ->get()
+                    ->values()
                     ->map(function ($inv) {
                         return [
                             'almacen_id' => $inv->almacen_id,
@@ -160,9 +150,8 @@ class ProductoController extends Controller
                 ];
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $paginator->items(),
+            return $this->success([
+                'items' => $paginator->items(),
                 'pagination' => [
                     'current_page' => $paginator->currentPage(),
                     'last_page' => $paginator->lastPage(),
@@ -174,10 +163,7 @@ class ProductoController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error en ProductoController@index: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar los productos: ' . $e->getMessage()
-            ], 500);
+            return $this->serverError('Error al cargar los productos', $e);
         }
     }
 
@@ -186,14 +172,22 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
-        Log::debug('Api\ProductoController@store', $request->all());
+        Log::debug('Api\ProductoController@store', $request->except(['_token']));
 
         try {
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255',
                 'descripcion' => 'nullable|string',
-                'codigo' => 'nullable|string|unique:productos,codigo',
-                'codigo_barras' => 'nullable|string|unique:productos,codigo_barras',
+                'codigo' => [
+                    'nullable',
+                    'string',
+                    Rule::unique('productos', 'codigo')->where('empresa_id', EmpresaResolver::resolveId())
+                ],
+                'codigo_barras' => [
+                    'nullable',
+                    'string',
+                    Rule::unique('productos', 'codigo_barras')->where('empresa_id', EmpresaResolver::resolveId())
+                ],
                 'categoria_id' => 'nullable|exists:categorias,id',
                 'marca_id' => 'nullable|exists:marcas,id',
                 'proveedor_id' => 'nullable|exists:proveedores,id',
@@ -209,6 +203,7 @@ class ProductoController extends Controller
                 'requiere_serie' => 'boolean',
                 'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'estado' => 'required|in:activo,inactivo',
+                'bloquear_venta_directa' => 'nullable|boolean',
 
                 // Nuevos campos
                 'expires' => 'boolean',
@@ -265,7 +260,7 @@ class ProductoController extends Controller
                 'precio_venta_nuevo' => $producto->precio_venta,
                 'tipo_cambio' => 'creacion',
                 'notas' => 'Creación desde API',
-                'user_id' => Auth::id() ?? 1, // Fallback si no hay auth user (ej. token máquina)
+                'user_id' => Auth::id(),
             ]);
 
             // Crear series si requiere_serie y hay series proporcionadas
@@ -289,26 +284,14 @@ class ProductoController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Producto creado correctamente',
-                'data' => $producto
-            ], 201);
+            return $this->created($producto, 'Producto creado correctamente');
 
         } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Errores de validación',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->validationError($e->errors());
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error store producto api: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear producto: ' . $e->getMessage()
-            ], 500);
+            return $this->serverError('Error al crear producto', $e);
         }
     }
 
@@ -317,13 +300,10 @@ class ProductoController extends Controller
      */
     public function show($id)
     {
-        $producto = Producto::with(['categoria', 'marca', 'proveedor', 'almacen', 'inventarios.almacen', 'series'])->find($id);
+        $producto = Producto::with(['categoria', 'marca', 'proveedor', 'almacen', 'inventarios.almacen', 'series', 'kitItems.item'])->find($id);
 
         if (!$producto) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Producto no encontrado'
-            ], 404);
+            return $this->notFound('Producto no encontrado');
         }
 
         if ($producto->imagen) {
@@ -332,32 +312,7 @@ class ProductoController extends Controller
             $producto->imagen_url = null;
         }
 
-        // Si es un producto CVA, obtener stock detallado en tiempo real
-        if ($producto->origen === 'CVA') {
-            try {
-                $cva = app(\App\Services\CVAService::class);
-                $clave = $producto->cva_clave ?: $producto->codigo;
-                // Limpiar clave de prefijo CVA- si lo tiene
-                $clave = str_replace('CVA-', '', $clave);
-
-                $details = $cva->getProductDetails($clave, false); // false para datos crudos de CVA
-                if ($details) {
-                    $producto->stock_desglose = $cva->parseBranchAvailability($details);
-                    // Sincronizar stock total también
-                    $totalStock = array_sum($producto->stock_desglose);
-                    if ($totalStock > 0) {
-                        $producto->stock = $totalStock;
-                    }
-                }
-            } catch (\Exception $e) {
-                \Log::error("Error al obtener stock detallado CVA: " . $e->getMessage());
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $producto
-        ]);
+        return $this->success($producto);
     }
 
     /**
@@ -375,8 +330,16 @@ class ProductoController extends Controller
             $validated = $request->validate([
                 'nombre' => 'required|string|max:255',
                 'descripcion' => 'nullable|string',
-                'codigo' => 'nullable|string|unique:productos,codigo,' . $producto->id,
-                'codigo_barras' => 'nullable|string|unique:productos,codigo_barras,' . $producto->id,
+                'codigo' => [
+                    'nullable',
+                    'string',
+                    Rule::unique('productos', 'codigo')->ignore($producto->id)->where('empresa_id', EmpresaResolver::resolveId())
+                ],
+                'codigo_barras' => [
+                    'nullable',
+                    'string',
+                    Rule::unique('productos', 'codigo_barras')->ignore($producto->id)->where('empresa_id', EmpresaResolver::resolveId())
+                ],
                 'categoria_id' => 'required|exists:categorias,id',
                 'marca_id' => 'required|exists:marcas,id',
                 'proveedor_id' => 'nullable|exists:proveedores,id',
@@ -390,6 +353,7 @@ class ProductoController extends Controller
                 'requiere_serie' => 'boolean',
                 'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
                 'estado' => 'required|in:activo,inactivo',
+                'bloquear_venta_directa' => 'nullable|boolean',
 
                 // Nuevos campos
                 'expires' => 'boolean',
@@ -430,7 +394,7 @@ class ProductoController extends Controller
                     'precio_venta_nuevo' => $precioVentaChanged ? $validated['precio_venta'] : $producto->precio_venta,
                     'tipo_cambio' => 'manual',
                     'notas' => 'Actualización desde API',
-                    'user_id' => Auth::id() ?? 1,
+                    'user_id' => Auth::id(),
                 ]);
             }
 
@@ -451,26 +415,13 @@ class ProductoController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Producto actualizado correctamente',
-                'data' => $producto
-            ]);
+            return $this->success($producto, 'Producto actualizado correctamente');
         } catch (ValidationException $e) {
             DB::rollBack();
-            Log::error("Validation Error Update Product: ", $e->errors());
-            return response()->json([
-                'success' => false,
-                'message' => 'Errores de validación',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->validationError($e->errors());
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("General Error Update Product: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar producto: ' . $e->getMessage()
-            ], 500);
+            return $this->serverError('Error al actualizar producto', $e);
         }
     }
 
@@ -485,10 +436,19 @@ class ProductoController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
 
+        if (! Producto::puedeEliminarse($producto)) {
+            $razon = $producto->estado === 'activo'
+                ? 'está activo'
+                : 'está siendo utilizado en documentos de negocio';
+
+            return response()->json([
+                'success' => false,
+                'message' => "No se puede eliminar el producto porque {$razon}.",
+            ], 422);
+        }
+
         DB::beginTransaction();
         try {
-            // Verificar dependencias si es necesario (ventas, compras)
-
             if ($producto->imagen) {
                 Storage::disk('public')->delete($producto->imagen);
             }
@@ -502,16 +462,10 @@ class ProductoController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Producto eliminado correctamente'
-            ]);
+            return $this->success(null, 'Producto eliminado correctamente');
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar producto: ' . $e->getMessage()
-            ], 500);
+            return $this->serverError('Error al eliminar producto', $e);
         }
     }
 
@@ -533,22 +487,12 @@ class ProductoController extends Controller
                 ->where('estado', 'en_stock')
                 ->whereNull('deleted_at');
 
-            // Si hay filtro de almacén, priorizar y verificar si hay stock
+            // Si hay filtro de almacén, devolver SOLO las del almacén solicitado
             if ($almacenId) {
-                // Clonar query para consulta local
-                $queryLocal = (clone $queryBase)->where('almacen_id', $almacenId);
-                $countLocal = $queryLocal->count();
-
-                if ($countLocal > 0) {
-                    // Hay series en el almacén local, devolver SOLO esas
-                    $seriesResult = $queryLocal->orderBy('numero_serie')->with('almacen:id,nombre')->get();
-                } else {
-                    // NO hay series en el almacén local, devolver series de OTROS almacenes
-                    $seriesResult = $queryBase->where('almacen_id', '!=', $almacenId)
-                        ->orderBy('numero_serie')
-                        ->with('almacen:id,nombre')
-                        ->get();
-                }
+                $seriesResult = $queryBase->where('almacen_id', $almacenId)
+                    ->orderBy('numero_serie')
+                    ->with('almacen:id,nombre')
+                    ->get();
             } else {
                 // Sin filtro de almacén, devolver todas
                 $seriesResult = $queryBase->orderBy('numero_serie')->with('almacen:id,nombre')->get();
@@ -566,7 +510,7 @@ class ProductoController extends Controller
                 ];
             });
 
-            return response()->json([
+            return $this->success([
                 'producto' => [
                     'id' => $producto->id,
                     'nombre' => $producto->nombre,
@@ -579,11 +523,7 @@ class ProductoController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error en Api\ProductoController@series: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'Error al cargar las series',
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->serverError('Error al cargar las series', $e);
         }
     }
 
@@ -598,14 +538,17 @@ class ProductoController extends Controller
             return $path;
         }
 
-        $scheme = request()->isSecure() ? 'https' : 'http';
+        $scheme = (!app()->isLocal() || request()->header('X-Forwarded-Proto') === 'https' || str_contains(request()->getHost(), 'climasdeldesierto.com')) ? 'https' : 'http';
         $host = request()->getHost();
-        $port = request()->getPort();
+        
+        // No agregar puerto en producción o si el host es climasdeldesierto.com
+        if (!app()->isLocal() || str_contains($host, 'climasdeldesierto.com')) {
+            $portString = '';
+        } else {
+            $port = request()->getPort();
+            $portString = (($scheme === 'http' && $port !== 80) || ($scheme === 'https' && $port !== 443)) ? ':' . $port : '';
+        }
 
-        // No agregar puerto si es el puerto estándar
-        $portString = (($scheme === 'http' && $port !== 80) || ($scheme === 'https' && $port !== 443)) ? ':' . $port : '';
-
-        return "{$scheme}://{$host}{$portString}/storage/{$path}";
+        return "{$scheme}://{$host}{$portString}/storage/" . ltrim($path, '/');
     }
 }
-

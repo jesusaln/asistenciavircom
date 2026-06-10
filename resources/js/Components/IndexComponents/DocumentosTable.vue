@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-6 py-4 border-b border-gray-200/60">
+    <div class="bg-gradient-to-r from-slate-50 to-slate-100/50 px-6 py-4 border-b border-slate-200/60">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">{{ config.titulo }}</h2>
-        <div class="text-sm text-gray-600 bg-white/70 px-3 py-1 rounded-full border border-gray-200/50">
+        <h2 class="text-lg font-semibold text-slate-900 tracking-tight">{{ config.titulo }}</h2>
+        <div class="text-sm text-slate-600 bg-white/70 px-3 py-1 rounded-full border border-slate-200/50">
           {{ items.length }} de {{ total }} {{ config.titulo.toLowerCase() }}
         </div>
       </div>
@@ -14,15 +14,15 @@
     <Teleport to="body">
       <div
         v-if="showTooltip && hoveredDoc"
-        class="fixed z-[9999] bg-white rounded-xl shadow-xl border border-gray-200/50 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
+        class="fixed z-[9999] bg-white rounded-xl shadow-xl border border-slate-200/50 backdrop-blur-sm w-80 max-h-96 pointer-events-auto transform transition-all duration-200 ease-out"
         :style="tooltipStyle"
         @mouseenter="clearHideTimeout"
         @mouseleave="hideProductTooltip"
       >
-        <div class="p-4 border-b border-gray-100">
+        <div class="p-4 border-b border-slate-100">
            <div class="flex items-center justify-between">
-             <h3 class="text-sm font-semibold text-gray-900">Productos</h3>
-             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
+             <h3 class="text-sm font-semibold text-slate-900">Productos</h3>
+             <span class="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-medium">
                {{ getProductosDelDoc(hoveredDoc)?.length || 0 }}
              </span>
            </div>
@@ -33,28 +33,28 @@
              <div
                v-for="(producto, index) in getProductosDelDoc(hoveredDoc)"
                :key="index"
-               class="group p-3 bg-gray-50/70 rounded-lg hover:bg-gray-100/70 hover:shadow-sm transition-all duration-150"
+               class="group p-3 bg-transparent/70 rounded-xl hover:bg-slate-100/70 hover:shadow-sm transition-all duration-150"
              >
               <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0 mr-3">
-                  <p class="text-sm font-medium text-gray-900 truncate group-hover:text-gray-800">
+                  <p class="text-sm font-medium text-slate-900 truncate group-hover:text-slate-800">
                     {{ producto.nombre || 'Sin nombre' }}
                   </p>
                   <div class="flex items-center mt-1.5 space-x-2 text-xs">
-                    <span class="text-gray-600 bg-white/60 px-2 py-0.5 rounded-md">
+                    <span class="text-slate-600 bg-white/60 px-2 py-0.5 rounded-xl">
                       {{ producto.cantidad || 0 }} und
                     </span>
-                    <span class="text-gray-400">•</span>
-                    <span class="text-gray-600">
+                    <span class="text-slate-400">•</span>
+                    <span class="text-slate-600">
                       ${{ formatearMoneda(producto.precio || 0) }}
                     </span>
                   </div>
-                  <p v-if="producto.descripcion" class="text-xs text-gray-500 mt-1.5 line-clamp-2">
+                  <p v-if="producto.descripcion" class="text-xs text-slate-500 mt-1.5 line-clamp-2">
                     {{ producto.descripcion }}
                   </p>
                 </div>
                 <div class="text-right flex-shrink-0">
-                  <p class="text-sm font-semibold text-gray-900">
+                  <p class="text-sm font-semibold text-slate-900">
                     ${{ formatearMoneda((producto.cantidad || 0) * (producto.precio || 0)) }}
                   </p>
                 </div>
@@ -62,12 +62,12 @@
             </div>
           </div>
           <div v-else class="text-center py-8">
-            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-              <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m2 2v4" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500">Sin productos registrados</p>
+            <p class="text-sm text-slate-500">Sin productos registrados</p>
           </div>
         </div>
       </div>
@@ -75,12 +75,12 @@
 
     <!-- Table -->
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200/60">
-        <thead class="bg-gray-50/60">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-transparent dark:bg-slate-800/50">
           <tr>
             <!-- Fecha -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100/60 transition-colors duration-150"
               @click="onSort('fecha')"
             >
               <div class="flex items-center space-x-1">
@@ -99,7 +99,7 @@
 
             <!-- Cliente/Proveedor -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100/60 transition-colors duration-150"
               @click="onSort(isCompra ? 'proveedor' : 'cliente')"
             >
               <div class="flex items-center space-x-1">
@@ -120,7 +120,7 @@
             <!-- Campo extra -->
             <th
               v-if="config.mostrarCampoExtra"
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100/60 transition-colors duration-150"
               @click="onSort(config.campoExtra.key)"
             >
               <div class="flex items-center space-x-1">
@@ -140,7 +140,7 @@
             <!-- Origen (solo para compras) -->
             <th
               v-if="props.tipo === 'compras'"
-              class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
             >
               Origen
             </th>
@@ -150,7 +150,7 @@
             <!-- Total -->
             <th
               v-if="config.mostrarTotal !== false"
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100/60 transition-colors duration-150"
               @click="onSort('total')"
             >
               <div class="flex items-center space-x-1">
@@ -170,14 +170,14 @@
             <!-- Productos -->
             <th
               v-if="config.mostrarProductos !== false"
-              class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
             >
               Productos
             </th>
 
             <!-- Estado -->
             <th
-              class="group px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors duration-150"
+              class="group px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100/60 transition-colors duration-150"
               @click="onSort('estado')"
             >
               <div class="flex items-center space-x-1">
@@ -196,29 +196,29 @@
 
 
             <!-- Acciones -->
-            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <th class="px-6 py-4 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Acciones
             </th>
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-200/40">
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
           <template v-if="items.length > 0">
             <tr
               v-for="doc in items"
               :key="doc.id"
               :class="[
-                'group hover:bg-gray-50/60 transition-all duration-150 hover:shadow-sm',
+                'group hover:bg-slate-50/60 transition-all duration-150 hover:shadow-sm',
                 (doc.estado === 'cancelado' || doc.estado === 'cancelada') ? 'opacity-50' : ''
               ]"
             >
               <!-- Fecha -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-slate-900">
                     {{ formatearFecha(doc.created_at || doc.fecha) }}
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-xs text-slate-500">
                     {{ formatearHora(doc.created_at || doc.fecha) }}
                   </div>
                 </div>
@@ -227,10 +227,10 @@
               <!-- Cliente/Proveedor -->
               <td class="px-6 py-4">
                 <div class="flex flex-col space-y-0.5">
-                  <div class="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+                  <div class="text-sm font-medium text-slate-900 group-hover:text-slate-800">
                     {{ isCompra ? (doc.proveedor?.nombre_razon_social || 'Sin proveedor') : (doc.cliente?.nombre || 'Sin cliente') }}
                   </div>
-                  <div v-if="isCompra ? doc.proveedor?.email : doc.cliente?.email" class="text-xs text-gray-500 truncate max-w-48">
+                  <div v-if="isCompra ? doc.proveedor?.email : doc.cliente?.email" class="text-xs text-slate-500 truncate max-w-48">
                     {{ isCompra ? doc.proveedor?.email : doc.cliente?.email }}
                   </div>
                 </div>
@@ -239,7 +239,7 @@
 
               <!-- Campo extra -->
               <td v-if="config.mostrarCampoExtra" class="px-6 py-4">
-                <div class="text-sm font-mono font-medium text-gray-700 bg-gray-100/60 px-2 py-1 rounded-md inline-block">
+                <div class="text-sm font-mono font-medium text-slate-700 bg-slate-100/60 px-2 py-1 rounded-xl inline-block">
                   {{ doc[config.campoExtra.key] || 'N/A' }}
                 </div>
               </td>
@@ -247,11 +247,11 @@
               <!-- Origen (solo para compras) -->
               <td v-if="props.tipo === 'compras'" class="px-6 py-4">
                 <span
-                  :class="doc.origen === 'orden_compra' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
+                  :class="doc.origen === 'orden_compra' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'"
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 >
                   <svg
-                    :class="doc.origen === 'orden_compra' ? 'text-blue-500' : 'text-green-500'"
+                    :class="doc.origen === 'orden_compra' ? 'text-blue-500' : 'text-emerald-500'"
                     class="w-3 h-3 mr-1"
                     fill="currentColor"
                     viewBox="0 0 20 20"
@@ -267,7 +267,7 @@
 
               <!-- Total -->
               <td v-if="config.mostrarTotal !== false" class="px-6 py-4">
-                <div class="text-sm font-semibold text-gray-900">
+                <div class="text-sm font-semibold text-slate-900">
                   <template v-if="typeof doc.total !== 'undefined' && doc.total !== null">
                     ${{ formatearMoneda(doc.total) }}
                   </template>
@@ -283,8 +283,8 @@
                 @mouseleave="hideProductTooltip"
                 @mousemove="getProductosDelDoc(doc)?.length ? updateTooltipPosition($event) : null"
               >
-                <div class="flex items-center text-sm text-gray-600" :class="getProductosDelDoc(doc)?.length ? 'cursor-help hover:text-gray-800 transition-colors duration-150' : 'opacity-60'">
-                  <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-2 group-hover:bg-blue-100 transition-colors duration-150">
+                <div class="flex items-center text-sm text-slate-600" :class="getProductosDelDoc(doc)?.length ? 'cursor-help hover:text-slate-800 transition-colors duration-150' : 'opacity-60'">
+                  <div class="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center mr-2 group-hover:bg-sky-100 transition-colors duration-150">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         stroke-linecap="round"
@@ -295,7 +295,7 @@
                     </svg>
                   </div>
                   <span class="font-medium">{{ getProductosDelDoc(doc)?.length || 0 }}</span>
-                  <span class="text-gray-400 ml-1">items</span>
+                  <span class="text-slate-400 ml-1">items</span>
                 </div>
               </td>
 
@@ -305,11 +305,11 @@
                   <!-- Estado de Pago para ventas -->
                   <div class="flex items-center">
                     <span
-                      :class="doc.pagado ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'"
+                      :class="doc.pagado ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'"
                       class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
                     >
                       <svg
-                        :class="doc.pagado ? 'text-green-500' : 'text-yellow-500'"
+                        :class="doc.pagado ? 'text-emerald-500' : 'text-yellow-500'"
                         class="w-3 h-3 mr-1"
                         fill="currentColor"
                         viewBox="0 0 20 20"
@@ -319,7 +319,7 @@
                       </svg>
                       {{ doc.pagado ? 'Pagado' : 'Pendiente de Pago' }}
                     </span>
-                    <span v-if="doc.pagado && doc.metodo_pago" class="ml-2 text-xs text-gray-500">
+                    <span v-if="doc.pagado && doc.metodo_pago" class="ml-2 text-xs text-slate-500">
                       ({{ obtenerLabelMetodoPago(doc.metodo_pago) }})
                     </span>
                   </div>
@@ -344,7 +344,7 @@
                 <div class="flex items-center justify-end space-x-1">
                   <button
                     @click="onVerDetalles(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-sky-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Ver detalles"
                   >
                     <font-awesome-icon icon="eye" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -353,7 +353,7 @@
                   <button
                     v-if="config.acciones.editar && (doc.estado === 'borrador' || doc.estado === 'pendiente')"
                     @click="onEditar(doc.id)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-brand-50 text-brand-600 hover:bg-brand-100 hover:text-brand-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Editar"
                   >
                     <font-awesome-icon icon="edit" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -364,7 +364,7 @@
                   <button
                     v-if="tipo === 'cotizaciones' && doc.estado !== 'cancelado' && doc.estado !== 'enviado_pedido'"
                     @click="onEnviarPedido(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 text-amber-600 hover:bg-indigo-100 hover:text-indigo-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-50 text-brand-600 hover:bg-sky-100 hover:text-indigo-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Enviar a Pedido"
                   >
                     <font-awesome-icon icon="paper-plane" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -374,7 +374,7 @@
                   <button
                     v-if="tipo === 'pedidos' && doc.estado !== 'cancelado'"
                     @click="onEnviarVenta(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 text-amber-600 hover:bg-indigo-100 hover:text-indigo-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-50 text-brand-600 hover:bg-sky-100 hover:text-indigo-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Enviar a Venta"
                   >
                     <font-awesome-icon icon="paper-plane" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -383,7 +383,7 @@
                   <button
                     v-if="config.acciones.imprimir && doc.estado !== 'cancelado' && doc.estado !== 'cancelada'"
                     @click="onImprimir(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Imprimir"
                   >
                     <font-awesome-icon icon="print" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -394,7 +394,7 @@
                   <button
                     v-if="tipo === 'ventas' && config.acciones.marcar_pagado && !doc.pagado && doc.estado !== 'cancelado'"
                     @click="onMarcarPagado(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-1"
                     title="Marcar como Pagado"
                   >
                     <font-awesome-icon icon="check-circle" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -404,7 +404,7 @@
                   <button
                     v-if="tipo === 'ordenescompra' && doc.estado === 'pendiente'"
                     @click="onEnviarCompra(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-sky-100 hover:text-blue-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Enviar orden al proveedor"
                   >
                     <font-awesome-icon icon="paper-plane" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -414,7 +414,7 @@
                   <button
                     v-if="tipo === 'ordenescompra' && doc.estado === 'enviado_a_proveedor'"
                     @click="onRecibirOrden(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-1"
                     title="Recibir mercancía y crear registro de compra"
                   >
                     <font-awesome-icon icon="shopping-cart" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -425,7 +425,7 @@
                   <button
                     v-if="tipo === 'ordenescompra' && ['pendiente', 'enviado_a_proveedor'].includes(doc.estado)"
                     @click="onCancelarOrden(doc)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 hover:text-orange-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-orange-50 text-brand-600 hover:bg-brand-100 hover:text-brand-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Cancelar Orden"
                   >
                     <font-awesome-icon icon="times-circle" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -435,7 +435,7 @@
                   <button
                     v-if="tipo === 'compras' && doc.estado === 'cancelada' && props.esAdmin"
                     @click="onEliminarDefinitivo(doc.id)"
-                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
+                    class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                     title="Eliminar definitivamente (solo administradores)"
                   >
                     <font-awesome-icon icon="ban" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -444,7 +444,7 @@
                   <button
                      v-if="config.acciones.eliminar && doc.estado !== 'cancelado' && doc.estado !== 'cancelada'"
                      @click="onEliminar(doc.id)"
-                     class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-1"
+                     class="group/btn relative inline-flex items-center justify-center w-9 h-9 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:ring-offset-1"
                      title="Eliminar"
                    >
                      <font-awesome-icon icon="trash" class="w-4 h-4 transition-transform duration-200 group-hover/btn:scale-110" />
@@ -458,14 +458,14 @@
           <tr v-else>
             <td :colspan="getColspan()" class="px-6 py-16 text-center">
               <div class="flex flex-col items-center space-y-4">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div class="space-y-1">
-                  <p class="text-gray-700 font-medium">No hay {{ config.titulo.toLowerCase() }}</p>
-                  <p class="text-sm text-gray-500">Los documentos aparecerán aquí cuando se creen</p>
+                  <p class="text-slate-700 font-medium">No hay {{ config.titulo.toLowerCase() }}</p>
+                  <p class="text-sm text-slate-500">Los documentos aparecerán aquí cuando se creen</p>
                 </div>
               </div>
             </td>
@@ -478,6 +478,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 
@@ -587,14 +588,14 @@ const config = computed(() => {
       acciones: { editar: true, duplicar: true, imprimir: true, eliminar: true },
       estados: {
         'borrador': { label: 'Borrador', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-        'pendiente': { label: 'Pendiente', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
-        'aprobada': { label: 'Aprobada', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-        'rechazada': { label: 'Rechazada', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
+        'pendiente': { label: 'Pendiente', classes: 'bg-slate-100 text-slate-700', color: 'bg-slate-400' },
+        'aprobada': { label: 'Aprobada', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        'rechazada': { label: 'Rechazada', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' },
         'enviada': { label: 'Enviada', classes: 'bg-purple-100 text-purple-700', color: 'bg-purple-400' },
-        'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-indigo-100 text-indigo-700', color: 'bg-indigo-400' },
-        'cancelado': { label: 'Cancelado', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-        'sin_estado': { label: 'Sin Estado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' }
+        'convertida_pedido': { label: 'Convertida a Pedido', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        'enviado_pedido': { label: 'Enviado a Pedido', classes: 'bg-sky-100 text-sky-800', color: 'bg-sky-400' },
+        'cancelado': { label: 'Cancelado', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' },
+        'sin_estado': { label: 'Sin Estado', classes: 'bg-slate-100 text-slate-500', color: 'bg-slate-400' }
       }
     },
     pedidos: {
@@ -603,14 +604,14 @@ const config = computed(() => {
       campoExtra: { key: 'numero_pedido', label: 'N° Pedido' },
       acciones: { editar: true, duplicar: true, imprimir: true, eliminar: true },
       estados: {
-        'borrador': { label: 'Borrador', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
+        'borrador': { label: 'Borrador', classes: 'bg-slate-100 text-slate-700', color: 'bg-slate-400' },
         'pendiente': { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-        'confirmado': { label: 'Confirmado', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-        'en_preparacion': { label: 'En Preparación', classes: 'bg-orange-100 text-orange-700', color: 'bg-orange-400' },
+        'confirmado': { label: 'Confirmado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        'en_preparacion': { label: 'En Preparación', classes: 'bg-brand-100 text-amber-800', color: 'bg-orange-400' },
         'listo_entrega': { label: 'Listo para Entrega', classes: 'bg-purple-100 text-purple-700', color: 'bg-purple-400' },
-        'entregado': { label: 'Entregado', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        'enviado_venta': { label: 'Enviado a Venta', classes: 'bg-indigo-100 text-indigo-700', color: 'bg-indigo-400' },
-        'cancelado': { label: 'Cancelado', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' }
+        'entregado': { label: 'Entregado', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        'enviado_venta': { label: 'Enviado a Venta', classes: 'bg-sky-100 text-sky-800', color: 'bg-sky-400' },
+        'cancelado': { label: 'Cancelado', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' }
       }
     },
     ventas: {
@@ -619,14 +620,14 @@ const config = computed(() => {
       campoExtra: { key: 'numero_venta', label: 'N° Venta' },
       acciones: { editar: true, duplicar: true, imprimir: true, eliminar: true, marcar_pagado: true },
       estados: {
-        'borrador': { label: 'Borrador', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
+        'borrador': { label: 'Borrador', classes: 'bg-slate-100 text-slate-700', color: 'bg-slate-400' },
         'pendiente': { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-        'aprobado': { label: 'Aprobado', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-        'facturado': { label: 'Facturado', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
+        'aprobado': { label: 'Aprobado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        'facturado': { label: 'Facturado', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
         'pagado': { label: 'Pagado', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
-        'vencido': { label: 'Vencido', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' },
-        'anulado': { label: 'Anulado', classes: 'bg-gray-100 text-gray-500', color: 'bg-gray-400' },
-        'cancelada': { label: 'Cancelada', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' }
+        'vencido': { label: 'Vencido', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' },
+        'anulado': { label: 'Anulado', classes: 'bg-slate-100 text-slate-500', color: 'bg-slate-400' },
+        'cancelada': { label: 'Cancelada', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' }
       }
     },
     compras: {
@@ -635,14 +636,14 @@ const config = computed(() => {
       campoExtra: { key: 'numero_compra', label: 'N° Compra' },
       acciones: { editar: true, duplicar: false, imprimir: true, eliminar: true },
       estados: {
-        'borrador': { label: 'Borrador', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
+        'borrador': { label: 'Borrador', classes: 'bg-slate-100 text-slate-700', color: 'bg-slate-400' },
         'pendiente': { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-        'confirmado': { label: 'Confirmado', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-        'procesada': { label: 'Procesada', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-        'en_preparacion': { label: 'En Preparación', classes: 'bg-orange-100 text-orange-700', color: 'bg-orange-400' },
+        'confirmado': { label: 'Confirmado', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        'procesada': { label: 'Procesada', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        'en_preparacion': { label: 'En Preparación', classes: 'bg-brand-100 text-amber-800', color: 'bg-orange-400' },
         'listo_entrega': { label: 'Listo para Entrega', classes: 'bg-purple-100 text-purple-700', color: 'bg-purple-400' },
-        'entregado': { label: 'Entregado', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        'cancelada': { label: 'Cancelada', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' }
+        'entregado': { label: 'Entregado', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        'cancelada': { label: 'Cancelada', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' }
       }
     },
     ordenescompra: {
@@ -651,11 +652,11 @@ const config = computed(() => {
       campoExtra: { key: 'numero_orden', label: 'N° Orden' },
       acciones: { editar: true, duplicar: true, imprimir: true, eliminar: false },
       estados: {
-        'borrador': { label: 'Borrador', classes: 'bg-gray-100 text-gray-700', color: 'bg-gray-400' },
+        'borrador': { label: 'Borrador', classes: 'bg-slate-100 text-slate-700', color: 'bg-slate-400' },
         'pendiente': { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-700', color: 'bg-yellow-400' },
-        'enviado_a_proveedor': { label: 'Enviado a Proveedor', classes: 'bg-blue-100 text-blue-700', color: 'bg-blue-400' },
-        'convertida': { label: 'Procesada', classes: 'bg-green-100 text-green-700', color: 'bg-green-400' },
-        'cancelada': { label: 'Cancelada', classes: 'bg-red-100 text-red-700', color: 'bg-red-400' }
+        'enviado_a_proveedor': { label: 'Enviado a Proveedor', classes: 'bg-sky-100 text-sky-800', color: 'bg-blue-400' },
+        'convertida': { label: 'Procesada', classes: 'bg-emerald-100 text-emerald-700', color: 'bg-emerald-400' },
+        'cancelada': { label: 'Cancelada', classes: 'bg-rose-100 text-rose-700', color: 'bg-rose-400' }
       }
     }
   };
@@ -715,8 +716,8 @@ const obtenerPrecio = (doc) => {
 };
 
 // Estados
-const obtenerClasesEstado = (estado) => config.value.estados[estado]?.classes || 'bg-gray-100 text-gray-700';
-const obtenerColorPuntoEstado = (estado) => config.value.estados[estado]?.color || 'bg-gray-400';
+const obtenerClasesEstado = (estado) => config.value.estados[estado]?.classes || 'bg-slate-100 text-slate-700';
+const obtenerColorPuntoEstado = (estado) => config.value.estados[estado]?.color || 'bg-slate-400';
 const obtenerLabelEstado = (estado) => config.value.estados[estado]?.label || 'Pendiente';
 
 // Métodos de pago
@@ -900,14 +901,14 @@ const getColspan = () => {
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; line-clamp: 2; }
 
 @media (prefers-contrast: high) {
-  .bg-gray-50 { background-color: #f9fafb; }
-  .border-gray-200 { border-color: #d1d5db; }
+  .bg-transparent { background-color: #f9fafb; }
+  .border-slate-200 { border-color: #d1d5db; }
 }
 
 button:focus-visible { outline: 2px solid; outline-offset: 2px; }
 
 @media (hover: none) {
-  .hover\:bg-gray-50:hover { background-color: transparent; }
+  .hover\:bg-transparent:hover { background-color: transparent; }
   .group:hover { transform: none; }
 }
 </style>

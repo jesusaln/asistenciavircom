@@ -1,5 +1,6 @@
 <!-- /resources/js/Pages/Prestamos/Show.vue -->
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -73,11 +74,11 @@ const getEstadoLabel = (estado) => {
 
 const getEstadoColor = (estado) => {
   const colors = {
-    'activo': 'bg-green-100 text-green-800',
-    'completado': 'bg-blue-100 text-blue-800',
-    'cancelado': 'bg-red-100 text-red-800'
+    'activo': 'bg-emerald-100 text-emerald-800 dark:text-emerald-200',
+    'completado': 'bg-sky-100 text-sky-800 dark:text-sky-200',
+    'cancelado': 'bg-rose-100 text-rose-800 dark:text-rose-200'
   }
-  return colors[estado] || 'bg-gray-100 text-gray-800'
+  return colors[estado] || 'bg-slate-100 text-slate-800'
 }
 
 const getMetodoPagoLabel = (metodo) => {
@@ -115,21 +116,21 @@ const historialPagos = computed(() => {
 <template>
   <Head title="Detalles de Préstamo" />
 
-  <div class="prestamos-show min-h-screen bg-white">
+  <div class="prestamos-show min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Detalles de Préstamo</h1>
-            <p class="text-gray-600 mt-2">Información completa del préstamo y su historial de pagos</p>
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Detalles de Préstamo</h1>
+            <p class="text-slate-500 mt-2">Información completa del préstamo y su historial de pagos</p>
           </div>
           <div class="flex items-center space-x-3">
             <a
               v-if="prestamo.estado === 'completado'"
               :href="`/prestamos/${prestamo.id}/liquidacion`"
               target="_blank"
-              class="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-bold rounded-lg text-blue-600 bg-white hover:bg-blue-50 transition-colors duration-200 shadow-sm"
+              class="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-bold rounded-xl text-blue-600 bg-white hover:bg-slate-50 transition-colors duration-200 shadow-sm"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               Constancia de Liquidación
@@ -137,14 +138,14 @@ const historialPagos = computed(() => {
             <a
               :href="`/prestamos/${prestamo.id}/pagare`"
               target="_blank"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-bold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200 shadow-sm"
+              class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-bold rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-200 shadow-sm"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
               Pagaré
             </a>
             <Link
               href="/prestamos"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors duration-200"
             >
               ← Volver a Préstamos
             </Link>
@@ -155,76 +156,76 @@ const historialPagos = computed(() => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Información principal -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h2 class="text-lg font-semibold text-gray-900">Información del Préstamo</h2>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h2 class="text-lg font-semibold text-slate-900">Información del Préstamo</h2>
             </div>
 
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-6">
               <!-- Información general -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Cliente:</strong> {{ prestamo.cliente?.nombre_razon_social || 'Sin cliente' }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Monto Prestado:</strong> ${{ formatearMoneda(prestamo.monto_prestado) }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Tasa Mensual:</strong> {{ prestamo.tasa_interes_mensual }}%
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Pago Periódico:</strong> ${{ formatearMoneda(prestamo.pago_periodico) }}
                   </p>
                 </div>
 
                 <div>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Estado:</strong>
                     <span
                       :class="getEstadoColor(prestamo.estado)"
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-medium ml-2"
                     >
                       {{ getEstadoLabel(prestamo.estado) }}
                     </span>
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Pagos Realizados:</strong> {{ prestamo.pagos_realizados }} / {{ prestamo.numero_pagos }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-slate-500">
                     <strong>Fecha de Inicio:</strong> {{ formatearFecha(prestamo.fecha_inicio) }}
                   </p>
                 </div>
               </div>
 
               <!-- Información financiera -->
-              <div class="bg-white rounded-lg p-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-3">Resumen Financiero</h4>
+              <div class="bg-white rounded-xl p-4">
+                <h4 class="text-sm font-medium text-slate-900 mb-3">Resumen Financiero</h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p class="text-gray-600">Total a Pagar:</p>
-                    <p class="text-lg font-semibold text-gray-900">${{ formatearMoneda(prestamo.monto_total_pagar) }}</p>
+                    <p class="text-slate-500">Total a Pagar:</p>
+                    <p class="text-lg font-semibold text-slate-900">${{ formatearMoneda(prestamo.monto_total_pagar) }}</p>
                   </div>
                   <div>
-                    <p class="text-gray-600">Total Pagado:</p>
-                    <p class="text-lg font-semibold text-green-600">${{ formatearMoneda(prestamo.monto_pagado) }}</p>
+                    <p class="text-slate-500">Total Pagado:</p>
+                    <p class="text-lg font-semibold text-emerald-600">${{ formatearMoneda(prestamo.monto_pagado) }}</p>
                   </div>
                   <div>
-                    <p class="text-gray-600">Monto Pendiente:</p>
+                    <p class="text-slate-500">Monto Pendiente:</p>
                     <p class="text-lg font-semibold text-orange-600">${{ formatearMoneda(prestamo.monto_pendiente) }}</p>
                   </div>
                   <div>
-                    <p class="text-gray-600">Interés Total:</p>
+                    <p class="text-slate-500">Interés Total:</p>
                     <p class="text-lg font-semibold text-blue-600">${{ formatearMoneda(prestamo.monto_interes_total) }}</p>
                   </div>
                 </div>
               </div>
 
               <!-- Historial de Pagos -->
-              <div class="bg-white border border-gray-200 rounded-lg">
-                <div class="px-4 py-3 border-b border-gray-200">
-                  <h4 class="text-sm font-medium text-gray-900">Historial de Pagos</h4>
-                  <p class="text-sm text-gray-600 mt-1">Registro completo de todos los pagos realizados</p>
+              <div class="bg-white border border-slate-200 rounded-xl">
+                <div class="px-4 py-3 border-b border-slate-200">
+                  <h4 class="text-sm font-medium text-slate-900">Historial de Pagos</h4>
+                  <p class="text-sm text-slate-500 mt-1">Registro completo de todos los pagos realizados</p>
                 </div>
 
                 <div class="p-4">
@@ -232,37 +233,37 @@ const historialPagos = computed(() => {
                     <div
                       v-for="pago in historialPagos"
                       :key="pago.id"
-                      class="border border-gray-200 rounded-lg p-3"
+                      class="border border-slate-200 rounded-xl p-3"
                     >
                       <div class="flex justify-between items-start mb-2">
                         <div>
-                          <div class="font-medium text-gray-900">Pago #{{ pago.numero_pago }}</div>
-                          <div class="text-sm text-gray-600">{{ formatearFecha(pago.fecha_programada) }}</div>
+                          <div class="font-medium text-slate-900">Pago #{{ pago.numero_pago }}</div>
+                          <div class="text-sm text-slate-500">{{ formatearFecha(pago.fecha_programada) }}</div>
                         </div>
                         <div class="text-right">
-                          <div class="text-sm font-medium text-gray-900">
+                          <div class="text-sm font-medium text-slate-900">
                             ${{ formatearMoneda(pago.monto_pagado) }} / ${{ formatearMoneda(pago.monto_programado) }}
                           </div>
-                          <div class="text-xs text-gray-500">{{ getEstadoLabel(pago.estado) }}</div>
+                          <div class="text-xs text-slate-500">{{ getEstadoLabel(pago.estado) }}</div>
                         </div>
                       </div>
 
                       <!-- Historial individual de este pago -->
-                      <div v-if="pago.historial_pagos && pago.historial_pagos.length > 0" class="mt-3 pl-4 border-l-2 border-gray-200">
-                        <div class="text-xs text-gray-600 mb-2 font-medium">Pagos individuales:</div>
+                      <div v-if="pago.historial_pagos && pago.historial_pagos.length > 0" class="mt-3 pl-4 border-l-2 border-slate-200">
+                        <div class="text-xs text-slate-500 mb-2 font-medium">Pagos individuales:</div>
                         <div class="space-y-2">
                           <div
                             v-for="historial in pago.historial_pagos"
                             :key="historial.id"
-                            class="flex justify-between items-center text-xs bg-white p-2 rounded"
+                            class="flex justify-between items-center text-xs bg-white p-2 rounded-xl"
                           >
                             <div>
                               <span class="font-medium">${{ formatearMoneda(historial.monto_pagado) }}</span>
-                              <span class="text-gray-500 ml-2">{{ formatearFecha(historial.fecha_pago) }}</span>
+                              <span class="text-slate-500 ml-2">{{ formatearFecha(historial.fecha_pago) }}</span>
                             </div>
                             <div class="text-right">
-                              <span class="text-gray-600">{{ getMetodoPagoLabel(historial.metodo_pago) }}</span>
-                              <span v-if="historial.referencia" class="text-gray-500 ml-2">{{ historial.referencia }}</span>
+                              <span class="text-slate-500">{{ getMetodoPagoLabel(historial.metodo_pago) }}</span>
+                              <span v-if="historial.referencia" class="text-slate-500 ml-2">{{ historial.referencia }}</span>
                             </div>
                           </div>
                         </div>
@@ -270,13 +271,13 @@ const historialPagos = computed(() => {
                     </div>
                   </div>
 
-                  <div v-else class="text-center py-8">
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div v-else class="py-8 text-center">
+                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                     </div>
-                    <p class="text-sm text-gray-500">No hay pagos registrados aún</p>
+                    <p class="text-sm text-slate-500">No hay pagos registrados aún</p>
                   </div>
                 </div>
               </div>
@@ -287,22 +288,22 @@ const historialPagos = computed(() => {
         <!-- Panel lateral -->
         <div class="lg:col-span-1">
           <!-- Progreso del préstamo -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Progreso del Préstamo</h3>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="text-lg font-semibold text-slate-900">Progreso del Préstamo</h3>
             </div>
 
             <div class="p-6">
               <div class="text-center mb-4">
-                <div class="text-3xl font-bold text-gray-900 mb-2">{{ progreso }}%</div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="text-3xl font-bold text-slate-900 mb-2">{{ progreso }}%</div>
+                <div class="w-full bg-slate-200 rounded-full h-2">
                   <div
-                    class="h-2 rounded-full transition-all duration-300"
-                    :class="progreso === 100 ? 'bg-green-500' : 'bg-blue-500'"
+                    class="h-2 rounded-full transition-all duration-200"
+                    :class="progreso === 100 ? 'bg-brand-500' : 'bg-brand-500'"
                     :style="{ width: progreso + '%' }"
                   ></div>
                 </div>
-                <div class="text-sm text-gray-600 mt-2">
+                <div class="text-sm text-slate-500 mt-2">
                   {{ prestamo.pagos_realizados }} de {{ prestamo.numero_pagos }} pagos
                 </div>
               </div>
@@ -310,14 +311,14 @@ const historialPagos = computed(() => {
               <!-- Información de estado -->
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Estado:</span>
+                  <span class="text-sm text-slate-500">Estado:</span>
                   <span :class="['text-sm font-medium', getEstadoColor(prestamo.estado)]">
                     {{ getEstadoLabel(prestamo.estado) }}
                   </span>
                 </div>
 
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Pendiente:</span>
+                  <span class="text-sm text-slate-500">Pendiente:</span>
                   <span class="text-sm font-medium text-orange-600">${{ formatearMoneda(montoPendiente) }}</span>
                 </div>
               </div>
@@ -325,31 +326,31 @@ const historialPagos = computed(() => {
           </div>
 
           <!-- Próximo pago -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">Próximo Pago</h3>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="text-lg font-semibold text-slate-900">Próximo Pago</h3>
             </div>
 
             <div class="p-6">
               <div v-if="prestamo.proximo_pago" class="text-center">
-                <div class="text-2xl font-bold text-green-600 mb-2">
+                <div class="text-2xl font-bold text-emerald-600 mb-2">
                   ${{ formatearMoneda(prestamo.proximo_pago.monto_programado) }}
                 </div>
-                <div class="text-sm text-gray-600 mb-4">
+                <div class="text-sm text-slate-500 mb-4">
                   Pago #{{ prestamo.proximo_pago.numero_pago }}
                 </div>
-                <div class="text-sm text-gray-600">
+                <div class="text-sm text-slate-500">
                   {{ formatearFecha(prestamo.proximo_pago.fecha_programada) }}
                 </div>
               </div>
 
-              <div v-else class="text-center py-8">
-                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div v-else class="py-8 text-center">
+                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p class="text-sm text-gray-500">Préstamo completado</p>
+                <p class="text-sm text-slate-500">Préstamo completado</p>
               </div>
             </div>
           </div>

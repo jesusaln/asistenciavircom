@@ -458,7 +458,7 @@
 
     <div class="warranty-section">
         <strong>GARANTÍA AL COMPRAR:</strong> Equipos: 365 días | Partes eléctricas: 3 meses.
-        Soporte técnico: <strong>662-460-6840</strong> o <strong>www.asistenciavircom.com</strong>.
+        Soporte técnico: <strong>662-460-6840</strong> o <strong>www.climasdeldesierto.com</strong>.
         Para hacer válida la garantía es indispensable presentar este comprobante y cumplir con los requisitos de uso
         adecuado.
     </div>
@@ -511,7 +511,7 @@
 
     <div class="footer">
         Este documento es una representación impresa de un CFDI (Versión 4.0).<br>
-        <strong>Gracias por su preferencia - Asistencia Vircom</strong>
+        <strong>Gracias por su preferencia - Climas del Desierto</strong>
     </div>
 </body>
 

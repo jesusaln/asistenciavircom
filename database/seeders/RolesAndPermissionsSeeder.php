@@ -58,6 +58,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'finanzas',
             'reportes',
             'polizas',
+            'cfdi',
             'bitacora',
             'configuracion_empresa',
             'proyectos',
@@ -66,11 +67,17 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $actions = ['view', 'create', 'edit', 'delete'];
 
+        // Permiso maestro de todo
+        Permission::firstOrCreate(['name' => '*', 'guard_name' => 'web']);
+
         foreach ($modules as $module) {
             if ($module === 'manage-backups') {
                 Permission::firstOrCreate(['name' => $module, 'guard_name' => 'web']);
                 continue;
             }
+
+            // Permiso wildcard del módulo
+            Permission::firstOrCreate(['name' => "{$module}.*", 'guard_name' => 'web']);
 
             foreach ($actions as $action) {
                 Permission::firstOrCreate([
@@ -83,99 +90,77 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => "export {$module}", 'guard_name' => 'web']);
         }
 
-        // --- PERMISOS GRANULARES CUSTOM ---
-        $customPerms = [
-            'approve clientes',
-            'manage knowledge_base',
-            'configure crm',
-            'view product_series',
-            'manage planes',
-            'view polizas',
-            'manage companies',
-            'view companies',
-            'view vehicles',
-            'view entregas_dinero',
-            'manage entregas_dinero'
-        ];
-        foreach ($customPerms as $perm) {
-            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
-        }
+        // Permiso puntual: vender componentes de kit por separado
+        Permission::firstOrCreate(['name' => 'venta componentes sueltos', 'guard_name' => 'web']);
 
-        // Crear roles si no existen
+        // Mi corte / tesorería física
+        Permission::firstOrCreate(['name' => 'declarar entrega mi corte', 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'confirmar entrega efectivo', 'guard_name' => 'web']);
+
         // Crear roles si no existen
         $superAdminRole = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $userRole = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
         $ventasRole = Role::firstOrCreate(['name' => 'ventas', 'guard_name' => 'web']);
         $cobranzaRole = Role::firstOrCreate(['name' => 'cobranza', 'guard_name' => 'web']);
+        $tecnicoRole = Role::firstOrCreate(['name' => 'tecnico', 'guard_name' => 'web']);
+        $tesoreroEfectivoRole = Role::firstOrCreate(['name' => 'tesorero-efectivo', 'guard_name' => 'web']);
+        $contadorRole = Role::firstOrCreate(['name' => 'contador', 'guard_name' => 'web']);
 
         // Obtener todos los permisos
         $allPermissions = Permission::all();
 
-        // Asignar TODOS los permisos al super-admin y admin
+        // Asignar TODOS los permisos al super-admin
         $superAdminRole->syncPermissions($allPermissions);
-        $adminRole->syncPermissions($allPermissions);
 
-        // --- ROL VENTAS ---
-        $ventasPermissions = $allPermissions->filter(function ($permission) {
-            return str_contains($permission->name, 'ventas') ||
-                str_contains($permission->name, 'clientes') ||
-                str_contains($permission->name, 'cotizaciones') ||
-                str_contains($permission->name, 'pedidos') ||
-                str_contains($permission->name, 'productos') ||
-                str_contains($permission->name, 'servicios') ||
-                str_contains($permission->name, 'crm') ||
-                str_contains($permission->name, 'citas') ||
-                str_contains($permission->name, 'proyectos') || // Necesitan ver proyectos para vender? Tal vez
-                str_contains($permission->name, 'reportes');
+        // Asignar permisos al admin (excluyendo 'venta componentes sueltos')
+        $adminPermissions = $allPermissions->reject(function ($permission) {
+            return $permission->name === 'venta componentes sueltos';
         });
-        $ventasRole->syncPermissions($ventasPermissions);
-        $ventasRole->givePermissionTo(['approve clientes', 'view product_series', 'view entregas_dinero', 'manage entregas_dinero', 'view polizas']);
+        $adminRole->syncPermissions($adminPermissions);
 
-        // --- ROL COBRANZA ---
-        $cobranzaPermissions = $allPermissions->filter(function ($permission) {
-            return str_contains($permission->name, 'cobranza') ||
-                str_contains($permission->name, 'pagos') ||
-                str_contains($permission->name, 'facturas') ||
-                str_contains($permission->name, 'cuentas_por_cobrar') ||
-                str_contains($permission->name, 'clientes') || // Ver clientes para cobrar
-                str_contains($permission->name, 'proyectos');  // Ver proyectos para facturar?
-        });
-        $cobranzaRole->syncPermissions($cobranzaPermissions);
+        // Técnico: citas, clientes, productos, ventas y cotizaciones (mediante wildcards)
+        $tecnicoRole->syncPermissions([
+            'citas.*',
+            'clientes.*',
+            'productos.*',
+            'ventas.*',
+            'cotizaciones.*',
+            'declarar entrega mi corte'
+        ]);
 
-        // --- ROL TECNICO ---
-        // (Si no existe lo creamos, aunque deberia estar en la lista de arriba si se usa)
-        $tecnicoRole = Role::firstOrCreate(['name' => 'tecnico', 'guard_name' => 'web']);
-        $tecnicoPermissions = $allPermissions->filter(function ($permission) {
-            return str_contains($permission->name, 'soporte') ||
-                str_contains($permission->name, 'tickets') ||
-                str_contains($permission->name, 'mantenimientos') ||
-                str_contains($permission->name, 'equipos') ||
-                str_contains($permission->name, 'herramientas') ||
-                str_contains($permission->name, 'citas') ||
-                str_contains($permission->name, 'proyectos') || // Técnicos trabajan en proyectos
-                str_contains($permission->name, 'bitacora');
-        });
-        $tecnicoRole->syncPermissions($tecnicoPermissions);
-        $tecnicoRole->givePermissionTo(['view vehicles', 'view polizas']);
+        $ventasRole->givePermissionTo('declarar entrega mi corte');
 
-        // --- ROL USER (Estándar / Cliente interno?) ---
-        // Damos acceso básico de lectura a módulos comunes
-        $userPermissions = $allPermissions->filter(function ($permission) {
-            return (
-                str_starts_with($permission->name, 'view ') && (
-                    str_contains($permission->name, 'proyectos') ||
-                    str_contains($permission->name, 'tickets') ||
-                    str_contains($permission->name, 'soporte') ||
-                    str_contains($permission->name, 'kb') // Knowledge Base
-                )
-            ) ||
-                // Permisos de creación limitados
-                $permission->name === 'create tickets' ||
-                $permission->name === 'create proyectos';
-        });
-        $userRole->syncPermissions($userPermissions);
+        $permViewEntregas = Permission::where('name', 'view entregas_dinero')->first();
+        $permConfirmar = Permission::where('name', 'confirmar entrega efectivo')->first();
+        if ($permViewEntregas && $permConfirmar) {
+            $tesoreroEfectivoRole->syncPermissions([$permViewEntregas, $permConfirmar]);
+        }
 
-        $this->command->info('Roles y permisos creados y asignados exitosamente.');
+        // Contador: acceso total a contabilidad, finanzas, bancos y catálogos vinculados (mediante wildcards)
+        $contadorRole->syncPermissions([
+            'cuentas_bancarias.*',
+            'conciliacion_bancaria.*',
+            'caja_chica.*',
+            'gastos.*',
+            'cuentas_por_cobrar.*',
+            'cuentas_por_pagar.*',
+            'entregas_dinero.*',
+            'traspasos_bancarios.*',
+            'comisiones.*',
+            'prestamos.*',
+            'pagos.*',
+            'rentas.*',
+            'finanzas.*',
+            'reportes.*',
+            'polizas.*',
+            'cfdi.*',
+            'proveedores.*',
+            'clientes.*',
+            'compras.*',
+            'ordenes_compra.*'
+        ]);
+
+        $this->command->info('Roles y permisos creados y asignados exitosamente con formato Wildcard.');
     }
 }

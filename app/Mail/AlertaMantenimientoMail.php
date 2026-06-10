@@ -7,9 +7,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+
 class AlertaMantenimientoMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public array $datos;
 

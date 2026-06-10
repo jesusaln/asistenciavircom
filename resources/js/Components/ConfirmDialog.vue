@@ -1,15 +1,15 @@
 <template>
     <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-md max-w-sm w-full">
+      <div class="bg-white p-6 rounded-xl shadow-md max-w-sm w-full">
         <h3 class="text-lg font-semibold mb-4">{{ title }}</h3>
-        <p class="mb-4 text-gray-700">{{ message }}</p>
+        <p class="mb-4 text-slate-700">{{ message }}</p>
         <div class="flex justify-end space-x-4">
           <!-- Botón de Cancelar -->
-          <button @click="cancel" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-300">
+          <button @click="cancel" class="px-4 py-2 bg-slate-300 rounded-xl hover:bg-slate-400 transition duration-300">
             Cancelar
           </button>
           <!-- Botón de Confirmar -->
-          <button @click="confirm" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300">
+          <button @click="confirm" class="px-4 py-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 transition duration-300">
             Confirmar
           </button>
         </div>

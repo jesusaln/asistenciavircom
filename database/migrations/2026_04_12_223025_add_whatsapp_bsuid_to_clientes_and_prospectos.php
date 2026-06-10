@@ -12,14 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('clientes', function (Blueprint $table) {
-            $table->string('wa_user_id')->nullable()->after('whatsapp_consent_source')->index();
-            $table->string('wa_username')->nullable()->after('wa_user_id');
+            if (!Schema::hasColumn('clientes', 'wa_user_id')) {
+                $table->string('wa_user_id')->nullable()->after('whatsapp_consent_source')->index();
+            }
+            if (!Schema::hasColumn('clientes', 'wa_username')) {
+                $table->string('wa_username')->nullable()->after('wa_user_id');
+            }
         });
 
-        Schema::table('crm_prospectos', function (Blueprint $table) {
-            $table->string('wa_user_id')->nullable()->after('notas')->index();
-            $table->string('wa_username')->nullable()->after('wa_user_id');
-        });
+        if (Schema::hasTable('crm_prospectos')) {
+            Schema::table('crm_prospectos', function (Blueprint $table) {
+                if (!Schema::hasColumn('crm_prospectos', 'wa_user_id')) {
+                    $table->string('wa_user_id')->nullable()->after('notas')->index();
+                }
+                if (!Schema::hasColumn('crm_prospectos', 'wa_username')) {
+                    $table->string('wa_username')->nullable()->after('wa_user_id');
+                }
+            });
+        }
     }
 
     /**
@@ -28,11 +38,31 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('clientes', function (Blueprint $table) {
-            $table->dropColumn(['wa_user_id', 'wa_username']);
+            $cols = [];
+            if (Schema::hasColumn('clientes', 'wa_user_id')) {
+                $cols[] = 'wa_user_id';
+            }
+            if (Schema::hasColumn('clientes', 'wa_username')) {
+                $cols[] = 'wa_username';
+            }
+            if (!empty($cols)) {
+                $table->dropColumn($cols);
+            }
         });
 
-        Schema::table('crm_prospectos', function (Blueprint $table) {
-            $table->dropColumn(['wa_user_id', 'wa_username']);
-        });
+        if (Schema::hasTable('crm_prospectos')) {
+            Schema::table('crm_prospectos', function (Blueprint $table) {
+                $cols = [];
+                if (Schema::hasColumn('crm_prospectos', 'wa_user_id')) {
+                    $cols[] = 'wa_user_id';
+                }
+                if (Schema::hasColumn('crm_prospectos', 'wa_username')) {
+                    $cols[] = 'wa_username';
+                }
+                if (!empty($cols)) {
+                    $table->dropColumn($cols);
+                }
+            });
+        }
     }
 };

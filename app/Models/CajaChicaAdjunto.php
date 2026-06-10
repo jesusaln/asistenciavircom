@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 
 class CajaChicaAdjunto extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'caja_chica_adjuntos';

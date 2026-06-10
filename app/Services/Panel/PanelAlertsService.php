@@ -16,28 +16,28 @@ class PanelAlertsService
             $now = Carbon::now();
 
             try {
-                $vencidas = CuentasPorPagar::with("compra.proveedor")
+                $vencidas = CuentasPorPagar::with(["compra.proveedor", "proveedor"])
                     ->whereIn("estado", ["pendiente", "parcial"])
                     ->where("fecha_vencimiento", "<", $now)
                     ->orderBy("fecha_vencimiento")
                     ->limit(10)
                     ->get();
 
-                $semana = CuentasPorPagar::with("compra.proveedor")
+                $semana = CuentasPorPagar::with(["compra.proveedor", "proveedor"])
                     ->whereIn("estado", ["pendiente", "parcial"])
                     ->whereBetween("fecha_vencimiento", [$now, $now->copy()->addDays(7)])
                     ->orderBy("fecha_vencimiento")
                     ->limit(10)
                     ->get();
 
-                $quincena = CuentasPorPagar::with("compra.proveedor")
+                $quincena = CuentasPorPagar::with(["compra.proveedor", "proveedor"])
                     ->whereIn("estado", ["pendiente", "parcial"])
                     ->whereBetween("fecha_vencimiento", [$now->copy()->addDays(8), $now->copy()->addDays(15)])
                     ->orderBy("fecha_vencimiento")
                     ->limit(10)
                     ->get();
 
-                $mes = CuentasPorPagar::with("compra.proveedor")
+                $mes = CuentasPorPagar::with(["compra.proveedor", "proveedor"])
                     ->whereIn("estado", ["pendiente", "parcial"])
                     ->whereBetween("fecha_vencimiento", [$now->copy()->addDays(16), $now->copy()->addDays(30)])
                     ->orderBy("fecha_vencimiento")
@@ -78,7 +78,7 @@ class PanelAlertsService
                 "id" => $cuenta->id,
                 "compra_id" => $cuenta->compra_id,
                 "numero" => $cuenta->compra->numero_compra ?? "N/A",
-                "proveedor" => $cuenta->compra->proveedor->nombre_razon_social ?? "Sin proveedor",
+                "proveedor" => $cuenta->compra->proveedor->nombre_razon_social ?? $cuenta->proveedor->nombre_razon_social ?? "Sin proveedor",
                 "monto_pendiente" => $cuenta->monto_pendiente,
                 "fecha_vencimiento" => Carbon::parse($cuenta->fecha_vencimiento)->format("d/m/Y"),
                 "dias_vencimiento" => $diasVencimiento,

@@ -1,0 +1,76 @@
+{
+    "extends": [
+        "plugin:vue/vue3-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "plugins": [
+        "vue",
+        "@typescript-eslint",
+        "no-comments"
+    ],
+    "rules": {
+        "no-comments/no-comments": "warn",
+        "no-comments/allowed-words": [
+            "warn",
+            {
+                "words": [
+                    "TODO",
+                    "FIXME",
+                    "HACK",
+                    "NOTE",
+                    "REVIEW",
+                    "BUG",
+                    "QUESTION",
+                    "XXX",
+                    "DEPRECATED"
+                ],
+                "allowComments": true,
+                "message": "Comment contains a marker that should be tracked in issue tracker. Add issue reference if applicable."
+            }
+        ],
+        "no-comments/check-file": [
+            "warn",
+            {
+                "filePatterns": [
+                    "**/*.vue",
+                    "**/*.js",
+                    "**/*.ts"
+                ]
+            }
+        ],
+        "no-comments/no-debug": "error",
+        "no-comments/no-log": "error",
+        "no-comments/no-alert": "error"
+    },
+    "settings": {
+        "no-comments": {
+            "warnOnWords": [
+                "HACK",
+                "FIXME",
+                "XXX",
+                "UGLY",
+                "HACKY",
+                "QUICK FIX",
+                "TEMPORARY FIX"
+            ],
+            "warnOnPatterns": [
+                "// TODO.*$",
+                "// FIXME.*$",
+                "// XXX.*$",
+                "// HACK.*$",
+                "/\\* TODO .* \\*/",
+                "/\\* FIXME .* \\*/",
+                "/\\* XXX .* \\*/",
+                "/\\* HACK .* \\*/"
+            ],
+            "ignoreComments": [
+                "eslint-disable",
+                "eslint-enable",
+                "eslint-next-line",
+                "tslint:disable",
+                "tslint:enable",
+                "tslint:next-line"
+            ]
+        }
+    }
+}

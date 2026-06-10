@@ -104,19 +104,10 @@ class PrecioService
         $publicoGeneral = PriceList::getPublicoGeneral();
 
         if (!$publicoGeneral) {
-            // Si no existe público general, crear una advertencia crítica
-            Log::critical('PrecioService: No existe lista "publico_general"', [
-                'cliente_id' => $cliente?->id,
-            ]);
+            Log::warning('PrecioService: No existe lista "publico_general", usando precio_venta directo');
 
-            // Intentar obtener cualquier lista activa
-            $primeraLista = PriceList::activas()->first();
-
-            if (!$primeraLista) {
-                throw new \RuntimeException('No hay listas de precios disponibles en el sistema');
-            }
-
-            return $primeraLista;
+            // Fallback: usar precio_venta del producto sin lista
+            return (object) ['id' => 0, 'nombre' => 'Precio Base', 'clave' => 'BASE'];
         }
 
         return $publicoGeneral;

@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Inertia\Inertia;
 use App\Traits\ImageOptimizerTrait;
+use App\Services\RRHH\EmployeeImportService;
 
 class EmpleadoController extends BaseController
 {
@@ -154,9 +155,9 @@ class EmpleadoController extends BaseController
     {
         $validated = $request->validate([
             'user_id' => 'nullable|exists:users,id', // Opcional: convertir usuario existente
-            'nombre' => 'required_without:user_id|string|max:255',
-            'apellido' => 'required_without:user_id|string|max:255',
-            'email' => 'required_without:user_id|email|unique:users,email',
+            'nombre' => 'required_without:user_id|nullable|string|max:255',
+            'apellido' => 'required_without:user_id|nullable|string|max:255',
+            'email' => 'required_without:user_id|nullable|email|unique:users,email',
             'numero_empleado' => 'nullable|string|max:50|unique:users,numero_empleado',
             'fecha_nacimiento' => 'nullable|date|before:today',
             'curp' => 'nullable|string|size:18',
@@ -199,7 +200,9 @@ class EmpleadoController extends BaseController
             if ($request->filled('user_id')) {
                 // Convertir existente
                 $empleado = User::find($request->user_id);
-                $empleado->update(array_merge($validated, ['es_empleado' => true]));
+                // Evitar sobreescribir datos de la cuenta de usuario con campos nulos de la validación
+                $updateData = collect($validated)->except(['nombre', 'apellido', 'email', 'user_id'])->toArray();
+                $empleado->update(array_merge($updateData, ['es_empleado' => true]));
             } else {
                 // Crear nuevo
                 $validated['name'] = trim($request->nombre . ' ' . $request->apellido);
@@ -241,6 +244,8 @@ class EmpleadoController extends BaseController
         $empleado->load([
             // 'nominas' relationship exists in User but was undefined before? I added it in Step 594.
             'nominas' => fn($q) => $q->orderBy('periodo_inicio', 'desc')->limit(12),
+            'ultimoNom035',
+            'nom035Evaluations' => fn($q) => $q->where('status', 'completed')->orderBy('completed_at', 'desc')
         ]);
 
         // Historial de nóminas del año
@@ -449,5 +454,26 @@ class EmpleadoController extends BaseController
         $empresa = EmpresaConfiguracion::getConfig();
 
         return view('empleados.contrato_print', compact('empleado', 'empresa'));
+    }
+
+    /**
+     * Importar empleados desde archivos XML de nómina
+     */
+    public function importFromXml(Request $request, EmployeeImportService $importService)
+    {
+        $request->validate([
+            'files' => 'required|array',
+            'files.*' => 'file|mimes:xml',
+        ]);
+
+        try {
+            $results = $importService->importFromXmls($request->file('files'));
+
+            return back()->with('success', "Importación completada: {$results['created']} creados, {$results['updated']} actualizados.")
+                ->with('import_results', $results);
+        } catch (\Exception $e) {
+            Log::error('Error en importación de empleados: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al procesar los archivos XML: ' . $e->getMessage()]);
+        }
     }
 }

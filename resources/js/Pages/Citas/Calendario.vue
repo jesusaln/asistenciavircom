@@ -1,9 +1,11 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch, onMounted } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ModalAsignarTecnico from '@/Components/ModalAsignarTecnico.vue';
 import { Notyf } from 'notyf';
+import Swal from '@/Utils/Swal';
 
 const notyf = new Notyf({ position: { x: 'right', y: 'top' } });
 const page = usePage();
@@ -32,16 +34,18 @@ const selectedDate = ref(null);
 const selectedCita = ref(null);
 const showModalAsignar = ref(false);
 const showCitaDetails = ref(false);
+const searchPendiente = ref('');
+const filtroEstado = ref('all');
 
 // Colores de estado
 const estadoColores = {
-    pendiente: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', border: 'border-yellow-400 dark:border-yellow-600', text: 'text-yellow-800 dark:text-yellow-400' },
-    pendiente_asignacion: { bg: 'bg-orange-100 dark:bg-orange-900/30', border: 'border-orange-400 dark:border-orange-600', text: 'text-orange-800 dark:text-orange-400' },
-    programado: { bg: 'bg-blue-100 dark:bg-blue-900/30', border: 'border-blue-400 dark:border-blue-600', text: 'text-blue-800 dark:text-blue-400' },
-    en_proceso: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', border: 'border-indigo-400 dark:border-indigo-600', text: 'text-indigo-800 dark:text-indigo-400' },
-    completado: { bg: 'bg-green-100 dark:bg-green-900/30', border: 'border-green-400 dark:border-green-600', text: 'text-green-800 dark:text-green-400' },
-    cancelado: { bg: 'bg-red-100 dark:bg-red-900/30', border: 'border-red-400 dark:border-red-600', text: 'text-red-800 dark:text-red-400' },
-    reprogramado: { bg: 'bg-purple-100 dark:bg-purple-900/30', border: 'border-purple-400 dark:border-purple-600', text: 'text-purple-800 dark:text-purple-400' },
+    pendiente: { bg: 'bg-brand-50 dark:bg-amber-900/60', border: 'border-brand-400 dark:border-amber-500', text: 'text-brand-800 dark:text-amber-100' },
+    pendiente_asignacion: { bg: 'bg-brand-100 dark:bg-orange-900/60', border: 'border-orange-400 dark:border-orange-500', text: 'text-orange-800 dark:text-orange-100' },
+    programado: { bg: 'bg-blue-50 dark:bg-sky-800/60', border: 'border-blue-400 dark:border-sky-500', text: 'text-sky-800 dark:text-sky-100' },
+    en_proceso: { bg: 'bg-sky-100 dark:bg-sky-700/60', border: 'border-sky-400 dark:border-sky-400', text: 'text-sky-800 dark:text-white' },
+    completado: { bg: 'bg-emerald-100 dark:bg-emerald-900/40', border: 'border-emerald-400 dark:border-emerald-500', text: 'text-emerald-800 dark:text-emerald-100' },
+    cancelado: { bg: 'bg-rose-50 dark:bg-rose-900/60', border: 'border-rose-400 dark:border-rose-500', text: 'text-rose-800 dark:text-rose-100' },
+    reprogramado: { bg: 'bg-purple-100 dark:bg-purple-900/60', border: 'border-purple-400 dark:border-purple-500', text: 'text-purple-800 dark:text-purple-100' },
 };
 
 const estadoLabels = {
@@ -95,10 +99,26 @@ const monthYearLabel = computed(() => {
     return currentMonth.value.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
 });
 
-// Citas filtradas por técnico
+// Citas filtradas por técnico y estado
 const citasFiltradas = computed(() => {
-    if (filtroTecnico.value === 'all') return props.citas;
-    return props.citas.filter(c => c.tecnico_id == filtroTecnico.value);
+    let filtered = props.citas;
+    if (filtroTecnico.value !== 'all') {
+        filtered = filtered.filter(c => c.tecnico_id == filtroTecnico.value);
+    }
+    if (filtroEstado.value !== 'all') {
+        filtered = filtered.filter(c => c.estado === filtroEstado.value);
+    }
+    return filtered;
+});
+
+// Citas pendientes filtradas por búsqueda
+const citasPendientesFiltradas = computed(() => {
+    if (!searchPendiente.value) return props.citasPendientes;
+    const search = searchPendiente.value.toLowerCase();
+    return props.citasPendientes.filter(c => 
+        (c.cliente?.nombre_razon_social?.toLowerCase().includes(search)) ||
+        (c.folio?.toLowerCase().includes(search))
+    );
 });
 
 // Helpers
@@ -144,7 +164,7 @@ function formatTime(datetime) {
     if (/^\d{2}:\d{2}(:\d{2})?$/.test(datetime)) {
         const [hours, minutes] = datetime.split(':');
         const hour = parseInt(hours);
-        const ampm = hour >= 12 ? 'p.m.' : 'a.m.';
+        const ampm = hour >= 12 ? 'PM' : 'AM';
         const hour12 = hour % 12 || 12;
         return `${hour12}:${minutes} ${ampm}`;
     }
@@ -153,6 +173,13 @@ function formatTime(datetime) {
     const date = new Date(datetime);
     if (isNaN(date.getTime())) return '';
     return date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function isAtrasada(c) {
+  if (!c?.fecha_hora || !['pendiente', 'programado'].includes(c.estado)) return false
+  const d = new Date(c.fecha_hora)
+  const t = new Date(); t.setHours(0,0,0,0)
+  return d < t
 }
 
 
@@ -204,6 +231,30 @@ function editarCita(citaId) {
     router.visit(route('citas.edit', citaId));
 }
 
+async function cancelarCita(citaId) {
+    const result = await Swal.fire({
+        title: '¿Cancelar Cita?',
+        text: '¿Deseas cancelar esta cita? El horario asignado se liberará.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No',
+        confirmButtonColor: '#ef4444',
+    });
+
+    if (result.isConfirmed) {
+        router.post(route('citas.cancelar', citaId), {
+            motivo: 'Cancelado desde el calendario.'
+        }, {
+            onSuccess: () => notyf.success('Cita cancelada exitosamente y horario liberado'),
+            onError: (errors) => {
+                const msg = errors.general || 'Error al intentar cancelar la cita';
+                notyf.error(msg);
+            }
+        });
+    }
+}
+
 // Watchers
 watch(() => [props.mes, props.año], ([mes, año]) => {
     currentMonth.value = new Date(año, mes - 1, 1);
@@ -220,31 +271,48 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                 <!-- Header -->
                 <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Calendario de Citas</h1>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 transition-colors">
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white transition-colors">Calendario de Citas</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 transition-colors">
                             Gestiona las citas de los técnicos y asigna nuevas solicitudes
                         </p>
                     </div>
                     
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
                         <!-- Filtro por técnico -->
-                        <div class="flex items-center gap-2">
-                            <label class="text-sm text-gray-600 dark:text-gray-400 transition-colors">Técnico:</label>
-                            <select 
-                                v-model="filtroTecnico"
-                                class="text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                            >
-                                <option value="all">Todos</option>
-                                <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">
-                                    {{ tec.name }}
-                                </option>
-                            </select>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <!-- Filtro por técnico -->
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Técnico:</label>
+                                <select 
+                                    v-model="filtroTecnico"
+                                    class="text-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                                >
+                                    <option value="all">Todos</option>
+                                    <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">
+                                        {{ tec.name }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Filtro por estado -->
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">Estado:</label>
+                                <select 
+                                    v-model="filtroEstado"
+                                    class="text-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                                >
+                                    <option value="all">Todos</option>
+                                    <option v-for="(label, key) in estadoLabels" :key="key" :value="key">
+                                        {{ label }}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                         
                         <!-- Botón Hoy -->
                         <button
                             @click="goToToday"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                         >
                             Hoy
                         </button>
@@ -255,10 +323,10 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                     
                     <!-- Sidebar: Citas Pendientes de Asignación -->
                     <div class="xl:col-span-1">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden sticky top-6 transition-colors">
-                            <div class="bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3">
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-700 overflow-hidden sticky top-6 transition-colors">
+                            <div class="bg-gradient-to-r from-brand-500 to-brand-500 px-4 py-3">
                                 <h2 class="text-white font-semibold flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     Sin Asignar
@@ -268,30 +336,46 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                 </h2>
                             </div>
                             
-                            <div class="max-h-[calc(100vh-300px)] overflow-y-auto">
-                                <div v-if="citasPendientes.length === 0" class="p-6 text-center">
-                                    <div class="text-5xl mb-3">🎉</div>
-                                    <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">¡Sin citas pendientes!</p>
+                            <div class="p-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20">
+                                <div class="relative">
+                                    <input 
+                                        v-model="searchPendiente"
+                                        type="text" 
+                                        placeholder="Buscar cliente o folio..."
+                                        class="w-full pl-9 pr-4 py-2 text-xs border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                                    />
+                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar">
+                                <div v-if="citasPendientesFiltradas.length === 0" class="p-6 text-center">
+                                    <div class="text-5xl mb-3">🔍</div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm transition-colors">
+                                        {{ searchPendiente ? 'No se encontraron resultados' : '¡Sin citas pendientes!' }}
+                                    </p>
                                 </div>
                                 
                                 <div 
                                     v-else
-                                    v-for="cita in citasPendientes" 
+                                    v-for="cita in citasPendientesFiltradas" 
                                     :key="cita.id"
-                                    class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                                    class="p-4 border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
                                     @click="openAsignarModal(cita)"
                                 >
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1 min-w-0">
-                                            <p class="font-medium text-gray-900 dark:text-white truncate transition-colors">
+                                            <p class="font-medium text-slate-900 dark:text-white truncate transition-colors">
                                                 {{ cita.cliente?.nombre_razon_social || 'Cliente' }}
                                             </p>
                                             <div class="mt-1 space-y-1">
-                                                <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 transition-colors">
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 transition-colors">
                                                     <span>📱</span>
                                                     {{ cita.cliente?.telefono }}
                                                 </p>
-                                                <p v-if="cita.origen_tienda" class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 transition-colors">
+                                                <p v-if="cita.origen_tienda" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 transition-colors">
                                                     <span>🏪</span>
                                                     {{ tiendas[cita.origen_tienda] }}
                                                 </p>
@@ -302,27 +386,39 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                                 <span 
                                                     v-for="dia in cita.dias_preferidos.slice(0, 2)" 
                                                     :key="dia"
-                                                    class="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded transition-colors"
+                                                    class="text-xs px-2 py-0.5 bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-orange-400 rounded-xl transition-colors"
                                                 >
                                                     {{ new Date(dia + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' }) }}
                                                 </span>
-                                                <span v-if="cita.dias_preferidos.length > 2" class="text-xs text-gray-400 dark:text-gray-500 transition-colors">
+                                                <span v-if="cita.dias_preferidos.length > 2" class="text-xs text-slate-400 dark:text-slate-500 transition-colors">
                                                     +{{ cita.dias_preferidos.length - 2 }}
                                                 </span>
                                             </div>
                                             
                                             <!-- Horario preferido -->
                                             <div v-if="cita.horario_preferido && horarios[cita.horario_preferido]" class="mt-1">
-                                                <span class="text-xs text-gray-500 dark:text-gray-400 transition-colors">
+                                                <span class="text-xs text-slate-500 dark:text-slate-400 transition-colors">
                                                     {{ horarios[cita.horario_preferido].emoji }} 
                                                     {{ horarios[cita.horario_preferido].nombre }}
                                                 </span>
                                             </div>
                                         </div>
                                         
-                                        <svg class="w-5 h-5 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
+                                        <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+                                            <button 
+                                                v-if="!['completado', 'cancelado'].includes(cita.estado)"
+                                                @click.stop="cancelarCita(cita.id)"
+                                                class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-colors"
+                                                title="Cancelar cita"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </button>
+                                            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -331,15 +427,15 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                     
                     <!-- Calendario Principal -->
                     <div class="xl:col-span-3">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
                             
                             <!-- Header del Calendario -->
                             <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex items-center justify-between">
                                 <button
                                     @click="changeMonth(-1)"
-                                    class="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                                    class="p-2 hover:bg-white/10 rounded-xl transition-colors text-white"
                                 >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                     </svg>
                                 </button>
@@ -350,36 +446,36 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                 
                                 <button
                                     @click="changeMonth(1)"
-                                    class="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                                    class="p-2 hover:bg-white/10 rounded-xl transition-colors text-white"
                                 >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                     </svg>
                                 </button>
                             </div>
                             
                             <!-- Leyenda de técnicos -->
-                            <div class="px-6 py-3 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 flex flex-wrap items-center gap-3 transition-colors">
-                                <span class="text-sm text-gray-500 dark:text-gray-400 transition-colors">Técnicos:</span>
+                            <div class="px-6 py-3 bg-[var(--ui-surface)] dark:bg-black/50 border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-3 transition-colors">
+                                <span class="text-sm text-slate-500 dark:text-slate-400 transition-colors">Técnicos:</span>
                                 <div 
                                     v-for="tec in tecnicos" 
                                     :key="tec.id"
                                     class="flex items-center gap-1.5"
                                 >
                                     <span 
-                                        class="w-3 h-3 rounded-full"
+                                        class="w-2 h-2 rounded-full"
                                         :style="{ backgroundColor: tec.color }"
                                     ></span>
-                                    <span class="text-sm text-gray-700 dark:text-gray-300 transition-colors">{{ tec.name }}</span>
+                                    <span class="text-sm text-slate-700 dark:text-slate-200 transition-colors">{{ tec.name }}</span>
                                 </div>
                             </div>
                             
                             <!-- Días de la semana -->
-                            <div class="grid grid-cols-7 border-b border-gray-100 dark:border-gray-700">
+                            <div class="grid grid-cols-7 border-b border-slate-100 dark:border-slate-700">
                                 <div 
                                     v-for="day in ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']" 
                                     :key="day"
-                                    class="px-2 py-3 text-center text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/30 transition-colors"
+                                    class="px-2 py-3 text-center text-sm font-medium text-slate-500 dark:text-slate-400 bg-[var(--ui-surface)] dark:bg-slate-800/30 transition-colors"
                                 >
                                     {{ day }}
                                 </div>
@@ -391,56 +487,86 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                     v-for="(dayObj, index) in daysInMonth"
                                     :key="index"
                                     :class="[
-                                        'min-h-[120px] p-2 border-b border-r border-gray-100 dark:border-gray-700 transition-colors',
-                                        !dayObj.isCurrentMonth ? 'bg-gray-50 dark:bg-gray-900/30' : 'bg-white dark:bg-gray-800',
-                                        dayObj.isToday ? 'bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-inset ring-indigo-500' : '',
-                                        dayObj.isPast && dayObj.isCurrentMonth ? 'bg-gray-50/50 dark:bg-gray-900/20' : '',
+                                        'min-h-[120px] p-2 border-b border-r border-slate-100 dark:border-slate-700 transition-colors',
+                                        !dayObj.isCurrentMonth ? 'bg-slate-50 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-800',
+                                        dayObj.isToday ? 'bg-indigo-50 dark:bg-sky-900/20 ring-2 ring-inset ring-indigo-500' : '',
+                                        dayObj.isPast && dayObj.isCurrentMonth ? 'bg-slate-50/50 dark:bg-slate-800/20' : '',
                                     ]"
                                 >
                                     <!-- Número del día -->
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span 
-                                            :class="[
-                                                'text-sm font-medium transition-colors',
-                                                !dayObj.isCurrentMonth ? 'text-gray-400 dark:text-gray-600' :
-                                                dayObj.isToday ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-gray-700 dark:text-gray-300'
-                                            ]"
-                                        >
-                                            {{ dayObj.day }}
-                                        </span>
+                                    <div class="flex items-center justify-between mb-2 group/day">
+                                        <div class="flex items-center gap-2">
+                                            <span 
+                                                :class="[
+                                                    'text-base font-bold transition-colors',
+                                                    !dayObj.isCurrentMonth ? 'text-slate-500 dark:text-slate-600' :
+                                                    dayObj.isToday ? 'bg-indigo-600 text-white px-2 py-0.5 rounded-full' : 'text-slate-700 dark:text-slate-100'
+                                                ]"
+                                            >
+                                                {{ dayObj.day }}
+                                            </span>
+                                            
+                                            <!-- Botón de añadir rápida -->
+                                            <button 
+                                                v-if="dayObj.isCurrentMonth && !dayObj.isPast"
+                                                @click.stop="router.visit(route('citas.create', { fecha: dayObj.date.toISOString().split('T')[0] }))"
+                                                class="opacity-0 group-hover/day:opacity-100 p-1 text-slate-400 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all"
+                                                title="Programar cita para este día"
+                                            >
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                         
                                         <!-- Contador de citas -->
                                         <span 
                                             v-if="getCitasForDay(dayObj.date).length > 0"
-                                            class="text-xs px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full transition-colors"
+                                            class="text-sm font-bold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full transition-colors"
                                         >
                                             {{ getCitasForDay(dayObj.date).length }}
                                         </span>
                                     </div>
                                     
                                     <!-- Citas del día -->
-                                    <div class="space-y-1 overflow-y-auto max-h-20">
+                                    <div class="space-y-1.5 overflow-y-auto custom-scrollbar max-h-32">
                                         <div
-                                            v-for="cita in getCitasForDay(dayObj.date).slice(0, 3)"
+                                            v-for="cita in getCitasForDay(dayObj.date).slice(0, 8)"
                                             :key="cita.id"
                                             @click.stop="openCitaDetails(cita)"
                                             :class="[
-                                                'text-xs px-2 py-1 rounded cursor-pointer truncate border-l-2 transition-all hover:shadow-md',
-                                                estadoColores[cita.estado]?.bg || 'bg-gray-100 dark:bg-gray-700',
-                                                estadoColores[cita.estado]?.text || 'text-gray-700 dark:text-gray-300',
+                                                'text-sm px-2 py-1.5 rounded-xl cursor-pointer truncate border-l-4 transition-all hover:brightness-110 shadow-sm hover:shadow-md mb-1.5',
+                                                isAtrasada(cita) ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-400 text-rose-800 dark:text-rose-200' : (estadoColores[cita.estado]?.bg || 'bg-slate-100 dark:bg-slate-700'),
+                                                !isAtrasada(cita) && (estadoColores[cita.estado]?.text || 'text-slate-700 dark:text-slate-100'),
                                             ]"
-                                            :style="{ borderLeftColor: getTecnicoColor(cita.tecnico_id) }"
+                                            :style="{ borderLeftColor: isAtrasada(cita) ? '#e11d48' : getTecnicoColor(cita.tecnico_id) }"
                                             :title="`${cita.cliente?.nombre_razon_social} - ${formatTime(cita.fecha_hora)}`"
                                         >
-                                            <span class="font-medium">{{ formatTime(cita.hora_confirmada || cita.fecha_hora) }}</span>
-                                            <span class="ml-1">{{ cita.cliente?.nombre_razon_social?.split(' ')[0] }}</span>
+                                            <div class="flex flex-col gap-0.5">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="font-black text-[9px] uppercase tracking-tighter opacity-80">
+                                                        {{ formatTime(cita.hora_confirmada || cita.fecha_hora) }} - {{ formatTime(cita.fecha_hora_fin) }}
+                                                    </span>
+                                                    <span v-if="isAtrasada(cita)" class="text-[8px] font-black bg-rose-600 text-white px-1 rounded">ATRASADA</span>
+                                                </div>
+                                                <div class="font-bold truncate text-[10px] leading-tight mb-1 uppercase">
+                                                    {{ cita.cliente?.nombre_razon_social }}
+                                                </div>
+                                                <!-- Técnico -->
+                                                <div v-if="cita.tecnico" class="flex items-center gap-1 mt-0.5 py-0.5 px-1 bg-black/5 dark:bg-white/5 rounded border border-black/5 dark:border-white/5">
+                                                    <span class="w-1.5 h-1.5 rounded-full shrink-0" :style="{ backgroundColor: getTecnicoColor(cita.tecnico_id) }"></span>
+                                                    <span class="text-[8px] font-black uppercase truncate opacity-70">
+                                                        {{ cita.tecnico?.name }}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                         
                                         <div 
-                                            v-if="getCitasForDay(dayObj.date).length > 3"
-                                            class="text-xs text-gray-500 dark:text-gray-400 pl-2 transition-colors"
+                                            v-if="getCitasForDay(dayObj.date).length > 5"
+                                            class="text-xs font-bold text-brand-500 dark:text-brand-400 pl-2 transition-colors mt-1"
                                         >
-                                            +{{ getCitasForDay(dayObj.date).length - 3 }} más
+                                            +{{ getCitasForDay(dayObj.date).length - 5 }} más...
                                         </div>
                                     </div>
                                 </div>
@@ -467,17 +593,17 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
         
         <!-- Modal: Detalles de Cita -->
         <Teleport to="body">
-            <div v-if="showCitaDetails" class="fixed inset-0 z-50 overflow-y-auto">
+            <div v-if="showCitaDetails" class="fixed inset-0 z-50 overflow-y-auto custom-scrollbar">
                 <div class="flex min-h-full items-center justify-center p-4">
-                    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" @click="closeCitaDetails"></div>
+                    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="closeCitaDetails"></div>
                     
-                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
+                    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md transform transition-all">
                         <!-- Header -->
                         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 rounded-t-2xl">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-lg font-bold text-white">Detalles de Cita</h3>
                                 <button @click="closeCitaDetails" class="text-white/80 hover:text-white">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </button>
@@ -485,9 +611,9 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                         </div>
                         
                         <!-- Contenido -->
-                        <div v-if="selectedCita" class="p-6 space-y-4">
+                        <div v-if="selectedCita" class="p-6 space-y-6">
                             <!-- Estado -->
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
                                 <span 
                                     :class="[
                                         'px-3 py-1 rounded-full text-sm font-medium',
@@ -497,81 +623,81 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                 >
                                     {{ estadoLabels[selectedCita.estado] }}
                                 </span>
-                                <span class="text-gray-500 dark:text-gray-400 text-sm transition-colors">
+                                <span class="text-slate-500 dark:text-slate-400 text-sm transition-colors">
                                     Folio: {{ selectedCita.folio || '-' }}
                                 </span>
                             </div>
                             
                             <!-- Cliente -->
-                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Cliente</p>
-                                <p class="font-semibold text-gray-900 dark:text-white transition-colors">
+                            <div class="bg-slate-50 dark:bg-black/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1 transition-colors">Cliente</p>
+                                <p class="font-semibold text-slate-900 dark:text-white transition-colors">
                                     {{ selectedCita.cliente?.nombre_razon_social }}
                                 </p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 transition-colors">
                                     📱 {{ selectedCita.cliente?.telefono }}
                                 </p>
                             </div>
                             
                             <!-- Fecha y Hora -->
-                            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Fecha y Hora</p>
-                                <p class="font-semibold text-gray-900 dark:text-white capitalize transition-colors">
+                            <div class="bg-slate-50 dark:bg-black/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1 transition-colors">Fecha y Hora</p>
+                                <p class="font-semibold text-slate-900 dark:text-white capitalize transition-colors">
                                     {{ formatDate(selectedCita.fecha_confirmada || selectedCita.fecha_hora?.split('T')[0]) }}
                                 </p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 transition-colors">
                                     ⏰ {{ selectedCita.hora_confirmada || formatTime(selectedCita.fecha_hora) }}
                                 </p>
                             </div>
                             
                             <!-- Técnico -->
-                            <div v-if="selectedCita.tecnico" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Técnico asignado</p>
+                            <div v-if="selectedCita.tecnico" class="bg-slate-50 dark:bg-black/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1 transition-colors">Técnico asignado</p>
                                 <div class="flex items-center gap-2">
                                     <span 
-                                        class="w-3 h-3 rounded-full"
+                                        class="w-2 h-2 rounded-full"
                                         :style="{ backgroundColor: getTecnicoColor(selectedCita.tecnico_id) }"
                                     ></span>
-                                    <span class="font-semibold text-gray-900 dark:text-white transition-colors">{{ selectedCita.tecnico.name }}</span>
+                                    <span class="font-semibold text-slate-900 dark:text-white transition-colors">{{ selectedCita.tecnico.name }}</span>
                                 </div>
                             </div>
                             
                             <!-- Dirección -->
-                            <div v-if="selectedCita.direccion_calle" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Dirección</p>
-                                <p class="text-gray-900 dark:text-white transition-colors">{{ selectedCita.direccion_calle }}</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors">
+                            <div v-if="selectedCita.direccion_calle" class="bg-slate-50 dark:bg-black/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1 transition-colors">Dirección</p>
+                                <p class="text-slate-900 dark:text-white transition-colors">{{ selectedCita.direccion_calle }}</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 transition-colors">
                                     {{ selectedCita.direccion_colonia }}
                                     {{ selectedCita.direccion_cp ? `, C.P. ${selectedCita.direccion_cp}` : '' }}
                                 </p>
-                                <p v-if="selectedCita.direccion_referencias" class="text-xs text-gray-500 dark:text-gray-500 mt-1 italic transition-colors">
+                                <p v-if="selectedCita.direccion_referencias" class="text-xs text-slate-500 dark:text-slate-500 mt-1 italic transition-colors">
                                     "{{ selectedCita.direccion_referencias }}"
                                 </p>
                             </div>
                             
                             <!-- Descripción -->
-                            <div v-if="selectedCita.descripcion" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1 transition-colors">Descripción inicial</p>
-                                <p class="text-gray-700 dark:text-gray-300 text-sm transition-colors">{{ selectedCita.descripcion }}</p>
+                            <div v-if="selectedCita.descripcion" class="bg-slate-50 dark:bg-black/50 rounded-xl p-4 transition-colors">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1 transition-colors">Descripción inicial</p>
+                                <p class="text-slate-700 dark:text-slate-200 text-sm transition-colors">{{ selectedCita.descripcion }}</p>
                             </div>
 
                             <!-- Reporte de Cierre -->
-                            <div v-if="selectedCita.trabajo_realizado || selectedCita.fotos_finales" class="space-y-4">
+                            <div v-if="selectedCita.trabajo_realizado || selectedCita.fotos_finales" class="space-y-6">
                                 <div class="flex items-center gap-2 mt-2">
-                                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
-                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">Reporte de Cierre</span>
-                                    <div class="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                                    <div class="h-px bg-slate-200 dark:bg-slate-700 flex-1"></div>
+                                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide transition-colors">Reporte de Cierre</span>
+                                    <div class="h-px bg-slate-200 dark:bg-slate-700 flex-1"></div>
                                 </div>
 
-                                <div v-if="selectedCita.trabajo_realizado" class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-100 dark:border-green-800 transition-colors">
-                                    <p class="text-xs font-bold text-green-700 dark:text-green-400 mb-1 uppercase transition-colors">Trabajo Realizado</p>
-                                    <p class="text-gray-800 dark:text-gray-300 text-sm italic transition-colors">"{{ selectedCita.trabajo_realizado }}"</p>
+                                <div v-if="selectedCita.trabajo_realizado" class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800/30 transition-colors">
+                                    <p class="text-xs font-bold text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-slate-400 mb-1 uppercase transition-colors">Trabajo Realizado</p>
+                                    <p class="text-slate-800 dark:text-slate-200 text-sm italic transition-colors">"{{ selectedCita.trabajo_realizado }}"</p>
                                 </div>
 
                                 <div v-if="selectedCita.fotos_finales?.length > 0">
-                                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase transition-colors">Evidencias ({{ selectedCita.fotos_finales.length }})</p>
+                                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase transition-colors">Evidencias ({{ selectedCita.fotos_finales.length }})</p>
                                     <div class="grid grid-cols-3 gap-2">
-                                        <div v-for="(foto, idx) in selectedCita.fotos_finales" :key="idx" class="aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm transition-transform hover:scale-105">
+                                        <div v-for="(foto, idx) in selectedCita.fotos_finales" :key="idx" class="aspect-square rounded-xl overflow-hidden border border-slate-300 dark:border-slate-600 shadow-sm transition-transform hover:scale-105">
                                             <a :href="'/storage/' + foto" target="_blank">
                                                 <img :src="'/storage/' + foto" class="w-full h-full object-cover">
                                             </a>
@@ -582,10 +708,10 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                         </div>
                         
                         <!-- Footer -->
-                        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl flex items-center justify-between transition-colors">
+                        <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-[var(--ui-surface)] dark:bg-black/50 rounded-b-2xl flex items-center justify-between transition-colors">
                             <button
                                 @click="closeCitaDetails"
-                                class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors"
+                                class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-medium transition-colors"
                             >
                                 Cerrar
                             </button>
@@ -594,13 +720,13 @@ watch(() => [props.mes, props.año], ([mes, año]) => {
                                 <button
                                     v-if="selectedCita?.estado === 'pendiente_asignacion'"
                                     @click="closeCitaDetails(); openAsignarModal(selectedCita)"
-                                    class="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                                    class="px-4 py-2 bg-brand-500 text-white rounded-xl font-medium hover:bg-brand-600 transition-colors"
                                 >
                                     Asignar Técnico
                                 </button>
                                 <button
                                     @click="editarCita(selectedCita.id)"
-                                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
                                 >
                                     Editar
                                 </button>

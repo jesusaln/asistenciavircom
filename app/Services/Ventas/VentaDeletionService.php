@@ -40,6 +40,9 @@ class VentaDeletionService
                 ],
                 'Venta deleted after complete validation'
             );
+
+            // Invalidate summary stats cache
+            app(\App\Services\Ventas\VentaQueryService::class)->invalidateSummaryStatsCache();
         });
     }
 
@@ -113,7 +116,7 @@ class VentaDeletionService
 
             $movimiento = InventarioMovimiento::where('producto_id', $componente->id)
                 ->where('tipo', 'entrada')
-                ->where('motivo', 'like', VentaCancellationService::MOTIVO_CANCELACION_PATTERN)
+                ->where('referencia_type', Venta::class)
                 ->where('referencia_id', $venta->id)
                 ->exists();
 
@@ -130,7 +133,7 @@ class VentaDeletionService
 
         return InventarioMovimiento::where('producto_id', $producto->id)
             ->where('tipo', 'entrada')
-            ->where('motivo', 'like', VentaCancellationService::MOTIVO_CANCELACION_PATTERN)
+            ->where('referencia_type', Venta::class)
             ->where('referencia_id', $venta->id)
             ->exists();
     }

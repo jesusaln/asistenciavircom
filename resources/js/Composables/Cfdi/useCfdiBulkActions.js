@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
+import Swal from '@/Utils/Swal'
 
 /**
  * Composable for managing bulk actions on CFDIs.
@@ -48,7 +49,17 @@ export function useCfdiBulkActions(cfdiItems, notyf) {
 
     const bulkSendEmail = async () => {
         if (!selectedIds.value.length) return
-        if (!confirm(`¿Deseas enviar ${selectedIds.value.length} comprobantes por correo?`)) return
+        const result = await Swal.fire({
+            title: 'Enviar por correo',
+            text: `¿Deseas enviar ${selectedIds.value.length} comprobantes por correo?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, enviar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3b82f6',
+        })
+
+        if (!result.isConfirmed) return
 
         isBulkProcessing.value = true
         try {

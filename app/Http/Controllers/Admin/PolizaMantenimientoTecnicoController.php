@@ -20,14 +20,14 @@ class PolizaMantenimientoTecnicoController extends Controller
         $user = Auth::user();
 
         // Tareas asignadas al técnico pendiente o en proceso
-        $misTareas = PolizaMantenimientoEjecucion::with(['mantenimiento.poliza.cliente', 'mantenimiento.poliza.direccion'])
+        $misTareas = PolizaMantenimientoEjecucion::with(['mantenimiento.poliza.cliente'])
             ->where('tecnico_id', $user->id)
             ->whereIn('estado', ['pendiente', 'en_proceso', 'reprogramado'])
             ->orderBy('fecha_programada', 'asc')
             ->get();
 
         // Tareas sin asignar (bolsa de trabajo)
-        $tareasDisponibles = PolizaMantenimientoEjecucion::with(['mantenimiento.poliza.cliente', 'mantenimiento.poliza.direccion'])
+        $tareasDisponibles = PolizaMantenimientoEjecucion::with(['mantenimiento.poliza.cliente'])
             ->whereNull('tecnico_id')
             ->whereIn('estado', ['pendiente', 'reprogramado'])
             ->orderBy('fecha_programada', 'asc')
@@ -56,16 +56,15 @@ class PolizaMantenimientoTecnicoController extends Controller
     public function tomarTarea(Request $request, $id)
     {
         try {
-            $tarea = PolizaMantenimientoEjecucion::findOrFail($id);
+            $afectadas = PolizaMantenimientoEjecucion::where('id', $id)
+                ->whereNull('tecnico_id')
+                ->update([
+                    'tecnico_id' => Auth::id(),
+                ]);
 
-            if ($tarea->tecnico_id) {
+            if ($afectadas === 0) {
                 return back()->with('error', 'Esta tarea ya fue tomada por otro técnico.');
             }
-
-            $tarea->update([
-                'tecnico_id' => Auth::id(),
-                'estado' => 'en_proceso', // Marcar como iniciada/aceptada
-            ]);
 
             return back()->with('success', 'Tarea asignada correctamente.');
 
@@ -76,48 +75,83 @@ class PolizaMantenimientoTecnicoController extends Controller
     }
 
     /**
-     * Marcar una tarea como completada.
+     * Iniciar una tarea asignada (Antes).
+     */
+    public function iniciar(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'notas_iniciales' => 'nullable|string',
+            'fotos_antes' => 'nullable|array',
+            'fotos_antes.*' => 'image|max:10240', // 10MB max
+        ]);
+
+        try {
+            $tarea = PolizaMantenimientoEjecucion::findOrFail($id);
+
+            if ($tarea->tecnico_id !== Auth::id()) {
+                return back()->with('error', 'No tienes permiso para iniciar esta tarea.');
+            }
+
+            $fotosAntesPaths = [];
+            if ($request->hasFile('fotos_antes')) {
+                foreach ($request->file('fotos_antes') as $file) {
+                    $path = $file->store("evidencias_mantenimiento/{$tarea->id}/antes", 'public');
+                    $fotosAntesPaths[] = $path;
+                }
+            }
+
+            $tarea->update([
+                'estado' => 'en_proceso',
+                'notas_iniciales' => $validated['notas_iniciales'] ?? null,
+                'fotos_antes' => $fotosAntesPaths,
+            ]);
+
+            return back()->with('success', 'Servicio iniciado correctamente.');
+
+        } catch (\Exception $e) {
+            Log::error("Error iniciando tarea {$id}: " . $e->getMessage());
+            return back()->with('error', 'Error al iniciar la tarea.');
+        }
+    }
+
+    /**
+     * Marcar una tarea como completada (Después).
      */
     public function completar(Request $request, $id)
     {
         $validated = $request->validate([
             'resultado' => 'required|in:exitoso,con_observaciones,fallido',
             'notas_tecnico' => 'nullable|string',
-            'checklist' => 'nullable|array', // Validación de checklist
-            'evidencia' => 'nullable|array', // Array de archivos si se suben
+            'numero_serie' => 'nullable|string|max:100',
+            'fotos_despues' => 'nullable|array',
+            'fotos_despues.*' => 'image|max:10240', // 10MB max, solo imágenes
         ]);
 
         try {
             $tarea = PolizaMantenimientoEjecucion::findOrFail($id);
 
-            // Lógica de auto-asignación al completar
-            // Si el usuario es el mismo asignado OR si no tiene nadie asignado (se la asigna "on the fly")
-            // OR si es admin/super-admin (que pueda cerrar tareas de otros, opcional)
-
-            if ($tarea->tecnico_id && $tarea->tecnico_id !== Auth::id()) {
-                // Aquí podríamos permitir a admins sobreescribir, pero por seguridad básica:
-                // Si ya tiene dueño y no soy yo, error. (A menos que queramos "robar" la tarea)
-                // El requerimiento dice: "detecte el que lo cierre ese seria tambien el reponsable asignado"
-                // Asumiremos que si otro técnico ya la tiene, no deberíamos cerrarla nosotros sin "tomarla" primero.
-                // PERO, si el usuario insiste... dejaremos la restricción por ahora, y nos enfocamos en el caso NULL.
-                return back()->with('error', 'Esta tarea pertenece a otro técnico.');
+            if ($tarea->tecnico_id !== Auth::id()) {
+                return back()->with('error', 'No tienes permiso para completar esta tarea.');
             }
 
-            // Si no tenía técnico asignado, o soy yo:
-            $updateData = [
+            // Manejo de subida de evidencia (imágenes)
+            $fotosDespuesPaths = [];
+            if ($request->hasFile('fotos_despues')) {
+                foreach ($request->file('fotos_despues') as $file) {
+                    $path = $file->store("evidencias_mantenimiento/{$tarea->id}/despues", 'public');
+                    $fotosDespuesPaths[] = $path;
+                }
+            }
+
+            $tarea->update([
                 'estado' => 'completado',
                 'fecha_ejecucion' => now(),
                 'resultado' => $validated['resultado'],
                 'notas_tecnico' => $validated['notas_tecnico'],
-                'checklist' => $validated['checklist'] ?? $tarea->checklist,
-            ];
-
-            // Si estaba huérfana, me la asigno
-            if (!$tarea->tecnico_id) {
-                $updateData['tecnico_id'] = Auth::id();
-            }
-
-            $tarea->update($updateData);
+                'numero_serie' => $validated['numero_serie'] ?? null,
+                'fotos_despues' => $fotosDespuesPaths,
+                'evidencia' => $fotosDespuesPaths, // fallback para compatibilidad
+            ]);
 
             return back()->with('success', 'Mantenimiento completado.');
 

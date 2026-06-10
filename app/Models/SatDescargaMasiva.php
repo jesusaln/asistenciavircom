@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SatDescargaMasiva extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Concerns\BelongsToEmpresa;
 
     protected $table = 'sat_descargas_masivas';
 
     protected $fillable = [
+        'empresa_id',
         'direccion',
         'fecha_inicio',
         'fecha_fin',

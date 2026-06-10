@@ -47,8 +47,11 @@ class EntregaDineroController extends Controller
                     $userQuery->where('name', 'like', "%{$search}%");
                 })
                     ->orWhere('notas', 'like', "%{$search}%")
-                    ->orWhere('notas_recibido', 'like', "%{$search}%")
-                    ->orWhere('id', $search);
+                    ->orWhere('notas_recibido', 'like', "%{$search}%");
+
+                if (is_numeric($search)) {
+                    $q->orWhere('id', $search);
+                }
             });
         }
 
@@ -85,15 +88,17 @@ class EntregaDineroController extends Controller
 
         $entregas = $query->paginate(request('per_page', 15));
 
-        // Load related venta data for entregas that have tipo_origen = 'venta'
+        // Load related data for the list
         $entregas->getCollection()->transform(function ($entrega) {
-            if ($entrega->tipo_origen === 'venta' && $entrega->id_origen) {
-                $venta = Venta::find($entrega->id_origen);
-                $entrega->venta_numero = $venta ? $venta->numero_venta : null;
-                $entrega->venta_cliente = $venta && $venta->cliente ? $venta->cliente->nombre_razon_social : null;
-            } elseif ($entrega->tipo_origen === 'lote') {
+            $this->attachOrigenInfo($entrega);
+            
+            if (in_array($entrega->tipo_origen, ['lote', 'declaracion_mi_corte'], true)) {
                 $entrega->es_lote = true;
                 $entrega->conteo_items = $entrega->children->count();
+                // Attach info to children as well
+                $entrega->children->each(function($child) {
+                    $this->attachOrigenInfo($child);
+                });
             }
             return $entrega;
         });
@@ -128,6 +133,7 @@ class EntregaDineroController extends Controller
                     'concepto' => $cobranza->concepto,
                     'cliente' => $cobranza->renta->cliente->nombre_razon_social ?? 'Sin cliente',
                     'estado' => 'por_entregar',
+                    'vendedor' => $cobranza->responsableCobro?->name ?? '—',
                     'usuario' => $cobranza->responsableCobro,
                     'registro_original' => $cobranza,
                     'metodo_pago' => $cobranza->metodo_pago ?? 'efectivo',
@@ -137,7 +143,7 @@ class EntregaDineroController extends Controller
         // Obtener ventas pagadas con saldos pendientes
         // CRÍTICO: Excluir ventas que YA tienen entregas (pendientes o recibidas) para evitar duplicados
         // ✅ FIX DOUBLE ACCOUNTING: También excluir montos que ya están conciliados en movimientos bancarios (via CxC)
-        $ventasQuery = Venta::with(['cliente', 'pagadoPor', 'cuentaPorCobrar.movimientosBancarios'])
+        $ventasQuery = Venta::with(['cliente', 'pagadoPor', 'vendedor', 'cuentaPorCobrar.movimientosBancarios'])
             ->where('pagado', true)
             ->whereRaw("total > (
                 COALESCE((SELECT SUM(total) FROM entregas_dinero WHERE tipo_origen = 'venta' AND id_origen = ventas.id AND estado IN ('pendiente', 'recibido') AND deleted_at IS NULL), 0) +
@@ -177,14 +183,17 @@ class EntregaDineroController extends Controller
                     'concepto' => 'Venta #' . $venta->numero_venta . ($montoConciliado > 0 ? ' (Conciliado parcial)' : ''),
                     'cliente' => $venta->cliente->nombre_razon_social ?? 'Sin cliente',
                     'estado' => 'por_entregar',
+                    'vendedor' => $venta->vendedor?->name ?? ($venta->pagadoPor?->name ?? '—'),
                     'usuario' => $venta->pagadoPor,
                     'registro_original' => $venta,
                     'metodo_pago' => $venta->metodo_pago,
                 ];
             });
 
-        // Combinar todos los registros
-        $registrosAutomaticos = collect([...$cobranzasPagadas, ...$ventasPagadas]);
+        // Combinar todos los registros y ordenar por fecha descendente
+        $registrosAutomaticos = collect([...$cobranzasPagadas, ...$ventasPagadas])
+            ->sortByDesc('fecha_entrega')
+            ->values();
 
         // Estadísticas (mismo criterio de alcance que la tabla principal)
         $statsQuery = EntregaDinero::query();
@@ -275,7 +284,16 @@ class EntregaDineroController extends Controller
      */
     public function show(EntregaDinero $entregaDinero)
     {
-        $entregaDinero->load(['usuario', 'recibidoPor']);
+        $entregaDinero->load(['usuario', 'recibidoPor', 'children.origen', 'origen']);
+        
+        $this->attachOrigenInfo($entregaDinero);
+        
+        if (in_array($entregaDinero->tipo_origen, ['lote', 'declaracion_mi_corte'], true)) {
+            $entregaDinero->children->each(function($child) {
+                $this->attachOrigenInfo($child);
+            });
+        }
+        
         return Inertia::render('EntregasDinero/Show', ['entrega' => $entregaDinero]);
     }
 
@@ -427,7 +445,37 @@ class EntregaDineroController extends Controller
             return back()->withErrors(['cuenta_bancaria_id' => 'Selecciona la cuenta bancaria de depósito.']);
         }
 
-        $registrarBanco = ! $soloRecepcionFisica && $cuentaBancariaId;
+        if ($soloRecepcionFisica || !$cuentaBancariaId) {
+            // ✅ EVITAR EL LIMBO DE EFECTIVO (Riesgo B): Redirigir el efectivo a la cuenta de Caja General / Bóveda Física
+            $empresaId = $entrega->empresa_id ?: (auth()->user()->empresa_id ?? 1);
+            $cajaGeneral = \App\Models\CuentaBancaria::where('empresa_id', $empresaId)
+                ->where(function($q) {
+                    $q->where('nombre', 'like', '%Caja General%')
+                      ->orWhere('nombre', 'like', '%Cofre%')
+                      ->orWhere('nombre', 'like', '%Efectivo%')
+                      ->orWhere('tipo', 'caja');
+                })->first();
+
+            if (!$cajaGeneral) {
+                $cajaGeneral = \App\Models\CuentaBancaria::create([
+                    'empresa_id' => $empresaId,
+                    'nombre' => 'Caja General (Efectivo)',
+                    'banco' => 'Caja General',
+                    'numero_cuenta' => 'CAJA-EFECTIVO',
+                    'clabe' => '000000000000000000',
+                    'saldo_inicial' => 0,
+                    'saldo_actual' => 0,
+                    'moneda' => 'MXN',
+                    'tipo' => 'caja',
+                    'activa' => true,
+                ]);
+            }
+
+            $cuentaBancariaId = $cajaGeneral->id;
+            $registrarBanco = true; // ✅ Forzar registro en la Caja General para que el efectivo sume
+        } else {
+            $registrarBanco = (bool)$cuentaBancariaId;
+        }
 
         DB::transaction(function () use ($entrega, $request, $cuentaBancariaId, $registrarBanco) {
             EntregaDineroService::marcarComoRecibido(
@@ -681,6 +729,7 @@ class EntregaDineroController extends Controller
             'monto_recibido' => 'required|numeric|min:0.01',
             'metodo_pago_entrega' => 'required|in:efectivo,transferencia,cheque,tarjeta,otros',
             'notas_recibido' => 'nullable|string|max:500',
+            'cuenta_bancaria_id' => 'required|exists:cuentas_bancarias,id',
         ]);
 
         $userId = auth()->id();
@@ -756,7 +805,8 @@ class EntregaDineroController extends Controller
                 (int) $usuarioEntrega,
                 'recibido',
                 (int) $userId,
-                'Entrega automática - ' . $concepto . ' - Método entrega: ' . $request->metodo_pago_entrega
+                'Entrega automática - ' . $concepto . ' - Método entrega: ' . $request->metodo_pago_entrega,
+                $request->cuenta_bancaria_id
             );
         });
 
@@ -776,6 +826,8 @@ class EntregaDineroController extends Controller
             'items.*.total' => 'required|numeric|min:0.01',
             'items.*.metodo_pago' => 'nullable|string',
             'notas' => 'nullable|string|max:500',
+            'banco_cuenta_id' => 'nullable|integer',
+            'fecha_hora' => 'nullable|string'
         ]);
 
         $userId = auth()->id();
@@ -874,7 +926,53 @@ class EntregaDineroController extends Controller
                 'monto_otros' => $montoOtros,
                 'total' => $totalLote,
             ]);
+
+            if ($request->banco_cuenta_id) {
+                $empresaId = auth()->user()->empresa_id ?? 1;
+                $bancoCuenta = \App\Models\Bancos\BancoCuenta::where('empresa_id', $empresaId)->find($request->banco_cuenta_id);
+                if ($bancoCuenta) {
+                    $legacyCuenta = \App\Models\CuentaBancaria::where('empresa_id', $empresaId)
+                        ->where(function ($q) use ($bancoCuenta) {
+                            if (!empty($bancoCuenta->numero_cuenta)) {
+                                $q->where('numero_cuenta', $bancoCuenta->numero_cuenta);
+                            } else {
+                                $q->where('nombre', $bancoCuenta->alias ?: $bancoCuenta->nombre_banco);
+                            }
+                        })->first();
+
+                    if (!$legacyCuenta) {
+                        $legacyCuenta = \App\Models\CuentaBancaria::create([
+                            'empresa_id' => $empresaId,
+                            'nombre' => $bancoCuenta->alias ?: $bancoCuenta->nombre_banco,
+                            'banco' => $bancoCuenta->nombre_banco,
+                            'numero_cuenta' => $bancoCuenta->numero_cuenta,
+                            'saldo_inicial' => $bancoCuenta->saldo_inicial,
+                            'saldo_actual' => $bancoCuenta->saldo_actual ?? $bancoCuenta->saldo_inicial,
+                            'moneda' => $bancoCuenta->moneda,
+                        ]);
+                    }
+
+                    $fechaHora = $request->fecha_hora ?: now()->toDateTimeString();
+
+                    \App\Services\EntregaDineroService::marcarComoRecibido(
+                        $parentEntrega,
+                        auth()->id(),
+                        $legacyCuenta->id,
+                        $request->notas ?? 'Lote directo de mostrador depositado en Tesorería.',
+                        true,
+                        $fechaHora
+                    );
+                }
+            }
         });
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lote generado exitosamente.',
+                'cuenta' => isset($bancoCuenta) ? $bancoCuenta->fresh(['cuentaContable'])->loadCount('movimientos') : null
+            ]);
+        }
 
         return redirect()->route('entregas-dinero.index')->with('success', 'Lote de depósitos creado por $' . number_format($totalLote, 2));
     }
@@ -908,5 +1006,20 @@ class EntregaDineroController extends Controller
             'success' => true,
             'message' => 'Entrega marcada como entregada al responsable correctamente'
         ]);
+    }
+    /**
+     * Adjunta información del origen (venta o cobranza) a la entrega.
+     */
+    private function attachOrigenInfo($entrega)
+    {
+        if ($entrega->tipo_origen === 'venta' && $entrega->id_origen) {
+            $venta = $entrega->origen ?? Venta::with('cliente')->find($entrega->id_origen);
+            $entrega->venta_numero = $venta ? $venta->numero_venta : null;
+            $entrega->venta_cliente = $venta && $venta->cliente ? $venta->cliente->nombre_razon_social : null;
+        } elseif ($entrega->tipo_origen === 'cobranza' && $entrega->id_origen) {
+            $cobranza = $entrega->origen ?? Cobranza::with('renta.cliente')->find($entrega->id_origen);
+            $entrega->cobranza_concepto = $cobranza ? $cobranza->concepto : null;
+            $entrega->venta_cliente = $cobranza && $cobranza->renta && $cobranza->renta->cliente ? $cobranza->renta->cliente->nombre_razon_social : null;
+        }
     }
 }

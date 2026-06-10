@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $blueprint) {
-            $blueprint->string('shipping_local_cp_prefix')->default('83')->nullable()->after('cva_paqueteria_envio')->comment('Prefijo de CP para envío local');
-            $blueprint->decimal('shipping_local_cost', 10, 2)->default(100.00)->after('shipping_local_cp_prefix')->comment('Costo de envío local en MXN');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'shipping_local_cp_prefix')) {
+            Schema::table('empresa_configuracion', function (Blueprint $blueprint) {
+                $blueprint->string('shipping_local_cp_prefix')->default('83')->nullable()->after('cva_paqueteria_envio')->comment('Prefijo de CP para envío local');
+                $blueprint->decimal('shipping_local_cost', 10, 2)->default(100.00)->after('shipping_local_cp_prefix')->comment('Costo de envío local en MXN');
+            });
+        }
     }
 
     /**

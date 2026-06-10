@@ -292,9 +292,7 @@ class ProductoSerieObserver
             // Actualizar stock total del producto si hubo discrepancia
             if ($discrepanciaEncontrada) {
                 $nuevoStockTotal = Inventario::where('producto_id', $productoId)->sum('cantidad');
-                DB::table('productos')
-                    ->where('id', $productoId)
-                    ->update(['stock' => $nuevoStockTotal]);
+                \App\Models\Producto::where('id', $productoId)->update(['stock' => $nuevoStockTotal]);
 
                 Log::info('ProductoSerieObserver: Stock total actualizado', [
                     'producto_id' => $productoId,

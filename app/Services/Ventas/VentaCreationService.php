@@ -14,6 +14,7 @@ use App\Services\FinancialService;
 use App\Services\Ventas\VentaItemsProcessor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class VentaCreationService
@@ -55,13 +56,25 @@ class VentaCreationService
         try {
             $data['cliente_id'] = $this->resolveClienteId($data);
 
+            // Resolve warehouse: non-admins are locked to their assigned warehouse (almacen_venta_id)
             $authUser = Auth::user();
-            if (empty($data['almacen_id']) && $authUser && ! empty($authUser->almacen_venta_id)) {
+            $isAdmin = $authUser && (
+                $authUser->hasRole('admin') || 
+                $authUser->hasRole('super-admin') || 
+                $authUser->can('cambiar_almacen_venta')
+            );
+
+            if (!$isAdmin && $authUser && !empty($authUser->almacen_venta_id)) {
+                // Force assigned warehouse for technicians/venders
+                $data['almacen_id'] = (int) $authUser->almacen_venta_id;
+            } else if (empty($data['almacen_id']) && $authUser && !empty($authUser->almacen_venta_id)) {
+                // Default to assigned warehouse if none provided
                 $data['almacen_id'] = (int) $authUser->almacen_venta_id;
             }
+
             if (empty($data['almacen_id'])) {
-                throw ValidationException::withMessages([
-                    'almacen_id' => 'Se requiere almacén de venta. Asigna un almacén al usuario o envía almacen_id.',
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'almacen_id' => 'Se requiere un almacén de venta válido.',
                 ]);
             }
 
@@ -69,6 +82,7 @@ class VentaCreationService
             // Combine products and services for calculation
             $itemsForCalc = array_merge($data['productos'] ?? [], $data['servicios'] ?? []);
 
+            Log::debug('VentaCreationService: Calculating totals', ['items_count' => count($itemsForCalc)]);
             $totals = $this->financialService->calculateDocumentTotals(
                 $itemsForCalc,
                 (float) ($data['descuento_general'] ?? 0),
@@ -94,6 +108,15 @@ class VentaCreationService
                     if (Venta::query()->where('cita_id', $cid)->exists()) {
                         throw ValidationException::withMessages([
                             'cita_id' => 'Esta cita ya tiene una venta vinculada. Usa «Vincular venta existente» desde la venta o el reporte de citas, o abre la venta ya asociada.',
+                        ]);
+                    }
+                }
+
+                if (! empty($data['taller_orden_id'])) {
+                    $tid = (int) $data['taller_orden_id'];
+                    if (Venta::query()->where('taller_orden_id', $tid)->exists()) {
+                        throw ValidationException::withMessages([
+                            'taller_orden_id' => 'Esta orden de taller ya tiene una venta vinculada.',
                         ]);
                     }
                 }
@@ -148,6 +171,7 @@ class VentaCreationService
                     }
                 }
 
+                Log::debug('VentaCreationService: Creating Venta record', ['numero_venta' => $numeroVenta]);
                 $venta = Venta::create([
                     'cliente_id' => $data['cliente_id'] ?? null,
                     'cotizacion_id' => $data['cotizacion_id'] ?? null, // Para conversiones de cotización
@@ -168,6 +192,7 @@ class VentaCreationService
                     'metodo_pago_sat' => $data['metodo_pago_sat'] ?? ($metodoPagoNormalized === 'credito' ? 'PPD' : 'PUE'),
                     'almacen_id' => $data['almacen_id'],
                     'cita_id' => $data['cita_id'] ?? null,
+                    'taller_orden_id' => $data['taller_orden_id'] ?? null,
                     // Vendedor/técnico asignado a la venta (puede ser distinto de quien registra el cobro)
                     'vendedor_id' => $vendedorAttr['vendedor_id'],
                     'vendedor_type' => $vendedorAttr['vendedor_type'],
@@ -211,7 +236,24 @@ class VentaCreationService
                     $venta->refresh();
                 }
 
+                // 9. Update Workshop Order link
+                if (! empty($data['taller_orden_id'])) {
+                    $taller = \App\Models\TallerOrden::find($data['taller_orden_id']);
+                    if ($taller) {
+                        $taller->update([
+                            'venta_id' => $venta->id,
+                            'estado' => 'listo' // Opcional: cambiar a listo si se factura
+                        ]);
+                    }
+                }
+
                 \Log::info("VentaCreationService: Venta created successfully", ['id' => $venta->id, 'numero' => $venta->numero_venta]);
+
+                // Dispatch created event
+                event(new \App\Events\VentaCreated($venta));
+
+                // Invalidate summary stats cache
+                app(\App\Services\Ventas\VentaQueryService::class)->invalidateSummaryStatsCache();
 
                 return $venta->fresh();
             });

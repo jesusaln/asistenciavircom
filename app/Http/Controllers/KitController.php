@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\Folio\FolioService;
 use App\Services\StockValidationService;
 use App\Traits\ImageOptimizerTrait;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use App\Support\EmpresaResolver;
 
 class KitController extends Controller
 {
@@ -59,7 +62,12 @@ class KitController extends Controller
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'codigo' => 'nullable|string|max:50|unique:productos,codigo',
+            'codigo' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('productos', 'codigo')->where('empresa_id', EmpresaResolver::resolveId())
+            ],
             'precio_venta' => 'required|numeric|min:0',
             'categoria_id' => 'nullable|exists:categorias,id',
             'componentes' => 'required|array|min:1',
@@ -166,24 +174,7 @@ class KitController extends Controller
                 // Para kits, generar un código único con prefijo KIT si no se proporciona uno
                 $codigoKit = $request->codigo;
                 if (empty($codigoKit)) {
-                    // Buscar el último kit creado para generar un código secuencial
-                    $ultimoKit = Producto::where('tipo_producto', 'kit')
-                        ->where('codigo', 'like', 'KIT%')
-                        ->orderByRaw("CAST(SUBSTRING(codigo FROM 4) AS INTEGER) DESC NULLS LAST")
-                        ->first();
-
-                    if ($ultimoKit && preg_match('/^KIT(\d+)$/', $ultimoKit->codigo, $matches)) {
-                        $nextNum = intval($matches[1]) + 1;
-                    } else {
-                        $nextNum = 1;
-                    }
-                    $codigoKit = 'KIT' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
-
-                    // Verificar que no exista (por si acaso)
-                    while (Producto::where('codigo', $codigoKit)->exists()) {
-                        $nextNum++;
-                        $codigoKit = 'KIT' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
-                    }
+                    $codigoKit = app(FolioService::class)->getNextFolio('kit');
                 }
 
                 $kit = Producto::create([
@@ -214,6 +205,7 @@ class KitController extends Controller
                         'item_id' => $componenteData['item_id'],
                         'cantidad' => $componenteData['cantidad'],
                         'precio_unitario' => $componenteData['precio_unitario'] ?? null,
+                        'empresa_id' => $kit->empresa_id,
                     ]);
                 }
 
@@ -355,7 +347,12 @@ class KitController extends Controller
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'codigo' => 'nullable|string|max:50|unique:productos,codigo,' . $kit->id,
+            'codigo' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('productos', 'codigo')->ignore($kit->id)->where('empresa_id', EmpresaResolver::resolveId())
+            ],
             'precio_venta' => 'required|numeric|min:0',
             'estado' => 'required|in:activo,inactivo',
             'categoria_id' => 'nullable|exists:categorias,id',
@@ -462,6 +459,7 @@ class KitController extends Controller
                         'item_id' => $componenteData['item_id'],
                         'cantidad' => $componenteData['cantidad'],
                         'precio_unitario' => $componenteData['precio_unitario'] ?? null,
+                        'empresa_id' => $kit->empresa_id,
                     ]);
                 }
             });

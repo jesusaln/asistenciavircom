@@ -25,6 +25,10 @@ return new class extends Migration {
             }
             if (!Schema::hasColumn('productos', 'codigo_barras')) {
                 $table->string('codigo_barras')->nullable();
+            } else {
+                try {
+                    \Illuminate\Support\Facades\DB::statement('ALTER TABLE productos ALTER COLUMN codigo_barras DROP NOT NULL');
+                } catch (\Throwable $e) {}
             }
             if (!Schema::hasColumn('productos', 'numero_serie')) {
                 $table->string('numero_serie')->nullable();

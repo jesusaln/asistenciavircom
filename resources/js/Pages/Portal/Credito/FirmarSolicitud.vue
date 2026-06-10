@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import ClientLayout from '../Layout/ClientLayout.vue';
@@ -216,9 +217,7 @@ const enviarFirma = () => {
     });
 };
 
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const limitesCredito = [
     { value: 5000, label: '$5,000' },
@@ -245,58 +244,58 @@ const diasCreditoOpciones = [
             <!-- Header con Badge de Seguridad -->
             <div class="mb-8 text-center relative">
                 <div class="absolute top-0 right-0 hidden md:block">
-                    <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-widest shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-wide shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
                         Conexión Segura SSL
                     </div>
                 </div>
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white text-4xl mb-6 shadow-2xl transform hover:rotate-3 transition-transform">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white text-4xl mb-6 shadow-2xl transform hover:rotate-3 transition-transform">
                     💳
                 </div>
-                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Solicitud de Crédito</h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">
+                <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Solicitud de Crédito</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-2">
                     Firma digitalmente tu solicitud para agilizar el proceso
                 </p>
             </div>
 
             <!-- Información del Solicitante -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">👤</span>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 mb-8">
+                <h2 class="font-black text-slate-800 dark:text-white uppercase text-xs tracking-wide mb-4 flex items-center gap-2">
+                    <span class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-sky-900/20/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm">👤</span>
                     Datos del Solicitante
                 </h2>
                 
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">Nombre / Razón Social</p>
-                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.nombre_razon_social }}</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-xs uppercase font-bold">Nombre / Razón Social</p>
+                        <p class="font-bold text-slate-800 dark:text-white">{{ cliente.nombre_razon_social }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">RFC</p>
-                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.rfc || 'No especificado' }}</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-xs uppercase font-bold">RFC</p>
+                        <p class="font-bold text-slate-800 dark:text-white">{{ cliente.rfc || 'No especificado' }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">Email</p>
-                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.email }}</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-xs uppercase font-bold">Email</p>
+                        <p class="font-bold text-slate-800 dark:text-white">{{ cliente.email }}</p>
                     </div>
                     <div>
-                        <p class="text-gray-400 dark:text-gray-500 text-xs uppercase font-bold">Teléfono</p>
-                        <p class="font-bold text-gray-800 dark:text-white">{{ cliente.telefono || cliente.celular || 'No especificado' }}</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-xs uppercase font-bold">Teléfono</p>
+                        <p class="font-bold text-slate-800 dark:text-white">{{ cliente.telefono || cliente.celular || 'No especificado' }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Configuración del Crédito Solicitado -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">💰</span>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 mb-8">
+                <h2 class="font-black text-slate-800 dark:text-white uppercase text-xs tracking-wide mb-4 flex items-center gap-2">
+                    <span class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-slate-800/50 text-emerald-600 dark:text-slate-400 flex items-center justify-center text-sm">💰</span>
                     Crédito Solicitado
                 </h2>
                 
                 <div class="grid sm:grid-cols-2 gap-6">
                     <!-- Límite de Crédito -->
                     <div>
-                        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                        <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
                             Límite de Crédito Deseado
                         </label>
                         <div class="grid grid-cols-3 gap-2">
@@ -308,8 +307,8 @@ const diasCreditoOpciones = [
                                 :class="[
                                     'px-3 py-3 rounded-xl text-sm font-bold border-2 transition-all',
                                     form.limite_solicitado === limite.value 
-                                        ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30' 
-                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-emerald-300'
+                                        ? 'bg-brand-500 text-white border-emerald-500 shadow-xl shadow-emerald-500/20' 
+                                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:border-amber-300'
                                 ]"
                             >
                                 {{ limite.label }}
@@ -319,7 +318,7 @@ const diasCreditoOpciones = [
 
                     <!-- Días de Crédito -->
                     <div>
-                        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">
+                        <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
                             Plazo de Pago Deseado
                         </label>
                         <div class="grid grid-cols-2 gap-2">
@@ -331,8 +330,8 @@ const diasCreditoOpciones = [
                                 :class="[
                                     'px-3 py-3 rounded-xl text-sm font-bold border-2 transition-all',
                                     form.dias_credito_solicitados === dias.value 
-                                        ? 'bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/30' 
-                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-300'
+                                        ? 'bg-brand-500 text-white border-blue-500 shadow-xl shadow-blue-500/30' 
+                                        : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:border-amber-300'
                                 ]"
                             >
                                 {{ dias.label }}
@@ -341,8 +340,8 @@ const diasCreditoOpciones = [
                     </div>
                 </div>
 
-                <div class="mt-6 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-xl border border-amber-100 dark:border-amber-800">
-                    <p class="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                <div class="mt-6 p-4 bg-brand-50 dark:bg-brand-900/20 dark:bg-brand-900/30 rounded-xl border border-brand-100 dark:border-amber-800">
+                    <p class="text-xs text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-brand-300 font-medium">
                         ⚠️ <strong>Nota:</strong> El límite y plazo final serán determinados por nuestro departamento de crédito 
                         con base en el análisis de tu perfil y documentación.
                     </p>
@@ -350,9 +349,9 @@ const diasCreditoOpciones = [
             </div>
 
             <!-- Área de Firma -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 mb-8">
-                <h2 class="font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest mb-4 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm">✍️</span>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 mb-8">
+                <h2 class="font-black text-slate-800 dark:text-white uppercase text-xs tracking-wide mb-4 flex items-center gap-2">
+                    <span class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm">✍️</span>
                     Tu Firma Digital
                 </h2>
 
@@ -366,19 +365,19 @@ const diasCreditoOpciones = [
                         ref="canvasRef"
                         width="600"
                         height="240"
-                        class="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl cursor-crosshair touch-none shadow-inner transition-colors"
-                        :class="{ 'border-blue-500 border-solid bg-blue-50/10 dark:bg-blue-900/20': hasDrawn }"
+                        class="w-full border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl cursor-crosshair touch-none shadow-inner transition-colors"
+                        :class="{ 'border-blue-500 border-solid bg-sky-50 dark:bg-sky-900/20/10 dark:bg-sky-900/20': hasDrawn }"
                     ></canvas>
                     
-                    <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300 group-hover:opacity-60">
-                        <div class="w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center mb-3 shadow-sm border border-gray-100 dark:border-gray-600">
+                    <div v-if="!hasDrawn" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-200 group-hover:opacity-60">
+                        <div class="w-16 h-16 rounded-full bg-[var(--ui-surface)] dark:bg-slate-700 flex items-center justify-center mb-3 shadow-sm border border-slate-100 dark:border-slate-700">
                             <span class="text-2xl animate-bounce">🖋️</span>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 text-base font-bold">Escribe tu firma aquí</p>
-                        <p class="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-[0.2em] mt-2 font-black">Dedo • Mouse • Stylus</p>
+                        <p class="text-slate-500 dark:text-slate-200 text-base font-bold">Escribe tu firma aquí</p>
+                        <p class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-[0.2em] mt-2 font-black">Dedo • Mouse • Stylus</p>
                     </div>
 
-                    <div v-if="hasDrawn" class="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg">
+                    <div v-if="hasDrawn" class="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-wide shadow-xl">
                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
                         Firma Capturada
                     </div>
@@ -388,26 +387,26 @@ const diasCreditoOpciones = [
                     <button 
                         @click="limpiarFirma" 
                         type="button"
-                        class="inline-flex items-center gap-2 text-xs text-gray-400 font-bold hover:text-red-500 transition-colors uppercase tracking-widest px-2 py-1"
+                        class="inline-flex items-center gap-2 text-xs text-slate-400 font-bold hover:text-rose-500 transition-colors uppercase tracking-wide px-2 py-1"
                     >
                         <span class="text-lg">🗑️</span> Borrar y reintentar
                     </button>
-                    <div class="text-[10px] text-gray-300 dark:text-gray-600 font-mono">ID: SOL-{{ cliente.id }}-{{ Math.random().toString(36).substr(2, 6).toUpperCase() }}</div>
+                    <div class="text-[10px] text-slate-300 dark:text-slate-500 font-mono">ID: SOL-{{ cliente.id }}-{{ Math.random().toString(36).substr(2, 6).toUpperCase() }}</div>
                 </div>
 
                 <!-- Nombre del firmante -->
                 <div class="mb-6">
-                    <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+                    <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
                         Nombre completo del firmante
                     </label>
                     <input
                         v-model="form.nombre_firmante"
                         type="text"
                         placeholder="Ej: Juan Pérez García"
-                        class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                        :class="{ 'border-red-300': form.errors.nombre_firmante }"
+                        class="w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-xl focus:border-brand-500 focus:ring-2 focus:ring-brand-500 transition-all font-medium bg-[var(--ui-surface)] text-slate-900 dark:text-white"
+                        :class="{ 'border-rose-300': form.errors.nombre_firmante }"
                     />
-                    <p v-if="form.errors.nombre_firmante" class="mt-1 text-xs text-red-500 font-medium">
+                    <p v-if="form.errors.nombre_firmante" class="mt-1 text-xs text-rose-500 font-medium">
                         {{ form.errors.nombre_firmante }}
                     </p>
                 </div>
@@ -418,14 +417,14 @@ const diasCreditoOpciones = [
                         <input
                             v-model="form.acepta_terminos"
                             type="checkbox"
-                            class="mt-1 w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                            class="mt-1 w-4 h-4 rounded-xl border-2 border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-brand-500"
                         />
-                        <span class="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">
+                        <span class="text-sm text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
                             Declaro que la información proporcionada es verídica, autorizo a <strong>{{ empresa?.nombre_empresa || 'la empresa' }}</strong> 
                             a realizar consultas de buró de crédito y acepto los <strong>términos y condiciones</strong> del crédito comercial.
                         </span>
                     </label>
-                    <p v-if="form.errors.acepta_terminos" class="mt-1 text-xs text-red-500 font-medium">
+                    <p v-if="form.errors.acepta_terminos" class="mt-1 text-xs text-rose-500 font-medium">
                         {{ form.errors.acepta_terminos }}
                     </p>
                 </div>
@@ -434,17 +433,17 @@ const diasCreditoOpciones = [
                 <div class="flex flex-col sm:flex-row gap-4">
                     <Link 
                         :href="route('portal.credito.index')" 
-                        class="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-black text-sm uppercase tracking-widest text-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+                        class="flex-1 px-6 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-black text-sm uppercase tracking-wide text-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-all"
                     >
                         ← Cancelar
                     </Link>
                     <button
                         @click="enviarFirma"
                         :disabled="form.processing || !hasDrawn || !form.nombre_firmante || !form.acepta_terminos"
-                        class="flex-[2] relative px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] text-center hover:from-emerald-700 hover:to-teal-700 transition-all shadow-2xl shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed group"
+                        class="flex-[2] relative px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] text-center hover:from-emerald-700 hover:to-teal-700 transition-all shadow-2xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
                         <div v-if="form.processing" class="flex items-center justify-center gap-3">
-                            <span class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                             <span>Enviando Solicitud...</span>
                         </div>
                         <div v-else class="flex items-center justify-center gap-2">
@@ -456,7 +455,7 @@ const diasCreditoOpciones = [
             </div>
 
             <!-- Información Legal -->
-            <div class="text-center text-xs text-gray-400 dark:text-gray-500">
+            <div class="text-center text-xs text-slate-400 dark:text-slate-500">
                 <p>
                     🔒 Tu firma será cifrada y almacenada de forma segura.
                     <br>

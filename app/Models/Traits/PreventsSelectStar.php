@@ -45,8 +45,13 @@ trait PreventsSelectStar
      */
     protected static function getPreventSelectStarProperty(): bool
     {
-        $instance = new static;
-        return $instance->preventSelectStar ?? false;
+        try {
+            $ref = new \ReflectionClass(static::class);
+            $defaults = $ref->getDefaultProperties();
+            return $defaults['preventSelectStar'] ?? false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**

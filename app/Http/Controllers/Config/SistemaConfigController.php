@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\File;
 
 class SistemaConfigController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:edit configuracion_empresa');
+    }
+
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -58,6 +63,12 @@ class SistemaConfigController extends Controller
             'mega_folder' => 'nullable|string|max:255',
             'mega_auto_backup' => 'nullable|boolean',
             'mega_retention_days' => 'nullable|integer|min:1|max:365',
+            'gdrive_enabled' => 'nullable|boolean',
+            'gdrive_client_id' => 'nullable|string|max:255',
+            'gdrive_client_secret' => 'nullable|string|max:255',
+            'gdrive_folder_name' => 'nullable|string|max:255',
+            'gdrive_auto_backup' => 'nullable|boolean',
+            'cloud_provider' => 'nullable|string|in:none,gdrive,mega',
         ]);
 
         if ($validator->fails()) {
@@ -68,18 +79,24 @@ class SistemaConfigController extends Controller
         $data = $validator->validated();
 
         // Convertir booleanos
-        $booleanos = ['mega_enabled', 'mega_auto_backup'];
+        $booleanos = ['mega_enabled', 'mega_auto_backup', 'gdrive_enabled', 'gdrive_auto_backup'];
         foreach ($booleanos as $campo) {
             if ($request->has($campo)) {
                 $data[$campo] = $request->boolean($campo);
             }
         }
 
-        // Encriptar password si se proporciona
+        // Encriptar passwords si se proporcionan
         if (!empty($data['mega_password'])) {
             $data['mega_password'] = \Illuminate\Support\Facades\Crypt::encryptString($data['mega_password']);
         } else {
-            unset($data['mega_password']); // No sobrescribir si está vacío
+            unset($data['mega_password']);
+        }
+
+        if (!empty($data['gdrive_client_secret'])) {
+            $data['gdrive_client_secret'] = \Illuminate\Support\Facades\Crypt::encryptString($data['gdrive_client_secret']);
+        } else {
+            unset($data['gdrive_client_secret']);
         }
 
         $configuracion = EmpresaConfiguracion::getConfig();
@@ -96,19 +113,43 @@ class SistemaConfigController extends Controller
     {
         $logPath = storage_path('logs/laravel.log');
 
+        // Si no existe laravel.log y el canal es daily, buscar el log de hoy
         if (!File::exists($logPath)) {
-            return response()->json(['logs' => 'No hay registros de bitácora disponibles.']);
+            $todayLog = storage_path('logs/laravel-' . date('Y-m-d') . '.log');
+            if (File::exists($todayLog)) {
+                $logPath = $todayLog;
+            } else {
+                // Buscar el archivo más reciente en la carpeta de logs
+                $files = File::glob(storage_path('logs/*.log'));
+                if (!empty($files)) {
+                    usort($files, function($a, $b) {
+                        return filemtime($b) - filemtime($a);
+                    });
+                    $logPath = $files[0];
+                }
+            }
+        }
+
+        if (!File::exists($logPath)) {
+            return response()->json(['logs' => 'No hay registros de bitácora disponibles (archivo no encontrado).']);
         }
 
         // Leer las últimas 500 líneas del log para no saturar
-        $lines = 500;
-        $data = file($logPath);
-        $logs = array_slice($data, -$lines);
+        // Usar tail si está disponible es más eficiente, pero file es más portable
+        try {
+            $lines = 500;
+            $data = file($logPath);
+            if ($data === false) {
+                 return response()->json(['logs' => 'Error al leer el archivo de registros.']);
+            }
+            $logs = array_slice($data, -$lines);
 
-        // Unir y devolver
-        return response()->json([
-            'logs' => implode("", array_reverse($logs))
-        ]);
+            return response()->json([
+                'logs' => implode("", array_reverse($logs))
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['logs' => 'Error procesando bitácora: ' . $e->getMessage()]);
+        }
     }
 
     /**

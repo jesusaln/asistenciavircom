@@ -218,21 +218,102 @@ class VentaController extends Controller
             throw $e;
         } catch (\App\Exceptions\StockInsuficienteException $e) {
             Log::warning('Stock insuficiente al crear venta: ' . $e->getMessage());
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => $e->getMessage(),
-                    'errors' => [
-                        'stock' => $e->getMessage(),
-                        'stock_type' => 'stock_error',
-                        'stock_details' => $e->getDetails()
-                    ]
-                ], 422);
-            }
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
+            return $this->errorResponse($request, $e->getMessage(), 422, [
+                'stock' => $e->getMessage(),
+                'stock_type' => 'stock_error',
+                'stock_details' => $e->getDetails()
+            ]);
         } catch (\Exception $e) {
             Log::error('Error creando venta: ' . $e->getMessage());
             return $this->errorResponse($request, 'Error al crear la venta: ' . $e->getMessage(), 500);
         }
+    }
+
+    /**
+     * POS CHECKOUT: Ruta optimizada para el punto de venta (JSON)
+     */
+    public function posCheckout(Request $request)
+    {
+        try {
+            $data = $request->all();
+            
+            // Usar el servicio para crear la venta (maneja inventario, series, pagos automáticos)
+            $venta = $this->ventaCreationService->createVenta($data, true);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Venta procesada con éxito',
+                'data' => [
+                    'id' => $venta->id,
+                    'numero_venta' => $venta->numero_venta,
+                    'total' => (float)$venta->total
+                ]
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first(),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\App\Exceptions\StockInsuficienteException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'details' => $e->getDetails()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('POS Checkout Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la venta: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener series disponibles para un producto y almacén (POS)
+     */
+    public function getSeriesDisponibles(Request $request, $productoId)
+    {
+        $almacenId = $request->query('almacen_id');
+        
+        $series = \App\Models\ProductoSerie::query()
+            ->where('producto_id', $productoId)
+            ->where('almacen_id', $almacenId)
+            ->where('estado', 'en_stock')
+            ->get(['id', 'numero_serie']);
+
+        return response()->json($series);
+    }
+
+    /**
+     * Validar series enviadas desde el POS
+     */
+    public function validarSeries(Request $request)
+    {
+        $request->validate([
+            'producto_id' => 'required|exists:productos,id',
+            'almacen_id' => 'required|exists:almacenes,id',
+            'series' => 'required|array',
+            'series.*' => 'string'
+        ]);
+
+        $invalidas = [];
+        foreach ($request->series as $num) {
+            $exists = \App\Models\ProductoSerie::query()
+                ->where('producto_id', $request->producto_id)
+                ->where('almacen_id', $request->almacen_id)
+                ->where('numero_serie', $num)
+                ->where('estado', 'en_stock')
+                ->exists();
+            
+            if (!$exists) $invalidas[] = $num;
+        }
+
+        return response()->json([
+            'valid' => empty($invalidas),
+            'invalidas' => $invalidas
+        ]);
     }
 
     /**
@@ -286,7 +367,14 @@ class VentaController extends Controller
 
         try {
             $validatedData = $request->validated();
-
+            Log::info('VentaController@update - Starting update', [
+                'venta_id' => $venta->id,
+                'is_paid' => $venta->pagado,
+                'has_corte' => $venta->entregaDinero()->exists(),
+                'received_vendedor_id' => $validatedData['vendedor_id'] ?? 'not_sent',
+                'received_pagado_por' => $validatedData['pagado_por'] ?? 'not_sent',
+            ]);
+            
             // ✅ Si la venta ya tiene entrega de dinero, solo observaciones y/o vendedor/técnico asignado
             if ($venta->entregaDinero()->exists()) {
                 $payload = [
@@ -297,7 +385,11 @@ class VentaController extends Controller
                     $payload['vendedor_id'] = $resolved['vendedor_id'];
                     $payload['vendedor_type'] = $resolved['vendedor_type'];
                 }
+                if (array_key_exists('pagado_por', $validatedData)) {
+                    $payload['pagado_por'] = $validatedData['pagado_por'] ?: null;
+                }
                 $venta->update($payload);
+                Log::info('VentaController@update - Meta update completed (corte exists)', ['payload' => $payload]);
                 return $this->successResponse($request, 'Venta actualizada (corte ya registrado: solo notas y vendedor asignado)');
             }
 
@@ -313,6 +405,13 @@ class VentaController extends Controller
             }
 
             throw $e;
+        } catch (\App\Exceptions\StockInsuficienteException $e) {
+            Log::warning('Stock insuficiente al actualizar venta: ' . $e->getMessage());
+            return $this->errorResponse($request, $e->getMessage(), 422, [
+                'stock' => $e->getMessage(),
+                'stock_type' => 'stock_error',
+                'stock_details' => $e->getDetails()
+            ]);
         } catch (\Exception $e) {
             Log::error('Error actualizando venta: ' . $e->getMessage());
             return $this->errorResponse($request, 'Error al actualizar la venta: ' . $e->getMessage(), 500);
@@ -363,6 +462,33 @@ class VentaController extends Controller
     }
 
     /**
+     * Generar factura (CFDI 4.0) para la venta.
+     */
+    public function facturar(Request $request, Venta $venta)
+    {
+        if (!$venta->exists) {
+            $ventaId = $request->route('venta');
+            $venta = Venta::findOrFail($ventaId);
+        }
+
+        try {
+            $cfdiService = app(\App\Services\Cfdi\CfdiService::class);
+            
+            // Usar el flujo de facturación estándar
+            $result = $cfdiService->facturarVenta($venta);
+
+            if (!$result['success']) {
+                return $this->errorResponse($request, 'Error al facturar: ' . $result['message'], 422);
+            }
+
+            return $this->successResponse($request, 'Factura generada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error facturando venta: ' . $e->getMessage());
+            return $this->errorResponse($request, 'Error al procesar la factura: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      * ✅ HIGH PRIORITY FIX #4: Enhanced validation with complete integrity checks
      */
@@ -407,12 +533,17 @@ class VentaController extends Controller
     /**
      * Helper para respuestas de error
      */
-    private function errorResponse($request, $message, $code = 400)
+    private function errorResponse($request, $message, $code = 400, $errors = [])
     {
         if ($request->expectsJson()) {
-            return response()->json(['success' => false, 'message' => $message], $code);
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'errors' => empty($errors) ? ['general' => $message] : $errors
+            ], $code);
         }
-        return redirect()->back()->withInput()->with('error', $message);
+        $errorBag = empty($errors) ? ['general_error' => $message] : $errors;
+        return redirect()->back()->withInput()->withErrors($errorBag);
     }
 
     /**

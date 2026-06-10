@@ -1,12 +1,12 @@
 <template>
     <AppLayout title="Detalles CXP">
-        <div class="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
+        <div class="font-sans selection:bg-indigo-500/30">
             <!-- Header Section -->
             <div class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-6 py-4">
                 <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex items-center space-x-4">
                         <div class="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
@@ -15,7 +15,7 @@
                             <p class="text-sm text-slate-400">ID: #{{ cuenta.id }} • {{ new Date(cuenta.created_at).toLocaleDateString() }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
                         <Link v-if="!['cancelada', 'pagado'].includes(estadoCuenta)"
                               :href="route('cuentas-por-pagar.edit', cuenta.id)" 
                               class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-all hover:scale-[1.02]">
@@ -33,38 +33,38 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     <!-- Left Column: Main Info -->
-                    <div class="lg:col-span-2 space-y-8">
+                    <div class="lg:col-span-2 space-y-6">
                         
                         <!-- Financial Highlights Card -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-slate-900/50 border border-white/5 rounded-3xl p-6 backdrop-blur-sm transition-all hover:border-white/10">
+                            <div class="bg-black/50 border border-white/5 rounded-3xl p-6 backdrop-blur-sm transition-all hover:border-white/10">
                                 <p class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1">Monto Total</p>
                                 <p class="text-2xl font-black text-white">{{ formatCurrency(cuenta.monto_total) }}</p>
                             </div>
-                            <div class="bg-slate-900/50 border border-white/5 rounded-3xl p-6 backdrop-blur-sm transition-all hover:border-emerald-500/20">
+                            <div class="bg-black/50 border border-white/5 rounded-3xl p-6 backdrop-blur-sm transition-all hover:border-brand-500/20">
                                 <p class="text-xs uppercase tracking-wider text-emerald-500/70 font-bold mb-1">Pagado</p>
                                 <p class="text-2xl font-black text-emerald-400">{{ formatCurrency(cuenta.monto_pagado) }}</p>
                             </div>
-                            <div class="bg-slate-900/50 border border-indigo-500/20 rounded-3xl p-6 backdrop-blur-sm shadow-lg shadow-indigo-500/5 transition-all hover:border-indigo-400/40">
+                            <div class="bg-black/50 border border-indigo-500/20 rounded-3xl p-6 backdrop-blur-sm shadow-xl shadow-indigo-500/5 transition-all hover:border-brand-400/40">
                                 <p class="text-xs uppercase tracking-wider text-rose-500/70 font-bold mb-1">Pendiente</p>
                                 <p class="text-2xl font-black text-rose-400">{{ formatCurrency(cuenta.monto_pendiente) }}</p>
                             </div>
                         </div>
 
                         <!-- Main Content Tabs Area -->
-                        <div class="bg-slate-900/30 border border-white/5 rounded-3xl overflow-hidden">
+                        <div class="bg-slate-900/50 border border-white/5 rounded-3xl overflow-hidden">
                             <div class="border-b border-white/5 bg-white/5 px-8 py-4">
                                 <h3 class="font-bold text-white flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     Información de la Operación
                                 </h3>
                             </div>
-                            <div class="p-8 space-y-8">
+                            <div class="p-8 space-y-6">
                                 <!-- Status info -->
                                 <div class="flex flex-wrap gap-6">
                                     <div class="space-y-1">
                                         <p class="text-xs text-slate-500 font-medium">Estado actual</p>
-                                        <div :class="estadoClases" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-block">
+                                        <div :class="estadoClases" class="px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider inline-block">
                                             {{ estadoCuenta }}
                                         </div>
                                     </div>
@@ -85,7 +85,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                         <div>
                                             <p class="text-slate-500 mb-1">Folio</p>
-                                            <Link :href="route('compras.show', cuenta.compra.id)" class="text-indigo-400 hover:text-indigo-300 font-bold underline decoration-indigo-500/30 transition-all">
+                                            <Link :href="route('compras.show', cuenta.compra.id)" class="text-indigo-400 hover:text-indigo-300 font-bold hover:underline decoration-indigo-500/30 transition-all">
                                                 {{ cuenta.compra.numero_compra }}
                                             </Link>
                                         </div>
@@ -95,7 +95,25 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
+                                <!-- Proveedor Details (si no hay Compra) -->
+                                <div v-if="!cuenta.compra && cuenta.proveedor" class="bg-slate-800/20 rounded-2xl p-6 border border-white/5">
+                                    <h4 class="text-sm font-bold text-slate-400 mb-4 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                                        Detalles del Proveedor
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                        <div>
+                                            <p class="text-slate-500 mb-1">Nombre / Razón Social</p>
+                                            <p class="font-bold text-slate-200">{{ cuenta.proveedor?.nombre_razon_social || 'Sin proveedor' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-slate-500 mb-1">RFC</p>
+                                            <p class="font-bold text-slate-200">{{ cuenta.proveedor?.rfc || 'Sin RFC' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Items / Partidas -->
                                 <div v-if="cuenta.compra?.compra_items?.length > 0" class="bg-slate-800/20 rounded-2xl p-6 border border-white/5">
                                     <h4 class="text-sm font-bold text-slate-400 mb-4 flex items-center gap-2">
@@ -103,8 +121,8 @@
                                         Partidas / Productos de la Operación
                                     </h4>
                                     <div class="overflow-x-auto rounded-xl border border-white/5 bg-black/20">
-                                        <table class="w-full text-left text-xs">
-                                            <thead class="bg-white/5 text-slate-500 uppercase tracking-widest font-bold">
+                                        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                                            <thead class="bg-white/5 text-slate-500 uppercase tracking-wide font-bold">
                                                 <tr>
                                                     <th class="px-4 py-3">Descripción</th>
                                                     <th class="px-4 py-3 text-center">Cant.</th>
@@ -112,7 +130,7 @@
                                                     <th class="px-4 py-3 text-right">Subtotal</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="divide-y divide-white/5">
+                                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                                                 <tr v-for="item in cuenta.compra.compra_items" :key="item.id" class="hover:bg-white/5 transition-colors">
                                                     <td class="px-4 py-3">
                                                         <div class="font-bold text-slate-200">{{ item.descripcion || item.comprable?.nombre }}</div>
@@ -131,23 +149,23 @@
                                     <!-- Totales de la Compra -->
                                     <div class="mt-4 flex flex-col items-end space-y-2 px-4">
                                         <div class="flex justify-between w-full max-w-[240px] text-[11px]">
-                                            <span class="text-slate-500 font-bold uppercase tracking-widest">Subtotal</span>
+                                            <span class="text-slate-500 font-bold uppercase tracking-wide">Subtotal</span>
                                             <span class="text-slate-300 font-mono">{{ formatCurrency(cuenta.compra.subtotal) }}</span>
                                         </div>
                                         <div v-if="toNumber(cuenta.compra.iva) > 0" class="flex justify-between w-full max-w-[240px] text-[11px]">
-                                            <span class="text-slate-500 font-bold uppercase tracking-widest">IVA</span>
+                                            <span class="text-slate-500 font-bold uppercase tracking-wide">IVA</span>
                                             <span class="text-slate-300 font-mono">{{ formatCurrency(cuenta.compra.iva) }}</span>
                                         </div>
                                         <div v-if="toNumber(cuenta.compra.retencion_iva) > 0" class="flex justify-between w-full max-w-[240px] text-[11px]">
-                                            <span class="text-rose-500/70 font-bold uppercase tracking-widest">Retención IVA</span>
+                                            <span class="text-rose-500/70 font-bold uppercase tracking-wide">Retención IVA</span>
                                             <span class="text-rose-400/80 font-mono">-{{ formatCurrency(cuenta.compra.retencion_iva) }}</span>
                                         </div>
                                         <div v-if="toNumber(cuenta.compra.retencion_isr) > 0" class="flex justify-between w-full max-w-[240px] text-[11px]">
-                                            <span class="text-rose-500/70 font-bold uppercase tracking-widest">Retención ISR</span>
+                                            <span class="text-rose-500/70 font-bold uppercase tracking-wide">Retención ISR</span>
                                             <span class="text-rose-400/80 font-mono">-{{ formatCurrency(cuenta.compra.retencion_isr) }}</span>
                                         </div>
                                         <div class="flex justify-between w-full max-w-[240px] pt-3 border-t border-white/10 mt-1">
-                                            <span class="text-white font-black uppercase tracking-widest text-[12px]">Total Neto</span>
+                                            <span class="text-white font-black uppercase tracking-wide text-[12px]">Total Neto</span>
                                             <span class="text-indigo-400 font-black text-lg font-mono">{{ formatCurrency(cuenta.compra.total) }}</span>
                                         </div>
                                     </div>
@@ -159,24 +177,24 @@
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0014 20.2c.33 0 .657-.016.98-.048m-2.43-4.661a3 3 0 01-2.43-4.661m-2.43 4.661a3 3 0 114.86 0z" /></svg>
                                         Información Fiscal (CFDI)
                                     </h4>
-                                    <div class="space-y-4 font-mono text-[13px]">
-                                        <div class="bg-black/20 p-3 rounded-lg flex items-start justify-between gap-4">
+                                    <div class="space-y-6 font-mono text-[13px]">
+                                        <div class="bg-black/20 p-3 rounded-xl flex items-start justify-between gap-4">
                                             <span class="text-indigo-400/60 flex-shrink-0">UUID:</span>
                                             <span class="text-indigo-300 break-all text-right select-all">{{ cuenta.cfdi?.uuid || cuenta.compra?.cfdi_uuid }}</span>
                                         </div>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div class="bg-black/20 p-3 rounded-lg">
+                                            <div class="bg-black/20 p-3 rounded-xl">
                                                 <span class="text-indigo-400/60 block mb-1">Folio XML:</span>
                                                 <span class="text-slate-200">{{ (cuenta.cfdi?.serie || '') + (cuenta.cfdi?.folio || 'S/F') }}</span>
                                             </div>
-                                            <div class="bg-black/20 p-3 rounded-lg">
+                                            <div class="bg-black/20 p-3 rounded-xl">
                                                 <span class="text-indigo-400/60 block mb-1">Total XML:</span>
                                                 <span class="text-slate-200 font-bold">{{ formatCurrency(cuenta.cfdi?.total || cuenta.compra?.cfdi_total || 0) }}</span>
                                             </div>
                                         </div>
                                         <div v-if="cuenta.cfdi?.xml_url" class="pt-2">
                                             <a :href="'/storage/' + cuenta.cfdi.xml_url" target="_blank" class="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors group">
-                                                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                                <svg class="w-4 h-4 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                                                 <span class="underline decoration-indigo-500/30">Descargar XML comprobante</span>
                                             </a>
                                         </div>
@@ -185,15 +203,15 @@
 
                                 <!-- Payment History Summary -->
                                 <div v-if="cuenta.notas" class="border-t border-white/5 pt-6 space-y-3">
-                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Historial de Notas / Pagos</p>
-                                    <div class="bg-amber-500/5 text-amber-200/80 p-4 rounded-2xl border border-amber-500/10 whitespace-pre-line text-sm leading-relaxed italic">
+                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Historial de Notas / Pagos</p>
+                                    <div class="bg-brand-500/5 text-brand-200/80 p-4 rounded-2xl border border-brand-500/10 whitespace-pre-line text-sm leading-relaxed italic">
                                         {{ cuenta.notas }}
                                     </div>
                                 </div>
 
                                 <div v-if="cuenta.estado === 'cancelada'" class="border-t border-white/5 pt-6 space-y-3">
-                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Cancelación</p>
-                                    <div class="bg-rose-500/10 text-rose-200 p-4 rounded-2xl border border-rose-500/20 text-sm leading-relaxed">
+                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Cancelación</p>
+                                    <div class="bg-brand-500/10 text-rose-200 p-4 rounded-2xl border border-rose-500/20 text-sm leading-relaxed">
                                         <p><span class="font-bold">Fecha:</span> {{ cuenta.fecha_cancelacion ? new Date(cuenta.fecha_cancelacion).toLocaleString('es-MX') : 'No registrada' }}</p>
                                         <p class="mt-2"><span class="font-bold">Motivo:</span> {{ cuenta.motivo_cancelacion || 'No registrado' }}</p>
                                         <p v-if="toNumber(cuenta.saldo_favor_generado) > 0" class="mt-2">
@@ -206,24 +224,24 @@
                     </div>
 
                     <!-- Right Column: Actions & Payment Summary -->
-                    <div class="space-y-8">
+                    <div class="space-y-6">
                         
                         <!-- Progress Card -->
-                            <div class="bg-slate-900/50 border border-white/5 rounded-3xl p-8 backdrop-blur-sm">
+                            <div class="bg-black/50 border border-white/5 rounded-3xl p-8 backdrop-blur-sm">
                             <h3 class="text-lg font-bold text-white mb-6">Progreso de Pago</h3>
                             
                             <div class="relative w-32 h-32 mx-auto mb-8">
                                 <svg class="w-full h-full transform -rotate-90">
                                     <circle class="text-slate-800" stroke-width="8" stroke="currentColor" fill="transparent" r="58" cx="64" cy="64" />
-                                    <circle class="text-indigo-500 transition-all duration-1000 ease-out" stroke-width="8" stroke-dasharray="364.4" :stroke-dashoffset="364.4 - (364.4 * (pagoProgress / 100))" stroke-linecap="round" stroke="currentColor" fill="transparent" r="58" cx="64" cy="64" />
+                                    <circle class="text-indigo-500 transition-all duration-700 ease-out" stroke-width="8" stroke-dasharray="364.4" :stroke-dashoffset="364.4 - (364.4 * (pagoProgress / 100))" stroke-linecap="round" stroke="currentColor" fill="transparent" r="58" cx="64" cy="64" />
                                 </svg>
                                 <div class="absolute inset-0 flex flex-col items-center justify-center">
                                     <span class="text-2xl font-black text-white leading-none">{{ pagoProgress }}%</span>
-                                    <span class="text-[10px] text-slate-500 uppercase tracking-tighter mt-1 font-bold">Liquidado</span>
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-wide mt-1 font-bold">Liquidado</span>
                                 </div>
                             </div>
 
-                            <div class="space-y-4">
+                            <div class="space-y-6">
                                 <div v-if="toNumber(saldoFavorDisponibleProveedor) > 0 && cuenta.estado !== 'cancelada'" class="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20">
                                     <p class="text-[11px] uppercase tracking-wider text-teal-300 font-bold">Saldo a favor proveedor disponible</p>
                                     <p class="text-lg font-black text-teal-200">{{ formatCurrency(saldoFavorDisponibleProveedor) }}</p>
@@ -231,26 +249,26 @@
 
                                 <button v-if="cuenta.monto_pendiente > 0" 
                                         @click="triggerPagoParcial"
-                                        class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-xl shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                        class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold shadow-xl shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                     Registrar Pago Parcial
                                 </button>
                                 
                                 <button v-if="!cuenta.pagado && cuenta.monto_pendiente > 0" 
                                         @click="triggerPagoTotal"
-                                        class="w-full py-4 rounded-2xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold transition-all flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                        class="w-full py-4 rounded-2xl bg-emerald-600/90 hover:bg-slate-500 text-white font-bold transition-all flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                     Marcar Pagado Total
                                 </button>
 
-                                <div v-if="cuenta.pagado" class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-center text-sm font-bold italic">
+                                <div v-if="cuenta.pagado" class="p-4 rounded-2xl bg-brand-500/10 border border-emerald-500/20 text-emerald-400 text-center text-sm font-bold italic">
                                     Completamente Liquidada
                                 </div>
 
                                 <button v-if="cuenta.estado !== 'cancelada'"
                                         @click="cancelarCuenta"
-                                        class="w-full py-4 rounded-2xl bg-rose-600/80 hover:bg-rose-500 text-white font-bold transition-all flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        class="w-full py-4 rounded-2xl bg-rose-600/80 hover:bg-slate-500 text-white font-bold transition-all flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                     Cancelar Cuenta
                                 </button>
                             </div>
@@ -262,10 +280,10 @@
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                                 Datos de Liquidación
                              </h3>
-                             <dl class="space-y-4 text-sm">
+                             <dl class="space-y-6 text-sm">
                                 <div>
                                     <dt class="text-indigo-400/60 mb-1">Método de Pago</dt>
-                                    <dd class="text-indigo-100 font-bold uppercase tracking-wide bg-indigo-500/20 px-2 py-1 rounded-lg inline-block">{{ getMetodoPagoLabel(cuenta.metodo_pago) }}</dd>
+                                    <dd class="text-indigo-100 font-bold uppercase tracking-wide bg-indigo-500/20 px-2 py-1 rounded-xl inline-block">{{ getMetodoPagoLabel(cuenta.metodo_pago) }}</dd>
                                 </div>
                                 <div>
                                     <dt class="text-indigo-400/60 mb-1">Fecha de Operación</dt>
@@ -282,17 +300,17 @@
             </div>
 
             <!-- Modern Modal: Pago Total -->
-            <transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <div v-if="showPagoModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" @click="showPagoModal = false"></div>
-                    <div class="bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl w-full max-w-lg relative overflow-hidden animate-in zoom-in-95 duration-300">
+                    <div class="bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl w-full max-w-lg relative overflow-hidden animate-in zoom-in-95 duration-200">
                         <div class="px-8 py-8 md:px-10">
                             <h3 class="text-2xl font-black text-white mb-2">Marcar como Liquidada</h3>
                             <p class="text-slate-400 mb-8">Confirma la liquidación total de esta cuenta por {{ formatCurrency(cuenta.monto_total) }}.</p>
                             
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Método de Pago</label>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Método de Pago</label>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                                         <button v-for="m in metodosDisponibles" :key="m.val" 
                                                 @click="metodoPago = m.val"
@@ -304,22 +322,22 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Banco Origen</label>
-                                    <select v-model="cuentaBancariaId" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Banco Origen</label>
+                                    <select v-model="cuentaBancariaId" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all outline-none">
                                         <option value="">Seleccionar cuenta bancaria...</option>
                                         <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">{{ cb.nombre }} - {{ cb.banco }}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Notas Adicionales</label>
-                                    <textarea v-model="notasPago" rows="2" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Opcional..."></textarea>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Notas Adicionales</label>
+                                    <textarea v-model="notasPago" rows="2" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-brand-500 transition-all outline-none" placeholder="Opcional..."></textarea>
                                 </div>
                             </div>
 
                             <div class="mt-10 flex gap-4">
                                 <button @click="showPagoModal = false" class="flex-1 py-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 font-bold transition-all">Cancelar</button>
-                                <button @click="confirmarPago" :disabled="!metodoPago || isSubmitting" class="flex-[1.5] py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold transition-all shadow-lg shadow-indigo-600/30">
+                                <button @click="confirmarPago" :disabled="!metodoPago || isSubmitting" class="flex-[1.5] py-4 px-6 rounded-2xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white font-bold transition-all shadow-xl shadow-indigo-600/30">
                                     {{ isSubmitting ? 'Procesando...' : 'Confirmar Pago' }}
                                 </button>
                             </div>
@@ -329,29 +347,29 @@
             </transition>
 
             <!-- Modern Modal: Pago Parcial -->
-            <transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <div v-if="showPagoParcialModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" @click="showPagoParcialModal = false"></div>
-                    <div class="bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl w-full max-w-lg relative overflow-hidden animate-in zoom-in-95 duration-300">
+                    <div class="bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl w-full max-w-lg relative overflow-hidden animate-in zoom-in-95 duration-200">
                         <div class="px-8 py-8 md:px-10">
                             <h3 class="text-2xl font-black text-white mb-2 text-center">Pago Parcial</h3>
                             <div class="bg-white/5 p-4 rounded-3xl mb-8 text-center border border-white/5">
-                                <p class="text-xs text-slate-500 uppercase tracking-widest font-bold mb-1">Monto Pendiente</p>
+                                <p class="text-xs text-slate-500 uppercase tracking-wide font-bold mb-1">Monto Pendiente</p>
                                 <p class="text-xl font-black text-white">{{ formatCurrency(cuenta.monto_pendiente) }}</p>
                             </div>
 
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Importe a Pagar</label>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Importe a Pagar</label>
                                     <div class="relative">
                                         <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-lg">$</span>
-                                        <input v-model="montoPagoParcial" type="number" step="0.01" class="w-full bg-slate-800 border-white/10 rounded-2xl pl-10 pr-5 py-5 text-2xl font-black text-indigo-400 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-700 search-none" placeholder="0.00" />
+                                        <input v-model="montoPagoParcial" type="number" step="0.01" class="w-full bg-slate-800 border-white/10 rounded-2xl pl-10 pr-5 py-5 text-2xl font-black text-indigo-400 focus:ring-2 focus:ring-brand-500 outline-none transition-all placeholder:text-slate-700 search-none" placeholder="0.00" />
                                     </div>
                                 </div>
 
                                 <div v-if="toNumber(saldoFavorDisponibleProveedor) > 0" class="bg-teal-500/5 border border-teal-500/20 rounded-2xl p-4">
-                                    <label class="flex items-center gap-3 cursor-pointer">
-                                        <input v-model="usarSaldoFavorParcial" type="checkbox" class="rounded border-teal-500/40 bg-slate-800 text-teal-500 focus:ring-teal-500/40">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input v-model="usarSaldoFavorParcial" type="checkbox" class="rounded-xl border-teal-500/40 bg-slate-800 text-teal-500 focus:ring-brand-500/40">
                                         <span class="text-sm font-bold text-teal-200">Aplicar saldo a favor del proveedor en este abono</span>
                                     </label>
                                     <p class="text-xs text-teal-300/80 mt-2">
@@ -365,22 +383,22 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Banco Origen</label>
-                                    <select v-model="cuentaBancariaIdParcial" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Banco Origen</label>
+                                    <select v-model="cuentaBancariaIdParcial" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                                         <option value="">Sin especificar</option>
                                         <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">{{ cb.nombre }} - {{ cb.banco }}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Notas del Abono</label>
-                                    <textarea v-model="notasPagoParcial" rows="2" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Referencia, número de cheque, etc."></textarea>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Notas del Abono</label>
+                                    <textarea v-model="notasPagoParcial" rows="2" class="w-full bg-slate-800 border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-brand-500 transition-all" placeholder="Referencia, número de cheque, etc."></textarea>
                                 </div>
                             </div>
 
                             <div class="mt-10 flex gap-4">
                                 <button @click="showPagoParcialModal = false" class="flex-1 py-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400 font-bold transition-all">Cancelar</button>
-                                <button @click="confirmarPagoParcial" :disabled="isSubmitting || (!montoPagoParcial && !usarSaldoFavorParcial)" class="flex-[2] py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-lg shadow-indigo-600/30">
+                                <button @click="confirmarPagoParcial" :disabled="isSubmitting || (!montoPagoParcial && !usarSaldoFavorParcial)" class="flex-[2] py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-slate-500 text-white font-bold transition-all shadow-xl shadow-indigo-600/30">
                                      Registrar Abono
                                 </button>
                             </div>
@@ -390,16 +408,16 @@
             </transition>
 
             <!-- Premium Dark Modal: Cancelación -->
-            <transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <div v-if="showCancelModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-md" @click="showCancelModal = false"></div>
-                    <div class="bg-slate-900 border border-rose-500/20 rounded-[2.5rem] shadow-2xl shadow-rose-500/10 w-full max-w-lg relative overflow-hidden animate-in zoom-in-95 duration-300">
+                    <div class="bg-slate-900 border border-rose-500/20 rounded-[2.5rem] shadow-2xl shadow-rose-500/10 w-full max-w-lg relative overflow-hidden animate-in zoom-in-95 duration-200">
                         <!-- Decorative glow -->
-                        <div class="absolute -top-24 -right-24 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl"></div>
+                        <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl"></div>
                         
                         <div class="px-8 py-10 md:px-12 relative">
-                            <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                                <svg class="w-8 h-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div class="w-16 h-16 bg-brand-500/10 border border-rose-500/20 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                                <svg class="w-10 h-10 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
@@ -409,19 +427,19 @@
                             
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Motivo de Cancelación</label>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Motivo de Cancelación</label>
                                     <select v-model="motivoCancelacion" 
-                                            class="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all outline-none appearance-none">
+                                            class="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-brand-500/50 focus:border-rose-500/50 transition-all outline-none appearance-none">
                                         <option value="" disabled>Selecciona un motivo...</option>
                                         <option v-for="m in motivosCancelacion" :key="m" :value="m">{{ m }}</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Notas / Detalles adicionales</label>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Notas / Detalles adicionales</label>
                                     <textarea v-model="notasCancelacion" 
                                               rows="3" 
-                                              class="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500/50 transition-all outline-none resize-none" 
+                                              class="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-brand-500/50 focus:border-rose-500/50 transition-all outline-none resize-none" 
                                               placeholder="Explica brevemente la razón de la cancelación..."></textarea>
                                 </div>
                             </div>
@@ -433,7 +451,7 @@
                                 </button>
                                 <button @click="confirmarCancelacion" 
                                         :disabled="isSubmitting || !motivoCancelacion" 
-                                        class="flex-[2] py-4 px-6 rounded-2xl bg-rose-600 hover:bg-rose-500 disabled:opacity-30 disabled:scale-100 text-white font-bold transition-all shadow-lg shadow-rose-600/20 active:scale-95">
+                                        class="flex-[2] py-4 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 disabled:opacity-30 disabled:scale-100 text-white font-bold transition-all shadow-xl shadow-rose-600/20 active:scale-95">
                                     {{ isSubmitting ? 'Cancelando...' : 'Confirmar Cancelación' }}
                                 </button>
                             </div>
@@ -446,6 +464,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -518,9 +537,9 @@ const isVencido = computed(() => props.cuenta?.estado === 'vencido');
 
 const estadoClases = computed(() => {
     const status = estadoCuenta.value;
-    if (status === 'pagado') return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-    if (status === 'parcial') return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
-    if (status === 'vencido') return 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+    if (status === 'pagado') return 'bg-brand-500/20 text-emerald-400 border border-emerald-500/30';
+    if (status === 'parcial') return 'bg-brand-500/20 text-brand-400 border border-brand-500/30';
+    if (status === 'vencido') return 'bg-brand-500/20 text-rose-400 border border-rose-500/30';
     if (status === 'cancelada') return 'bg-slate-500/20 text-slate-300 border border-slate-500/30';
     return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
 });

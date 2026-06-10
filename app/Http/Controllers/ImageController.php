@@ -120,13 +120,22 @@ class ImageController extends Controller
      */
     private function generateCorrectStorageUrl($file)
     {
-        $scheme = request()->isSecure() ? 'https' : 'http';
+        // Si ya es una URL absoluta (externa como CVA, etc.), devolverla sin modificar
+        if (str_starts_with($file, 'http://') || str_starts_with($file, 'https://')) {
+            return $file;
+        }
+
+        $scheme = (!app()->isLocal() || request()->header('X-Forwarded-Proto') === 'https' || str_contains(request()->getHost(), 'climasdeldesierto.com')) ? 'https' : 'http';
         $host = request()->getHost();
-        $port = request()->getPort();
+        
+        // No agregar puerto en producción o si el host es climasdeldesierto.com
+        if (!app()->isLocal() || str_contains($host, 'climasdeldesierto.com')) {
+            $portString = '';
+        } else {
+            $port = request()->getPort();
+            $portString = (($scheme === 'http' && $port !== 80) || ($scheme === 'https' && $port !== 443)) ? ':' . $port : '';
+        }
 
-        // No agregar puerto si es el puerto estándar
-        $portString = ( ($scheme === 'http' && $port !== 80) || ($scheme === 'https' && $port !== 443) ) ? ':' . $port : '';
-
-        return "{$scheme}://{$host}{$portString}/storage/{$file}";
+        return "{$scheme}://{$host}{$portString}/storage/" . ltrim($file, '/');
     }
 }

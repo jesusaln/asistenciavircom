@@ -96,7 +96,7 @@ return [
     */
 
     'retention' => [
-        'daily_backups' => env('BACKUP_RETENTION_DAILY', 7),     // Días de respaldos diarios
+        'daily_backups' => env('BACKUP_RETENTION_DAILY', 2),     // Días de respaldos diarios
         'weekly_backups' => env('BACKUP_RETENTION_WEEKLY', 4),   // Semanas de respaldos semanales
         'monthly_backups' => env('BACKUP_RETENTION_MONTHLY', 12), // Meses de respaldos mensuales
         'auto_cleanup' => env('BACKUP_AUTO_CLEANUP', true),

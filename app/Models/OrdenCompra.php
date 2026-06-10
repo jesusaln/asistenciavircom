@@ -12,6 +12,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class OrdenCompra extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'orden_compras';

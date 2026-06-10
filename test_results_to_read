@@ -1,0 +1,418 @@
+PHPUnit 11.5.10 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /home/vircom/.gemini/antigravity/scratch/cdd_app/phpunit.xml
+
+EEEEEEEEE                                                           9 / 9 (100%)
+
+Time: 00:01.275, Memory: 57.00 MB
+
+There were 9 errors:
+
+1) Tests\Feature\CotizacionCrudTest::test_can_list_cotizaciones
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (191, Empresa Test 69503d43a28ec, null, null, null, null, ABC337237XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d43a28ec, ABC337237XYZ, 601, 2025-12-27 13:10:43, 2025-12-27 13:10:43) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (191, Empresa Test 69503d43a28ec, null, null, null, null, ABC337237XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+2) Tests\Feature\CotizacionCrudTest::test_can_create_cotizacion_with_products_and_services
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (192, Empresa Test 69503d43b78b6, null, null, null, null, ABC226706XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d43b78b6, ABC226706XYZ, 601, 2025-12-27 13:10:43, 2025-12-27 13:10:43) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (192, Empresa Test 69503d43b78b6, null, null, null, null, ABC226706XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+3) Tests\Feature\CotizacionCrudTest::test_margin_validation_prevents_creation
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (193, Empresa Test 69503d43c9675, null, null, null, null, ABC898778XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d43c9675, ABC898778XYZ, 601, 2025-12-27 13:10:43, 2025-12-27 13:10:43) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (193, Empresa Test 69503d43c9675, null, null, null, null, ABC898778XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+4) Tests\Feature\CotizacionCrudTest::test_can_force_create_with_low_margin
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (194, Empresa Test 69503d43d9325, null, null, null, null, ABC602018XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d43d9325, ABC602018XYZ, 601, 2025-12-27 13:10:43, 2025-12-27 13:10:43) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (194, Empresa Test 69503d43d9325, null, null, null, null, ABC602018XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+5) Tests\Feature\CotizacionCrudTest::test_can_duplicate_cotizacion
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (195, Empresa Test 69503d43eabeb, null, null, null, null, ABC726434XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d43eabeb, ABC726434XYZ, 601, 2025-12-27 13:10:43, 2025-12-27 13:10:43) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (195, Empresa Test 69503d43eabeb, null, null, null, null, ABC726434XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:43, 2025-12-27 13:10:43, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+6) Tests\Feature\CotizacionCrudTest::test_can_convert_cotizacion_to_venta
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (196, Empresa Test 69503d440dcd5, null, null, null, null, ABC965041XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d440dcd5, ABC965041XYZ, 601, 2025-12-27 13:10:44, 2025-12-27 13:10:44) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (196, Empresa Test 69503d440dcd5, null, null, null, null, ABC965041XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+7) Tests\Feature\CotizacionCrudTest::test_convert_to_pedido_creates_automatic_purchase_order_on_low_stock
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (197, Empresa Test 69503d443f840, null, null, null, null, ABC689868XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d443f840, ABC689868XYZ, 601, 2025-12-27 13:10:44, 2025-12-27 13:10:44) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (197, Empresa Test 69503d443f840, null, null, null, null, ABC689868XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+8) Tests\Feature\CotizacionCrudTest::test_can_generate_pdf
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (198, Empresa Test 69503d4463e28, null, null, null, null, ABC114710XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d4463e28, ABC114710XYZ, 601, 2025-12-27 13:10:44, 2025-12-27 13:10:44) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (198, Empresa Test 69503d4463e28, null, null, null, null, ABC114710XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+9) Tests\Feature\CotizacionCrudTest::test_can_cancel_and_delete_cotizacion
+Illuminate\Database\QueryException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (199, Empresa Test 69503d447a00f, null, null, null, null, ABC391040XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null). (Connection: pgsql, SQL: insert into "empresas" ("nombre_razon_social", "rfc", "regimen_fiscal", "updated_at", "created_at") values (Empresa Test 69503d447a00f, ABC391040XYZ, 601, 2025-12-27 13:10:44, 2025-12-27 13:10:44) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+Caused by
+PDOException: SQLSTATE[23502]: Not null violation: 7 ERROR:  null value in column "tipo_persona" of relation "empresas" violates not-null constraint
+DETAIL:  Failing row contains (199, Empresa Test 69503d447a00f, null, null, null, null, ABC391040XYZ, 601, null, null, null, null, null, null, null, null, null, null, México, 2025-12-27 13:10:44, 2025-12-27 13:10:44, f, null, null, null, null, null, null, es_MX, null).
+
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:412
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:812
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1128
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/helpers.php:399
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1127
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2372
+/home/vircom/.gemini/antigravity/scratch/cdd_app/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2384
+/home/vircom/.gemini/antigravity/scratch/cdd_app/tests/Feature/CotizacionCrudTest.php:39
+
+ERRORS!
+Tests: 9, Assertions: 0, Errors: 9.

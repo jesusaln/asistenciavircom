@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Carro extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $fillable = [
@@ -39,5 +42,13 @@ class Carro extends Model
     public function mantenimientos(): HasMany
     {
         return $this->hasMany(Mantenimiento::class, 'carro_id');
+    }
+
+    /**
+     * Técnicos que tienen asignado este carro.
+     */
+    public function tecnicos(): HasMany
+    {
+        return $this->hasMany(User::class, 'carro_id');
     }
 }

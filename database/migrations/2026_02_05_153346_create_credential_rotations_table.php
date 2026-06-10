@@ -10,19 +10,21 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('credential_rotations', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('empresa_id')->nullable();
-            $table->string('field_name'); // e.g. 'cva_password', 'stripe_secret_key'
-            $table->string('provider')->nullable(); // e.g. 'CVA', 'Stripe', 'Google'
-            $table->timestamp('rotated_at');
-            $table->timestamp('expires_at')->nullable();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            $table->json('metadata')->nullable(); // Para guardar info adicional no sensible
-            $table->timestamps();
+        if (!Schema::hasTable('credential_rotations')) {
+            Schema::create('credential_rotations', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('empresa_id')->nullable();
+                $table->string('field_name'); // e.g. 'cva_password', 'stripe_secret_key'
+                $table->string('provider')->nullable(); // e.g. 'CVA', 'Stripe', 'Google'
+                $table->timestamp('rotated_at');
+                $table->timestamp('expires_at')->nullable();
+                $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+                $table->json('metadata')->nullable(); // Para guardar info adicional no sensible
+                $table->timestamps();
 
-            $table->index(['field_name', 'rotated_at']);
-        });
+                $table->index(['field_name', 'rotated_at']);
+            });
+        }
     }
 
     public function down(): void

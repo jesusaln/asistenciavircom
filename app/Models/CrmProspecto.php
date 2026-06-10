@@ -11,6 +11,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class CrmProspecto extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'crm_prospectos';

@@ -186,7 +186,7 @@ class UserNotificationController extends Controller
             'test',
             'Notificación de Prueba',
             'Esta es una notificación de prueba creada desde el frontend',
-            ['test' => true, 'timestamp' => now()->toISOString()],
+            ['test' => true, 'timestamp' => now()->toIso8601String()],
             '/panel',
             'fas fa-bell'
         );

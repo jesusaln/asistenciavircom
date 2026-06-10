@@ -1,14 +1,14 @@
 <template>
     <Head title="Crear Mantenimiento" />
-    <div class="min-h-screen w-full bg-gray-50 p-4 transition-colors dark:bg-gray-900 md:p-6" :style="cssVars">
-        <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div class="flex items-center gap-4 border-b border-gray-100 px-6 py-5 dark:border-gray-700">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+    <div class="min-h-screen w-full bg-[var(--ui-surface)] p-4 transition-colors dark:bg-slate-800 md:p-6" :style="cssVars">
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
+            <div class="flex items-center gap-4 border-b border-slate-100 px-6 py-5 dark:border-slate-700">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-xl" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
                     <FontAwesomeIcon icon="wrench" class="text-xl text-white" />
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Crear Mantenimiento</h1>
-                    <p class="text-gray-600 dark:text-gray-400">Registra un nuevo servicio de mantenimiento para tu vehículo</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Crear Mantenimiento</h1>
+                    <p class="text-slate-500 dark:text-slate-400">Registra un nuevo servicio de mantenimiento para tu vehículo</p>
                     <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
                         <FontAwesomeIcon icon="info-circle" class="mr-1" />
                         Fecha de hoy: {{ todayFormatted }}
@@ -21,14 +21,14 @@
             <form @submit.prevent="submit" class="space-y-6">
                 <!-- COMPONENTE: VehicleSelect -->
                 <!-- Selección de Carro -->
-                <div class="rounded-xl border border-gray-200/60 bg-gray-50/50 p-4 dark:border-gray-700/60 dark:bg-slate-900/30">
-                    <label for="carro-select" class="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <label for="carro-select" class="mb-3 block text-sm font-medium text-slate-700 dark:text-slate-200">
                         <FontAwesomeIcon icon="car" class="mr-2" />Seleccionar Vehículo
                     </label>
                     <select
                         id="carro-select"
                         v-model.number="form.carro_id"
-                        class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                        class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         required
                         @change="updateKilometraje"
                     >
@@ -37,12 +37,12 @@
                             {{ carro.marca }} {{ carro.modelo }} {{ carro.anio || '' }} - {{ formatNumber(carro.kilometraje) }} km
                         </option>
                     </select>
-                    <div v-if="selectedCarro" class="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/50 dark:bg-blue-950/30">
-                        <div class="flex items-center text-sm text-blue-800 dark:text-blue-200">
+                    <div v-if="selectedCarro" class="mt-3 rounded-xl border border-sky-200 dark:border-sky-800/30 bg-sky-50 dark:bg-sky-900/20 p-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+                        <div class="flex items-center text-sm text-sky-800 dark:text-sky-200 dark:text-blue-200">
                             <FontAwesomeIcon icon="info-circle" class="mr-2" />
                             <span>Vehículo seleccionado: <strong>{{ selectedCarro.marca }} {{ selectedCarro.modelo }}</strong></span>
                         </div>
-                        <div class="mt-2 grid grid-cols-2 gap-2 text-sm text-blue-700 dark:text-blue-300">
+                        <div class="mt-2 grid grid-cols-2 gap-2 text-sm text-sky-800 dark:text-sky-200 dark:text-blue-300">
                             <div>Kilometraje actual: <strong>{{ formatNumber(selectedCarro.kilometraje) }} km</strong></div>
                             <div v-if="selectedCarro.anio">Año: <strong>{{ selectedCarro.anio }}</strong></div>
                         </div>
@@ -57,12 +57,12 @@
                     <!-- COMPONENTE: ServicePicker -->
                     <!-- Tipo de Servicio -->
                     <div>
-                        <label class="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        <label class="mb-3 block text-sm font-medium text-slate-700 dark:text-slate-200">
                             <FontAwesomeIcon icon="cogs" class="mr-2" />Tipo de Servicio
                         </label>
                         <select
                             v-model="form.tipo"
-                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                            class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             required
                             @change="handleServiceChange"
                         >
@@ -78,7 +78,7 @@
                                 v-model="form.otro_servicio"
                                 type="text"
                                 placeholder="Especifica el tipo de servicio..."
-                                class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                                class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                 required
                             >
                         </div>
@@ -86,14 +86,14 @@
 
                     <!-- Fecha del Servicio -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
+                        <label class="block text-slate-700 text-sm font-semibold mb-3">
                             <FontAwesomeIcon icon="calendar" class="mr-2" />Fecha del Servicio
                         </label>
                         <input
                             v-model="form.fecha"
                             type="date"
                             :max="today"
-                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                            class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             required
                         >
                     </div>
@@ -102,7 +102,7 @@
                 <div class="grid md:grid-cols-2 gap-6">
                     <!-- Kilometraje -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
+                        <label class="block text-slate-700 text-sm font-semibold mb-3">
                             <FontAwesomeIcon icon="tachometer-alt" class="mr-2" />Kilometraje del Servicio
                         </label>
                         <input
@@ -110,21 +110,21 @@
                             type="number"
                             :min="selectedCarro?.kilometraje || 0"
                             placeholder="Ingresa el kilometraje actual"
-                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                            class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             required
                         >
-                        <p class="text-sm text-gray-500 mt-2 flex items-center">
-                            <FontAwesomeIcon icon="exclamation-triangle" class="text-yellow-500 mr-2" />
+                        <p class="text-sm text-slate-500 mt-2 flex items-center">
+                            <FontAwesomeIcon icon="exclamation-triangle" class="text-brand-500 mr-2" />
                             Debe ser mayor o igual al kilometraje actual del vehículo
                         </p>
 
                         <!-- Sugerencias contextuales basadas en kilometraje -->
-                        <div v-if="selectedCarro && form.tipo" class="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <div class="text-sm text-yellow-800">
+                        <div v-if="selectedCarro && form.tipo" class="mt-3 p-3 bg-brand-50 dark:bg-brand-900/20 rounded-xl border border-brand-200 dark:border-brand-800/30">
+                            <div class="text-sm text-brand-800 dark:text-amber-200">
                                 <FontAwesomeIcon icon="lightbulb" class="mr-2" />
                                 <strong>Sugerencias para {{ selectedCarro.marca }} {{ selectedCarro.modelo }}:</strong>
                             </div>
-                            <div class="text-xs text-yellow-700 mt-1">
+                            <div class="text-xs text-brand-800 dark:text-brand-200 dark:text-brand-200 mt-1">
                                 {{ sugerenciasContextuales }}
                             </div>
                         </div>
@@ -132,35 +132,35 @@
 
                     <!-- Próximo Mantenimiento -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
+                        <label class="block text-slate-700 text-sm font-semibold mb-3">
                             <FontAwesomeIcon icon="calendar-plus" class="mr-2" />Próximo Mantenimiento
                         </label>
                         <input
                             v-model="form.proximo_mantenimiento"
                             type="date"
                             :min="form.fecha || today"
-                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                            class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             required
                         >
                         <div class="mt-2 flex space-x-2">
                             <button
                                 type="button"
                                 @click="calcularProximoMantenimiento(3)"
-                                class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                                class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-xl transition-colors"
                             >
                                 +3 meses
                             </button>
                             <button
                                 type="button"
                                 @click="calcularProximoMantenimiento(6)"
-                                class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                                class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-xl transition-colors"
                             >
                                 +6 meses
                             </button>
                             <button
                                 type="button"
                                 @click="calcularProximoMantenimiento(12)"
-                                class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                                class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-xl transition-colors"
                             >
                                 +1 año
                             </button>
@@ -171,7 +171,7 @@
                 <!-- Costo del Servicio -->
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
+                        <label class="block text-slate-700 text-sm font-semibold mb-3">
                             <FontAwesomeIcon icon="dollar-sign" class="mr-2" />Costo del Servicio (Opcional)
                         </label>
                         <div class="flex gap-2">
@@ -181,42 +181,42 @@
                                 step="0.01"
                                 min="0"
                                 placeholder="0.00"
-                                class="flex-1 rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                                class="flex-1 rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             >
                             <button
                                 v-if="form.tipo && getCostoSugerido() > 0"
                                 type="button"
                                 @click="form.costo = getCostoSugerido()"
                                 :disabled="form.costo > 0"
-                                class="px-3 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:bg-gray-100 disabled:text-gray-400 transition-colors text-sm font-medium"
+                                class="px-3 py-3 bg-sky-100 text-sky-800 dark:text-sky-200 rounded-xl hover:bg-blue-200 disabled:bg-slate-100 disabled:text-slate-400 transition-colors text-sm font-medium"
                                 title="Usar costo sugerido"
                             >
                                 💰 Sugerido
                             </button>
                         </div>
-                        <p v-if="form.tipo && getCostoSugerido() > 0" class="text-xs text-gray-500 mt-1">
+                        <p v-if="form.tipo && getCostoSugerido() > 0" class="text-xs text-slate-500 mt-1">
                             Costo sugerido para {{ form.tipo }}: {{ formatMoney(getCostoSugerido()) }}
                         </p>
                     </div>
 
                     <!-- Taller/Lugar -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
+                        <label class="block text-slate-700 text-sm font-semibold mb-3">
                             <FontAwesomeIcon icon="map-marker-alt" class="mr-2" />Taller/Lugar (Opcional)
                         </label>
                         <input
                             v-model="form.taller"
                             type="text"
                             placeholder="Nombre del taller o lugar"
-                            class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                            class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         >
                     </div>
                 </div>
 
                 <!-- COMPONENTE: AlertConfig -->
                 <!-- Configuración de Alertas y Prioridad -->
-                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h3 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                <div class="bg-sky-50 dark:bg-sky-900/20 p-4 rounded-xl border border-sky-200 dark:border-sky-800/30">
+                    <h3 class="text-lg font-semibold text-sky-800 dark:text-sky-200 mb-4 flex items-center">
                         <FontAwesomeIcon icon="bell" class="mr-2" />
                         Configuración de Alertas y Prioridad
                     </h3>
@@ -224,12 +224,12 @@
                     <div class="grid md:grid-cols-3 gap-4">
                         <!-- Prioridad -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-semibold mb-3">
+                            <label class="block text-slate-700 text-sm font-semibold mb-3">
                                 <FontAwesomeIcon icon="exclamation-triangle" class="mr-2" />Prioridad
                             </label>
                             <select
                                 v-model="form.prioridad"
-                                class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                                class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                 required
                             >
                                 <option value="baja">🟢 Baja</option>
@@ -237,14 +237,14 @@
                                 <option value="alta">🟠 Alta</option>
                                 <option value="critica">🔴 Crítica</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-1">
                                 {{ getDescripcionPrioridad(form.prioridad) }}
                             </p>
                         </div>
 
                         <!-- Días de Anticipación -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-semibold mb-3">
+                            <label class="block text-slate-700 text-sm font-semibold mb-3">
                                 <FontAwesomeIcon icon="clock" class="mr-2" />Días de Anticipación
                             </label>
                             <input
@@ -253,17 +253,17 @@
                                 min="1"
                                 max="365"
                                 :placeholder="getDiasAnticipacionSugeridos()"
-                                class="w-full rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                                class="w-full rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                 required
                             >
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-1">
                                 Días antes para enviar alerta
                             </p>
                         </div>
 
                         <!-- Requiere Aprobación -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-semibold mb-3">
+                            <label class="block text-slate-700 text-sm font-semibold mb-3">
                                 <FontAwesomeIcon icon="check-circle" class="mr-2" />Requiere Aprobación
                             </label>
                             <div class="flex items-center">
@@ -273,13 +273,13 @@
                                         type="checkbox"
                                         class="sr-only peer"
                                     >
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                    <span class="ml-3 text-sm font-medium text-gray-700">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                                    <span class="ml-3 text-sm font-medium text-slate-700">
                                         {{ form.requiere_aprobacion ? 'Sí' : 'No' }}
                                     </span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-1">
                                 Si necesita aprobación especial
                             </p>
                         </div>
@@ -287,17 +287,17 @@
 
                     <!-- Observaciones de Alerta -->
                     <div class="mt-4">
-                        <label class="block text-gray-700 text-sm font-semibold mb-3">
+                        <label class="block text-slate-700 text-sm font-semibold mb-3">
                             <FontAwesomeIcon icon="sticky-note" class="mr-2" />Observaciones de Alerta (Opcional)
                         </label>
                         <textarea
                             v-model="form.observaciones_alerta"
                             rows="2"
                             placeholder="Notas adicionales para la alerta..."
-                            class="w-full resize-y rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                            class="w-full resize-y rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             maxlength="500"
                         ></textarea>
-                        <div class="flex justify-end text-sm text-gray-500 mt-1">
+                        <div class="flex justify-end text-sm text-slate-500 mt-1">
                             <span>{{ form.observaciones_alerta.length }}/500 caracteres</span>
                         </div>
                     </div>
@@ -305,8 +305,8 @@
 
                 <!-- COMPONENTE: MaintenanceSummary -->
                 <!-- Resumen del Mantenimiento -->
-                <div v-if="form.carro_id && form.tipo && form.fecha" class="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <h3 class="text-lg font-semibold text-green-800 mb-3 flex items-center">
+                <div v-if="form.carro_id && form.tipo && form.fecha" class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/30">
+                    <h3 class="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-3 flex items-center">
                         <FontAwesomeIcon icon="clipboard-check" class="mr-2" />
                         Resumen del Mantenimiento
                     </h3>
@@ -325,7 +325,7 @@
                         </div>
                         <div>
                             <strong>Prioridad:</strong>
-                            <span :class="getClasesPrioridad(form.prioridad)" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2">
+                            <span :class="getClasesPrioridad(form.prioridad)" class="inline-flex items-center px-2 py-1 rounded-xl text-xs font-medium ml-2">
                                 {{ getLabelPrioridad(form.prioridad) }}
                             </span>
                         </div>
@@ -339,8 +339,8 @@
                             <strong>Taller:</strong> {{ form.taller }}
                         </div>
                     </div>
-                    <div v-if="form.proximo_mantenimiento" class="mt-3 p-3 bg-green-100 rounded-lg">
-                        <div class="text-sm text-green-800">
+                    <div v-if="form.proximo_mantenimiento" class="mt-3 p-3 bg-emerald-100 rounded-xl">
+                        <div class="text-sm text-emerald-800 dark:text-emerald-200">
                             <FontAwesomeIcon icon="bell" class="mr-2" />
                             <strong>Alerta programada:</strong> Se enviará una notificación {{ form.dias_anticipacion_alerta }} días antes del próximo mantenimiento
                             ({{ new Date(form.proximo_mantenimiento).toLocaleDateString('es-MX') }})
@@ -350,27 +350,27 @@
 
                 <!-- Notas -->
                 <div>
-                    <label class="block text-gray-700 text-sm font-semibold mb-3">
+                    <label class="block text-slate-700 text-sm font-semibold mb-3">
                         <FontAwesomeIcon icon="sticky-note" class="mr-2" />Notas y Observaciones
                     </label>
                     <textarea
                         v-model="form.notas"
                         rows="4"
                         placeholder="Describe detalles del servicio, piezas cambiadas, observaciones, etc..."
-                        class="w-full resize-y rounded-lg border border-gray-300 bg-white p-3 transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                        class="w-full resize-y rounded-xl border border-slate-300 bg-white p-3 transition-all duration-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     ></textarea>
-                    <div class="flex justify-between text-sm text-gray-500 mt-1">
+                    <div class="flex justify-between text-sm text-slate-500 mt-1">
                         <span>Opcional</span>
                         <span>{{ form.notas.length }}/500 caracteres</span>
                     </div>
                 </div>
 
                 <!-- Botones de Acción -->
-                <div class="flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
+                <div class="flex items-center justify-between border-t border-slate-200 pt-6 dark:border-slate-700">
                     <button
                         type="button"
                         @click="resetForm"
-                        class="flex items-center rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-all duration-200 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                        class="flex items-center rounded-xl border border-slate-300 px-6 py-3 text-slate-700 transition-all duration-200 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700/50"
                     >
                         <FontAwesomeIcon icon="undo" class="mr-2" />
                         Limpiar Formulario
@@ -380,7 +380,7 @@
                         <button
                             type="button"
                             @click="router.visit(route('mantenimientos.index'))"
-                            class="flex items-center rounded-lg bg-gray-600 px-6 py-3 text-white transition-all duration-200 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600"
+                            class="flex items-center rounded-xl bg-slate-600 px-6 py-3 text-white transition-all duration-200 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600"
                         >
                             <FontAwesomeIcon icon="times" class="mr-2" />
                             Cancelar
@@ -389,7 +389,7 @@
                         <button
                             type="submit"
                             :disabled="form.processing || !form.carro_id || !form.tipo"
-                            class="flex min-w-[160px] items-center rounded-lg px-6 py-3 text-white shadow-md transition-all duration-200 hover:brightness-105 disabled:opacity-50"
+                            class="flex min-w-[160px] items-center rounded-xl px-6 py-3 text-white shadow-md transition-all duration-200 hover:brightness-105 disabled:opacity-50"
                             :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }"
                         >
                             <i v-if="!form.processing" class="fas fa-save mr-2"></i>
@@ -405,6 +405,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { reactive, computed, ref } from 'vue';
 import { notyf } from '@/Utils/notyf';
@@ -665,7 +666,7 @@ const calcularEstadoMantenimiento = (mantenimiento) => {
         return {
             estado: 'completado',
             descripcion: 'Servicio completado',
-            clase: 'text-green-700 bg-green-100',
+            clase: 'text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 bg-emerald-100',
             diasRestantes: 0,
             esVencido: false,
             esProximo: false
@@ -684,7 +685,7 @@ const calcularEstadoMantenimiento = (mantenimiento) => {
         return {
             estado: 'vencido',
             descripcion: `Vencido hace ${Math.abs(diasRestantes)} días`,
-            clase: 'text-red-700 bg-red-100',
+            clase: 'text-rose-800 dark:text-rose-200 dark:text-rose-200 bg-rose-100',
             diasRestantes: diasRestantes,
             esVencido: true,
             esProximo: false
@@ -694,7 +695,7 @@ const calcularEstadoMantenimiento = (mantenimiento) => {
         return {
             estado: 'por_vencer',
             descripcion: `Vence en ${diasRestantes} días (alerta activa)`,
-            clase: 'text-orange-700 bg-orange-100',
+            clase: 'text-brand-700 bg-amber-100',
             diasRestantes: diasRestantes,
             esVencido: false,
             esProximo: true
@@ -704,7 +705,7 @@ const calcularEstadoMantenimiento = (mantenimiento) => {
         return {
             estado: 'al_dia',
             descripcion: `Próximo en ${diasRestantes} días`,
-            clase: 'text-blue-700 bg-blue-100',
+            clase: 'text-sky-800 dark:text-sky-200 bg-sky-100',
             diasRestantes: diasRestantes,
             esVencido: false,
             esProximo: false
@@ -982,12 +983,12 @@ const getDescripcionPrioridad = (prioridad) => {
 
 const getClasesPrioridad = (prioridad) => {
     const clases = {
-        'baja': 'bg-green-100 text-green-700 border-green-200',
-        'media': 'bg-blue-100 text-blue-700 border-blue-200',
-        'alta': 'bg-orange-100 text-orange-700 border-orange-200',
-        'critica': 'bg-red-100 text-red-700 border-red-200'
+        'baja': 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800/30',
+        'media': 'bg-sky-100 text-sky-800 dark:text-sky-200 border-sky-200 dark:border-sky-800/30',
+        'alta': 'bg-brand-100 text-brand-800 border-orange-200',
+        'critica': 'bg-rose-100 text-rose-800 dark:text-rose-200 dark:text-rose-200 border-rose-200 dark:border-rose-800/30'
     };
-    return clases[prioridad] || 'bg-gray-100 text-gray-700 border-gray-200';
+    return clases[prioridad] || 'bg-slate-100 text-slate-700 border-slate-200';
 };
 
 const getLabelPrioridad = (prioridad) => {

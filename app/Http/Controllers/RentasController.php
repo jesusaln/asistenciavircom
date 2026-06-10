@@ -568,7 +568,7 @@ class RentasController extends Controller
             'meses_duracion' => $renta->meses_duracion + $request->meses_renovacion,
             'estado' => 'activo',
             'historial_cambios' => array_merge($renta->historial_cambios ?? [], [
-                ['accion' => 'renovacion', 'fecha' => now()->toISOString(), 'meses' => $request->meses_renovacion]
+                ['accion' => 'renovacion', 'fecha' => now()->toIso8601String(), 'meses' => $request->meses_renovacion]
             ])
         ]);
 

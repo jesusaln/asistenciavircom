@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('ventas', function (Blueprint $blueprint) {
-            $blueprint->foreignId('cita_id')->nullable()->constrained('citas')->onDelete('set null');
-        });
+        if (!Schema::hasColumn('ventas', 'cita_id')) {
+            Schema::table('ventas', function (Blueprint $blueprint) {
+                $blueprint->foreignId('cita_id')->nullable()->constrained('citas')->onDelete('set null');
+            });
+        }
     }
 
     /**

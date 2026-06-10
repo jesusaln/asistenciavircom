@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('marketing_mensajes_entrantes', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignId('cliente_id')->nullable()->constrained('clientes');
-            $table->string('telefono');
-            $table->text('mensaje');
-            $table->enum('plataforma', ['whatsapp', 'sms'])->default('whatsapp');
-            $table->json('metadata')->nullable(); // Guardar el payload bruto de Meta
-            $table->foreignId('empresa_id')->constrained('empresas');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('marketing_mensajes_entrantes')) {
+            Schema::create('marketing_mensajes_entrantes', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->foreignId('cliente_id')->nullable()->constrained('clientes');
+                $table->string('telefono');
+                $table->text('mensaje');
+                $table->enum('plataforma', ['whatsapp', 'sms'])->default('whatsapp');
+                $table->json('metadata')->nullable(); // Guardar el payload bruto de Meta
+                $table->foreignId('empresa_id')->constrained('empresas');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, watch } from 'vue'
 import { Head, router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -17,6 +18,7 @@ const props = defineProps({
 
 const search = ref(props.filtros?.buscar || '')
 const estado = ref(props.filtros?.estado || '')
+const cliente_id = ref(props.filtros?.cliente_id || '')
 
 // Debounce search
 let timeout = null
@@ -27,7 +29,8 @@ watch([search, estado], () => {
       route('facturas.index'),
       { 
         buscar: search.value, 
-        estado: estado.value 
+        estado: estado.value,
+        cliente_id: cliente_id.value || undefined
       },
       { preserveState: true, replace: true }
     )
@@ -39,9 +42,9 @@ const getStatusClasses = (status) => {
     borrador: 'bg-slate-700 text-slate-300 border-slate-600',
     enviada: 'bg-blue-900/40 text-blue-300 border-blue-700/50',
     pagada: 'bg-emerald-900/40 text-emerald-300 border-emerald-700/50',
-    vencida: 'bg-red-900/40 text-red-300 border-red-700/50',
+    vencida: 'bg-rose-900/40 text-rose-300 border-rose-700/50',
     cancelada: 'bg-rose-900/40 text-rose-300 border-rose-700/50',
-    anulada: 'bg-gray-800 text-gray-400 border-gray-700'
+    anulada: 'bg-slate-800 text-slate-400 border-slate-700'
   }
   return classes[status] || 'bg-slate-700 text-slate-300'
 }
@@ -56,7 +59,7 @@ const formatearMoneda = (monto) => {
 
 <template>
   <Head title="Facturación CFDI 4.0" />
-  <div :style="cssVars" class="min-h-screen bg-slate-900 font-sans text-slate-300">
+  <div :style="cssVars" class="min-h-screen bg-[var(--ui-surface)] font-sans text-slate-300">
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         
@@ -71,7 +74,7 @@ const formatearMoneda = (monto) => {
             <div class="mt-4 flex md:mt-0 md:ml-4">
                 <Link 
                   :href="route('facturas.create')"
-                  class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-slate-900 transition-all duration-200 transform hover:scale-105"
+                  class="inline-flex items-center px-6 py-3 border border-transparent rounded-2xl shadow-xl text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-slate-900 transition-all duration-200 transform hover:scale-105"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -83,7 +86,7 @@ const formatearMoneda = (monto) => {
 
         <!-- Stats Grid -->
         <div class="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-indigo-500/50 transition-all duration-300">
+          <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-brand-500/50 transition-all duration-200">
              <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-indigo-500/10 blur-3xl group-hover:bg-indigo-500/20 transition-all"></div>
             <div class="relative">
                 <div class="text-slate-400 text-sm font-medium tracking-wide">Total Facturas</div>
@@ -91,24 +94,24 @@ const formatearMoneda = (monto) => {
             </div>
           </div>
           
-          <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-blue-500/50 transition-all duration-300">
-            <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-blue-500/10 blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
+          <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-brand-500/50 transition-all duration-200">
+            <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-brand-500/10 blur-3xl group-hover:bg-slate-500/20 transition-all"></div>
             <div class="relative">
                 <div class="text-blue-400 text-sm font-medium tracking-wide">Pendientes / Enviadas</div>
                 <div class="mt-2 text-3xl font-bold text-white">{{ stats.pendientes }}</div>
             </div>
           </div>
 
-          <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-emerald-500/50 transition-all duration-300">
-             <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-emerald-500/10 blur-3xl group-hover:bg-emerald-500/20 transition-all"></div>
+          <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-brand-500/50 transition-all duration-200">
+             <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-brand-500/10 blur-3xl group-hover:bg-slate-500/20 transition-all"></div>
             <div class="relative">
                 <div class="text-emerald-400 text-sm font-medium tracking-wide">Pagadas</div>
                 <div class="mt-2 text-3xl font-bold text-white">{{ stats.pagadas }}</div>
             </div>
           </div>
 
-           <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-rose-500/50 transition-all duration-300">
-             <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-rose-500/10 blur-3xl group-hover:bg-rose-500/20 transition-all"></div>
+           <div class="relative overflow-hidden rounded-2xl bg-slate-800 p-6 shadow-xl border border-slate-700/50 group hover:border-brand-500/50 transition-all duration-200">
+             <div class="absolute right-0 top-0 h-32 w-32 translate-x-8 translate-y--8 rounded-full bg-brand-500/10 blur-3xl group-hover:bg-slate-500/20 transition-all"></div>
             <div class="relative">
                 <div class="text-rose-400 text-sm font-medium tracking-wide">Canceladas</div>
                 <div class="mt-2 text-3xl font-bold text-white">{{ stats.canceladas }}</div>
@@ -130,13 +133,13 @@ const formatearMoneda = (monto) => {
                     v-model="search"
                     type="text" 
                     placeholder="Buscar por folio o cliente..." 
-                    class="block w-full pl-10 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl leading-5 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
+                    class="block w-full pl-10 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl leading-5 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-colors"
                   >
               </div>
               
               <select 
                 v-model="estado"
-                class="block pl-3 pr-10 py-2.5 bg-slate-900 border border-slate-700 rounded-xl leading-5 text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
+                class="block pl-3 pr-10 py-2.5 bg-slate-900 border border-slate-700 rounded-xl leading-5 text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-colors"
               >
                 <option value="">Todos los estados</option>
                 <option value="borrador">Borrador</option>
@@ -149,8 +152,8 @@ const formatearMoneda = (monto) => {
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-700/50">
-              <thead class="bg-slate-900/50">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+              <thead class="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
                   <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Folio</th>
                   <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Cliente</th>
@@ -160,11 +163,11 @@ const formatearMoneda = (monto) => {
                   <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-700/50 bg-slate-800">
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                 <tr v-for="factura in facturas.data" :key="factura.id" class="hover:bg-slate-700/30 transition-colors">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                        <div class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
+                        <div class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
@@ -228,13 +231,4 @@ const formatearMoneda = (monto) => {
   </div>
 </template>
 
-<style scoped>
-/* Custom overrides for pagination in dark mode if needed, 
-   assuming Pagination component handles some or we invoke it via props */
-:deep(.dark-pagination button) {
-    @apply bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700;
-}
-:deep(.dark-pagination .active) {
-    @apply bg-indigo-600 border-indigo-600 text-white;
-}
-</style>
+

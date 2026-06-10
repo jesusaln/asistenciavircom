@@ -10,10 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('folio_configs', function (Blueprint $table) {
-            // Drop the global unique constraint that prevents multiple companies from having the same document_type
-            $table->dropUnique('folio_configs_document_type_unique');
-        });
+        $exists = \Illuminate\Support\Facades\DB::select("
+            SELECT 1 FROM pg_constraint WHERE conname = 'folio_configs_document_type_unique'
+            UNION ALL
+            SELECT 1 FROM pg_indexes WHERE indexname = 'folio_configs_document_type_unique'
+        ");
+        if (!empty($exists)) {
+            Schema::table('folio_configs', function (Blueprint $table) {
+                // Drop the global unique constraint that prevents multiple companies from having the same document_type
+                $table->dropUnique('folio_configs_document_type_unique');
+            });
+        }
     }
 
     /**

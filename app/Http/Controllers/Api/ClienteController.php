@@ -9,7 +9,7 @@ use App\Models\SatRegimenFiscal;
 use App\Models\SatUsoCfdi;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +18,11 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Exception;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Traits\ApiResponse;
 
 class ClienteController extends Controller
 {
+    use ApiResponse;
     private const ITEMS_PER_PAGE = 10;
     private const CACHE_TTL = 60;
 
@@ -195,24 +196,11 @@ class ClienteController extends Controller
 
     private function buildSearchQuery(Request $request)
     {
-        $withRelations = [];
-        if ($request->input('include_relations', false)) {
-            $withRelations = ['estadoSat', 'regimen', 'uso'];
-        }
-
-        $empresaId = \App\Support\EmpresaResolver::resolveId();
-        $q = \App\Models\Cliente::where('empresa_id', $empresaId)->with($withRelations);
+        // Consulta base ligera sin relaciones pesadas para la lista
+        $q = \App\Models\Cliente::query();
 
         if ($s = trim((string) $request->input('search', ''))) {
-            if (strlen($s) >= 3 && $this->hasFulltextIndex()) {
-                $q->whereRaw("MATCH(nombre_razon_social, email, rfc) AGAINST(? IN NATURAL LANGUAGE MODE)", [$s]);
-            } else {
-                $q->where(function ($w) use ($s) {
-                    $w->where('nombre_razon_social', 'like', "%{$s}%")
-                        ->orWhere('rfc', 'like', "%{$s}%")
-                        ->orWhere('email', 'like', "%{$s}%");
-                });
-            }
+            $q->search($s);
         }
 
         if ($tp = $request->input('tipo_persona')) {
@@ -279,12 +267,28 @@ class ClienteController extends Controller
         return $paginator;
     }
 
-    private function formatClienteForView(Cliente $c): Cliente
+    private function formatClienteForView($c): Cliente
     {
         $c->tipo_persona_nombre = $this->getTipoPersonaNombre($c->tipo_persona);
-        $c->regimen_fiscal_nombre = $c->regimen?->descripcion ?? $this->getRegimenFiscalNombre($c->regimen_fiscal);
-        $c->uso_cfdi_nombre = $c->uso?->descripcion ?? $this->getUsoCFDINombre($c->uso_cfdi);
-        $c->estado_nombre = $c->estadoSat?->nombre ?? $c->estado;
+
+        if ($c->relationLoaded('regimen')) {
+            $c->regimen_fiscal_nombre = $c->regimen?->descripcion ?? $this->getRegimenFiscalNombre($c->regimen_fiscal);
+        } else {
+            $c->regimen_fiscal_nombre = $this->getRegimenFiscalNombre($c->regimen_fiscal);
+        }
+
+        if ($c->relationLoaded('uso')) {
+            $c->uso_cfdi_nombre = $c->uso?->descripcion ?? $this->getUsoCFDINombre($c->uso_cfdi);
+        } else {
+            $c->uso_cfdi_nombre = $this->getUsoCFDINombre($c->uso_cfdi);
+        }
+
+        if ($c->relationLoaded('estadoSat')) {
+            $c->estado_nombre = $c->estadoSat?->nombre ?? $this->getEstadoNombre($c->estado);
+        } else {
+            $c->estado_nombre = $this->getEstadoNombre($c->estado);
+        }
+
         $c->estado_texto = $c->activo ? 'Activo' : 'Inactivo';
 
         return $c;
@@ -308,7 +312,6 @@ class ClienteController extends Controller
             if (!in_array($sortDirection, self::VALID_SORT_DIRECTIONS))
                 $sortDirection = self::DEFAULT_SORT_DIRECTION;
 
-            $query->withCount('prestamos');
             $query->orderBy($sortBy, $sortDirection);
 
             $noPaginate = $request->has('nopaginate') || $request->input('all') == '1';
@@ -319,19 +322,28 @@ class ClienteController extends Controller
                     return $this->formatClienteForView($cliente);
                 });
 
-                return response()->json([
-                    'success' => true,
-                    'data' => $clientesTransformados,
-                ]);
+                return $this->success($clientesTransformados);
             }
 
             $perPage = min((int) $request->input('per_page', self::ITEMS_PER_PAGE), 100);
             $paginator = $query->paginate($perPage)->appends($request->query());
             $paginator = $this->transformClientesPaginator($paginator);
 
-            return response()->json([
-                'success' => true,
-                'data' => $paginator->items(),
+            $catalogs = [];
+            // Solo cargar catálogos en la primera página o si se solicita explícitamente
+            // Esto reduce drásticamente el tamaño de la respuesta durante el scroll infinito
+            if ($request->input('page', 1) == 1 || $request->boolean('with_catalogs')) {
+                try {
+                    $catalogs = $this->getCatalogData();
+                } catch (\Throwable $catalogEx) {
+                    Log::warning('ClienteController@index: catálogos omitidos', [
+                        'message' => $catalogEx->getMessage(),
+                    ]);
+                }
+            }
+
+            return $this->success([
+                'items' => $paginator->items(),
                 'pagination' => [
                     'current_page' => $paginator->currentPage(),
                     'last_page' => $paginator->lastPage(),
@@ -340,14 +352,11 @@ class ClienteController extends Controller
                     'to' => $paginator->lastItem(),
                     'total' => $paginator->total(),
                 ],
-                'catalogs' => $this->getCatalogData(),
+                'catalogs' => $catalogs,
             ]);
         } catch (Exception $e) {
-            Log::error('Error en API ClienteController@index: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar la lista de clientes.'
-            ], 500);
+            Log::error('Error en API ClienteController@index: ' . $e->getMessage());
+            return $this->serverError('Error al cargar la lista de clientes', $e);
         }
     }
 
@@ -364,6 +373,33 @@ class ClienteController extends Controller
 
             // Normalización de datos básicos
             $data['nombre_razon_social'] = trim($data['nombre_razon_social']);
+
+            $nombreLimpio = $data['nombre_razon_social'];
+            $empresaId = $data['empresa_id'] ?? \App\Support\EmpresaResolver::resolveId() ?? 1;
+
+            $existente = Cliente::where(function($q) use ($empresaId) {
+                if ($empresaId) {
+                    $q->where('empresa_id', $empresaId)->orWhereNull('empresa_id');
+                } else {
+                    $q->whereNull('empresa_id');
+                }
+            })
+                ->whereNull('deleted_at')
+                ->where(function($q) use ($nombreLimpio, $data) {
+                    $q->whereRaw("unaccent(lower(trim(nombre_razon_social))) = unaccent(lower(trim(?)))", [$nombreLimpio]);
+                    if (!empty($data['telefono']) && strlen(trim($data['telefono'])) >= 7) {
+                        $q->orWhere('telefono', trim($data['telefono']));
+                    }
+                    if (!empty($data['email']) && filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL)) {
+                        $q->orWhere('email', strtolower(trim($data['email'])));
+                    }
+                })->lockForUpdate()->first();
+
+            if ($existente) {
+                DB::rollBack();
+                Log::info('ClienteController: Evitando duplicado via API, retornando cliente existente', ['id' => $existente->id]);
+                return $this->created($existente, 'El cliente ya estaba registrado y ha sido seleccionado automáticamente.');
+            }
 
             if (isset($data['rfc']) && !is_null($data['rfc'])) {
                 $data['rfc'] = strtoupper(trim($data['rfc']));
@@ -427,31 +463,19 @@ class ClienteController extends Controller
 
             Log::info('Cliente creado via API', ['id' => $cliente->id]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Cliente creado correctamente',
-                'data' => $cliente
-            ], 201);
+            return $this->created($cliente, 'Cliente creado correctamente');
         } catch (ValidationException $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Errores de validación',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->validationError($e->errors());
         } catch (\Exception $e) {
             DB::rollBack();
 
             Log::error('Error al crear cliente via API: ' . $e->getMessage(), [
-                'data' => $request->all(),
+                'data' => $request->except(['_token', 'password', 'password_confirmation', 'token']),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error interno del servidor',
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->serverError('Error al crear cliente via API', $e);
         }
     }
 
@@ -495,15 +519,12 @@ class ClienteController extends Controller
             $cliente = Cliente::findOrFail($id);
             $data = $request->validated();
 
-            // ⚠️ LOG TEMPORAL - Ver qué datos llegan
-            Log::info('=== DATOS RECIBIDOS EN UPDATE ===', [
+            // ⚠️ Log sanitized for security
+            Log::info('Cliente update request', [
                 'cliente_id' => $id,
                 'requiere_factura' => $request->input('requiere_factura'),
                 'rfc' => $request->input('rfc'),
-                'regimen_fiscal' => $request->input('regimen_fiscal'),
-                'uso_cfdi' => $request->input('uso_cfdi'),
-                'email' => $request->input('email'),
-                'ALL_DATA' => $request->all()
+                'has_email' => $request->filled('email'),
             ]);
 
             $data['nombre_razon_social'] = trim($data['nombre_razon_social']);
@@ -710,8 +731,7 @@ class ClienteController extends Controller
                 ], 422);
             }
 
-            $empresaId = \App\Support\EmpresaResolver::resolveId();
-            $query = Cliente::where('empresa_id', $empresaId)->where('email', $email);
+            $query = Cliente::where('email', $email);
             if ($clienteId) {
                 $query->where('id', '!=', $clienteId);
             }
@@ -751,8 +771,7 @@ class ClienteController extends Controller
                 return response()->json(['success' => true, 'exists' => false, 'message' => 'RFC genérico válido']);
             }
 
-            $empresaId = \App\Support\EmpresaResolver::resolveId();
-            $query = Cliente::where('empresa_id', $empresaId)->where('rfc', $rfc);
+            $query = Cliente::where('rfc', $rfc);
             if ($clienteId)
                 $query->where('id', '!=', $clienteId);
 
@@ -822,23 +841,26 @@ class ClienteController extends Controller
                 return response()->json(['success' => false, 'message' => 'Mínimo ' . self::MIN_SEARCH_LENGTH . ' caracteres para búsqueda'], 422);
             }
 
-            $empresaId = \App\Support\EmpresaResolver::resolveId();
-            $clientes = Cliente::where('empresa_id', $empresaId)
-                ->where('activo', true)
-                ->where(function ($q) use ($query) {
-                    $q->where('nombre_razon_social', 'like', "%{$query}%")
-                        ->orWhere('rfc', 'like', "%{$query}%")
-                        ->orWhere('email', 'like', "%{$query}%");
+            $clientes = Cliente::query()
+                ->where(function ($q) {
+                    $q->where('activo', true)->orWhereNull('activo');
                 })
-                ->select('id', 'nombre_razon_social', 'rfc', 'email', 'tipo_persona')
+                ->search($query, ['nombre_razon_social', 'rfc', 'email', 'telefono'])
+                ->orderBySimilarity($query, 'nombre_razon_social')
+                ->orderBy('nombre_razon_social')
+                ->select('id', 'nombre_razon_social', 'rfc', 'email', 'telefono', 'tipo_persona', 'activo')
                 ->limit($limit)
                 ->get();
 
             $resultados = $clientes->map(fn($c) => [
                 'id' => $c->id,
+                'nombre_razon_social' => $c->nombre_razon_social,
                 'nombre' => $c->nombre_razon_social,
                 'rfc' => $c->rfc,
                 'email' => $c->email,
+                'telefono' => $c->telefono,
+                'activo' => (bool) $c->activo,
+                'estado' => $c->activo === false ? 'inactivo' : 'activo',
                 'tipo_persona' => $this->getTipoPersonaNombre($c->tipo_persona),
                 'label' => "{$c->nombre_razon_social} ({$c->rfc})"
             ]);
@@ -856,15 +878,14 @@ class ClienteController extends Controller
     public function stats(): JsonResponse
     {
         try {
-            $empresaId = \App\Support\EmpresaResolver::resolveId();
-            $stats = Cache::remember("clientes_stats_{$empresaId}", 5, function () use ($empresaId) {
+            $stats = Cache::remember('clientes_stats', 5, function () {
                 return [
-                    'total' => Cliente::where('empresa_id', $empresaId)->count(),
-                    'activos' => Cliente::where('empresa_id', $empresaId)->where('activo', true)->count(),
-                    'inactivos' => Cliente::where('empresa_id', $empresaId)->where('activo', false)->count(),
-                    'personas_fisicas' => Cliente::where('empresa_id', $empresaId)->where('tipo_persona', 'fisica')->count(),
-                    'personas_morales' => Cliente::where('empresa_id', $empresaId)->where('tipo_persona', 'moral')->count(),
-                    'nuevos_mes' => Cliente::where('empresa_id', $empresaId)->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+                    'total' => Cliente::count(),
+                    'activos' => Cliente::where('activo', true)->count(),
+                    'inactivos' => Cliente::where('activo', false)->count(),
+                    'personas_fisicas' => Cliente::where('tipo_persona', 'fisica')->count(),
+                    'personas_morales' => Cliente::where('tipo_persona', 'moral')->count(),
+                    'nuevos_mes' => Cliente::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
                 ];
             });
 

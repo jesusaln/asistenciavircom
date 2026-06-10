@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->integer('dias_gracia_corte')->default(15)->comment('Días de gracia después del vencimiento antes de bloquear el portal');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'dias_gracia_corte')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->integer('dias_gracia_corte')->default(15)->comment('Días de gracia después del vencimiento antes de bloquear el portal');
+            });
+        }
     }
 
     /**

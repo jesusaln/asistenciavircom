@@ -12,7 +12,10 @@ class RoleMiddleware
     {
         // Verifica si el usuario está autenticado
         if (!Auth::check()) {
-            return redirect()->route('login'); // Redirige al login si no está autenticado
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+            }
+            return redirect()->route('login');
         }
 
         // Verifica si el usuario tiene alguno de los roles permitidos o es super-admin
@@ -22,14 +25,20 @@ class RoleMiddleware
             return $next($request);
         }
 
-        foreach ($roles as $role) {
-            if ($user->hasRole($role)) {
-                return $next($request); // Permite el acceso si coincide algún rol
+        foreach ($roles as $roleGroup) {
+            $individualRoles = explode('|', $roleGroup);
+            foreach ($individualRoles as $role) {
+                if ($user->hasRole($role)) {
+                    return $next($request);
+                }
             }
         }
 
         // Si no tiene ningún rol permitido, aborta o redirige
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json(['success' => false, 'message' => 'Forbidden. No tienes permiso para acceder a este recurso.'], 403);
+        }
+
         abort(403, 'No tienes permiso para acceder a esta página.');
-        // Alternativa: return redirect()->route('home')->with('error', 'Acceso denegado.');
     }
 }

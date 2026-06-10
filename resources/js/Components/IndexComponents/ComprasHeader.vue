@@ -1,181 +1,180 @@
 <template>
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden index-header-root">
-    <!-- Header con estadísticas -->
-    <div class="px-6 py-6 border-b border-gray-200/60" :style="{ background: `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
-        <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="bg-white dark:bg-slate-950 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300 index-header-root">
+    <!-- Header principal -->
+    <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800" :style="{ background: `linear-gradient(135deg, ${colors.principal}08 0%, ${colors.secundario}05 100%)` }">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-5">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transform transition-transform hover:scale-105" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
+            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Compras</h1>
-            <p class="text-sm text-gray-600 mt-0.5">Gestiona todas tus compras en un solo lugar</p>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-wider">Compras</h1>
+            <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Gestión de Abastecimiento</p>
           </div>
         </div>
+
         <div class="flex items-center space-x-3">
           <button
             @click="onImportarXml"
-            class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors duration-200"
+            class="group inline-flex items-center px-6 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0"
           >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Importar XML
           </button>
           <button
             @click="onCrearNueva"
-            class="inline-flex items-center px-5 py-2.5 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5"
-            :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)`, '--tw-ring-color': colors.principal }"
+            class="group inline-flex items-center px-6 py-3.5 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0"
+            :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }"
           >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Nueva Compra
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- Estadísticas -->
+    <!-- Estadísticas -->
+    <div class="px-8 py-6 bg-transparent/30 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Total</p>
-              <p class="text-2xl font-bold" :style="{ color: colors.principal }">{{ total }}</p>
+        <!-- Card 1: Total -->
+        <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/50">
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Compras</span>
+                <div class="w-7 h-7 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-700">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </div>
             </div>
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{ backgroundColor: `${colors.principal}20` }">
-              <svg class="w-5 h-5" :style="{ color: colors.principal }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white">{{ total }}</p>
           </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Procesadas</p>
-              <p class="text-2xl font-bold text-green-600">{{ procesadas }}</p>
+        <!-- Card 2: Procesadas -->
+        <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/50">
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-wide">Procesadas</span>
+                <div class="w-7 h-7 rounded-xl flex items-center justify-center bg-emerald-100/50 dark:bg-emerald-900/30">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
             </div>
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <p class="text-2xl font-black text-emerald-600 dark:text-emerald-500">{{ procesadas }}</p>
           </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Canceladas</p>
-              <p class="text-2xl font-bold text-red-600">{{ canceladas }}</p>
+        <!-- Card 3: Canceladas -->
+        <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/50">
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-wide">Canceladas</span>
+                <div class="w-7 h-7 rounded-xl flex items-center justify-center bg-rose-100/50 dark:bg-rose-900/30">
+                    <svg class="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </div>
             </div>
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
+            <p class="text-2xl font-black text-rose-600 dark:text-rose-500">{{ canceladas }}</p>
           </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Monto Total</p>
-              <p class="text-2xl font-bold" :style="{ color: colors.secundario }">${{ formatearMoneda(montoTotal) }}</p>
+        <!-- Card 4: Monto Total -->
+        <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/50">
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Inversión Total</span>
+                <div class="w-7 h-7 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-700">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" /></svg>
+                </div>
             </div>
-            <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{ backgroundColor: `${colors.secundario}20` }">
-              <svg class="w-5 h-5" :style="{ color: colors.secundario }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            </div>
+            <p class="text-2xl font-black text-slate-900 dark:text-white">${{ formatearMoneda(montoTotal) }}</p>
           </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Pendientes de Pago</p>
-              <p class="text-2xl font-bold text-amber-600">${{ formatearMoneda(pendientesPago) }}</p>
+        <!-- Card 5: Pendientes Pago -->
+        <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-md p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-slate-800/50">
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[9px] font-black text-brand-600 dark:text-brand-500 uppercase tracking-wide">Pendiente Pago</span>
+                <div class="w-7 h-7 rounded-xl flex items-center justify-center bg-brand-100/50 dark:bg-brand-900/30">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
             </div>
-            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <p class="text-2xl font-black text-brand-600 dark:text-brand-500">${{ formatearMoneda(pendientesPago) }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Filtros y búsqueda -->
-    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-200/60">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+    <!-- Filtros -->
+    <div class="px-8 py-5 bg-white dark:bg-slate-900">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <!-- Búsqueda -->
-        <div class="flex-1 max-w-md">
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex-1 max-w-xl">
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
+              <svg class="h-5 w-5 text-slate-400 group-hover:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
             <input
               v-model="searchTerm"
               type="text"
-              placeholder="Buscar por proveedor, número de compra..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              aria-label="Buscar compras por proveedor o folio"
+              placeholder="Buscar compras por proveedor, folio..."
+              class="block w-full pl-12 pr-4 py-3.5 bg-transparent dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:bg-white dark:focus:bg-slate-900 focus:border-slate-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300 text-sm"
               @input="onSearchChange"
             />
           </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="flex items-center space-x-3">
-          <!-- Estado -->
-          <select
-            v-model="filtroEstado"
-            @change="onFiltroEstadoChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-          >
-            <option value="">Todos los Estados</option>
-            <option value="procesada">Procesadas</option>
-            <option value="cancelada">Canceladas</option>
-          </select>
+        <!-- Filtros adicionales -->
+        <div class="flex items-center gap-3">
+          <!-- Filtro Estado -->
+          <div class="relative min-w-[160px]">
+            <select
+              v-model="filtroEstado"
+              class="appearance-none block w-full pl-4 pr-10 py-3.5 bg-transparent dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-wide text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-slate-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300"
+              @change="onFiltroEstadoChange"
+            >
+              <option value="">Estados</option>
+              <option value="procesada">Procesadas</option>
+              <option value="cancelada">Canceladas</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+              <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
 
-          <!-- Origen -->
-          <select
-            v-model="filtroOrigen"
-            @change="onFiltroOrigenChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-          >
-            <option value="">Todos los Orígenes</option>
-            <option value="directa">Compras Directas</option>
-            <option value="orden_compra">De Orden de Compra</option>
-          </select>
-
-          <!-- Ordenamiento -->
-          <select
-            v-model="sortBy"
-            @change="onSortChange"
-            class="block w-48 pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-          >
-            <option value="created_at-desc">Fecha (Más reciente)</option>
-            <option value="created_at-asc">Fecha (Más antiguo)</option>
-            <option value="total-desc">Monto (Mayor)</option>
-            <option value="total-asc">Monto (Menor)</option>
-            <option value="proveedor-asc">Proveedor (A-Z)</option>
-            <option value="proveedor-desc">Proveedor (Z-A)</option>
-          </select>
+          <!-- Filtro Origen -->
+          <div class="relative min-w-[160px]">
+            <select
+              v-model="filtroOrigen"
+              class="appearance-none block w-full pl-4 pr-10 py-3.5 bg-transparent dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-wide text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-slate-900 dark:focus:border-slate-700 focus:ring-0 transition-all duration-300"
+              @change="onFiltroOrigenChange"
+            >
+              <option value="">Orígenes</option>
+              <option value="directa">Directas</option>
+              <option value="orden_compra">O. Compra</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+              <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
 
           <!-- Limpiar filtros -->
           <button
             @click="onLimpiarFiltros"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            class="inline-flex items-center px-5 py-3.5 bg-transparent dark:bg-slate-950 border-2 border-transparent dark:border-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-wide text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:border-slate-900 dark:hover:border-slate-700 transition-all duration-300"
           >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             Limpiar
@@ -237,19 +236,15 @@ watch([searchTerm, sortBy, filtroEstado, filtroOrigen], () => {
 </script>
 
 <style scoped>
-/* Estilos específicos para el header de compras */
-.compras-header {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+@media (max-width: 640px) {
+  .grid-cols-2.md\\:grid-cols-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 768px) {
-  .compras-header .grid {
-    grid-template-columns: 1fr;
-  }
+button:focus-visible { outline: 2px solid; outline-offset: 2px; }
 
-  .compras-header h1 {
-    font-size: 1.5rem;
-  }
+@media (hover: none) {
+  .hover\\:bg-transparent:hover { background-color: transparent; }
 }
 </style>
-

@@ -43,16 +43,21 @@ class CfdiCuentasService
             ? Carbon::parse($datos['fecha_vencimiento'])
             : Carbon::parse($fechaBase)->addDays(30);
 
+        // Si el CFDI es PUE (Pago en Una Exhibición), la cuenta ya está pagada
+        $esPUE = strtoupper($cfdi->metodo_pago ?? '') === 'PUE';
+        
         $cuenta = CuentasPorPagar::create([
             'cfdi_id' => $cfdi->id,
             'proveedor_id' => $proveedor->id,
-            'compra_id' => null, // Sin compra asociada
+            'compra_id' => null,
             'monto_total' => $cfdi->total,
-            'monto_pagado' => 0,
-            'monto_pendiente' => $cfdi->total,
+            'monto_pagado' => $esPUE ? $cfdi->total : 0,
+            'monto_pendiente' => $esPUE ? 0 : $cfdi->total,
+            'fecha_emision' => $fechaBase->toDateString(),
             'fecha_vencimiento' => $fechaVencimiento,
-            'estado' => 'pendiente',
-            'notas' => $datos['notas'] ?? "Cuenta creada desde CFDI {$cfdi->uuid}",
+            'estado' => $esPUE ? 'pagado' : 'pendiente',
+            'pue_pagado' => $esPUE,
+            'notas' => ($datos['notas'] ?? "Cuenta creada desde CFDI {$cfdi->uuid}") . ($esPUE ? ' (PUE - Pagado de origen)' : ''),
         ]);
 
         Log::info('Cuenta por pagar creada desde CFDI', [
@@ -92,17 +97,20 @@ class CfdiCuentasService
             ? Carbon::parse($datos['fecha_vencimiento'])
             : Carbon::parse($fechaBase)->addDays(30);
 
+        // Si el CFDI es PUE (Pago en Una Exhibición), la cuenta ya está pagada
+        $esPUE = strtoupper($cfdi->metodo_pago ?? '') === 'PUE';
+        
         $cuenta = CuentasPorCobrar::create([
             'cfdi_id' => $cfdi->id,
             'cliente_id' => $cliente->id,
-            'cobrable_id' => null, // Sin venta asociada
+            'cobrable_id' => null,
             'cobrable_type' => null,
             'monto_total' => $cfdi->total,
-            'monto_pagado' => 0,
-            'monto_pendiente' => $cfdi->total,
+            'monto_pagado' => $esPUE ? $cfdi->total : 0,
+            'monto_pendiente' => $esPUE ? 0 : $cfdi->total,
             'fecha_vencimiento' => $fechaVencimiento,
-            'estado' => 'pendiente',
-            'notas' => $datos['notas'] ?? "Cuenta creada desde CFDI {$cfdi->uuid}",
+            'estado' => $esPUE ? 'pagado' : 'pendiente',
+            'notas' => ($datos['notas'] ?? "Cuenta creada desde CFDI {$cfdi->uuid}") . ($esPUE ? ' (PUE - Pagado de origen)' : ''),
         ]);
 
         Log::info('Cuenta por cobrar creada desde CFDI', [

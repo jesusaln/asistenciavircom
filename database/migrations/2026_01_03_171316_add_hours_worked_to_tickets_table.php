@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('tickets', function (Blueprint $table) {
-            $table->decimal('horas_trabajadas', 6, 2)->nullable()->after('resuelto_at')
-                ->comment('Horas trabajadas en el ticket');
-        });
+        if (!Schema::hasColumn('tickets', 'horas_trabajadas')) {
+            Schema::table('tickets', function (Blueprint $table) {
+                $table->decimal('horas_trabajadas', 6, 2)->nullable()->after('resuelto_at')
+                    ->comment('Horas trabajadas en el ticket');
+            });
+        }
     }
 
     /**

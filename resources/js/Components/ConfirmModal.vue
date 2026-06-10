@@ -20,10 +20,10 @@ defineEmits(['cancel', 'confirm']);
             </p>
         </div>
         <div class="flex justify-end gap-3 px-6 py-4 bg-[var(--ui-surface-alt)] border-t border-[var(--ui-border)]">
-            <button @click="$emit('cancel')" class="px-4 py-2 rounded-lg bg-gray-400/90 text-white hover:bg-gray-500 transition">
+            <button @click="$emit('cancel')" class="px-4 py-2 rounded-xl bg-slate-400/90 text-white hover:bg-slate-500 transition">
                 Cancelar
             </button>
-            <button @click="$emit('confirm')" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
+            <button @click="$emit('confirm')" class="px-4 py-2 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition">
                 Eliminar
             </button>
         </div>

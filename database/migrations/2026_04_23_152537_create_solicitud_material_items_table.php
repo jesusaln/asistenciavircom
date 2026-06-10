@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('solicitud_material_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('solicitud_material_id')->constrained('solicitud_materiales')->onDelete('cascade');
-            $table->foreignId('producto_id')->nullable()->constrained('productos')->onDelete('set null');
-            $table->string('descripcion')->nullable();
-            $table->decimal('cantidad', 10, 2);
-            $table->string('unidad_medida')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('solicitud_material_items')) {
+            Schema::create('solicitud_material_items', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('solicitud_material_id')->constrained('solicitud_materiales')->onDelete('cascade');
+                $table->foreignId('producto_id')->nullable()->constrained('productos')->onDelete('set null');
+                $table->string('descripcion')->nullable();
+                $table->decimal('cantidad', 10, 2);
+                $table->string('unidad_medida')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

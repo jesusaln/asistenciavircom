@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('plan_polizas', function (Blueprint $table) {
-            $table->integer('mantenimiento_frecuencia_meses')->nullable()->after('tickets_incluidos')
-                ->comment('Frecuencia en meses sugerida para mantenimientos preventivos');
-            $table->boolean('generar_cita_automatica')->default(false)->after('mantenimiento_frecuencia_meses')
-                ->comment('Sugerencia de si se debe generar cita automática');
-        });
+        if (!Schema::hasColumn('plan_polizas', 'mantenimiento_frecuencia_meses')) {
+            Schema::table('plan_polizas', function (Blueprint $table) {
+                $table->integer('mantenimiento_frecuencia_meses')->nullable()->after('tickets_incluidos')
+                    ->comment('Frecuencia en meses sugerida para mantenimientos preventivos');
+                $table->boolean('generar_cita_automatica')->default(false)->after('mantenimiento_frecuencia_meses')
+                    ->comment('Sugerencia de si se debe generar cita automática');
+            });
+        }
     }
 
     /**

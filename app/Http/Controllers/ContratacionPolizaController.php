@@ -31,6 +31,10 @@ class ContratacionPolizaController extends Controller
     public function show(Request $request, string $slug)
     {
         $empresaId = EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            abort(404, 'No se pudo determinar la empresa para esta contratacion.');
+        }
+
         $empresaModel = \App\Models\Empresa::find($empresaId);
         $configuracion = \App\Models\EmpresaConfiguracion::getConfig($empresaId);
 
@@ -202,10 +206,15 @@ class ContratacionPolizaController extends Controller
             return back()->withErrors(['equipos' => "El plan permite máximo {$plan->max_equipos} equipos."]);
         }
 
-        $empresaId = EmpresaResolver::resolveId() ?? 1;
+        $empresaId = EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return back()->withErrors([
+                'error' => 'No se pudo determinar la empresa para esta contratacion.',
+            ]);
+        }
 
         // Pre-validación de series duplicadas para evitar fallo en transacción
-        foreach ($validated['equipos'] as $item) {
+        foreach (($validated['equipos'] ?? []) as $item) {
             if (!empty($item['serie'])) {
                 $serieEnUso = Equipo::where('empresa_id', $empresaId)
                     ->where('numero_serie', $item['serie'])
@@ -287,7 +296,8 @@ class ContratacionPolizaController extends Controller
                 $subtotal = $plan->precio_mensual;
             }
 
-            $iva = round($subtotal * 0.16, 2); // 16% IVA México Hardcoded
+            $ivaRate = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
+            $iva = round($subtotal * $ivaRate, 2); // IVA Dinámico según configuración de empresa
             $total = $subtotal + $iva;
 
             // 3. Crear la Póliza

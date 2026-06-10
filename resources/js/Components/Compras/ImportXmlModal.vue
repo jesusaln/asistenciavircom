@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto custom-scrollbar">
       <!-- Backdrop -->
       <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="close"></div>
 
@@ -16,7 +16,7 @@
                 </svg>
                 Importar desde XML (CFDI)
               </h3>
-              <button @click="close" class="text-white hover:text-gray-200 transition-colors">
+              <button @click="close" class="text-white hover:text-slate-200 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -31,9 +31,9 @@
                 📋 Revisando factura {{ bulkCurrentIndex + 1 }} de {{ bulkQueue.length }}
               </span>
               <div class="flex space-x-3 text-xs">
-                <span class="text-green-600 font-medium">✓ {{ bulkResults.success.length }} importadas</span>
-                <span class="text-gray-500">○ {{ bulkResults.skipped.length }} omitidas</span>
-                <span class="text-red-600">✗ {{ bulkResults.errors.length }} errores</span>
+                <span class="text-emerald-600 font-medium">✓ {{ bulkResults.success.length }} importadas</span>
+                <span class="text-slate-500">○ {{ bulkResults.skipped.length }} omitidas</span>
+                <span class="text-rose-600">✗ {{ bulkResults.errors.length }} errores</span>
               </div>
             </div>
             <div class="w-full bg-blue-200 rounded-full h-2">
@@ -46,16 +46,16 @@
           <!-- Content -->
           <div class="px-6 pt-2 pb-6">
             <!-- Tabs -->
-            <div class="flex space-x-1 rounded-xl bg-gray-100 p-1 mb-6" v-if="!cfdiData">
+            <div class="flex space-x-1 rounded-xl bg-slate-100 p-1 mb-6" v-if="!cfdiData">
               <button
                 v-for="tab in ['select', 'upload']"
                 :key="tab"
                 @click="activeTab = tab"
                 :class="[
-                  'w-full rounded-lg py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-emerald-400 focus:outline-none focus:ring-2',
+                  'w-full rounded-xl py-2.5 text-sm font-medium leading-5 ring-white ring-opacity-60 ring-offset-2 ring-offset-emerald-400 focus:outline-none focus:ring-2',
                   activeTab === tab
                     ? 'bg-white text-emerald-700 shadow'
-                    : 'text-gray-500 hover:bg-white/[0.12] hover:text-emerald-600'
+                    : 'text-slate-500 hover:bg-white/[0.12] hover:text-emerald-600'
                 ]"
               >
                 {{ tab === 'upload' ? 'Subir Archivo XML' : 'Seleccionar Recibido' }}
@@ -100,7 +100,7 @@
             <!-- Estado: Cargando -->
             <div v-if="loading" class="text-center py-12">
               <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-              <p class="text-gray-600">Procesando XML...</p>
+              <p class="text-slate-600">Procesando XML...</p>
             </div>
 
             <!-- Estado: Datos del CFDI -->
@@ -132,12 +132,12 @@
           </div>
 
           <!-- Footer -->
-          <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-between items-center">
+          <div class="bg-slate-50 px-6 py-4 rounded-b-xl flex justify-between items-center">
             <div>
               <button
                 v-if="cfdiData && !bulkReviewMode"
                 @click="resetUpload"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
               >
                 Subir otro archivo
               </button>
@@ -145,7 +145,7 @@
               <button
                 v-if="bulkReviewMode"
                 @click="cancelBulkReview"
-                class="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-rose-600 bg-white border border-rose-300 rounded-xl hover:bg-rose-50 transition-colors"
               >
                 Cancelar Todo
               </button>
@@ -155,7 +155,7 @@
               <button
                 v-if="!bulkReviewMode"
                 @click="close"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
               >
                 Cancelar
               </button>
@@ -163,7 +163,7 @@
               <button
                 v-if="bulkReviewMode && cfdiData"
                 @click="skipCurrentInBulk"
-                class="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
+                class="px-4 py-2 text-sm font-medium text-brand-700 bg-brand-50 border border-brand-300 rounded-xl hover:bg-brand-100 transition-colors"
               >
                 Omitir
               </button>
@@ -172,7 +172,7 @@
                 v-if="cfdiData && cfdiData.es_factura_valida"
                 @click="confirmarImportacion"
                 :disabled="creandoCompra"
-                class="px-6 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-6 py-2 text-sm font-medium text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg v-if="creandoCompra" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

@@ -43,6 +43,8 @@ class Empresa extends Model
         'whatsapp_chatbot_enabled',
         'whatsapp_chatbot_prompt',
         'whatsapp_chatbot_mode',
+        'whatsapp_chatbot_type',
+        'timezone',
     ];
 
     protected $casts = [
@@ -65,6 +67,12 @@ class Empresa extends Model
         'pais' => 'México',
         'whatsapp_enabled' => false,
         'whatsapp_default_language' => 'es_MX',
+        'calle' => 'Calle Principal',
+        'numero_exterior' => 'S/N',
+        'colonia' => 'Centro',
+        'codigo_postal' => '00000',
+        'municipio' => 'General',
+        'estado' => 'General',
     ];
 
     /**

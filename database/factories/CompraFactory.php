@@ -36,7 +36,7 @@ class CompraFactory extends Factory
                 return $subtotal + $iva;
             },
             'notas' => $this->faker->optional()->paragraph(),
-            'estado' => $this->faker->randomElement([\App\Enums\EstadoCompra::Procesada, \App\Enums\EstadoCompra::Cancelada]),
+            'estado' => $this->faker->randomElement([\App\Enums\EstadoCompra::Procesada->value, \App\Enums\EstadoCompra::Cancelada->value]),
         ];
     }
 }

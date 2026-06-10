@@ -1,7 +1,9 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link, router } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import Swal from '@/Utils/Swal'
 
 defineOptions({ layout: AppLayout })
 
@@ -96,71 +98,71 @@ const pageLinks = computed(() => props.herramientas?.links || [])
 
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-bold text-slate-900">Mantenimiento Preventivo</h1>
-    <Link class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" :href="route('herramientas.dashboard')">
+    <Link class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700" :href="route('herramientas.dashboard')">
       Volver al Dashboard
     </Link>
   </div>
 
   <!-- Formulario de mantenimiento masivo -->
-  <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+  <div class="bg-white rounded-2xl shadow-sm border p-6 mb-6">
     <h2 class="text-xl font-semibold mb-4">Registrar Mantenimiento Masivo</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Mantenimiento</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Fecha de Mantenimiento</label>
         <input
           v-model="fechaMantenimiento"
           type="date"
-          class="w-full border rounded px-3 py-2"
+          class="w-full border rounded-xl px-3 py-2"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Costo Total</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Costo Total</label>
         <input
           v-model="costoMantenimiento"
           type="number"
           step="0.01"
           placeholder="0.00"
-          class="w-full border rounded px-3 py-2"
+          class="w-full border rounded-xl px-3 py-2"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Próximo Mantenimiento (días)</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Próximo Mantenimiento (días)</label>
         <input
           v-model="proximoMantenimientoDias"
           type="number"
           placeholder="90"
-          class="w-full border rounded px-3 py-2"
+          class="w-full border rounded-xl px-3 py-2"
         />
       </div>
       <div class="flex items-end">
         <button
           @click="registrarMantenimientoMasivo"
           :disabled="selectedHerramientas.length === 0"
-          class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
+          class="w-full px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-slate-400"
         >
           Registrar Mantenimiento ({{ selectedHerramientas.length }})
         </button>
       </div>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Descripción del Mantenimiento</label>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Descripción del Mantenimiento</label>
       <textarea
         v-model="descripcionMantenimiento"
         rows="3"
         placeholder="Describe el mantenimiento realizado..."
-        class="w-full border rounded px-3 py-2"
+        class="w-full border rounded-xl px-3 py-2"
       ></textarea>
     </div>
   </div>
 
   <!-- Lista de herramientas que requieren mantenimiento -->
-  <div class="bg-white rounded-lg shadow-sm border">
+  <div class="bg-white rounded-2xl shadow-sm border">
     <div class="p-6 border-b">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold">Herramientas que Requieren Mantenimiento</h2>
         <button
           @click="seleccionarTodas"
-          class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+          class="px-3 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700"
         >
           {{ selectedHerramientas.length === items.length ? 'Deseleccionar Todas' : 'Seleccionar Todas' }}
         </button>
@@ -168,21 +170,21 @@ const pageLinks = computed(() => props.herramientas?.links || [])
     </div>
 
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-white">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-800/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               <input type="checkbox" :checked="selectedHerramientas.length === items.length && items.length > 0" @change="seleccionarTodas" />
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Herramienta</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Mantenimiento</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días Transcurridos</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Herramienta</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Categoría</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Último Mantenimiento</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Días Transcurridos</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
           <tr v-for="herramienta in items" :key="herramienta.id" class="hover:bg-white">
             <td class="px-6 py-4">
               <input
@@ -193,23 +195,23 @@ const pageLinks = computed(() => props.herramientas?.links || [])
             </td>
             <td class="px-6 py-4">
               <div>
-                <div class="font-medium text-gray-900">{{ herramienta.nombre }}</div>
-                <div class="text-sm text-gray-500">{{ herramienta.numero_serie }}</div>
+                <div class="font-medium text-slate-900">{{ herramienta.nombre }}</div>
+                <div class="text-sm text-slate-500">{{ herramienta.numero_serie }}</div>
               </div>
             </td>
             <td class="px-6 py-4">
-              <span class="text-sm text-gray-900">{{ herramienta.categoria_herramienta?.nombre || 'Sin categoría' }}</span>
+              <span class="text-sm text-slate-900">{{ herramienta.categoria_herramienta?.nombre || 'Sin categoría' }}</span>
             </td>
             <td class="px-6 py-4">
-              <span class="text-sm text-gray-900">{{ formatDate(herramienta.fecha_ultimo_mantenimiento) }}</span>
+              <span class="text-sm text-slate-900">{{ formatDate(herramienta.fecha_ultimo_mantenimiento) }}</span>
             </td>
             <td class="px-6 py-4">
-              <span class="text-sm font-medium text-red-600">
+              <span class="text-sm font-medium text-rose-600">
                 {{ calcularDiasDesdeMantenimiento(herramienta.fecha_ultimo_mantenimiento) }} días
               </span>
             </td>
             <td class="px-6 py-4">
-              <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+              <span class="px-2.5 py-0.5 text-xs font-medium bg-rose-100 text-rose-800 dark:text-rose-200 rounded-full">
                 Requiere Mantenimiento
               </span>
             </td>
@@ -217,7 +219,7 @@ const pageLinks = computed(() => props.herramientas?.links || [])
               <Link :href="route('herramientas.show', herramienta.id)" class="text-blue-600 hover:underline mr-3">
                 Ver
               </Link>
-              <Link :href="route('herramientas.edit', herramienta.id)" class="text-green-600 hover:underline">
+              <Link :href="route('herramientas.edit', herramienta.id)" class="text-emerald-600 hover:underline">
                 Editar
               </Link>
             </td>
@@ -227,24 +229,24 @@ const pageLinks = computed(() => props.herramientas?.links || [])
     </div>
 
     <!-- Paginación -->
-    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-slate-200 sm:px-6">
       <div class="flex-1 flex justify-between sm:hidden">
         <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
           'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-          l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
+          l.active ? 'z-10 bg-indigo-50 border-brand-500 text-amber-600' : 'bg-white border-slate-300 text-slate-500 hover:bg-white'
         ]" v-html="l.label" />
       </div>
       <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
-          <p class="text-sm text-gray-700">
+          <p class="text-sm text-slate-700">
             Mostrando <span class="font-medium">{{ items.length }}</span> herramientas que requieren mantenimiento
           </p>
         </div>
         <div>
-          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+          <nav class="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px">
             <Link v-for="l in pageLinks" :key="l.url + l.label" :href="l.url || '#'" preserve-scroll :class="[
               'relative inline-flex items-center px-2 py-2 rounded-l-md border text-sm font-medium',
-              l.active ? 'z-10 bg-indigo-50 border-amber-500 text-amber-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'
+              l.active ? 'z-10 bg-indigo-50 border-brand-500 text-amber-600' : 'bg-white border-slate-300 text-slate-500 hover:bg-white'
             ]" v-html="l.label" />
           </nav>
         </div>

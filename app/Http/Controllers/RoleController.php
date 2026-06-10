@@ -251,7 +251,7 @@ class RoleController extends Controller
     {
         $permissions = Permission::orderBy('name')->get(['id', 'name', 'guard_name']);
 
-        $actions = ['view', 'create', 'edit', 'delete', 'export', 'stats', 'manage'];
+        $actions = ['view', 'create', 'edit', 'delete', 'export', 'stats', 'manage', '*'];
 
         $grouped = [];
 
@@ -260,12 +260,25 @@ class RoleController extends Controller
             $foundAction = 'other';
             $module = $name;
 
-            foreach ($actions as $action) {
-                if (str_starts_with($name, $action . ' ')) {
-                    $foundAction = $action;
-                    $module = substr($name, strlen($action) + 1);
-                    break;
+            if ($name === '*') {
+                $module = 'sistema';
+                $foundAction = '*';
+            } elseif (str_ends_with($name, '.*')) {
+                $foundAction = '*';
+                $module = substr($name, 0, -2);
+            } else {
+                foreach ($actions as $action) {
+                    if ($action !== '*' && str_starts_with($name, $action . ' ')) {
+                        $foundAction = $action;
+                        $module = substr($name, strlen($action) + 1);
+                        break;
+                    }
                 }
+            }
+
+            if ($foundAction === 'other' && !str_contains($name, ' ')) {
+                $module = $name;
+                $foundAction = 'manage';
             }
 
             if (!isset($grouped[$module])) {
@@ -292,9 +305,12 @@ class RoleController extends Controller
 
     private function formatPermissionLabel($name)
     {
-        // Formatear nombre para mostrar bonito
-        // view usuarios -> Ver Usuarios
-        // create clientes -> Crear Clientes
+        if ($name === '*') {
+            return 'Acceso Total (*)';
+        }
+        if (str_ends_with($name, '.*')) {
+            return 'Todo (*)';
+        }
 
         $colloquial = [
             'view' => 'Ver',

@@ -10,25 +10,25 @@ class MarginService
 {
     /**
      * Porcentaje mínimo de margen requerido sobre el costo de compra
+     * Se lee de la configuración ventas.margen_minimo (por defecto 5%).
      */
-    const MARGEN_MINIMO = 0.05; // 5%
+    protected function getMargenMinimo(): float
+    {
+        return (float) config('ventas.margen_minimo', 5) / 100;
+    }
 
     /**
      * Calcula el precio mínimo de venta para un producto basado en su costo de compra + margen mínimo
-     *
-     * @param Producto $producto
-     * @return float
      */
     public function calcularPrecioMinimoVenta(Producto $producto): float
     {
         $costoCompra = $this->obtenerCostoCompra($producto);
 
         if ($costoCompra <= 0) {
-            // Si no hay costo de compra, usar el precio de venta actual como base
             return $producto->precio_venta ?? 0;
         }
 
-        return $costoCompra * (1 + self::MARGEN_MINIMO);
+        return $costoCompra * (1 + $this->getMargenMinimo());
     }
 
     /**
@@ -66,7 +66,7 @@ class MarginService
         $precioMinimo = $this->calcularPrecioMinimoVenta($producto);
 
         $margenActual = $costoCompra > 0 ? (($precioVenta - $costoCompra) / $costoCompra) * 100 : 0;
-        $margenRequerido = self::MARGEN_MINIMO * 100;
+        $margenRequerido = $this->getMargenMinimo() * 100;
 
         return [
             'valido' => $precioVenta >= $precioMinimo,

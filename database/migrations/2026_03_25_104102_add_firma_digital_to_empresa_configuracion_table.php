@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->longText('firma_digital')->nullable()->after('logo_reportes');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'firma_digital')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->longText('firma_digital')->nullable()->after('logo_reportes');
+            });
+        }
     }
 
     /**

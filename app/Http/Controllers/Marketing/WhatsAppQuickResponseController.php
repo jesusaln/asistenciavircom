@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\WhatsAppQuickResponse;
+use App\Support\EmpresaResolver;
 use Illuminate\Http\Request;
 
 class WhatsAppQuickResponseController extends Controller
@@ -15,14 +16,19 @@ class WhatsAppQuickResponseController extends Controller
 
     public function store(Request $request)
     {
+        $empresaId = auth()->user()?->empresa_id ?? EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            return response()->json([
+                'message' => 'No se pudo determinar la empresa.',
+            ], 403);
+        }
+
         $validated = $request->validate([
-            'shortcut' => 'required|string|unique:whats_app_quick_responses,shortcut,NULL,id,empresa_id,' . (auth()->user()->empresa_id ?? 1),
+            'shortcut' => 'required|string|unique:whats_app_quick_responses,shortcut,NULL,id,empresa_id,' . $empresaId,
             'message' => 'required|string',
             'type' => 'nullable|string|in:text,image',
             'url' => 'nullable|string|url',
         ]);
-
-        $empresaId = auth()->user()->empresa_id ?? \App\Support\EmpresaResolver::resolveId();
         
         $qr = WhatsAppQuickResponse::create(array_merge($validated, ['empresa_id' => $empresaId]));
 

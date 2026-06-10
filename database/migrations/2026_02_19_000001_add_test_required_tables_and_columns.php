@@ -50,16 +50,16 @@ return new class extends Migration {
                 $table->unsignedBigInteger('cliente_id')->nullable()->index();
                 $table->string('cobrable_type')->nullable();
                 $table->unsignedBigInteger('cobrable_id')->nullable();
-                $table->string('tipo')->default('venta'); // venta, renta, servicio
-                $table->decimal('monto', 15, 2)->default(0);
-                $table->decimal('saldo', 15, 2)->default(0);
-                $table->decimal('pagado', 15, 2)->default(0);
-                $table->date('fecha_emision')->nullable();
+                $table->unsignedBigInteger('cfdi_id')->nullable()->index();
+                $table->decimal('monto_total', 15, 2)->default(0);
+                $table->decimal('monto_pagado', 15, 2)->default(0);
+                $table->decimal('monto_pendiente', 15, 2)->default(0);
                 $table->date('fecha_vencimiento')->nullable();
                 $table->date('fecha_pago')->nullable();
                 $table->string('estado')->default('pendiente'); // pendiente, pagada, vencida, cancelada
                 $table->string('metodo_pago')->nullable();
                 $table->text('notas')->nullable();
+                $table->boolean('pagado')->default(false);
                 $table->timestamps();
                 $table->softDeletes();
             });
@@ -130,13 +130,16 @@ return new class extends Migration {
             });
         }
 
-        // Create notifications table if it doesn't exist
+        // Create notifications table
         if (!Schema::hasTable('notifications')) {
             Schema::create('notifications', function (Blueprint $table) {
                 $table->uuid('id')->primary();
                 $table->string('type');
                 $table->morphs('notifiable');
                 $table->text('data');
+                $table->unsignedBigInteger('user_id')->nullable();
+                $table->string('title')->nullable();
+                $table->text('message')->nullable();
                 $table->timestamp('read_at')->nullable();
                 $table->timestamps();
             });

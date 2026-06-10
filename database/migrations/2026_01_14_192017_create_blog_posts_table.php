@@ -10,26 +10,28 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('blog_posts', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('empresa_id')->nullable()->index();
-            $table->string('titulo');
-            $table->string('slug')->unique();
-            $table->text('resumen')->nullable();
-            $table->longText('contenido');
-            $table->string('imagen_portada')->nullable();
-            $table->string('categoria')->nullable()->index();
-            $table->enum('status', ['draft', 'published', 'scheduled'])->default('draft');
-            $table->timestamp('publicado_at')->nullable();
-            $table->integer('visitas')->default(0);
+        if (!Schema::hasTable('blog_posts')) {
+            Schema::create('blog_posts', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('empresa_id')->nullable()->index();
+                $table->string('titulo');
+                $table->string('slug')->unique();
+                $table->text('resumen')->nullable();
+                $table->longText('contenido');
+                $table->string('imagen_portada')->nullable();
+                $table->string('categoria')->nullable()->index();
+                $table->enum('status', ['draft', 'published', 'scheduled'])->default('draft');
+                $table->timestamp('publicado_at')->nullable();
+                $table->integer('visitas')->default(0);
 
-            // SEO
-            $table->string('meta_titulo')->nullable();
-            $table->text('meta_descripcion')->nullable();
+                // SEO
+                $table->string('meta_titulo')->nullable();
+                $table->text('meta_descripcion')->nullable();
 
-            $table->timestamps();
-            $table->softDeletes();
-        });
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     /**

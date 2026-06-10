@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->timestamp('ultimo_aviso_vencimiento_at')->nullable()->after('ultimo_cobro_generado_at');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'ultimo_aviso_vencimiento_at')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->timestamp('ultimo_aviso_vencimiento_at')->nullable()->after('ultimo_cobro_generado_at');
+            });
+        }
     }
 
     /**

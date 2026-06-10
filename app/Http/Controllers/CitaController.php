@@ -27,7 +27,7 @@ class CitaController extends Controller
      */
     protected function buildCitasIndexQuery(Request $request): Builder
     {
-        $query = Cita::with('tecnico', 'cliente');
+        $query = Cita::with('tecnico', 'ayudante', 'cliente');
 
         if ($s = trim((string) $request->input('search', ''))) {
             $query->where(function ($w) use ($s) {
@@ -41,6 +41,9 @@ class CitaController extends Controller
                     })
                     ->orWhereHas('tecnico', function ($tecnicoQuery) use ($searchPattern) {
                         $tecnicoQuery->where('name', 'ILIKE', $searchPattern);
+                    })
+                    ->orWhereHas('ayudante', function ($ayudanteQuery) use ($searchPattern) {
+                        $ayudanteQuery->where('name', 'ILIKE', $searchPattern);
                     });
             });
         }
@@ -53,13 +56,14 @@ class CitaController extends Controller
                 Cita::ESTADO_EN_PROCESO,
                 Cita::ESTADO_COMPLETADO,
                 Cita::ESTADO_CANCELADO,
+                'cancelada',
                 Cita::ESTADO_REPROGRAMADO,
             ];
             $raw = $request->input('estado');
             if (is_string($raw) && str_contains($raw, ',')) {
                 $states = array_values(array_intersect(
-                    $allowedEstados,
-                    array_map('trim', explode(',', $raw))
+                     $allowedEstados,
+                     array_map('trim', explode(',', $raw))
                 ));
                 if ($states !== []) {
                     $query->whereIn('estado', $states);
@@ -67,10 +71,23 @@ class CitaController extends Controller
                     $query->whereRaw('1 = 0');
                 }
             } elseif (in_array($raw, $allowedEstados, true)) {
-                $query->where('estado', $raw);
+                if ($raw === Cita::ESTADO_CANCELADO) {
+                    $query->whereIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada']);
+                } else {
+                    $query->where('estado', $raw);
+                }
             } else {
                 $query->whereRaw('1 = 0');
             }
+        } else {
+            // Por defecto: excluir canceladas (a menos que se filtre explicitamente por estado)
+            $query->whereNotIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada']);
+        }
+
+        if ($request->filled('start') && $request->filled('end')) {
+            $start = Carbon::parse($request->start);
+            $end = Carbon::parse($request->end);
+            $query->whereBetween('fecha_hora', [$start, $end]);
         }
 
         if ($request->filled('activo') || $request->filled('active_only')) {
@@ -78,7 +95,10 @@ class CitaController extends Controller
         }
 
         if ($request->filled('tecnico_id')) {
-            $query->where('tecnico_id', $request->tecnico_id);
+            $query->where(function ($q) use ($request) {
+                $q->where('tecnico_id', $request->tecnico_id)
+                  ->orWhere('ayudante_id', $request->tecnico_id);
+            });
         }
 
         if ($request->filled('cliente_id')) {
@@ -147,6 +167,7 @@ class CitaController extends Controller
 
     /**
      * Mostrar todas las citas con paginación y filtros.
+     * @return \Inertia\Response|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -154,8 +175,8 @@ class CitaController extends Controller
             $query = $this->buildCitasIndexQuery($request);
 
             // Ordenamiento dinámico
-            $sortBy = $request->get('sort_by', 'created_at');
-            $sortDirection = $request->get('sort_direction', 'desc');
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortDirection = $request->input('sort_direction', 'desc');
 
             // Por defecto: agenda por fecha de programación (activas próximas primero; completadas después; canceladas al final)
             if ($sortBy === 'created_at') {
@@ -165,10 +186,17 @@ class CitaController extends Controller
             }
 
             // Paginación - obtener per_page del request o usar default
-            $perPage = $request->get('per_page', 10);
-            $validPerPage = [1, 5, 10, 15, 25, 50]; // Solo estas opciones válidas
+            $perPage = $request->input('per_page', 10);
+            $viewMode = $request->input('view_mode', 'table');
+            
+            // Si es vista calendario, forzamos un límite alto para no truncar el mes
+            if ($viewMode === 'calendar') {
+                $perPage = 500;
+            }
+
+            $validPerPage = [1, 5, 10, 15, 25, 50, 100, 500]; // Solo estas opciones válidas
             if (!in_array((int) $perPage, $validPerPage)) {
-                $perPage = 50;
+                $perPage = 10;
             }
 
             // Paginar con el per_page dinámico
@@ -197,23 +225,64 @@ class CitaController extends Controller
             ])->count();
             $citasEnProceso = Cita::where('estado', Cita::ESTADO_EN_PROCESO)->count();
             $citasCompletadas = Cita::where('estado', Cita::ESTADO_COMPLETADO)->count();
-            $citasCanceladas = Cita::where('estado', Cita::ESTADO_CANCELADO)->count();
+            $citasCanceladas = Cita::whereIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada'])->count();
 
-            // Datos adicionales para filtros
-            $tecnicos = User::tecnicos()->select('id', 'name as nombre')->get();
-            $clientes = Cliente::select('id', 'nombre_razon_social')->get();
+            // Obtener vacaciones y días bloqueados para el calendario
+            $vacaciones = \App\Models\Vacacion::where('estado', 'aprobada')
+                ->where('fecha_fin', '>=', now()->subMonths(3))
+                ->with('tecnico:id,name')
+                ->get()
+                ->map(function($v) {
+                    return [
+                        'id' => 'vac-' . $v->id,
+                        'tecnico_id' => $v->user_id,
+                        'tecnico_nombre' => $v->tecnico?->name,
+                        'fecha_inicio' => Carbon::parse($v->fecha_inicio)->toDateString(),
+                        'fecha_fin' => Carbon::parse($v->fecha_fin)->toDateString(),
+                        'tipo' => 'vacacion',
+                        'motivo' => 'Vacaciones'
+                    ];
+                });
+
+            $diasBloqueados = \App\Models\DiaBloqueado::where('fecha', '>=', now()->subMonths(3))
+                ->with('tecnico:id,name')
+                ->get()
+                ->map(function($d) {
+                    return [
+                        'id' => 'bloq-' . $d->id,
+                        'tecnico_id' => $d->tecnico_id,
+                        'tecnico_nombre' => $d->tecnico?->name ?? 'Global',
+                        'fecha' => Carbon::parse($d->fecha)->toDateString(),
+                        'tipo' => 'bloqueo',
+                        'motivo' => $d->motivo ?? 'Día bloqueado'
+                    ];
+                });
+
+            // Obtener catálogos para filtros
+            // Obtener catálogos para filtros ordenados por volumen de servicios (Fix #802)
+            $tecnicos = User::where('es_tecnico', true)
+                ->withCount('citasAsignadas')
+                ->orderBy('citas_asignadas_count', 'desc')
+                ->orderBy('name')
+                ->get(['id', 'name']);
+            $clientes = Cliente::orderBy('nombre_razon_social')->get(['id', 'nombre_razon_social as nombre']);
             $estados = [
-                Cita::ESTADO_PENDIENTE => 'Pendiente',
-                Cita::ESTADO_PENDIENTE_ASIGNACION => 'Pendiente asignación',
-                Cita::ESTADO_PROGRAMADO => 'Programado',
-                Cita::ESTADO_EN_PROCESO => 'En Proceso',
-                Cita::ESTADO_COMPLETADO => 'Completado',
-                Cita::ESTADO_CANCELADO => 'Cancelado',
-                Cita::ESTADO_REPROGRAMADO => 'Reprogramado',
+                ['value' => Cita::ESTADO_PENDIENTE, 'label' => 'Pendiente'],
+                ['value' => Cita::ESTADO_PENDIENTE_ASIGNACION, 'label' => 'Por Asignar'],
+                ['value' => Cita::ESTADO_PROGRAMADO, 'label' => 'Programada'],
+                ['value' => Cita::ESTADO_EN_PROCESO, 'label' => 'En Proceso'],
+                ['value' => Cita::ESTADO_COMPLETADO, 'label' => 'Completada'],
+                ['value' => Cita::ESTADO_NO_PRESENTO, 'label' => 'No se presentó'],
+                ['value' => Cita::ESTADO_REPROGRAMADA, 'label' => 'Reprogramada'],
+                ['value' => Cita::ESTADO_CANCELADO, 'label' => 'Cancelada'],
             ];
 
             return Inertia::render('Citas/Index', [
                 'citas' => $citas,
+                'bloqueos' => [
+                    'vacaciones' => $vacaciones,
+                    'dias_bloqueados' => $diasBloqueados
+                ],
                 'stats' => [
                     'total' => $citasCount,
                     'programadas' => $citasProgramadas,
@@ -273,6 +342,9 @@ class CitaController extends Controller
             'direccion_servicio' => $request->input('direccion') ?? $request->input('direccion_servicio'),
             'tipo_servicio' => $request->input('tipo_servicio'),
             'ticket_id' => $request->input('ticket_id'),
+            'tecnico_id' => $request->input('tecnico_id'),
+            'fecha_hora' => $request->input('fecha_hora'),
+            'fecha_hora_fin' => $request->input('fecha_hora_fin'),
         ], fn($v) => $v !== null && $v !== '');
 
         // Si viene de un ticket, cargar datos del ticket
@@ -311,12 +383,13 @@ class CitaController extends Controller
         // Validar los datos recibidos con mejoras
         $validated = $request->validate([
             'tecnico_id' => 'required|exists:users,id',
+            'ayudante_id' => 'nullable|exists:users,id|different:tecnico_id',
             'cliente_id' => 'required|exists:clientes,id',
             'tipo_servicio' => 'required|string|max:255',
             'fecha_hora' => [
                 'required',
                 'date',
-                'after_or_equal:now',
+                'after_or_equal:today',
                 function ($attribute, $value, $fail) {
                     $fecha = Carbon::parse($value);
                     if ($fecha->isSunday()) {
@@ -332,10 +405,13 @@ class CitaController extends Controller
             'descripcion' => 'nullable|string|max:1000',
             'estado' => 'required|string|in:pendiente,programado,en_proceso,completado,cancelado,reprogramado',
             'evidencias' => 'nullable|string|max:2000',
+            'evidencias_previas' => 'nullable|array',
+            'evidencias_previas.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'foto_equipo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'foto_hoja_servicio' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'foto_identificacion' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'notas' => 'nullable|string|max:1000',
+            'notas_internas' => 'nullable|string|max:1000',
             'producto_serie_id' => 'nullable|integer|exists:producto_series,id',
             'tipo_equipo' => 'required|string|max:255',
             'marca_equipo' => 'nullable|string|max:255',
@@ -347,9 +423,10 @@ class CitaController extends Controller
             'folio' => 'nullable|string|max:120',
         ], [
             'tecnico_id.required' => 'Debe seleccionar un técnico.',
+            'ayudante_id.different' => 'El ayudante no puede ser la misma persona que el técnico líder.',
             'cliente_id.required' => 'Debe seleccionar un cliente.',
             'fecha_hora.after' => 'La fecha debe ser posterior a la actual.',
-            '*.max:2048' => 'La imagen no debe superar los 2MB.',
+            '*.max' => 'El archivo no debe superar el límite de tamaño permitido.',
             'tipo_equipo.required' => 'El tipo de equipo es obligatorio.',
         ]);
 
@@ -358,6 +435,9 @@ class CitaController extends Controller
 
             // Bloqueo pesimista para evitar race conditions al agendar para el mismo técnico
             User::where('id', $validated['tecnico_id'])->lockForUpdate()->firstOrFail();
+            if (!empty($validated['ayudante_id'])) {
+                User::where('id', $validated['ayudante_id'])->lockForUpdate()->firstOrFail();
+            }
             
             // Bloqueo pesimista para el cliente para asegurar consistencia en sus validaciones
             Cliente::where('id', $validated['cliente_id'])->lockForUpdate()->firstOrFail();
@@ -368,6 +448,15 @@ class CitaController extends Controller
                 $validated['fecha_hora'],
                 $validated['fecha_hora_fin']
             );
+
+            // Verificar disponibilidad del ayudante si está asignado
+            if (!empty($validated['ayudante_id'])) {
+                $this->verificarDisponibilidadTecnico(
+                    $validated['ayudante_id'],
+                    $validated['fecha_hora'],
+                    $validated['fecha_hora_fin']
+                );
+            }
 
             // Verificar límite de citas por día para el técnico (Límite dinámico si es posible en el futuro)
             $this->verificarLimiteCitasPorDia(
@@ -395,6 +484,20 @@ class CitaController extends Controller
 
             // Guardar archivos y obtener sus rutas
             $filePaths = $this->saveFiles($request, ['foto_equipo', 'foto_hoja_servicio', 'foto_identificacion']);
+
+            // Manejo de evidencias previas enviadas por el cliente
+            if ($request->hasFile('evidencias_previas')) {
+                $evidenciasPrevias = [];
+                foreach ($request->file('evidencias_previas') as $foto) {
+                    try {
+                        $path = $this->saveImageAsWebP($foto, 'citas/evidencias_previas', 'public', 72, 1600);
+                        if ($path) $evidenciasPrevias[] = $path;
+                    } catch (Exception $e) {
+                        Log::error('Error al guardar evidencia previa (cita): '.$e->getMessage());
+                    }
+                }
+                $validated['evidencias_previas'] = $evidenciasPrevias;
+            }
 
             // Mapear direccion_servicio a direccion_calle y limpiar Google Maps si existe
             if (!empty($validated['direccion_servicio'])) {
@@ -447,6 +550,40 @@ class CitaController extends Controller
             ActivityLogger::log("Creó una nueva cita (#{$cita->id}) para el cliente " . $cita->cliente->nombre_razon_social);
             DB::commit();
 
+            // Enviar confirmación por WhatsApp si el cliente tiene teléfono
+            try {
+                $cliente = $cita->cliente;
+                if ($cliente && $cliente->telefono) {
+                    $cleanPhone = preg_replace('/\D+/', '', $cliente->telefono);
+                    if (strlen($cleanPhone) >= 10) {
+                        $waId = strlen($cleanPhone) === 10 ? '52' . $cleanPhone : $cleanPhone;
+                        $fecha = $cita->fecha_hora ? $cita->fecha_hora->format('d/m/Y') : 'por definir';
+                        $hora = $cita->fecha_hora ? $cita->fecha_hora->format('H:i') : '';
+                        $servicio = $cita->tipo_servicio ?? 'servicio';
+
+                        try {
+                            $empresa = \App\Models\Empresa::find($cita->empresa_id);
+                            if ($empresa) {
+                                $whatsapp = \App\Services\WhatsAppService::fromEmpresa($empresa);
+                                $whatsapp->sendTextMessage($waId,
+                                    "✅ *Cita Confirmada*\n\n" .
+                                    "Hola *{$cliente->nombre_razon_social}*, tu cita ha sido registrada exitosamente.\n\n" .
+                                    "📅 *Fecha:* {$fecha}\n" .
+                                    "🕐 *Hora:* {$hora}\n" .
+                                    "🔧 *Servicio:* {$servicio}\n" .
+                                    "🆔 *Folio:* {$cita->folio}\n\n" .
+                                    "Te recordaremos un día antes. ¡Gracias por confiar en Climas del Desierto! 🌵"
+                                );
+                            }
+                        } catch (\Exception $e) {
+                            Log::warning("No se pudo enviar confirmación WhatsApp a {$waId}: " . $e->getMessage());
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning("Error preparando confirmación WhatsApp: " . $e->getMessage());
+            }
+
             return redirect()->route('citas.index')->with('success', 'Cita creada exitosamente.');
         } catch (ValidationException $e) {
             DB::rollBack();
@@ -466,6 +603,7 @@ class CitaController extends Controller
      */
     public function edit(Cita $cita)
     {
+        $cita->load('tecnico', 'ayudante', 'cliente');
         $tecnicos = User::tecnicos()->select('id', 'name as nombre')->get();
 
         try {
@@ -490,6 +628,7 @@ class CitaController extends Controller
         // Validar los datos recibidos
         $validated = $request->validate([
             'tecnico_id' => 'sometimes|required|exists:users,id',
+            'ayudante_id' => 'nullable|exists:users,id|different:tecnico_id',
             'cliente_id' => 'sometimes|required|exists:clientes,id',
             'tipo_servicio' => 'sometimes|required|string|max:255',
             'fecha_hora' => [
@@ -500,8 +639,7 @@ class CitaController extends Controller
                     $fecha = Carbon::parse($value);
                     $nuevoEstado = $request->input('estado');
 
-                    // Solo bloquear fechas pasadas si NO se está cancelando la cita
-                    if ($fecha->isPast() && $cita->estado === Cita::ESTADO_PENDIENTE && $nuevoEstado !== 'cancelado') {
+                    if ($fecha->isPast() && $cita->estado === Cita::ESTADO_PENDIENTE && !in_array($nuevoEstado, ['cancelado', 'completado'])) {
                         $fail('No se puede programar una cita pendiente en el pasado.');
                     }
                     if ($fecha->isSunday()) {
@@ -520,6 +658,7 @@ class CitaController extends Controller
             'foto_equipo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'foto_hoja_servicio' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'foto_identificacion' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'notas_internas' => 'nullable|string|max:1000',
             'tipo_equipo' => 'nullable|string|max:255',
             'marca_equipo' => 'nullable|string|max:255',
             'modelo_equipo' => 'nullable|string|max:255',
@@ -535,6 +674,8 @@ class CitaController extends Controller
             'latitud' => 'nullable|numeric',
             'longitud' => 'nullable|numeric',
             'fecha_gps' => 'nullable|date',
+            'evidencias_previas' => 'nullable|array',
+            'evidencias_previas.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         try {
@@ -547,15 +688,24 @@ class CitaController extends Controller
                 }
             }
 
-            // Verificar disponibilidad del técnico si cambió
-            if (
-                isset($validated['tecnico_id']) &&
-                ($validated['tecnico_id'] != $cita->tecnico_id ||
-                    isset($validated['fecha_hora']) && $validated['fecha_hora'] != $cita->fecha_hora ||
-                    isset($validated['fecha_hora_fin']) && $validated['fecha_hora_fin'] != $cita->fecha_hora_fin)
-            ) {
+            // Verificar disponibilidad del técnico líder si cambió el técnico o el horario
+            $nuevoTecnicoId = array_key_exists('tecnico_id', $validated) ? $validated['tecnico_id'] : $cita->tecnico_id;
+            $nuevoAyudanteId = array_key_exists('ayudante_id', $validated) ? $validated['ayudante_id'] : $cita->ayudante_id;
+            $horarioCambio = (isset($validated['fecha_hora']) && $validated['fecha_hora'] != $cita->fecha_hora) || 
+                             (isset($validated['fecha_hora_fin']) && $validated['fecha_hora_fin'] != $cita->fecha_hora_fin);
+
+            if ($nuevoTecnicoId && ($horarioCambio || (array_key_exists('tecnico_id', $validated) && $validated['tecnico_id'] != $cita->tecnico_id))) {
                 $this->verificarDisponibilidadTecnico(
-                    $validated['tecnico_id'],
+                    $nuevoTecnicoId,
+                    $validated['fecha_hora'] ?? $cita->fecha_hora,
+                    $validated['fecha_hora_fin'] ?? $cita->fecha_hora_fin,
+                    $cita->id
+                );
+            }
+
+            if ($nuevoAyudanteId && ($horarioCambio || (array_key_exists('ayudante_id', $validated) && $validated['ayudante_id'] != $cita->ayudante_id))) {
+                $this->verificarDisponibilidadTecnico(
+                    $nuevoAyudanteId,
                     $validated['fecha_hora'] ?? $cita->fecha_hora,
                     $validated['fecha_hora_fin'] ?? $cita->fecha_hora_fin,
                     $cita->id
@@ -586,8 +736,8 @@ class CitaController extends Controller
                 $signatureData = $this->saveSignatureToFile($request->input('firma_cliente'), 'cliente', $cita->id);
                 if (is_array($signatureData)) {
                     $dataToUpdate['firma_cliente'] = $signatureData['path'];
+                    $dataToUpdate['firma_cliente_hash'] = $signatureData['hash'];
                     $dataToUpdate['fecha_firma'] = now();
-                    // El hash se registrará automáticamente en el historial a través de cambiarEstado
                 }
             }
 
@@ -595,7 +745,23 @@ class CitaController extends Controller
                 $signatureData = $this->saveSignatureToFile($request->input('firma_tecnico'), 'tecnico', $cita->id);
                 if (is_array($signatureData)) {
                     $dataToUpdate['firma_tecnico'] = $signatureData['path'];
+                    $dataToUpdate['firma_tecnico_hash'] = $signatureData['hash'];
                 }
+            }
+
+            // Manejo de nuevas evidencias previas
+            if ($request->hasFile('evidencias_previas')) {
+                $currentEvidencias = $cita->evidencias_previas ?? [];
+                $newEvidencias = [];
+                foreach ($request->file('evidencias_previas') as $foto) {
+                    try {
+                        $path = $this->saveImageAsWebP($foto, 'citas/evidencias_previas', 'public', 72, 1600);
+                        if ($path) $newEvidencias[] = $path;
+                    } catch (Exception $e) {
+                        Log::error('Error al actualizar evidencia previa: '.$e->getMessage());
+                    }
+                }
+                $dataToUpdate['evidencias_previas'] = array_merge($currentEvidencias, $newEvidencias);
             }
 
             // Manejo de 'nuevas_fotos' (WebP, tamaño acotado para carga rápida en listados y detalle)
@@ -733,31 +899,42 @@ class CitaController extends Controller
      */
     private function verificarDisponibilidadTecnico(int $tecnicoId, $fechaHora, $fechaHoraFin = null, ?int $excludeId = null): void
     {
-        if ($fechaHora instanceof \Carbon\Carbon) $fechaHora = $fechaHora->toDateTimeString();
-        if ($fechaHoraFin instanceof \Carbon\Carbon) $fechaHoraFin = $fechaHoraFin->toDateTimeString();
+        if ($fechaHora instanceof Carbon) $fechaHora = $fechaHora->toDateTimeString();
+        if ($fechaHoraFin instanceof Carbon) $fechaHoraFin = $fechaHoraFin->toDateTimeString();
 
         if (empty($fechaHora)) return;
         
-        // Si no viene fin, asumimos 1 hora por defecto para la validación
+        $tecnico = User::find($tecnicoId);
+        if ($tecnico && $tecnico->estaDeVacaciones($fechaHora)) {
+            throw ValidationException::withMessages([
+                'fecha_hora' => "El técnico {$tecnico->name} se encuentra de vacaciones o en día de descanso en esta fecha."
+            ]);
+        }
+
+        // Si no viene fin, asumimos 2 horas por defecto para la validación
         if (!$fechaHoraFin) {
-            $fechaHoraFin = Carbon::parse($fechaHora)->addHour()->toDateTimeString();
+            $fechaHoraFin = Carbon::parse($fechaHora)->addHours(2)->toDateTimeString();
         }
 
         $duracion = Carbon::parse($fechaHora)->diffInMinutes(Carbon::parse($fechaHoraFin));
         if (Cita::hayConflictoHorario($tecnicoId, $fechaHora, $excludeId, (int)$duracion)) {
-            $conflicto = Cita::where('tecnico_id', $tecnicoId)
-                ->where('estado', '!=', 'cancelado')
+            $conflicto = Cita::where(function($q) use ($tecnicoId) {
+                    $q->where('tecnico_id', $tecnicoId)
+                      ->orWhere('ayudante_id', $tecnicoId);
+                })
+                ->whereNotIn('estado', ['cancelado', 'cancelada', 'no_presento', 'completado', 'completada'])
                 ->where(function($q) use ($fechaHora, $fechaHoraFin) {
                     $q->where('fecha_hora', '<', $fechaHoraFin)
-                      ->where('fecha_hora_fin', '>', $fechaHora);
+                      ->whereRaw("COALESCE(fecha_hora_fin, fecha_hora + interval '120 minutes') > ?", [$fechaHora]);
                 })
                 ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
                 ->first();
 
-            $hIn = Carbon::parse($conflicto->fecha_hora)->format('H:i');
-            $hOut = Carbon::parse($conflicto->fecha_hora_fin)->format('H:i');
+            $hIn = $conflicto ? Carbon::parse($conflicto->fecha_hora)->format('H:i') : 'desconocido';
+            $hOut = $conflicto ? Carbon::parse($conflicto->fecha_hora_fin ?? Carbon::parse($conflicto->fecha_hora)->addHours(2))->format('H:i') : 'desconocido';
+            $nombreTecnico = $tecnico ? $tecnico->name : 'El técnico';
             throw ValidationException::withMessages([
-                'fecha_hora' => "El técnico ya tiene una cita de {$hIn} a {$hOut}. Selecciona otro horario."
+                'fecha_hora' => "{$nombreTecnico} ya tiene una cita de {$hIn} a {$hOut}. Selecciona otro horario o personal."
             ]);
         }
     }
@@ -789,7 +966,7 @@ class CitaController extends Controller
 
             DB::commit();
 
-            return redirect()->route('citas.index')->with('success', 'Cita eliminada exitosamente.');
+            return redirect()->back()->with('success', 'Cita eliminada exitosamente.');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error al eliminar cita: ' . $e->getMessage());
@@ -837,6 +1014,9 @@ class CitaController extends Controller
 
             if ($request->filled('estado')) {
                 $query->where('estado', $request->estado);
+            } else {
+                // Por defecto: excluir canceladas (alineado con el listado web)
+                $query->whereNotIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada']);
             }
 
             if ($request->filled('tecnico_id')) {
@@ -911,7 +1091,7 @@ class CitaController extends Controller
 
         $citasEnDia = Cita::where('tecnico_id', $tecnicoId)
             ->whereBetween('fecha_hora', [$inicioDia, $finDia])
-            ->where('estado', '!=', 'cancelado')
+            ->whereNotIn('estado', [Cita::ESTADO_CANCELADO, 'cancelada', 'no_presento'])
             ->count();
 
         // Límite dinámico basado en constante de modelo
@@ -999,9 +1179,9 @@ class CitaController extends Controller
 
             $nuevoEstado = $validated['estado'];
 
-            // Sanitización básica del texto
+            // Sanitización robusta del texto (Previene XSS)
             if ($request->filled('trabajo_realizado')) {
-                $cita->trabajo_realizado = strip_tags($validated['trabajo_realizado']);
+                $cita->trabajo_realizado = \App\Helpers\SanitizerHelper::cleanTrim($validated['trabajo_realizado']);
             }
 
             // Verificar si el cambio de estado es válido
@@ -1121,7 +1301,16 @@ class CitaController extends Controller
 
             // Verificar disponibilidad del técnico
             $fechaHora = Carbon::parse($validated['fecha_confirmada'] . ' ' . $validated['hora_confirmada']);
-            $fechaHoraFin = (clone $fechaHora)->addHour();
+            
+            // Calcular duración dinámica basada en horario_preferido o 120 minutos (2 horas)
+            $duracionMinutos = 120;
+            if ($cita->horario_preferido && isset(Cita::HORARIOS_PREFERIDOS[$cita->horario_preferido])) {
+                $pref = Cita::HORARIOS_PREFERIDOS[$cita->horario_preferido];
+                $inicioPref = Carbon::parse($pref['inicio']);
+                $finPref = Carbon::parse($pref['fin']);
+                $duracionMinutos = $inicioPref->diffInMinutes($finPref);
+            }
+            $fechaHoraFin = (clone $fechaHora)->addMinutes($duracionMinutos);
 
             $this->verificarDisponibilidadTecnico(
                 (int) $validated['tecnico_id'],
@@ -1180,14 +1369,23 @@ class CitaController extends Controller
                 User::where('id', $cita->tecnico_id)->lockForUpdate()->first();
             }
 
+            // Calcular duración dinámica basada en horario_preferido o 120 minutos (2 horas)
+            $duracionMinutos = 120;
+            if ($cita->horario_preferido && isset(Cita::HORARIOS_PREFERIDOS[$cita->horario_preferido])) {
+                $pref = Cita::HORARIOS_PREFERIDOS[$cita->horario_preferido];
+                $inicioPref = Carbon::parse($pref['inicio']);
+                $finPref = Carbon::parse($pref['fin']);
+                $duracionMinutos = $inicioPref->diffInMinutes($finPref);
+            }
+
             // Verificar disponibilidad
-            if ($cita->tecnico_id && Cita::hayConflictoHorario($cita->tecnico_id, $fechaHora->toDateTimeString(), $cita->id, 60)) {
+            if ($cita->tecnico_id && Cita::hayConflictoHorario($cita->tecnico_id, $fechaHora->toDateTimeString(), $cita->id, $duracionMinutos)) {
                 return back()->withErrors([
                     'hora_confirmada' => 'El técnico ya tiene una cita en ese horario.'
                 ]);
             }
 
-            $fechaHoraFin = (clone $fechaHora)->addHour();
+            $fechaHoraFin = (clone $fechaHora)->addMinutes($duracionMinutos);
 
             $cita->update([
                 'fecha_confirmada' => $validated['fecha_confirmada'],
@@ -1223,7 +1421,9 @@ class CitaController extends Controller
             $nombreCliente = $cita->cliente->nombre_razon_social ?? $cita->cliente->nombre ?? 'Cliente';
             $fechaFormateada = Carbon::parse($cita->fecha_confirmada)->locale('es')->isoFormat('dddd D [de] MMMM');
             $horaInicio = Carbon::parse($cita->hora_confirmada)->format('h:i A');
-            $horaFin = Carbon::parse($cita->hora_confirmada)->addHour()->format('h:i A');
+            $horaFin = $cita->fecha_hora_fin 
+                ? Carbon::parse($cita->fecha_hora_fin)->format('h:i A')
+                : Carbon::parse($cita->hora_confirmada)->addHours(2)->format('h:i A');
             $tecnicoNombre = $cita->tecnico->name ?? 'Nuestro técnico';
 
             $mensaje = "📅 *¡Cita Confirmada!*\n\n";
@@ -1406,8 +1606,26 @@ class CitaController extends Controller
                 }
             }
 
+            // Verificar que el técnico no tenga otra cita en proceso
+            $otraEnProceso = Cita::where('tecnico_id', $user->id)
+                ->where('id', '!=', $cita->id)
+                ->where('estado', Cita::ESTADO_EN_PROCESO)
+                ->first();
+
+            if ($otraEnProceso) {
+                // Pausar automáticamente la cita en proceso y continuar con la nueva
+                $otraEnProceso->cambiarEstado(Cita::ESTADO_PAUSADO, 'Pausada automáticamente al iniciar cita #' . $cita->folio);
+            }
+
             // Cambiar estado con auditoría
-            $cita->cambiarEstado(Cita::ESTADO_EN_PROCESO, 'Servicio iniciado desde Mi Agenda.');
+            if (!$cita->cambiarEstado(Cita::ESTADO_EN_PROCESO, 'Servicio iniciado desde Mi Agenda.')) {
+                DB::rollBack();
+                $errorMsg = 'No se puede iniciar el servicio. Verifica que no tengas otra cita "En Proceso".';
+                if ($json) {
+                    return response()->json(['success' => false, 'message' => $errorMsg], 422);
+                }
+                return back()->withErrors(['general' => $errorMsg]);
+            }
             
             // Forzar actualización de inicio_servicio si no existía (ahora lo maneja cambiarEstado pero aseguramos)
             if (!$cita->inicio_servicio) {
@@ -1472,10 +1690,14 @@ class CitaController extends Controller
                 'fotos_finales.*' => 'nullable|image|max:5120', 
                 'cerrar_ticket' => 'nullable|boolean',
                 'firma_cliente' => 'nullable|string',
+                'equipos_servicio' => 'nullable|array',
+                'equipos_servicio.*' => 'string|max:255',
             ]);
 
             // Procesar firma si se envía
-            $firmaPath = $this->saveSignatureToFile($request->input('firma_cliente'), 'cliente_final', $cita->id);
+            $firmaData = $this->saveSignatureToFile($request->input('firma_cliente'), 'cliente_final', $cita->id);
+            $firmaPath = is_array($firmaData) ? $firmaData['path'] : $firmaData;
+            $firmaHash = is_array($firmaData) ? $firmaData['hash'] : null;
 
             // Procesar nuevas fotos
             $filePaths = $cita->fotos_finales ?? [];
@@ -1491,11 +1713,22 @@ class CitaController extends Controller
                 'trabajo_realizado' => $request->trabajo_realizado,
                 'fotos_finales' => $filePaths,
                 'firma_cliente' => $firmaPath ?: $cita->firma_cliente,
+                'firma_cliente_hash' => $firmaHash ?: $cita->firma_cliente_hash,
                 'fecha_firma' => $firmaPath ? now() : $cita->fecha_firma,
+                'equipos_servicio' => $request->equipos_servicio ?: $cita->equipos_servicio,
             ]);
 
             // Completar cita con auditoría
             $cita->cambiarEstado(Cita::ESTADO_COMPLETADO, 'Servicio completado exitosamente desde Mi Agenda.');
+
+            // GENERAR VENTA E INVENTARIO (Paridad con App Móvil)
+            if ($cita->estado === Cita::ESTADO_COMPLETADO && $cita->items()->count() > 0) {
+                $venta = app(\App\Services\VentaFromCitaService::class)->createFromCita($cita);
+                if (!$venta) {
+                    DB::rollBack();
+                    return back()->withErrors(['general' => 'No se pudo generar la venta/consumo de inventario. Verifica stock y números de serie.']);
+                }
+            }
 
             // Si se marcó para cerrar el ticket
             if ($request->boolean('cerrar_ticket') && $cita->ticket_id) {
@@ -1526,30 +1759,34 @@ class CitaController extends Controller
     /**
      * Cancelar una cita (desde Mi Agenda)
      */
-    public function cancelar(Cita $cita)
+    public function cancelar(Cita $cita, Request $request)
     {
         try {
-            // Verificar que el técnico sea el asignado
+            // Permitir cancelar al técnico asignado o a roles administrativos
             $user = auth()->user();
-            if ($cita->tecnico_id !== $user->id) {
+            $esAdmin = $user->hasAnyRole(['admin', 'super-admin', 'compras']);
+            
+            if ($cita->tecnico_id !== $user->id && !$esAdmin) {
                 $tecnicoNombre = $cita->tecnico ? $cita->tecnico->name : 'un técnico asignado';
-                return back()->withErrors(['general' => "No puedes cancelar este servicio. Debe ser cancelado por el técnico asignado: {$tecnicoNombre}."]);
+                return back()->withErrors(['general' => "No tienes permisos para cancelar este servicio. Debe ser gestionado por el técnico asignado ({$tecnicoNombre}) o un administrador."]);
             }
 
             // No permitir cancelar citas completadas
             if ($cita->estado === Cita::ESTADO_COMPLETADO) {
-                return back()->withErrors(['general' => 'No se puede cancelar una cita completada.']);
+                return back()->withErrors(['general' => 'No se puede cancelar una cita que ya ha sido completada.']);
             }
 
-            $cita->update([
-                'estado' => Cita::ESTADO_CANCELADO,
-            ]);
+            $motivo = $request->input('motivo', 'Cancelado desde el panel administrativo.');
+            
+            if (!$cita->cambiarEstado(Cita::ESTADO_CANCELADO, $motivo)) {
+                return back()->withErrors(['general' => 'No se pudo cambiar el estado de la cita.']);
+            }
 
-            return back()->with('success', 'Cita cancelada.');
+            return back()->with('success', 'La cita ha sido cancelada exitosamente.');
 
         } catch (Exception $e) {
             Log::error('Error al cancelar cita: ' . $e->getMessage());
-            return back()->withErrors(['general' => 'Error al cancelar la cita.']);
+            return back()->withErrors(['general' => 'Ocurrió un error al intentar cancelar la cita.']);
         }
     }
 
@@ -1601,6 +1838,109 @@ class CitaController extends Controller
     }
 
     /**
+     * Obtener citas (historial) de una póliza, filtradas por equipo.
+     */
+    public function citasPorPoliza(Request $request, \App\Models\PolizaServicio $poliza)
+    {
+        $equipoNombre = $request->query('equipo');
+
+        $citas = Cita::where('poliza_id', $poliza->id)
+            ->with('tecnico:id,name')
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get()
+            ->map(function ($cita) use ($equipoNombre) {
+                // Si hay filtro por equipo, solo mostrar citas que lo mencionen
+                if ($equipoNombre) {
+                    $menciona = false;
+                    if ($cita->equipos_servicio && in_array($equipoNombre, $cita->equipos_servicio)) {
+                        $menciona = true;
+                    }
+                    if (!$menciona && $cita->trabajo_realizado && str_contains(mb_strtolower($cita->trabajo_realizado), mb_strtolower($equipoNombre))) {
+                        $menciona = true;
+                    }
+                    if (!$menciona) return null;
+                }
+                return [
+                    'id' => $cita->id,
+                    'folio' => $cita->folio,
+                    'fecha' => $cita->created_at->format('d/m/Y H:i'),
+                    'tipo_servicio' => $cita->tipo_servicio,
+                    'trabajo_realizado' => $cita->trabajo_realizado,
+                    'fotos_finales' => $cita->fotos_finales ?? [],
+                    'tecnico' => $cita->tecnico?->name ?? 'N/A',
+                    'equipos_servicio' => $cita->equipos_servicio ?? [],
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json(['citas' => $citas, 'total' => $citas->count()]);
+    }
+
+    /**
+     * Obtener historial completo de un equipo en una póliza (citas, cotizaciones, ventas).
+     */
+    public function historialEquipo(Request $request, \App\Models\PolizaServicio $poliza)
+    {
+        $equipoNombre = $request->query('equipo');
+        if (!$equipoNombre) {
+            return response()->json(['error' => 'Falta el nombre del equipo'], 422);
+        }
+
+        // Citas vinculadas
+        $citas = Cita::where('poliza_id', $poliza->id)
+            ->where(function ($q) use ($equipoNombre) {
+                $q->whereJsonContains('equipos_servicio', $equipoNombre)
+                  ->orWhere('trabajo_realizado', 'ilike', "%{$equipoNombre}%");
+            })
+            ->with('tecnico:id,name')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'folio' => $c->folio,
+                'fecha' => $c->created_at->format('d/m/Y H:i'),
+                'tipo' => $c->tipo_servicio,
+                'trabajo_realizado' => $c->trabajo_realizado,
+                'fotos' => $c->fotos_finales ?? [],
+                'tecnico' => $c->tecnico?->name ?? 'N/A',
+            ]);
+
+        // Cotizaciones vinculadas
+        $cotizaciones = \App\Models\Cotizacion::where('poliza_id', $poliza->id)
+            ->where('equipo_nombre', $equipoNombre)
+            ->with(['ventas' => function ($q) {
+                $q->with('items');
+            }])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'numero' => $c->numero_cotizacion,
+                'fecha' => $c->created_at->format('d/m/Y'),
+                'total' => $c->total,
+                'estado' => $c->estado,
+                'ventas' => $c->ventas->map(fn($v) => [
+                    'id' => $v->id,
+                    'numero' => $v->numero_venta,
+                    'total' => $v->total,
+                    'estado' => $v->estado,
+                    'items' => $v->items->map(fn($i) => [
+                        'nombre' => $i->ventable?->nombre ?? 'Producto',
+                        'cantidad' => $i->cantidad,
+                        'precio' => $i->precio_unitario,
+                    ]),
+                ]),
+            ]);
+
+        return response()->json([
+            'citas' => $citas,
+            'cotizaciones' => $cotizaciones,
+        ]);
+    }
+
+    /**
      * Limpia la dirección de URLs y extrae coordenadas si es un link de Google Maps.
      */
     protected function cleanAddressAndExtractGmaps($address)
@@ -1617,14 +1957,18 @@ class CitaController extends Controller
             $url = $matches[0];
             
             // Intentar extraer coordenadas si es de Google Maps
-            // Formatos: /@lat,lng o ?q=lat,lng o ll=lat,lng
-            if (preg_match('/@(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $coords)) {
-                $lat = $coords[1];
-                $lng = $coords[2];
+            // Formatos: !3dLat!4dLng, /@lat,lng, ?q=lat,lng, ll=lat,lng
+            // Priorizamos las coordenadas precisas del marcador (!3d y !4d) sobre la vista de mapa (@lat,lng)
+            if (preg_match('/!3d(-?\d+\.\d+)/', $url, $latMatch) && preg_match('/!4d(-?\d+\.\d+)/', $url, $lngMatch)) {
+                $lat = $latMatch[1];
+                $lng = $lngMatch[1];
             } elseif (preg_match('/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $coords)) {
                 $lat = $coords[1];
                 $lng = $coords[2];
             } elseif (preg_match('/[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $coords)) {
+                $lat = $coords[1];
+                $lng = $coords[2];
+            } elseif (preg_match('/@(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $coords)) {
                 $lat = $coords[1];
                 $lng = $coords[2];
             }
@@ -1637,5 +1981,93 @@ class CitaController extends Controller
         }
 
         return [$address, $lat, $lng];
+    }
+
+    /**
+     * Obtener equipos de la póliza vinculada a la cita que faltan de serializar.
+     */
+    public function equiposSinSerializar(Request $request, Cita $cita)
+    {
+        if (!$cita->poliza_id) {
+            return response()->json(['equipos' => [], 'tiene_poliza' => false]);
+        }
+
+        $poliza = \App\Models\PolizaServicio::find($cita->poliza_id);
+        if (!$poliza) {
+            return response()->json(['equipos' => [], 'tiene_poliza' => true]);
+        }
+
+        $condiciones = $poliza->condiciones_especiales ?? [];
+        $equipos = $condiciones['equipos_cliente'] ?? [];
+        $all = $request->boolean('all');
+
+        $result = [];
+        foreach ($equipos as $idx => $eq) {
+            $evaMissing = empty($eq['serie_evaporador']) || $eq['serie_evaporador'] === 'NO_VISIBLE';
+            $condMissing = empty($eq['serie_condensadora']) || $eq['serie_condensadora'] === 'NO_VISIBLE';
+            if ($all || $evaMissing || $condMissing) {
+                $result[] = [
+                    'index' => $idx,
+                    'nombre' => $eq['nombre'],
+                    'serie_evaporador' => $eq['serie_evaporador'] ?? '',
+                    'serie_condensadora' => $eq['serie_condensadora'] ?? '',
+                ];
+            }
+        }
+
+        return response()->json([
+            'equipos' => $result,
+            'tiene_poliza' => true,
+            'total_equipos' => count($equipos),
+        ]);
+    }
+
+    /**
+     * Capturar números de serie de equipos de la póliza antes de iniciar servicio.
+     */
+    public function capturarSeriales(Request $request, Cita $cita)
+    {
+        $validated = $request->validate([
+            'equipos' => 'required|array',
+            'equipos.*.index' => 'required|integer',
+            'equipos.*.serie_evaporador' => 'nullable|string|max:255',
+            'equipos.*.serie_condensadora' => 'nullable|string|max:255',
+            'equipos.*.evaporador_no_visible' => 'nullable|boolean',
+            'equipos.*.condensadora_no_visible' => 'nullable|boolean',
+        ]);
+
+        if (!$cita->poliza_id) {
+            return response()->json(['success' => false, 'message' => 'La cita no está vinculada a una póliza.'], 422);
+        }
+
+        $poliza = \App\Models\PolizaServicio::find($cita->poliza_id);
+        if (!$poliza) {
+            return response()->json(['success' => false, 'message' => 'Póliza no encontrada.'], 404);
+        }
+
+        $condiciones = $poliza->condiciones_especiales ?? [];
+        $equipos = &$condiciones['equipos_cliente'];
+
+        foreach ($validated['equipos'] as $item) {
+            $idx = $item['index'];
+            if (!isset($equipos[$idx])) continue;
+
+            if (!empty($item['serie_evaporador'])) {
+                $equipos[$idx]['serie_evaporador'] = $item['serie_evaporador'];
+            }
+            if (!empty($item['serie_condensadora'])) {
+                $equipos[$idx]['serie_condensadora'] = $item['serie_condensadora'];
+            }
+            if (!empty($item['evaporador_no_visible'])) {
+                $equipos[$idx]['serie_evaporador'] = 'NO_VISIBLE';
+            }
+            if (!empty($item['condensadora_no_visible'])) {
+                $equipos[$idx]['serie_condensadora'] = 'NO_VISIBLE';
+            }
+        }
+
+        $poliza->update(['condiciones_especiales' => $condiciones]);
+
+        return response()->json(['success' => true, 'message' => 'Seriales guardados correctamente.']);
     }
 }

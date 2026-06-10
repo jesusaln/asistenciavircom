@@ -58,17 +58,7 @@ class VentaPaymentService
 
             $pagadoPorId = $this->resolvePagadoPorUserId($venta, $data);
 
-            // 1. Update Venta basic payment info
-            $venta->update([
-                'fecha_pago' => now(),
-                'pagado_por' => $pagadoPorId,
-                'metodo_pago' => $metodoPagoString,
-                'cuenta_bancaria_id' => $cuentaBancariaId,
-                'notas_pago' => $data['notas_pago'] ?? null,
-                'pagado' => true, // Assuming this marks it as fully paid
-            ]);
-
-            // 2. Process financial payment via PaymentService
+            // 1. Process financial payment via PaymentService
             if ($venta->cuentaPorCobrar) {
                 $montoAPagar = round($venta->cuentaPorCobrar->calcularPendiente(), 2);
                 
@@ -82,6 +72,9 @@ class VentaPaymentService
                         $cuentaBancariaId
                     );
                 }
+                
+                // Refresh CxC to get accurate pending amount
+                $venta->cuentaPorCobrar->refresh();
             } else {
                 // Rare case: sale without CxC (possibly old migration)
                 Log::warning("Venta #{$venta->id} marked as paid without CxC. Creating automated EntregaDinero.");
@@ -97,6 +90,21 @@ class VentaPaymentService
                     $cuentaBancariaId
                 );
             }
+
+            // 2. Update Venta basic payment info
+            // ✅ FIX (A-01): Determine 'pagado' based on actual pending balance
+            $isFullyPaid = $venta->cuentaPorCobrar ? $venta->cuentaPorCobrar->calcularPendiente() <= 0.01 : true;
+
+            Venta::withoutEvents(function () use ($venta, $pagadoPorId, $metodoPagoString, $cuentaBancariaId, $data, $isFullyPaid) {
+                $venta->update([
+                    'fecha_pago' => now(),
+                    'pagado_por' => $pagadoPorId,
+                    'metodo_pago' => $metodoPagoString,
+                    'cuenta_bancaria_id' => $cuentaBancariaId,
+                    'notas_pago' => $data['notas_pago'] ?? null,
+                    'pagado' => $isFullyPaid,
+                ]);
+            });
 
             // 3. Audit log
             VentaAuditLog::logAction(

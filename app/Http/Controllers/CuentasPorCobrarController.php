@@ -84,12 +84,17 @@ class CuentasPorCobrarController extends Controller
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDirection = $request->get('sort_direction', 'desc');
 
-        // Priorizar pendientes y parciales al principio si no hay ordenamiento específico de estado
-        if (!$request->has('sort_by') || $request->get('sort_by') !== 'estado') {
-            $query->orderByRaw("CASE WHEN estado IN ('pendiente', 'parcial', 'vencido') THEN 1 ELSE 2 END ASC");
-            // Dentro del grupo de pendientes, ordenar por fecha de vencimiento ascendente (los próximos a vencer o vencidos primero)
-            // Para los pagados (ELSE), asignamos una fecha futura lejana para que no afecte este ordenamiento y se rijan por el siguiente (created_at)
-            $query->orderByRaw("CASE WHEN estado IN ('pendiente', 'parcial', 'vencido') THEN fecha_vencimiento ELSE '9999-12-31' END ASC");
+        // Priorizar vencidos, parciales y pendientes al principio
+        if (!$request->has('sort_by')) {
+            $query->orderByRaw("CASE 
+                WHEN estado = 'vencido' THEN 1 
+                WHEN estado = 'parcial' THEN 2
+                WHEN estado = 'pendiente' THEN 3
+                ELSE 4 
+            END ASC");
+            
+            // Dentro de cada grupo, los que vencieron hace más tiempo primero (más urgentes)
+            $query->orderBy('fecha_vencimiento', 'asc');
         }
 
         $query->orderBy($sortBy, $sortDirection);

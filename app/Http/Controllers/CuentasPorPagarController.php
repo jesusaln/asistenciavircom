@@ -19,7 +19,7 @@ class CuentasPorPagarController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = CuentasPorPagar::with(['compra.proveedor']);
+            $query = CuentasPorPagar::with(['compra.proveedor', 'proveedor']);
 
             // Filtros
             if ($request->filled('buscar')) {
@@ -44,6 +44,11 @@ class CuentasPorPagarController extends Controller
                     $query->where('estado', $request->estado);
                 } else {
                     $query->where('estado', $request->estado);
+                }
+            } else {
+                // Por defecto, si no hay búsqueda activa, ocultar pagadas y canceladas para no saturar la vista activa
+                if (!$request->filled('buscar')) {
+                    $query->whereNotIn('estado', ['pagado', 'cancelada']);
                 }
             }
 
@@ -178,7 +183,7 @@ class CuentasPorPagarController extends Controller
      */
     public function show(string $id)
     {
-        $cuenta = CuentasPorPagar::with(['compra.proveedor', 'compra.compraItems.comprable', 'pagadoPor', 'cfdi'])->findOrFail($id);
+        $cuenta = CuentasPorPagar::with(['compra.proveedor', 'proveedor', 'compra.compraItems.comprable', 'pagadoPor', 'cfdi'])->findOrFail($id);
         $proveedorId = $cuenta->proveedor_id ?: $cuenta->compra?->proveedor_id;
         $saldoFavorDisponibleProveedor = $proveedorId
             ? CuentasPorPagar::saldoFavorDisponibleProveedor((int) $proveedorId, $cuenta->empresa_id)

@@ -11,9 +11,11 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+
 class VentaMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public $venta;
 

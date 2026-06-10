@@ -129,36 +129,36 @@ const updateAlmacenCompra = async () => {
     <AppLayout>
         <Head title="Mi Perfil" />
 
-        <div class="profile-page min-h-screen bg-[#0b0f19] text-slate-200">
+        <div class="profile-page min-h-screen bg-[var(--ui-surface)] text-slate-200">
             <!-- Header Premium con Degradado -->
             <div class="relative overflow-hidden mb-10">
                 <!-- Capa de fondo decorativa -->
                 <div class="absolute inset-0 bg-gradient-to-r from-[#ff6600]/10 to-transparent pointer-events-none"></div>
                 <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#ff6600]/5 rounded-full blur-3xl"></div>
                 
-                <div class="relative bg-slate-900/40 backdrop-blur-md border-b border-white/5 p-8 lg:p-12">
+                <div class="relative bg-slate-900/50 backdrop-blur-md border-b border-white/5 p-8 lg:p-12">
                     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
                         <!-- Información del usuario -->
                         <div class="flex flex-col gap-6 w-full lg:w-auto">
                             <div class="flex items-center gap-6">
                                 <div class="relative group">
-                                    <div class="absolute -inset-1 bg-gradient-to-r from-[#ff6600] to-[#ff9900] rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                                    <div class="absolute -inset-1 bg-gradient-to-r from-[#ff6600] to-[#ff9900] rounded-full blur opacity-25 group-hover:opacity-50 transition duration-700 group-hover:duration-200"></div>
                                     <img
                                         :src="user.profile_photo_url"
                                         :alt="user.name"
-                                        class="relative w-24 h-24 rounded-full border-2 border-[#ff6600]/30 object-cover shadow-2xl"
+                                        class="relative w-16 h-16 rounded-full border-2 border-[#ff6600]/30 object-cover shadow-2xl"
                                     />
-                                    <div class="absolute bottom-1 right-1 w-7 h-7 bg-[#ff6600] rounded-full border-4 border-[#0b0f19] flex items-center justify-center shadow-lg">
+                                    <div class="absolute bottom-1 right-1 w-7 h-7 bg-[#ff6600] rounded-full border-4 border-[#0b0f19] flex items-center justify-center shadow-xl">
                                         <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                         </svg>
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 class="text-4xl font-extrabold text-white tracking-tight">{{ user.name }}</h1>
+                                    <h1 class="text-4xl font-black text-white tracking-tight">{{ user.name }}</h1>
                                     <p class="text-xl text-slate-400 font-medium">{{ user.email }}</p>
                                     <div class="flex flex-wrap items-center gap-3 mt-4">
-                                        <span v-if="profileStats.emailVerified" class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-400/30 text-xs font-bold rounded-full uppercase tracking-wider backdrop-blur-sm">
+                                        <span v-if="profileStats.emailVerified" class="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-500/10 text-emerald-400 ring-1 ring-emerald-400/30 text-xs font-bold rounded-full uppercase tracking-wider backdrop-blur-sm">
                                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                             </svg>
@@ -177,12 +177,12 @@ const updateAlmacenCompra = async () => {
 
                         <!-- Stats cards rápidas -->
                         <div class="flex flex-wrap items-center gap-4">
-                            <div class="px-6 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl flex flex-col items-center justify-center min-w-[140px] hover:border-[#ff6600]/50 transition-colors group cursor-default shadow-lg">
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 group-hover:text-[#ff6600]/70 transition-colors">Sesiones</span>
-                                <span class="text-3xl font-black text-white">{{ profileStats.totalSessions }}</span>
+                            <div class="px-6 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl flex flex-col items-center justify-center min-w-[140px] hover:border-[#ff6600]/50 transition-colors group cursor-default shadow-xl">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 group-hover:text-[#ff6600]/70 transition-colors">Sesiones</span>
+                                <span class="text-2xl font-black text-white">{{ profileStats.totalSessions }}</span>
                             </div>
-                            <div class="px-6 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl flex flex-col items-center justify-center min-w-[140px] hover:border-[#ff6600]/50 transition-colors group cursor-default shadow-lg">
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 group-hover:text-[#ff6600]/70 transition-colors">Seguridad</span>
+                            <div class="px-6 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl flex flex-col items-center justify-center min-w-[140px] hover:border-[#ff6600]/50 transition-colors group cursor-default shadow-xl">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 group-hover:text-[#ff6600]/70 transition-colors">Seguridad</span>
                                 <span class="text-lg font-black" :class="profileStats.twoFactorEnabled ? 'text-emerald-400' : 'text-amber-400'">
                                     {{ profileStats.twoFactorEnabled ? 'ÓPTIMA' : 'BÁSICA' }}
                                 </span>
@@ -199,8 +199,8 @@ const updateAlmacenCompra = async () => {
                     <!-- Información Personal (Card Estilo Premium) -->
                     <div v-if="$page.props.jetstream.canUpdateProfileInformation" class="premium-card">
                         <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-[#ff6600] shadow-inner">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-[#ff6600] shadow-inner">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
@@ -217,11 +217,11 @@ const updateAlmacenCompra = async () => {
                         <!-- Almacén Venta -->
                         <div class="premium-card relative overflow-hidden group">
                            <div class="absolute top-0 right-0 p-8 text-[#ff6600]/5 group-hover:text-[#ff6600]/10 transition-colors pointer-events-none">
-                               <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                               <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                            </div>
                            <div class="flex items-center gap-4 mb-6">
-                                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-brand-500">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                                 </div>
                                 <h3 class="text-xl font-bold text-white tracking-tight">Venta Predeterminada</h3>
                             </div>
@@ -236,11 +236,11 @@ const updateAlmacenCompra = async () => {
                                         {{ almacen.nombre }}
                                     </option>
                                 </select>
-                                <div v-if="userData.almacen_venta" class="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                <div v-if="userData.almacen_venta" class="p-4 bg-brand-500/5 border border-brand-500/20 rounded-2xl flex items-center gap-2">
+                                    <div class="w-10 h-10 rounded-full bg-brand-500/20 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
                                     </div>
-                                    <span class="text-sm font-medium text-amber-200 uppercase tracking-wide">Actual: {{ userData.almacen_venta.nombre }}</span>
+                                    <span class="text-sm font-medium text-brand-200 uppercase tracking-wide">Actual: {{ userData.almacen_venta.nombre }}</span>
                                 </div>
                             </div>
                         </div>
@@ -248,11 +248,11 @@ const updateAlmacenCompra = async () => {
                         <!-- Almacén Compra -->
                         <div class="premium-card relative overflow-hidden group">
                            <div class="absolute top-0 right-0 p-8 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors pointer-events-none">
-                               <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                               <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                            </div>
                            <div class="flex items-center gap-4 mb-6">
-                                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-emerald-500">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-emerald-500">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                 </div>
                                 <h3 class="text-xl font-bold text-white tracking-tight">Compra Predeterminada</h3>
                             </div>
@@ -267,8 +267,8 @@ const updateAlmacenCompra = async () => {
                                         {{ almacen.nombre }}
                                     </option>
                                 </select>
-                                <div v-if="userData.almacen_compra" class="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                <div v-if="userData.almacen_compra" class="p-4 bg-brand-500/5 border border-emerald-500/20 rounded-2xl flex items-center gap-2">
+                                    <div class="w-10 h-10 rounded-full bg-brand-500/20 flex items-center justify-center">
                                         <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
                                     </div>
                                     <span class="text-sm font-medium text-emerald-200 uppercase tracking-wide">Actual: {{ userData.almacen_compra.nombre }}</span>
@@ -280,8 +280,8 @@ const updateAlmacenCompra = async () => {
                     <!-- Seguridad (Full Width en grid) -->
                     <div v-if="$page.props.jetstream.canUpdatePassword" class="premium-card">
                         <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-[#ff6600]">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-[#ff6600]">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </div>
                             <h3 class="text-xl font-bold text-white tracking-tight">Seguridad de la Cuenta</h3>
                         </div>
@@ -291,49 +291,21 @@ const updateAlmacenCompra = async () => {
                     <!-- Autenticación 2FA -->
                     <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication" class="premium-card">
                         <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-emerald-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                            <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-emerald-400">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                             </div>
                             <h3 class="text-xl font-bold text-white tracking-tight">Autenticación de 2 Factores</h3>
                         </div>
                         <TwoFactorAuthenticationForm :requires-confirmation="props.confirmsTwoFactorAuthentication" />
                     </div>
 
-                    <!-- Integración Microsoft -->
-                    <div class="premium-card">
-                        <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                                <svg class="w-6 h-6" viewBox="0 0 23 23" fill="none">
-                                    <path d="M11 0H1V10H11V0Z" fill="#F25022"/><path d="M22 0H12V10H22V0Z" fill="#7FBA00"/><path d="M11 11H1V21H11V11Z" fill="#00A4EF"/><path d="M22 11H12V21H22V11Z" fill="#FFB900"/>
-                                </svg>
-                            </div>
-                            <h3 class="text-xl font-bold text-white tracking-tight">Microsoft ecosystem</h3>
-                        </div>
-                        <div class="space-y-6">
-                            <p class="text-slate-400 leading-relaxed font-medium">Sincroniza tus tareas y calendario para una gestión integral desde tu perfil.</p>
-                            <div v-if="user.has_microsoft_token" class="p-5 bg-emerald-400/5 rounded-2xl border border-emerald-400/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                                    <span class="text-sm font-bold text-emerald-400 uppercase tracking-widest">Servicios Conectados</span>
-                                </div>
-                                <a href="/auth/microsoft/disconnect" class="text-xs font-bold text-rose-400 hover:text-rose-300 uppercase tracking-tighter border-b border-rose-400/30">Desvincular Cuenta</a>
-                            </div>
-                            <div v-else>
-                                <a href="/auth/microsoft" class="premium-btn w-full justify-center">
-                                    <svg class="w-5 h-5 mr-3" viewBox="0 0 23 23" fill="none">
-                                        <path d="M11 0H1V10H11V0Z" fill="currentColor"/><path d="M22 0H12V10H22V0Z" fill="currentColor"/><path d="M11 11H1V21H11V11Z" fill="currentColor"/><path d="M22 11H12V21H22V11Z" fill="currentColor"/>
-                                    </svg>
-                                    Vincular con Microsoft
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <!-- Sesiones Activas -->
                     <div class="premium-card">
                         <div class="flex items-center gap-4 mb-8">
-                             <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-[#ff6600]">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                             <div class="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-[#ff6600]">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                             </div>
                             <h3 class="text-xl font-bold text-white tracking-tight">Sesiones del Navegador</h3>
                         </div>
@@ -342,10 +314,10 @@ const updateAlmacenCompra = async () => {
                 </div>
 
                 <!-- Eliminar Cuenta (Danger Zone) -->
-                <div v-if="$page.props.jetstream.hasAccountDeletionFeatures" class="mt-12 p-8 bg-rose-500/5 rounded-[2rem] border-2 border-dashed border-rose-500/20 group hover:border-rose-500/40 transition-all duration-500">
+                <div v-if="$page.props.jetstream.hasAccountDeletionFeatures" class="mt-12 p-8 bg-brand-500/5 rounded-[2rem] border-2 border-dashed border-rose-500/20 group hover:border-brand-500/40 transition-all duration-500">
                     <div class="flex items-center gap-4 mb-8">
-                        <div class="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        <div class="w-10 h-10 bg-brand-500/10 rounded-2xl flex items-center justify-center text-rose-500 group-hover:scale-105 transition-transform">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </div>
                         <div>
                             <h3 class="text-xl font-bold text-rose-300">Zona de Peligro</h3>
@@ -360,21 +332,6 @@ const updateAlmacenCompra = async () => {
 </template>
 
 <style scoped>
-.premium-card {
-    @apply bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 shadow-2xl transition-all duration-500 hover:shadow-[#ff6600]/5 hover:border-white/10 hover:-translate-y-1;
-}
-
-.premium-select {
-    @apply w-full h-14 px-6 bg-[#0b0f19] border border-white/10 rounded-2xl text-slate-100 font-medium focus:ring-2 focus:ring-[#ff6600] focus:border-transparent transition-all outline-none appearance-none cursor-pointer text-lg;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1.5rem center;
-    background-size: 1.5rem;
-}
-
-.premium-btn {
-    @apply inline-flex items-center px-8 py-4 bg-white text-[#0b0f19] font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-[#ff6600] hover:text-white transition-all shadow-xl active:scale-95;
-}
 
 .profile-page {
     animation: pageReveal 1s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -386,7 +343,7 @@ const updateAlmacenCompra = async () => {
 }
 
 /* Custom scrollbar para la página en dark mode */
-::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #0b0f19; }
 ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #ff6600; }

@@ -10,17 +10,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('landing_marcas_autorizadas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->string('logo')->nullable();
-            $table->string('tipo')->default('oficial'); // master, oficial, autorizada
-            $table->string('texto_auxiliar')->nullable(); // Ej: "Soporte Master"
-            $table->string('url')->nullable();
-            $table->integer('orden')->default(0);
-            $table->boolean('activo')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('landing_marcas_autorizadas')) {
+            Schema::create('landing_marcas_autorizadas', function (Blueprint $table) {
+                $table->id();
+                $table->string('nombre');
+                $table->string('logo')->nullable();
+                $table->string('tipo')->default('oficial'); // master, oficial, autorizada
+                $table->string('texto_auxiliar')->nullable(); // Ej: "Soporte Master"
+                $table->string('url')->nullable();
+                $table->integer('orden')->default(0);
+                $table->boolean('activo')->default(true);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -3,6 +3,22 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { Head, useForm, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { 
+  faBuilding, faPalette, faShareAlt, faListOl, faFileContract, 
+  faPenNib, faMoneyBillWave, faUniversity, faEnvelope, faComments, 
+  faKey, faFileInvoiceDollar, faHandHoldingUsd, faGlobe, faShoppingCart, 
+  faCloudUploadAlt, faCogs, faShieldAlt, faExclamationTriangle, faSave, 
+  faSpinner, faChevronRight 
+} from '@fortawesome/free-solid-svg-icons'
+
+library.add(
+  faBuilding, faPalette, faShareAlt, faListOl, faFileContract, 
+  faPenNib, faMoneyBillWave, faUniversity, faEnvelope, faComments, 
+  faKey, faFileInvoiceDollar, faHandHoldingUsd, faGlobe, faShoppingCart, 
+  faCloudUploadAlt, faCogs, faShieldAlt, faExclamationTriangle, faSave, 
+  faSpinner, faChevronRight
+)
 import { notyf } from '@/Utils/notyf.js'
 
 // Import Partials
@@ -26,6 +42,7 @@ import RespaldosTab from './Partials/RespaldosTab.vue'
 import RedesSocialesTab from './Partials/RedesSocialesTab.vue'
 import ApiKeysTab from './Partials/ApiKeysTab.vue'
 import FirmaTab from './Partials/FirmaTab.vue'
+import RepseTab from './Partials/RepseTab.vue'
 
 defineOptions({ layout: AppLayout })
 
@@ -33,12 +50,13 @@ const props = defineProps({
   configuracion: { type: Object, required: true },
   empresa: { type: Object, default: null },
   cuentas_bancarias: { type: Array, default: () => [] },
+  nom035_config: { type: Object, default: null },
 })
 
 // Inicializar tab desde URL hash o default
 const getInitialTab = () => {
   const hash = window.location.hash.replace('#', '');
-  const validTabs = ['general', 'visual', 'redes-sociales', 'folios', 'documentos', 'firma', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'danger'];
+  const validTabs = ['general', 'visual', 'repse', 'redes-sociales', 'folios', 'documentos', 'firma', 'impuestos', 'bancarios', 'correo', 'whatsapp', 'api-keys', 'cobros', 'pagos', 'certificados', 'red', 'tienda', 'respaldos', 'sistema', 'seguridad', 'danger'];
   return validTabs.includes(hash) ? hash : 'general';
 };
 
@@ -47,6 +65,7 @@ const activeTab = ref(getInitialTab())
 const tabs = [
   { id: 'general', nombre: 'Información General', icono: 'building', component: GeneralTab },
   { id: 'visual', nombre: 'Apariencia', icono: 'palette', component: VisualTab },
+  { id: 'repse', nombre: 'REPSE y Blindaje', icono: 'shield-alt', component: RepseTab },
   { id: 'redes-sociales', nombre: 'Redes Sociales', icono: 'share-alt', component: RedesSocialesTab },
   { id: 'folios', nombre: 'Folios y Series', icono: 'list-ol', component: FoliosTab }, // NEW TAB
   { id: 'documentos', nombre: 'Documentos', icono: 'file-contract', component: DocumentosTab }, // Changed from document-text to file-contract for better FA match
@@ -70,6 +89,7 @@ const tabs = [
 const tabRoutes = {
   general: 'empresa-configuracion.general.update',
   visual: 'empresa-configuracion.visual.update',
+  repse: 'empresa-configuracion.repse.update',
   'redes-sociales': 'empresa-configuracion.redes-sociales.update',
   folios: null, // Self-contained
   documentos: 'empresa-configuracion.documentos.update',
@@ -238,10 +258,6 @@ const form = useForm({
   tienda_online_activa: props.configuracion.tienda_online_activa || false,
   google_client_id: props.configuracion.google_client_id || '',
   google_client_secret: props.configuracion.google_client_secret || '',
-  microsoft_client_id: props.configuracion.microsoft_client_id || '',
-  microsoft_client_secret: props.configuracion.microsoft_client_secret || '',
-  microsoft_tenant_id: props.configuracion.microsoft_tenant_id || 'common',
-  
   // MercadoPago
   mercadopago_access_token: props.configuracion.mercadopago_access_token || '',
   mercadopago_public_key: props.configuracion.mercadopago_public_key || '',
@@ -287,7 +303,44 @@ const form = useForm({
   gemini_model: props.configuracion.gemini_model || 'gemini-2.0-flash',
   gemini_temperature: props.configuracion.gemini_temperature || 0.7,
   pin_auditoria: props.configuracion.pin_auditoria || '1234',
+
+  // REPSE
+  repse_number: props.configuracion.repse_number || '',
+  repse_expiry: props.configuracion.repse_expiry ? props.configuracion.repse_expiry.split('T')[0] : '',
+  repse_activity: props.configuracion.repse_activity || '',
+  repse_constancia_path: props.configuracion.repse_constancia_path || '',
+  repse_constancia_name: props.configuracion.repse_constancia_name || '',
+  acta_constitutiva_path: props.configuracion.acta_constitutiva_path || '',
+  acta_constitutiva_name: props.configuracion.acta_constitutiva_name || '',
+  curp_pdf_path: props.configuracion.curp_pdf_path || '',
+  curp_pdf_name: props.configuracion.curp_pdf_name || '',
+  csf_pdf_path: props.configuracion.csf_pdf_path || '',
+  csf_pdf_name: props.configuracion.csf_pdf_name || '',
+  registro_patronal_imss: props.configuracion.registro_patronal_imss || [],
+
+  // Nom035 Responsible
+  responsible_name: props.nom035_config?.responsible_name || '',
+  responsible_position: props.nom035_config?.responsible_position || '',
+
+  // Alertas
+  repse_alert_days: props.configuracion.repse_alert_days || 30,
+  audit_contact_email: props.configuracion.audit_contact_email || '',
 })
+
+watch(() => props.configuracion, (newVal) => {
+    form.repse_number = newVal.repse_number || ''
+    form.repse_expiry = newVal.repse_expiry ? newVal.repse_expiry.split('T')[0] : ''
+    form.repse_activity = newVal.repse_activity || ''
+    form.repse_constancia_path = newVal.repse_constancia_path || ''
+    form.repse_constancia_name = newVal.repse_constancia_name || ''
+    form.acta_constitutiva_path = newVal.acta_constitutiva_path || ''
+    form.acta_constitutiva_name = newVal.acta_constitutiva_name || ''
+    form.curp_pdf_path = newVal.curp_pdf_path || ''
+    form.curp_pdf_name = newVal.curp_pdf_name || ''
+    form.csf_pdf_path = newVal.csf_pdf_path || ''
+    form.csf_pdf_name = newVal.csf_pdf_name || ''
+    form.registro_patronal_imss = newVal.registro_patronal_imss || []
+}, { deep: true })
 
 const currentTabComponent = computed(() => {
     return tabs.find(t => t.id === activeTab.value)?.component || GeneralTab
@@ -321,26 +374,26 @@ watch(activeTab, (newTab) => {
 <template>
   <Head title="Configuración de Empresa" />
 
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+  <div class="min-h-screen bg-[var(--ui-surface)] pb-20">
     <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Header con Botón de Guardado Sticky -->
-      <div class="sticky top-4 z-30 mb-6 transition-all duration-300">
-          <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+      <div class="sticky top-4 z-30 mb-6 transition-all duration-200">
+          <div class="bg-white/80 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="p-2 bg-sky-100 rounded-xl text-blue-600">
                     <FontAwesomeIcon icon="building" size="lg" />
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">Configuración</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 hidden md:block">Personaliza tu sistema</p>
+                    <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">Configuración</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 hidden md:block">Personaliza tu sistema</p>
                 </div>
             </div>
             
             <button
                 @click="guardarConfiguracion"
                 :disabled="form.processing"
-                class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+                class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium flex items-center gap-2 shadow-sm hover:shadow-xl"
             >
                 <FontAwesomeIcon v-if="form.processing" icon="spinner" spin />
                 <FontAwesomeIcon v-else icon="save" />
@@ -352,20 +405,20 @@ watch(activeTab, (newTab) => {
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Sidebar de Navegación -->
         <div class="lg:col-span-3">
-          <nav class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 sticky top-24 max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth flex flex-col pb-10">
+          <nav class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-2 sticky top-24 max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth flex flex-col pb-10">
               <button
                 v-for="tab in tabs"
                 :key="tab.id"
                 @click="activeTab = tab.id"
                 :class="[
-                  'w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium rounded-lg transition-all duration-200 mb-1',
+                  'w-full flex items-center gap-2 px-4 py-3 text-left text-sm font-medium rounded-xl transition-all duration-200 mb-1',
                   activeTab === tab.id
-                    ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
+                    ? 'bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/40 text-sky-800 dark:text-sky-200 dark:text-blue-300'
+                    : 'text-slate-500 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'
                 ]"
               >
                   <div class="w-6 text-center">
-                     <FontAwesomeIcon :icon="tab.icono" :class="activeTab === tab.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'" />
+                     <FontAwesomeIcon :icon="tab.icono" :class="activeTab === tab.id ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'" />
                   </div>
                   {{ tab.nombre }}
                   
@@ -380,7 +433,7 @@ watch(activeTab, (newTab) => {
 
         <!-- Contenido Principal -->
         <div class="lg:col-span-9">
-             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 min-h-[600px] transition-all duration-300">
+             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 min-h-[600px] transition-all duration-200">
                 <component :is="currentTabComponent" :form="form" :cuentas_bancarias="cuentas_bancarias" @save="guardarConfiguracion" />
              </div>
         </div>

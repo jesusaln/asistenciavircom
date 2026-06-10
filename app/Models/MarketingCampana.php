@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class MarketingCampana extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'marketing_campanas';

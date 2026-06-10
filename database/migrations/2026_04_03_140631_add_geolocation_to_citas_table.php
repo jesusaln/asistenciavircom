@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('citas', function (Blueprint $blueprint) {
-            $blueprint->decimal('latitud', 10, 8)->nullable();
-            $blueprint->decimal('longitud', 11, 8)->nullable();
-            $blueprint->timestamp('fecha_gps')->nullable()->comment('Fecha/hora exacta en que se capturó la ubicación');
-        });
+        if (!Schema::hasColumn('citas', 'latitud')) {
+            Schema::table('citas', function (Blueprint $blueprint) {
+                $blueprint->decimal('latitud', 10, 8)->nullable();
+                $blueprint->decimal('longitud', 11, 8)->nullable();
+                $blueprint->timestamp('fecha_gps')->nullable()->comment('Fecha/hora exacta en que se capturó la ubicación');
+            });
+        }
     }
 
     /**

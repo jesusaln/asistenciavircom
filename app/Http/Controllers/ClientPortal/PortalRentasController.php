@@ -15,12 +15,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Traits\ImageOptimizerTrait;
 
 class PortalRentasController extends Controller
 {
-    use ImageOptimizerTrait;
-
     public function index()
     {
         $cliente = Auth::guard('client')->user();
@@ -83,7 +80,21 @@ class PortalRentasController extends Controller
         }
 
         $request->validate([
-            'firma' => 'required|string', // Base64
+            'firma' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('#^data:image/\w+;base64,#i', $value)) {
+                        $fail('El formato de la firma digital es inválido.');
+                        return;
+                    }
+                    // Validar integridad decodificando
+                    $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $value);
+                    if (base64_decode($base64, true) === false) {
+                        $fail('El archivo de firma está corrupto.');
+                    }
+                }
+            ],
             'nombre_firmante' => 'required|string|max:255',
             'ine_frontal' => 'nullable|string',
             'ine_trasera' => 'nullable|string',
@@ -93,18 +104,25 @@ class PortalRentasController extends Controller
 
         $firmaHash = hash('sha256', $request->firma . '|' . $renta->id . '|' . now()->toDateTimeString());
 
+        // ✅ PERFORMANCE: Guardar archivos en Storage en vez de base64 en la BD
+        $firmaPath = \App\Helpers\Base64ToFile::save($request->firma, 'rentas/firmas', "firma_{$renta->id}");
+        $ineFrontalPath = \App\Helpers\Base64ToFile::save($request->ine_frontal, 'rentas/documentos/ine', "ine_frontal_{$renta->id}");
+        $ineTraseraPath = \App\Helpers\Base64ToFile::save($request->ine_trasera, 'rentas/documentos/ine', "ine_trasera_{$renta->id}");
+        $comprobantePath = \App\Helpers\Base64ToFile::save($request->comprobante_domicilio, 'rentas/documentos/comprobante', "comprobante_{$renta->id}");
+        $solicitudPath = \App\Helpers\Base64ToFile::save($request->solicitud_renta, 'rentas/documentos/solicitud', "solicitud_{$renta->id}");
+
         $renta->update([
-            'firma_digital' => $request->firma,
+            'firma_digital' => $firmaPath,
             'firmado_at' => now(),
             'firmado_ip' => $request->ip(),
             'firmado_nombre' => $request->nombre_firmante,
             'firma_hash' => $firmaHash,
             'fecha_firma' => now(),
             'estado' => 'activo',
-            'ine_frontal' => $request->ine_frontal,
-            'ine_trasera' => $request->ine_trasera,
-            'comprobante_domicilio' => $request->comprobante_domicilio,
-            'solicitud_renta' => $request->solicitud_renta,
+            'ine_frontal' => $ineFrontalPath,
+            'ine_trasera' => $ineTraseraPath,
+            'comprobante_domicilio' => $comprobantePath,
+            'solicitud_renta' => $solicitudPath,
         ]);
 
         // Notificar a los administradores
@@ -132,7 +150,7 @@ class PortalRentasController extends Controller
         try {
             $file = $request->file('documento');
             $filename = time() . '_' . $request->tipo . '.' . $file->getClientOriginalExtension();
-            $path = $this->storeFileOptimized($file, "rentas/{$renta->id}/documentos", 'public', $filename);
+            $path = $file->storeAs("rentas/{$renta->id}/documentos", $filename, 'public');
 
             // Devolver la ruta para que Inertia la guarde en el form
             return response()->json([

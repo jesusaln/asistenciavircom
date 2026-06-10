@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PedidoBitacora extends Model
 {
+    use BelongsToEmpresa;
+
     protected $table = 'pedidos_online_bitacora';
 
     // Desactivamos updated_at, solo nos interesa cuándo ocurrió (created_at)

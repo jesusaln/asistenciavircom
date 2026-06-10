@@ -10,17 +10,21 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('plan_polizas', function (Blueprint $table) {
-            $table->text('clausulas')->nullable()->after('beneficios')
-                ->comment('Cláusulas legales y términos del servicio');
-            $table->text('terminos_pago')->nullable()->after('clausulas')
-                ->comment('Detalles sobre cómo y cuándo se realizan los pagos');
-        });
+        if (!Schema::hasColumn('plan_polizas', 'clausulas')) {
+            Schema::table('plan_polizas', function (Blueprint $table) {
+                $table->text('clausulas')->nullable()->after('beneficios')
+                    ->comment('Cláusulas legales y términos del servicio');
+                $table->text('terminos_pago')->nullable()->after('clausulas')
+                    ->comment('Detalles sobre cómo y cuándo se realizan los pagos');
+            });
+        }
 
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->text('clausulas_especiales')->nullable()->after('condiciones_especiales')
-                ->comment('Cláusulas personalizadas solo para este contrato');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'clausulas_especiales')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->text('clausulas_especiales')->nullable()->after('condiciones_especiales')
+                    ->comment('Cláusulas personalizadas solo para este contrato');
+            });
+        }
     }
 
     /**

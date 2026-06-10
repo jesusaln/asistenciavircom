@@ -28,9 +28,10 @@ window.axios.interceptors.response.use(
     async (error) => {
         const { response, config } = error || {};
 
-        // Caso 1: Error 419 (CSRF Token Mismatch)
+        // Solo manejar errores 419 (CSRF token mismatch)
         if (response?.status === 419 && !config.__retried) {
             if (isRefreshingCsrf) {
+                // Si ya estamos refrescando, agregar a la cola
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 }).then(() => {
@@ -43,44 +44,31 @@ window.axios.interceptors.response.use(
             config.__retried = true;
 
             try {
+                // Intentar refrescar el token CSRF
                 await axios.get('/sanctum/csrf-cookie', { __retried: true });
                 processQueue();
                 return axios(config);
             } catch (refreshError) {
                 processQueue(refreshError);
                 console.warn('No se pudo refrescar el token CSRF:', refreshError);
-                // Forzar recarga si no se puede recuperar la sesión
-                window.location.reload();
+                // El usuario deberá recargar la página
                 return Promise.reject(error);
             } finally {
                 isRefreshingCsrf = false;
             }
         }
 
-        // Caso 2: Error 403 (Forbidden / Unauthorized)
-        if (response?.status === 403) {
-            console.warn('Acceso denegado (403):', response?.data?.message || 'No autorizado');
-
-            // Si tenemos notyf (Toast) disponible globalmente, usarlo
-            if (window.$toast) {
-                window.$toast.error('Acceso denegado: No tienes permisos para realizar esta acción.');
-            } else {
-                alert('Acceso denegado: No tienes permisos para realizar esta acción.');
-            }
-            // No recargamos página en 403, solo avisamos
-            return Promise.reject(error);
-        }
-
-        // Caso 3: Error 401 (Unauthenticated) - Sesión expirada
-        if (response?.status === 401) {
-            console.warn('Sesión expirada (401). Redirigiendo al login...');
-            window.location.href = '/login';
-            return Promise.reject(error);
-        }
-
         return Promise.reject(error);
     }
 );
+// Configurar interceptor global de errores
+import { setupGlobalErrorInterceptor } from './Utils/axiosInterceptor.js';
+setupGlobalErrorInterceptor(window.axios);
 
-// Importar configuración de notificaciones
-import './Utils/notyf';
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allow your team to quickly build robust real-time web applications.
+ */
+
+import './echo';

@@ -1,7 +1,6 @@
-<!-- /resources/js/Components/UI/Pagination.vue -->
+<!-- /resources/js/Components/Pagination.vue -->
 <script setup>
 import { computed } from 'vue'
-import { Link } from '@inertiajs/vue3'
 
 const props = defineProps({
   paginationData: {
@@ -20,25 +19,6 @@ const emit = defineEmits(['page-change', 'per-page-change'])
 
 // Computed para extraer datos de paginación
 const pagination = computed(() => {
-  // Si se pasaron links pero no paginationData, intentar extraer información básica
-  if (props.links && props.links.length > 0 && Object.keys(props.paginationData).length === 0) {
-    const activeLink = props.links.find(l => l.active);
-    const prevLink = props.links[0]?.url;
-    const nextLink = props.links[props.links.length - 1]?.url;
-    
-    return {
-      currentPage: activeLink ? parseInt(activeLink.label) || 1 : 1,
-      lastPage: Math.max(...props.links.map(l => parseInt(l.label)).filter(n => !isNaN(n))) || 1,
-      perPage: 15,
-      from: 0,
-      to: 0,
-      total: 0,
-      prevPageUrl: props.links.find(l => l.label.includes('Anterior'))?.url,
-      nextPageUrl: props.links.find(l => l.label.includes('Siguiente'))?.url,
-      links: props.links
-    }
-  }
-
   const data = props.paginationData
   return {
     currentPage: data.current_page || 1,
@@ -53,173 +33,99 @@ const pagination = computed(() => {
   }
 })
 
-// Páginas visibles alrededor de la actual
+// Páginas visibles
 const visiblePages = computed(() => {
   const current = pagination.value.currentPage
   const last = pagination.value.lastPage
-  const delta = 2
-  const range = []
-  const rangeWithDots = []
+  const delta = 1
+  const pages = []
 
   for (let i = Math.max(2, current - delta); i <= Math.min(last - 1, current + delta); i++) {
-    range.push(i)
+    pages.push(i)
   }
 
-  if (current - delta > 2) {
-    rangeWithDots.push(1, '...')
-  } else {
-    rangeWithDots.push(1)
-  }
+  const result = [1]
+  if (current - delta > 2) result.push('...')
+  result.push(...pages)
+  if (current + delta < last - 1) result.push('...')
+  if (last > 1) result.push(last)
 
-  rangeWithDots.push(...range)
-
-  if (current + delta < last - 1) {
-    rangeWithDots.push('...', last)
-  } else {
-    rangeWithDots.push(last)
-  }
-
-  return rangeWithDots.filter((v, i, arr) => arr.indexOf(v) === i && v !== 1 || i === 0)
+  return result.filter((v, i, a) => a.indexOf(v) === i)
 })
 
-const perPageOptions = [10, 15, 25, 50]
-
-const handlePerPageChange = (newPerPage) => {
-  emit('per-page-change', newPerPage)
+const handlePerPageChange = (event) => {
+  emit('per-page-change', parseInt(event.target.value))
 }
 </script>
 
 <template>
-  <div v-if="pagination.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <!-- Info de registros -->
-      <div class="flex-1 flex justify-between sm:hidden">
-        <p class="text-sm text-gray-700">
-          Mostrando {{ pagination.from }} - {{ pagination.to }} de {{ pagination.total }} resultados
-        </p>
-      </div>
+  <div v-if="pagination.lastPage > 1" class="mt-8 flex flex-col md:flex-row items-center justify-between gap-6 px-2">
+    <!-- Información de resultados -->
+    <div class="flex flex-col md:flex-row items-center gap-4">
+      <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+        Mostrando <span class="text-slate-900 dark:text-white">{{ pagination.from }} - {{ pagination.to }}</span> de <span class="text-slate-900 dark:text-white">{{ pagination.total }}</span> registros
+      </p>
 
-      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-        <div class="flex items-center gap-4">
-          <p class="text-sm text-gray-700">
-            Mostrando
-            <span class="font-medium">{{ pagination.from }}</span>
-            a
-            <span class="font-medium">{{ pagination.to }}</span>
-            de
-            <span class="font-medium">{{ pagination.total }}</span>
-            resultados
-          </p>
-
-          <!-- Selector de elementos por página -->
-          <div class="flex items-center gap-2">
-            <label class="text-sm text-gray-700">Mostrar:</label>
-            <select
-              :value="pagination.perPage"
-              @change="handlePerPageChange(parseInt($event.target.value))"
-              class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
-            >
-              <option v-for="option in perPageOptions" :key="option" :value="option">
-                {{ option }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Navegación de páginas -->
-        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-          <!-- Botón Anterior -->
-          <button
-            v-if="pagination.prevPageUrl"
-            @click="emit('page-change', pagination.currentPage - 1)"
-            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-            </svg>
-            <span class="sr-only">Anterior</span>
-          </button>
-
-          <span
-            v-else
-            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed"
-          >
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-            </svg>
-          </span>
-
-          <!-- Números de página -->
-          <template v-for="(page, index) in visiblePages" :key="index">
-            <span
-              v-if="page === '...'"
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
-            >
-              ...
-            </span>
-            <button
-              v-else-if="page !== pagination.currentPage"
-              @click="emit('page-change', page)"
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              {{ page }}
-            </button>
-            <span
-              v-else
-              class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600"
-            >
-              {{ page }}
-            </span>
-          </template>
-
-          <!-- Botón Siguiente -->
-          <button
-            v-if="pagination.nextPageUrl"
-            @click="emit('page-change', pagination.currentPage + 1)"
-            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <span class="sr-only">Siguiente</span>
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-          </button>
-
-          <span
-            v-else
-            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed"
-          >
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-          </span>
-        </nav>
-      </div>
-
-      <!-- Navegación móvil simplificada -->
-      <div class="flex-1 flex justify-between sm:hidden">
-        <button
-          v-if="pagination.prevPageUrl"
-          @click="emit('page-change', pagination.currentPage - 1)"
-          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Ver:</span>
+        <select
+          :value="pagination.perPage"
+          @change="handlePerPageChange"
+          class="bg-white dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-xl text-[10px] font-black py-1 px-3 text-slate-900 dark:text-white focus:ring-0 focus:border-slate-900 dark:focus:border-slate-700 transition-all"
         >
-          Anterior
-        </button>
-        <span v-else class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-          Anterior
-        </span>
-
-        <button
-          v-if="pagination.nextPageUrl"
-          @click="emit('page-change', pagination.currentPage + 1)"
-          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
-        >
-          Siguiente
-        </button>
-        <span v-else class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
-          Siguiente
-        </span>
+          <option :value="10">10</option>
+          <option :value="15">15</option>
+          <option :value="25">25</option>
+          <option :value="50">50</option>
+        </select>
       </div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="flex items-center gap-2">
+      <!-- Anterior -->
+      <button
+        @click="pagination.prevPageUrl ? emit('page-change', pagination.currentPage - 1) : null"
+        :disabled="!pagination.prevPageUrl"
+        class="w-10 h-10 rounded-xl flex items-center justify-center border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:border-slate-900 dark:hover:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Números -->
+      <div class="flex items-center gap-1.5">
+        <template v-for="(page, index) in visiblePages" :key="index">
+          <span
+            v-if="page === '...'"
+            class="w-10 h-10 flex items-center justify-center text-[10px] font-black text-slate-400"
+          >
+            ...
+          </span>
+          <button
+            v-else
+            @click="emit('page-change', page)"
+            class="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black uppercase tracking-wide transition-all shadow-sm"
+            :class="page === pagination.currentPage 
+              ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl' 
+              : 'bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-2 border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-white'"
+          >
+            {{ page }}
+          </button>
+        </template>
+      </div>
+
+      <!-- Siguiente -->
+      <button
+        @click="pagination.nextPageUrl ? emit('page-change', pagination.currentPage + 1) : null"
+        :disabled="!pagination.nextPageUrl"
+        class="w-10 h-10 rounded-xl flex items-center justify-center border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:border-slate-900 dark:hover:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
     </div>
   </div>
 </template>
-

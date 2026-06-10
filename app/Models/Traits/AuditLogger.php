@@ -146,7 +146,7 @@ trait AuditLogger
             'changes' => $changes,
             'actor_id' => $this->getActorId(),
             'actor_type' => 'system',
-            'timestamp' => now()->toISOString(),
+            'timestamp' => now()->toIso8601String(),
         ];
 
         $this->auditChanges[] = $changeRecord;
@@ -179,7 +179,7 @@ trait AuditLogger
             'affected_count' => $count,
             'changes' => $changes,
             'actor_id' => $this->getActorId(),
-            'timestamp' => now()->toISOString(),
+            'timestamp' => now()->toIso8601String(),
         ];
 
         $this->auditChanges[] = $changeRecord;

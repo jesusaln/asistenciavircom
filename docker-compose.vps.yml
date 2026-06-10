@@ -1,0 +1,85 @@
+services:
+  app:
+    image: cdd_climas_fixed:latest
+    container_name: climasdeldesierto-app-1
+    restart: unless-stopped
+    volumes:
+      - ./storage:/var/www/storage
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+      - ./.env:/var/www/.env
+    environment:
+      DB_HOST: cdd_db
+      DB_PORT: 5432
+      DB_DATABASE: cdd_climas
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    networks:
+      - cdd_network
+      - coolify_cdd_net
+
+  worker:
+    image: cdd_climas_fixed:latest
+    container_name: climasdeldesierto-worker-1
+    restart: unless-stopped
+    command: php artisan queue:work --queue=default,high --timeout=120 --tries=3
+    volumes:
+      - ./storage:/var/www/storage
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+      - ./.env:/var/www/.env
+    environment:
+      DB_HOST: cdd_db
+      DB_PORT: 5432
+      DB_DATABASE: cdd_climas
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    networks:
+      - cdd_network
+      - coolify_cdd_net
+    depends_on:
+      - app
+
+  nginx:
+    image: nginx:alpine
+    container_name: climasdeldesierto-web-1
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    volumes:
+      - ./docker/nginx.conf.vps.fix:/etc/nginx/conf.d/default.conf
+      - ./public:/var/www/public
+      - ./storage/app/public:/var/www/public/storage
+      - ./certs:/etc/nginx/certs
+    networks:
+      - cdd_network
+    depends_on:
+      - app
+
+  reverb:
+    image: cdd_climas_fixed:latest
+    container_name: climasdeldesierto-reverb-1
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080 --debug
+    ports:
+      - "8084:8080"
+    volumes:
+      - ./storage:/var/www/storage
+      - ./bootstrap/cache:/var/www/bootstrap/cache
+      - ./.env:/var/www/.env
+    environment:
+      DB_HOST: cdd_db
+      DB_PORT: 5432
+      DB_DATABASE: cdd_climas
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    networks:
+      - cdd_network
+      - coolify_cdd_net
+    depends_on:
+      - app
+
+networks:
+  cdd_network:
+    driver: bridge
+  coolify_cdd_net:
+    external: true
+    name: dgc4wsk44gs0kcoowsogggcw_cdd_net

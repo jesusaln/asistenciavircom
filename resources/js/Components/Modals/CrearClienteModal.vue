@@ -10,7 +10,7 @@
     >
       <div
         v-if="show"
-        class="fixed inset-0 z-50 overflow-y-auto"
+        class="fixed inset-0 z-50 overflow-y-auto custom-scrollbar"
         aria-labelledby="modal-title"
         role="dialog"
         aria-modal="true"
@@ -18,7 +18,7 @@
         <!-- Overlay -->
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <div
-            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
             @click="close"
           ></div>
 
@@ -33,19 +33,19 @@
           >
             <div
               v-if="show"
-              class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+              class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
             >
               <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                   <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                     <!-- Header -->
                     <div class="flex items-center justify-between mb-6">
-                      <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                      <h3 class="text-lg leading-6 font-medium text-slate-900" id="modal-title">
                         Crear Nuevo Cliente
                       </h3>
                       <button
                         @click="close"
-                        class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        class="text-slate-400 hover:text-slate-600 transition-colors duration-200"
                       >
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -56,12 +56,12 @@
                     <!-- Formulario -->
                     <form @submit.prevent="submit" class="space-y-6">
                       <!-- Información General -->
-                      <div class="border-b border-gray-200 pb-4">
-                        <h4 class="text-md font-medium text-gray-900 mb-3">Información General</h4>
+                      <div class="border-b border-slate-200 pb-4">
+                        <h4 class="text-md font-medium text-slate-900 mb-3">Información General</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label for="modal-nombre_razon_social" class="block text-sm font-medium text-gray-700">
-                              Nombre/Razón Social <span class="text-red-500">*</span>
+                            <label for="modal-nombre_razon_social" class="block text-sm font-medium text-slate-700">
+                              Nombre/Razón Social <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -70,19 +70,19 @@
                               @blur="toUpper('nombre_razon_social')"
                               autocomplete="off"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.nombre_razon_social ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.nombre_razon_social ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.nombre_razon_social" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.nombre_razon_social" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.nombre_razon_social }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-email" class="block text-sm font-medium text-gray-700">
-                              Email <span class="text-red-500">*</span>
+                            <label for="modal-email" class="block text-sm font-medium text-slate-700">
+                              Email <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="email"
@@ -91,18 +91,18 @@
                               autocomplete="new-password"
                               placeholder="correo@ejemplo.com"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.email ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.email" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.email" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.email }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-telefono" class="block text-sm font-medium text-gray-700">
+                            <label for="modal-telefono" class="block text-sm font-medium text-slate-700">
                               Teléfono
                             </label>
                             <input
@@ -112,11 +112,11 @@
                               v-model="form.telefono"
                               placeholder="Opcional"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.telefono ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.telefono ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                             />
-                            <div v-if="form.errors.telefono" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.telefono" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.telefono }}
                             </div>
                           </div>
@@ -124,20 +124,20 @@
                       </div>
 
                       <!-- Información Fiscal -->
-                      <div class="border-b border-gray-200 pb-4">
-                        <h4 class="text-md font-medium text-gray-900 mb-3">Información Fiscal</h4>
+                      <div class="border-b border-slate-200 pb-4">
+                        <h4 class="text-md font-medium text-slate-900 mb-3">Información Fiscal</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label for="modal-tipo_persona" class="block text-sm font-medium text-gray-700">
-                              Tipo de Persona <span class="text-red-500">*</span>
+                            <label for="modal-tipo_persona" class="block text-sm font-medium text-slate-700">
+                              Tipo de Persona <span class="text-rose-500">*</span>
                             </label>
                             <select
                               id="modal-tipo_persona"
                               v-model="form.tipo_persona"
                               @change="onTipoPersonaChange"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.tipo_persona ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.tipo_persona ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             >
@@ -145,14 +145,14 @@
                               <option value="fisica">Persona Física</option>
                               <option value="moral">Persona Moral</option>
                             </select>
-                            <div v-if="form.errors.tipo_persona" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.tipo_persona" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.tipo_persona }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-rfc" class="block text-sm font-medium text-gray-700">
-                              RFC <span class="text-red-500">*</span>
+                            <label for="modal-rfc" class="block text-sm font-medium text-slate-700">
+                              RFC <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -164,24 +164,24 @@
                               :disabled="!form.tipo_persona"
                               autocomplete="off"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.rfc ? 'border-red-300 bg-red-50' : 'border-gray-300',
-                                !form.tipo_persona ? 'bg-gray-100 text-gray-400' : ''
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.rfc ? 'border-rose-300 bg-rose-50' : 'border-slate-300',
+                                !form.tipo_persona ? 'bg-slate-100 text-slate-400' : ''
                               ]"
                               required
                             />
-                            <div v-if="form.errors.rfc" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.rfc" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.rfc }}
                             </div>
-                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-gray-500">
+                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-slate-500">
                               Primero selecciona el tipo de persona
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-curp" class="block text-sm font-medium text-gray-700">
+                            <label for="modal-curp" class="block text-sm font-medium text-slate-700">
                               CURP
-                              <span v-if="form.tipo_persona === 'fisica'" class="text-gray-400">(opcional)</span>
+                              <span v-if="form.tipo_persona === 'fisica'" class="text-slate-400">(opcional)</span>
                             </label>
                             <input
                               type="text"
@@ -193,31 +193,31 @@
                               :disabled="form.tipo_persona === 'moral' || !form.tipo_persona"
                               autocomplete="off"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.curp ? 'border-red-300 bg-red-50' : 'border-gray-300',
-                                (form.tipo_persona === 'moral' || !form.tipo_persona) ? 'bg-gray-100 text-gray-400' : ''
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.curp ? 'border-rose-300 bg-rose-50' : 'border-slate-300',
+                                (form.tipo_persona === 'moral' || !form.tipo_persona) ? 'bg-slate-100 text-slate-400' : ''
                               ]"
                             />
-                            <div v-if="form.errors.curp" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.curp" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.curp }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-slate-500">
                               {{ curpHelperText }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-regimen_fiscal" class="block text-sm font-medium text-gray-700">
-                              Régimen Fiscal <span class="text-red-500">*</span>
+                            <label for="modal-regimen_fiscal" class="block text-sm font-medium text-slate-700">
+                              Régimen Fiscal <span class="text-rose-500">*</span>
                             </label>
                             <select
                               id="modal-regimen_fiscal"
                               v-model="form.regimen_fiscal"
                               :disabled="!form.tipo_persona"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.regimen_fiscal ? 'border-red-300 bg-red-50' : 'border-gray-300',
-                                !form.tipo_persona ? 'bg-gray-100 text-gray-400' : ''
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.regimen_fiscal ? 'border-rose-300 bg-rose-50' : 'border-slate-300',
+                                !form.tipo_persona ? 'bg-slate-100 text-slate-400' : ''
                               ]"
                               required
                             >
@@ -230,24 +230,24 @@
                                 {{ regimen.text }}
                               </option>
                             </select>
-                            <div v-if="form.errors.regimen_fiscal" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.regimen_fiscal" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.regimen_fiscal }}
                             </div>
-                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-gray-500">
+                            <div v-if="!form.tipo_persona" class="mt-1 text-xs text-slate-500">
                               Primero selecciona el tipo de persona
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-uso_cfdi" class="block text-sm font-medium text-gray-700">
-                              Uso CFDI <span class="text-red-500">*</span>
+                            <label for="modal-uso_cfdi" class="block text-sm font-medium text-slate-700">
+                              Uso CFDI <span class="text-rose-500">*</span>
                             </label>
                             <select
                               id="modal-uso_cfdi"
                               v-model="form.uso_cfdi"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.uso_cfdi ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.uso_cfdi ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             >
@@ -260,7 +260,7 @@
                                 {{ uso.text }}
                               </option>
                             </select>
-                            <div v-if="form.errors.uso_cfdi" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.uso_cfdi" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.uso_cfdi }}
                             </div>
                           </div>
@@ -269,11 +269,11 @@
 
                       <!-- Dirección -->
                       <div>
-                        <h4 class="text-md font-medium text-gray-900 mb-3">Dirección</h4>
+                        <h4 class="text-md font-medium text-slate-900 mb-3">Dirección</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div class="md:col-span-2">
-                            <label for="modal-calle" class="block text-sm font-medium text-gray-700">
-                              Calle <span class="text-red-500">*</span>
+                            <label for="modal-calle" class="block text-sm font-medium text-slate-700">
+                              Calle <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -282,19 +282,19 @@
                               @blur="toUpper('calle')"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.calle ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.calle ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.calle" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.calle" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.calle }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-numero_exterior" class="block text-sm font-medium text-gray-700">
-                              Número Exterior <span class="text-red-500">*</span>
+                            <label for="modal-numero_exterior" class="block text-sm font-medium text-slate-700">
+                              Número Exterior <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -303,18 +303,18 @@
                               @blur="toUpper('numero_exterior')"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.numero_exterior ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.numero_exterior ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.numero_exterior" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.numero_exterior" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.numero_exterior }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-numero_interior" class="block text-sm font-medium text-gray-700">
+                            <label for="modal-numero_interior" class="block text-sm font-medium text-slate-700">
                               Número Interior
                             </label>
                             <input
@@ -324,18 +324,18 @@
                               @blur="toUpper('numero_interior')"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.numero_interior ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.numero_interior ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                             />
-                            <div v-if="form.errors.numero_interior" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.numero_interior" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.numero_interior }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-codigo_postal" class="block text-sm font-medium text-gray-700">
-                              Código Postal <span class="text-red-500">*</span>
+                            <label for="modal-codigo_postal" class="block text-sm font-medium text-slate-700">
+                              Código Postal <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -347,26 +347,26 @@
                               placeholder="12345"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.codigo_postal ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.codigo_postal ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.codigo_postal" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.codigo_postal" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.codigo_postal }}
                             </div>
                             <div v-if="cpLoading" class="mt-1 text-xs text-blue-500 flex items-center gap-1">
                               <svg class="animate-spin h-3 w-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                               Buscando código postal...
                             </div>
-                            <div v-else class="mt-1 text-xs text-gray-500">
+                            <div v-else class="mt-1 text-xs text-slate-500">
                               Al ingresar un CP válido, se autocompletarán estado, municipio y colonias.
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-colonia" class="block text-sm font-medium text-gray-700">
-                              Colonia <span class="text-red-500">*</span>
+                            <label for="modal-colonia" class="block text-sm font-medium text-slate-700">
+                              Colonia <span class="text-rose-500">*</span>
                             </label>
                             <!-- Dropdown si hay colonias disponibles y no está en modo manual -->
                             <select
@@ -374,8 +374,8 @@
                               id="modal-colonia"
                               v-model="form.colonia"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.colonia ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.colonia ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             >
@@ -398,12 +398,12 @@
                               placeholder="Escribe la colonia"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.colonia ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.colonia ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.colonia" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.colonia" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.colonia }}
                             </div>
                             <!-- Toggle entre manual y dropdown -->
@@ -416,15 +416,15 @@
                               >
                                 {{ coloniaManual ? 'Seleccionar de la lista' : 'Escribir manualmente' }}
                               </button>
-                              <span v-else class="text-xs text-gray-500">
+                              <span v-else class="text-xs text-slate-500">
                                 Ingresa el código postal para ver colonias disponibles, o escribe manualmente.
                               </span>
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-municipio" class="block text-sm font-medium text-gray-700">
-                              Municipio <span class="text-red-500">*</span>
+                            <label for="modal-municipio" class="block text-sm font-medium text-slate-700">
+                              Municipio <span class="text-rose-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -432,24 +432,24 @@
                               v-model="form.municipio"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.municipio ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.municipio ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                               required
                             />
-                            <div v-if="form.errors.municipio" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.municipio" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.municipio }}
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-estado" class="block text-sm font-medium text-gray-700">
+                            <label for="modal-estado" class="block text-sm font-medium text-slate-700">
                               Estado
                             </label>
                             <select
                               id="modal-estado"
                               v-model="form.estado"
-                              class="mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border-gray-300"
+                              class="mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border-slate-300"
                             >
                               <option value="">Selecciona una opción</option>
                               <option
@@ -460,16 +460,16 @@
                                 {{ estado.text || estado.label }}
                               </option>
                             </select>
-                            <div v-if="form.errors.estado" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.estado" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.estado }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-slate-500">
                               Opcional para clientes extranjeros
                             </div>
                           </div>
 
                           <div>
-                            <label for="modal-pais" class="block text-sm font-medium text-gray-700">
+                            <label for="modal-pais" class="block text-sm font-medium text-slate-700">
                               País
                             </label>
                             <input
@@ -480,14 +480,14 @@
                               placeholder="MX (México por defecto)"
                               autocomplete="new-password"
                               :class="[
-                                'mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-                                form.errors.pais ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                'mt-1 block w-full rounded-xl shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm',
+                                form.errors.pais ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
                               ]"
                             />
-                            <div v-if="form.errors.pais" class="mt-1 text-sm text-red-600">
+                            <div v-if="form.errors.pais" class="mt-1 text-sm text-rose-600">
                               {{ form.errors.pais }}
                             </div>
-                            <div class="mt-1 text-xs text-gray-500">
+                            <div class="mt-1 text-xs text-slate-500">
                               Código de país (2-3 letras). México por defecto, cambia para clientes extranjeros.
                             </div>
                           </div>
@@ -499,12 +499,12 @@
               </div>
 
               <!-- Footer -->
-              <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
                   @click="submit"
                   :disabled="form.processing || !isFormValid"
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span v-if="form.processing" class="flex items-center">
                     <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -519,7 +519,7 @@
                   type="button"
                   @click="close"
                   :disabled="form.processing"
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </button>

@@ -78,6 +78,8 @@ class PolizaServicioController extends Controller
             'costo_hora_excedente' => 'nullable|numeric|min:0',
             'dias_alerta_vencimiento' => 'nullable|integer|min:1|max:90',
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
+            'meses_mantenimiento' => 'nullable|array',
+            'meses_mantenimiento.*' => 'integer|min:1|max:12',
             'proximo_mantenimiento_at' => 'nullable|date',
             'generar_cita_automatica' => 'nullable|boolean',
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
@@ -167,6 +169,8 @@ class PolizaServicioController extends Controller
             'costo_hora_excedente' => 'nullable|numeric|min:0',
             'dias_alerta_vencimiento' => 'nullable|integer|min:1|max:90',
             'mantenimiento_frecuencia_meses' => 'nullable|integer|min:1|max:24',
+            'meses_mantenimiento' => 'nullable|array',
+            'meses_mantenimiento.*' => 'integer|min:1|max:12',
             'proximo_mantenimiento_at' => 'nullable|date',
             'generar_cita_automatica' => 'nullable|boolean',
             'visitas_sitio_mensuales' => 'nullable|integer|min:0',
@@ -403,7 +407,8 @@ class PolizaServicioController extends Controller
     {
         try {
             $monto = $polizas_servicio->monto_mensual;
-            $iva = round($monto * 0.16, 2);
+            $ivaRate = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
+            $iva = round($monto * $ivaRate, 2);
 
             $cobro = \App\Models\CuentasPorCobrar::create([
                 'empresa_id' => $polizas_servicio->empresa_id,

@@ -5,14 +5,20 @@ namespace App\Services;
 use App\Models\CuentasPorCobrar;
 use App\Models\CuentasPorPagar;
 use App\Models\MovimientoBancario;
+use App\Models\Empresa;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Servicio de conciliación bancaria automática
  */
 class ConciliacionBancariaService
 {
+    public function __construct()
+    {
+    }
     /**
      * Tolerancia de monto para matches (porcentaje)
      */

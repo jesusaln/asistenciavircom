@@ -60,6 +60,14 @@ class PagoPrestamoController extends Controller
             $sortBy = $request->get('sort_by', 'fecha_programada');
             $sortDirection = $request->get('sort_direction', 'asc');
 
+            // Priorizar pagos atrasados (vencidos) al principio
+            if (!$request->has('sort_by')) {
+                $query->orderByRaw("CASE 
+                    WHEN estado IN ('pendiente', 'parcial') AND fecha_programada < ? THEN 1 
+                    ELSE 2 
+                END ASC", [now()->toDateString()]);
+            }
+            
             $query->orderBy($sortBy, $sortDirection);
 
             // Paginación con soporte para per_page

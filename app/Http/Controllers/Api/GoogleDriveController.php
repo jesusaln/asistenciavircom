@@ -16,9 +16,29 @@ class GoogleDriveController extends Controller
      */
     private function getAppCredentials(): array
     {
+        // Primero intentamos obtener de la configuración (config/services.php -> .env)
+        $clientId = config('services.google_drive.client_id');
+        $clientSecret = config('services.google_drive.client_secret');
+
+        // Si no están en .env, intentamos obtener de la base de datos
+        if (empty($clientId) || empty($clientSecret)) {
+            $config = EmpresaConfiguracion::getConfig();
+            $clientId = $clientId ?: ($config->gdrive_client_id ?? null);
+
+            if (empty($clientSecret) && !empty($config->gdrive_client_secret)) {
+                try {
+                    // Intentamos desencriptar (para mayor seguridad)
+                    $clientSecret = \Illuminate\Support\Facades\Crypt::decryptString($config->gdrive_client_secret);
+                } catch (\Exception $e) {
+                    // Si falla, tomamos el valor tal cual (compatibilidad con texto plano)
+                    $clientSecret = $config->gdrive_client_secret;
+                }
+            }
+        }
+
         return [
-            'client_id' => config('services.google_drive.client_id'),
-            'client_secret' => config('services.google_drive.client_secret'),
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
             'redirect_uri' => url('/api/gdrive/callback')
         ];
     }
@@ -39,9 +59,17 @@ class GoogleDriveController extends Controller
 
         $service = new GoogleDriveService();
 
-        // Generar estado con empresa_id para persistencia
+        // Generar estado seguro con token CSRF y empresa_id
         $config = EmpresaConfiguracion::getConfig();
-        $state = base64_encode(json_encode(['empresa_id' => $config->empresa_id]));
+        $csrfToken = \Illuminate\Support\Str::random(40);
+        
+        // Guardar en sesión para verificar en el callback
+        session(['gdrive_oauth_state' => $csrfToken]);
+
+        $state = base64_encode(json_encode([
+            'empresa_id' => $config->empresa_id,
+            'state_token' => $csrfToken
+        ]));
 
         $authUrl = $service->getAuthUrl(
             $credentials['client_id'],
@@ -60,6 +88,7 @@ class GoogleDriveController extends Controller
     {
         $code = $request->input('code');
         $error = $request->input('error');
+        $state = $request->input('state');
 
         if ($error) {
             return view('gdrive-callback', ['success' => false, 'message' => $error]);
@@ -68,6 +97,26 @@ class GoogleDriveController extends Controller
         if (!$code) {
             return view('gdrive-callback', ['success' => false, 'message' => 'No se recibió código de autorización']);
         }
+
+        // VALIDACIÓN DE STATE (CSRF Protection)
+        $decodedState = json_decode(base64_decode($state), true);
+        $savedState = session('gdrive_oauth_state');
+
+        if (!$decodedState || !isset($decodedState['state_token']) || $decodedState['state_token'] !== $savedState) {
+            Log::error('Google Drive: Intento de OAuth con state inválido o caducado');
+            return view('gdrive-callback', ['success' => false, 'message' => 'Sesión de autorización inválida o expirada.']);
+        }
+
+        $empresaId = $decodedState['empresa_id'] ?? null;
+        if (!$empresaId) {
+            return view('gdrive-callback', ['success' => false, 'message' => 'No se pudo determinar la empresa.']);
+        }
+
+        // Limpiar state de la sesión
+        session()->forget('gdrive_oauth_state');
+
+        // Establecer contexto de empresa para la operación
+        \App\Support\EmpresaResolver::setContext($empresaId);
 
         $credentials = $this->getAppCredentials();
 
@@ -87,9 +136,9 @@ class GoogleDriveController extends Controller
             return view('gdrive-callback', ['success' => false, 'message' => $result['message']]);
         }
 
-        // Guardar tokens en la configuración
-        $config = EmpresaConfiguracion::getConfig();
-        Log::info('GDrive Callback - Empresa ID Resolved: ' . $config->empresa_id);
+        // Guardar tokens en la configuración de la empresa correcta
+        $config = EmpresaConfiguracion::getConfig($empresaId);
+        Log::info('GDrive Callback - Empresa ID Resolved: ' . $empresaId);
         $config->update([
             'gdrive_enabled' => true,
             'gdrive_access_token' => Crypt::encryptString($result['access_token']),
@@ -98,9 +147,9 @@ class GoogleDriveController extends Controller
             'cloud_provider' => 'gdrive'
         ]);
 
-        EmpresaConfiguracion::clearCache();
+        EmpresaConfiguracion::clearCache($empresaId);
 
-        Log::info('Google Drive: Autorización completada exitosamente');
+        Log::info("Google Drive: Autorización completada exitosamente para empresa $empresaId");
 
         return view('gdrive-callback', ['success' => true, 'message' => '¡Conectado! Puedes cerrar esta ventana.']);
     }
@@ -143,13 +192,20 @@ class GoogleDriveController extends Controller
             $service = new GoogleDriveService();
             $credentials = $this->getAppCredentials();
 
+            // Validar que tenemos las credenciales de la app (CLIENT_ID y CLIENT_SECRET)
+            if (empty($credentials['client_id']) || empty($credentials['client_secret'])) {
+                Log::warning('Google Drive: Credenciales de la aplicación (Client ID/Secret) no configuradas en el servidor.');
+                return null;
+            }
+
             // Verificar si necesita refresh (hacerlo 5 minutos antes para mayor seguridad)
             if ($config->gdrive_token_expires_at && now()->addMinutes(5)->gte($config->gdrive_token_expires_at) && $refreshToken) {
                 Log::info('Google Drive: Intentando refrescar token expirado o próximo a expirar.');
+
                 $newToken = $service->refreshAccessToken(
-                    $credentials['client_id'],
-                    $credentials['client_secret'],
-                    $refreshToken
+                    (string) $credentials['client_id'],
+                    (string) $credentials['client_secret'],
+                    (string) $refreshToken
                 );
 
                 if ($newToken['success']) {
@@ -164,9 +220,9 @@ class GoogleDriveController extends Controller
 
                     $config->update($updateFields);
                     $accessToken = $newToken['access_token'];
-                    Log::info('Google Drive: Token refrescado exitosamente.');
                 } else {
-                    Log::error('Google Drive: Fallo al refrescar token - ' . ($newToken['message'] ?? 'Error desconocido'));
+                    Log::error('Google Drive: Error al refrescar token: ' . ($newToken['message'] ?? 'Error desconocido'));
+                    return null;
                 }
             }
 
@@ -174,7 +230,7 @@ class GoogleDriveController extends Controller
             return $service;
 
         } catch (\Exception $e) {
-            Log::error('Google Drive init error: ' . $e->getMessage());
+            Log::error('Google Drive: Error de inicialización - ' . $e->getMessage());
             return null;
         }
     }
@@ -225,7 +281,23 @@ class GoogleDriveController extends Controller
     {
         $localPath = $request->input('local_path');
 
-        if (!$localPath || !file_exists($localPath)) {
+        if (!$localPath) {
+            return response()->json(['success' => false, 'message' => 'Archivo local no especificado']);
+        }
+
+        // VALIDACIÓN DE SEGURIDAD: Prevenir Path Traversal y exfiltración de archivos sensibles
+        $realPath = realpath($localPath);
+        $storagePath = storage_path();
+
+        if (!$realPath || !str_starts_with($realPath, $storagePath)) {
+            \Log::error("SECURITY ALERT: Intento de subida de archivo a GDrive fuera de storage: " . $localPath, [
+                'user_id' => auth()->id(),
+                'ip' => $request->ip()
+            ]);
+            return response()->json(['success' => false, 'message' => 'Acceso denegado a la ruta especificada']);
+        }
+
+        if (!file_exists($realPath)) {
             return response()->json(['success' => false, 'message' => 'Archivo no existe']);
         }
 

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CategoriaGasto extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'categoria_gastos';

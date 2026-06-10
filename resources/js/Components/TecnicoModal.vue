@@ -28,7 +28,7 @@ const closeModal = () => {
     </div>
 
     <div class="flex justify-end px-6 py-4 bg-[var(--ui-surface-alt)] border-t border-[var(--ui-border)]">
-      <button @click="closeModal" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600">
+      <button @click="closeModal" class="px-4 py-2 rounded-xl bg-rose-500 text-white hover:bg-rose-600">
         Cerrar
       </button>
     </div>

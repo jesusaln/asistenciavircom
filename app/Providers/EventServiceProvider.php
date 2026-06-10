@@ -38,6 +38,24 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\WhatsAppMessageReceived::class => [
             \App\Listeners\NotifyUsersOfWhatsAppInboxMessage::class,
         ],
+
+        \Illuminate\Auth\Events\Login::class => [
+            \App\Listeners\GenerateLoginCode::class,
+        ],
+
+        // Spatie Permission Audit Events
+        \Spatie\Permission\Events\RoleAttachedEvent::class => [
+            \App\Listeners\LogPermissionAudit::class,
+        ],
+        \Spatie\Permission\Events\RoleDetachedEvent::class => [
+            \App\Listeners\LogPermissionAudit::class,
+        ],
+        \Spatie\Permission\Events\PermissionAttachedEvent::class => [
+            \App\Listeners\LogPermissionAudit::class,
+        ],
+        \Spatie\Permission\Events\PermissionDetachedEvent::class => [
+            \App\Listeners\LogPermissionAudit::class,
+        ],
     ];
 
     public function boot(): void

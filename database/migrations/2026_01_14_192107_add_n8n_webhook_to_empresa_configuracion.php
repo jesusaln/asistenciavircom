@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->string('n8n_webhook_blog')->nullable();
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'n8n_webhook_blog')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->string('n8n_webhook_blog')->nullable();
+            });
+        }
     }
 
     public function down(): void

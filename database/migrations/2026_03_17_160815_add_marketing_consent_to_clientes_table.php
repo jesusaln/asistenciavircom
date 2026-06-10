@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->boolean('sms_optin')->default(false)->after('whatsapp_consent_source');
-            $table->boolean('marketing_optin')->default(false)->after('sms_optin');
-            $table->timestamp('opt_out_at')->nullable()->after('marketing_optin');
-            $table->string('unsubscribed_reason')->nullable()->after('opt_out_at');
-        });
+        if (!Schema::hasColumn('clientes', 'sms_optin')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->boolean('sms_optin')->default(false)->after('whatsapp_consent_source');
+                $table->boolean('marketing_optin')->default(false)->after('sms_optin');
+                $table->timestamp('opt_out_at')->nullable()->after('marketing_optin');
+                $table->string('unsubscribed_reason')->nullable()->after('opt_out_at');
+            });
+        }
     }
 
     /**

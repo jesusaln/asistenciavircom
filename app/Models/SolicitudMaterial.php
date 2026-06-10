@@ -9,6 +9,8 @@ use App\Models\Concerns\Blameable;
 
 class SolicitudMaterial extends Model
 {
+    use BelongsToEmpresa;
+
     use SoftDeletes, BelongsToEmpresa, Blameable;
 
     protected $table = 'solicitud_materiales';

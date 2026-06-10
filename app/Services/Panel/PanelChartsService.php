@@ -25,6 +25,7 @@ class PanelChartsService
                     ->when($empresaId, fn($query) => $query->where('empresa_id', $empresaId))
                     ->where('created_at', '>=', $startDate)
                     ->where('created_at', '<=', $endDate)
+                    ->where('estado', '!=', 'cancelada')
                     ->groupBy('mes')
                     ->orderBy('mes')
                     ->limit(24)
@@ -70,9 +71,11 @@ class PanelChartsService
 
             try {
                 $productos = DB::table('venta_items')
+                    ->join('ventas', 'venta_items.venta_id', '=', 'ventas.id')
                     ->join('productos', 'venta_items.ventable_id', '=', 'productos.id')
                     ->select('productos.nombre', DB::raw('SUM(venta_items.cantidad) as total_vendido'))
                     ->where('venta_items.ventable_type', 'App\\Models\\Producto')
+                    ->where('ventas.estado', '!=', 'cancelada')
                     ->when($empresaId, function ($query) use ($empresaId) {
                         $query->where('venta_items.empresa_id', $empresaId)
                             ->where('productos.empresa_id', $empresaId);

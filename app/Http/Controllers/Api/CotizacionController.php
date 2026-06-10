@@ -4,58 +4,100 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Cotizacion;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\ApiResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class CotizacionController extends Controller
 {
+    use ApiResponse;
+
     /**
-     * Muestra una lista de todas las cotizaciones en formato JSON.
-     */
-    /**
-     * Muestra una lista de todas las cotizaciones en formato JSON.
+     * Lista paginada (misma forma que {@see \App\Http\Controllers\Api\VentaController::index} para la app móvil).
      */
     public function index(Request $request)
     {
         try {
-            $query = Cotizacion::with(['cliente', 'items.cotizable'])->orderBy('created_at', 'desc');
+            $query = Cotizacion::with(['cliente', 'createdBy'])->orderByDesc('created_at');
 
-            // Paginación simple
-            $cotizaciones = $query->paginate(20);
-
-            $data = $cotizaciones->getCollection()->map(function ($cotizacion) {
-                $items = $cotizacion->items->map(function ($item) {
-                    $cotizable = $item->cotizable;
-                    return [
-                        'id' => $cotizable ? $cotizable->id : $item->cotizable_id,
-                        'nombre' => $cotizable ? ($cotizable->nombre ?? $cotizable->descripcion) : 'Ítem no encontrado',
-                        'tipo' => $item->cotizable_type === \App\Models\Producto::class ? 'producto' : 'servicio',
-                        'cantidad' => $item->cantidad,
-                        'precio' => $item->precio,
-                    ];
+            $clienteQ = $request->query('cliente');
+            if ($clienteQ) {
+                $query->whereHas('cliente', function ($q) use ($clienteQ) {
+                    $q->where('nombre_razon_social', 'LIKE', '%'.$clienteQ.'%');
                 });
+            }
+
+            if ($request->filled('estado')) {
+                $query->where('estado', $request->estado);
+            }
+
+            if ($request->filled('fecha_desde') && $request->filled('fecha_hasta')) {
+                $tz = config('app.timezone');
+                $desde = Carbon::createFromFormat('Y-m-d', $request->fecha_desde, $tz)->startOfDay();
+                $hasta = Carbon::createFromFormat('Y-m-d', $request->fecha_hasta, $tz)->endOfDay();
+                $query->whereBetween('created_at', [$desde, $hasta]);
+            } else {
+                if ($request->filled('fecha_desde')) {
+                    $query->whereDate('created_at', '>=', $request->fecha_desde);
+                }
+                if ($request->filled('fecha_hasta')) {
+                    $query->whereDate('created_at', '<=', $request->fecha_hasta);
+                }
+            }
+
+            if ($request->boolean('mis_cotizaciones')) {
+                $auth = $request->user();
+                if ($auth) {
+                    $query->where('created_by', (int) $auth->id);
+                }
+            } elseif ($request->filled('vendedor_id')) {
+                $query->where('created_by', (int) $request->vendedor_id);
+            }
+
+            $perPage = (int) $request->query('per_page', 15);
+            $paginator = $query->paginate(max(1, $perPage));
+
+            $items = collect($paginator->items())->map(function (Cotizacion $cotizacion) {
+                $estadoVal = $cotizacion->estado;
+                if ($estadoVal instanceof \BackedEnum) {
+                    $estadoVal = $estadoVal->value;
+                }
+
+                $vendedor = null;
+                if ($cotizacion->createdBy) {
+                    $vendedor = ['nombre' => $cotizacion->createdBy->name];
+                }
 
                 return [
                     'id' => $cotizacion->id,
                     'numero_cotizacion' => $cotizacion->numero_cotizacion,
+                    'created_at' => $cotizacion->created_at,
                     'cliente' => $cotizacion->cliente,
-                    'items' => $items,
                     'subtotal' => $cotizacion->subtotal,
                     'iva' => $cotizacion->iva,
                     'total' => $cotizacion->total,
-                    'estado' => $cotizacion->estado,
+                    'estado' => $estadoVal,
                     'fecha' => $cotizacion->created_at->format('Y-m-d'),
+                    'vendedor' => $vendedor,
+                    'sharing_token' => $cotizacion->sharing_token,
                 ];
             });
 
-            // Mantener estructura de paginación
-            $paginated = $cotizaciones->toArray();
-            $paginated['data'] = $data;
-
-            return response()->json($paginated, 200);
+            return $this->success([
+                'items' => $items->values(),
+                'pagination' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener las cotizaciones: ' . $e->getMessage()], 500);
+            Log::error('CotizacionController@index: '.$e->getMessage());
+
+            return response()->json(['error' => 'Error al obtener las cotizaciones: '.$e->getMessage()], 500);
         }
     }
 
@@ -66,34 +108,53 @@ class CotizacionController extends Controller
     public function show($id)
     {
         try {
-            $cotizacion = Cotizacion::with(['cliente', 'productos', 'servicios'])->findOrFail($id);
-            $items = $cotizacion->productos->map(function ($producto) {
-                return [
-                    'id' => $producto->id,
-                    'nombre' => $producto->nombre,
-                    'tipo' => 'producto',
-                    'cantidad' => $producto->pivot->cantidad,
-                    'precio' => $producto->pivot->precio,
-                ];
-            })->merge($cotizacion->servicios->map(function ($servicio) {
-                return [
-                    'id' => $servicio->id,
-                    'nombre' => $servicio->nombre,
-                    'tipo' => 'servicio',
-                    'cantidad' => $servicio->pivot->cantidad,
-                    'precio' => $servicio->pivot->precio,
-                ];
-            }));
+            $cotizacion = Cotizacion::with(['cliente', 'items.cotizable', 'createdBy'])->findOrFail($id);
 
-            return response()->json([
+            $items = $cotizacion->items->map(function ($item) {
+                $cotizable = $item->cotizable;
+                $nombre = $cotizable ? ($cotizable->nombre ?? $cotizable->descripcion) : 'Ítem';
+
+                return [
+                    'id' => $cotizable ? $cotizable->id : $item->cotizable_id,
+                    'nombre' => $nombre,
+                    'tipo' => $item->cotizable_type === \App\Models\Producto::class ? 'producto' : 'servicio',
+                    'cantidad' => $item->cantidad,
+                    'precio' => (float) $item->precio,
+                    'descuento' => (float) ($item->descuento ?? 0),
+                ];
+            });
+
+            $estadoVal = $cotizacion->estado;
+            if ($estadoVal instanceof \BackedEnum) {
+                $estadoVal = $estadoVal->value;
+            }
+
+            $vendedor = $cotizacion->createdBy
+                ? ['nombre' => $cotizacion->createdBy->name]
+                : null;
+
+            $payload = [
                 'id' => $cotizacion->id,
+                'numero_cotizacion' => $cotizacion->numero_cotizacion,
+                'numero_venta' => $cotizacion->numero_cotizacion,
+                'created_at' => $cotizacion->created_at,
                 'cliente' => $cotizacion->cliente,
                 'items' => $items,
-                'total' => $cotizacion->total,
-                'fecha' => $cotizacion->created_at->format('Y-m-d'), // Incluir la fecha de creación
-            ], 200);
+                'subtotal' => (float) $cotizacion->subtotal,
+                'descuento_general' => (float) ($cotizacion->descuento_general ?? 0),
+                'iva' => (float) $cotizacion->iva,
+                'total' => (float) $cotizacion->total,
+                'notas' => $cotizacion->notas,
+                'estado' => $estadoVal,
+                'fecha' => $cotizacion->created_at->format('Y-m-d'),
+                'moneda' => 'MXN',
+                'vendedor' => $vendedor,
+                'sharing_token' => $cotizacion->sharing_token,
+            ];
+
+            return $this->success($payload);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener la cotización: ' . $e->getMessage()], 404);
+            return response()->json(['error' => 'Error al obtener la cotización: '.$e->getMessage()], 404);
         }
     }
 
@@ -151,7 +212,7 @@ class CotizacionController extends Controller
 
             // Cálculo de IVA (asumiendo 16% por ahora o usando el servicio si prefieres)
             // Para simplicidad y siguiendo "como en ventas" (que usa 16% fijo en el front)
-            $iva = $subtotal * 0.16;
+            $iva = $subtotal * (\App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100);
             $total = $subtotal + $iva;
 
             // Crear la cotización con todos los campos
@@ -244,7 +305,7 @@ class CotizacionController extends Controller
                     ]);
                 }
 
-                $iva = $subtotal * 0.16;
+                $iva = $subtotal * (\App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100);
                 $total = $subtotal + $iva;
 
                 $cotizacion->update([
@@ -278,17 +339,17 @@ class CotizacionController extends Controller
     /**
      * Elimina una cotización.
      */
-    public function destroy($id)
+    public function destroy(Cotizacion $cotizacion)
     {
         try {
-            $cotizacion = Cotizacion::findOrFail($id);
-            $cotizacion->productos()->detach();
-            $cotizacion->servicios()->detach();
+            $cotizacion->items()->delete();
             $cotizacion->delete();
 
             return response()->json(['message' => 'Cotización eliminada con éxito'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al eliminar la cotización: ' . $e->getMessage()], 500);
+            Log::error('CotizacionController@destroy: '.$e->getMessage());
+
+            return response()->json(['error' => 'Error al eliminar la cotización: '.$e->getMessage()], 500);
         }
     }
 }

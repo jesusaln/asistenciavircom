@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 
 class Prestamo extends Model implements AuditableContract
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, AuditableTrait, BelongsToEmpresa;
 
     protected static function booted()
@@ -337,6 +339,7 @@ class Prestamo extends Model implements AuditableContract
                 'fecha_programada' => $fechaProgramada,
                 'fecha_registro' => now()->toDateString(),
                 'estado' => 'pendiente',
+                'empresa_id' => $this->empresa_id,
             ]);
         }
     }

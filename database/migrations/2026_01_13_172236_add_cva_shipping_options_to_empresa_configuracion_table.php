@@ -10,10 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->integer('cva_codigo_sucursal')->default(1)->nullable()->after('cva_utility_percentage'); // 1 = Guadalajara
-            $table->integer('cva_paqueteria_envio')->default(4)->nullable()->after('cva_codigo_sucursal'); // 4 = Paquetexpress
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'cva_codigo_sucursal')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->integer('cva_codigo_sucursal')->default(1)->nullable()->after('cva_utility_percentage'); // 1 = Guadalajara
+                $table->integer('cva_paqueteria_envio')->default(4)->nullable()->after('cva_codigo_sucursal'); // 4 = Paquetexpress
+            });
+        }
     }
 
     /**

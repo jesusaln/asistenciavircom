@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Validator;
 
 class GeneralConfigController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:edit configuracion_empresa');
+    }
+
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [

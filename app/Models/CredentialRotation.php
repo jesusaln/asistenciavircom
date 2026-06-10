@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class CredentialRotation extends Model
 {
+    use BelongsToEmpresa;
+
     protected $fillable = [
         'empresa_id',
         'field_name',

@@ -346,10 +346,23 @@
 
     {{-- SECCIÓN DE GARANTÍA (Compacta) --}}
     <div class="warranty-section">
-        <strong style="font-size: 7px;">GARANTÍA:</strong> <strong>365 días</strong> para equipos | <strong>3 meses</strong> para partes eléctricas.<br>
+        <strong style="font-size: 7px;">GARANTÍA:</strong> <strong>365 días</strong> para equipos nuevos | <strong>3 meses</strong> para partes eléctricas si se instaló con centro de servicio / refacciones.<br>
         En caso de duda: <strong>662-460-6840</strong> o <strong>climasdeldesierto.com/soporte</strong>.<br>
-        <strong>Requisitos:</strong> Nota de venta/Cotización, Nombre, Teléfono, Dirección, Modelo/Serie, Falla, Fotos/Videos.<br>
-        <em>Solo defectos de fabricación y uso adecuado.</em>
+        <strong>Requisitos obligatorios:</strong> Nota de venta original/Cotización, Nombre, Teléfono, Dirección, Modelo/Serie del equipo, descripción de la falla y evidencias (Fotos/Videos).<br>
+        <em>Aplica únicamente por defectos de fabricación bajo uso adecuado. No cubre daños por variaciones de voltaje, falta de mantenimiento, siniestros o manipulaciones externas de terceros.</em>
+        @php
+            $tienePreventivo = false;
+            foreach($cotizacion->items as $item) {
+                $nombreItem = strtolower($item->cotizable ? $item->cotizable->nombre : '');
+                if (str_contains($nombreItem, 'preventivo') || str_contains($nombreItem, 'mantenimiento') || str_contains($nombreItem, 'limpieza')) {
+                    $tienePreventivo = true;
+                    break;
+                }
+            }
+        @endphp
+        @if($tienePreventivo)
+            <br><strong style="color: #dc3545;">NOTA IMPORTANTE:</strong> Los servicios preventivos y de limpieza no cuentan con garantía sobre el equipo en general.
+        @endif
     </div>
 
     <div class="footer">

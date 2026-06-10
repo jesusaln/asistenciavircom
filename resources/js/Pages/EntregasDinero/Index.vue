@@ -1,14 +1,36 @@
-<!-- /resources/js/Pages/EntregasDinero/Index.vue -->
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Head, router, usePage, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Notyf } from 'notyf'
+import axios from 'axios'
 import 'notyf/notyf.min.css'
-
+import Swal from '@/Utils/Swal'
+import { useCompanyColors } from '@/Composables/useCompanyColors'
 import EntregasDineroHeader from '@/Components/IndexComponents/EntregasDineroHeader.vue'
 
 defineOptions({ layout: AppLayout })
+
+// Colores de empresa y modo oscuro
+const { cssVars, primaryButtonStyle, colors } = useCompanyColors()
+const isDark = ref(false)
+let observer = null
+
+onMounted(() => {
+  isDark.value = document.documentElement.classList.contains('dark')
+  observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        isDark.value = document.documentElement.classList.contains('dark')
+      }
+    })
+  })
+  observer.observe(document.documentElement, { attributes: true })
+})
+
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect()
+})
 
 // Notificaciones
 const notyf = new Notyf({
@@ -38,14 +60,14 @@ const selectedId = ref(null)
 const page = usePage()
 const currentUser = computed(() => page.props.auth?.user)
 
-// Modal de monto recibido para registros autom�ticos
+// Modal de monto recibido para registros automáticos
 const showMontoModal = ref(false)
 const selectedRegistro = ref(null)
 const montoRecibido = ref('')
 const metodoPagoEntrega = ref('')
 const notasRecibido = ref('')
 
-// Modal de recepci�n para entregas manuales
+// Modal de recepción para entregas manuales
 const showRecibirModal = ref(false)
 const entregaParaRecibir = ref(null)
 const metodoRecibo = ref('')
@@ -54,33 +76,41 @@ const cuentaBancariaId = ref('')
 const cuentasBancarias = ref([])
 
 // Filtros
+const searchTerm = ref(props.filters?.search ?? '')
 const filtroEstado = ref(props.filters?.estado ?? '')
 const filtroUserId = ref(props.filters?.user_id ?? '')
-
-// Nuevas variables para el header
-const searchTerm = ref('')
-const sortBy = ref('fecha_entrega-desc')
+const sortBy = ref((props.filters?.sort_by ?? 'fecha_entrega') + '-' + (props.filters?.sort_direction ?? 'desc'))
 
 // Helpers
 const formatNumber = (num) => new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num)
 
 const formatearFecha = (date) => {
-  if (!date) return 'Fecha no disponible'
+  if (!date) return '—'
   try {
     const d = new Date(date)
     return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
   } catch {
-    return 'Fecha inv�lida'
+    return '—'
+  }
+}
+
+const formatearHora = (date) => {
+  if (!date) return ''
+  try {
+    const d = new Date(date)
+    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return ''
   }
 }
 
 const obtenerClasesEstado = (estado) => {
   const clases = {
-    'pendiente': 'bg-yellow-100 text-yellow-700',
-    'recibido': 'bg-green-100 text-green-700',
-    'cancelado': 'bg-gray-100 text-gray-600'
+    'pendiente': 'bg-brand-50 dark:bg-brand-900/20/40 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-amber-300',
+    'recibido': 'bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-emerald-300',
+    'cancelado': 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
   }
-  return clases[estado] || 'bg-gray-100 text-gray-700'
+  return clases[estado] || 'bg-slate-100 text-slate-700'
 }
 
 const obtenerLabelEstado = (estado) => {
@@ -93,36 +123,22 @@ const obtenerLabelEstado = (estado) => {
 }
 
 const obtenerEstadoEntrega = (registro) => {
-  // Para registros autom�ticos (cobranzas y ventas) - segunda tabla
   if (registro.tipo_origen && !registro.estado) {
     const saldoPendiente = registro.saldo_pendiente || registro.total
     const yaEntregado = registro.ya_entregado || 0
-    const total = registro.total
-
-    if (yaEntregado === 0) {
-      return { label: 'Sin Entregar', clase: 'bg-red-100 text-red-700' }
-    } else if (saldoPendiente > 0) {
-      return { label: 'Entrega Parcial', clase: 'bg-orange-100 text-orange-700' }
-    } else {
-      return { label: 'Completado', clase: 'bg-green-100 text-green-700' }
-    }
+    if (yaEntregado === 0) return { label: 'Sin Entregar', clase: 'bg-rose-50 dark:bg-rose-900/20/40 text-rose-800 dark:text-rose-200 dark:text-rose-200 dark:text-rose-300' }
+    if (saldoPendiente > 0) return { label: 'Entrega Parcial', clase: 'bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-orange-300' }
+    return { label: 'Completado', clase: 'bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-emerald-300' }
   }
-
-  // Para entregas autom�ticas ya creadas (primera tabla) que est�n "recibido"
-  if (registro.tipo_origen && registro.estado === 'recibido') {
-    return { label: 'Completado', clase: 'bg-green-100 text-green-700' }
-  }
-
-  // Para entregas manuales, no mostrar estado de entrega
+  if (registro.tipo_origen && registro.estado === 'recibido') return { label: 'Completado', clase: 'bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-emerald-300' }
   return null
 }
 
-// Handlers
-function handleEstadoChange(newEstado) {
-  filtroEstado.value = newEstado
+// Handlers con Inertia
+const updateQuery = () => {
   router.get(route('entregas-dinero.index'), {
     search: searchTerm.value,
-    estado: newEstado,
+    estado: filtroEstado.value,
     user_id: filtroUserId.value,
     sort_by: sortBy.value.split('-')[0],
     sort_direction: sortBy.value.split('-')[1] || 'desc',
@@ -130,71 +146,23 @@ function handleEstadoChange(newEstado) {
   }, { preserveState: true, preserveScroll: true })
 }
 
-function handleUserChange(newUserId) {
-  filtroUserId.value = newUserId
-  router.get(route('entregas-dinero.index'), {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    user_id: newUserId,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
-}
+const handleEstadoChange = (newEstado) => { filtroEstado.value = newEstado; updateQuery(); }
+const handleUserChange = (newUserId) => { filtroUserId.value = newUserId; updateQuery(); }
+const handleSearchChange = (newSearch) => { searchTerm.value = newSearch; updateQuery(); }
+const handleSortChange = (newSort) => { sortBy.value = newSort; updateQuery(); }
 
-// Nuevas funciones para el header moderno
-const crearNuevaEntrega = () => {
-  router.visit(route('entregas-dinero.create'))
-}
-
+const crearNuevaEntrega = () => router.visit(route('entregas-dinero.create'))
 const limpiarFiltros = () => {
   searchTerm.value = ''
   sortBy.value = 'fecha_entrega-desc'
   filtroEstado.value = ''
   filtroUserId.value = ''
   router.visit(route('entregas-dinero.index'))
-  notyf.success('Filtros limpiados correctamente')
 }
 
-function handleSearchChange(newSearch) {
-  searchTerm.value = newSearch
-  router.get(route('entregas-dinero.index'), {
-    search: newSearch,
-    estado: filtroEstado.value,
-    user_id: filtroUserId.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
-}
-
-function handleSortChange(newSort) {
-  sortBy.value = newSort
-  router.get(route('entregas-dinero.index'), {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    user_id: filtroUserId.value,
-    sort_by: newSort.split('-')[0],
-    sort_direction: newSort.split('-')[1] || 'desc',
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
-}
-
-const verDetalles = (entrega) => {
-  selectedEntrega.value = entrega
-  modalMode.value = 'details'
-  showModal.value = true
-}
-
-const editarEntrega = (id) => {
-  router.visit(route('entregas-dinero.edit', id))
-}
-
-const confirmarEliminacion = (id) => {
-  selectedId.value = id
-  modalMode.value = 'confirm'
-  showModal.value = true
-}
+const verDetalles = (entrega) => { selectedEntrega.value = entrega; modalMode.value = 'details'; showModal.value = true; }
+const editarEntrega = (id) => router.visit(route('entregas-dinero.edit', id))
+const confirmarEliminacion = (id) => { selectedId.value = id; modalMode.value = 'confirm'; showModal.value = true; }
 
 const eliminarEntrega = () => {
   router.delete(route('entregas-dinero.destroy', selectedId.value), {
@@ -203,313 +171,131 @@ const eliminarEntrega = () => {
       notyf.success('Entrega eliminada correctamente')
       showModal.value = false
       selectedId.value = null
-      router.reload()
-    },
-    onError: (errors) => {
-      notyf.error('No se pudo eliminar la entrega')
     }
   })
 }
 
-// Revertir una entrega de recibido a pendiente (solo admin)
-const revertirAPendiente = (id) => {
-  if (!confirm('�Est�s seguro de que deseas revertir esta entrega a estado pendiente? El dinero ya no estar� marcado como recibido.')) {
-    return
-  }
+const revertirAPendiente = async (id) => {
+  const { isConfirmed } = await Swal.fire({ title: 'Confirmar', text: '¿Estás seguro de que deseas revertir esta entrega a estado pendiente?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí', cancelButtonText: 'No' })
+  if (!isConfirmed) return
   router.post(route('entregas-dinero.revertir-pendiente', id), {}, {
     preserveScroll: true,
-    onSuccess: () => {
-      notyf.success('Entrega revertida a pendiente correctamente')
-      router.reload()
-    },
-    onError: (errors) => {
-      notyf.error('No se pudo revertir la entrega')
-    }
+    onSuccess: () => notyf.success('Entrega revertida a pendiente correctamente')
   })
 }
 
 const abrirModalRecibir = async (entrega) => {
   entregaParaRecibir.value = entrega
-  const metodo = entrega?.registro_original?.metodo_pago || entrega?.metodo_pago || 'efectivo'
-  metodoRecibo.value = metodo
-  notasRecibo.value = ''
-  cuentaBancariaId.value = ''
-  showModal.value = false
+  metodoRecibo.value = entrega?.registro_original?.metodo_pago || entrega?.metodo_pago || 'efectivo'
   showRecibirModal.value = true
-  
-  // Cargar cuentas bancarias
   try {
-    const response = await fetch(route('api.cuentas-bancarias.activas'))
-    cuentasBancarias.value = await response.json()
+    const { data } = await axios.get(route('cuentas-bancarias.activas'))
+    cuentasBancarias.value = data
+  } catch (error) {
+    console.error('Error:', error)
+  }
+}
+
+const confirmarRecepcionEntrega = () => {
+  if (!cuentaBancariaId.value) return notyf.error('Selecciona una cuenta bancaria')
+  
+  router.post(route('entregas-dinero.marcar-recibido', entregaParaRecibir.value.id), {
+    cuenta_bancaria_id: cuentaBancariaId.value,
+    notas_recibido: notasRecibo.value
+  }, {
+    onSuccess: () => {
+      notyf.success('Entrega marcada como recibida y registrada en banco')
+      showRecibirModal.value = false
+      entregaParaRecibir.value = null
+      cuentaBancariaId.value = ''
+      notasRecibo.value = ''
+    },
+    onError: (errors) => {
+       Object.values(errors).forEach(err => notyf.error(err))
+    }
+  })
+}
+
+const marcarAutomaticoRecibido = async (registro) => {
+  selectedRegistro.value = registro
+  montoRecibido.value = (registro.saldo_pendiente || registro.total).toString()
+  metodoPagoEntrega.value = registro?.registro_original?.metodo_pago || registro?.metodo_pago || 'efectivo'
+  cuentaBancariaId.value = ''
+  showMontoModal.value = true
+  
+  try {
+    const { data } = await axios.get(route('cuentas-bancarias.activas'))
+    cuentasBancarias.value = data
   } catch (error) {
     console.error('Error cargando cuentas:', error)
   }
 }
 
-const cerrarRecibirModal = () => {
-  showRecibirModal.value = false
-  entregaParaRecibir.value = null
-  metodoRecibo.value = ''
-  notasRecibo.value = ''
-  cuentaBancariaId.value = ''
-}
-
-const marcarAutomaticoRecibido = (registro) => {
-  selectedRegistro.value = registro
-  montoRecibido.value = (registro.saldo_pendiente || registro.total).toString()
-  metodoPagoEntrega.value = registro?.registro_original?.metodo_pago || registro?.metodo_pago || 'efectivo'
-  notasRecibido.value = ''
-  showMontoModal.value = true
-}
-
 const confirmarMontoRecibido = () => {
-  if (!selectedRegistro.value) return
-
   const monto = parseFloat(montoRecibido.value)
-
-  if (!montoRecibido.value || isNaN(monto) || monto <= 0) {
-    notyf.error('Debe ingresar un monto valido mayor a cero')
-    return
-  }
-
-  const saldoPendiente = selectedRegistro.value.saldo_pendiente || selectedRegistro.value.total
-  if (monto > saldoPendiente) {
-    notyf.error(`El monto recibido no puede ser mayor al saldo pendiente de $${formatNumber(saldoPendiente)}`)
-    return
-  }
-
-  const metodo = metodoPagoEntrega.value || selectedRegistro.value?.registro_original?.metodo_pago || selectedRegistro.value?.metodo_pago || 'efectivo'
-
+  if (isNaN(monto) || monto <= 0) return notyf.error('Monto inválido')
+  
   router.post(route('entregas-dinero.marcar-automatico', {
     tipo_origen: selectedRegistro.value.tipo_origen,
     id_origen: selectedRegistro.value.id_origen
   }), {
     monto_recibido: monto,
-    metodo_pago_entrega: metodo,
-    notas_recibido: notasRecibido.value
+    metodo_pago_entrega: metodoPagoEntrega.value,
+    notas_recibido: notasRecibido.value,
+    cuenta_bancaria_id: cuentaBancariaId.value
   }, {
     onSuccess: () => {
       notyf.success('Monto registrado correctamente')
-      cerrarMontoModal()
+      showMontoModal.value = false
       router.reload()
-    },
-    onError: () => {
-      notyf.error('Error al registrar el monto')
     }
   })
 }
 
-const cerrarMontoModal = () => {
-  showMontoModal.value = false
-  selectedRegistro.value = null
-  montoRecibido.value = ''
-  metodoPagoEntrega.value = ''
-  notasRecibido.value = ''
-}
-
-// ------ LÓGICA DE LOTES DE ENTREGAS ------
+// Lógica de Lotes
 const selectedRegistros = ref([])
 const showCrearLoteModal = ref(false)
 const notasLote = ref('')
-
-const totalSeleccionado = computed(() => {
-  return selectedRegistros.value.reduce((total, r) => total + (r.saldo_pendiente || r.total), 0)
-})
-
+const totalSeleccionado = computed(() => selectedRegistros.value.reduce((total, r) => total + (r.saldo_pendiente || r.total), 0))
 const isAllSelected = computed(() => {
-  const pendientes = props.registrosAutomaticos.filter(r => tieneSaldoPendiente(r))
+  const pendientes = props.registrosAutomaticos.filter(r => (r.saldo_pendiente || r.total) > 0.01)
   return pendientes.length > 0 && selectedRegistros.value.length === pendientes.length
 })
 
 const toggleCheckbox = (registro) => {
-  const index = selectedRegistros.value.findIndex(r => r.id === registro.id)
-  if (index === -1) {
-    selectedRegistros.value.push(registro)
-  } else {
-    selectedRegistros.value.splice(index, 1)
-  }
+  const idx = selectedRegistros.value.findIndex(r => r.id === registro.id)
+  idx === -1 ? selectedRegistros.value.push(registro) : selectedRegistros.value.splice(idx, 1)
 }
 
-const toggleAll = (event) => {
-  if (event.target.checked) {
-    selectedRegistros.value = props.registrosAutomaticos.filter(r => tieneSaldoPendiente(r))
-  } else {
-    selectedRegistros.value = []
-  }
-}
-
-const openLoteModal = () => {
-  if (selectedRegistros.value.length === 0) {
-    notyf.error('Debes seleccionar al menos un registro para crear un lote')
-    return
-  }
-  notasLote.value = ''
-  showCrearLoteModal.value = true
+const toggleAll = (e) => {
+  selectedRegistros.value = e.target.checked ? props.registrosAutomaticos.filter(r => (r.saldo_pendiente || r.total) > 0.01) : []
 }
 
 const confirmarLote = () => {
-  const items = selectedRegistros.value.map(r => ({
-    tipo_origen: r.tipo_origen,
-    id_origen: r.id_origen,
-    total: r.saldo_pendiente || r.total,
-    metodo_pago: r.registro_original?.metodo_pago || r.metodo_pago || 'efectivo'
-  }))
-
   router.post(route('entregas-dinero.lote'), {
-    items,
+    items: selectedRegistros.value.map(r => ({
+      tipo_origen: r.tipo_origen,
+      id_origen: r.id_origen,
+      total: r.saldo_pendiente || r.total,
+      metodo_pago: r.registro_original?.metodo_pago || r.metodo_pago || 'efectivo'
+    })),
     notas: notasLote.value
   }, {
     onSuccess: () => {
       notyf.success('Lote generado correctamente')
       showCrearLoteModal.value = false
       selectedRegistros.value = []
-      router.reload()
-    },
-    onError: (errors) => {
-      notyf.error(errors.items || 'Error al generar el lote')
-    }
-  })
-}
-// ----------------------------------------
-
-const getMetodoPagoLabel = (registro) => {
-  // Para registros autom�ticos necesitamos obtener el m�todo de pago del registro original
-  if (registro.registro_original && registro.registro_original.metodo_pago) {
-    const metodos = {
-      'efectivo': 'Efectivo',
-      'transferencia': 'Transferencia',
-      'cheque': 'Cheque',
-      'tarjeta': 'Tarjeta',
-      'otros': 'Otros'
-    }
-    return metodos[registro.registro_original.metodo_pago] || registro.registro_original.metodo_pago
-  }
-  // Si no tiene registro_original pero tiene metodo_pago directamente
-  if (registro.metodo_pago) {
-    const metodos = {
-      'efectivo': 'Efectivo',
-      'transferencia': 'Transferencia',
-      'cheque': 'Cheque',
-      'tarjeta': 'Tarjeta',
-      'otros': 'Otros'
-    }
-    return metodos[registro.metodo_pago] || registro.metodo_pago
-  }
-  return 'No especificado'
-}
-
-const getMetodoPagoClass = (registro) => {
-  const metodoPago = registro.registro_original?.metodo_pago || registro.metodo_pago
-  if (metodoPago) {
-    const clases = {
-      'efectivo': 'bg-green-100 text-green-800',
-      'transferencia': 'bg-blue-100 text-blue-800',
-      'cheque': 'bg-purple-100 text-purple-800',
-      'tarjeta': 'bg-orange-100 text-orange-800',
-      'otros': 'bg-gray-100 text-gray-800'
-    }
-    return clases[metodoPago] || 'bg-gray-100 text-gray-800'
-  }
-  return 'bg-gray-100 text-gray-800'
-}
-
-const tieneSaldoPendiente = (registro) => {
-  const pendiente = (registro?.saldo_pendiente ?? (registro?.total - (registro?.ya_entregado || 0)))
-  return pendiente > 0.01
-}
-
-const getMetodoReciboLabel = (value) => {
-  const metodos = {
-    efectivo: 'Efectivo',
-    transferencia: 'Transferencia',
-    cheque: 'Cheque',
-    tarjeta: 'Tarjeta',
-    mixto: 'Mixto',
-    otros: 'Otros'
-  }
-  return metodos[value] || 'No especificado'
-}
-
-const confirmarRecepcionEntrega = () => {
-  if (!entregaParaRecibir.value) return
-  if (!cuentaBancariaId.value) {
-    notyf.error('Debes seleccionar una cuenta bancaria')
-    return
-  }
-
-  const montos = []
-  if (entregaParaRecibir.value.monto_efectivo > 0) montos.push(`Efectivo $${formatNumber(entregaParaRecibir.value.monto_efectivo)}`)
-  if (entregaParaRecibir.value.monto_transferencia > 0) montos.push(`Transferencia $${formatNumber(entregaParaRecibir.value.monto_transferencia)}`)
-  if (entregaParaRecibir.value.monto_cheques > 0) montos.push(`Cheques $${formatNumber(entregaParaRecibir.value.monto_cheques)}`)
-  if (entregaParaRecibir.value.monto_tarjetas > 0) montos.push(`Tarjetas $${formatNumber(entregaParaRecibir.value.monto_tarjetas)}`)
-
-  const notasDetalladas = [
-    `Metodo de recepcion: ${getMetodoReciboLabel(metodoRecibo.value)}`,
-    montos.length ? `Detalle de montos: ${montos.join(' | ')}` : null,
-    notasRecibo.value ? `Notas: ${notasRecibo.value}` : null,
-    currentUser.value ? `Recibido por: ${currentUser.value?.name || 'Usuario'}` : null
-  ].filter(Boolean).join(' - ')
-
-  router.post(route('entregas-dinero.marcar-recibido', entregaParaRecibir.value.id), {
-    notas_recibido: notasDetalladas,
-    cuenta_bancaria_id: cuentaBancariaId.value || null
-  }, {
-    onSuccess: () => {
-      notyf.success('Entrega marcada como recibida')
-      cerrarRecibirModal()
-      router.reload()
-    },
-    onError: () => {
-      notyf.error('Error al marcar como recibida')
     }
   })
 }
 
-// Paginaci�n
-const paginationData = computed(() => {
-  const p = props.entregas || {}
-  return {
-    currentPage: p.current_page ?? 1,
-    lastPage: p.last_page ?? 1,
-    perPage: p.per_page ?? 10,
-    from: p.from ?? 0,
-    to: p.to ?? 0,
-    total: p.total ?? 0,
-    prevPageUrl: p.prev_page_url ?? null,
-    nextPageUrl: p.next_page_url ?? null,
-    links: p.links ?? []
-  }
-})
-
-const handlePerPageChange = (newPerPage) => {
-  router.get(route('entregas-dinero.index'), {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    user_id: filtroUserId.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    per_page: newPerPage,
-    page: 1
-  }, { preserveState: true, preserveScroll: true })
-}
-
-const handlePageChange = (newPage) => {
-  router.get(route('entregas-dinero.index'), {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    user_id: filtroUserId.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1] || 'desc',
-    page: newPage
-  }, { preserveState: true, preserveScroll: true })
-}
 </script>
 
 <template>
-  <Head title="Entregas de Dinero" />
-  <div class="entregas-dinero-index min-h-screen bg-white">
-    <div class="w-full px-6 py-8">
-      <!-- Header espec�fico de entregas de dinero -->
+  <Head title="Corte de Caja y Cobranza" />
+  <div class="entregas-dinero-index min-h-screen bg-[var(--ui-surface)] transition-colors" :style="cssVars">
+    <div class="w-full px-4 lg:px-8 py-8">
+      <!-- Header Premium -->
       <EntregasDineroHeader
         :total="stats.total || 0"
         :total-pendientes="stats.total_pendientes || 0"
@@ -529,729 +315,361 @@ const handlePageChange = (newPage) => {
         @limpiar-filtros="limpiarFiltros"
       />
 
-      <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <!-- Tabla Principal (Entregas Manuales/Lotes) -->
+      <div class="mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden transition-all">
+        <div class="px-6 py-4 border-b border-slate-200/60 dark:border-slate-700/60" :style="{ background: isDark ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' : `linear-gradient(135deg, ${colors.principal}15 0%, ${colors.secundario}10 100%)` }">
+           <div class="flex items-center justify-between">
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: colors.principal }"></span>
+                Entregas Realizadas
+              </h2>
+           </div>
+        </div>
+        
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Entregado por</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Recibido por</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha Entrega</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Folio Venta</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado Entrega</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Entregado por</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Referencia</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Monto Total</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="entrega in entregas.data" :key="entrega.id" class="hover:bg-white transition-colors duration-150">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+              <tr v-for="entrega in entregas.data" :key="entrega.id" @click="verDetalles(entrega)" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group">
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ entrega.usuario?.name || 'Usuario' }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ entrega.recibidoPor?.name || (entrega.estado === 'recibido' ? $page.props.auth?.user?.name : '-') }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(entrega.fecha_entrega) }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-blue-600">
-                    {{ entrega.venta_numero || '-' }}
-                  </div>
-                  <div v-if="entrega.venta_cliente" class="text-xs text-gray-500">
-                    {{ entrega.venta_cliente }}
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-sky-900/20/40 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold mr-3 text-xs">
+                      {{ (entrega.usuario?.name || 'U').charAt(0) }}
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-slate-900 dark:text-white">{{ entrega.usuario?.name }}</div>
+                      <div class="text-[10px] text-slate-500 dark:text-slate-400 italic">Recibe: {{ entrega.recibido_por?.name || '—' }}</div>
+                    </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-semibold text-gray-900">${{ formatNumber(entrega.total) }}</div>
-                  <div v-if="entrega.es_lote" class="text-xs font-bold text-blue-600 flex items-center gap-1">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                    LOTE ({{ entrega.conteo_items }} registros)
-                  </div>
-                  <div class="text-xs text-gray-500">
-                    E: ${{ formatNumber(entrega.monto_efectivo) }} |
-                    C: ${{ formatNumber(entrega.monto_cheques) }} |
-                    T: ${{ formatNumber(entrega.monto_tarjetas) }}
-                  </div>
+                   <div class="text-sm font-medium text-slate-900 dark:text-white">{{ formatearFecha(entrega.fecha_entrega) }}</div>
+                   <div class="text-[10px] text-slate-500 dark:text-slate-400">{{ formatearHora(entrega.created_at) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="obtenerClasesEstado(entrega.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <div class="text-sm font-bold text-blue-600 dark:text-blue-400">{{ entrega.venta_numero ? 'Venta #' + entrega.venta_numero : (entrega.es_lote ? 'Lote (' + entrega.conteo_items + ' items)' : 'Manual') }}</div>
+                  <div class="text-xs text-slate-500 truncate max-w-[150px]">{{ entrega.venta_cliente || entrega.notas || 'Sin notas' }}</div>
+                </td>
+                <td class="px-6 py-4">
+                   <div class="text-sm font-black text-slate-900 dark:text-white">${{ formatNumber(entrega.total) }}</div>
+                   <div class="text-[9px] text-slate-500">E: {{ formatNumber(entrega.monto_efectivo) }} | O: {{ formatNumber(entrega.total - entrega.monto_efectivo) }}</div>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span :class="obtenerClasesEstado(entrega.estado)" class="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide">
                     {{ obtenerLabelEstado(entrega.estado) }}
                   </span>
                 </td>
-                <td class="px-6 py-4">
-                  <span v-if="obtenerEstadoEntrega(entrega)" :class="obtenerEstadoEntrega(entrega).clase" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                    {{ obtenerEstadoEntrega(entrega).label }}
-                  </span>
-                  <span v-else class="text-gray-400 text-xs">-</span>
-                </td>
                 <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end space-x-1">
-                    <button @click="verDetalles(entrega)" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-150" title="Ver detalles">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                  <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button v-if="entrega.estado === 'pendiente'" @click.stop="abrirModalRecibir(entrega)" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/30 text-emerald-600 dark:text-slate-400 rounded-xl hover:bg-emerald-100">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     </button>
-                    <button @click="editarEntrega(entrega.id)" class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors duration-150" title="Editar">
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      v-if="entrega.estado === 'pendiente'"
-                      @click="abrirModalRecibir(entrega)"
-                      class="w-8 h-8 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors duration-150"
-                      title="Marcar como recibida"
-                    >
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </button>
-                    <!-- Bot�n Revertir a Pendiente (solo para estado recibido) -->
-                    <button
-                      v-if="entrega.estado === 'recibido'"
-                      @click="revertirAPendiente(entrega.id)"
-                      class="w-8 h-8 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors duration-150"
-                      title="Revertir a Pendiente"
-                    >
-                      <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                      </svg>
+                    <button @click.stop="editarEntrega(entrega.id)" class="p-2 bg-brand-50 dark:bg-brand-900/20 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 rounded-xl hover:bg-amber-100">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </button>
                   </div>
                 </td>
               </tr>
-              <tr v-if="entregas.data?.length === 0">
-                <td colspan="8" class="px-6 py-16 text-center">
-                  <div class="flex flex-col items-center space-y-4">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
-                    </div>
-                    <div class="space-y-1">
-                      <p class="text-gray-700 font-medium">No hay entregas registradas</p>
-                      <p class="text-sm text-gray-500">Las entregas aparecer�n aqu� cuando se registren</p>
-                    </div>
-                  </div>
-                </td>
+              <tr v-if="!entregas.data?.length">
+                <td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 italic">No se encontraron entregas.</td>
               </tr>
             </tbody>
           </table>
         </div>
-
-        <!-- Paginaci�n -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-              <p class="text-sm text-gray-700">
-                Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} resultados
-              </p>
-              <select
-                :value="paginationData.perPage"
-                @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
-              >
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-              </select>
-            </div>
-
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-              <button
-                v-if="paginationData.prevPageUrl"
-                @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
-              >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
-              </button>
-
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
-              </span>
-
-              <button
-                v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
-                :key="page"
-                @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
-                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-              >
-                {{ page }}
-              </button>
-
-              <button
-                v-if="paginationData.nextPageUrl"
-                @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
-              >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-              </button>
-
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-              </span>
-            </nav>
-          </div>
-        </div>
       </div>
 
-      <!-- Registros Autom�ticos (Cobranzas y Ventas) -->
-      <div v-if="registrosAutomaticos.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
-        <div class="bg-blue-50 px-6 py-4 border-b border-blue-200 flex justify-between items-center">
+      <!-- SECCIÓN DE COBROS POR ENTREGAR (AUTOMÁTICOS) -->
+      <div v-if="registrosAutomaticos.length > 0" class="mt-12 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+        <div class="px-6 py-6 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 border-b border-blue-100 dark:border-blue-800/50 flex flex-wrap justify-between items-center gap-4">
           <div>
-            <h3 class="text-lg font-semibold text-blue-900">Cobranzas y Ventas por Entregar</h3>
-            <p class="text-sm text-blue-700">Registros que has cobrado/vendido y puedes marcar como entregados individualmente o en conjunto.</p>
+            <h3 class="text-xl font-black text-blue-900 dark:text-blue-300 uppercase tracking-wide">Ventas y Cobranzas por Formalizar</h3>
+            <p class="text-xs text-sky-800 dark:text-sky-200 dark:text-blue-400 mt-1">Selecciona los registros para crear un lote de entrega masiva.</p>
           </div>
-          <div v-if="selectedRegistros.length > 0" class="flex flex-col items-end">
-             <span class="text-sm font-bold text-blue-800 mb-1">
-               {{ selectedRegistros.length }} seleccionados (Total: ${{ formatNumber(totalSeleccionado) }})
-             </span>
-             <button @click="openLoteModal" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 font-medium transition-colors">
-               Depositar Seleccionados (Lote)
+          <div v-if="selectedRegistros.length > 0" class="flex items-center gap-6 animate-fade-in">
+             <div class="text-right">
+               <div class="text-xs font-bold text-sky-800 dark:text-sky-200 dark:text-blue-300 uppercase tracking-wide">{{ selectedRegistros.length }} SELECCIONADOS</div>
+               <div class="text-2xl font-black text-blue-900 dark:text-blue-100">${{ formatNumber(totalSeleccionado) }}</div>
+             </div>
+             <button @click="showCrearLoteModal = true" class="px-8 py-3 bg-blue-600 text-white rounded-2xl shadow-xl shadow-sky-500/40 hover:bg-blue-700 font-black transition-all transform hover:scale-105 active:scale-95">
+               CREAR LOTE
              </button>
           </div>
         </div>
+
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-10">
-                  <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                <th class="px-6 py-4 text-left w-10">
+                  <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="w-4 h-4 rounded-xl border-slate-300 text-blue-600 focus:ring-brand-500 dark:bg-slate-700">
                 </th>
-                <th class="px-3 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Concepto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cliente</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Monto</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado Entrega</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acción</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Origen / Vendedor</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Pago</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Concepto / Cliente</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Monto Pendiente</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acción</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="registro in registrosAutomaticos" :key="registro.id" class="hover:bg-blue-50 transition-colors duration-150">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
+              <tr v-for="registro in registrosAutomaticos" :key="registro.id_origen + '-' + registro.tipo_origen" class="hover:bg-slate-50/50 dark:hover:bg-blue-900/10 transition-colors">
                 <td class="px-6 py-4">
-                  <input v-if="tieneSaldoPendiente(registro)" type="checkbox" :checked="selectedRegistros.some(r => r.id === registro.id)" @change="toggleCheckbox(registro)" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                </td>
-                <td class="px-3 py-4">
-                  <span :class="registro.tipo === 'cobranza' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                    {{ registro.tipo === 'cobranza' ? 'Cobranza' : 'Venta' }}
-                  </span>
+                  <input type="checkbox" :checked="selectedRegistros.some(r => r.id_origen === registro.id_origen && r.tipo_origen === registro.tipo_origen)" @change="toggleCheckbox(registro)" class="w-4 h-4 rounded-xl border-slate-300 text-blue-600 focus:ring-brand-500 dark:bg-slate-700">
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ registro.usuario?.name || 'Usuario' }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(registro.fecha_entrega) }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ registro.concepto }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ registro.cliente }}</div>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-semibold text-gray-900">${{ formatNumber(registro.saldo_pendiente || registro.total) }}</div>
-                  <div v-if="tieneSaldoPendiente(registro) && registro.ya_entregado > 0" class="text-xs text-blue-600">
-                    Ya entregado: ${{ formatNumber(registro.ya_entregado) }}
-                  </div>
-                  <div v-if="registro.saldo_pendiente && registro.saldo_pendiente < registro.total" class="text-xs text-orange-600">
-                    Total: ${{ formatNumber(registro.total) }}
+                  <div class="flex items-center gap-2">
+                    <span :class="registro.tipo_origen === 'venta' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-indigo-300' : 'bg-brand-100 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:bg-brand-900/40 dark:text-amber-300'" class="px-2 py-0.5 rounded-xl text-[10px] font-black uppercase">
+                      {{ registro.tipo_origen }}
+                    </span>
+                    <div class="text-sm font-bold text-slate-900 dark:text-white">{{ registro.vendedor || '—' }}</div>
                   </div>
                 </td>
+                <td class="px-6 py-4 text-center">
+                  <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ formatearFecha(registro.fecha_pago) }}</div>
+                </td>
                 <td class="px-6 py-4">
-                  <span v-if="obtenerEstadoEntrega(registro)" :class="obtenerEstadoEntrega(registro).clase" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                    {{ obtenerEstadoEntrega(registro).label }}
-                  </span>
-                  <span v-else class="text-gray-400 text-xs">-</span>
+                  <div class="text-sm font-bold text-slate-900 dark:text-white">{{ registro.concepto }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 italic">{{ registro.cliente }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm font-black text-sky-800 dark:text-sky-200 dark:text-blue-400">${{ formatNumber(registro.saldo_pendiente || registro.total) }}</div>
+                  <div class="text-[10px] text-slate-500">{{ registro.metodo_pago }}</div>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <button
-                          v-if="tieneSaldoPendiente(registro)"
-                          @click="marcarAutomaticoRecibido(registro)"
-                          class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Entregar
+                  <button @click="marcarAutomaticoRecibido(registro)" class="px-4 py-1.5 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/30 text-blue-600 dark:text-blue-300 rounded-xl font-bold text-xs hover:bg-sky-100 transition-all">
+                    RECIBIR
                   </button>
-                  <span v-else class="text-xs text-gray-500">Sin saldo pendiente</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+    </div>
 
-      <!-- Modal de detalles / confirmaci�n -->
-      <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
-              {{ modalMode === 'details' ? 'Detalles de la Entrega' : 'Confirmar Eliminaci�n' }}
+    <!-- Modales -->
+    <div v-if="showModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showModal = false">
+      <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-300 dark:border-slate-600">
+          <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-wide">
+              {{ modalMode === 'details' ? 'Detalles de Entrega' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+            <button @click="showModal = false" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
+              <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-
-          <div class="p-6">
+          
+          <div class="p-8">
             <div v-if="modalMode === 'details' && selectedEntrega">
-              <div class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="space-y-3">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.usuario?.name || 'Usuario' }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Fecha de Entrega</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_entrega) }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Estado</label>
-                      <span :class="obtenerClasesEstado(selectedEntrega.estado)" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
-                        {{ obtenerLabelEstado(selectedEntrega.estado) }}
-                      </span>
-                    </div>
+               <div class="grid grid-cols-2 gap-8 mb-8">
+                  <div class="space-y-6">
+                     <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide">Entregado por</label>
+                        <div class="text-lg font-bold text-slate-900 dark:text-white">{{ selectedEntrega.usuario?.name }}</div>
+                     </div>
+                     <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide">Fecha</label>
+                        <div class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ formatearFecha(selectedEntrega.fecha_entrega) }}</div>
+                     </div>
+                     <div v-if="selectedEntrega.venta_cliente">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide">Cliente</label>
+                        <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedEntrega.venta_cliente }}</div>
+                     </div>
+                     <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide">Estado</label>
+                        <div>
+                          <span :class="obtenerClasesEstado(selectedEntrega.estado)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide">
+                            {{ obtenerLabelEstado(selectedEntrega.estado) }}
+                          </span>
+                        </div>
+                     </div>
+                     <div v-if="selectedEntrega.recibido_por">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide">Recibido por</label>
+                        <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedEntrega.recibido_por?.name }}</div>
+                     </div>
                   </div>
-                  <div class="space-y-3">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Monto Efectivo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_efectivo) }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Monto Cheques</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_cheques) }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Monto Tarjetas</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.monto_tarjetas) }}</p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Total</label>
-                      <p class="mt-1 text-sm font-bold text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEntrega.total) }}</p>
-                    </div>
+                  <div class="bg-[var(--ui-surface)]/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-700">
+                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide block mb-2">Total Entregado</label>
+                     <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">${{ formatNumber(selectedEntrega.total) }}</div>
+                     <div class="mt-4 space-y-1 text-xs">
+                        <div class="flex justify-between"><span>Efectivo:</span><span class="font-bold">${{ formatNumber(selectedEntrega.monto_efectivo) }}</span></div>
+                        <div class="flex justify-between"><span>Otros:</span><span class="font-bold">${{ formatNumber(selectedEntrega.total - selectedEntrega.monto_efectivo) }}</span></div>
+                     </div>
                   </div>
-                </div>
-                <div v-if="selectedEntrega.notas">
-                  <label class="block text-sm font-medium text-gray-700">Notas</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.notas }}</p>
-                </div>
-
-                <!-- Desglose de Lote -->
-                <div v-if="selectedEntrega.es_lote && selectedEntrega.children?.length > 0" class="mt-6 border-t pt-4">
-                  <h4 class="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
-                    Desglose del Lote
-                  </h4>
-                  <div class="bg-blue-50 rounded-lg overflow-hidden border border-blue-100">
-                    <table class="min-w-full divide-y divide-blue-200">
-                      <thead class="bg-blue-100/50">
-                        <tr>
-                          <th class="px-4 py-2 text-left text-xs font-bold text-blue-700 uppercase">Origen</th>
-                          <th class="px-4 py-2 text-right text-xs font-bold text-blue-700 uppercase">Monto</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-blue-100">
-                        <tr v-for="child in selectedEntrega.children" :key="child.id" class="text-sm">
-                          <td class="px-4 py-2 text-blue-900">
-                             <div class="font-medium">
-                               {{ child.origen?.numero_venta || child.origen?.folio || child.tipo_origen + ' #' + child.id_origen }}
-                             </div>
-                             <div class="text-[10px] text-blue-600">{{ child.notas }}</div>
-                          </td>
-                          <td class="px-4 py-2 text-right font-bold text-blue-900">
-                            ${{ formatNumber(child.total) }}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+               </div>
+               <div v-if="selectedEntrega.notas" class="mb-8">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-wide block mb-2">Notas</label>
+                  <div class="bg-white dark:bg-slate-800 p-4 border border-slate-100 dark:border-slate-700 rounded-xl text-sm text-slate-500 dark:text-slate-400 italic">
+                    "{{ selectedEntrega.notas }}"
                   </div>
-                </div>
-
-                <div v-if="selectedEntrega.fecha_recibido">
-                  <label class="block text-sm font-medium text-gray-700">Fecha de Recepcin</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEntrega.fecha_recibido) }}</p>
-                </div>
-                <div v-if="selectedEntrega.recibido_por">
-                  <label class="block text-sm font-medium text-gray-700">Recibido Por</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.recibido_por_usuario?.name || 'Desconocido' }}</p>
-                </div>
-                <div v-if="selectedEntrega.notas_recibido">
-                  <label class="block text-sm font-medium text-gray-700">Notas de Recepcin</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEntrega.notas_recibido }}</p>
-                </div>
-              </div>
+               </div>
+               
+               <div v-if="selectedEntrega.es_lote && selectedEntrega.children?.length" class="border-t border-slate-100 dark:border-slate-700 pt-6">
+                  <h4 class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase mb-4 tracking-wide">Contenido del Lote</h4>
+                  <div class="max-h-48 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                      <div v-for="child in selectedEntrega.children" :key="child.id" class="flex justify-between items-center p-3 bg-[var(--ui-surface)]/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex flex-col">
+                            <div class="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                {{ child.venta_numero ? 'Venta #' + child.venta_numero : (child.cobranza_concepto || child.tipo_origen + ' #' + child.id_origen) }}
+                            </div>
+                            <div v-if="child.venta_cliente" class="text-[10px] text-slate-500 dark:text-slate-400 italic">
+                                Cliente: {{ child.venta_cliente }}
+                            </div>
+                        </div>
+                        <div class="text-xs font-black text-slate-900 dark:text-white">${{ formatNumber(child.total) }}</div>
+                      </div>
+                  </div>
+               </div>
             </div>
-
-            <div v-if="modalMode === 'confirm'">
-              <div class="text-center">
-                <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                  </svg>
+            
+            <div v-if="modalMode === 'confirm'" class="text-center py-6">
+                <div class="w-16 h-16 bg-rose-50 dark:bg-rose-900/20/30 text-rose-600 dark:text-rose-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">�Eliminar Entrega?</h3>
-                <p class="text-sm text-gray-500 mb-4">
-                  �Est�s seguro de que deseas eliminar esta entrega?
-                  Esta acci�n no se puede deshacer.
-                </p>
-              </div>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-2 uppercase">¿Eliminar Entrega?</h3>
+                <p class="text-slate-500 dark:text-slate-400 font-medium">Esta acción no se puede deshacer y liberará los registros asociados.</p>
             </div>
           </div>
-
-          <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-            <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-              {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
-            </button>
-            <div v-if="modalMode === 'details'">
-              <button
-                v-if="selectedEntrega.estado === 'pendiente'"
-                @click="abrirModalRecibir(selectedEntrega)"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors mr-2"
-              >
-                Marcar Recibida
+          
+          <div class="px-8 py-6 bg-[var(--ui-surface)]/50 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-700">
+              <button @click="showModal = false" class="px-6 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-200 hover:bg-slate-100 transition-all">
+                Cerrar
               </button>
-              <button @click="editarEntrega(selectedEntrega.id)" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
-                Editar
+              <button v-if="modalMode === 'confirm'" @click="eliminarEntrega" class="px-8 py-2.5 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 shadow-xl shadow-rose-500/30 transition-all">
+                ELIMINAR AHORA
               </button>
-            </div>
-            <button v-if="modalMode === 'confirm'" @click="eliminarEntrega" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-              Eliminar
-            </button>
+          </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modal para marcar como recibida (entregas manuales) -->
-  <div v-if="showRecibirModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarRecibirModal">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <div>
-          <h3 class="text-lg font-medium text-gray-900">Confirmar recepcion</h3>
-          <p class="text-sm text-gray-500">Registra como se recibio la entrega y deja una nota.</p>
-        </div>
-        <button @click="cerrarRecibirModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="p-6 space-y-5" v-if="entregaParaRecibir">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p class="text-sm text-gray-500">Entregado por</p>
-            <p class="text-sm font-semibold text-gray-900 bg-white px-3 py-2 rounded-md">{{ entregaParaRecibir.usuario?.name }}</p>
+    <!-- Modal Monto Recibido (Registros Automáticos) -->
+    <div v-if="showMontoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4" @click.self="showMontoModal = false">
+       <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-blue-100 dark:border-blue-900/30">
+          <div class="p-8 bg-sky-600 text-white">
+             <h3 class="text-2xl font-black uppercase tracking-wide">Registrar Recepción</h3>
+             <p class="text-sky-100 text-sm mt-1">Vas a registrar el ingreso de dinero de un cobro directo.</p>
           </div>
-          <div>
-            <p class="text-sm text-gray-500">Recibe</p>
-            <p class="text-sm font-semibold text-gray-900 bg-white px-3 py-2 rounded-md">{{ currentUser?.name }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">Fecha de entrega</p>
-            <p class="text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(entregaParaRecibir.fecha_entrega) }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">Total</p>
-            <p class="text-lg font-bold text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(entregaParaRecibir.total) }}</p>
-          </div>
-        </div>
+          <div class="p-8 space-y-6">
+             <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                <div class="text-[10px] font-black text-slate-400 uppercase mb-1">Registro</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedRegistro?.concepto }}</div>
+                <div class="text-xs text-slate-500">{{ selectedRegistro?.cliente }}</div>
+             </div>
 
-        <div class="bg-white p-4 rounded-lg space-y-2">
-          <p class="text-sm font-medium text-gray-700">Detalle de montos registrados</p>
-          <div class="flex flex-wrap gap-2">
-            <span v-if="entregaParaRecibir.monto_efectivo > 0" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Efectivo ${{ formatNumber(entregaParaRecibir.monto_efectivo) }}</span>
-            <span v-if="entregaParaRecibir.monto_transferencia > 0" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Transferencia ${{ formatNumber(entregaParaRecibir.monto_transferencia) }}</span>
-            <span v-if="entregaParaRecibir.monto_cheques > 0" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Cheques ${{ formatNumber(entregaParaRecibir.monto_cheques) }}</span>
-            <span v-if="entregaParaRecibir.monto_tarjetas > 0" class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">Tarjetas ${{ formatNumber(entregaParaRecibir.monto_tarjetas) }}</span>
-            <span v-if="entregaParaRecibir.monto_efectivo <= 0 && entregaParaRecibir.monto_transferencia <= 0 && entregaParaRecibir.monto_cheques <= 0 && entregaParaRecibir.monto_tarjetas <= 0" class="text-xs text-gray-500">Sin detalle de montos</span>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Metodo de recepcion *</label>
-          <select
-            v-model="metodoRecibo"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-          >
-            <option value="">Seleccionar metodo</option>
-            <option value="efectivo">Efectivo</option>
-            <option value="transferencia">Transferencia</option>
-            <option value="cheque">Cheque</option>
-            <option value="tarjeta">Tarjeta</option>
-            <option value="mixto">Mixto</option>
-            <option value="otros">Otros</option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1">Como se recibe la entrega fisicamente.</p>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Notas de recepcion</label>
-          <textarea
-            v-model="notasRecibo"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            placeholder="Detalles adicionales, referencia de transferencia, folio, etc."
-          ></textarea>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Depositar a cuenta bancaria <span class="text-red-500">*</span></label>
-          <select
-            v-model="cuentaBancariaId"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-          >
-            <option value="">-- Seleccionar cuenta (obligatorio) --</option>
-            <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id">
-              {{ cuenta.nombre }} - {{ cuenta.banco }} (Saldo: ${{ formatNumber(cuenta.saldo_actual) }})
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1">Selecciona la cuenta bancaria donde se depositar� este dinero. El saldo se actualizar� autom�ticamente.</p>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-        <button @click="cerrarRecibirModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-          Cancelar
-        </button>
-        <button
-          @click="confirmarRecepcionEntrega"
-          :disabled="!entregaParaRecibir || !cuentaBancariaId"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Confirmar recepcion
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Monto Recibido -->
-  <div v-if="showMontoModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="cerrarMontoModal">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-      <!-- Header del modal -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Registrar Monto Recibido</h3>
-            <button @click="cerrarMontoModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="p-6">
-            <div v-if="selectedRegistro" class="space-y-4">
-              <!-- Informaci�n del registro -->
-              <div class="bg-white p-4 rounded-lg space-y-3">
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-700">Tipo:</span>
-                  <span class="text-sm text-gray-900">
-                    <span :class="selectedRegistro.tipo === 'cobranza' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
-                      {{ selectedRegistro.tipo === 'cobranza' ? 'Cobranza' : 'Venta' }}
-                    </span>
-                  </span>
+             <div class="grid grid-cols-2 gap-4">
+                <div>
+                   <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Monto a Recibir</label>
+                   <div class="relative">
+                      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                      <input v-model="montoRecibido" type="number" step="0.01" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl pl-8 pr-4 py-3 text-sm font-black focus:border-brand-500 outline-none transition-all dark:text-white" />
+                   </div>
                 </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-700">Concepto:</span>
-                  <span class="text-sm text-gray-900">{{ selectedRegistro.concepto }}</span>
+                <div>
+                   <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Método de Pago</label>
+                   <select v-model="metodoPagoEntrega" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:border-brand-500 outline-none transition-all dark:text-white">
+                      <option value="efectivo">Efectivo</option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="cheque">Cheque</option>
+                      <option value="tarjeta">Tarjeta</option>
+                   </select>
                 </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-700">Cliente:</span>
-                  <span class="text-sm text-gray-900">{{ selectedRegistro.cliente }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-700">M�todo de Pago Original:</span>
-                  <span class="text-sm font-semibold text-gray-900">
-                    <span :class="getMetodoPagoClass(selectedRegistro)">
-                      {{ getMetodoPagoLabel(selectedRegistro) }}
-                    </span>
-                  </span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-700">Saldo Pendiente:</span>
-                  <span class="text-lg font-bold text-gray-900">${{ formatNumber(selectedRegistro.saldo_pendiente || selectedRegistro.total) }}</span>
-                </div>
-                <div v-if="tieneSaldoPendiente(selectedRegistro) && selectedRegistro.ya_entregado > 0" class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-600">Ya entregado:</span>
-                  <span class="text-sm text-blue-600">${{ formatNumber(selectedRegistro.ya_entregado) }}</span>
-                </div>
-                <div class="flex justify-between items-center pt-2 border-t border-gray-200">
-                  <span class="text-sm font-medium text-gray-700">Total Original:</span>
-                  <span class="text-sm text-gray-900">${{ formatNumber(selectedRegistro.total) }}</span>
-                </div>
-              </div>
+             </div>
 
-              <!-- M�todo de Pago en Entrega -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">M�todo de Pago en Entrega</label>
-                <select
-                  v-model="metodoPagoEntrega"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Seleccionar m�todo de pago</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="transferencia">Transferencia</option>
-                  <option value="cheque">Cheque</option>
-                  <option value="tarjeta">Tarjeta</option>
-                  <option value="otros">Otros</option>
+             <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Depositar en Cuenta</label>
+                <select v-model="cuentaBancariaId" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:border-brand-500 outline-none transition-all dark:text-white">
+                   <option value="">Selecciona cuenta...</option>
+                   <option v-for="c in cuentasBancarias" :key="c.id" :value="c.id">{{ c.nombre }} (${{ formatNumber(c.saldo_actual) }})</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">
-                  Especifica c�mo se entrega f�sicamente el dinero
-                </p>
-              </div>
+             </div>
 
-              <!-- Monto recibido -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Monto Recibido *</label>
-                <input
-                  v-model="montoRecibido"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  :max="selectedRegistro.saldo_pendiente || selectedRegistro.total"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0.00"
-                />
-                <p class="text-xs text-gray-500 mt-1">
-                  M�ximo: ${{ formatNumber(selectedRegistro.saldo_pendiente || selectedRegistro.total) }}
-                </p>
-              </div>
-
-              <!-- Notas -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notas (opcional)</label>
-                <textarea
-                  v-model="notasRecibido"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Agregar notas sobre la entrega..."
-                ></textarea>
-              </div>
-            </div>
+             <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Notas / Referencia</label>
+                <textarea v-model="notasRecibido" rows="2" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-all dark:text-white" placeholder="Opcional..."></textarea>
+             </div>
           </div>
-
-          <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-            <button @click="cerrarMontoModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-              Cancelar
-            </button>
-            <button
-              @click="confirmarMontoRecibido"
-              :disabled="!montoRecibido || isNaN(parseFloat(montoRecibido)) || parseFloat(montoRecibido) <= 0"
-              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Registrar Monto
-            </button>
+          <div class="px-8 py-6 bg-[var(--ui-surface)]/50 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-700">
+              <button @click="showMontoModal = false" class="px-6 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-200 hover:bg-slate-100">Cancelar</button>
+              <button @click="confirmarMontoRecibido" :disabled="!cuentaBancariaId || !montoRecibido" class="px-8 py-2.5 bg-sky-600 text-white rounded-xl text-sm font-black hover:bg-sky-700 shadow-xl shadow-sky-500/20 disabled:opacity-50 transition-all uppercase">CONFIRMAR INGRESO</button>
           </div>
-        </div>
-      </div>
+       </div>
     </div>
-  </div>
 
-  <!-- Modal Confirmar Lote -->
-  <div v-if="showCrearLoteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showCrearLoteModal = false">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
-      <!-- Header del modal -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Crear Lote de Depósito (Carrito)</h3>
-        <button @click="showCrearLoteModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="p-6">
-        <div class="space-y-4">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-sm font-medium text-blue-800">Has seleccionado:</span>
-              <span class="text-lg font-bold text-blue-900">{{ selectedRegistros.length }} registros</span>
-            </div>
-            <div class="flex justify-between items-center pb-2 border-b border-blue-200">
-              <span class="text-sm font-medium text-blue-800">Total a Depositar:</span>
-              <span class="text-2xl font-bold text-green-600">${{ formatNumber(totalSeleccionado) }}</span>
-            </div>
-            <div class="mt-2 max-h-32 overflow-y-auto">
-              <p v-for="r in selectedRegistros" :key="r.id" class="text-xs text-blue-700 flex justify-between py-1">
-                <span>{{ r.concepto }}</span>
-                <span class="font-bold">${{ formatNumber(r.saldo_pendiente || r.total) }}</span>
-              </p>
-            </div>
+    <!-- Modal Recibir (Formalizar) -->
+    <div v-if="showRecibirModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showRecibirModal = false">
+       <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden">
+          <div class="p-8 border-b border-slate-100 dark:border-slate-700">
+             <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-wide">Recibir Dinero</h3>
+             <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">Confirma la recepción física del efectivo y deposita a una cuenta.</p>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Folio o Notas (Opcional)</label>
-            <textarea
-              v-model="notasLote"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Ej. Depósito Santander #748921"
-            ></textarea>
-            <p class="text-xs text-gray-500 mt-1">
-              Esta nota se guardará en todas las entregas creadas en este lote.
-            </p>
+          <div class="p-8 space-y-6">
+             <div class="bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
+                <div>
+                  <div class="text-[10px] font-black text-emerald-600 dark:text-slate-400 uppercase tracking-wide">Total a Recibir</div>
+                  <div class="text-2xl font-black text-emerald-900 dark:text-emerald-100">${{ formatNumber(entregaParaRecibir?.total) }}</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-bold text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-emerald-300">{{ entregaParaRecibir?.usuario?.name }}</div>
+                  <div class="text-[10px] text-emerald-600/60">{{ formatearFecha(entregaParaRecibir?.fecha_entrega) }}</div>
+                </div>
+             </div>
+             
+             <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Cuenta de Depósito</label>
+                <select v-model="cuentaBancariaId" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold focus:border-brand-500 outline-none transition-all dark:text-white">
+                   <option value="">Selecciona cuenta...</option>
+                   <option v-for="c in cuentasBancarias" :key="c.id" :value="c.id">{{ c.nombre }} (${{ formatNumber(c.saldo_actual) }})</option>
+                </select>
+             </div>
+             
+             <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Notas de Recepción</label>
+                <textarea v-model="notasRecibo" rows="2" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-all dark:text-white" placeholder="Opcional..."></textarea>
+             </div>
           </div>
-        </div>
-      </div>
+          <div class="px-8 py-6 bg-[var(--ui-surface)]/50 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-700">
+              <button @click="showRecibirModal = false" class="px-6 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-200 hover:bg-slate-100">Cancelar</button>
+              <button @click="confirmarRecepcionEntrega" :disabled="!cuentaBancariaId" class="px-8 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-black hover:bg-emerald-700 shadow-xl shadow-emerald-500/20 disabled:opacity-50 transition-all uppercase">CONFIRMAR RECEPCIÓN</button>
+          </div>
+       </div>
+    </div>
 
-      <!-- Footer del modal -->
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <button @click="showCrearLoteModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium">
-          Cancelar
-        </button>
-        <button
-          @click="confirmarLote"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-        >
-          Crear Lote
-        </button>
-      </div>
+    <!-- Modal Lote Masivo -->
+    <div v-if="showCrearLoteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showCrearLoteModal = false">
+       <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-blue-100 dark:border-blue-900/30">
+          <div class="p-8 bg-blue-600 text-white">
+             <h3 class="text-2xl font-black uppercase tracking-wide">Generar Lote Masivo</h3>
+             <p class="text-blue-100 text-sm mt-1">Vas a agrupar {{ selectedRegistros.length }} registros en una sola entrega.</p>
+          </div>
+          <div class="p-8 space-y-6 text-slate-900 dark:text-white">
+             <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-700">
+                <span class="text-sm font-bold opacity-60 uppercase">Total del Lote</span>
+                <span class="text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">${{ formatNumber(totalSeleccionado) }}</span>
+             </div>
+             <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-wide block mb-2">Folio de Referencia / Notas</label>
+                <textarea v-model="notasLote" class="w-full bg-[var(--ui-surface)] border-2 border-slate-100 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-all" placeholder="Ej: Depósito Santander #9012"></textarea>
+             </div>
+          </div>
+          <div class="px-8 py-6 bg-[var(--ui-surface)]/50 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-700">
+              <button @click="showCrearLoteModal = false" class="px-6 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-200 hover:bg-slate-100">Cancelar</button>
+              <button @click="confirmarLote" class="px-8 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-black hover:bg-blue-700 shadow-xl shadow-sky-500/30 transition-all uppercase">GENERAR LOTE AHORA</button>
+          </div>
+       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.entregas-dinero-index {
-  min-height: 100vh;
-}
+.entregas-dinero-index { font-family: 'Inter', sans-serif; }
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

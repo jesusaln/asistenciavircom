@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class HistorialHerramienta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $fillable = [
         'empresa_id',
         'herramienta_id',
         'tecnico_id',
+        'user_id',
         'fecha_asignacion',
         'fecha_devolucion',
         'asignado_por',
@@ -23,7 +26,9 @@ class HistorialHerramienta extends Model
         'motivo_devolucion',
         'estado_herramienta_asignacion',
         'estado_herramienta_devolucion',
-        'duracion_dias'
+        'duracion_dias',
+        'confirmado_por_tecnico',
+        'fecha_confirmacion'
     ];
 
     protected $casts = [

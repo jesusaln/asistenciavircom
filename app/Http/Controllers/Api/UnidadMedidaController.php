@@ -34,7 +34,7 @@ class UnidadMedidaController extends Controller
             }
 
             // Paginación
-            $perPage = min($request->input('per_page', 15), 100);
+            $perPage = $this->getPerPage();
             $unidades = $query->orderBy('nombre')->paginate($perPage);
 
             return response()->json([
@@ -77,7 +77,7 @@ class UnidadMedidaController extends Controller
                 ], 422);
             }
 
-            $unidad = UnidadMedida::create($request->all());
+            $unidad = UnidadMedida::create($validator->validated());
 
             return response()->json([
                 'success' => true,
@@ -133,7 +133,7 @@ class UnidadMedidaController extends Controller
                 ], 422);
             }
 
-            $unidadMedida->update($request->all());
+            $unidadMedida->update($validator->validated());
 
             return response()->json([
                 'success' => true,

@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->string('color_terciario', 7)->nullable()->default('#FBBF24')->after('color_secundario');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'color_terciario')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                $table->string('color_terciario', 7)->nullable()->default('#FBBF24')->after('color_secundario');
+            });
+        }
     }
 
     /**

@@ -131,7 +131,11 @@ class UserController extends Controller
 
         return Inertia::render('Usuarios/Create', [
             'roles' => $roles,
-            'almacenes' => $almacenes
+            'almacenes' => $almacenes,
+            'available_companies' => [
+                ['id' => 'climas', 'nombre' => 'Climas del Desierto'],
+                ['id' => 'vircom', 'nombre' => 'Asistencia Vircom']
+            ]
         ]);
     }
 
@@ -168,6 +172,10 @@ class UserController extends Controller
                 'permissionGroups' => $permissionGroups,
                 'userDirectPermissions' => $userDirectPermissions,
                 'rolePermissions' => $rolePermissions,
+                'available_companies' => [
+                    ['id' => 'climas', 'nombre' => 'Climas del Desierto'],
+                    ['id' => 'vircom', 'nombre' => 'Asistencia Vircom']
+                ]
             ]);
         } catch (AuthorizationException $e) {
             return redirect()->route('usuarios.index')->with('error', 'No tienes permisos para editar este usuario.');
@@ -242,6 +250,9 @@ class UserController extends Controller
             'roles' => 'nullable|array',
             'roles.*' => 'string|exists:roles,name',
             'es_tecnico' => 'nullable|boolean',
+            'es_empleado' => 'nullable|boolean',
+            'empresas_acceso' => 'nullable|array',
+            'empresas_acceso.*' => 'string',
         ]);
 
         $userData = [
@@ -250,9 +261,11 @@ class UserController extends Controller
             'telefono' => $validated['telefono'] ?? null,
             'activo' => true,
             'es_tecnico' => $validated['es_tecnico'] ?? false,
+            'es_empleado' => $validated['es_empleado'] ?? false,
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
             'password' => Hash::make($validated['password']),
+            'empresas_acceso' => !empty($validated['empresas_acceso']) ? implode(',', $validated['empresas_acceso']) : null,
         ];
 
         $user = User::create($userData);
@@ -260,6 +273,10 @@ class UserController extends Controller
         if (!empty($validated['roles'])) {
             $user->syncRoles($this->filterAssignableRoleNames($validated['roles'], Auth::user()));
         }
+
+        // Sincronizar con la otra base de datos
+        $this->syncUserToOtherDatabase($user, $validated['password']);
+
         Log::info('Usuario creado', [
             'user_id' => $user->id,
             'created_by' => Auth::id(),
@@ -297,6 +314,9 @@ class UserController extends Controller
             'roles' => 'nullable|array',
             'roles.*' => 'string|exists:roles,name',
             'es_tecnico' => 'nullable|boolean',
+            'es_empleado' => 'nullable|boolean',
+            'empresas_acceso' => 'nullable|array',
+            'empresas_acceso.*' => 'string',
         ]);
 
         // Actualizar los datos del usuario
@@ -305,14 +325,20 @@ class UserController extends Controller
             'email' => $validated['email'],
             'telefono' => $validated['telefono'] ?? null,
             'es_tecnico' => $validated['es_tecnico'] ?? false,
+            'es_empleado' => $validated['es_empleado'] ?? false,
             'almacen_venta_id' => $validated['almacen_venta_id'] ?? null,
             'almacen_compra_id' => $validated['almacen_compra_id'] ?? null,
             'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
+            'empresas_acceso' => !empty($validated['empresas_acceso']) ? implode(',', $validated['empresas_acceso']) : null,
         ]);
 
         if ($request->has('roles')) {
             $user->syncRoles($this->filterAssignableRoleNames($validated['roles'] ?? [], Auth::user()));
         }
+
+        // Sincronizar con la otra base de datos
+        $this->syncUserToOtherDatabase($user, $validated['password'] ?? null);
+
         Log::info('Usuario actualizado', [
             'user_id' => $user->id,
             'updated_by' => Auth::id(),
@@ -649,5 +675,38 @@ class UserController extends Controller
         }
 
         return ucfirst($name);
+    }
+
+    /**
+     * Sincroniza la información del usuario en la otra base de datos.
+     */
+    private function syncUserToOtherDatabase(User $user, ?string $password = null)
+    {
+        try {
+            $otherConnection = config('database.default') === 'pgsql' ? 'vircom' : 'pgsql';
+            
+            // Datos básicos a sincronizar
+            $data = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'telefono' => $user->telefono,
+                'es_tecnico' => $user->es_tecnico,
+                'es_empleado' => $user->es_empleado,
+                'empresas_acceso' => $user->empresas_acceso,
+                'activo' => $user->activo ?? true,
+                'updated_at' => now(),
+            ];
+
+            if ($password) {
+                $data['password'] = Hash::make($password);
+            }
+
+            \Illuminate\Support\Facades\DB::connection($otherConnection)
+                ->table('users')
+                ->updateOrInsert(['email' => $user->email], $data);
+                
+        } catch (\Exception $e) {
+            Log::warning('Sync Error: No se pudo sincronizar el usuario con ' . $otherConnection . ': ' . $e->getMessage());
+        }
     }
 }

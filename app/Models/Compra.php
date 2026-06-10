@@ -19,6 +19,8 @@ use App\Models\Concerns\Blameable;
  */
 class Compra extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, Blameable, SoftDeletes, BelongsToEmpresa;
 
     protected $table = 'compras';
@@ -39,7 +41,6 @@ class Compra extends Model
         'descuento_general',
         'descuento_items',
         'iva',
-        'iva',
         'retencion_iva',
         'retencion_isr',
         'isr',
@@ -51,6 +52,7 @@ class Compra extends Model
         'inventario_procesado',
         'metodo_pago',
         'cuenta_bancaria_id',
+        'user_id',
         // Campos CFDI
         'cfdi_uuid',
         'cfdi_folio',
@@ -65,6 +67,7 @@ class Compra extends Model
         'cfdi_total',
         'origen_importacion', // 'manual', 'bulk_import', 'sat_descarga'
         'proyecto_id',
+        'comprobante_path',
     ];
 
     protected $casts = [
@@ -137,7 +140,7 @@ class Compra extends Model
     {
         return $this->belongsTo(CuentaBancaria::class);
     }
-
+    
     /** Relación con proyecto (para gastos asociados a proyectos) */
     public function proyecto(): BelongsTo
     {
@@ -156,6 +159,12 @@ class Compra extends Model
         return $this->tipo === 'inventario';
     }
 
+    /** Relación con CFDI */
+    public function cfdi(): BelongsTo
+    {
+        return $this->belongsTo(Cfdi::class, 'cfdi_uuid', 'uuid');
+    }
+
     // Relaciones de "culpables"
     public function createdBy()
     {
@@ -170,6 +179,12 @@ class Compra extends Model
         return $this->belongsTo(User::class, 'deleted_by');
     }
 
+    /** Relación con el responsable del gasto (Luis, etc.) */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Compra $compra) {
@@ -179,6 +194,8 @@ class Compra extends Model
             // Establecer estado por defecto si no viene definido
             if (empty($compra->estado)) {
                 $compra->estado = \App\Enums\EstadoCompra::Procesada->value;
+            } elseif ($compra->estado instanceof \App\Enums\EstadoCompra) {
+                $compra->estado = $compra->estado->value;
             }
         });
 
@@ -207,5 +224,22 @@ class Compra extends Model
             \Illuminate\Support\Facades\Log::error("Error generando folio de compra: " . $e->getMessage());
             return 'COM-' . date('Ymd-His');
         }
+    }
+
+    /**
+     * Relación polimórfica con entregas de dinero (liquidaciones)
+     */
+    public function entregas()
+    {
+        return $this->morphMany(EntregaDinero::class, 'origen', 'tipo_origen', 'id_origen');
+    }
+
+    /**
+     * Relación con entregas de dinero cuando el origen se registró con tipo_origen = 'gasto'
+     */
+    public function entregasGasto()
+    {
+        return $this->hasMany(EntregaDinero::class, 'id_origen', 'id')
+                    ->where('tipo_origen', 'gasto');
     }
 }

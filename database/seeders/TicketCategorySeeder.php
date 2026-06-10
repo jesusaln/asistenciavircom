@@ -19,7 +19,7 @@ class TicketCategorySeeder extends Seeder
             [
                 'nombre' => 'Instalación',
                 'descripcion' => 'Consultas y problemas relacionados con instalación de equipos',
-                'color' => '#3B82F6', // Azul
+                'color' => '#FF6B35', // Azul
                 'icono' => '🔧',
                 'sla_horas' => 24,
                 'orden' => 1,

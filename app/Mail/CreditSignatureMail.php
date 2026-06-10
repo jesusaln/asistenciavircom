@@ -10,9 +10,11 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use App\Mail\Concerns\ConfigureTenantMail;
+
 class CreditSignatureMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, ConfigureTenantMail;
 
     public $cliente;
     public $empresa;
@@ -23,7 +25,7 @@ class CreditSignatureMail extends Mailable
     public function __construct(Cliente $cliente)
     {
         $this->cliente = $cliente;
-        $this->empresa = EmpresaConfiguracion::getConfig();
+        $this->empresa = EmpresaConfiguracion::getConfig($cliente->empresa_id);
     }
 
     /**

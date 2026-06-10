@@ -59,41 +59,25 @@ class VentaObserver
      */
     public function deleted(Venta $venta): void
     {
-        // 1. Eliminar CxC asociada (soft delete)
+        // ✅ FIX (A-03): Invalidate stats cache
+        \App\Services\Ventas\VentaQueryService::invalidateStatsCache($venta->empresa_id);
+
+        // 1. Find the associated CxC
         $cxc = CuentasPorCobrar::where('cobrable_type', Venta::class)
             ->where('cobrable_id', $venta->id)
             ->first();
 
-        if ($cxc) {
-            $cuentaId = $cxc->id;
-            $cxc->delete();
-            Log::info("VentaObserver: CxC #{$cuentaId} eliminada por eliminación de Venta #{$venta->id}");
-        }
-
-        // 2. Limpiar Entregas de Dinero asociadas (Efectivo/Caja)
-        // Usar foreach para asegurar que se disparen los eventos de SoftDeletes del modelo
-        $entregas = EntregaDinero::where('tipo_origen', 'venta')
-            ->where('id_origen', $venta->id)
-            ->get();
-
-        foreach ($entregas as $entrega) {
-            $entrega->delete(); // Esto ahora sí respeta SoftDeletes
-        }
-
-        if ($entregas->count() > 0) {
-            Log::info("VentaObserver: {$entregas->count()} registros de EntregaDinero eliminados (soft) para Venta #{$venta->id}");
-        }
-
-        // 3. Limpiar Movimientos Bancarios asociados
-        $movimientos = MovimientoBancario::where(function ($query) use ($venta) {
-            $query->where('referencia', 'ilike', "%venta #{$venta->id}%")
-                ->orWhere('referencia', 'ilike', "%{$venta->numero_venta}%")
-                ->orWhere('concepto', 'ilike', "%venta #{$venta->id}%")
-                ->orWhere('concepto', 'ilike', "%Cobro Venta {$venta->numero_venta}%")
-                ->orWhere('concepto', 'ilike', "%{$venta->numero_venta}%")
-                ->orWhereHasMorph('conciliable', [Venta::class], function ($q) use ($venta) {
-                    $q->where('id', $venta->id);
+        // 2. Limpiar Movimientos Bancarios asociados (Fix A-05: Use polymorphic relations instead of strings)
+        $movimientos = MovimientoBancario::where(function ($query) use ($venta, $cxc) {
+            $query->whereHasMorph('conciliable', [Venta::class], function ($q) use ($venta) {
+                $q->where('id', $venta->id);
+            });
+            
+            if ($cxc) {
+                $query->orWhereHasMorph('conciliable', [CuentasPorCobrar::class], function ($q) use ($cxc) {
+                    $q->where('id', $cxc->id);
                 });
+            }
         })->get();
 
         foreach ($movimientos as $movimiento) {
@@ -106,5 +90,38 @@ class VentaObserver
         if ($movimientos->count() > 0) {
             Log::info("VentaObserver: " . $movimientos->count() . " movimientos bancarios eliminados para Venta #{$venta->id}");
         }
+
+        // 3. Eliminar CxC asociada (soft delete)
+        if ($cxc) {
+            $cuentaId = $cxc->id;
+            $cxc->delete();
+            Log::info("VentaObserver: CxC #{$cuentaId} eliminada por eliminación de Venta #{$venta->id}");
+        }
+
+        // 4. Limpiar Entregas de Dinero asociadas (Efectivo/Caja)
+        $entregas = EntregaDinero::where('tipo_origen', 'venta')
+            ->where('id_origen', $venta->id)
+            ->get();
+
+        foreach ($entregas as $entrega) {
+            $entrega->delete();
+        }
+
+        if ($entregas->count() > 0) {
+            Log::info("VentaObserver: {$entregas->count()} registros de EntregaDinero eliminados (soft) para Venta #{$venta->id}");
+        }
+
+        if ($movimientos->count() > 0) {
+            Log::info("VentaObserver: " . $movimientos->count() . " movimientos bancarios eliminados para Venta #{$venta->id}");
+        }
+    }
+
+    /**
+     * Handle the Venta "saved" event.
+     */
+    public function saved(Venta $venta): void
+    {
+        // ✅ FIX (A-03): Invalidate stats cache on any change
+        \App\Services\Ventas\VentaQueryService::invalidateStatsCache($venta->empresa_id);
     }
 }

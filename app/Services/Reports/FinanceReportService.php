@@ -182,8 +182,8 @@ class FinanceReportService
 
     public function getEfectivoPorUsuarioData(array $params): array
     {
-        $fecha_inicio = $params['fecha_inicio'] ?? now()->startOfMonth()->format('Y-m-d');
-        $fecha_fin = $params['fecha_fin'] ?? now()->endOfMonth()->format('Y-m-d');
+        $fecha_inicio = $params['fecha_inicio'] ?? '2020-01-01';
+        $fecha_fin = $params['fecha_fin'] ?? now()->format('Y-m-d');
 
         $users = User::all(); // Fetch all users, or you can filter by roles if needed
 
@@ -191,14 +191,14 @@ class FinanceReportService
             // 1. Efectivo de Ventas
             $ventasEfectivo = Venta::where('pagado', true)
                 ->where('pagado_por', $user->id)
-                ->where('metodo_pago', 'efectivo')
+                ->where('metodo_pago', \App\Enums\MetodoPago::Efectivo->value)
                 ->whereBetween('fecha_pago', [$fecha_inicio . ' 00:00:00', $fecha_fin . ' 23:59:59'])
                 ->sum('total');
 
             // 2. Efectivo de Cobranzas
             $cobranzasEfectivo = Cobranza::whereIn('estado', ['pagado', 'parcial'])
                 ->where('responsable_cobro', $user->id)
-                ->where('metodo_pago', 'efectivo')
+                ->where('metodo_pago', \App\Enums\MetodoPago::Efectivo->value)
                 ->whereBetween('fecha_pago', [$fecha_inicio . ' 00:00:00', $fecha_fin . ' 23:59:59'])
                 ->sum('monto_pagado');
 

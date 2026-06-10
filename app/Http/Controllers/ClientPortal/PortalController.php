@@ -22,7 +22,6 @@ use App\Models\CuentasPorCobrar;
 use App\Models\Renta;
 use App\Models\Cita;
 use App\Models\Pedido;
-use App\Models\PolizaCargo;
 use Inertia\Inertia;
 
 class PortalController extends Controller
@@ -41,14 +40,13 @@ class PortalController extends Controller
             'favicon_url' => $configuracion->favicon_url,
             'nombre_comercial_config' => $configuracion->nombre_empresa,
             'telefono' => $configuracion->telefono,
+            'whatsapp' => $configuracion->whatsapp,
             'email' => $configuracion->email,
         ]) : null;
     }
     public function dashboard(Request $request)
     {
         $cliente = Auth::guard('client')->user();
-        $empresaId = EmpresaResolver::resolveId();
-        $empresaConfig = EmpresaConfiguracion::getConfig($empresaId);
 
         if (!$cliente->activo) {
             return redirect()->route('catalogo.index')->with('warning', 'Aún no tienes autorización para acceder al Panel Completo.');
@@ -95,36 +93,8 @@ class PortalController extends Controller
                 'regimenes' => \Illuminate\Support\Facades\Cache::remember('sat_regimenes_fiscales', 86400, fn() => \App\Models\SatRegimenFiscal::orderBy('clave')->get()),
                 'usos_cfdi' => \Illuminate\Support\Facades\Cache::remember('sat_usos_cfdi', 86400, fn() => \App\Models\SatUsoCfdi::orderBy('clave')->get()),
                 'estados' => \Illuminate\Support\Facades\Cache::remember('sat_estados_activos', 10, fn() => \App\Models\SatEstado::where('activo', true)->orderBy('nombre')->get()),
-            ],
-            'rustdesk' => [
-                'id_server' => $empresaConfig->rustdesk_server_address ?: null,
-                'relay_server' => $empresaConfig->rustdesk_relay_server ?: null,
-                'key' => $empresaConfig->rustdesk_public_key ?: null,
-            ],
+            ]
         ]);
-    }
-
-    public function downloadRustDeskClient()
-    {
-        $candidates = [
-            public_path('downloads/rustdesk-vircom.exe'),
-            public_path('downloads/rustdesk-vircom.msi'),
-            storage_path('app/public/downloads/rustdesk-vircom.exe'),
-            storage_path('app/public/downloads/rustdesk-vircom.msi'),
-        ];
-
-        foreach ($candidates as $filePath) {
-            if (is_file($filePath)) {
-                return response()->download($filePath);
-            }
-        }
-
-        $fallbackUrl = (string) config('rustdesk.download_url', 'https://rustdesk.com/download');
-        if ($fallbackUrl !== '') {
-            return redirect()->away($fallbackUrl);
-        }
-
-        return redirect()->route('portal.dashboard')->with('error', 'No hay instalador de RustDesk disponible por el momento.');
     }
 
     private function getDashboardTickets($cliente, Request $request)
@@ -188,7 +158,7 @@ class PortalController extends Controller
                 'estado' => $c->estado,
             ]);
 
-        // Próxima CxC a vencer
+        // Próxima CxC a vencer (solo la más próxima, no todas las futuras)
         $proximaCxc = CuentasPorCobrar::where('cliente_id', $cliente->id)
             ->whereIn('estado', ['pendiente'])
             ->where('monto_pendiente', '>', 0)
@@ -205,27 +175,12 @@ class PortalController extends Controller
                     'folio' => 'CXC-' . str_pad($proximaCxc->id, 5, '0', STR_PAD_LEFT),
                     'total' => $proximaCxc->monto_pendiente,
                     'fecha_vencimiento' => $proximaCxc->fecha_vencimiento,
-                    'estado' => 'proximo',
+                    'estado' => 'proximo', // Marcar como próximo para diferenciarlo en el frontend
                 ]
             ]);
         }
 
-        // Cargos de Póliza (PolizaCargo) pendientes o vencidos
-        $cargosPendientes = PolizaCargo::whereHas('poliza', fn($q) => $q->where('cliente_id', $cliente->id))
-            ->whereIn('estado', ['pendiente', 'vencido'])
-            ->orderBy('fecha_vencimiento')
-            ->get()
-            ->map(fn($c) => [
-                'id' => $c->id,
-                'tipo' => 'cargo_poliza',
-                'folio' => 'POL-' . str_pad($c->id, 5, '0', STR_PAD_LEFT),
-                'total' => $c->total,
-                'fecha_vencimiento' => $c->fecha_vencimiento,
-                'estado' => $c->estado,
-                'concepto' => $c->concepto,
-            ]);
-
-        return $ventasVencidas->concat($cxcVencidas)->concat($cargosPendientes)->concat($proximoPago)->sortBy('fecha_vencimiento')->values();
+        return $ventasVencidas->concat($cxcVencidas)->concat($proximoPago)->sortBy('fecha_vencimiento')->values();
     }
 
     private function getDashboardRentas($cliente)
@@ -456,15 +411,15 @@ class PortalController extends Controller
             'cuentasPorCobrar' => function ($q) {
                 $q->orderByDesc('created_at')->limit(12);
             },
-            'cargos' => function ($q) {
-                $q->latest()->limit(12);
-            },
             // Cargar configuración de mantenimientos y próximas ejecuciones
             'mantenimientos' => function ($q) {
                 $q->where('activo', true);
             },
             'mantenimientos.ejecuciones' => function ($q) {
                 $q->orderByDesc('fecha_programada')->limit(5);
+            },
+            'mantenimientosEjecuciones' => function ($q) {
+                $q->with(['mantenimiento', 'tecnico:id,name'])->orderByDesc('fecha_programada')->limit(10);
             }
         ])->loadCount([
                     'tickets as tickets_mes_actual_count' => function ($query) {
@@ -607,6 +562,105 @@ class PortalController extends Controller
         ]);
     }
 
+    public function historialEquipo(Request $request, PolizaServicio $poliza)
+    {
+        if ($poliza->cliente_id !== Auth::guard('client')->id()) {
+            abort(403);
+        }
+
+        $equipoNombre = $request->query('equipo');
+        if (!$equipoNombre) {
+            return response()->json(['error' => 'Falta el nombre del equipo'], 422);
+        }
+
+        // 1. Citas del módulo de soporte/ordenes vinculadas a este equipo
+        $citas = \App\Models\Cita::where('poliza_id', $poliza->id)
+            ->where(function ($q) use ($equipoNombre) {
+                $q->whereJsonContains('equipos_servicio', $equipoNombre)
+                  ->orWhere('trabajo_realizado', 'ilike', "%{$equipoNombre}%");
+            })
+            ->with('tecnico:id,name')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'folio' => $c->folio,
+                'fecha' => $c->created_at->format('d/m/Y H:i'),
+                'tipo' => $c->tipo_servicio,
+                'trabajo_realizado' => $c->trabajo_realizado,
+                'fotos' => $c->fotos_finales ?? [],
+                'tecnico' => $c->tecnico?->name ?? 'N/A',
+            ]);
+
+        // 2. Ejecuciones de mantenimientos de póliza para este equipo
+        $mantenimientos = \App\Models\PolizaMantenimientoEjecucion::whereHas('mantenimiento', function ($q) use ($poliza) {
+                $q->where('poliza_id', $poliza->id);
+            })
+            ->whereNotNull('fecha_ejecucion')
+            ->orderByDesc('fecha_ejecucion')
+            ->get()
+            ->filter(function ($maint) use ($equipoNombre) {
+                if (empty($maint->equipos_detalles)) return false;
+                foreach ($maint->equipos_detalles as $eqKey => $eqData) {
+                    if (isset($eqData['nombre']) && strtolower($eqData['nombre']) === strtolower($equipoNombre)) {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            ->map(function ($maint) use ($equipoNombre) {
+                $detalleEquipo = null;
+                foreach ($maint->equipos_detalles as $eqKey => $eqData) {
+                    if (isset($eqData['nombre']) && strtolower($eqData['nombre']) === strtolower($equipoNombre)) {
+                        $detalleEquipo = $eqData;
+                        break;
+                    }
+                }
+
+                return [
+                    'id' => $maint->id,
+                    'nombre' => $maint->mantenimiento?->nombre ?? 'Mantenimiento Preventivo',
+                    'fecha' => $maint->fecha_ejecucion ? $maint->fecha_ejecucion->format('d/m/Y H:i') : '',
+                    'estado' => $detalleEquipo['estado'] ?? $maint->estado,
+                    'resultado' => $detalleEquipo['resultado'] ?? $maint->resultado,
+                    'notas_iniciales' => $detalleEquipo['notas_iniciales'] ?? $maint->notas_iniciales,
+                    'notas_tecnico' => $detalleEquipo['notas_tecnico'] ?? $maint->notas_tecnico,
+                    'numero_serie' => $detalleEquipo['numero_serie'] ?? $maint->numero_serie,
+                    'serie_evaporador' => $detalleEquipo['serie_evaporador'] ?? null,
+                    'serie_condensadora' => $detalleEquipo['serie_condensadora'] ?? null,
+                    'fotos_antes' => $detalleEquipo['fotos_antes'] ?? [],
+                    'fotos_despues' => $detalleEquipo['fotos_despues'] ?? [],
+                    'presion_gas' => $detalleEquipo['presion_gas'] ?? null,
+                    'amperaje' => $detalleEquipo['amperaje'] ?? null,
+                    'voltaje' => $detalleEquipo['voltaje'] ?? null,
+                    'temperatura_inyeccion' => $detalleEquipo['temperatura_inyeccion'] ?? null,
+                    'temperatura_retorno' => $detalleEquipo['temperatura_retorno'] ?? null,
+                    'checklist_rutina' => $detalleEquipo['checklist_rutina'] ?? [],
+                ];
+            })
+            ->values();
+
+        // 3. Cotizaciones de reparaciones
+        $cotizaciones = \App\Models\Cotizacion::where('poliza_id', $poliza->id)
+            ->where('equipo_nombre', $equipoNombre)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'numero' => $c->numero_cotizacion,
+                'fecha' => $c->created_at->format('d/m/Y'),
+                'total' => $c->total,
+                'estado' => $c->estado,
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'citas' => $citas,
+            'mantenimientos' => $mantenimientos,
+            'cotizaciones' => $cotizaciones,
+        ]);
+    }
+
     public function pedidosIndex()
     {
         $cliente = Auth::guard('client')->user();
@@ -650,7 +704,7 @@ class PortalController extends Controller
             'poliza' => $poliza,
             'empresa' => $empresa,
             'cliente' => $cliente,
-            'logo' => $empresa->logo_url ?? asset('images/logo.png'),
+            'logo' => $empresa->logo_url ?? asset('images/logo.webp'),
         ]);
     }
 
@@ -1012,6 +1066,7 @@ class PortalController extends Controller
                 ->with(['categoria', 'asignado'])
                 ->get();
 
+            $equiposCliente = $poliza->condiciones_especiales['equipos_cliente'] ?? [];
             $empresaId = EmpresaResolver::resolveId();
             $empresa = EmpresaConfiguracion::getConfig($empresaId);
             $mesNombre = Carbon::createFromDate($anio, $mes, 1)->locale('es')->monthName;
@@ -1020,6 +1075,7 @@ class PortalController extends Controller
                 'poliza' => $poliza,
                 'empresa' => $empresa,
                 'tickets' => $tickets,
+                'equiposCliente' => $equiposCliente,
                 'mes_nombre' => ucfirst($mesNombre),
                 'anio' => $anio,
                 'fecha_generacion' => now()->format('d/m/Y H:i'),

@@ -73,43 +73,43 @@ const submit = () => {
 <template>
   <Head title="Editar Entrega de Dinero" />
 
-  <div class="entregas-dinero-edit min-h-screen bg-white">
+  <div class="entregas-dinero-edit min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Header -->
-      <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 mb-6">
-        <div class="flex items-center gap-3 mb-6">
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 mb-6">
+        <div class="flex items-center gap-2 mb-6">
           <button
             @click="router.visit(route('entregas-dinero.index'))"
-            class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+            class="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <h1 class="text-2xl font-bold text-slate-900">Editar Entrega de Dinero</h1>
         </div>
 
-        <p class="text-slate-600 mb-6">
+        <p class="text-slate-500 mb-6">
           Actualiza los montos y notas de la entrega seleccionada. Abajo puedes ver la nota original registrada.
         </p>
 
-        <div v-if="props.entrega.notas" class="mb-6 bg-white border border-gray-200 rounded-lg p-4">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Nota registrada</p>
-          <p class="text-sm text-gray-800 mt-1">{{ props.entrega.notas }}</p>
+        <div v-if="props.entrega.notas" class="mb-6 bg-white border border-slate-200 rounded-xl p-4">
+          <p class="text-xs font-semibold text-slate-500 uppercase">Nota registrada</p>
+          <p class="text-sm text-slate-800 mt-1">{{ props.entrega.notas }}</p>
         </div>
 
         <!-- Formulario -->
         <form @submit.prevent="submit" class="space-y-6">
           <!-- Fecha de entrega -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Fecha de Entrega *
             </label>
             <input
               v-model="form.fecha_entrega"
               type="date"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             />
           </div>
 
@@ -117,7 +117,7 @@ const submit = () => {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Efectivo -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Efectivo
               </label>
               <input
@@ -126,13 +126,13 @@ const submit = () => {
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               />
             </div>
 
             <!-- Transferencia -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Transferencia
               </label>
               <input
@@ -141,13 +141,13 @@ const submit = () => {
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               />
             </div>
 
             <!-- Cheques -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Cheques
               </label>
               <input
@@ -156,13 +156,13 @@ const submit = () => {
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               />
             </div>
 
             <!-- Tarjetas -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Tarjetas
               </label>
               <input
@@ -171,45 +171,45 @@ const submit = () => {
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               />
             </div>
           </div>
 
           <!-- Total -->
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
             <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-blue-700">Total:</span>
+              <span class="text-sm font-medium text-sky-800 dark:text-sky-200">Total:</span>
               <span class="text-xl font-bold text-blue-900">${{ formatNumber(total) }}</span>
             </div>
           </div>
 
           <!-- Notas -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Notas (opcional)
             </label>
             <textarea
               v-model="form.notas"
               rows="3"
               placeholder="Agrega notas sobre esta entrega..."
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             ></textarea>
           </div>
 
           <!-- Botones -->
-          <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+          <div class="flex justify-end gap-4 pt-6 border-t border-slate-200">
             <button
               type="button"
               @click="router.visit(route('entregas-dinero.index'))"
-              class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+              class="px-6 py-3 bg-slate-300 text-slate-700 rounded-xl hover:bg-slate-400 transition-colors font-medium"
             >
               Cancelar
             </button>
             <button
               type="submit"
               :disabled="total <= 0"
-              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               Guardar cambios
             </button>

@@ -19,6 +19,7 @@ class HerramientaController extends Controller
     use ImageOptimizerTrait;
     public function index(Request $request)
     {
+        $user = Auth::user();
         $filters = [
             'search' => (string) $request->query('search', ''),
             'estado' => (string) $request->query('estado', ''),
@@ -27,7 +28,18 @@ class HerramientaController extends Controller
         ];
 
         $queryService = new HerramientaQueryService();
-        $herramientas = $queryService->buildIndexQuery($filters)
+        $query = $queryService->buildIndexQuery($filters);
+
+        // Solo Luis, Jesus y Admins ven todas las herramientas
+        $esEspecial = $user->hasAnyRole(['admin', 'super-admin', 'compras']) || 
+                      $user->email === 'luis@climasdeldesierto.com' || 
+                      $user->email === 'jesus@climasdeldesierto.com';
+
+        if (!$esEspecial) {
+            $query->where('tecnico_id', $user->id);
+        }
+
+        $herramientas = $query
             ->orderByDesc('created_at')
             ->paginate(12)
             ->withQueryString();
@@ -38,7 +50,9 @@ class HerramientaController extends Controller
             'herramientas' => $herramientas,
             'estadisticas' => $estadisticas,
             'categorias' => CategoriaHerramienta::orderBy('nombre')->get(),
+            'tecnicos' => $esEspecial ? \App\Models\User::tecnicosActivos()->orderBy('name')->get(['id', 'name as nombre']) : [],
             'filters' => $filters,
+            'can_manage_all' => $esEspecial
         ]);
     }
 
@@ -167,7 +181,7 @@ class HerramientaController extends Controller
                 'dias_desde_ultimo_mantenimiento' => $herramienta->dias_desde_ultimo_mantenimiento,
                 'dias_para_proximo_mantenimiento' => $herramienta->dias_para_proximo_mantenimiento,
                 'porcentaje_vida_util' => $herramienta->porcentaje_vida_util,
-                'vida_util_proxima_a_vencer' => $herramienta->vidaUtilProximaAVencer(),
+                'vida_util_proxima_a_vencer' => $herramienta->isVidaUtilProximaAVencer(),
                 'necesita_mantenimiento' => $herramienta->necesitaMantenimiento(),
                 'created_at' => $herramienta->created_at,
             ],
@@ -446,7 +460,7 @@ class HerramientaController extends Controller
                 'dias_desde_ultimo_mantenimiento' => $herramienta->dias_desde_ultimo_mantenimiento,
                 'dias_para_proximo_mantenimiento' => $herramienta->dias_para_proximo_mantenimiento,
                 'porcentaje_vida_util' => $herramienta->porcentaje_vida_util,
-                'vida_util_proxima_a_vencer' => $herramienta->vidaUtilProximaAVencer(),
+                'vida_util_proxima_a_vencer' => $herramienta->isVidaUtilProximaAVencer(),
                 'necesita_mantenimiento' => $herramienta->necesitaMantenimiento(),
                 'created_at' => $herramienta->created_at,
             ],
@@ -503,7 +517,7 @@ class HerramientaController extends Controller
         $estadoActual = $herramienta->estado;
 
         // Si cambia a asignada, debe tener técnico (el observer validará esto también)
-        if ($nuevoEstado === Herramienta::ESTADO_ASIGNADA && empty($herramienta->tecnico_id)) {
+        if ($nuevoEstado === Herramienta::ESTADO_ASIGNADA && empty($herramienta->user_id)) {
             throw new \Exception('No se puede cambiar a estado "asignada" sin un técnico asignado');
         }
 
@@ -609,6 +623,304 @@ class HerramientaController extends Controller
         return Inertia::render('Herramientas/Reportes', [
             'herramientas' => $herramientas,
             'estadisticas' => $estadisticas,
+        ]);
+    }
+
+    public function misHerramientasApi(Request $request)
+    {
+        $userId = $request->query('user_id');
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'error' => 'No autenticado'], 401);
+        }
+
+        $esAdminOCompras = $user->hasAnyRole(['super-admin', 'admin', 'compras']) || 
+                           $user->email === 'luis@climasdeldesierto.com' || 
+                           $user->email === 'jesus@climasdeldesierto.com';
+
+        $query = Herramienta::with(['categoriaHerramienta', 'tecnico']);
+
+        if (!$esAdminOCompras) {
+            // Técnicos normales SOLO ven sus herramientas asignadas
+            // Usamos user_id para la relación y técnico_id para la lógica, pero aquí filtramos por el dueño actual
+            $query->where('user_id', $user->id)
+                  ->where('estado', Herramienta::ESTADO_ASIGNADA);
+        } else {
+            // Admins pueden filtrar
+            if ($userId === 'disponibles') {
+                $query->where('estado', Herramienta::ESTADO_DISPONIBLE);
+            } elseif ($userId && $userId !== 'all' && $userId !== 'null') {
+                $query->where('user_id', $userId);
+            }
+        }
+
+        $herramientas = $query->get()->map(function ($h) {
+            return [
+                'id' => $h->id,
+                'nombre' => $h->nombre,
+                'numero_serie' => $h->numero_serie,
+                'codigo_inventario' => $h->codigo_inventario,
+                'descripcion' => $h->descripcion,
+                'foto' => $h->foto ? asset('storage/' . $h->foto) : null,
+                'categoria' => $h->categoria_label,
+                'fecha_asignacion' => $h->fecha_asignacion ? $h->fecha_asignacion->format('Y-m-d H:i:s') : null,
+                'tecnico_nombre' => $h->tecnico ? $h->tecnico->name : 'Disponible',
+                'user_id' => $h->user_id,
+                'tecnico_id' => $h->tecnico_id,
+            ];
+        });
+
+        return response()->json(['success' => true, 'data' => $herramientas]);
+    }
+
+    public function solicitarTraspaso(Request $request)
+    {
+        $request->validate([
+            'herramientas_ids' => 'required|array',
+            'herramientas_ids.*' => 'exists:herramientas,id',
+            'receptor_id' => 'required|exists:users,id',
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $herramientasIds = $request->input('herramientas_ids');
+        $receptorId = $request->input('receptor_id');
+
+        // Verificar que el usuario actual sea el dueño de las herramientas
+        $herramientas = Herramienta::whereIn('id', $herramientasIds)
+            ->where('user_id', $user->id)
+            ->get();
+
+        if ($herramientas->count() !== count($herramientasIds)) {
+            return response()->json(['error' => 'Una o más herramientas no te pertenecen o no existen'], 403);
+        }
+
+        // Crear notificación para el receptor
+        $herramientasNombres = $herramientas->pluck('nombre')->take(3)->join(', ');
+        if ($herramientas->count() > 3) {
+            $herramientasNombres .= " y " . ($herramientas->count() - 3) . " más";
+        }
+
+        \App\Models\Notification::createForUser(
+            $receptorId,
+            'traspaso_herramientas',
+            'Solicitud de Traspaso',
+            "{$user->name} quiere traspasarte: {$herramientasNombres}",
+            [
+                'herramientas_ids' => $herramientasIds,
+                'emisor_id' => $user->id,
+                'emisor_nombre' => $user->name,
+                'tipo' => 'traspaso_herramientas'
+            ],
+            '/tabs/mis-herramientas',
+            'fas fa-exchange-alt'
+        );
+
+        return response()->json(['success' => true, 'message' => 'Solicitud de traspaso enviada correctamente']);
+    }
+
+    public function aceptarTraspaso(Request $request)
+    {
+        $request->validate([
+            'notification_id' => 'required|exists:notifications,id',
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $notification = \App\Models\Notification::findOrFail($request->input('notification_id'));
+
+        // Validar que la notificación sea para este usuario y del tipo correcto
+        if ($notification->user_id !== $user->id || $notification->type !== 'traspaso_herramientas') {
+            return response()->json(['error' => 'Solicitud no válida'], 403);
+        }
+
+        $data = $notification->data;
+        $herramientasIds = $data['herramientas_ids'] ?? [];
+
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            foreach ($herramientasIds as $id) {
+                $herramienta = Herramienta::find($id);
+                if ($herramienta) {
+                    // Actualizar dueño
+                    $herramienta->update([
+                        'user_id' => $user->id,
+                        'tecnico_id' => $user->id,
+                        'estado' => Herramienta::ESTADO_ASIGNADA,
+                        'fecha_asignacion' => now(),
+                    ]);
+
+                    // Historial
+                    \App\Models\HistorialHerramienta::create([
+                        'herramienta_id' => $herramienta->id,
+                        'user_id' => $user->id,
+                        'tecnico_id' => $user->id,
+                        'tipo_asignacion' => 'individual',
+                        'fecha_asignacion' => now(),
+                        'estado_anterior' => 'asignada',
+                        'observaciones' => "Traspaso aceptado de {$data['emisor_nombre']}",
+                        'asignado_por' => $data['emisor_id'],
+                    ]);
+                }
+            }
+
+            // Marcar notificación como leída
+            $notification->markAsRead();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Traspaso aceptado. Las herramientas ya están en tu lista.']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json(['error' => 'Error al procesar el traspaso: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function misSolicitudesPendientes()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        $solicitudes = \App\Models\Notification::where('user_id', $user->id)
+            ->where('type', 'traspaso_herramientas')
+            ->where('read', false)
+            ->get();
+
+        return response()->json($solicitudes);
+    }
+
+    public function reasignarApi(Request $request, Herramienta $herramienta)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!$user->hasAnyRole(['super-admin', 'admin', 'compras'])) {
+            return response()->json(['error' => 'No tienes permiso para reasignar herramientas'], 403);
+        }
+
+        $request->validate([
+            'tecnico_id' => 'required|exists:users,id',
+        ]);
+
+        $tecnicoId = $request->input('tecnico_id');
+        
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            $herramienta->update([
+                'user_id' => $tecnicoId,
+                'fecha_asignacion' => now(),
+            ]);
+
+            \Illuminate\Support\Facades\DB::commit();
+            return response()->json(['success' => true, 'message' => 'Herramienta reasignada correctamente']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json(['error' => 'Error al reasignar: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function bulkReassign(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:herramientas,id',
+            'tecnico_id' => 'required|exists:users,id',
+        ]);
+
+        $ids = $request->input('ids');
+        $tecnicoId = $request->input('tecnico_id');
+        $user = Auth::user();
+        $emisorId = $user->id;
+
+        // Seguridad: Si no es admin/especial, verificar que todas las herramientas le pertenezcan
+        $esEspecial = $user->hasAnyRole(['admin', 'super-admin', 'compras']) || 
+                      $user->email === 'luis@climasdeldesierto.com' || 
+                      $user->email === 'jesus@climasdeldesierto.com';
+
+        if (!$esEspecial) {
+            $count = \App\Models\Herramienta::whereIn('id', $ids)
+                ->where('tecnico_id', $emisorId)
+                ->count();
+            
+            if ($count !== count($ids)) {
+                return redirect()->back()->with('error', 'Una o más herramientas seleccionadas no te pertenecen.');
+            }
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Crear la transferencia principal
+            $transferencia = \App\Models\TransferenciaHerramienta::create([
+                'emisor_id' => $emisorId,
+                'receptor_id' => $tecnicoId,
+                'estado' => 'pendiente',
+                'observaciones' => 'Reasignación masiva iniciada desde panel administrativo.',
+                'empresa_id' => Auth::user()->empresa_id
+            ]);
+
+            // Añadir los items
+            foreach ($ids as $herramientaId) {
+                \App\Models\TransferenciaHerramientaItem::create([
+                    'transferencia_id' => $transferencia->id,
+                    'herramienta_id' => $herramientaId
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Solicitud de reasignación enviada correctamente. El técnico deberá aceptar para completar el proceso.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error en reasignación masiva: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al procesar la reasignación masiva: ' . $e->getMessage());
+        }
+    }
+
+    public function reasignarMasivoApi(Request $request)
+    {
+        $request->validate([
+            'herramientas_ids' => 'required|array',
+            'tecnico_id' => 'required|exists:users,id',
+        ]);
+
+        $ids = $request->input('herramientas_ids');
+        $tecnicoId = $request->input('tecnico_id');
+        $emisorId = Auth::id();
+
+        try {
+            DB::beginTransaction();
+
+            $transferencia = \App\Models\TransferenciaHerramienta::create([
+                'emisor_id' => $emisorId,
+                'receptor_id' => $tecnicoId,
+                'estado' => 'pendiente',
+                'observaciones' => 'Reasignación masiva desde API.',
+                'empresa_id' => Auth::user()->empresa_id
+            ]);
+
+            foreach ($ids as $id) {
+                \App\Models\TransferenciaHerramientaItem::create([
+                    'transferencia_id' => $transferencia->id,
+                    'herramienta_id' => $id
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Solicitud de reasignación masiva enviada correctamente']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error en reasignación masiva: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function historial(Request $request)
+    {
+        $historial = HistorialHerramienta::with(['herramienta', 'tecnico', 'asignadoPor', 'recibidoPor'])
+            ->orderByDesc('created_at')
+            ->paginate(30)
+            ->withQueryString();
+
+        return Inertia::render('Herramientas/Historial', [
+            'historial' => $historial
         ]);
     }
 }

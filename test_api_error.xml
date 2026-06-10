@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Tests\Feature\CitaApiControllerTest" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" tests="9" assertions="16" errors="5" failures="0" skipped="0" time="1.619090">
+    <testcase name="test_api_can_list_citas" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="30" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="0" time="0.352690">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\CitaApiControllerTest::test_api_can_list_citas
+Illuminate\Database\QueryException: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "titulo" of relation "citas" does not exist
+LINE 1: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "...
+                             ^ (Connection: pgsql, SQL: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "cliente_id", "tipo_servicio", "fecha_hora", "descripcion", "tipo_equipo", "marca_equipo", "modelo_equipo", "problema_reportado", "prioridad", "estado", "evidencias", "folio", "updated_at", "created_at") values (Molestias delectus ullam., 8, 328, 2371, Diagnóstico, 2026-04-23 14:29:18, ?, Servidor, Apple, ai-599, Mollitia accusamus minima ea optio dolores quo., urgente, pendiente, [], C001, 2026-04-03 10:53:58, 2026-04-03 10:53:58) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:352
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php:261
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:347
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:307
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:297
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php:32</error>
+    </testcase>
+    <testcase name="test_api_can_create_cita" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="56" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="10" time="0.178726"/>
+    <testcase name="test_api_validates_cita_creation" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="87" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="3" time="0.156996"/>
+    <testcase name="test_api_can_show_cita" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="98" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="0" time="0.166251">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\CitaApiControllerTest::test_api_can_show_cita
+Illuminate\Database\QueryException: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "titulo" of relation "citas" does not exist
+LINE 1: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "...
+                             ^ (Connection: pgsql, SQL: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "cliente_id", "tipo_servicio", "fecha_hora", "descripcion", "tipo_equipo", "marca_equipo", "modelo_equipo", "problema_reportado", "prioridad", "estado", "evidencias", "folio", "updated_at", "created_at") values (Accusantium animi eos blanditiis qui., 8, 336, 2376, Reparación, 2026-04-04 22:29:54, Nihil commodi at ratione praesentium quae eos., Software, Lenovo, te-660, Illo praesentium sunt est possimus sint accusantium., baja, pendiente, [], C001, 2026-04-03 10:53:58, 2026-04-03 10:53:58) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:352
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php:261
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:347
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:303
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:297
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php:100</error>
+    </testcase>
+    <testcase name="test_api_returns_404_for_non_existent_cita" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="122" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="2" time="0.145446"/>
+    <testcase name="test_api_can_update_cita" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="132" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="0" time="0.156924">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\CitaApiControllerTest::test_api_can_update_cita
+Illuminate\Database\QueryException: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "titulo" of relation "citas" does not exist
+LINE 1: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "...
+                             ^ (Connection: pgsql, SQL: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "cliente_id", "tipo_servicio", "fecha_hora", "descripcion", "tipo_equipo", "marca_equipo", "modelo_equipo", "problema_reportado", "prioridad", "estado", "evidencias", "folio", "updated_at", "created_at") values (Totam dolorem dolores sunt., 8, 340, 2378, Actualización, 2026-04-04 01:38:14, Eum occaecati earum nemo accusamus., Software, Acer, vu-492, Ea dolorem est nostrum occaecati beatae consequatur earum., alta, pendiente, [], C001, 2026-04-03 10:53:58, 2026-04-03 10:53:58) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:352
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php:261
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:347
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:303
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:297
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php:134</error>
+    </testcase>
+    <testcase name="test_api_can_delete_cita" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="155" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="0" time="0.149374">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\CitaApiControllerTest::test_api_can_delete_cita
+Illuminate\Database\QueryException: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "titulo" of relation "citas" does not exist
+LINE 1: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "...
+                             ^ (Connection: pgsql, SQL: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "cliente_id", "tipo_servicio", "fecha_hora", "descripcion", "tipo_equipo", "marca_equipo", "modelo_equipo", "problema_reportado", "prioridad", "estado", "evidencias", "folio", "updated_at", "created_at") values (Provident aliquam laudantium., 8, 342, 2379, Actualización, 2026-04-16 10:23:58, Numquam repellendus asperiores tempore quidem beatae aut minima., Software, Dell, kw-169, Explicabo sit corporis nisi est id numquam., baja, pendiente, [], C001, 2026-04-03 10:53:59, 2026-04-03 10:53:59) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:352
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php:261
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:347
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:303
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:297
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php:157</error>
+    </testcase>
+    <testcase name="test_api_validates_fecha_hora_constraints" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="174" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="1" time="0.161779"/>
+    <testcase name="test_api_validates_tecnico_availability" file="/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php" line="193" class="Tests\Feature\CitaApiControllerTest" classname="Tests.Feature.CitaApiControllerTest" assertions="0" time="0.150905">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\CitaApiControllerTest::test_api_validates_tecnico_availability
+Illuminate\Database\QueryException: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "titulo" of relation "citas" does not exist
+LINE 1: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "...
+                             ^ (Connection: pgsql, SQL: insert into "citas" ("titulo", "empresa_id", "tecnico_id", "cliente_id", "tipo_servicio", "fecha_hora", "descripcion", "tipo_equipo", "marca_equipo", "modelo_equipo", "problema_reportado", "prioridad", "estado", "evidencias", "folio", "updated_at", "created_at") values (Nostrum ut quo voluptatibus., 8, 346, 2381, Reparación, 2026-04-04 10:53:59, Tempore repellat doloremque est sint aut soluta., Red, LG, bq-649, Minus enim ipsum quos voluptas suscipit consequatur nemo., baja, pendiente, [], C001, 2026-04-03 10:53:59, 2026-04-03 10:53:59) returning "id")
+
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:779
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:398
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Connection.php:385
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/PostgresProcessor.php:24
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3766
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2120
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1359
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1324
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1163
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:352
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php:261
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:347
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:303
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Factories/Factory.php:297
+/home/vircom/.gemini/antigravity/scratch/climasdeldesierto/tests/Feature/CitaApiControllerTest.php:196</error>
+    </testcase>
+  </testsuite>
+</testsuites>

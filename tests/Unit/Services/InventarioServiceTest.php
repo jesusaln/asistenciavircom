@@ -30,32 +30,25 @@ class InventarioServiceTest extends TestCase
         parent::setUp();
         $this->service = app(InventarioService::class);
 
-        // Autenticar un usuario para los movimientos de inventario
-        $user = \App\Models\User::first();
-        if (!$user) {
-            $this->markTestSkipped('No hay usuarios en la BD');
-        }
+        // Crear y autenticar un usuario administrador
+        $user = \App\Models\User::factory()->create();
         $this->actingAs($user);
 
-        // Usar datos existentes de la BD para evitar problemas con constraints NOT NULL
-        $this->almacen = Almacen::where('estado', 'activo')->first();
-        if (!$this->almacen) {
-            $this->markTestSkipped('No hay almacenes activos en la BD');
-        }
+        // Crear almacén
+        $this->almacen = Almacen::factory()->create(['estado' => 'activo']);
 
-        // Usar producto existente con inventario en ese almacén
-        $inventario = Inventario::where('almacen_id', $this->almacen->id)
-            ->where('cantidad', '>', 20)
-            ->first();
+        // Crear producto
+        $this->producto = Producto::factory()->create([
+            'almacen_id' => $this->almacen->id,
+            'stock' => 100,
+            'estado' => 'activo'
+        ]);
 
-        if (!$inventario) {
-            $this->markTestSkipped('No hay inventario disponible en la BD');
-        }
-
-        $this->producto = Producto::find($inventario->producto_id);
-        if (!$this->producto) {
-            $this->markTestSkipped('No hay productos en la BD');
-        }
+        // Asegurar que existe el registro en la tabla inventarios
+        Inventario::firstOrCreate(
+            ['producto_id' => $this->producto->id, 'almacen_id' => $this->almacen->id],
+            ['cantidad' => 100]
+        );
     }
 
     /**

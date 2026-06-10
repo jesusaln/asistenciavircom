@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('tickets', function (Blueprint $table) {
-            $table->string('origen')->default('sistema')->after('prioridad')->index();
-        });
+        if (!Schema::hasColumn('tickets', 'origen')) {
+            Schema::table('tickets', function (Blueprint $table) {
+                $table->string('origen')->default('sistema')->after('prioridad')->index();
+            });
+        }
     }
 
     /**

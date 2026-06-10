@@ -1,11 +1,11 @@
 <template>
-    <div class="min-h-screen bg-gray-100 py-12">
+    <div class="min-h-screen bg-[var(--ui-surface)] py-12">
         <div class="w-full sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded p-6">
                 <h1 class="text-2xl font-bold mb-6">Test de Carga de Imágenes</h1>
 
                 <!-- Información del servidor -->
-                <div class="mb-8 p-4 bg-gray-100 rounded">
+                <div class="mb-8 p-4 bg-slate-100 rounded-xl">
                     <h2 class="text-lg font-semibold mb-2">Información del Servidor</h2>
                     <p><strong>Host:</strong> {{ serverInfo.host }}:{{ serverInfo.port }}</p>
                     <p><strong>Origin:</strong> {{ serverInfo.origin || 'No origin' }}</p>
@@ -16,24 +16,24 @@
                 <div class="mb-8">
                     <h2 class="text-lg font-semibold mb-4">Imágenes Disponibles ({{ images.length }})</h2>
 
-                    <div v-if="images.length === 0" class="text-gray-500 dark:text-gray-400">
+                    <div v-if="images.length === 0" class="text-slate-500">
                         No hay imágenes disponibles
                     </div>
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div v-for="image in images" :key="image.filename"
-                             class="border rounded-lg p-4 bg-white dark:bg-slate-900">
+                             class="border rounded-xl p-4 bg-white">
                             <div class="mb-3">
                                 <img :src="image.url"
                                      :alt="image.filename"
-                                     class="w-full h-32 object-cover rounded border"
+                                     class="w-full h-32 object-cover rounded-xl border"
                                      @error="handleImageError"
                                      @load="handleImageLoad">
                             </div>
                             <h3 class="font-medium text-sm">{{ image.filename }}</h3>
-                            <p class="text-xs text-gray-600 dark:text-gray-300">Tamaño: {{ formatFileSize(image.size) }}</p>
-                            <p class="text-xs text-gray-600 dark:text-gray-300">Tipo: {{ image.mime_type }}</p>
-                            <p class="text-xs" :class="image.exists ? 'text-green-600' : 'text-red-600'">
+                            <p class="text-xs text-slate-500">Tamaño: {{ formatFileSize(image.size) }}</p>
+                            <p class="text-xs text-slate-500">Tipo: {{ image.mime_type }}</p>
+                            <p class="text-xs" :class="image.exists ? 'text-emerald-600' : 'text-rose-600'">
                                 {{ image.exists ? '✅ Existe' : '❌ No existe' }}
                             </p>
                         </div>
@@ -41,7 +41,7 @@
                 </div>
 
                 <!-- URLs alternativas -->
-                <div class="mb-8 p-4 bg-blue-50 rounded">
+                <div class="mb-8 p-4 bg-sky-50 dark:bg-sky-900/20 rounded-xl">
                     <h2 class="text-lg font-semibold mb-2">URLs de Prueba</h2>
                     <div class="space-y-2 text-sm">
                         <div>
@@ -60,12 +60,12 @@
                 </div>
 
                 <!-- Logs de eventos -->
-                <div class="p-4 bg-gray-100 rounded">
+                <div class="p-4 bg-slate-100 rounded-xl">
                     <h2 class="text-lg font-semibold mb-2">Logs de Eventos</h2>
-                    <div class="max-h-32 overflow-y-auto text-sm font-mono">
+                    <div class="max-h-32 overflow-y-auto custom-scrollbar text-sm font-mono">
                         <div v-for="(log, index) in eventLogs" :key="index" class="mb-1">
-                            <span class="text-gray-600 dark:text-gray-300">{{ log.time }}</span>
-                            <span class="ml-2" :class="log.type === 'error' ? 'text-red-600' : 'text-green-600'">
+                            <span class="text-slate-500">{{ log.time }}</span>
+                            <span class="ml-2" :class="log.type === 'error' ? 'text-rose-600' : 'text-emerald-600'">
                                 {{ log.message }}
                             </span>
                         </div>
@@ -77,6 +77,7 @@
 </template>
 
 <script>
+import { useFormatters } from '@/Composables/useFormatters';
 export default {
     name: 'TestImages',
     data() {
@@ -97,7 +98,7 @@ export default {
         },
         newImageUrl() {
             const existingImage = this.images[0];
-            return existingImage ? existingImage.url : `${window.location.origin}/profile-photo/nonexistent.png`;
+            return existingImage ? existingImage.url : `${window.location.origin}/profile-photo/nonexistent.webp`;
         }
     },
     async mounted() {

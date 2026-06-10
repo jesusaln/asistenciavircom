@@ -105,6 +105,7 @@ class StockValidationService
      */
     public function validateKitStock(Producto $kit, int $cantidadKits, int $almacenId, array $componentesSeries = []): array
     {
+        $kit->loadMissing('kitItems.item');
         $errors = [];
         $empresaId = EmpresaResolver::resolveId();
 
@@ -320,6 +321,7 @@ class StockValidationService
      */
     private function validateAndLockKitStock(Producto $kit, int $cantidadKits, int $almacenId, array $componentesSeries = []): array
     {
+        $kit->loadMissing('kitItems.item');
         $empresaId = EmpresaResolver::resolveId();
         $errors = [];
 
@@ -560,16 +562,19 @@ class StockValidationService
     }
 
     /**
-     * Calculate historical cost using FIFO method
-     * ✅ HIGH PRIORITY FIX: Enhanced validation and logging
+     * Calculate historical unit cost for a given quantity.
+     * Uses promedio ponderado (ventas.metodo_costo_historico = 'promedio').
      */
-    public function calcularCostoHistorico(Producto $producto, int $cantidad, int $almacenId): float
+    public function calcularCostoHistorico(Producto $producto, float $cantidad, int $almacenId): float
     {
         $empresaId = EmpresaResolver::resolveId();
-        // If product does not expire, calculate historical cost with warehouse filter
-        if (!$producto->expires) {
-            $costo = $producto->precio_compra ?? 0;
 
+        if (!$producto->expires) {
+            if (method_exists($producto, 'calcularCostoHistorico')) {
+                return $producto->calcularCostoHistorico(null, $almacenId);
+            }
+
+            $costo = $producto->precio_compra ?? 0;
             if ($costo <= 0) {
                 Log::warning("Producto sin precio de compra definido", [
                     'producto_id' => $producto->id,
@@ -577,17 +582,10 @@ class StockValidationService
                     'almacen_id' => $almacenId,
                 ]);
             }
-
-            // ✅ IMPROVEMENT: Use warehouse-filtered historical cost calculation
-            // This ensures costs are calculated per warehouse for non-expiring products
-            if (method_exists($producto, 'calcularCostoHistorico')) {
-                return $producto->calcularCostoHistorico($cantidad, $almacenId);
-            }
-
             return $costo;
         }
 
-        // Get inventory movements for this product in this warehouse
+        // Productos con lotes: FIFO por fecha de caducidad
         $lotes = DB::table('lotes')
             ->where('producto_id', $producto->id)
             ->where('almacen_id', $almacenId)

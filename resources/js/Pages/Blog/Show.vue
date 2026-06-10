@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { Head, Link } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
@@ -235,11 +236,11 @@ onUnmounted(() => {
         </component>
     </Head>
     
-    <div :style="cssVars" class="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans transition-colors duration-500 relative">
+    <div :style="cssVars" class="min-h-screen bg-[var(--ui-surface)] flex flex-col font-sans transition-colors duration-500 relative">
         <!-- Reading Progress Bar -->
         <div class="fixed top-0 left-0 w-full h-1 z-[100] bg-transparent">
             <div 
-                class="h-full bg-[var(--color-primary)] transition-all duration-100 ease-out shadow-[0_0_10px_var(--color-primary)]"
+                class="h-full bg-[var(--color-primary)] transition-all duration-150 ease-out shadow-[0_0_10px_var(--color-primary)]"
                 :style="{ width: `${scrollProgress}%` }"
             ></div>
         </div>
@@ -248,7 +249,7 @@ onUnmounted(() => {
 
         <main class="flex-grow">
             <!-- Hero / Post Header -->
-            <header class="relative pt-20 pb-12 overflow-hidden bg-slate-50 dark:bg-slate-900 transition-colors">
+            <header class="relative pt-20 pb-12 overflow-hidden bg-[var(--ui-surface)] transition-colors">
                 <!-- Background Decoration -->
                 <div class="absolute inset-0 opacity-40 pointer-events-none">
                     <div class="absolute -top-24 -right-24 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[120px] opacity-10"></div>
@@ -256,7 +257,7 @@ onUnmounted(() => {
 
                 <div class="max-w-4xl mx-auto px-4 relative z-10">
                     <!-- Breadcrumbs -->
-                    <nav class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-8 overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
+                    <nav class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-8 overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
                         <Link :href="route('landing')" class="hover:text-[var(--color-primary)] transition-colors">Inicio</Link>
                         <FontAwesomeIcon icon="chevron-right" class="text-[8px]" />
                         <Link :href="route('public.blog.index')" class="hover:text-[var(--color-primary)] transition-colors">Blog</Link>
@@ -265,7 +266,7 @@ onUnmounted(() => {
                     </nav>
 
                     <div class="mb-6">
-                        <span class="bg-[var(--color-primary)] text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-lg shadow-[var(--color-primary)]/20">
+                        <span class="bg-[var(--color-primary)] text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-xl shadow-[var(--color-primary)]/20">
                             {{ post.categoria || 'Especializado' }}
                         </span>
                     </div>
@@ -274,21 +275,21 @@ onUnmounted(() => {
                         {{ post.titulo }}
                     </h1>
 
-                    <div class="flex flex-wrap items-center gap-8 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-8 mt-2">
+                    <div class="flex flex-wrap items-center gap-8 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-8 mt-2">
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-[var(--color-primary-soft)] flex items-center justify-center text-[var(--color-primary)]">
+                            <div class="w-10 h-10 rounded-full bg-[var(--color-primary-soft)] flex items-center justify-center text-[var(--color-primary)]">
                                 <FontAwesomeIcon icon="calendar-alt" />
                             </div>
                             {{ formatDate(post.publicado_at) }}
                         </div>
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[var(--color-primary)]">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[var(--color-primary)]">
                                 <FontAwesomeIcon icon="eye" />
                             </div>
                             {{ post.visitas }} visitas
                         </div>
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[var(--color-primary)]">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[var(--color-primary)]">
                                 <FontAwesomeIcon icon="clock" />
                             </div>
                             {{ post.tiempo_lectura }} de lectura
@@ -296,10 +297,10 @@ onUnmounted(() => {
                         
                         <div class="flex items-center gap-4 ml-auto">
                             <span class="opacity-50 hidden sm:inline">Compartir:</span>
-                            <button @click="shareToFacebook" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                            <button @click="shareToFacebook" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                 <FontAwesomeIcon :icon="['fab', 'facebook-f']" />
                             </button>
-                            <button @click="shareToTwitter" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-black hover:text-white transition-all shadow-sm">
+                            <button @click="shareToTwitter" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-black hover:text-white transition-all shadow-sm">
                                 <FontAwesomeIcon :icon="['fab', 'x-twitter']" />
                             </button>
                         </div>
@@ -312,13 +313,13 @@ onUnmounted(() => {
                 
                 <!-- Floating Shares (Desktop Left) -->
                 <div class="hidden xl:flex flex-col gap-4 fixed left-8 top-1/3 z-20">
-                    <button @click="shareToFacebook" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 text-[#1877F2] hover:scale-110 transition-transform shadow-lg flex items-center justify-center border border-slate-100 dark:border-slate-700" title="Compartir en Facebook">
+                    <button @click="shareToFacebook" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 text-[#1877F2] hover:scale-105 transition-transform shadow-xl flex items-center justify-center border border-slate-100 dark:border-slate-700" title="Compartir en Facebook">
                         <FontAwesomeIcon :icon="['fab', 'facebook-f']" />
                     </button>
-                    <button @click="shareToTwitter" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 text-black dark:text-white hover:scale-110 transition-transform shadow-lg flex items-center justify-center border border-slate-100 dark:border-slate-700" title="Compartir en X">
+                    <button @click="shareToTwitter" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 text-black dark:text-white hover:scale-105 transition-transform shadow-xl flex items-center justify-center border border-slate-100 dark:border-slate-700" title="Compartir en X">
                         <FontAwesomeIcon :icon="['fab', 'x-twitter']" />
                     </button>
-                    <button @click="copyLink" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 text-slate-500 hover:scale-110 transition-transform shadow-lg flex items-center justify-center border border-slate-100 dark:border-slate-700" title="Copiar Enlace">
+                    <button @click="copyLink" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 text-slate-500 hover:scale-105 transition-transform shadow-xl flex items-center justify-center border border-slate-100 dark:border-slate-700" title="Copiar Enlace">
                         <FontAwesomeIcon icon="link" />
                     </button>
                 </div>
@@ -338,7 +339,7 @@ onUnmounted(() => {
                                prose-headings:font-black prose-headings:tracking-tight 
                                prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:scroll-mt-24
                                prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:scroll-mt-24
-                               prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:text-xl
+                               prose-p:text-slate-500 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-p:text-xl
                                prose-a:text-[var(--color-primary)] prose-a:no-underline hover:prose-a:underline
                                prose-img:rounded-3xl prose-img:shadow-xl
                                prose-strong:text-slate-900 dark:prose-strong:text-white
@@ -352,17 +353,17 @@ onUnmounted(() => {
                     <footer class="mt-20 pt-16 border-t border-slate-100 dark:border-slate-800">
                         <!-- CTA Card -->
                         <div class="bg-slate-900 dark:bg-slate-800 rounded-[3.5rem] p-10 lg:p-14 text-white relative overflow-hidden group">
-                            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-[var(--color-primary)] rounded-full blur-[100px] opacity-20 group-hover:scale-125 transition-transform duration-1000"></div>
+                            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-[var(--color-primary)] rounded-full blur-[100px] opacity-20 group-hover:scale-125 transition-transform duration-700"></div>
                             
                             <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                                 <div class="text-center md:text-left max-w-md">
                                     <span class="text-[var(--color-primary)] font-black text-[10px] uppercase tracking-[0.3em] mb-4 block">Asesoría Profesional</span>
-                                    <h3 class="text-3xl font-black mb-4 leading-tight">¿Necesitas asesoría técnica?</h3>
+                                    <h3 class="text-2xl font-black mb-4 leading-tight">¿Necesitas asesoría técnica?</h3>
                                     <p class="text-slate-400 font-medium">Contáctanos hoy mismo y uno de nuestros instaladores expertos te ayudará con tus equipos Inverter.</p>
                                 </div>
                                 
                                 <a :href="`https://wa.me/${empresa.whatsapp?.replace(/\\D/g, '')}`" 
-                                   class="bg-[var(--color-primary)] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[var(--color-primary-dark)] transition-all flex items-center gap-4 shadow-xl shadow-[var(--color-primary)]/20 hover:scale-105 active:scale-95 whitespace-nowrap"
+                                   class="bg-[var(--color-primary)] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-wide hover:bg-[var(--color-primary-dark)] transition-all flex items-center gap-4 shadow-xl shadow-[var(--color-primary)]/20 hover:scale-105 active:scale-95 whitespace-nowrap"
                                 >
                                     <FontAwesomeIcon :icon="['fab', 'whatsapp']" class="text-xl" />
                                     Hablar con un Experto
@@ -374,17 +375,17 @@ onUnmounted(() => {
 
                 <!-- Sidebar (Table of Contents) -->
                 <aside class="hidden lg:block">
-                    <div class="sticky top-32 space-y-8">
+                    <div class="sticky top-32 space-y-6">
                         <!-- TOC Widget -->
-                        <div v-if="toc.length > 0" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none animate-fade-in-up">
-                            <h4 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                        <div v-if="toc.length > 0" class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none animate-fade-in-up">
+                            <h4 class="text-xs font-black uppercase tracking-wide text-slate-400 mb-6 flex items-center gap-2">
                                 <FontAwesomeIcon icon="list-ul" />
                                 Contenido
                             </h4>
                             <nav class="space-y-1 relative">
                                 <!-- Marker -->
                                 <div 
-                                    class="absolute left-0 w-0.5 bg-[var(--color-primary)] transition-all duration-300 ease-out"
+                                    class="absolute left-0 w-0.5 bg-[var(--color-primary)] transition-all duration-200 ease-out"
                                     :style="{ top: markerTop + 'px', height: markerHeight + 'px' }"
                                 ></div>
 
@@ -393,11 +394,11 @@ onUnmounted(() => {
                                     :key="item.id"
                                     :href="`#${item.id}`"
                                     @click.prevent="scrollToHeading(item.id)"
-                                    class="block pl-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-100 dark:border-slate-800 hover:text-[var(--color-primary)] hover:border-slate-300"
+                                    class="block pl-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-100 dark:border-slate-800 hover:text-[var(--color-primary)] hover:border-brand-500"
                                     :class="[
                                         activeHeadingId === item.id 
                                             ? 'text-[var(--color-primary)]' 
-                                            : 'text-slate-600 dark:text-slate-400'
+                                            : 'text-slate-500 dark:text-slate-400'
                                     ]"
                                     :data-id="item.id"
                                 >
@@ -413,7 +414,7 @@ onUnmounted(() => {
             <section v-if="relacionados.length > 0" class="max-w-7xl mx-auto px-4 pb-24 border-t border-slate-100 dark:border-slate-800 pt-20">
                 <div class="flex items-center justify-between mb-10">
                     <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Artículos Relacionados</h3>
-                    <Link :href="route('public.blog.index')" class="text-[var(--color-primary)] text-xs font-black uppercase tracking-widest hover:underline">Ver Todo →</Link>
+                    <Link :href="route('public.blog.index')" class="text-[var(--color-primary)] text-xs font-black uppercase tracking-wide hover:underline">Ver Todo →</Link>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -422,14 +423,14 @@ onUnmounted(() => {
                             <div class="relative aspect-video rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800 mb-6 shadow-sm group-hover:shadow-xl transition-all duration-500">
                                 <img v-if="rel.imagen_portada_url" 
                                      :src="rel.imagen_portada_url" 
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                 >
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
                             <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 leading-tight">
                                 {{ rel.titulo }}
                             </h4>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">{{ rel.categoria }}</p>
+                            <p class="text-[10px] font-black uppercase tracking-wide text-slate-400 mt-2">{{ rel.categoria }}</p>
                         </Link>
                     </article>
                 </div>

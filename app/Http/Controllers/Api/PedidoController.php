@@ -13,37 +13,40 @@ class PedidoController extends Controller
     /**
      * Muestra una lista de todos los pedidos en formato JSON.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $pedidos = Pedido::with(['cliente', 'productos', 'servicios'])->get()->map(function ($pedido) {
-                $items = collect($pedido->productos->map(function ($producto) {
-                    return [
-                        'id' => $producto->id,
-                        'nombre' => $producto->nombre,
-                        'tipo' => 'producto',
-                        'cantidad' => $producto->pivot->cantidad,
-                        'precio' => $producto->pivot->precio,
-                    ];
-                }))->merge(collect($pedido->servicios->map(function ($servicio) {
-                    return [
-                        'id' => $servicio->id,
-                        'nombre' => $servicio->nombre,
-                        'tipo' => 'servicio',
-                        'cantidad' => $servicio->pivot->cantidad,
-                        'precio' => $servicio->pivot->precio,
-                    ];
-                })));
+            $query = Pedido::with(['cliente'])->orderByDesc('created_at');
 
+            if ($request->filled('estado')) {
+                $query->where('estado', $request->estado);
+            }
+
+            $perPage = (int) $request->query('per_page', 15);
+            $paginator = $query->paginate(max(1, $perPage));
+
+            $items = collect($paginator->items())->map(function ($pedido) {
                 return [
                     'id' => $pedido->id,
                     'cliente' => $pedido->cliente,
-                    'items' => $items,
                     'total' => $pedido->total,
+                    'estado' => $pedido->estado,
+                    'created_at' => $pedido->created_at,
                 ];
             });
 
-            return response()->json($pedidos, 200);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'items' => $items->values(),
+                    'pagination' => [
+                        'current_page' => $paginator->currentPage(),
+                        'last_page' => $paginator->lastPage(),
+                        'per_page' => $paginator->perPage(),
+                        'total' => $paginator->total(),
+                    ],
+                ]
+            ], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener los pedidos: ' . $e->getMessage()], 500);
         }
@@ -139,7 +142,7 @@ class PedidoController extends Controller
                 ];
             }
 
-            $iva = $subtotal * 0.16;
+            $iva = $subtotal * (\App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100);
             $total = $subtotal + $iva;
 
             $pedido = Pedido::create([
@@ -242,7 +245,7 @@ class PedidoController extends Controller
                     }
                 }
 
-                $iva = $subtotal * 0.16;
+                $iva = $subtotal * (\App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100);
                 $total = $subtotal + $iva;
 
                 $pedido->update([

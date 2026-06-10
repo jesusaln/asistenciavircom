@@ -180,7 +180,7 @@ class ReporteController extends Controller
 
         Reporte::create($validated);
 
-        return redirect()->route('reportes.index')->with('success', 'Reporte creado exitosamente.');
+        return redirect()->route('panel')->with('success', 'Reporte creado exitosamente.');
     }
 
     public function show(Reporte $reporte)
@@ -203,13 +203,13 @@ class ReporteController extends Controller
 
         $reporte->update($validated);
 
-        return redirect()->route('reportes.index')->with('success', 'Reporte actualizado exitosamente.');
+        return redirect()->route('panel')->with('success', 'Reporte actualizado exitosamente.');
     }
 
     public function destroy(Reporte $reporte)
     {
         $reporte->delete();
-        return redirect()->route('reportes.index')->with('success', 'Reporte eliminado exitosamente.');
+        return redirect()->route('panel')->with('success', 'Reporte eliminado exitosamente.');
     }
 
     /**
@@ -523,9 +523,11 @@ class ReporteController extends Controller
     {
         $this->logReportAccess($request, 'productos_para_comprar');
 
+        $categoriaId = $request->get('categoria_id');
+
         // Productos que tienen stock <= a su stock_minimo (o <= 5 si no tienen stock_minimo)
         // Y además priorizando los que han vendido más unidades
-        $productos = \Illuminate\Support\Facades\DB::table('productos')
+        $query = \Illuminate\Support\Facades\DB::table('productos')
             ->selectRaw('
                 productos.id,
                 productos.nombre,
@@ -534,30 +536,46 @@ class ReporteController extends Controller
                 productos.stock_minimo,
                 productos.precio_compra,
                 productos.precio_venta,
+                productos.categoria_id,
+                categorias.nombre as categoria_nombre,
                 COALESCE(SUM(venta_items.cantidad), 0) as total_vendido
             ')
+            ->leftJoin('categorias', 'productos.categoria_id', '=', 'categorias.id')
             ->leftJoin('venta_items', function ($join) {
                 $join->on('productos.id', '=', 'venta_items.ventable_id')
                      ->where('venta_items.ventable_type', '=', 'App\Models\Producto');
             })
             ->where('productos.estado', 'activo')
             ->where('productos.tipo_producto', '!=', 'kit')
-            ->whereRaw('productos.stock <= COALESCE(productos.stock_minimo, 5)')
-            ->groupBy(
+            ->whereRaw('productos.stock <= COALESCE(productos.stock_minimo, 5)');
+
+        if ($categoriaId) {
+            $query->where('productos.categoria_id', $categoriaId);
+        }
+
+        $productos = $query->groupBy(
                 'productos.id',
                 'productos.nombre',
                 'productos.codigo',
                 'productos.stock',
                 'productos.stock_minimo',
                 'productos.precio_compra',
-                'productos.precio_venta'
+                'productos.precio_venta',
+                'productos.categoria_id',
+                'categorias.nombre'
             )
             ->orderByDesc('total_vendido')
             ->orderBy('productos.stock')
             ->get();
 
+        $categorias = \App\Models\Categoria::select('id', 'nombre')->orderBy('nombre')->get();
+
         return Inertia::render('Reportes/ProductosParaComprar', [
-            'productos' => $productos
+            'productos' => $productos,
+            'categorias' => $categorias,
+            'filtros' => [
+                'categoria_id' => $categoriaId,
+            ]
         ]);
     }
 
@@ -1611,6 +1629,187 @@ class ReporteController extends Controller
                     'backgroundColor' => '#36A2EB',
                     'data' => $data
                 ]
+            ]
+        ]);
+    }
+
+    /**
+     * Reporte de ventas y utilidad detallado por periodo
+     */
+    public function reporteVentasUtilidad(Request $request)
+    {
+        $this->logReportAccess($request, 'ventas_utilidad', $request->only(['fecha_inicio', 'fecha_fin']));
+
+        $fechaInicioStr = $request->get('fecha_inicio');
+        $fechaFinStr = $request->get('fecha_fin');
+
+        // Si están vacíos o no vienen, usar valores por defecto
+        if (empty($fechaInicioStr)) $fechaInicioStr = now()->startOfMonth()->format('Y-m-d');
+        if (empty($fechaFinStr)) $fechaFinStr = now()->endOfMonth()->format('Y-m-d');
+
+        // Definir límites en horario local (Hermosillo)
+        $start = Carbon::createFromFormat('Y-m-d', $fechaInicioStr)->startOfDay();
+        $end = Carbon::createFromFormat('Y-m-d', $fechaFinStr)->endOfDay();
+
+        // Convertir a UTC para la consulta (ya que la DB almacena en UTC según el cast)
+        $startUtc = $start->copy()->setTimezone('UTC')->toDateTimeString();
+        $endUtc = $end->copy()->setTimezone('UTC')->toDateTimeString();
+
+        // Obtener ventas en el periodo (solo aprobadas/completadas para ver utilidad real)
+        $ventas = Venta::with(['cliente', 'vendedor', 'items.ventable'])
+            ->whereBetween('fecha', [$startUtc, $endUtc])
+            ->where('estado', '!=', 'cancelada')
+            ->orderBy('fecha', 'desc')
+            ->get();
+
+        // Calcular totales y desgloses
+        $totalProductos = 0;
+        $totalServicios = 0;
+        $costoProductosTotal = 0;
+        $costoServiciosTotal = 0;
+
+        $registrosCostos = [];
+
+        foreach ($ventas as $v) {
+            $costoProdVenta = 0;
+            $costoServVenta = 0;
+            $ventaProdVenta = 0;
+            $ventaServVenta = 0;
+
+            // Identificar componentes de Kits en la venta
+            $kitComponentIds = [];
+            foreach ($v->items as $item) {
+                if ($item->ventable_type === 'App\Models\Producto' && $item->ventable && $item->ventable->esKit()) {
+                    foreach ($item->ventable->kitItems as $kitItem) {
+                        $kitComponentIds[] = $kitItem->item_id;
+                    }
+                }
+            }
+
+            foreach ($v->items as $item) {
+                $subtotalItem = $item->subtotal !== null ? (float)$item->subtotal : (float)(($item->precio * (1 - ($item->descuento ?? 0) / 100)) * $item->cantidad);
+
+                if ($item->ventable_type === 'App\Models\Servicio') {
+                    $totalServicios += $subtotalItem;
+                    $ventaServVenta += $subtotalItem;
+
+                    $servicio = $item->ventable;
+                    $margenGanancia = $servicio ? (float)($servicio->margen_ganancia ?? 0) : 0;
+                    $precioVentaNeto = $item->precio * (1 - ($item->descuento ?? 0) / 100);
+                    $costoServicio = $precioVentaNeto * (1 - $margenGanancia / 100);
+                    
+                    $costoServVenta += $costoServicio * $item->cantidad;
+                } else {
+                    if ($item->precio == 0 && in_array($item->ventable_id, $kitComponentIds)) {
+                        continue;
+                    }
+
+                    $totalProductos += $subtotalItem;
+                    $ventaProdVenta += $subtotalItem;
+
+                    if ($item->costo_unitario && $item->costo_unitario > 0) {
+                        $costo = (float)$item->costo_unitario;
+                    } else {
+                        $producto = $item->ventable;
+                        if ($producto) {
+                            $costo = $producto->esKit()
+                                ? (float)$producto->calcularCostoKit(1, $v->almacen_id)
+                                : (float)($producto->precio_compra ?? 0);
+                        } else {
+                            $costo = 0;
+                        }
+                    }
+
+                    $costoProdVenta += $costo * $item->cantidad;
+                }
+            }
+
+            $costoProductosTotal += $costoProdVenta;
+            $costoServiciosTotal += $costoServVenta;
+
+            $registrosCostos[$v->id] = [
+                'costo_productos' => round($costoProdVenta, 2),
+                'costo_servicios' => round($costoServVenta, 2),
+                'venta_productos' => round($ventaProdVenta, 2),
+                'venta_servicios' => round($ventaServVenta, 2),
+            ];
+        }
+
+        $costoProductosTotal = round($costoProductosTotal, 2);
+        $costoServiciosTotal = round($costoServiciosTotal, 2);
+        $totalProductos = round($totalProductos, 2);
+        $totalServicios = round($totalServicios, 2);
+        $costoTotal = round($costoProductosTotal + $costoServiciosTotal, 2);
+
+        $registros = $ventas->map(function($v) use ($registrosCostos) {
+            $costoInfo = $registrosCostos[$v->id] ?? [
+                'costo_productos' => 0.0,
+                'costo_servicios' => 0.0,
+                'venta_productos' => 0.0,
+                'venta_servicios' => 0.0,
+            ];
+            $costo = round($costoInfo['costo_productos'] + $costoInfo['costo_servicios'], 2);
+            $utilidad = round((float)$v->subtotal - (float)$costo, 2);
+            $margen = $v->subtotal > 0 ? ($utilidad / $v->subtotal) * 100 : 0;
+
+            $tieneServicios = $v->items->contains(fn($item) => $item->ventable_type === 'App\Models\Servicio');
+            $tieneProductos = $v->items->contains(fn($item) => $item->ventable_type === 'App\Models\Producto');
+
+            return [
+                'id' => $v->id,
+                'fecha' => $v->fecha->toIso8601String(),
+                'numero_venta' => $v->numero_venta,
+                'cliente' => $v->cliente->nombre_razon_social ?? 'Público General',
+                'vendedor' => $v->vendedor->name ?? 'Sistema',
+                'total' => (float)$v->total,
+                'subtotal' => (float)$v->subtotal,
+                'iva' => (float)$v->iva,
+                'costo' => (float)$costo,
+                'costo_productos' => (float)$costoInfo['costo_productos'],
+                'costo_servicios' => (float)$costoInfo['costo_servicios'],
+                'utilidad' => (float)$utilidad,
+                'utilidad_productos' => round((float)($costoInfo['venta_productos'] - $costoInfo['costo_productos']), 2),
+                'utilidad_servicios' => round((float)($costoInfo['venta_servicios'] - $costoInfo['costo_servicios']), 2),
+                'margen' => round($margen, 2),
+                'pagado' => (bool)$v->pagado,
+                'metodo_pago' => $v->metodo_pago,
+                'tiene_servicios' => $tieneServicios,
+                'tiene_productos' => $tieneProductos,
+                'items' => $v->items->map(fn($it) => [
+                    'nombre' => $it->ventable->nombre ?? $it->descripcion,
+                    'cantidad' => $it->cantidad,
+                    'precio' => (float)$it->precio,
+                    'subtotal' => $it->subtotal !== null ? round((float)$it->subtotal, 2) : round((float)(($it->precio * (1 - ($it->descuento ?? 0) / 100)) * $it->cantidad), 2),
+                    'tipo' => $it->ventable_type === 'App\Models\Servicio' ? 'Servicio' : 'Producto',
+                ]),
+            ];
+        });
+
+        $utilidadTotal = round($registros->sum('utilidad'), 2);
+        $montoSubtotalTotal = round($registros->sum('subtotal'), 2);
+        $montoIvaTotal = round($registros->sum('iva'), 2);
+        $montoTotalConIva = round($registros->sum('total'), 2);
+
+        return Inertia::render('Reportes/VentasUtilidad', [
+            'registros' => $registros,
+            'resumen' => [
+                'total_ventas' => $ventas->count(),
+                'monto_total' => (float)$montoSubtotalTotal,
+                'monto_iva' => (float)$montoIvaTotal,
+                'monto_con_iva' => (float)$montoTotalConIva,
+                'total_productos' => (float)$totalProductos,
+                'total_servicios' => (float)$totalServicios,
+                'costo_total' => (float)$costoTotal,
+                'costo_productos' => (float)$costoProductosTotal,
+                'costo_servicios' => (float)$costoServiciosTotal,
+                'utilidad_total' => (float)$utilidadTotal,
+                'utilidad_productos' => round((float)($totalProductos - $costoProductosTotal), 2),
+                'utilidad_servicios' => round((float)($totalServicios - $costoServiciosTotal), 2),
+                'margen_promedio' => $montoSubtotalTotal > 0 ? round(($utilidadTotal / $montoSubtotalTotal) * 100, 2) : 0,
+            ],
+            'filtros' => [
+                'fecha_inicio' => $fechaInicioStr,
+                'fecha_fin' => $fechaFinStr,
             ]
         ]);
     }

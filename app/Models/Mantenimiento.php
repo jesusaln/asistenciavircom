@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Carbon\Carbon;
 
 class Mantenimiento extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected static function booted()
@@ -21,6 +24,9 @@ class Mantenimiento extends Model
                     \Illuminate\Support\Facades\Log::error('Error generating folio for mantenimiento: ' . $e->getMessage());
                 }
             }
+            if (empty($mantenimiento->fecha_programada) && !empty($mantenimiento->fecha)) {
+                $mantenimiento->fecha_programada = $mantenimiento->fecha;
+            }
         });
     }
 
@@ -29,6 +35,7 @@ class Mantenimiento extends Model
         'carro_id',
         'tipo',
         'fecha',
+        'fecha_programada',
         'proximo_mantenimiento',
         'descripcion',
         'notas',
@@ -40,10 +47,17 @@ class Mantenimiento extends Model
         'dias_anticipacion_alerta',
         'requiere_aprobacion',
         'observaciones_alerta',
+        'alerta_enviada',
+        'recordatorios_enviados',
+        'proximo_kilometraje',
+        'km_anticipacion_alerta',
+        'frecuencia_recordatorio_dias',
+        'tecnico_id',
     ];
 
     protected $casts = [
         'fecha' => 'date',
+        'fecha_programada' => 'date',
         'proximo_mantenimiento' => 'date',
         'costo' => 'decimal:2',
         'kilometraje_actual' => 'integer',
@@ -51,18 +65,16 @@ class Mantenimiento extends Model
         'requiere_aprobacion' => 'boolean',
     ];
 
-    // Estados del mantenimiento
     const ESTADO_PENDIENTE = 'pendiente';
     const ESTADO_EN_PROCESO = 'en_proceso';
     const ESTADO_COMPLETADO = 'completado';
+    const ESTADO_CANCELADO = 'cancelado';
 
-    // Prioridades
     const PRIORIDAD_BAJA = 'baja';
     const PRIORIDAD_MEDIA = 'media';
     const PRIORIDAD_ALTA = 'alta';
     const PRIORIDAD_CRITICA = 'critica';
 
-    // Tipos de mantenimiento
     const TIPOS = [
         'Cambio de aceite',
         'Revisión periódica',
@@ -77,112 +89,164 @@ class Mantenimiento extends Model
         'Otro servicio'
     ];
 
-    /**
-     * Relación con el modelo Carro
-     */
+    const TIPOS_RECURRENTES = [
+        'Cambio de aceite',
+        'Revisión periódica',
+        'Alineación y balanceo',
+        'Cambio de filtros'
+    ];
+
+    const INTERVALOS_RECURRENTES = [
+        'Cambio de aceite' => 180,
+        'Revisión periódica' => 365,
+        'Alineación y balanceo' => 180,
+        'Cambio de filtros' => 365,
+    ];
+
+    const COSTOS_SUGERIDOS = [
+        'Cambio de aceite' => 800.00,
+        'Revisión periódica' => 1200.00,
+        'Alineación y balanceo' => 800.00,
+        'Cambio de filtros' => 400.00,
+    ];
+
+    const DIAS_MINIMOS_ENTRE_SERVICIOS = [
+        'Cambio de aceite' => 30,
+        'Revisión periódica' => 90,
+        'Servicio de frenos' => 180,
+        'Servicio de llantas' => 60,
+        'Servicio de batería' => 180,
+        'Servicio de motor' => 365,
+        'Revisión de luces' => 90,
+        'Alineación y balanceo' => 90,
+        'Cambio de filtros' => 60,
+        'Revisión de transmisión' => 365,
+        'Otro servicio' => 7,
+    ];
+
+    const KM_INTERVALOS_RECURRENTES = [
+        'Cambio de aceite' => 10000,
+        'Revisión periódica' => 15000,
+        'Alineación y balanceo' => 20000,
+        'Cambio de filtros' => 20000,
+    ];
+
+    const DIAS_ALERTA_POR_PRIORIDAD = [
+        self::PRIORIDAD_CRITICA => 45,
+        self::PRIORIDAD_ALTA => 30,
+        self::PRIORIDAD_MEDIA => 15,
+        self::PRIORIDAD_BAJA => 7,
+    ];
+
+    const ESTADOS_VALIDOS = [
+        self::ESTADO_PENDIENTE,
+        self::ESTADO_EN_PROCESO,
+        self::ESTADO_COMPLETADO,
+        self::ESTADO_CANCELADO,
+    ];
+
+    const PRIORIDADES = [
+        self::PRIORIDAD_BAJA,
+        self::PRIORIDAD_MEDIA,
+        self::PRIORIDAD_ALTA,
+        self::PRIORIDAD_CRITICA,
+    ];
+
     public function carro(): BelongsTo
     {
         return $this->belongsTo(Carro::class);
     }
 
-    /**
-     * Relación con el técnico (User)
-     */
     public function tecnico(): BelongsTo
     {
         return $this->belongsTo(User::class, 'tecnico_id');
     }
 
-    /**
-     * Scope para filtrar por estado
-     */
     public function scopeEstado($query, $estado)
     {
         return $query->where('estado', $estado);
     }
 
-    /**
-     * Scope para filtrar por tipo
-     */
     public function scopeTipo($query, $tipo)
     {
         return $query->where('tipo', $tipo);
     }
 
-    /**
-     * Scope para filtrar por carro
-     */
     public function scopeCarro($query, $carroId)
     {
         return $query->where('carro_id', $carroId);
     }
 
-    /**
-     * Scope para mantenimientos activos (no completados)
-     */
     public function scopeActivos($query)
     {
-        return $query->where('estado', '!=', self::ESTADO_COMPLETADO);
+        return $query->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO]);
     }
 
-    /**
-     * Scope para mantenimientos próximos a vencer
-     */
     public function scopeProximosAVencer($query, $dias = 30)
     {
         return $query->where('proximo_mantenimiento', '<=', now()->addDays($dias))
-            ->where('estado', '!=', self::ESTADO_COMPLETADO);
+            ->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO]);
     }
 
-    /**
-     * Scope para mantenimientos vencidos
-     */
     public function scopeVencidos($query)
     {
         return $query->where('proximo_mantenimiento', '<', now())
-            ->where('estado', '!=', self::ESTADO_COMPLETADO);
+            ->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO]);
     }
 
-    /**
-     * Scope para mantenimientos con alertas pendientes (próximos a vencer o vencidos)
-     */
+    public function scopePorVencer($query)
+    {
+        return $query->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO])
+            ->whereNotNull('proximo_mantenimiento')
+            ->where('proximo_mantenimiento', '>=', now())
+            ->whereRaw('(proximo_mantenimiento - CURRENT_DATE) <= COALESCE(dias_anticipacion_alerta, 15)');
+    }
+
+    public function scopeAlDia($query)
+    {
+        return $query->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO])
+            ->where(function ($q) {
+                $q->whereNull('proximo_mantenimiento')
+                  ->orWhere(function ($q2) {
+                      $q2->where('proximo_mantenimiento', '>=', now())
+                         ->whereRaw('(proximo_mantenimiento - CURRENT_DATE) > COALESCE(dias_anticipacion_alerta, 15)');
+                  });
+            });
+    }
+
     public function scopeConAlertasPendientes($query, $dias = 30)
     {
         return $query->where(function ($q) use ($dias) {
-            $q->where('estado', '!=', self::ESTADO_COMPLETADO)
+            $q->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO])
                 ->whereNotNull('proximo_mantenimiento')
                 ->where('proximo_mantenimiento', '<=', now()->addDays($dias));
         });
     }
 
-    /**
-     * Accessor para obtener días restantes
-     */
+    public function scopeCancelados($query)
+    {
+        return $query->where('estado', self::ESTADO_CANCELADO);
+    }
+
     public function getDiasRestantesAttribute()
     {
         if (!$this->proximo_mantenimiento) {
             return null;
         }
-
         return now()->diffInDays($this->proximo_mantenimiento, false);
     }
 
-    /**
-     * Accessor para obtener el estado formateado
-     */
     public function getEstadoFormateadoAttribute()
     {
         return match ($this->estado) {
             self::ESTADO_PENDIENTE => ['label' => 'Pendiente', 'color' => 'bg-yellow-100 text-yellow-800'],
             self::ESTADO_EN_PROCESO => ['label' => 'En Proceso', 'color' => 'bg-blue-100 text-blue-800'],
             self::ESTADO_COMPLETADO => ['label' => 'Completado', 'color' => 'bg-green-100 text-green-800'],
+            self::ESTADO_CANCELADO => ['label' => 'Cancelado', 'color' => 'bg-gray-100 text-gray-800'],
             default => ['label' => 'Desconocido', 'color' => 'bg-gray-100 text-gray-800']
         };
     }
 
-    /**
-     * Accessor para obtener la prioridad formateada
-     */
     public function getPrioridadFormateadaAttribute()
     {
         return match ($this->prioridad) {
@@ -194,20 +258,14 @@ class Mantenimiento extends Model
         };
     }
 
-    /**
-     * Accessor para formatear costo
-     */
     public function getCostoFormateadoAttribute()
     {
         return '$' . number_format($this->costo ?? 0, 2);
     }
 
-    /**
-     * Verificar si el mantenimiento requiere alerta
-     */
     public function getRequiereAlertaAttribute()
     {
-        if ($this->estado === self::ESTADO_COMPLETADO) {
+        if (in_array($this->estado, [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO])) {
             return false;
         }
 
@@ -216,14 +274,23 @@ class Mantenimiento extends Model
         }
 
         $diasRestantes = $this->dias_restantes;
-        $diasAnticipacion = $this->dias_anticipacion_alerta ?? 30;
+        $diasAnticipacion = $this->dias_anticipacion_alerta
+            ?? self::DIAS_ALERTA_POR_PRIORIDAD[$this->prioridad]
+            ?? 15;
 
         return $diasRestantes !== null && $diasRestantes <= $diasAnticipacion;
     }
 
-    /**
-     * Marcar como completado
-     */
+    public static function diasAlertaPorPrioridad(?string $prioridad): int
+    {
+        return self::DIAS_ALERTA_POR_PRIORIDAD[$prioridad] ?? 15;
+    }
+
+    public static function intervaloKmRecurrente(string $tipo): int
+    {
+        return self::KM_INTERVALOS_RECURRENTES[$tipo] ?? 0;
+    }
+
     public function marcarCompletado($fechaCompletado = null, $notas = null)
     {
         $this->update([
@@ -233,31 +300,29 @@ class Mantenimiento extends Model
         ]);
     }
 
-    /**
-     * Cambiar estado
-     */
+    public function cancelar($motivo = null)
+    {
+        $this->update([
+            'estado' => self::ESTADO_CANCELADO,
+            'notas' => $motivo
+                ? ($this->notas ? $this->notas . ' | Cancelado: ' . $motivo : 'Cancelado: ' . $motivo)
+                : $this->notas
+        ]);
+    }
+
     public function cambiarEstado($nuevoEstado)
     {
-        $estadosValidos = [self::ESTADO_PENDIENTE, self::ESTADO_EN_PROCESO, self::ESTADO_COMPLETADO];
-
-        if (!in_array($nuevoEstado, $estadosValidos)) {
-            throw new \InvalidArgumentException('Estado no válido');
+        if (!in_array($nuevoEstado, self::ESTADOS_VALIDOS)) {
+            throw new \InvalidArgumentException('Estado no válido: ' . $nuevoEstado);
         }
-
         $this->update(['estado' => $nuevoEstado]);
     }
 
-    /**
-     * Marcar alerta como enviada
-     */
     public function marcarAlertaEnviada()
     {
         $this->update(['alerta_enviada' => true]);
     }
 
-    /**
-     * Agregar registro de recordatorio enviado
-     */
     public function agregarRecordatorioEnviado($tipo)
     {
         $recordatorios = $this->recordatorios_enviados ?? [];
@@ -269,23 +334,15 @@ class Mantenimiento extends Model
         $this->update(['recordatorios_enviados' => $recordatorios]);
     }
 
-    /**
-     * Accessor para kilómetros restantes
-     */
     public function getKmRestantesAttribute()
     {
         if (!$this->proximo_kilometraje || !$this->carro) {
             return null;
         }
-
-        // Asumimos que el carro tiene un kilometraje actual o lo obtenemos del último mantenimiento
         $kmActual = $this->carro->kilometraje ?? $this->kilometraje_actual ?? 0;
         return $this->proximo_kilometraje - $kmActual;
     }
 
-    /**
-     * Estadísticas de alertas (para el servicio)
-     */
     public static function getEstadisticasAlertas()
     {
         return [
@@ -293,7 +350,7 @@ class Mantenimiento extends Model
                 $q->where('proximo_mantenimiento', '<', now())
                     ->orWhereRaw('proximo_kilometraje <= (SELECT kilometraje FROM carros WHERE id = mantenimientos.carro_id)');
             })
-                ->where('estado', '!=', self::ESTADO_COMPLETADO)
+                ->whereNotIn('estado', [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO])
                 ->count(),
             'proximos_30_dias' => self::conAlertasPendientes(30)->count(),
             'alertas_enviadas_hoy' => self::whereDate('updated_at', now())->where('alerta_enviada', true)->count(),

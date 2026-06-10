@@ -3,9 +3,9 @@
     <!-- Campo de búsqueda -->
     <div v-if="!clienteSeleccionado" class="buscar-cliente">
       <div class="mb-4">
-        <label class="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 transition-colors">
+        <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2 transition-colors">
           {{ labelBusqueda }}
-          <span v-if="requerido" class="text-red-500">*</span>
+          <span v-if="requerido" class="text-rose-500">*</span>
         </label>
         <div class="relative group">
           <input
@@ -17,16 +17,16 @@
             @blur="ocultarListaConRetraso"
             @keydown="manejarTeclas"
             :placeholder="placeholderBusqueda"
-            class="w-full pl-11 pr-11 py-3 bg-white dark:bg-slate-900 border rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-sm transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            class="w-full pl-11 pr-11 py-3 bg-white dark:bg-slate-900 border rounded-2xl shadow-sm focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 text-sm transition-all duration-300 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
             :class="{
-              'border-red-300 dark:border-red-900/50 ring-red-50 dark:ring-red-900/10': errorBusqueda || (requerido && validacionError),
-              'border-gray-200 dark:border-slate-800': !errorBusqueda && !(requerido && validacionError)
+              'border-rose-300 dark:border-rose-900/50 ring-red-50 dark:ring-rose-900/10': errorBusqueda || (requerido && validacionError),
+              'border-slate-200 dark:border-slate-800': !errorBusqueda && !(requerido && validacionError)
             }"
             autocomplete="new-password"
             :disabled="deshabilitado"
           />
           <!-- Icono de búsqueda -->
-          <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500 text-gray-400">
+          <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500 text-slate-400">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
@@ -37,7 +37,7 @@
               v-if="busquedaCliente && !cargandoBusqueda"
               @click="limpiarBusqueda"
               type="button"
-              class="text-gray-400 hover:text-red-500 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+              class="text-slate-400 hover:text-rose-500 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
               title="Limpiar búsqueda"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,11 +49,11 @@
         </div>
 
         <!-- Mensajes de error y ayuda -->
-        <div v-if="errorBusqueda || (requerido && validacionError)" class="mt-2 text-[11px] font-bold text-red-600 dark:text-red-400 flex items-center gap-1">
+        <div v-if="errorBusqueda || (requerido && validacionError)" class="mt-2 text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
           {{ errorBusqueda || validacionError }}
         </div>
-        <div v-else-if="mensajeAyuda && !busquedaCliente" class="mt-2 text-[10px] text-gray-500 dark:text-gray-500 italic">
+        <div v-else-if="mensajeAyuda && !busquedaCliente" class="mt-2 text-[10px] text-slate-500 dark:text-slate-500 italic">
           {{ mensajeAyuda }}
         </div>
 
@@ -66,7 +66,7 @@
             class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 shadow-sm border"
             :class="filtroActivo === filtro.value
               ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-500/20'
-              : 'bg-white dark:bg-slate-900/50 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'"
+              : 'bg-white dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'"
           >
             <component :is="filtro.icon" class="w-3 h-3 mr-1.5" v-if="filtro.icon"/>
             {{ filtro.label }}
@@ -76,23 +76,23 @@
     </div>
 
     <!-- Información del cliente seleccionado -->
-    <div v-if="clienteSeleccionado" class="mt-2 group p-6 bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-xl transition-all hover:shadow-2xl">
+    <div v-if="clienteSeleccionado" class="mt-2 group p-6 bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl transition-all hover:shadow-2xl">
       <div class="flex items-start justify-between mb-6">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-sky-900/20/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
           </div>
           <div>
-            <h3 class="text-lg font-black text-gray-900 dark:text-white transition-colors">
+            <h3 class="text-lg font-black text-slate-900 dark:text-white transition-colors">
               {{ clienteSeleccionado.nombre_razon_social }}
             </h3>
             <div class="flex items-center gap-2 mt-1">
-              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{{ tituloClienteSeleccionado }}</span>
-              <div v-if="mostrarEstadoCliente" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700">
-                <div class="w-1.5 h-1.5 rounded-full" :class="clienteSeleccionado.activo !== false ? 'bg-green-500' : 'bg-red-500'"></div>
-                <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400">
+              <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{{ tituloClienteSeleccionado }}</span>
+              <div v-if="mostrarEstadoCliente" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700">
+                <div class="w-1.5 h-1.5 rounded-full" :class="clienteSeleccionado.activo !== false ? 'bg-emerald-500' : 'bg-rose-500'"></div>
+                <span class="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400">
                   {{ clienteSeleccionado.activo === false ? 'Inactivo' : 'Activo' }}
                 </span>
               </div>
@@ -100,15 +100,15 @@
           </div>
         </div>
         
-        <div class="flex items-center bg-gray-50 dark:bg-gray-900/50 p-1.5 rounded-2xl border border-gray-100 dark:border-gray-700 gap-1">
-          <button v-if="mostrarHistorial" @click="verHistorial" type="button" class="w-9 h-9 flex items-center justify-center text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-xl transition-all" title="Historial">
+        <div class="flex items-center bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 gap-1">
+          <button v-if="mostrarHistorial" @click="verHistorial" type="button" class="w-9 h-9 flex items-center justify-center text-blue-500 hover:bg-sky-100 dark:hover:bg-blue-900/30 rounded-xl transition-all" title="Historial">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </button>
-          <button v-if="mostrarEditar" @click="editarCliente" type="button" class="w-9 h-9 flex items-center justify-center text-green-500 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-xl transition-all" title="Editar">
+          <button v-if="mostrarEditar" @click="editarCliente" type="button" class="w-9 h-9 flex items-center justify-center text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-xl transition-all" title="Editar">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
           </button>
-          <div class="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1"></div>
-          <button type="button" @click="limpiarCliente" class="w-9 h-9 flex items-center justify-center text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl transition-all" title="Cambiar">
+          <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+          <button type="button" @click="limpiarCliente" class="w-9 h-9 flex items-center justify-center text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-xl transition-all" title="Cambiar">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -117,42 +117,42 @@
       <!-- Información básica del cliente -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="space-y-1" v-if="clienteSeleccionado.email">
-          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Email</p>
+          <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Email</p>
           <div class="flex items-center gap-2 group/info">
-            <div class="w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400 group-hover/info:text-blue-500 transition-colors">
+            <div class="w-7 h-7 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover/info:text-blue-500 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             </div>
-            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ clienteSeleccionado.email }}</span>
+            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ clienteSeleccionado.email }}</span>
           </div>
         </div>
 
         <div class="space-y-1" v-if="clienteSeleccionado.telefono">
-          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Teléfono</p>
+          <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Teléfono</p>
           <div class="flex items-center gap-2 group/info">
-            <div class="w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400 group-hover/info:text-green-500 transition-colors">
+            <div class="w-7 h-7 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover/info:text-emerald-500 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             </div>
-            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ clienteSeleccionado.telefono }}</span>
+            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ clienteSeleccionado.telefono }}</span>
           </div>
         </div>
 
         <div class="space-y-1" v-if="clienteSeleccionado.rfc">
-          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">RFC</p>
+          <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">RFC</p>
           <div class="flex items-center gap-2 group/info">
-            <div class="w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400 group-hover/info:text-indigo-500 transition-colors">
+            <div class="w-7 h-7 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover/info:text-indigo-500 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <span class="text-sm font-bold text-gray-700 dark:text-gray-300 font-mono">{{ clienteSeleccionado.rfc }}</span>
+            <span class="text-sm font-bold text-slate-700 dark:text-slate-300 font-mono">{{ clienteSeleccionado.rfc }}</span>
           </div>
         </div>
 
         <div class="space-y-1 sm:col-span-2 lg:col-span-3" v-if="clienteSeleccionado.calle">
-          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Dirección de Servicio</p>
+          <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">Dirección de Servicio</p>
           <div class="flex items-start gap-2 group/info">
-            <div class="w-7 h-7 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400 group-hover/info:text-amber-500 transition-colors shrink-0">
+            <div class="w-7 h-7 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover/info:text-brand-500 transition-colors shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             </div>
-            <span class="text-sm font-bold text-gray-700 dark:text-gray-300 leading-tight">
+            <span class="text-sm font-bold text-slate-700 dark:text-slate-300 leading-tight">
               {{ clienteSeleccionado.calle }} {{ clienteSeleccionado.numero_exterior || '' }} {{ clienteSeleccionado.numero_interior ? 'Int. ' + clienteSeleccionado.numero_interior : '' }}
               <template v-if="clienteSeleccionado.colonia">, {{ clienteSeleccionado.colonia }}</template> 
               <template v-if="clienteSeleccionado.municipio">, {{ clienteSeleccionado.municipio }}</template>
@@ -163,30 +163,30 @@
 
         <!-- Información de crédito -->
         <div class="lg:col-span-3 mt-4" v-if="clienteSeleccionado.credito_activo && clienteSeleccionado.limite_credito && mostrarInfoComercial">
-           <div class="p-4 bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-gray-100 dark:border-gray-700">
+           <div class="p-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
              <div class="flex items-center justify-between mb-3">
                <div class="flex items-center gap-2">
                  <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Resumen de Crédito</span>
+                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wide">Resumen de Crédito</span>
                </div>
                <span class="text-xs font-bold text-blue-600 dark:text-blue-400">{{ Math.round(((clienteSeleccionado.credito_disponible ?? clienteSeleccionado.limite_credito) / clienteSeleccionado.limite_credito) * 100) }}% Disponible</span>
              </div>
              
-             <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
+             <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-3">
                <div class="h-full bg-blue-600 transition-all duration-500" 
                     :style="{ width: `${((clienteSeleccionado.credito_disponible ?? clienteSeleccionado.limite_credito) / clienteSeleccionado.limite_credito) * 100}%` }"></div>
              </div>
 
              <div class="grid grid-cols-2 gap-4">
                <div>
-                  <p class="text-[9px] font-black text-gray-400 uppercase mb-1">Disponible</p>
-                  <p class="text-lg font-black text-gray-900 dark:text-white" :class="{
-                    'text-red-600': (clienteSeleccionado.credito_disponible ?? clienteSeleccionado.limite_credito) <= 0
+                  <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Disponible</p>
+                  <p class="text-lg font-black text-slate-900 dark:text-white" :class="{
+                    'text-rose-600': (clienteSeleccionado.credito_disponible ?? clienteSeleccionado.limite_credito) <= 0
                   }">{{ formatearMoneda(clienteSeleccionado.credito_disponible ?? clienteSeleccionado.limite_credito) }}</p>
                </div>
                <div class="text-right">
-                  <p class="text-[9px] font-black text-gray-400 uppercase mb-1">Límite Total</p>
-                  <p class="text-lg font-black text-gray-700 dark:text-gray-300">{{ formatearMoneda(clienteSeleccionado.limite_credito) }}</p>
+                  <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Límite Total</p>
+                  <p class="text-lg font-black text-slate-700 dark:text-slate-300">{{ formatearMoneda(clienteSeleccionado.limite_credito) }}</p>
                </div>
              </div>
            </div>
@@ -200,9 +200,9 @@
           :key="alerta.id"
           class="flex items-center p-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider border shadow-sm transition-all animate-in fade-in slide-in-from-top-1"
           :class="{
-            'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-100 dark:border-red-900/30': alerta.tipo === 'error',
+            'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/30': alerta.tipo === 'error',
             'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-100 dark:border-yellow-900/30': alerta.tipo === 'warning',
-            'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-900/30': alerta.tipo === 'info'
+            'bg-blue-50 dark:bg-sky-900/20 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-900/30': alerta.tipo === 'info'
           }"
         >
           <svg class="w-4 h-4 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,19 +214,19 @@
     </div>
 
     <!-- Estado vacío mejorado -->
-    <div v-else class="mt-2 p-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-3xl text-center bg-gray-50/30 dark:bg-gray-900/20 transition-colors">
-      <div class="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center mx-auto mb-4 text-gray-400">
+    <div v-else class="mt-2 p-10 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl text-center bg-slate-50/30 dark:bg-slate-900/20 transition-colors">
+      <div class="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-400">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
         </svg>
       </div>
-      <p class="text-gray-900 dark:text-white text-lg font-black">{{ mensajeVacio }}</p>
-      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">{{ submensajeVacio }}</p>
+      <p class="text-slate-900 dark:text-white text-lg font-black">{{ mensajeVacio }}</p>
+      <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">{{ submensajeVacio }}</p>
 
       <div v-if="mostrarAccionRapida && busquedaCliente" class="mt-6">
         <button
           @click="crearNuevoCliente"
-          class="inline-flex items-center px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-none active:scale-95"
+          class="inline-flex items-center px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-sky-200 dark:shadow-none active:scale-95"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -241,7 +241,7 @@
       <div
         ref="listaClientesRef"
         v-if="mostrarListaClientes && clientesFiltrados.length > 0"
-        class="z-[100] mt-1 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/50 max-h-[50vh] overflow-hidden flex flex-col transition-all animate-in fade-in zoom-in-95"
+        class="z-[100] mt-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/50 max-h-[50vh] overflow-hidden flex flex-col transition-all animate-in fade-in zoom-in-95"
         :style="{
           position: 'fixed',
           width: inputWidth + 'px',
@@ -249,11 +249,11 @@
           left: inputPosition.left + 'px'
         }"
       >
-        <div class="px-4 py-2.5 border-b border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-            <span class="text-[9px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">
+        <div class="px-4 py-2.5 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+            <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                 {{ clientesFiltrados.length }} {{ clientesFiltrados.length === 15 ? 'Primeros resultados' : 'Resultados encontrados' }}
             </span>
-            <span v-if="tiempoRespuesta" class="text-[9px] font-bold text-gray-300 dark:text-slate-600">{{ tiempoRespuesta }}ms</span>
+            <span v-if="tiempoRespuesta" class="text-[9px] font-bold text-slate-300 dark:text-slate-600">{{ tiempoRespuesta }}ms</span>
         </div>
         
         <div class="overflow-y-auto custom-scrollbar flex-1">
@@ -262,21 +262,21 @@
             :key="cliente.id"
             @mousedown.prevent="seleccionarCliente(cliente)"
             @mouseenter="clienteSeleccionadoIndex = index"
-            class="px-4 py-3.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer border-b border-gray-50 dark:border-gray-700 last:border-b-0 transition-all flex items-center gap-3"
-            :class="{ 'bg-blue-50 dark:bg-blue-900/20 ring-inset ring-2 ring-blue-500/10': clienteSeleccionadoIndex === index }"
+            class="px-4 py-3.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer border-b border-slate-50 dark:border-slate-700 last:border-b-0 transition-all flex items-center gap-3"
+            :class="{ 'bg-blue-50 dark:bg-sky-900/20 ring-inset ring-2 ring-blue-500/10': clienteSeleccionadoIndex === index }"
           >
             <div
-              class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 text-xs font-bold transition-all border border-transparent"
+              class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs font-bold transition-all border border-transparent"
               :class="{'bg-indigo-600/20 text-indigo-400 border-indigo-500/30 scale-110': clienteSeleccionadoIndex === index}"
             >
               {{ (cliente.nombre_razon_social || cliente.nombre || 'CL').substring(0, 2).toUpperCase() }}
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-bold text-gray-900 dark:text-white text-sm truncate flex items-center gap-2">
+              <div class="font-bold text-slate-900 dark:text-white text-sm truncate flex items-center gap-2">
                 <span v-html="resaltarTexto(cliente.nombre_razon_social || cliente.nombre || 'Cliente sin nombre', busquedaCliente)"></span>
-                <div v-if="cliente.estado" class="w-1.5 h-1.5 rounded-full" :class="{ 'bg-green-500': cliente.estado === 'activo', 'bg-yellow-500': cliente.estado === 'suspendido', 'bg-red-500': cliente.estado === 'inactivo' }"></div>
+                <div v-if="cliente.estado" class="w-1.5 h-1.5 rounded-full" :class="{ 'bg-emerald-500': cliente.estado === 'activo', 'bg-yellow-500': cliente.estado === 'suspendido', 'bg-rose-500': cliente.estado === 'inactivo' }"></div>
               </div>
-              <div class="text-[11px] text-gray-500 dark:text-gray-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5 font-medium">
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-1 mt-0.5 font-medium">
                 <span v-if="cliente.email" class="flex items-center gap-1"><span v-html="resaltarTexto(cliente.email, busquedaCliente)"></span></span>
                 <span v-if="cliente.telefono" class="flex items-center gap-1">| <span v-html="resaltarTexto(cliente.telefono, busquedaCliente)"></span></span>
                 <span v-if="cliente.rfc" class="flex items-center gap-1 font-mono text-[10px]">| <span v-html="resaltarTexto(cliente.rfc, busquedaCliente)"></span></span>
@@ -285,8 +285,8 @@
           </div>
         </div>
 
-        <div v-if="busquedaCliente && mostrarOpcionNuevoCliente" class="p-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-center">
-          <button @click="crearNuevoCliente" class="w-full py-2.5 px-4 bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all flex items-center justify-center gap-2 shadow-sm">
+        <div v-if="busquedaCliente && mostrarOpcionNuevoCliente" class="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-center">
+          <button @click="crearNuevoCliente" class="w-full py-2.5 px-4 bg-white dark:bg-slate-800 border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-wide rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all flex items-center justify-center gap-2 shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
             Crear "{{ busquedaCliente }}"
           </button>
@@ -297,7 +297,9 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { normalizeText, includesSearch } from '@/Utils/searchHelper';
 import axios from 'axios';
 import { throttle } from 'lodash-es';
 
@@ -347,13 +349,8 @@ const ultimaBusquedaApi = ref('');
 const apiSearchController = ref(null);
 const ultimoRequestId = ref(0);
 
-const normalizarTexto = (texto) => {
-  if (!texto) return '';
-  return texto.toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s@.-]/g, '').trim();
-};
-
 const dividirTerminos = (termino) => {
-  return termino.split(/\s+/).filter(t => t.length > 0).map(t => normalizarTexto(t));
+  return termino.split(/\s+/).filter(t => t.length > 0).map(t => normalizeText(t));
 };
 
 const clientesFiltrados = computed(() => {
@@ -370,18 +367,18 @@ const clientesFiltrados = computed(() => {
 
   const resultados = todosLosClientes.filter(cliente => {
     const nombre = cliente.nombre_razon_social || cliente.nombre || '';
-    const textoCombinado = normalizarTexto([nombre, cliente.email, cliente.telefono, cliente.rfc, cliente.empresa, cliente.calle].join(' '));
+    const textoCombinado = normalizeText([nombre, cliente.email, cliente.telefono, cliente.rfc, cliente.empresa, cliente.calle].join(' '));
     return terminos.every(termino => textoCombinado.includes(termino));
   });
 
   const resultadosConScore = resultados.map(cliente => {
     let score = 0;
-    const nombre = normalizarTexto(cliente.nombre_razon_social || cliente.nombre || '');
+    const nombre = normalizeText(cliente.nombre_razon_social || cliente.nombre || '');
     terminos.forEach(termino => {
       if (nombre.startsWith(termino)) score += 100;
       else if (nombre.includes(termino)) score += 50;
-      else if (normalizarTexto(cliente.email || '').includes(termino)) score += 30;
-      else if (normalizarTexto(cliente.rfc || '').includes(termino)) score += 40;
+      else if (normalizeText(cliente.email || '').includes(termino)) score += 30;
+      else if (normalizeText(cliente.rfc || '').includes(termino)) score += 40;
     });
     return { ...cliente, _score: score };
   }).sort((a, b) => b._score - a._score);
@@ -449,6 +446,11 @@ const filtrarClientes = () => {
         resultadosApi.value = Array.isArray(data) ? data : [];
       } catch (e) {
         if (e?.code === 'ERR_CANCELED' || e?.name === 'CanceledError' || axios.isCancel?.(e)) {
+          return;
+        }
+
+        if (e?.response?.status === 419) {
+          window.location.reload();
           return;
         }
 

@@ -10,13 +10,14 @@ use App\Models\VentaItem;
 use App\Services\PrecioService;
 use App\Services\StockValidationService;
 use App\Services\FinancialService;
+use App\Services\InventarioService;
 use Illuminate\Support\Facades\Auth;
 
 class VentaItemsProcessor
 {
     public function __construct(
         private readonly StockValidationService $stockValidationService,
-        private readonly \App\Services\Inventory\InventoryManager $inventoryManager,
+        private readonly InventarioService $inventarioService,
         private readonly PrecioService $precioService,
         private readonly FinancialService $financialService
     ) {
@@ -129,7 +130,12 @@ class VentaItemsProcessor
         }
 
         if (!($producto->requiere_serie ?? false)) {
-            $this->inventoryManager->decrementStock($producto, $almacenId, $cantidad);
+            $this->inventarioService->salida($producto, $cantidad, [
+                'motivo' => 'Venta: ' . ($venta->numero_venta ?? 'Nueva'),
+                'almacen_id' => $almacenId,
+                'user_id' => Auth::id(),
+                'referencia' => $venta,
+            ]);
         }
     }
 
@@ -226,7 +232,12 @@ class VentaItemsProcessor
                     $this->procesarSerieProducto($componente, $numeroSerie, $venta, $almacenId, 'Venta de kit: ' . $kit->nombre, $ventaItemComponente);
                 }
             } else {
-                $this->inventoryManager->decrementStock($componente, $almacenId, $cantidadNecesaria);
+                $this->inventarioService->salida($componente, $cantidadNecesaria, [
+                    'motivo' => 'Venta (Kit: ' . $kit->nombre . '): ' . ($venta->numero_venta ?? 'Nueva'),
+                    'almacen_id' => $almacenId,
+                    'user_id' => Auth::id(),
+                    'referencia' => $venta,
+                ]);
             }
         }
     }
@@ -284,8 +295,17 @@ class VentaItemsProcessor
      */
     public function processServices(Venta $venta, array $servicios): void
     {
+        // ✅ FIX (A-02): Preload services to avoid N+1 queries
+        $servicioIds = array_column($servicios, 'id');
+        $serviciosModelos = Servicio::whereIn('id', $servicioIds)->get()->keyBy('id');
+
         foreach ($servicios as $servicioData) {
-            $servicio = Servicio::findOrFail($servicioData['id']);
+            $servicio = $serviciosModelos->get($servicioData['id']);
+
+            if (!$servicio) {
+                throw new \Exception("Servicio con ID {$servicioData['id']} no encontrado.");
+            }
+
             $cantidad = $servicioData['cantidad'];
             $precio = $servicioData['precio'];
             $descuento = $servicioData['descuento'] ?? 0;

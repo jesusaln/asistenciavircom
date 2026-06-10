@@ -87,12 +87,25 @@ class DynamicUrlServiceProvider extends ServiceProvider
 
                 // --- CONFIGURACIÓN GLOBAL DE CORREO (SMTP) ---
                 if (!empty($config->smtp_host)) {
+                    // Sanitizar: la BD podría guardar "null" (string) en vez de NULL real
+                    $smtpEncryption = $config->smtp_encryption;
+                    if ($smtpEncryption === 'null' || $smtpEncryption === '') {
+                        $smtpEncryption = null;
+                    }
+
                     config([
                         'mail.mailers.smtp.host' => $config->smtp_host,
                         'mail.mailers.smtp.port' => $config->smtp_port,
                         'mail.mailers.smtp.username' => $config->smtp_username,
                         'mail.mailers.smtp.password' => $config->smtp_password,
-                        'mail.mailers.smtp.encryption' => $config->smtp_encryption,
+                        'mail.mailers.smtp.encryption' => $smtpEncryption,
+                        'mail.mailers.smtp.stream' => [
+                            'ssl' => [
+                                'allow_self_signed' => true,
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                            ],
+                        ],
                         'mail.from.address' => $config->email_from_address,
                         'mail.from.name' => $config->email_from_name,
                     ]);

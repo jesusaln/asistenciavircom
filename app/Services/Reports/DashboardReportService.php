@@ -22,13 +22,21 @@ class DashboardReportService
 
         return \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () use ($fechaInicio, $fechaFin) {
             $totalVentas = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
-                ->where('estado', \App\Enums\EstadoVenta::Aprobada)
+                ->whereNotIn('estado', [
+                    \App\Enums\EstadoVenta::Cancelada->value,
+                    \App\Enums\EstadoVenta::Borrador->value,
+                    \App\Enums\EstadoVenta::Anulado->value
+                ])
                 ->sum('total');
             
-            // Cálculo de utilidad (se mantiene el cursor por la complejidad de márgenes técnicos, pero ahora en Redis es más rápido)
+            // Cálculo de utilidad
             $utilidadVentas = 0;
             Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
-                ->where('estado', \App\Enums\EstadoVenta::Aprobada)
+                ->whereNotIn('estado', [
+                    \App\Enums\EstadoVenta::Cancelada->value,
+                    \App\Enums\EstadoVenta::Borrador->value,
+                    \App\Enums\EstadoVenta::Anulado->value
+                ])
                 ->with(['productos', 'servicios', 'vendedor'])
                 ->cursor()
                 ->each(function ($venta) use (&$utilidadVentas) {
@@ -38,12 +46,22 @@ class DashboardReportService
             $productosVendidos = DB::table('venta_items')
                 ->join('ventas', 'ventas.id', '=', 'venta_items.venta_id')
                 ->whereBetween('ventas.fecha', [$fechaInicio, $fechaFin])
+                ->whereNotIn('ventas.estado', [
+                    \App\Enums\EstadoVenta::Cancelada->value,
+                    \App\Enums\EstadoVenta::Borrador->value,
+                    \App\Enums\EstadoVenta::Anulado->value
+                ])
                 ->where('ventable_type', \App\Models\Producto::class)
                 ->sum('cantidad');
 
             $totalClientes = Cliente::count();
             $clientesActivos = Cliente::whereHas('ventas', function ($q) use ($fechaInicio, $fechaFin) {
-                $q->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+                $q->whereBetween('fecha', [$fechaInicio, $fechaFin])
+                  ->whereNotIn('estado', [
+                    \App\Enums\EstadoVenta::Cancelada->value,
+                    \App\Enums\EstadoVenta::Borrador->value,
+                    \App\Enums\EstadoVenta::Anulado->value
+                  ]);
             })->count();
 
             $totalProductos = Producto::count();
@@ -125,6 +143,11 @@ class DashboardReportService
             DB::raw('SUM(total) as total')
         )
             ->whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->whereNotIn('estado', [
+                \App\Enums\EstadoVenta::Cancelada->value,
+                \App\Enums\EstadoVenta::Borrador->value,
+                \App\Enums\EstadoVenta::Anulado->value
+            ])
             ->groupBy('fecha')
             ->orderBy('fecha')
             ->get();

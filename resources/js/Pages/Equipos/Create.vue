@@ -42,21 +42,21 @@ const submit = () => {
   <div class="w-full p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Nuevo Equipo</h1>
-      <Link :href="route('equipos.index')" class="text-amber-600 hover:underline">Volver</Link>
+      <Link :href="route('equipos.index')" class="text-brand-600 hover:underline">Volver</Link>
     </div>
 
-    <form @submit.prevent="submit" class="bg-white rounded-xl border p-6 space-y-4">
+    <form @submit.prevent="submit" class="bg-white rounded-xl border p-6 space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium">Código *</label>
           <input v-model="form.codigo" type="text" class="mt-1 input" />
-          <div v-if="form.errors.codigo" class="text-red-600 text-sm">{{ form.errors.codigo }}</div>
+          <div v-if="form.errors.codigo" class="text-rose-600 text-sm">{{ form.errors.codigo }}</div>
         </div>
 
         <div>
           <label class="block text-sm font-medium">Nombre *</label>
           <input v-model="form.nombre" type="text" class="mt-1 input" />
-          <div v-if="form.errors.nombre" class="text-red-600 text-sm">{{ form.errors.nombre }}</div>
+          <div v-if="form.errors.nombre" class="text-rose-600 text-sm">{{ form.errors.nombre }}</div>
         </div>
 
         <div>
@@ -72,19 +72,19 @@ const submit = () => {
         <div>
           <label class="block text-sm font-medium">Número de serie</label>
           <input v-model="form.numero_serie" type="text" class="mt-1 input" />
-          <div v-if="form.errors.numero_serie" class="text-red-600 text-sm">{{ form.errors.numero_serie }}</div>
+          <div v-if="form.errors.numero_serie" class="text-rose-600 text-sm">{{ form.errors.numero_serie }}</div>
         </div>
 
         <div>
           <label class="block text-sm font-medium">Imagen</label>
           <input @input="form.imagen = $event.target.files[0]" type="file" accept="image/*" class="mt-1 input" />
-          <div v-if="form.errors.imagen" class="text-red-600 text-sm">{{ form.errors.imagen }}</div>
+          <div v-if="form.errors.imagen" class="text-rose-600 text-sm">{{ form.errors.imagen }}</div>
         </div>
 
         <div>
           <label class="block text-sm font-medium">Precio renta mensual *</label>
           <input v-model="form.precio_renta_mensual" type="number" step="0.01" class="mt-1 input" />
-          <div v-if="form.errors.precio_renta_mensual" class="text-red-600 text-sm">{{ form.errors.precio_renta_mensual }}</div>
+          <div v-if="form.errors.precio_renta_mensual" class="text-rose-600 text-sm">{{ form.errors.precio_renta_mensual }}</div>
         </div>
 
         <div>
@@ -102,7 +102,7 @@ const submit = () => {
           <select v-model="form.estado" class="mt-1 input">
             <option v-for="e in props.estados" :key="e" :value="e">{{ e }}</option>
           </select>
-          <div v-if="form.errors.estado" class="text-red-600 text-sm">{{ form.errors.estado }}</div>
+          <div v-if="form.errors.estado" class="text-rose-600 text-sm">{{ form.errors.estado }}</div>
         </div>
 
         <div>
@@ -110,7 +110,7 @@ const submit = () => {
           <select v-model="form.condicion" class="mt-1 input">
             <option v-for="c in props.condiciones" :key="c" :value="c">{{ c }}</option>
           </select>
-          <div v-if="form.errors.condicion" class="text-red-600 text-sm">{{ form.errors.condicion }}</div>
+          <div v-if="form.errors.condicion" class="text-rose-600 text-sm">{{ form.errors.condicion }}</div>
         </div>
 
         <div class="md:col-span-2">
@@ -130,10 +130,10 @@ const submit = () => {
       </div>
 
       <div class="pt-4 flex gap-3">
-        <button type="submit" :disabled="form.processing" class="px-4 py-2 rounded bg-amber-500 text-white hover:bg-amber-600">
+        <button type="submit" :disabled="form.processing" class="px-4 py-2 rounded-xl bg-brand-500 text-white hover:bg-amber-600">
           Guardar
         </button>
-        <button type="button" @click="form.reset()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">
+        <button type="button" @click="form.reset()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300">
           Limpiar
         </button>
       </div>
@@ -141,7 +141,4 @@ const submit = () => {
   </div>
 </template>
 
-<style scoped>
-.input { @apply w-full rounded-md border-gray-300 focus:border-amber-500 focus:ring-amber-500; }
-</style>
 

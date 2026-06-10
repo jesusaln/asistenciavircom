@@ -12,7 +12,7 @@
       </h3>
 
       <!-- Tabla Header -->
-      <div class="hidden lg:grid grid-cols-12 gap-3 px-6 py-3 mb-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+      <div class="hidden lg:grid grid-cols-12 gap-3 px-6 py-3 mb-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
         <div class="col-span-4">Producto / Servicio</div>
         <div class="col-span-2 text-center">Cantidad</div>
         <div class="col-span-2 text-center">Precio</div>
@@ -32,9 +32,9 @@
             <!-- Nombre y tipo -->
             <div class="col-span-4 min-w-0">
               <div class="flex items-center gap-3">
-                <span class="flex-shrink-0 inline-flex items-center px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider"
+                <span class="flex-shrink-0 inline-flex items-center px-2 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider"
                       :class="entry.tipo === 'producto'
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800'
+                        ? 'bg-blue-50 dark:bg-sky-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800'
                         : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800'">
                   {{ entry.tipo === 'producto' ? 'PROD' : 'SERV' }}
                 </span>
@@ -42,7 +42,7 @@
                   <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate leading-tight">{{ getItemInfo(entry).nombre }}</h4>
                   <div class="flex flex-wrap gap-1 mt-1">
                     <span v-for="tag in getTrazabilidadTags(getItemInfo(entry).nombre)" :key="tag"
-                          class="px-1 py-0.5 rounded text-[8px] font-black border bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                          class="px-1 py-0.5 rounded-xl text-[8px] font-black border bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
                       {{ tag }}
                     </span>
                     <p v-if="getItemInfo(entry).descripcion" class="text-[10px] text-slate-400 dark:text-slate-500 truncate inline-block ml-1">{{ getItemInfo(entry).descripcion }}</p>
@@ -53,7 +53,7 @@
               <div v-if="getItemInfo(entry).tipo_producto === 'kit' && getItemInfo(entry).kit_items && getItemInfo(entry).kit_items.length > 0"
                    class="mt-2 ml-12 flex flex-wrap gap-1">
                 <span v-for="kItem in getItemInfo(entry).kit_items" :key="kItem.id"
-                      class="inline-flex items-center text-[9px] font-bold px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">
+                      class="inline-flex items-center text-[9px] font-bold px-2 py-0.5 rounded-xl bg-indigo-50 dark:bg-sky-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">
                   {{ kItem.item ? kItem.item.nombre : 'N/A' }} x{{ kItem.cantidad }}
                 </span>
               </div>
@@ -86,7 +86,7 @@
                        :value="prices[`${entry.tipo}-${entry.id}`] || 0"
                        min="0" step="0.01"
                        @input="e => updatePrice(entry, e.target.value)"
-                       class="w-28 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-7 pr-3 py-2 text-sm font-bold text-slate-900 dark:text-white text-right focus:border-indigo-500 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                       class="w-28 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-7 pr-3 py-2 text-sm font-bold text-slate-900 dark:text-white text-right focus:border-brand-500 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
               </div>
             </div>
 
@@ -97,7 +97,7 @@
                        :value="discounts[`${entry.tipo}-${entry.id}`] || 0"
                        min="0" max="100" step="0.5"
                        @input="e => updateDiscount(entry, e.target.value)"
-                       class="w-16 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-sm font-bold text-slate-900 dark:text-white text-center focus:border-indigo-500 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                       class="w-16 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-sm font-bold text-slate-900 dark:text-white text-center focus:border-brand-500 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
                 <span class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 text-[10px] font-black">%</span>
               </div>
             </div>
@@ -132,9 +132,9 @@
             <div class="flex items-start justify-between mb-4">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-black uppercase"
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-xl text-[9px] font-black uppercase"
                         :class="entry.tipo === 'producto'
-                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                          ? 'bg-blue-50 dark:bg-sky-900/20 text-blue-600 dark:text-blue-400'
                           : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'">
                     {{ entry.tipo === 'producto' ? 'Producto' : 'Servicio' }}
                   </span>
@@ -142,7 +142,7 @@
                 <h4 class="text-sm font-bold text-slate-900 dark:text-white leading-tight">{{ getItemInfo(entry).nombre }}</h4>
               </div>
               <button type="button" @click="eliminarItem(entry)"
-                      class="text-slate-300 dark:text-slate-600 hover:text-rose-500 p-1 rounded-lg transition-colors">
+                      class="text-slate-300 dark:text-slate-600 hover:text-rose-500 p-1 rounded-xl transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -151,11 +151,11 @@
 
             <!-- Kit components for mobile -->
             <div v-if="getItemInfo(entry).tipo_producto === 'kit' && getItemInfo(entry).kit_items && getItemInfo(entry).kit_items.length > 0"
-                 class="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800">
-              <p class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2">Componentes</p>
+                 class="mb-4 p-3 bg-indigo-50 dark:bg-sky-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800">
+              <p class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2">Componentes</p>
               <div class="flex flex-wrap gap-1">
                 <span v-for="kItem in getItemInfo(entry).kit_items" :key="kItem.id"
-                      class="text-[9px] font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                      class="text-[9px] font-bold px-2 py-0.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
                   {{ kItem.item ? kItem.item.nombre : 'N/A' }} x{{ kItem.cantidad }}
                 </span>
               </div>
@@ -163,31 +163,31 @@
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Cantidad</label>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Cantidad</label>
                 <input type="number"
                        :value="quantities[`${entry.tipo}-${entry.id}`] || 1"
                        min="1" step="1"
                        @input="e => updateQuantity(entry, e.target.value)"
-                       class="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-bold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-0"/>
+                       class="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-bold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:border-brand-500 focus:ring-0"/>
               </div>
               <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Precio</label>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Precio</label>
                 <input type="number"
                        :value="prices[`${entry.tipo}-${entry.id}`] || 0"
                        min="0" step="0.01"
                        @input="e => updatePrice(entry, e.target.value)"
-                       class="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-bold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-0"/>
+                       class="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-bold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:border-brand-500 focus:ring-0"/>
               </div>
               <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Descuento %</label>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Descuento %</label>
                 <input type="number"
                        :value="discounts[`${entry.tipo}-${entry.id}`] || 0"
                        min="0" max="100" step="0.5"
                        @input="e => updateDiscount(entry, e.target.value)"
-                       class="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-bold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-0"/>
+                       class="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-bold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:border-brand-500 focus:ring-0"/>
               </div>
               <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Subtotal</label>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Subtotal</label>
                 <div class="px-3 py-2 text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800 rounded-xl text-center tabular-nums">
                   ${{ calcularSubtotalItem(entry).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                 </div>
@@ -202,7 +202,7 @@
           >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   {{ getItemInfo(entry)?.tipo_producto === 'kit' ? 'Series por componente' : 'Series requeridas' }}
                 </span>
                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
@@ -215,9 +215,9 @@
                 type="button"
                 @click="getItemInfo(entry)?.tipo_producto === 'kit' ? emit('open-kit-serials', entry) : emit('open-serials', entry)"
                 :class="[
-                  'inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all',
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all',
                   needsSerials(entry)
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30 animate-pulse'
+                    ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 hover:bg-brand-100 dark:hover:bg-brand-900/30 animate-pulse'
                     : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
                 ]"
               >
@@ -232,7 +232,7 @@
               <span
                 v-for="serie in getSerials(entry)"
                 :key="serie"
-                class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-md border border-slate-200 dark:border-slate-700"
+                class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-700"
               >
                 {{ serie }}
               </span>
@@ -242,19 +242,19 @@
             <div v-if="getItemInfo(entry)?.tipo_producto === 'kit'" class="mt-3 space-y-2">
                <div v-for="kItem in getItemInfo(entry).kit_items" :key="kItem.id" class="pl-2 border-l-2 border-slate-100 dark:border-slate-800">
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tighter">
+                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                       {{ kItem.item?.nombre || 'Componente' }}
                     </span>
                     <div class="flex gap-1">
                        <span v-for="tag in getTrazabilidadTags(kItem.item?.nombre || '')" :key="tag"
-                             class="px-1.5 py-0.5 rounded-md text-[8px] font-black border bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                             class="px-1.5 py-0.5 rounded-xl text-[8px] font-black border bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
                          {{ tag }}
                        </span>
                     </div>
                   </div>
                   <div class="flex flex-wrap gap-1">
                      <span v-for="serie in getComponentSerials(entry.id, kItem)" :key="serie"
-                           class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 rounded-md border border-indigo-100 dark:border-indigo-800/30">
+                           class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-indigo-50 dark:bg-sky-900/10 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
                         {{ serie }}
                      </span>
                      <span v-if="getComponentSerials(entry.id, kItem).length === 0" class="text-[9px] text-slate-400 italic">Sin series seleccionadas</span>

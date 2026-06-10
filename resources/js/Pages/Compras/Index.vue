@@ -1,16 +1,14 @@
-<!-- /resources/js/Pages/Compras/Index.vue -->
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { router, Head } from '@inertiajs/vue3'
+import { router, Head, Link, usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
 
 import { generarPDF } from '@/Utils/pdfGenerator'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import ComprasHeader from '@/Components/IndexComponents/ComprasHeader.vue'
-import ComprasTable from '@/Components/IndexComponents/ComprasTable.vue'
-import Modal from '@/Components/IndexComponents/Modales.vue'
+import CrudPageHeader from '@/Components/CrudPageHeader.vue'
+import IndexTable from '@/Components/IndexTable.vue'
 import ModalCompra from '@/Components/IndexComponents/ModalCompra.vue'
 import ModalCompras from '@/Components/Compras/ModalCompras.vue'
 import ImportXmlModal from '@/Components/Compras/ImportXmlModal.vue'
@@ -18,49 +16,15 @@ import ImportXmlModal from '@/Components/Compras/ImportXmlModal.vue'
 defineOptions({ layout: AppLayout })
 
 const props = defineProps({
-  compras: {
-    type: Object,
-    default: () => ({ data: [] })
-  },
-  stats: {
-    type: Object,
-    default: () => ({
-      total: 0,
-      procesadas: 0,
-      canceladas: 0
-    })
-  },
-  filters: {
-    type: Object,
-    default: () => ({})
-  },
-  sorting: {
-    type: Object,
-    default: () => ({
-      sort_by: 'created_at',
-      sort_direction: 'desc',
-      allowed_sorts: ['created_at', 'total', 'estado']
-    })
-  },
-  pagination: {
-    type: Object,
-    default: () => ({
-      current_page: 1,
-      last_page: 1,
-      per_page: 10,
-      total: 0,
-      from: 0,
-    })
-  },
-  is_admin: {
-    type: Boolean,
-    default: false
-  }
+  compras: { type: Object, default: () => ({ data: [] }) },
+  stats: { type: Object, default: () => ({ total: 0, procesadas: 0, canceladas: 0 }) },
+  filters: { type: Object, default: () => ({}) },
+  sorting: { type: Object, default: () => ({ sort_by: 'created_at', sort_direction: 'desc', allowed_sorts: ['created_at', 'total', 'estado'] }) },
+  pagination: { type: Object, default: () => ({ current_page: 1, last_page: 1, per_page: 10, total: 0, from: 0 }) },
+  is_admin: { type: Boolean, default: false },
+  almacenes_list: { type: Array, default: () => [] }
 })
 
-/* =========================
-   Configuración de notificaciones
-========================= */
 const notyf = new Notyf({
   duration: 4000,
   position: { x: 'right', y: 'top' },
@@ -71,9 +35,12 @@ const notyf = new Notyf({
   ]
 })
 
-/* =========================
-    Estado local y modal
-========================= */
+onMounted(() => {
+  const flash = usePage().props.flash
+  if (flash?.success) notyf.success(flash.success)
+  if (flash?.error) notyf.error(flash.error)
+})
+
 const showModal = ref(false)
 const fila = ref(null)
 const modalMode = ref('details')
@@ -81,36 +48,17 @@ const selectedId = ref(null)
 const loading = ref(false)
 const showImportXmlModal = ref(false)
 
-/* =========================
-    Funciones del modal
-========================= */
-const closeModal = () => {
-  showModal.value = false
-  fila.value = null
-  selectedId.value = null
-  modalMode.value = 'details'
-}
+const closeModal = () => { showModal.value = false; fila.value = null; selectedId.value = null; modalMode.value = 'details' }
 
-/* =========================
-    Filtros, orden y datos
-========================= */
 const searchTerm = ref(props.filters.search || '')
 const sortBy = ref(`${props.sorting.sort_by}-${props.sorting.sort_direction}`)
 const filtroEstado = ref(props.filters.estado || '')
 const filtroOrigen = ref(props.filters.origen || '')
 const comprasOriginales = ref([...(props.compras?.data || [])])
 
-/* =========================
-   Auditoría segura para el modal
-========================= */
-onMounted(() => {
-  console.log('Admin Status:', props.is_admin)
-})
-
 const auditoriaForModal = computed(() => {
   const r = fila.value
   if (!r) return null
-
   const meta = r.metadata || {}
   return {
     creado_por: r.creado_por_nombre || r.created_by_user_name || meta.creado_por || 'N/A',
@@ -122,586 +70,288 @@ const auditoriaForModal = computed(() => {
   }
 })
 
-/* =========================
-    Filtrado y ordenamiento (paginación del servidor)
-========================= */
-const comprasFiltradas = computed(() => {
-  return props.compras?.data || []
-})
-
-/* =========================
-    Paginación (del servidor)
-========================= */
-const currentPage = computed(() => props.pagination.current_page)
-const itemsPerPage = computed(() => props.pagination.per_page)
-const totalPages = computed(() => props.pagination.last_page)
-
-const paginatedCompras = computed(() => {
-  return comprasFiltradas.value
-})
-
-const visiblePages = computed(() => {
-  const pages = []
-  const total = totalPages.value
-  const current = currentPage.value
-
-  if (total <= 7) {
-    for (let i = 1; i <= total; i++) {
-      pages.push(i)
-    }
-  } else {
-    if (current <= 3) {
-      for (let i = 1; i <= 5; i++) {
-        pages.push(i)
-      }
-    } else if (current >= total - 2) {
-      for (let i = total - 4; i <= total; i++) {
-        pages.push(i)
-      }
-    } else {
-      for (let i = current - 2; i <= current + 2; i++) {
-        pages.push(i)
-      }
-    }
-  }
-
-  return pages
-})
+const paginationData = computed(() => props.pagination)
 
 const goToPage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
+  if (page >= 1 && page <= (props.pagination.last_page || 1)) {
     updateFilters({ page })
   }
 }
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    updateFilters({ page: currentPage.value + 1 })
-  }
-}
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    updateFilters({ page: currentPage.value - 1 })
-  }
-}
-
-const reloadCurrentPage = () => {
-  const params = {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    origen: filtroOrigen.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1],
-    page: currentPage.value,
-    per_page: itemsPerPage.value,
-  }
-
-  router.get('/compras', params, {
-    preserveState: true,
-    preserveScroll: true,
-    replace: true,
-  })
-}
-
-// Función para actualizar filtros y recargar datos
 const updateFilters = (newFilters = {}) => {
-  const params = {
-    search: searchTerm.value,
-    estado: filtroEstado.value,
-    origen: filtroOrigen.value,
-    sort_by: sortBy.value.split('-')[0],
-    sort_direction: sortBy.value.split('-')[1],
-    page: 1,
-    per_page: itemsPerPage.value,
-    ...newFilters
-  }
-
-  router.get('/compras', params, {
-    preserveState: true,
-    replace: true
-  })
+  router.get('/compras', {
+    search: searchTerm.value, estado: filtroEstado.value, origen: filtroOrigen.value,
+    sort_by: sortBy.value.split('-')[0], sort_direction: sortBy.value.split('-')[1],
+    page: 1, per_page: props.pagination.per_page || 10, ...newFilters
+  }, { preserveState: true, replace: true })
 }
 
-// Watchers para props y filtros
+const onSearch = () => updateFilters({ page: 1 })
+
 watch(() => props.compras, (newVal) => {
-  if (newVal && newVal.data && Array.isArray(newVal.data)) {
-    comprasOriginales.value = [...newVal.data]
-  }
+  if (newVal?.data && Array.isArray(newVal.data)) comprasOriginales.value = [...newVal.data]
 }, { deep: true, immediate: true })
 
-// Aplicar filtros al cambiar valores
-watch([searchTerm, filtroEstado, filtroOrigen, sortBy], () => {
-  updateFilters()
-})
+const estadisticas = computed(() => ({
+  total: props.stats.total || 0, procesadas: props.stats.procesadas || 0, canceladas: props.stats.canceladas || 0,
+}))
 
-// Estadísticas calculadas (usando datos del servidor)
-const estadisticas = computed(() => {
-  return {
-    total: props.stats.total || 0,
-    procesadas: props.stats.procesadas || 0,
-    canceladas: props.stats.canceladas || 0,
-  }
-})
-
-// Estadísticas adicionales para el header moderno
-const montoTotal = computed(() => {
-  return props.stats.monto_total || 0
-})
-
-const pendientesPago = computed(() => {
-  return props.stats.pendientes_pago || 0
-})
+const montoTotal = computed(() => props.stats.monto_total || 0)
+const pendientesPago = computed(() => props.stats.pendientes_pago || 0)
 
 const handleLimpiarFiltros = () => {
-  searchTerm.value = ''
-  sortBy.value = 'created_at-desc'
-  filtroEstado.value = ''
-  filtroOrigen.value = ''
+  searchTerm.value = ''; sortBy.value = 'created_at-desc'; filtroEstado.value = ''; filtroOrigen.value = ''
   updateFilters({ page: 1 })
   notyf.success('Filtros limpiados correctamente')
 }
 
-const updateSort = (newSort) => {
-  if (newSort && typeof newSort === 'string') {
-    sortBy.value = newSort
-    updateFilters({ page: 1 })
-  }
+const updateSort = (newSort) => { if (newSort) sortBy.value = newSort }
+
+const formatearFecha = (v) => {
+  if (!v) return '-'
+  try { return new Date(v).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) }
+  catch { return '-' }
 }
 
-/* =========================
-   Validaciones y utilidades
-========================= */
-function puedeCancelarCompra(compra) {
-  if (!compra) return false
-  return compra.estado === 'procesada'
+const formatearMoneda = (num) => {
+  const value = parseFloat(num)
+  const safe = Number.isFinite(value) ? value : 0
+  return new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safe)
 }
 
-function validarCompra(compra) {
-  if (!compra?.id) {
-    throw new Error('ID de compra no válido')
-  }
-  return true
-}
-
-function validarCompraBasica(compra) {
-  if (!compra?.id) {
-    throw new Error('ID de compra no válido')
-  }
-  if (!compra.proveedor?.nombre_razon_social) {
-    throw new Error('Datos del proveedor no encontrados')
-  }
-  if (!Array.isArray(compra.productos) || !compra.productos.length) {
-    throw new Error('Lista de productos no válida')
-  }
-  if (!compra.fecha && !compra.created_at) {
-    throw new Error('Fecha no especificada')
-  }
-  return true
-}
-
-function validarCompraParaPDF(doc) {
-  if (!doc.id) throw new Error('ID del documento no encontrado')
-  if (!doc.cliente?.nombre_razon_social) throw new Error('Datos del cliente no encontrados')
-  if (!Array.isArray(doc.productos) || !doc.productos.length) {
-    throw new Error('Lista de productos no válida')
-  }
-  if (!doc.fecha) throw new Error('Fecha no especificada')
-  return true
-}
+const columns = [
+  { key: 'fecha', label: 'Fecha', format: (v, row) => formatearFecha(row.created_at || row.fecha) },
+  { key: 'proveedor', label: 'Proveedor', format: (v, row) => row.proveedor?.nombre_razon_social || row.proveedor?.nombre || 'Sin proveedor' },
+  { key: 'numero_compra', label: 'N° Compra', format: (v) => v || 'N/A' },
+  { key: 'total', label: 'Total', format: (v) => '$' + formatearMoneda(v) },
+  { key: 'estado', label: 'Estado' },
+]
 
 /* =========================
    Acciones CRUD
 ========================= */
 const verDetalles = (compra) => {
-  try {
-    validarCompra(compra)
-    fila.value = compra
-    modalMode.value = 'details'
-    showModal.value = true
-  } catch (error) {
-    notyf.error(error.message)
-  }
-}
-
-const abrirModalDetalles = (compra) => {
-  fila.value = compra
-  modalMode.value = 'details'
-  showModal.value = true
-}
-
-const abrirModalConfirmacion = (id) => {
-  selectedId.value = id
-  modalMode.value = 'confirm'
-  showModal.value = true
+  if (!compra?.id) { notyf.error('ID de compra no válido'); return }
+  fila.value = compra; modalMode.value = 'details'; showModal.value = true
 }
 
 const editarCompra = (id) => {
-  try {
-    const compraId = id || fila.value?.id
-    if (!compraId) throw new Error('ID de compra no válido')
-
-    router.visit(`/compras/${compraId}/edit`)
-  } catch (error) {
-    notyf.error(error.message)
-  }
+  if (!id) { notyf.error('ID de compra no válido'); return }
+  router.visit(`/compras/${id}/edit`)
 }
 
-const editarFila = (id) => {
-  editarCompra(id)
-}
-
+const editarFila = (id) => editarCompra(id)
 
 const imprimirCompra = async (compra) => {
   try {
-    const doc = {
-      ...compra,
-      cliente: compra.proveedor, // Mapear proveedor a cliente para el PDF
-      productos: compra.productos,   // Mapear productos para el PDF
-      fecha: compra.fecha || compra.created_at || new Date().toISOString()
-    }
-
-    validarCompraParaPDF(doc)
-
-    loading.value = true
-    notyf.success('Generando PDF...')
-
+    const doc = { ...compra, cliente: compra.proveedor, productos: compra.productos, fecha: compra.fecha || compra.created_at || new Date().toISOString() }
+    if (!doc.id) throw new Error('ID del documento no encontrado')
+    loading.value = true; notyf.success('Generando PDF...')
     await generarPDF('Compra', doc)
     notyf.success('PDF generado correctamente')
-
-  } catch (error) {
-    console.error('Error al generar PDF:', error)
-    notyf.error(`Error al generar el PDF: ${error.message}`)
-  } finally {
-    loading.value = false
-  }
+  } catch (error) { notyf.error(`Error al generar el PDF: ${error.message}`) }
+  finally { loading.value = false }
 }
 
-const imprimirFila = () => {
-  if (fila.value) {
-    imprimirCompra(fila.value)
-  }
-}
+const imprimirFila = () => { if (fila.value) imprimirCompra(fila.value) }
 
 const confirmarEliminacion = (id) => {
-  try {
-    if (!id) throw new Error('ID de compra no válido')
-    const compra = comprasOriginales.value.find(c => c.id === id)
-    if (compra && compra.estado === 'procesada') {
-      // Si está procesada, mostrar modal de cancelación
-      selectedId.value = id
-      modalMode.value = 'cancel'
-      showModal.value = true
-    } else {
-      // Si está cancelada o en otro estado, mostrar modal de eliminación
-      selectedId.value = id
-      modalMode.value = 'delete'
-      showModal.value = true
-    }
-  } catch (error) {
-    notyf.error(error.message)
+  if (!id) { notyf.error('ID de compra no válido'); return }
+  const compra = comprasOriginales.value.find(c => c.id === id)
+  selectedId.value = id
+  if (compra && compra.estado === 'procesada') {
+    modalMode.value = 'cancel'; showModal.value = true
+  } else {
+    modalMode.value = 'delete'; showModal.value = true
   }
 }
 
 const cancelarCompra = async () => {
-  try {
-    if (!selectedId.value) throw new Error('No se seleccionó ninguna compra')
-
-    loading.value = true
-
-    router.post(`/compras/${selectedId.value}/cancel`, {}, {
-      onStart: () => {
-        notyf.success('Cancelando compra...')
-      },
-      onSuccess: (page) => {
-      if (page.props.flash?.error) {
-        notyf.error(page.props.flash.error)
-        closeModal()
-      } else {
-        notyf.success('Compra cancelada exitosamente')
-        closeModal()
-        reloadCurrentPage()
-      }
+  if (!selectedId.value) { notyf.error('No se seleccionó ninguna compra'); return }
+  loading.value = true
+  router.post(`/compras/${selectedId.value}/cancel`, {}, {
+    onStart: () => notyf.success('Cancelando compra...'),
+    onSuccess: (page) => {
+      if (page.props.flash?.error) { notyf.error(page.props.flash.error) } else { notyf.success('Compra cancelada exitosamente') }
+      closeModal(); reloadCurrentPage()
     },
-      onError: (errors) => {
-        console.error('Error al cancelar:', errors)
-        const errorMsg = errors?.message || 'Error al cancelar la compra'
-        notyf.error(errorMsg)
-        closeModal()
-      },
-      onFinish: () => {
-        loading.value = false
-      }
-    })
-  } catch (error) {
-    notyf.error(error.message)
-    loading.value = false
-    closeModal()
-  }
+    onError: (errors) => { notyf.error(errors?.message || 'Error al cancelar la compra'); closeModal() },
+    onFinish: () => { loading.value = false }
+  })
 }
 
 const eliminarCompra = async () => {
-  try {
-    if (!selectedId.value) throw new Error('No se seleccionó ninguna compra')
-
-    loading.value = true
-
-    router.delete(`/compras/${selectedId.value}`, {
-      onStart: () => {
-        notyf.success('Eliminando compra...')
-      },
-      onSuccess: (page) => {
-      if (page.props.flash?.error) {
-        notyf.error(page.props.flash.error)
-        closeModal()
-      } else {
-        notyf.success('Compra eliminada exitosamente')
-        closeModal()
-        reloadCurrentPage()
-      }
+  if (!selectedId.value) { notyf.error('No se seleccionó ninguna compra'); return }
+  loading.value = true
+  router.delete(`/compras/${selectedId.value}`, {
+    onStart: () => notyf.success('Eliminando compra...'),
+    onSuccess: (page) => {
+      if (page.props.flash?.error) { notyf.error(page.props.flash.error) } else { notyf.success('Compra eliminada exitosamente') }
+      closeModal(); reloadCurrentPage()
     },
-      onError: (errors) => {
-        console.error('Error al eliminar:', errors)
-        const errorMsg = errors?.message || 'Error al eliminar la compra'
-        notyf.error(errorMsg)
-        closeModal() // Cerrar el modal incluso en error
-      },
-      onFinish: () => {
-        loading.value = false
-      }
-    })
-  } catch (error) {
-    notyf.error(error.message)
-    loading.value = false
-    closeModal() // Cerrar el modal en caso de error
-  }
+    onError: (errors) => { notyf.error(errors?.message || 'Error al eliminar la compra'); closeModal() },
+    onFinish: () => { loading.value = false }
+  })
 }
 
-
-const crearNuevaCompra = () => {
-  router.visit('/compras/create')
+const reloadCurrentPage = () => {
+  router.get('/compras', {
+    search: searchTerm.value, estado: filtroEstado.value, origen: filtroOrigen.value,
+    sort_by: sortBy.value.split('-')[0], sort_direction: sortBy.value.split('-')[1],
+    page: props.pagination.current_page, per_page: props.pagination.per_page,
+  }, { preserveState: true, preserveScroll: true, replace: true })
 }
 
-const importarDesdeXml = () => {
-  showImportXmlModal.value = true
-}
+const crearNuevaCompra = () => router.visit('/compras/create')
+
+const importarDesdeXml = () => { showImportXmlModal.value = true }
 
 const handleXmlImport = (cfdiData) => {
-  // Check if purchase was already created by the modal
-  if (cfdiData.compra_creada) {
-    notyf.success('Compra importada exitosamente')
-    reloadCurrentPage()
-    return
-  }
-
-  // Guardar datos del CFDI en sessionStorage para usar en Create
+  if (cfdiData.compra_creada) { notyf.success('Compra importada exitosamente'); reloadCurrentPage(); return }
   sessionStorage.setItem('cfdi_import_data', JSON.stringify(cfdiData))
-  
   notyf.success('Redirigiendo al formulario de compra...')
-  
-  // Redirigir a Create con parámetro de importación
   router.visit('/compras/create?from_xml=1')
 }
 
 const handleConfirm = () => {
-  if (modalMode.value === 'cancel') {
-    cancelarCompra()
-  } else if (modalMode.value === 'delete') {
-    eliminarCompra()
-  }
+  if (modalMode.value === 'cancel') cancelarCompra()
+  else if (modalMode.value === 'delete') eliminarCompra()
 }
 </script>
 
 <template>
   <Head title="Compras" />
 
-  <div class="compras-index min-h-screen bg-white">
-    <!-- Contenido principal -->
-    <div class="w-full px-6 py-8">
-      <!-- Header específico de compras -->
-      <ComprasHeader
-        :total="estadisticas.total"
-        :procesadas="estadisticas.procesadas"
-        :canceladas="estadisticas.canceladas"
-        :monto-total="montoTotal"
-        :pendientes-pago="pendientesPago"
-        v-model:search-term="searchTerm"
-        v-model:sort-by="sortBy"
-        v-model:filtro-estado="filtroEstado"
-        v-model:filtro-origen="filtroOrigen"
-        @crear-nueva="crearNuevaCompra"
-        @importar-xml="importarDesdeXml"
-        @search-change="updateFilters"
-        @filtro-estado-change="updateFilters"
-        @filtro-origen-change="updateFilters"
-        @sort-change="updateSort"
-        @limpiar-filtros="handleLimpiarFiltros"
+  <div class="min-h-screen">
+    <div class="w-full px-4 sm:px-6 py-6">
+      <CrudPageHeader title="Compras" subtitle="Gestión de compras">
+        <template #actions>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <input v-model="searchTerm" @keyup.enter="onSearch" type="text" placeholder="Buscar..."
+                class="w-48 lg:w-64 px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all" />
+            </div>
+            <select v-model="filtroEstado" @change="onSearch"
+              class="px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all">
+              <option value="">Todos los estados</option>
+              <option value="procesada">Procesada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="borrador">Borrador</option>
+            </select>
+            <button @click="importarDesdeXml"
+              class="inline-flex items-center px-4 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm">
+              <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Importar XML
+            </button>
+            <Link :href="route('compras.create')"
+              class="inline-flex items-center px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm">
+              <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Nueva Compra
+            </Link>
+          </div>
+        </template>
+      </CrudPageHeader>
+
+      <IndexTable
+        :columns="columns"
+        :rows="props.compras?.data || []"
+        empty-text="No hay compras registradas"
+        empty-subtext="Crea la primera compra usando el botón Nueva Compra"
+      >
+        <template #actions="{ row }">
+          <div class="flex justify-end gap-1.5">
+            <button @click="verDetalles(row)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-900/30"
+              title="Ver detalles">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+            <button @click="editarCompra(row.id)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/30"
+              title="Editar">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button @click="imprimirCompra(row)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
+              title="Imprimir">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+            </button>
+            <button @click="confirmarEliminacion(row.id)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/30"
+              title="Eliminar">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </template>
+        <template #pagination>
+          <div v-if="paginationData.last_page > 1" class="flex justify-between items-center">
+            <div class="text-sm text-slate-500">
+              Mostrando {{ paginationData.from || 0 }} - {{ paginationData.to || 0 }} de {{ paginationData.total || 0 }}
+            </div>
+            <div class="flex gap-1.5">
+              <button @click="goToPage(paginationData.current_page - 1)" :disabled="paginationData.current_page <= 1"
+                class="px-3 py-1.5 text-sm rounded-lg transition-all duration-150 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50">Anterior</button>
+              <Link v-for="(link, i) in (props.compras.links || [])" :key="i"
+                :href="link.url || '#'"
+                v-html="link.label"
+                class="px-3 py-1.5 text-sm rounded-lg transition-all duration-150"
+                :class="link.active
+                  ? 'bg-brand-500 text-white'
+                  : link.url ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700' : 'text-slate-300 cursor-default'" />
+            </div>
+          </div>
+        </template>
+      </IndexTable>
+
+      <!-- Modal de detalles -->
+      <ModalCompra
+        v-if="modalMode === 'details'"
+        :show="showModal"
+        :selected="fila || {}"
+        :auditoria="auditoriaForModal"
+        @close="closeModal"
+        @editar="editarFila"
+        @eliminar="confirmarEliminacion"
+        @imprimir="imprimirFila"
       />
 
-      <!-- Información de paginación -->
-      <div class="flex justify-between items-center mb-4 text-sm text-gray-600">
-        <div>
-          Mostrando {{ props.pagination.from }} -
-          {{ props.pagination.to }}
-          de {{ props.pagination.total }} compras
-        </div>
-        <div class="flex items-center space-x-2">
-          <span>Elementos por página:</span>
-          <select
-            :value="props.pagination.per_page"
-            @change="updateFilters({ per_page: $event.target.value, page: 1 })"
-            class="border border-gray-300 rounded px-2 py-1 text-sm"
-          >
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
-        </div>
-      </div>
+      <!-- Modal de cancelación/eliminación -->
+      <ModalCompras
+        v-if="modalMode === 'cancel' || modalMode === 'delete'"
+        :show="showModal"
+        :mode="modalMode"
+        @close="closeModal"
+        @confirm="handleConfirm"
+      />
 
-      <!-- Tabla de compras -->
-      <div class="mt-6">
-      <ComprasTable
-          :documentos="paginatedCompras"
-          :search-term="searchTerm"
-          :sort-by="sortBy"
-          :filtro-estado="filtroEstado"
-          :filtro-origen="filtroOrigen"
-          :is-admin="props.is_admin"
-          @ver-detalles="verDetalles"
-          @editar="editarCompra"
-          @imprimir="imprimirCompra"
-          @eliminar="confirmarEliminacion"
-          @sort="updateSort"
-        />
-      </div>
+      <!-- Modal de importación XML -->
+      <ImportXmlModal
+        :show="showImportXmlModal"
+        :almacenes-list="props.almacenes_list"
+        @close="showImportXmlModal = false"
+        @import="handleXmlImport"
+      />
 
-      <!-- Controles de paginación -->
-      <div v-if="props.pagination.total > 0" class="flex justify-center items-center space-x-2 mt-6">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Anterior
-        </button>
-
-        <div class="flex space-x-1">
-          <!-- Primera página (solo si no está en visiblePages) -->
-          <template v-if="!visiblePages.includes(1) && totalPages > 7">
-            <button
-              @click="goToPage(1)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
-            >
-              1
-            </button>
-            <span class="px-3 py-2 text-sm text-gray-500">...</span>
-          </template>
-
-          <!-- Páginas visibles -->
-          <button
-            v-for="page in visiblePages"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'px-3 py-2 text-sm font-medium border border-gray-300 rounded-md',
-              page === currentPage
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'text-gray-700 bg-white hover:bg-white'
-            ]"
-          >
-            {{ page }}
-          </button>
-
-          <!-- Última página (solo si no está en visiblePages) -->
-          <template v-if="!visiblePages.includes(totalPages) && totalPages > 7">
-            <span class="px-3 py-2 text-sm text-gray-500">...</span>
-            <button
-              @click="goToPage(totalPages)"
-              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
-            >
-              {{ totalPages }}
-            </button>
-          </template>
-        </div>
-
-        <button
-          @click="nextPage"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Siguiente
-        </button>
-      </div>
-    </div>
-
-    <!-- Modal de detalles -->
-    <ModalCompra
-      v-if="modalMode === 'details'"
-      :show="showModal"
-      :selected="fila || {}"
-      :auditoria="auditoriaForModal"
-      @close="closeModal"
-      @editar="editarFila"
-      @eliminar="confirmarEliminacion"
-      @imprimir="imprimirFila"
-    />
-
-    <!-- Modal de cancelación/eliminación -->
-    <ModalCompras
-      v-if="modalMode === 'cancel' || modalMode === 'delete'"
-      :show="showModal"
-      :mode="modalMode"
-      @close="closeModal"
-      @confirm="handleConfirm"
-    />
-
-    <!-- Modal de importación XML -->
-    <ImportXmlModal
-      :show="showImportXmlModal"
-      :almacenes-list="props.almacenes_list"
-      @close="showImportXmlModal = false"
-      @import="handleXmlImport"
-    />
-
-    <!-- Loading overlay -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg">
-        <div class="flex items-center space-x-3">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <span class="text-gray-700">Procesando...</span>
+      <!-- Loading overlay -->
+      <div v-if="loading" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-6">
+          <div class="flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+            <span class="text-slate-700 dark:text-slate-200">Procesando...</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.compras-index {
-  min-height: 100vh;
-}
-
-@media (max-width: 640px) {
-  .compras-index .w-full {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .compras-index h1 {
-    font-size: 1.5rem;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.compras-index > * {
-  animation: fadeIn 0.3s ease-out;
-}
-</style>
-
-
-

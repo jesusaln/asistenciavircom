@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('productos', function (Blueprint $table) {
-            $table->boolean('incluye_iva')->default(false)->after('destacado');
-        });
+        if (!Schema::hasColumn('productos', 'incluye_iva')) {
+            Schema::table('productos', function (Blueprint $table) {
+                $table->boolean('incluye_iva')->default(false)->after('destacado');
+            });
+        }
     }
 
     public function down(): void

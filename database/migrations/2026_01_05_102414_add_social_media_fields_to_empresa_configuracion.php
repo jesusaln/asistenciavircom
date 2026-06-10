@@ -10,15 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('empresa_configuracion', function (Blueprint $table) {
-            // Redes Sociales
-            $table->string('facebook_url')->nullable()->after('whatsapp');
-            $table->string('instagram_url')->nullable()->after('facebook_url');
-            $table->string('twitter_url')->nullable()->after('instagram_url');
-            $table->string('tiktok_url')->nullable()->after('twitter_url');
-            $table->string('youtube_url')->nullable()->after('tiktok_url');
-            $table->string('linkedin_url')->nullable()->after('youtube_url');
-        });
+        if (!Schema::hasColumn('empresa_configuracion', 'facebook_url')) {
+            Schema::table('empresa_configuracion', function (Blueprint $table) {
+                // Redes Sociales
+                $table->string('facebook_url')->nullable()->after('whatsapp');
+                $table->string('instagram_url')->nullable()->after('facebook_url');
+                $table->string('twitter_url')->nullable()->after('instagram_url');
+                $table->string('tiktok_url')->nullable()->after('twitter_url');
+                $table->string('youtube_url')->nullable()->after('tiktok_url');
+                $table->string('linkedin_url')->nullable()->after('youtube_url');
+            });
+        }
     }
 
     /**

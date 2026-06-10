@@ -37,7 +37,7 @@ class StoreClientNotification
                         'client_id' => $event->cliente->id,
                         'client_name' => $event->cliente->nombre_razon_social,
                         'client_email' => $event->cliente->email,
-                        'created_at' => $event->cliente->created_at->toISOString()
+                        'created_at' => $event->cliente->created_at->toIso8601String()
                     ],
                     "/clientes/{$event->cliente->id}",
                     'fas fa-user-plus'

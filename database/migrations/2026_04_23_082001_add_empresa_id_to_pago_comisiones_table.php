@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('pagos_comisiones', 'empresa_id')) {
-            Schema::table('pagos_comisiones', function (Blueprint $table) {
-                $table->unsignedBigInteger('empresa_id')->nullable()->after('id');
-                
-                if (Schema::hasTable('empresas')) {
-                    $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
-                }
-            });
+        if (Schema::hasTable('pagos_comisiones')) {
+            if (!Schema::hasColumn('pagos_comisiones', 'empresa_id')) {
+                Schema::table('pagos_comisiones', function (Blueprint $table) {
+                    $table->unsignedBigInteger('empresa_id')->nullable()->after('id');
+                    
+                    if (Schema::hasTable('empresas')) {
+                        $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
+                    }
+                });
+            }
         }
     }
 

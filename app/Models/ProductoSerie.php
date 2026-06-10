@@ -23,6 +23,7 @@ class ProductoSerie extends Model
         'almacen_id',
         'numero_serie',
         'estado',
+        'compra_item_id',
     ];
 
     /** @return BelongsTo<Producto, ProductoSerie> */

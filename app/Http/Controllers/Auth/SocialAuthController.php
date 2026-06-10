@@ -66,64 +66,7 @@ class SocialAuthController extends Controller
         }
     }
 
-    /**
-     * Redirect a Microsoft
-     */
-    public function redirectToMicrosoft()
-    {
-        return Socialite::driver('microsoft')
-            ->scopes(['User.Read'])
-            ->redirect();
-    }
 
-    /**
-     * Callback de Microsoft
-     */
-    public function handleMicrosoftCallback()
-    {
-        try {
-            $socialUser = Socialite::driver('microsoft')->user();
-
-            // CASO 1: Usuario Admin/Técnico ya autenticado -> Vincular cuenta
-            if (Auth::check()) {
-                $user = Auth::user();
-                $user->microsoft_token = $socialUser->token;
-                $user->microsoft_refresh_token = $socialUser->refreshToken;
-                $user->microsoft_token_expires_at = now()->addSeconds($socialUser->expiresIn);
-                $user->save();
-
-                return redirect()->route('perfil')
-                    ->with('success', 'Cuenta de Microsoft conectada exitosamente.');
-            }
-
-            // CASO 2: Login de Cliente Tienda
-            $cliente = ClienteTienda::findOrCreateFromProvider('microsoft', $socialUser);
-
-            // Guardar en sesión
-            session(['cliente_tienda_id' => $cliente->id]);
-            session([
-                'cliente_tienda' => [
-                    'id' => $cliente->id,
-                    'nombre' => $cliente->nombre,
-                    'email' => $cliente->email,
-                    'avatar' => $cliente->avatar,
-                ]
-            ]);
-
-            return redirect()->route('catalogo.index')
-                ->with('success', '¡Bienvenido, ' . $cliente->nombre . '!');
-
-        } catch (\Exception $e) {
-            // Si estaba intentando vincular (Auth check), redirigir al perfil con error
-            if (Auth::check()) {
-                return redirect()->route('perfil')
-                    ->with('error', 'Error al conectar con Microsoft: ' . $e->getMessage());
-            }
-
-            return redirect()->route('tienda.login')
-                ->with('error', 'Error al iniciar sesión con Microsoft: ' . $e->getMessage());
-        }
-    }
 
     /**
      * Cerrar sesión del cliente

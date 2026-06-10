@@ -18,6 +18,8 @@ use App\Models\Traits\HasUuid;
 
 class Cliente extends Authenticatable implements AuditableContract, CanResetPasswordContract
 {
+    use BelongsToEmpresa;
+
     use HasFactory, Notifiable, SoftDeletes, AuditableTrait, CanResetPassword, BelongsToEmpresa, HasTrigramSearch, HasUuid;
 
     protected array $searchable = ['nombre_razon_social', 'rfc', 'email', 'telefono', 'calle', 'colonia', 'municipio'];
@@ -28,6 +30,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         'codigo',
         'empresa_id',
         'nombre_razon_social',
+        'persona_contacto',    // Persona de contacto opcional
         'razon_social',        // Razón social para facturación (puede ser diferente al nombre comercial)
         'tipo_persona',
         'tipo_identificacion',
@@ -99,6 +102,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     protected $hidden = [
         'password',
         'remember_token',
+        'credito_firma',
     ];
 
     protected $casts = [
@@ -130,8 +134,20 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         // 'pais' se deja sin valor por defecto para permitir extranjeros
     ];
 
-    protected $auditExclude = [
-        'updated_at',
+    /**
+     * Only audit changes to sensitive financial/identity fields.
+     */
+    protected $auditInclude = [
+        'nombre_razon_social',
+        'rfc',
+        'regimen_fiscal',
+        'uso_cfdi',
+        'credito_activo',
+        'estado_credito',
+        'limite_credito',
+        'dias_credito',
+        'activo',
+        'price_list_id',
     ];
 
     /**
@@ -153,6 +169,14 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     protected static function booted()
     {
         static::creating(function (Cliente $cliente) {
+            if (empty($cliente->empresa_id)) {
+                $cliente->empresa_id = auth()->user()?->empresa_id
+                    ?? \App\Support\EmpresaResolver::resolveId();
+                
+                if (empty($cliente->empresa_id)) {
+                    throw new \RuntimeException("No se puede crear el Cliente: empresa_id es requerido y no pudo ser resuelto.");
+                }
+            }
             if (empty($cliente->codigo)) {
                 try {
                     $cliente->codigo = app(\App\Services\Folio\FolioService::class)->getNextFolio('cliente');
@@ -166,14 +190,22 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
             if (empty($cliente->uso_cfdi)) {
                 $cliente->uso_cfdi = 'G03'; // G03 - Gastos en general por defecto
             }
-            // No forzar país a MX para permitir clientes extranjeros
+            // Clientes nuevos creados por WhatsApp: activar optin automáticamente
+            if (is_null($cliente->whatsapp_optin)) {
+                $cliente->whatsapp_optin = true;
+                if (empty($cliente->whatsapp_consent_date)) {
+                    $cliente->whatsapp_consent_date = now();
+                    $cliente->whatsapp_consent_method = 'automatico';
+                    $cliente->whatsapp_consent_source = 'whatsapp_webhook';
+                }
+            }
         });
 
         static::saving(function (Cliente $cliente) {
             // Gestión automática de fechas de consentimiento de WhatsApp
             if ($cliente->isDirty('whatsapp_optin')) {
                 if ($cliente->whatsapp_optin) {
-                    $cliente->whatsapp_consent_date = now();
+                    $cliente->whatsapp_consent_date = \Illuminate\Support\Carbon::now();
                     $cliente->whatsapp_consent_method = $cliente->whatsapp_consent_method ?? 'web';
                     $cliente->whatsapp_consent_source = $cliente->whatsapp_consent_source ?? 'system';
                 } else {
@@ -451,18 +483,26 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
 
     public function getEstadoNombreAttribute(): ?string
     {
-        // Devuelve "Sonora" si está cargada la relación; si no, null
-        return optional($this->estadoSat)->nombre;
+        if ($this->relationLoaded('estadoSat')) {
+            return $this->estadoSat?->nombre;
+        }
+        return null;
     }
 
     public function getRegimenDescripcionAttribute(): ?string
     {
-        return optional($this->regimen)->descripcion;
+        if ($this->relationLoaded('regimen')) {
+            return $this->regimen?->descripcion;
+        }
+        return null;
     }
 
     public function getUsoCfdiDescripcionAttribute(): ?string
     {
-        return optional($this->uso)->descripcion;
+        if ($this->relationLoaded('uso')) {
+            return $this->uso?->descripcion;
+        }
+        return null;
     }
 
     /**
@@ -572,19 +612,24 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
      */
     private function validarRfc(string $rfc): bool
     {
-        $rfc = strtoupper($rfc);
+        $rfc = strtoupper(trim($rfc));
 
-        // RFC genérico extranjero
-        if ($rfc === 'XEXX010101000') {
+        // RFC genérico nacional o extranjero
+        if (in_array($rfc, ['XEXX010101000', 'XAXX010101000'])) {
             return true;
         }
 
-        // Persona física: 13 caracteres
+        // SEGURIDAD: Bloquear RFCs sintéticos o de prueba comunes
+        if (preg_match('/^(ABC|TEST|PRUEBA|NUL|UNK)/i', $rfc)) {
+            return false;
+        }
+
+        // Persona física: 13 caracteres (4 letras, 6 dígitos, 3 alfanuméricos homoclave)
         if (preg_match('/^[A-ZÑ&]{4}\d{6}[A-Z\d]{3}$/', $rfc)) {
             return true;
         }
 
-        // Persona moral: 12 caracteres
+        // Persona moral: 12 caracteres (3 letras, 6 dígitos, 3 alfanuméricos homoclave)
         if (preg_match('/^[A-ZÑ&]{3}\d{6}[A-Z\d]{3}$/', $rfc)) {
             return true;
         }
@@ -612,7 +657,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     public function grantWhatsAppConsent(string $method = 'web', string $source = 'system'): void
     {
         $this->whatsapp_optin = true;
-        $this->whatsapp_consent_date = now();
+        $this->whatsapp_consent_date = \Illuminate\Support\Carbon::now();
         $this->whatsapp_consent_method = $method;
         $this->whatsapp_consent_source = $source;
         $this->save();
@@ -631,7 +676,7 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
         // General opt-out
         $this->marketing_optin = false;
         $this->sms_optin = false;
-        $this->opt_out_at = now();
+        $this->opt_out_at = \Illuminate\Support\Carbon::now();
         $this->unsubscribed_reason = $reason;
         
         $this->save();
@@ -663,5 +708,13 @@ class Cliente extends Authenticatable implements AuditableContract, CanResetPass
     public function documentos(): HasMany
     {
         return $this->hasMany(ClienteDocumento::class);
+    }
+
+    /**
+     * Ordenes de Taller
+     */
+    public function tallerOrdenes(): HasMany
+    {
+        return $this->hasMany(TallerOrden::class);
     }
 }

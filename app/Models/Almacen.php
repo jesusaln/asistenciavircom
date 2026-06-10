@@ -11,6 +11,8 @@ use \OwenIt\Auditing\Auditable;
 
 class Almacen extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa, Auditable;
 
     protected $table = 'almacenes';

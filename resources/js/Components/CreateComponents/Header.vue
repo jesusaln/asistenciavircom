@@ -4,7 +4,7 @@
       <!-- Left: title + description -->
       <div class="min-w-0">
         <div class="flex items-center gap-3 flex-wrap">
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white truncate">
+          <h1 class="text-3xl font-bold text-slate-900 dark:text-white truncate">
             {{ finalTitle }}
           </h1>
 
@@ -18,12 +18,12 @@
           </span>
         </div>
 
-        <p v-if="finalDescription" class="text-gray-600 dark:text-slate-400 mt-1">
+        <p v-if="finalDescription" class="text-slate-600 dark:text-slate-400 mt-1">
           {{ finalDescription }}
         </p>
 
         <!-- Breadcrumbs slot opcional -->
-        <div v-if="$slots.breadcrumbs" class="mt-2 text-gray-400">
+        <div v-if="$slots.breadcrumbs" class="mt-2 text-slate-400">
           <slot name="breadcrumbs" />
         </div>
       </div>
@@ -38,7 +38,7 @@
           v-if="showPreview"
           @click="$emit('preview')"
           :disabled="!canPreview"
-          class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+          class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-xl text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -53,7 +53,7 @@
         <Link
           v-if="showBack"
           :href="backUrl"
-          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-400 dark:hover:border-slate-700 transition-all duration-200 shadow-sm"
+          class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all duration-200 shadow-sm"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -171,21 +171,21 @@ const finalDescription = computed(() =>
 )
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; ring: string; label?: string }> = {
-  borrador:       { bg: 'bg-gray-50 dark:bg-slate-800',    text: 'text-gray-700 dark:text-slate-300',    ring: 'ring-gray-200 dark:ring-slate-700',    label: 'Borrador' },
-  pendiente:      { bg: 'bg-amber-50 dark:bg-amber-900/20',   text: 'text-amber-700 dark:text-amber-400',   ring: 'ring-amber-200 dark:ring-amber-800/30',   label: 'Pendiente' },
+  borrador:       { bg: 'bg-slate-50 dark:bg-slate-800',    text: 'text-slate-700 dark:text-slate-300',    ring: 'ring-slate-200 dark:ring-slate-700',    label: 'Borrador' },
+  pendiente:      { bg: 'bg-brand-50 dark:bg-brand-900/20',   text: 'text-brand-700 dark:text-amber-400',   ring: 'ring-brand-200 dark:ring-brand-800/30',   label: 'Pendiente' },
   aprobada:       { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400', ring: 'ring-emerald-200 dark:ring-emerald-800/30', label: 'Aprobada' },
   confirmada:     { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400', ring: 'ring-emerald-200 dark:ring-emerald-800/30', label: 'Confirmada' },
   en_preparacion: { bg: 'bg-sky-50 dark:bg-sky-900/20',     text: 'text-sky-700 dark:text-sky-400',     ring: 'ring-sky-200 dark:ring-sky-800/30',     label: 'En preparación' },
-  listo_entrega:  { bg: 'bg-indigo-50 dark:bg-indigo-900/20',  text: 'text-indigo-700 dark:text-indigo-400',  ring: 'ring-indigo-200 dark:ring-indigo-800/30',  label: 'Listo para entrega' },
-  entregado:      { bg: 'bg-blue-50 dark:bg-blue-900/20',    text: 'text-blue-700 dark:text-blue-400',    ring: 'ring-blue-200 dark:ring-blue-800/30',    label: 'Entregado' },
-  pagado:         { bg: 'bg-green-50 dark:bg-green-900/20',   text: 'text-green-700 dark:text-green-400',   ring: 'ring-green-200 dark:ring-green-800/30',   label: 'Pagado' },
+  listo_entrega:  { bg: 'bg-indigo-50 dark:bg-sky-900/20',  text: 'text-indigo-700 dark:text-indigo-400',  ring: 'ring-indigo-200 dark:ring-indigo-800/30',  label: 'Listo para entrega' },
+  entregado:      { bg: 'bg-blue-50 dark:bg-sky-900/20',    text: 'text-blue-700 dark:text-blue-400',    ring: 'ring-blue-200 dark:ring-blue-800/30',    label: 'Entregado' },
+  pagado:         { bg: 'bg-emerald-50 dark:bg-emerald-900/20',   text: 'text-emerald-700 dark:text-emerald-400',   ring: 'ring-emerald-200 dark:ring-emerald-800/30',   label: 'Pagado' },
   cancelado:      { bg: 'bg-rose-50 dark:bg-rose-900/20',    text: 'text-rose-700 dark:text-rose-400',    ring: 'ring-rose-200 dark:ring-rose-800/30',    label: 'Cancelado' },
-  pendiente_pago: { bg: 'bg-amber-50 dark:bg-amber-900/20',   text: 'text-amber-700 dark:text-amber-400',   ring: 'ring-amber-200 dark:ring-amber-800/30',   label: 'Pendiente de pago' },
+  pendiente_pago: { bg: 'bg-brand-50 dark:bg-brand-900/20',   text: 'text-brand-700 dark:text-amber-400',   ring: 'ring-brand-200 dark:ring-brand-800/30',   label: 'Pendiente de pago' },
 }
 
 const statusClasses = computed(() => {
   const key = (props.status || '').toLowerCase().replace(/\s+/g, '_')
-  return STATUS_STYLES[key] ?? { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300', ring: 'ring-gray-200 dark:ring-slate-700' }
+  return STATUS_STYLES[key] ?? { bg: 'bg-slate-50 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300', ring: 'ring-slate-200 dark:ring-slate-700' }
 })
 
 const statusLabel = computed(() => {

@@ -1,4 +1,5 @@
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 
@@ -271,9 +272,7 @@ const toggleSelection = (match) => {
   }
 };
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const formatDate = (dateStr) => {
   if (!dateStr) return 'N/A';
@@ -289,7 +288,7 @@ const formatDate = (dateStr) => {
         <!-- Header -->
         <div class="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900 text-white px-10 py-8 flex justify-between items-center border-b border-white/5">
           <div>
-            <h2 class="text-2xl font-black uppercase tracking-tighter">
+            <h2 class="text-2xl font-black uppercase tracking-wide">
               {{ step === 'source' ? 'Importar XML' : step === 'preview' ? 'Validación de Pagos' : 'Proceso Exitoso' }}
             </h2>
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">{{ step === 'source' ? 'Selección de origen de datos' : 'Confirmación de vinculación' }}</p>
@@ -306,7 +305,7 @@ const formatDate = (dateStr) => {
               <button
                 @click="sourceTab = 'select'"
                 :class="[
-                  'px-6 py-2.5 font-black text-[10px] uppercase tracking-widest rounded-[1.2rem] transition-all duration-300',
+                  'px-6 py-2.5 font-black text-[10px] uppercase tracking-wide rounded-[1.2rem] transition-all duration-300',
                   sourceTab === 'select'
                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -317,7 +316,7 @@ const formatDate = (dateStr) => {
               <button
                 @click="sourceTab = 'upload'"
                 :class="[
-                  'px-6 py-2.5 font-black text-[10px] uppercase tracking-widest rounded-[1.2rem] transition-all duration-300',
+                  'px-6 py-2.5 font-black text-[10px] uppercase tracking-wide rounded-[1.2rem] transition-all duration-300',
                   sourceTab === 'upload'
                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -336,9 +335,9 @@ const formatDate = (dateStr) => {
                   @input="handleSearch"
                   type="text"
                   placeholder="Buscar complemento de pago por UUID o RFC..."
-                  class="w-full pl-12 pr-6 py-4 bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 rounded-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all"
+                  class="w-full pl-12 pr-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 rounded-3xl text-sm font-bold text-slate-700 dark:text-white focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all"
                 >
-                <svg class="absolute left-4 top-4 h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="absolute left-4 top-4 h-5 w-5 text-slate-400 group-focus-within:text-brand-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
               </div>
@@ -347,12 +346,12 @@ const formatDate = (dateStr) => {
               <div class="border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-xl">
                 <div v-if="loadingCfdis" class="p-16 text-center">
                   <div class="inline-flex relative w-12 h-12">
-                    <div class="absolute inset-0 border-4 border-orange-500/20 rounded-full"></div>
-                    <div class="absolute inset-0 border-4 border-t-orange-500 rounded-full animate-spin"></div>
+                    <div class="absolute inset-0 border-4 border-brand-500/20 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-t-brand-500 rounded-full animate-spin"></div>
                   </div>
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-4">Sincronizando con repositorio...</p>
                 </div>
-                <div v-else-if="paymentCfdis.length === 0" class="p-16 text-center text-gray-500">
+                <div v-else-if="paymentCfdis.length === 0" class="p-16 text-center text-slate-500">
                   <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center opacity-50">
                     <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -361,33 +360,33 @@ const formatDate = (dateStr) => {
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sin documentos tipo "P" encontrados</p>
                 </div>
                 <div v-else class="overflow-x-auto max-h-96 custom-scrollbar">
-                  <table class="w-full">
+                  <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                     <thead class="bg-slate-50 dark:bg-slate-950/20 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-10 backdrop-blur-md">
                       <tr>
-                        <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Emisor</th>
-                        <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Monto</th>
-                        <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest">Documentos</th>
-                        <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Acción</th>
+                        <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Emisor</th>
+                        <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-wide">Monto</th>
+                        <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-wide">Documentos</th>
+                        <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-wide">Acción</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                       <tr v-for="cfdi in paymentCfdis" :key="cfdi.id" class="group hover:bg-white dark:hover:bg-slate-950/40 transition-all duration-200">
                         <td class="px-6 py-4">
-                          <div class="font-black text-xs text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ cfdi.nombre_emisor }}</div>
+                          <div class="font-black text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider">{{ cfdi.nombre_emisor }}</div>
                           <div class="text-[9px] font-bold text-slate-400 tracking-[0.1em] mt-0.5">{{ cfdi.rfc_emisor }} • <span class="font-mono">{{ cfdi.uuid?.slice(0, 13) }}...</span></div>
                         </td>
                         <td class="px-6 py-4 text-right">
                           <div class="text-xs font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{{ formatCurrency(cfdi.total) }}</div>
-                          <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ formatDate(cfdi.fecha_emision) }}</div>
+                          <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{{ formatDate(cfdi.fecha_emision) }}</div>
                         </td>
                         <td class="px-6 py-4 text-center">
-                          <span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded-lg border border-blue-500/10">{{ cfdi.num_documentos || 0 }} DOCS</span>
+                          <span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded-xl border border-blue-500/10">{{ cfdi.num_documentos || 0 }} DOCS</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                           <button
                             @click="selectCfdi(cfdi)"
                             :disabled="loading && selectedCfdiId === cfdi.id"
-                            class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[9px] font-black uppercase tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md disabled:opacity-50"
+                            class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[9px] font-black uppercase tracking-wide rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md disabled:opacity-50"
                           >
                             {{ loading && selectedCfdiId === cfdi.id ? 'Cargando...' : 'Vincular' }}
                           </button>
@@ -407,24 +406,24 @@ const formatDate = (dateStr) => {
                 @drop="handleDrop"
                 :class="[
                   'relative border-2 border-dashed rounded-[2.5rem] p-20 text-center transition-all duration-500 cursor-pointer group',
-                  dragOver ? 'border-orange-500 bg-orange-500/5 ring-8 ring-orange-500/5 scale-[1.02]' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  dragOver ? 'border-brand-500 bg-brand-500/5 ring-8 ring-brand-500/5 scale-[1.02]' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                 ]"
                 @click="$refs.fileInput.click()"
               >
                 <div v-if="loading" class="flex flex-col items-center">
-                  <div class="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 border-t-orange-500 mb-6"></div>
-                  <p class="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Procesando Estructura XML...</p>
+                  <div class="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 border-t-brand-500 mb-6"></div>
+                  <p class="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide">Procesando Estructura XML...</p>
                 </div>
                 <div v-else class="flex flex-col items-center">
-                  <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-orange-500/10 transition-all border border-slate-100 dark:border-slate-700 shadow-sm">
-                    <svg class="w-10 h-10 text-slate-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-500/10 transition-all border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <svg class="w-10 h-10 text-slate-400 group-hover:text-brand-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                     </svg>
                   </div>
-                  <p class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tighter">Arrastre su archivo XML</p>
+                  <p class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-wide">Arrastre su archivo XML</p>
                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">o haga clic para explorar sus carpetas</p>
                   
-                  <div class="mt-8 px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest">Complementos de Pago .XML</div>
+                  <div class="mt-8 px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-wide">Complementos de Pago .XML</div>
                 </div>
                 <input type="file" ref="fileInput" class="hidden" accept=".xml" @change="handleFileSelect">
               </div>
@@ -441,25 +440,25 @@ const formatDate = (dateStr) => {
           <div v-if="step === 'preview'" class="space-y-8">
             <!-- Summary Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Monto del Pago</p>
+               <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Monto del Pago</p>
                   <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">{{ formatCurrency(paymentInfo?.monto_total) }}</p>
                   <div class="mt-2 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ paymentInfo?.forma_pago || 'TRANSFERENCIA' }}</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{{ paymentInfo?.forma_pago || 'TRANSFERENCIA' }}</span>
                   </div>
                </div>
-               <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha de Operación</p>
+               <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Fecha de Operación</p>
                   <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">{{ formatDate(paymentInfo?.fecha_pago) }}</p>
-                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 truncate">{{ paymentInfo?.uuid?.slice(0, 20) }}...</p>
+                  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mt-2 truncate">{{ paymentInfo?.uuid?.slice(0, 20) }}...</p>
                </div>
-               <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
-                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Emparejamiento</p>
+               <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide mb-1">Emparejamiento</p>
                   <div class="flex items-end justify-between">
                     <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ documentosEncontrados }}<span class="text-lg text-slate-400">/{{ totalDocumentos }}</span></p>
                     <div class="pb-1">
-                       <span :class="documentosEncontrados === totalDocumentos ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'" class="px-2 py-0.5 text-[9px] font-black rounded-lg border uppercase tracking-widest">
+                       <span :class="documentosEncontrados === totalDocumentos ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-brand-500/10 text-brand-500 border-brand-500/20'" class="px-2 py-0.5 text-[9px] font-black rounded-xl border uppercase tracking-wide">
                          {{ documentosEncontrados === totalDocumentos ? 'Completo' : 'Parcial' }}
                        </span>
                     </div>
@@ -470,17 +469,17 @@ const formatDate = (dateStr) => {
             <!-- Matches Table Premium -->
             <div class="border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-xl">
               <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                   <thead>
                     <tr class="bg-slate-50 dark:bg-slate-950/20 border-b border-slate-100 dark:border-slate-800">
-                      <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest w-12">SEL</th>
-                      <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Compra / UUID</th>
-                      <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Proveedor</th>
-                      <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Monto Aplicar</th>
-                      <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest">Estatus</th>
+                      <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-wide w-12">SEL</th>
+                      <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Compra / UUID</th>
+                      <th class="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Proveedor</th>
+                      <th class="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-wide">Monto Aplicar</th>
+                      <th class="px-6 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-wide">Estatus</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                     <tr v-for="(match, idx) in matches" :key="idx" :class="[match.found ? 'group hover:bg-white dark:hover:bg-slate-950/40' : 'bg-slate-50/50 dark:bg-slate-950/40 opacity-60']" class="transition-all duration-200">
                       <td class="px-6 py-4 text-center">
                         <div class="flex items-center justify-center">
@@ -489,19 +488,19 @@ const formatDate = (dateStr) => {
                             :checked="match.selected"
                             :disabled="!match.found"
                             @change="toggleSelection(match)"
-                            class="w-5 h-5 rounded-lg border-slate-300 dark:border-slate-700 text-orange-500 focus:ring-orange-500/20 transition-all checked:scale-110"
+                            class="w-5 h-5 rounded-xl border-slate-300 dark:border-slate-700 text-brand-500 focus:ring-brand-500/20 transition-all checked:scale-110"
                           >
                         </div>
                       </td>
                       <td class="px-6 py-4">
-                        <div class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ match.numero_compra || 'XML DOC' }}</div>
-                        <div class="text-[9px] font-bold text-slate-400 tracking-widest mt-0.5 italic font-mono">{{ match.uuid.slice(0, 10) }}...</div>
+                        <div class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">{{ match.numero_compra || 'XML DOC' }}</div>
+                        <div class="text-[9px] font-bold text-slate-400 tracking-wide mt-0.5 italic font-mono">{{ match.uuid.slice(0, 10) }}...</div>
                       </td>
                       <td class="px-6 py-4">
-                        <div class="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[200px]">{{ match.proveedor_nombre || 'IDENTIFICANDO...' }}</div>
+                        <div class="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider truncate max-w-[200px]">{{ match.proveedor_nombre || 'IDENTIFICANDO...' }}</div>
                       </td>
                       <td class="px-6 py-4 text-right">
-                        <div class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-orange-500/20 transition-all">
+                        <div class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-brand-500/20 transition-all">
                           <span class="text-[10px] font-black text-slate-400">$</span>
                           <input 
                             type="number" 
@@ -514,8 +513,8 @@ const formatDate = (dateStr) => {
                         </div>
                       </td>
                       <td class="px-6 py-4 text-center">
-                        <span v-if="match.found" class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[8px] font-black rounded-lg border border-emerald-500/20 uppercase tracking-widest">Sincronizado</span>
-                        <span v-else class="px-2 py-0.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[8px] font-black rounded-lg border border-rose-500/20 uppercase tracking-widest">No hallado</span>
+                        <span v-if="match.found" class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[8px] font-black rounded-xl border border-emerald-500/20 uppercase tracking-wide">Sincronizado</span>
+                        <span v-else class="px-2 py-0.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[8px] font-black rounded-xl border border-rose-500/20 uppercase tracking-wide">No hallado</span>
                       </td>
                     </tr>
                   </tbody>
@@ -533,8 +532,8 @@ const formatDate = (dateStr) => {
                      <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] pl-1">Configuración del Registro</h4>
                      <div class="grid grid-cols-1 gap-4">
                         <div>
-                          <label class="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Origen de Fondos (Opcional)</label>
-                          <select v-model="cuentaBancariaId" class="w-full bg-slate-800/50 border-slate-700 rounded-2xl text-[10px] font-black text-white hover:bg-slate-800 transition-all focus:ring-orange-500/20 focus:border-orange-500 uppercase tracking-widest">
+                          <label class="block text-[8px] font-black text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Origen de Fondos (Opcional)</label>
+                          <select v-model="cuentaBancariaId" class="w-full bg-slate-800/50 border-slate-700 rounded-2xl text-[10px] font-black text-white hover:bg-slate-800 transition-all focus:ring-brand-500/20 focus:border-brand-500 uppercase tracking-wide">
                             <option :value="null">-- SIN CUENTA BANCARIA --</option>
                             <option v-for="cb in cuentasBancarias" :key="cb.id" :value="cb.id">
                               {{ cb.banco }} • {{ cb.nombre }}
@@ -542,8 +541,8 @@ const formatDate = (dateStr) => {
                           </select>
                         </div>
                         <div>
-                          <label class="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Notas de la Transacción</label>
-                          <input v-model="notas" type="text" placeholder="EJ. PAGO DE PROVEEDOR SEMANAL..." class="w-full bg-slate-800/50 border-slate-700 rounded-2xl text-[10px] font-black text-white hover:bg-slate-800 transition-all focus:ring-orange-500/20 focus:border-orange-500 uppercase tracking-widest">
+                          <label class="block text-[8px] font-black text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Notas de la Transacción</label>
+                          <input v-model="notas" type="text" placeholder="EJ. PAGO DE PROVEEDOR SEMANAL..." class="w-full bg-slate-800/50 border-slate-700 rounded-2xl text-[10px] font-black text-white hover:bg-slate-800 transition-all focus:ring-brand-500/20 focus:border-brand-500 uppercase tracking-wide">
                         </div>
                      </div>
                   </div>
@@ -551,7 +550,7 @@ const formatDate = (dateStr) => {
                      <button
                         @click="applyPayments"
                         :disabled="!canApply"
-                        class="w-full py-5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 disabled:from-slate-700 disabled:to-slate-800 text-white font-black text-xs uppercase tracking-[0.2em] rounded-3xl shadow-xl shadow-orange-500/20 transition-all duration-300 active:scale-95 group flex items-center justify-center gap-3 overflow-hidden relative"
+                        class="w-full py-5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 disabled:from-slate-700 disabled:to-slate-800 text-white font-black text-xs uppercase tracking-[0.2em] rounded-3xl shadow-xl shadow-brand-500/20 transition-all duration-300 active:scale-95 group flex items-center justify-center gap-3 overflow-hidden relative"
                       >
                         <span v-if="applying" class="flex items-center">
                           <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
@@ -564,7 +563,7 @@ const formatDate = (dateStr) => {
                           <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
                         </span>
                       </button>
-                      <p class="text-center text-[8px] font-bold text-slate-500 uppercase tracking-widest italic opacity-50">Pulse para confirmar la vinculación contable</p>
+                      <p class="text-center text-[8px] font-bold text-slate-500 uppercase tracking-wide italic opacity-50">Pulse para confirmar la vinculación contable</p>
                   </div>
                </div>
             </div>
@@ -580,8 +579,8 @@ const formatDate = (dateStr) => {
                   </svg>
                </div>
             </div>
-            <h3 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">¡Operación Completada!</h3>
-            <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-3">Los saldos han sido actualizados en tiempo real.</p>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-wide">¡Operación Completada!</h3>
+            <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-3">Los saldos han sido actualizados en tiempo real.</p>
             
             <div class="mt-12 inline-flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -595,7 +594,7 @@ const formatDate = (dateStr) => {
           <button
             v-if="step === 'preview'"
             @click="reset"
-            class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-slate-800 dark:hover:text-white transition-all flex items-center gap-2 group"
+            class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide hover:text-slate-800 dark:hover:text-white transition-all flex items-center gap-2 group"
           >
             <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Reconfigurar Origen
@@ -603,10 +602,10 @@ const formatDate = (dateStr) => {
           <div v-else></div>
           
           <div class="flex items-center gap-4">
-            <p v-if="step === 'source'" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest italic mr-4 hidden sm:block">Asegúrese que sea un XML de pagos (Tipo P)</p>
+            <p v-if="step === 'source'" class="text-[9px] font-bold text-slate-400 uppercase tracking-wide italic mr-4 hidden sm:block">Asegúrese que sea un XML de pagos (Tipo P)</p>
             <button
               @click="close"
-              class="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:border-rose-500/50 hover:text-rose-600 transition-all active:scale-95"
+              class="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide hover:border-rose-500/50 hover:text-rose-600 transition-all active:scale-95"
             >
               Cerrar
             </button>

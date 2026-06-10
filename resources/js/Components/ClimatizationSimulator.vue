@@ -365,13 +365,13 @@ const resetSimulator = () => {
 </script>
 
 <template>
-    <section class="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 overflow-hidden transition-colors duration-300">
+    <section class="py-24 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 overflow-hidden transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid lg:grid-cols-12 gap-8 items-start">
                 
                 <!-- Panel Explicativo (1/3 aprox) -->
                 <div class="lg:col-span-4 lg:sticky lg:top-24">
-                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden">
                         <!-- Decoración -->
                         <div class="absolute top-0 right-0 w-48 h-48 bg-[var(--color-primary)] rounded-full blur-[80px] opacity-20"></div>
                         <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-[var(--color-secondary)] rounded-full blur-[60px] opacity-20"></div>
@@ -385,44 +385,44 @@ const resetSimulator = () => {
                             <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-3">Herramienta Inteligente</h2>
                             <h3 class="text-2xl lg:text-3xl font-black mb-4 leading-tight">Simulador de Climatización</h3>
                             
-                            <p class="text-gray-300 text-sm leading-relaxed mb-6">
+                            <p class="text-slate-300 text-sm leading-relaxed mb-6">
                                 Calcula el <span class="text-white font-bold">equipo de aire acondicionado ideal</span> para tu espacio. Nuestro simulador analiza múltiples factores para darte una recomendación precisa.
                             </p>
                             
                             <!-- Beneficios -->
                             <div class="space-y-3 mb-8">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">
+                                    <div class="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-sm">
                                         <font-awesome-icon icon="check" />
                                     </div>
-                                    <span class="text-sm text-gray-300">Cálculo basado en <span class="text-white font-bold">normas FIDE</span></span>
+                                    <span class="text-sm text-slate-300">Cálculo basado en <span class="text-white font-bold">normas FIDE</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">
+                                    <div class="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-sm">
                                         <font-awesome-icon icon="check" />
                                     </div>
-                                    <span class="text-sm text-gray-300">Considera tu <span class="text-white font-bold">zona climática</span></span>
+                                    <span class="text-sm text-slate-300">Considera tu <span class="text-white font-bold">zona climática</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">
+                                    <div class="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-sm">
                                         <font-awesome-icon icon="check" />
                                     </div>
-                                    <span class="text-sm text-gray-300">Estima <span class="text-white font-bold">ahorro mensual</span></span>
+                                    <span class="text-sm text-slate-300">Estima <span class="text-white font-bold">ahorro mensual</span></span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm">
+                                    <div class="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-sm">
                                         <font-awesome-icon icon="check" />
                                     </div>
-                                    <span class="text-sm text-gray-300">Reporte <span class="text-white font-bold">PDF descargable</span></span>
+                                    <span class="text-sm text-slate-300">Reporte <span class="text-white font-bold">PDF descargable</span></span>
                                 </div>
                             </div>
                             
                             <!-- CTA -->
                             <div class="p-4 bg-[var(--color-primary-soft)] rounded-xl">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)] mb-1">
+                                <p class="text-[10px] font-black uppercase tracking-wide text-[var(--color-primary)] mb-1">
                                     <font-awesome-icon icon="bolt" class="mr-1" /> Solo 4 pasos
                                 </p>
-                                <p class="text-xs text-gray-300">Completa el formulario y recibe tu recomendación personalizada en segundos.</p>
+                                <p class="text-xs text-slate-300">Completa el formulario y recibe tu recomendación personalizada en segundos.</p>
                             </div>
                         </div>
                     </div>
@@ -430,15 +430,15 @@ const resetSimulator = () => {
                 
                 <!-- Simulador (2/3 aprox) -->
                 <div class="lg:col-span-8">
-                    <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] dark:shadow-none border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-500">
+                    <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.08)] dark:shadow-none border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-500">
             
             <!-- Progress Bar -->
             <div class="px-8 pt-8">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Paso {{ step }} de {{ totalSteps }}</span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">{{ Math.round((step/totalSteps)*100) }}%</span>
+                    <span class="text-[10px] font-black uppercase tracking-wide text-slate-400 dark:text-slate-500">Paso {{ step }} de {{ totalSteps }}</span>
+                    <span class="text-[10px] font-black uppercase tracking-wide text-[var(--color-primary)]">{{ Math.round((step/totalSteps)*100) }}%</span>
                 </div>
-                <div class="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div class="h-full bg-[var(--color-primary)] transition-all duration-500 ease-out" :style="`width: ${(step / totalSteps) * 100}%`"></div>
                 </div>
             </div>
@@ -446,7 +446,7 @@ const resetSimulator = () => {
             <div class="p-8 relative min-h-[400px]">
                 
                 <!-- Analyzing Overlay -->
-                <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+                <div v-if="isCalculating" class="absolute inset-0 z-50 bg-white/80 dark:bg-slate-800/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center animate-fade-in">
                     <div class="relative w-20 h-20 mb-8">
                         <div class="absolute inset-0 border-4 border-[var(--color-primary-soft)] rounded-full"></div>
                         <div class="absolute inset-0 border-4 border-t-[var(--color-primary)] rounded-full animate-spin"></div>
@@ -454,7 +454,7 @@ const resetSimulator = () => {
                             <font-awesome-icon icon="calculator" />
                         </div>
                     </div>
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-3">Analizando tu espacio...</h3>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-3">Analizando tu espacio...</h3>
                     <p class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] animate-pulse">PROCESANDO FACTORES</p>
                 </div>
 
@@ -464,34 +464,34 @@ const resetSimulator = () => {
                         <div class="w-20 h-20 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
                             <font-awesome-icon icon="wand-magic-sparkles" />
                         </div>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2">¡Tu Resultado!</h3>
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">¡Tu Resultado!</h3>
                     </div>
 
                     <!-- Recomendación Principal -->
-                    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 text-white mb-8 border border-white/10">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white mb-8 border border-white/10">
                         <p class="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)] mb-3">Capacidad Recomendada</p>
                         <h4 class="text-3xl md:text-4xl font-black mb-3">{{ recomendacion.capacidad }}</h4>
-                        <p class="text-sm text-gray-400">{{ calculoBTU.toLocaleString() }} BTU/h requeridos</p>
-                        <p class="text-xs text-gray-500 mt-3">{{ recomendacion.nota }}</p>
+                        <p class="text-sm text-slate-400">{{ calculoBTU.toLocaleString() }} BTU/h requeridos</p>
+                        <p class="text-xs text-slate-500 mt-3">{{ recomendacion.nota }}</p>
                     </div>
 
                     <!-- Ahorro Estimado -->
-                    <div v-if="form.tecnologia === 'inverter'" class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800/30 rounded-2xl p-6 mb-8 text-left transition-colors">
+                    <div v-if="form.tecnologia === 'inverter'" class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800/30 rounded-2xl p-6 mb-8 text-left transition-colors">
                         <div class="flex items-center gap-5">
-                            <div class="w-16 h-16 bg-green-500 dark:bg-green-600 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg">
+                            <div class="w-16 h-16 bg-emerald-500 dark:bg-emerald-600 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg">
                                 <font-awesome-icon icon="piggy-bank" />
                             </div>
                             <div class="flex-1">
-                                <p class="text-[9px] font-black text-green-600 dark:text-green-400 uppercase tracking-widest mb-1">Ahorro Mensual con Inverter</p>
-                                <p class="text-3xl font-black text-gray-900 dark:text-white">${{ ahorroEstimado.toLocaleString() }} <span class="text-sm font-bold text-gray-500">MXN/mes</span></p>
-                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Ahorro anual: <strong class="text-green-600 dark:text-green-400">${{ (ahorroEstimado * 12).toLocaleString() }} MXN</strong></p>
+                                <p class="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-1">Ahorro Mensual con Inverter</p>
+                                <p class="text-3xl font-black text-slate-900 dark:text-white">${{ ahorroEstimado.toLocaleString() }} <span class="text-sm font-bold text-slate-500">MXN/mes</span></p>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Ahorro anual: <strong class="text-emerald-600 dark:text-emerald-400">${{ (ahorroEstimado * 12).toLocaleString() }} MXN</strong></p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Desglose Visual de BTUs -->
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 mb-8 border border-gray-100 dark:border-gray-700 transition-colors">
-                        <h4 class="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                    <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 mb-8 border border-slate-100 dark:border-slate-700 transition-colors">
+                        <h4 class="text-lg font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                             <span class="w-10 h-10 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-xl flex items-center justify-center text-lg">
                                 <font-awesome-icon icon="chart-bar" />
                             </span>
@@ -500,119 +500,119 @@ const resetSimulator = () => {
 
                         <!-- Barra de Progreso Visual -->
                         <div class="mb-6">
-                            <div class="flex justify-between text-xs font-bold text-gray-600 dark:text-gray-400 mb-2">
+                            <div class="flex justify-between text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">
                                 <span>Distribución de Carga Térmica</span>
                                 <span class="text-[var(--color-primary)]">{{ desgloseBTU.total.toLocaleString() }} BTU/h</span>
                             </div>
-                            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex text-xs">
+                            <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex text-xs">
                                 <div class="bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-500 flex items-center justify-center text-white font-bold" :style="`width: ${Math.max((desgloseBTU.zona / desgloseBTU.total) * 100, 8)}%`" v-if="(desgloseBTU.zona / desgloseBTU.total) * 100 > 8">
                                     <span v-if="(desgloseBTU.zona / desgloseBTU.total) * 100 > 15">Zona {{ Math.round((desgloseBTU.zona / desgloseBTU.total) * 100) }}%</span>
                                 </div>
                                 <div v-if="desgloseBTU.altura > 0" class="bg-gradient-to-r from-purple-500 to-purple-400 transition-all duration-500" :style="`width: ${(desgloseBTU.altura / desgloseBTU.total) * 100}%`"></div>
-                                <div class="bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500" :style="`width: ${(desgloseBTU.personas / desgloseBTU.total) * 100}%`"></div>
+                                <div class="bg-gradient-to-r from-brand-500 to-orange-400 transition-all duration-500" :style="`width: ${(desgloseBTU.personas / desgloseBTU.total) * 100}%`"></div>
                                 <div class="bg-gradient-to-r from-yellow-500 to-yellow-400 transition-all duration-500" :style="`width: ${(desgloseBTU.aparatos / desgloseBTU.total) * 100}%`"></div>
                                 <div v-if="desgloseBTU.techo > 0" class="bg-gradient-to-r from-red-500 to-red-400 transition-all duration-500" :style="`width: ${(desgloseBTU.techo / desgloseBTU.total) * 100}%`"></div>
                                 <div v-if="desgloseBTU.ventanas > 0" class="bg-gradient-to-r from-pink-500 to-pink-400 transition-all duration-500" :style="`width: ${(desgloseBTU.ventanas / desgloseBTU.total) * 100}%`"></div>
-                                <div v-if="desgloseBTU.habitacion > 0" class="bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" :style="`width: ${(desgloseBTU.habitacion / desgloseBTU.total) * 100}%`"></div>
+                                <div v-if="desgloseBTU.habitacion > 0" class="bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-500" :style="`width: ${(desgloseBTU.habitacion / desgloseBTU.total) * 100}%`"></div>
                             </div>
                             <div class="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-xs">
                                 <div class="flex items-center gap-2">
                                     <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Zona: <strong class="text-gray-900 dark:text-white">{{ desgloseBTU.zona.toLocaleString() }} BTU</strong></span>
+                                    <span class="text-slate-600 dark:text-slate-400">Zona: <strong class="text-slate-900 dark:text-white">{{ desgloseBTU.zona.toLocaleString() }} BTU</strong></span>
                                 </div>
                                 <div v-if="desgloseBTU.altura > 0" class="flex items-center gap-2">
                                     <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Altura: <strong class="text-gray-900 dark:text-white">+{{ desgloseBTU.altura.toLocaleString() }} BTU</strong></span>
+                                    <span class="text-slate-600 dark:text-slate-400">Altura: <strong class="text-slate-900 dark:text-white">+{{ desgloseBTU.altura.toLocaleString() }} BTU</strong></span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Personas: <strong class="text-gray-900 dark:text-white">+{{ desgloseBTU.personas.toLocaleString() }} BTU</strong></span>
+                                    <div class="w-3 h-3 bg-brand-500 rounded-full"></div>
+                                    <span class="text-slate-600 dark:text-slate-400">Personas: <strong class="text-slate-900 dark:text-white">+{{ desgloseBTU.personas.toLocaleString() }} BTU</strong></span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Equipos: <strong class="text-gray-900 dark:text-white">+{{ desgloseBTU.aparatos.toLocaleString() }} BTU</strong></span>
+                                    <span class="text-slate-600 dark:text-slate-400">Equipos: <strong class="text-slate-900 dark:text-white">+{{ desgloseBTU.aparatos.toLocaleString() }} BTU</strong></span>
                                 </div>
                                 <div v-if="desgloseBTU.techo > 0" class="flex items-center gap-2">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Techo: <strong class="text-gray-900 dark:text-white">+{{ desgloseBTU.techo.toLocaleString() }} BTU</strong></span>
+                                    <div class="w-3 h-3 bg-rose-500 rounded-full"></div>
+                                    <span class="text-slate-600 dark:text-slate-400">Techo: <strong class="text-slate-900 dark:text-white">+{{ desgloseBTU.techo.toLocaleString() }} BTU</strong></span>
                                 </div>
                                 <div v-if="desgloseBTU.ventanas > 0" class="flex items-center gap-2">
                                     <div class="w-3 h-3 bg-pink-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Ventanas: <strong class="text-gray-900 dark:text-white">+{{ desgloseBTU.ventanas.toLocaleString() }} BTU</strong></span>
+                                    <span class="text-slate-600 dark:text-slate-400">Ventanas: <strong class="text-slate-900 dark:text-white">+{{ desgloseBTU.ventanas.toLocaleString() }} BTU</strong></span>
                                 </div>
                                 <div v-if="desgloseBTU.habitacion > 0" class="flex items-center gap-2">
-                                    <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
-                                    <span class="text-gray-600 dark:text-gray-400">Cocina: <strong class="text-gray-900 dark:text-white">+{{ desgloseBTU.habitacion.toLocaleString() }} BTU</strong></span>
+                                    <div class="w-3 h-3 bg-brand-500 rounded-full"></div>
+                                    <span class="text-slate-600 dark:text-slate-400">Cocina: <strong class="text-slate-900 dark:text-white">+{{ desgloseBTU.habitacion.toLocaleString() }} BTU</strong></span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Tabla de Desglose -->
                         <div class="space-y-3">
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                            <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                     <font-awesome-icon icon="globe-americas" class="text-blue-500" />
                                     Zona climática ({{ form.zona === 'desierto' ? 'Norte' : form.zona === 'costa' ? 'Costa' : 'Centro' }})
                                 </span>
-                                <span class="font-bold text-gray-900 dark:text-white">{{ desgloseBTU.zona.toLocaleString() }} BTU</span>
+                                <span class="font-bold text-slate-900 dark:text-white">{{ desgloseBTU.zona.toLocaleString() }} BTU</span>
                             </div>
-                            <div v-if="desgloseBTU.altura !== 0" class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                            <div v-if="desgloseBTU.altura !== 0" class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                     <font-awesome-icon icon="arrows-alt-v" class="text-purple-500" />
                                     Altura ({{ form.altura }}m)
                                 </span>
-                                <span :class="desgloseBTU.altura > 0 ? 'text-orange-600' : 'text-green-600'" class="font-bold">{{ desgloseBTU.altura > 0 ? '+' : '' }}{{ desgloseBTU.altura.toLocaleString() }} BTU</span>
+                                <span :class="desgloseBTU.altura > 0 ? 'text-orange-600' : 'text-emerald-600'" class="font-bold">{{ desgloseBTU.altura > 0 ? '+' : '' }}{{ desgloseBTU.altura.toLocaleString() }} BTU</span>
                             </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                            <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                     <font-awesome-icon icon="users" class="text-orange-500" />
                                     {{ form.personas }} persona(s)
                                 </span>
-                                <span class="font-bold text-gray-900 dark:text-white">+{{ desgloseBTU.personas.toLocaleString() }} BTU</span>
+                                <span class="font-bold text-slate-900 dark:text-white">+{{ desgloseBTU.personas.toLocaleString() }} BTU</span>
                             </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                            <div class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                     <font-awesome-icon icon="tv" class="text-yellow-500" />
                                     {{ form.aparatos }} aparato(s)
                                 </span>
-                                <span class="font-bold text-gray-900 dark:text-white">+{{ desgloseBTU.aparatos.toLocaleString() }} BTU</span>
+                                <span class="font-bold text-slate-900 dark:text-white">+{{ desgloseBTU.aparatos.toLocaleString() }} BTU</span>
                             </div>
-                            <div v-if="desgloseBTU.techo !== 0" class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                    <font-awesome-icon icon="sun" class="text-red-500" />
+                            <div v-if="desgloseBTU.techo !== 0" class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                    <font-awesome-icon icon="sun" class="text-rose-500" />
                                     Sol directo en techo
                                 </span>
-                                <span :class="desgloseBTU.techo > 0 ? 'text-red-600' : 'text-green-600'" class="font-bold">{{ desgloseBTU.techo > 0 ? '+' : '' }}{{ desgloseBTU.techo.toLocaleString() }} BTU</span>
+                                <span :class="desgloseBTU.techo > 0 ? 'text-rose-600' : 'text-emerald-600'" class="font-bold">{{ desgloseBTU.techo > 0 ? '+' : '' }}{{ desgloseBTU.techo.toLocaleString() }} BTU</span>
                             </div>
-                            <div v-if="desgloseBTU.ventanas !== 0" class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                            <div v-if="desgloseBTU.ventanas !== 0" class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                     <font-awesome-icon icon="columns" class="text-pink-500" />
                                     Ventanales
                                 </span>
-                                <span :class="desgloseBTU.ventanas > 0 ? 'text-red-600' : 'text-green-600'" class="font-bold">{{ desgloseBTU.ventanas > 0 ? '+' : '' }}{{ desgloseBTU.ventanas.toLocaleString() }} BTU</span>
+                                <span :class="desgloseBTU.ventanas > 0 ? 'text-rose-600' : 'text-emerald-600'" class="font-bold">{{ desgloseBTU.ventanas > 0 ? '+' : '' }}{{ desgloseBTU.ventanas.toLocaleString() }} BTU</span>
                             </div>
-                            <div v-if="desgloseBTU.aislamiento !== 0" class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                    <font-awesome-icon icon="layer-group" class="text-gray-500" />
+                            <div v-if="desgloseBTU.aislamiento !== 0" class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                    <font-awesome-icon icon="layer-group" class="text-slate-500" />
                                     Aislamiento ({{ form.aislamiento }})
                                 </span>
-                                <span :class="desgloseBTU.aislamiento > 0 ? 'text-red-600' : 'text-green-600'" class="font-bold">{{ desgloseBTU.aislamiento > 0 ? '+' : '' }}{{ desgloseBTU.aislamiento.toLocaleString() }} BTU</span>
+                                <span :class="desgloseBTU.aislamiento > 0 ? 'text-rose-600' : 'text-emerald-600'" class="font-bold">{{ desgloseBTU.aislamiento > 0 ? '+' : '' }}{{ desgloseBTU.aislamiento.toLocaleString() }} BTU</span>
                             </div>
-                            <div v-if="desgloseBTU.sol !== 0" class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                    <font-awesome-icon icon="sun" class="text-amber-500" />
+                            <div v-if="desgloseBTU.sol !== 0" class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                    <font-awesome-icon icon="sun" class="text-brand-500" />
                                     Insolación ({{ form.sol }})
                                 </span>
-                                <span :class="desgloseBTU.sol > 0 ? 'text-red-600' : 'text-green-600'" class="font-bold">{{ desgloseBTU.sol > 0 ? '+' : '' }}{{ desgloseBTU.sol.toLocaleString() }} BTU</span>
+                                <span :class="desgloseBTU.sol > 0 ? 'text-rose-600' : 'text-emerald-600'" class="font-bold">{{ desgloseBTU.sol > 0 ? '+' : '' }}{{ desgloseBTU.sol.toLocaleString() }} BTU</span>
                             </div>
-                            <div v-if="desgloseBTU.habitacion !== 0" class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                            <div v-if="desgloseBTU.habitacion !== 0" class="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                <span class="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                     <font-awesome-icon icon="utensils" class="text-orange-500" />
                                     {{ form.habitacion === 'cocina' ? 'Cocina (calor extra)' : 'Tipo de habitación' }}
                                 </span>
-                                <span class="font-bold text-gray-900 dark:text-white">+{{ desgloseBTU.habitacion.toLocaleString() }} BTU</span>
+                                <span class="font-bold text-slate-900 dark:text-white">+{{ desgloseBTU.habitacion.toLocaleString() }} BTU</span>
                             </div>
-                            <div class="flex justify-between items-center py-3 bg-gray-900 dark:bg-gray-800 rounded-xl px-4 mt-4">
+                            <div class="flex justify-between items-center py-3 bg-slate-900 dark:bg-slate-800 rounded-xl px-4 mt-4">
                                 <span class="text-sm font-black text-white">TOTAL REQUERIDO</span>
                                 <span class="text-xl font-black text-[var(--color-primary)]">{{ desgloseBTU.total.toLocaleString() }} BTU/h</span>
                             </div>
@@ -621,8 +621,8 @@ const resetSimulator = () => {
 
                     <!-- Productos Recomendados -->
                     <div v-if="productosRecomendados.length > 0" class="mb-8">
-                        <h4 class="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                            <span class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center text-lg">
+                        <h4 class="text-lg font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+                            <span class="w-10 h-10 bg-blue-50 dark:bg-sky-900/20/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center text-lg">
                                 <font-awesome-icon icon="snowflake" />
                             </span>
                             Equipos Mirage Recomendados
@@ -630,15 +630,15 @@ const resetSimulator = () => {
 
                         <div class="grid gap-4 md:grid-cols-2">
                             <div v-for="(producto, idx) in productosRecomendados" :key="idx"
-                                 class="bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl p-6 hover:border-[var(--color-primary)] dark:hover:border-[var(--color-primary)] transition-all hover:shadow-xl group">
-                                <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                                    <font-awesome-icon icon="fan" class="text-6xl text-gray-300 dark:text-gray-600 group-hover:scale-110 transition-transform" />
+                                 class="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl p-6 hover:border-[var(--color-primary)] dark:hover:border-[var(--color-primary)] transition-all hover:shadow-xl group">
+                                <div class="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                                    <font-awesome-icon icon="fan" class="text-6xl text-slate-300 dark:text-slate-600 group-hover:scale-110 transition-transform" />
                                 </div>
-                                <h5 class="font-black text-gray-900 dark:text-white text-base mb-2">{{ producto.nombre }}</h5>
+                                <h5 class="font-black text-slate-900 dark:text-white text-base mb-2">{{ producto.nombre }}</h5>
                                 <div v-if="producto.btu" class="flex items-center gap-2 mb-3">
-                                    <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-bold">{{ producto.btu.toLocaleString() }} BTU</span>
+                                    <span class="px-2 py-1 bg-blue-50 dark:bg-sky-900/20/30 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold">{{ producto.btu.toLocaleString() }} BTU</span>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">{{ producto.eficiencia }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ producto.eficiencia }}</p>
                                 <a :href="producto.link"
                                    class="block w-full py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm text-center hover:bg-[var(--color-primary)]/90 transition-all hover:shadow-lg">
                                     Ver en Tienda →
@@ -668,19 +668,19 @@ const resetSimulator = () => {
                             'form[tecnologia]': form.tecnologia
                         })" 
                         target="_blank"
-                        class="block w-full py-4 mb-4 bg-gray-900 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        class="block w-full py-4 mb-4 bg-slate-900 text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2">
                         <font-awesome-icon icon="file-pdf" /> Descargar Reporte PDF
                     </a>
 
-                    <button @click="resetSimulator" class="w-full py-4 border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-xl font-bold text-sm hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all flex items-center justify-center gap-2">
+                    <button @click="resetSimulator" class="w-full py-4 border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl font-bold text-sm hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all flex items-center justify-center gap-2">
                         <font-awesome-icon icon="redo" /> Calcular para otro espacio
                     </button>
                 </div>
 
                 <!-- Step 1: Espacio -->
                 <div v-if="step === 1 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2 transition-colors">¿Qué espacio climatizamos?</h3>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6 transition-colors">Selecciona el tipo de habitación.</p>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 transition-colors">¿Qué espacio climatizamos?</h3>
+                    <p class="text-slate-400 dark:text-slate-500 text-sm mb-6 transition-colors">Selecciona el tipo de habitación.</p>
                     
                     <div class="grid grid-cols-2 gap-3 mb-6">
                         <button v-for="h in [
@@ -691,9 +691,9 @@ const resetSimulator = () => {
                         ]" :key="h.id" 
                         @click="form.habitacion = h.id"
                         :class="['p-4 rounded-xl border-2 transition-all text-center', 
-                                form.habitacion === h.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600']">
+                                form.habitacion === h.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600']">
                             <span class="text-2xl block mb-2"><font-awesome-icon :icon="h.icon" /></span>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-white">{{ h.label }}</span>
+                            <span class="text-[10px] font-black uppercase tracking-wide text-slate-900 dark:text-white">{{ h.label }}</span>
                         </button>
                     </div>
 
@@ -705,37 +705,37 @@ const resetSimulator = () => {
                         ]" :key="z.id" 
                         @click="form.zona = z.id"
                         :class="['p-3 rounded-xl border-2 transition-all text-center', 
-                                form.zona === z.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 dark:hover:border-gray-600']">
+                                form.zona === z.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 dark:hover:border-slate-600']">
                             <span class="text-xl block"><font-awesome-icon :icon="z.icon" /></span>
-                            <span class="text-[9px] font-bold text-gray-500 dark:text-gray-400">{{ z.label }}</span>
+                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400">{{ z.label }}</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Step 2: Dimensiones -->
                 <div v-if="step === 2 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Dimensiones del espacio</h3>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6 transition-colors">Indica el tamaño aproximado.</p>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 transition-colors">Dimensiones del espacio</h3>
+                    <p class="text-slate-400 dark:text-slate-500 text-sm mb-6 transition-colors">Indica el tamaño aproximado.</p>
                     
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-4 transition-colors">
+                    <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 mb-4 transition-colors">
                         <div class="flex justify-between items-center mb-3">
-                            <label for="simulator-area" class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Área</label>
-                            <span class="px-3 py-1 bg-[var(--color-primary)] text-white font-black rounded-lg text-sm transition-colors">{{ form.area }} m²</span>
+                            <label for="simulator-area" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Área</label>
+                            <span class="px-3 py-1 bg-[var(--color-primary)] text-white font-black rounded-xl text-sm transition-colors">{{ form.area }} m²</span>
                         </div>
-                        <input id="simulator-area" type="range" v-model="form.area" min="5" max="100" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]" />
+                        <input id="simulator-area" type="range" v-model="form.area" min="5" max="100" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-[var(--color-primary)]" />
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                            <label for="simulator-altura" class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase block mb-2">Altura (m)</label>
-                            <input id="simulator-altura" type="number" v-model="form.altura" step="0.1" class="w-full p-2 bg-white dark:bg-gray-800 rounded-lg border-none font-bold text-lg text-center dark:text-white transition-colors" />
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 transition-colors">
+                            <label for="simulator-altura" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase block mb-2">Altura (m)</label>
+                            <input id="simulator-altura" type="number" v-model="form.altura" step="0.1" class="w-full p-2 bg-white dark:bg-slate-800 rounded-xl border-none font-bold text-lg text-center dark:text-white transition-colors" />
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 transition-colors">
-                            <label class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase block mb-2">Personas</label>
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 transition-colors">
+                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase block mb-2">Personas</label>
                             <div class="flex items-center justify-center gap-4">
-                                <button @click="form.personas > 1 && form.personas--" class="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 font-bold dark:text-white transition-colors">-</button>
+                                <button @click="form.personas > 1 && form.personas--" class="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold dark:text-white transition-colors">-</button>
                                 <span class="text-xl font-black dark:text-white transition-colors">{{ form.personas }}</span>
-                                <button @click="form.personas < 20 && form.personas++" class="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 font-bold dark:text-white transition-colors">+</button>
+                                <button @click="form.personas < 20 && form.personas++" class="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold dark:text-white transition-colors">+</button>
                             </div>
                         </div>
                     </div>
@@ -743,16 +743,16 @@ const resetSimulator = () => {
 
                 <!-- Step 3: Construcción -->
                 <div v-if="step === 3 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Factores de calor</h3>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6 transition-colors">Selecciona los que apliquen.</p>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 transition-colors">Factores de calor</h3>
+                    <p class="text-slate-400 dark:text-slate-500 text-sm mb-6 transition-colors">Selecciona los que apliquen.</p>
                     
                     <div class="space-y-3 mb-4">
                         <button @click="form.techo_directo = !form.techo_directo" 
-                                :class="['w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4', form.techo_directo ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600']">
+                                :class="['w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4', form.techo_directo ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600']">
                             <span class="text-2xl"><font-awesome-icon icon="home" /></span>
                             <div class="flex-1">
-                                <p class="font-bold text-gray-900 dark:text-white text-sm transition-colors">Techo Directo</p>
-                                <p class="text-[10px] text-gray-400 dark:text-gray-500 transition-colors">Sol directo al techo</p>
+                                <p class="font-bold text-slate-900 dark:text-white text-sm transition-colors">Techo Directo</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 transition-colors">Sol directo al techo</p>
                             </div>
                             <div v-if="form.techo_directo" class="w-5 h-5 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-xs transition-colors">
                                 <font-awesome-icon icon="check" />
@@ -760,11 +760,11 @@ const resetSimulator = () => {
                         </button>
 
                         <button @click="form.ventanales = !form.ventanales" 
-                                :class="['w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4', form.ventanales ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600']">
+                                :class="['w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4', form.ventanales ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600']">
                             <span class="text-2xl"><font-awesome-icon icon="columns" /></span>
                             <div class="flex-1">
-                                <p class="font-bold text-gray-900 dark:text-white text-sm transition-colors">Ventanales Grandes</p>
-                                <p class="text-[10px] text-gray-400 dark:text-gray-500 transition-colors">Áreas acristaladas</p>
+                                <p class="font-bold text-slate-900 dark:text-white text-sm transition-colors">Ventanales Grandes</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 transition-colors">Áreas acristaladas</p>
                             </div>
                             <div v-if="form.ventanales" class="w-5 h-5 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-xs transition-colors">
                                 <font-awesome-icon icon="check" />
@@ -775,7 +775,7 @@ const resetSimulator = () => {
                     <div class="flex gap-2">
                         <button v-for="ai in [{v:'bueno', t:'Buen Aislamiento'}, {v:'normal', t:'Normal'}, {v:'pobre', t:'Malo'}]" 
                                 :key="ai.v" @click="form.aislamiento = ai.v"
-                                :class="['flex-1 py-2 rounded-lg border-2 text-[10px] font-bold uppercase transition-all', form.aislamiento === ai.v ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400']">
+                                :class="['flex-1 py-2 rounded-xl border-2 text-[10px] font-bold uppercase transition-all', form.aislamiento === ai.v ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-primary)]' : 'border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400']">
                             {{ ai.t }}
                         </button>
                     </div>
@@ -783,46 +783,46 @@ const resetSimulator = () => {
 
                 <!-- Step 4: Tecnología -->
                 <div v-if="step === 4 && !showResults && !isCalculating" class="animate-fade-in">
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Preferencias técnicas</h3>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-6 transition-colors">Últimos detalles para tu cálculo.</p>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 transition-colors">Preferencias técnicas</h3>
+                    <p class="text-slate-400 dark:text-slate-500 text-sm mb-6 transition-colors">Últimos detalles para tu cálculo.</p>
                     
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <button @click="form.uso_horas = '8'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.uso_horas === '8' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 dark:hover:border-gray-600']">
+                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.uso_horas === '8' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 dark:hover:border-slate-600']">
                             <span class="text-xl block mb-1"><font-awesome-icon icon="clock" /></span>
-                            <span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 transition-colors">8 Horas/día</span>
+                            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 transition-colors">8 Horas/día</span>
                         </button>
                         <button @click="form.uso_horas = '24'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.uso_horas === '24' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 dark:hover:border-gray-600']">
+                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.uso_horas === '24' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 dark:hover:border-slate-600']">
                             <span class="text-xl block mb-1"><font-awesome-icon icon="calendar-day" /></span>
-                            <span class="text-[10px] font-bold text-gray-600 dark:text-gray-400 transition-colors">Todo el día</span>
+                            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 transition-colors">Todo el día</span>
                         </button>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <button @click="form.tecnologia = 'convencional'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.tecnologia === 'convencional' ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-100 dark:border-gray-700 dark:hover:border-gray-600']">
+                                :class="['p-4 rounded-xl border-2 transition-all text-center', form.tecnologia === 'convencional' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-100 dark:border-slate-700 dark:hover:border-slate-600']">
                             <span class="text-[10px] font-bold uppercase">Convencional</span>
                         </button>
                         <button @click="form.tecnologia = 'inverter'" 
-                                :class="['p-4 rounded-xl border-2 transition-all text-center relative', form.tecnologia === 'inverter' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 dark:hover:border-gray-600']">
-                            <span class="absolute -top-2 -right-2 px-2 py-0.5 bg-green-500 text-white text-[8px] font-bold rounded-full">AHORRA</span>
-                            <span class="text-[10px] font-bold uppercase text-gray-900 dark:text-white transition-colors">Inverter</span>
+                                :class="['p-4 rounded-xl border-2 transition-all text-center relative', form.tecnologia === 'inverter' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 dark:hover:border-slate-600']">
+                            <span class="absolute -top-2 -right-2 px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-bold rounded-full">AHORRA</span>
+                            <span class="text-[10px] font-bold uppercase text-slate-900 dark:text-white transition-colors">Inverter</span>
                         </button>
                     </div>
 
                     <div class="flex gap-2">
-                        <button @click="form.voltaje = '110'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.voltaje === '110' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400']">110V</button>
-                        <button @click="form.voltaje = '220'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.voltaje === '220' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400']">220V</button>
-                        <button @click="form.funcion = 'frio'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.funcion === 'frio' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400']">Frío</button>
-                        <button @click="form.funcion = 'dual'" :class="['flex-1 py-2 rounded-lg border-2 text-xs font-bold transition-all', form.funcion === 'dual' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' : 'border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400']">Dual</button>
+                        <button @click="form.voltaje = '110'" :class="['flex-1 py-2 rounded-xl border-2 text-xs font-bold transition-all', form.voltaje === '110' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400']">110V</button>
+                        <button @click="form.voltaje = '220'" :class="['flex-1 py-2 rounded-xl border-2 text-xs font-bold transition-all', form.voltaje === '220' ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400']">220V</button>
+                        <button @click="form.funcion = 'frio'" :class="['flex-1 py-2 rounded-xl border-2 text-xs font-bold transition-all', form.funcion === 'frio' ? 'border-blue-500 bg-blue-50 dark:bg-sky-900/20 text-blue-600 dark:text-blue-400' : 'border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400']">Frío</button>
+                        <button @click="form.funcion = 'dual'" :class="['flex-1 py-2 rounded-xl border-2 text-xs font-bold transition-all', form.funcion === 'dual' ? 'border-brand-500 bg-orange-50 dark:bg-brand-900/20 text-brand-600 dark:text-orange-400' : 'border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400']">Dual</button>
                     </div>
                 </div>
             </div>
 
             <!-- Navigation -->
-            <div v-if="!showResults && !isCalculating" class="px-8 pb-8 flex items-center justify-between border-t border-gray-50 dark:border-gray-700 pt-6 transition-colors">
-                <button v-if="step > 1" @click="prevStep" class="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">
+            <div v-if="!showResults && !isCalculating" class="px-8 pb-8 flex items-center justify-between border-t border-slate-50 dark:border-slate-700 pt-6 transition-colors">
+                <button v-if="step > 1" @click="prevStep" class="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
                     ← Anterior
                 </button>
                 <span v-else></span>
@@ -835,32 +835,32 @@ const resetSimulator = () => {
 
         <!-- Lead Modal -->
         <div v-if="showLeadModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showLeadModal = false"></div>
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showLeadModal = false"></div>
             
-            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-fade-in border border-gray-100 dark:border-gray-700 transition-colors">
-                <button @click="showLeadModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-fade-in border border-slate-100 dark:border-slate-700 transition-colors">
+                <button @click="showLeadModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
                     <font-awesome-icon icon="times" />
                 </button>
 
                 <div v-if="!leadSent">
                     <div class="text-center mb-6">
                         <span class="text-4xl block mb-4"><font-awesome-icon icon="chart-pie" /></span>
-                        <h3 class="text-2xl font-black text-gray-900 dark:text-white transition-colors">¡Un paso más!</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 transition-colors">Para ver tu <span class="font-bold text-[var(--color-primary)]">Reporte Personalizado</span>, déjanos tus datos.</p>
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white transition-colors">¡Un paso más!</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 transition-colors">Para ver tu <span class="font-bold text-[var(--color-primary)]">Reporte Personalizado</span>, déjanos tus datos.</p>
                     </div>
                     
                     <div class="space-y-4">
                         <div>
-                            <label for="lead-nombre" class="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1 transition-colors">Nombre Completo</label>
-                            <input id="lead-nombre" v-model="leadForm.nombre" @input="leadForm.nombre = leadForm.nombre.toUpperCase()" type="text" placeholder="TU NOMBRE" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl font-medium dark:text-white transition-colors" />
+                            <label for="lead-nombre" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1 transition-colors">Nombre Completo</label>
+                            <input id="lead-nombre" v-model="leadForm.nombre" @input="leadForm.nombre = leadForm.nombre.toUpperCase()" type="text" placeholder="TU NOMBRE" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl font-medium dark:text-white transition-colors" />
                         </div>
                         <div>
-                            <label for="lead-telefono" class="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1 transition-colors">Teléfono (10 dígitos)</label>
-                            <input id="lead-telefono" v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="Ej: 6861234567" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl font-medium dark:text-white transition-colors" />
+                            <label for="lead-telefono" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1 transition-colors">Teléfono (10 dígitos)</label>
+                            <input id="lead-telefono" v-model="leadForm.telefono" type="tel" maxlength="10" placeholder="Ej: 6861234567" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl font-medium dark:text-white transition-colors" />
                         </div>
                         <div>
-                            <label for="lead-email" class="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase mb-1 transition-colors">Email <span class="text-gray-300 dark:text-gray-600">(opcional)</span></label>
-                            <input id="lead-email" v-model="leadForm.email" type="email" placeholder="correo@ejemplo.com" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl font-medium dark:text-white transition-colors" />
+                            <label for="lead-email" class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1 transition-colors">Email <span class="text-slate-300 dark:text-slate-600">(opcional)</span></label>
+                            <input id="lead-email" v-model="leadForm.email" type="email" placeholder="correo@ejemplo.com" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl font-medium dark:text-white transition-colors" />
                         </div>
                         
                         <button @click="submitLead" :disabled="isSubmitting" class="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all" :class="isSubmitting ? 'opacity-70' : ''">
@@ -871,8 +871,8 @@ const resetSimulator = () => {
 
                 <div v-else class="text-center py-6">
                     <span class="text-5xl block mb-4"><font-awesome-icon icon="check-circle" /></span>
-                    <h3 class="text-2xl font-black text-gray-900 dark:text-white transition-colors">¡Listo!</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2 transition-colors">Calculando tu reporte...</p>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white transition-colors">¡Listo!</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mt-2 transition-colors">Calculando tu reporte...</p>
                 </div>
             </div>
             </div>

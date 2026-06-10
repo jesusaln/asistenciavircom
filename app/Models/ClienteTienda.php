@@ -10,6 +10,8 @@ use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 
 class ClienteTienda extends Model implements Authenticatable
 {
+    use BelongsToEmpresa;
+
     use AuthenticatableTrait, BelongsToEmpresa;
 
     protected $table = 'clientes_tienda';

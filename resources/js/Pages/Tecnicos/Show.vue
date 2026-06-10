@@ -11,7 +11,7 @@
       />
 
       <!-- Botón para abrir el modal -->
-      <button @click="openModal" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+      <button @click="openModal" class="bg-brand-500 text-white px-4 py-2 rounded-xl hover:bg-emerald-600">
         Ver Detalles
       </button>
     </div>

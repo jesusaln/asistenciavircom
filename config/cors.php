@@ -1,45 +1,39 @@
 <?php
 
 return [
-    'paths' => ['api/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     'allowed_origins' => [
-        'https://admin.climasdeldesierto.com',
+        // Orígenes explícitos seguros
+        'https://www.climasdeldesierto.com',
         'https://climasdeldesierto.com',
-        'https://climasdeldesierto.laravel.cloud',
-        'https://cdd.local',
-        'https://app.cdd.local',
-        // Orígenes específicos para desarrollo local
-        'ionic://localhost',
-        'http://localhost',
-        'https://localhost',
-        'http://localhost:8000',
-        'https://localhost:8000',
-        'http://127.0.0.1:8000',
-        'https://127.0.0.1:8000',
-        'http://0.0.0.0:8000',
-        'https://0.0.0.0:8000',
-        'http://localhost:8010',
-        'http://127.0.0.1:8010',
-        'capacitor://localhost',
-        // Permitir cualquier origen localhost con puerto
-        'http://localhost:*',
-        'https://localhost:*',
+        'https://app.climasdeldesierto.com',
+        'https://asistenciavircom.com',
+        'https://www.asistenciavircom.com',
+        'https://app.asistenciavircom.com',
+        'http://192.168.1.14.nip.io:8100',
     ],
     'allowed_origins_patterns' => [
-        '/^https:\/\/.*\.climasdeldesierto\.com$/',
-        '/^https:\/\/.*\.climasdeldesierto\.laravel\.cloud$/',
-        '/^https:\/\/.*\.asistenciavircom\.com$/',
-        '/^http:\/\/191\.101\.233\.82(:\d+)?$/',
-        '/^https:\/\/cdd\.local$/',
-        // Patrones específicos para Ionic
-        '/^ionic:\/\//',
-        '/^capacitor:\/\//',
-        '/^http:\/\/localhost(:\d+)?$/',
-        '/^https:\/\/localhost(:\d+)?$/',
+        // Subdominios dinámicos permitidos en producción (HTTPS only)
+        '/^https:\/\/([a-z0-9-]+\.)?climasdeldesierto\.com$/',
+        '/^https:\/\/([a-z0-9-]+\.)?asistenciavircom\.com$/',
+        '/^https:\/\/([a-z0-9-]+\.)?climasdeldesierto\.laravel\.cloud$/',
+
+        // Entornos de desarrollo locales (Localhost con puertos)
+        // NOTA: Esto debería estar condicionado por el entorno, pero se deja restringido por patrón
+        '/^https?:\/\/localhost(:\d+)?$/',
+        '/^https?:\/\/127\.0\.0\.1(:\d+)?$/',
+
+        // Soporte red local y nip.io
+        '/^https?:\/\/192\.168\.1\.\d+(:\d+)?$/',
+        '/^https?:\/\/.*\.nip\.io(:\d+)?$/',
+
+        // Soporte app móvil
+        '/^ionic:\/\/.*$/',
+        '/^capacitor:\/\/.*$/',
     ],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 86400,
-    'supports_credentials' => true, // Cambiado a true para apps móviles
+    'supports_credentials' => true,
 ];

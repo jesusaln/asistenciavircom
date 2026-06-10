@@ -115,7 +115,7 @@ const baseClasses = computed(() => [
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
     'disabled:opacity-50 disabled:cursor-not-allowed',
     props.block ? 'w-full' : '',
-    `rounded-${props.rounded}`,
+    `rounded-xl-${props.rounded}`,
 ]);
 
 // Size classes
@@ -144,13 +144,13 @@ const sizeClasses = computed(() => {
 // Variant classes
 const variantClasses = computed(() => {
     const variants = {
-        primary: 'bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500 shadow-sm',
-        secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500',
-        danger: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500 shadow-sm',
-        success: 'bg-green-500 text-white hover:bg-green-600 focus:ring-green-500 shadow-sm',
+        primary: 'bg-brand-500 text-white hover:bg-brand-600 focus:ring-brand-500 shadow-sm',
+        secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-500',
+        danger: 'bg-rose-500 text-white hover:bg-rose-600 focus:ring-brand-500 shadow-sm',
+        success: 'bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500 shadow-sm',
         warning: 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500 shadow-sm',
-        ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-        outline: 'bg-transparent text-amber-600 border-2 border-amber-500 hover:bg-amber-50 focus:ring-amber-500',
+        ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-500',
+        outline: 'bg-transparent text-brand-600 border-2 border-brand-500 hover:bg-brand-50 focus:ring-brand-500',
     };
     return variants[props.variant];
 });

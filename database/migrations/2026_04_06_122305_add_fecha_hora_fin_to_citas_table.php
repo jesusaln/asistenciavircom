@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('citas', function (Blueprint $table) {
-            $table->dateTime('fecha_hora_fin')->nullable()->after('fecha_hora');
-        });
+        if (!Schema::hasColumn('citas', 'fecha_hora_fin')) {
+            Schema::table('citas', function (Blueprint $table) {
+                $table->dateTime('fecha_hora_fin')->nullable()->after('fecha_hora');
+            });
+        }
     }
 
     /**

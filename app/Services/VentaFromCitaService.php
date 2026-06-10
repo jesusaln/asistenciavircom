@@ -27,9 +27,10 @@ class VentaFromCitaService
      * Creates a Venta and related records from a completed Cita.
      *
      * @param \App\Models\Cita $cita The completed appointment.
+     * @param array $paymentData Optional payment data (pago_recibido, metodo_pago, cuenta_id)
      * @return \App\Models\Venta|null The created Venta instance or null on failure.
      */
-    public function createFromCita(Cita $cita): ?Venta
+    public function createFromCita(Cita $cita, array $paymentData = []): ?Venta
     {
         // Pre-conditions check
         if ($cita->estado !== Cita::ESTADO_COMPLETADO || $cita->items()->count() === 0) {
@@ -69,7 +70,7 @@ class VentaFromCitaService
                         'cantidad' => $item->cantidad,
                         'precio' => $item->precio, // Usar precio pactado en cita
                         'descuento' => $item->descuento,
-                        'series' => [], // Citas no suelen manejar series específicas pre-asignadas, se asume sin serie o validación posterior
+                        'series' => $item->series ?? [], // Pass series captured by technician
                         'price_list_id' => null, // Precio manual (el de la cita)
                     ];
                 } elseif ($item->citable_type === \App\Models\Servicio::class) {
@@ -82,17 +83,25 @@ class VentaFromCitaService
                 }
             }
 
+            $pagoRecibido = ($paymentData['pago_recibido'] ?? 'no') === 'si';
+            $metodoPago = $paymentData['metodo_pago'] ?? 'credito';
+            
+            // Si no se recibió pago, el método de la VENTA es 'credito' (CXC)
+            // Si se recibió pago, el método puede ser 'efectivo', 'transferencia', etc.
+            $metodoVenta = $pagoRecibido ? $metodoPago : 'credito';
+
             $ventaData = [
                 'cliente_id' => $cita->cliente_id,
                 'almacen_id' => $almacenId,
-                'metodo_pago' => 'credito', // Por defecto crédito/pendiente si viene de cita, o definir lógica
-                'forma_pago_sat' => '99',
-                'metodo_pago_sat' => 'PPD',
-                'descuento_general' => 0, // Descuentos ya aplicados por item o lógica de cita
+                'metodo_pago' => $metodoVenta,
+                'forma_pago_sat' => $pagoRecibido ? $this->getFormaPagoSat($metodoPago) : '99',
+                'metodo_pago_sat' => $pagoRecibido ? 'PUE' : 'PPD',
+                'descuento_general' => 0,
                 'notas' => 'Generada automáticamente desde Cita #' . $cita->id,
                 'productos' => $productos,
                 'servicios' => $servicios,
                 'cita_id' => $cita->id,
+                'cuenta_bancaria_id' => $pagoRecibido ? ($paymentData['cuenta_id'] ?? null) : null,
             ];
 
             // Delegate to robust creation service
@@ -109,5 +118,18 @@ class VentaFromCitaService
             // but if we were wrapping more logic, we might need to.
             return null;
         }
+    }
+    /**
+     * Map internal payment methods to SAT codes.
+     */
+    protected function getFormaPagoSat(string $metodo): string
+    {
+        return match ($metodo) {
+            'efectivo' => '01',
+            'transferencia' => '03',
+            'tarjeta', 'terminal' => '04', // Tarjeta de crédito/débito simplificado
+            'deposito' => '01',
+            default => '99',
+        };
     }
 }

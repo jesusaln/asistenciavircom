@@ -117,12 +117,12 @@ const padZero = (num) => String(num).padStart(2, '0');
 <template>
     <section v-if="oferta || true" class="py-6 relative overflow-hidden" :style="cssVars">
         <!-- Background con gradiente premium -->
-        <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900"></div>
         
         <!-- Patrón decorativo -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-0 left-1/4 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[150px]"></div>
-            <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-orange-500 rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-brand-500 rounded-full blur-[100px]"></div>
         </div>
         
         <!-- Líneas animadas -->
@@ -156,9 +156,9 @@ const padZero = (num) => String(num).padStart(2, '0');
                         <span 
                             v-for="(caracteristica, index) in caracteristicas" 
                             :key="index"
-                            class="inline-flex items-center gap-1.5 text-sm text-gray-300"
+                            class="inline-flex items-center gap-1.5 text-sm text-slate-300"
                         >
-                            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                             {{ caracteristica }}
@@ -167,16 +167,16 @@ const padZero = (num) => String(num).padStart(2, '0');
                     
                     <!-- Precios -->
                     <div class="flex items-center justify-center lg:justify-start gap-4 mb-2">
-                        <span class="text-gray-500 line-through text-lg">${{ formatPrice(7000) }}</span>
+                        <span class="text-slate-500 line-through text-lg">${{ formatPrice(7000) }}</span>
                         <div class="flex flex-col items-start leading-none">
-                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(5650) }} <span class="text-lg font-bold text-gray-400">ya instalado</span></span>
+                            <span class="text-3xl lg:text-4xl font-black text-white">${{ formatPrice(5650) }} <span class="text-lg font-bold text-slate-400">ya instalado</span></span>
                         </div>
                         <span class="px-3 py-1 bg-[var(--color-primary)] text-white text-xs font-bold rounded-full animate-pulse shadow-lg shadow-[var(--color-primary)]/40">
                             ¡Instalación Incluida!
                         </span>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <p class="text-[10px] text-gray-500 italic">* Aplica restricciones según área de instalación</p>
+                        <p class="text-[10px] text-slate-500 italic">* Aplica restricciones según área de instalación</p>
                     </div>
                 </div>
                 
@@ -194,7 +194,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                                     {{ padZero(timeLeft.hours) }}
                                 </span>
                             </div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase mt-1">Horas</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">Horas</span>
                         </div>
                         
                         <span class="text-2xl font-black text-[var(--color-primary)] animate-pulse">:</span>
@@ -206,7 +206,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                                     {{ padZero(timeLeft.minutes) }}
                                 </span>
                             </div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase mt-1">Minutos</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">Minutos</span>
                         </div>
                         
                         <span class="text-2xl font-black text-[var(--color-primary)] animate-pulse">:</span>
@@ -218,7 +218,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                                     {{ padZero(timeLeft.seconds) }}
                                 </span>
                             </div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase mt-1">Segundos</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">Segundos</span>
                         </div>
                     </div>
                 </div>
@@ -228,7 +228,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                     <a 
                         :href="`https://wa.me/${empresa?.whatsapp?.replace(/\\D/g, '')}?text=${encodeURIComponent('Hola, me interesa la oferta: ' + subtitulo + ' a ' + formatPrice(precioDescuento) + ' (Ahorro de ' + formatPrice(ahorro) + '). ¿Está disponible?')}`"
                         target="_blank"
-                        class="group relative px-8 py-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 overflow-hidden"
+                        class="group relative px-8 py-4 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 overflow-hidden"
                     >
                         <!-- Efecto shine -->
                         <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -240,7 +240,7 @@ const padZero = (num) => String(num).padStart(2, '0');
                         </span>
                     </a>
                     
-                    <p class="text-[10px] text-gray-500">
+                    <p class="text-[10px] text-slate-500">
                         *Oferta válida hasta agotar existencias
                     </p>
                 </div>

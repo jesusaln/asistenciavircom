@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
     almacenes: { type: Array, default: () => [] },
@@ -32,7 +32,7 @@ const emit = defineEmits([
     'hover-result',
 ]);
 
-const searchInput = ref(null);
+const searchInput = useTemplateRef('searchInput');
 const onSearchInput = (event) => emit('update:search', event.target.value);
 
 const focusSearch = () => searchInput.value?.focus();
@@ -42,40 +42,43 @@ defineExpose({ focusSearch, blurSearch });
 </script>
 
 <template>
-    <header class="h-20 bg-slate-900/50 border-b border-white/5 flex items-center px-6 gap-6 backdrop-blur-xl transition-colors duration-500"
-        :class="{ 'bg-rose-950/20 border-rose-500/20': !isOnline }">
+    <header class="h-24 bg-white/70 dark:bg-slate-950/60 border-b border-slate-200 dark:border-white/5 flex items-center px-8 gap-8 backdrop-blur-2xl transition-all duration-500 sticky top-0 z-50"
+        :class="{ 'bg-rose-50/80 dark:bg-rose-950/20 border-rose-200 dark:border-rose-500/20': !isOnline }">
         
-        <div class="flex items-center gap-4 min-w-[300px]">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-colors duration-300"
-                :class="isOnline ? 'bg-purple-600 shadow-purple-600/20' : 'bg-rose-600 shadow-rose-600/20 animate-pulse'">
+        <!-- Brand & Status -->
+        <div class="flex items-center gap-5 min-w-[280px]">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 transform hover:scale-110"
+                :class="isOnline ? 'bg-purple-600 shadow-purple-600/30' : 'bg-rose-600 shadow-rose-600/30 animate-pulse'">
                 <svg v-if="isOnline" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 <svg v-else class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3" />
                 </svg>
             </div>
             <div>
-                <h1 class="text-lg font-black tracking-tight uppercase flex items-center gap-2">
-                    Caja <span :class="isOnline ? 'text-purple-400' : 'text-rose-400'">{{ isOnline ? 'POS' : 'OFFLINE' }}</span>
+                <h1 class="text-xl font-black tracking-tighter uppercase dark:text-white text-slate-900 leading-tight">
+                    Caja <span :class="isOnline ? 'text-purple-600 dark:text-purple-400' : 'text-rose-600 dark:text-rose-400'">{{ isOnline ? 'POS' : 'OFFLINE' }}</span>
                 </h1>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-2">
-                    {{ almacenes.find(a => a.id === almacenId)?.nombre || 'Principal' }}
-                    <span v-if="pendingSalesCount > 0" class="text-amber-500 flex items-center gap-1 animate-pulse">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                        {{ pendingSalesCount }} Pendientes
+                <div class="flex items-center gap-3 mt-1">
+                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] px-2 py-0.5 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
+                        {{ almacenes.find(a => a.id === almacenId)?.nombre || 'Almacén Principal' }}
                     </span>
-                </p>
-                <p
-                    v-if="!puedeVenderComponentesSueltos"
-                    class="text-[10px] text-amber-400/90 max-w-[220px] leading-snug mt-1 font-medium normal-case tracking-normal"
-                >
-                    Los productos marcados como solo kit no se venden sueltos aquí (equipo completo o permiso especial).
-                </p>
+                    <span v-if="pendingSalesCount > 0" class="text-[9px] font-black text-brand-600 dark:text-brand-500 flex items-center gap-1.5 animate-pulse uppercase tracking-wide">
+                        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                        {{ pendingSalesCount }} Por Sincronizar
+                    </span>
+                </div>
             </div>
         </div>
 
-        <div class="flex-1 max-w-2xl relative group">
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-3xl relative group">
+            <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400 group-focus-within:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
             <input 
                 ref="searchInput"
                 :value="search"
@@ -83,114 +86,124 @@ defineExpose({ focusSearch, blurSearch });
                 @keydown="emit('search-keydown', $event)"
                 type="text" 
                 placeholder="Escanear código o buscar producto (F1)..."
-                class="w-full bg-slate-950/50 border-2 border-slate-800 rounded-2xl px-6 py-3 text-lg font-bold placeholder:text-slate-600 focus:border-purple-500 focus:ring-0 transition-all group-hover:bg-slate-900"
+                class="w-full bg-slate-100 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-800 rounded-[1.5rem] pl-16 pr-20 py-4 text-lg font-black dark:text-white text-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-brand-500 dark:focus:border-brand-500 focus:ring-0 transition-all group-hover:bg-slate-200/50 dark:group-hover:bg-slate-900"
                 autocomplete="off"
             />
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                <kbd class="px-2 py-1 bg-white dark:bg-slate-800 rounded-xl text-[10px] font-black text-slate-400 border border-slate-200 dark:border-slate-700 shadow-sm">F1</kbd>
+            </div>
 
-            <div v-if="search.trim().length > 0" 
-                class="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]">
-                
-                <template v-if="searchResults.length > 0">
-                    <div v-for="(res, idx) in searchResults" 
-                        :key="res.id"
-                        @click.stop.prevent="emit('select-result', res)"
-                        @mouseenter="emit('hover-result', idx)"
-                        :class="[
-                            idx === selectedResultIndex 
-                                ? 'bg-purple-600 text-white shadow-2xl relative z-10 scale-[1.01]' 
-                                : 'text-slate-300 hover:bg-slate-800/70 hover:text-white',
-                            isAddingItem || getLocalStock(res) <= 0 ? 'opacity-50 grayscale-[0.8] cursor-not-allowed' : 'cursor-pointer'
-                        ]"
-                        class="p-4 flex items-center gap-4 border-b border-white/5 last:border-none transition-all duration-75">
-                        
-                        <div class="w-10 h-10 rounded-lg bg-slate-950 flex items-center justify-center border border-white/10">
-                            <span class="text-[10px] font-black opacity-50">{{ res.unidad_medida || 'PZA' }}</span>
-                        </div>
-                        
-                        <div class="flex-1">
-                            <div class="font-bold flex items-center gap-2">
-                                {{ res.nombre }}
-                                <span v-if="getLocalStock(res) <= 0" class="text-[9px] bg-rose-500/20 text-rose-500 px-2 py-0.5 rounded-full font-black uppercase">Agotado</span>
+            <!-- Search Results Dropdown -->
+            <Transition name="results-fade">
+                <div v-if="search.trim().length > 0" 
+                    class="absolute top-full left-0 right-0 mt-4 bg-white/80 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-[2rem] shadow-2xl overflow-hidden z-[100] border-t-4 border-t-purple-600">
+                    
+                    <template v-if="searchResults.length > 0">
+                        <div v-for="(res, idx) in searchResults" 
+                            :key="res.id"
+                            @click.stop.prevent="emit('select-result', res)"
+                            @mouseenter="emit('hover-result', idx)"
+                            :class="[
+                                idx === selectedResultIndex 
+                                    ? 'bg-slate-50 dark:bg-slate-800/80' 
+                                    : '',
+                                isAddingItem || getLocalStock(res) <= 0 ? 'opacity-40 grayscale pointer-events-none' : 'cursor-pointer'
+                            ]"
+                            class="p-5 flex items-center gap-6 border-b border-slate-100 dark:border-white/5 last:border-none transition-all group/item relative">
+                            
+                            <!-- Indicador de Selección -->
+                            <div v-if="idx === selectedResultIndex" class="absolute left-0 top-0 bottom-0 w-1.5 bg-purple-600"></div>
+
+                            <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-950 flex items-center justify-center border border-slate-200 dark:border-white/10 group-hover/item:scale-110 transition-transform">
+                                <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide">{{ res.unidad_medida || 'PZA' }}</span>
                             </div>
-                            <div class="text-[10px] font-mono opacity-60">{{ res.codigo }}</div>
-                        </div>
+                            
+                            <div class="flex-1">
+                                <div class="text-[15px] font-black dark:text-white text-slate-900 uppercase tracking-wider flex items-center gap-3">
+                                    {{ res.nombre }}
+                                    <span v-if="getLocalStock(res) <= 0" class="text-[9px] bg-rose-500/10 text-rose-500 px-2 py-0.5 rounded-full font-black uppercase border border-rose-500/20">Agotado</span>
+                                </div>
+                                <div class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-1">{{ res.codigo }}</div>
+                            </div>
 
-                        <div v-if="isAddingItem && idx === selectedResultIndex" class="flex items-center justify-center">
-                            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        </div>
+                            <div v-if="isAddingItem && idx === selectedResultIndex" class="flex items-center justify-center px-4">
+                                <svg class="animate-spin h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </div>
 
-                        <div class="text-right">
-                            <div class="text-[10px] font-black opacity-50 uppercase">Stock Local</div>
-                            <div class="font-bold" :class="getLocalStock(res) <= 0 ? 'text-rose-400' : getLocalStock(res) < 5 ? 'text-amber-400' : 'text-emerald-400'">
-                                {{ getLocalStock(res) }}
+                            <div class="text-right px-4">
+                                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Disponibilidad</div>
+                                <div class="text-sm font-black" :class="getLocalStock(res) <= 0 ? 'text-rose-500' : getLocalStock(res) < 5 ? 'text-brand-500' : 'text-emerald-500'">
+                                    {{ getLocalStock(res) }} <span class="text-[10px] font-bold opacity-50 uppercase tracking-normal">Stock</span>
+                                </div>
+                            </div>
+
+                            <div class="text-right min-w-[140px] bg-slate-50 dark:bg-white/5 p-3 rounded-2xl border border-slate-100 dark:border-white/5 group-hover/item:border-purple-500/50 transition-colors">
+                                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Precio Unitario</div>
+                                <div class="text-xl font-black dark:text-white text-slate-900 tracking-tighter">{{ formatCurrency(getDisplayPrice(res)) }}</div>
                             </div>
                         </div>
-
-                        <div class="text-right min-w-[100px]">
-                            <div class="text-[10px] font-black opacity-50 uppercase">Precio</div>
-                            <div class="text-lg font-black">{{ formatCurrency(getDisplayPrice(res)) }}</div>
+                    </template>
+                    <template v-else>
+                        <div class="p-12 text-center text-slate-500">
+                            <div class="w-20 h-20 bg-slate-100 dark:bg-slate-950 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner border border-slate-200 dark:border-white/10">
+                                <svg class="w-10 h-10 text-slate-300 dark:text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            </div>
+                            <p class="text-xs font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em]">No se encontraron coincidencias</p>
                         </div>
-
-                        <div v-if="idx === selectedResultIndex" class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r"></div>
+                    </template>
+                    
+                    <div class="p-4 bg-slate-100/50 dark:bg-slate-950/50 text-[10px] font-black text-slate-400 dark:text-slate-600 text-center uppercase tracking-[0.25em] border-t border-slate-200 dark:border-white/5">
+                        ENTER para Agregar • ESC para Cancelar • ↑ ↓ para Navegar
                     </div>
-                </template>
-                <template v-else-if="search.trim().length > 0">
-                    <div class="p-8 text-center text-slate-500">
-                        <svg class="w-12 h-12 mx-auto mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        <p class="text-sm font-bold opacity-50 italic">Sin resultados para "{{ search }}"</p>
-                    </div>
-                </template>
-                
-                <div class="p-2 bg-slate-950/50 text-[9px] font-black text-slate-500 text-center uppercase tracking-widest">
-                    Usa ↑ ↓ para navegar • Enter para agregar • Mouse para seleccionar • ESC para limpiar
                 </div>
-            </div>
-
-            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                <kbd class="px-2 py-1 bg-slate-800 rounded text-[10px] font-black text-slate-400 border border-slate-700">F1</kbd>
-            </div>
+            </Transition>
         </div>
 
-        <div class="flex items-center gap-4 ml-auto">
+        <!-- User & Actions -->
+        <div class="flex items-center gap-6 ml-auto">
+            <!-- Selector Cliente -->
             <button 
                 @click="emit('open-client-modal')"
-                class="flex items-center gap-3 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-white/5 transition-all group"
+                class="flex items-center gap-4 px-5 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl border border-slate-200 dark:border-white/5 transition-all group active:scale-95"
             >
-                <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                <div class="w-10 h-10 rounded-xl bg-purple-600/10 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
-                <div class="text-left min-w-[120px]">
-                    <p class="text-[9px] font-black text-slate-500 uppercase leading-none mb-1">Cliente</p>
-                    <p class="text-xs font-bold leading-none truncate max-w-[150px]">
+                <div class="text-left min-w-[100px]">
+                    <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-1.5">Socio Comercial</p>
+                    <p class="text-[13px] font-black dark:text-white text-slate-900 leading-none truncate max-w-[160px] uppercase tracking-wider">
                         {{ clientes.find(c => c.id === clienteId)?.nombre_razon_social || 'Público General' }}
                     </p>
                 </div>
-                <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+                <svg class="w-4 h-4 text-slate-400 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
             </button>
 
-            <div class="h-8 w-[1px] bg-white/10"></div>
-
-            <div class="flex items-center gap-3 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl border border-white/5 transition-all group relative">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all pointer-events-none">
+            <!-- Selector Lista Precios -->
+            <div class="flex items-center gap-4 px-5 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 rounded-2xl border border-slate-200 dark:border-white/5 transition-all group relative active:scale-95">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
-                <div class="text-left relative">
-                    <p class="text-[9px] font-black text-slate-500 uppercase leading-none mb-1">Precio</p>
+                <div class="text-left">
+                    <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-1.5">Esquema Precios</p>
                     <select 
                         :value="priceListId" 
                         @change="emit('update:priceListId', $event.target.value)" 
-                        class="bg-transparent border-none p-0 text-xs font-bold text-white focus:ring-0 cursor-pointer appearance-none w-[120px]"
+                        class="bg-transparent border-none p-0 text-[13px] font-black dark:text-white text-slate-900 focus:ring-0 cursor-pointer appearance-none w-[130px] uppercase tracking-wider"
                     >
-                        <option value="" class="bg-slate-800 text-slate-300">Lista General</option>
-                        <option v-for="pl in priceLists" :key="pl.id" :value="pl.id" class="bg-slate-800 text-white">{{ pl.nombre }}</option>
+                        <option value="" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300">Lista General</option>
+                        <option v-for="pl in priceLists" :key="pl.id" :value="pl.id" class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{{ pl.nombre }}</option>
                     </select>
                 </div>
-                 <svg class="w-4 h-4 text-slate-600 pointer-events-none absolute right-2 bottom-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+                 <svg class="w-4 h-4 text-slate-400 pointer-events-none absolute right-4 top-1/2 -translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
             </div>
-            <div class="h-8 w-[1px] bg-white/10"></div>
-            <div class="flex items-center gap-2 text-slate-400">
-                <span class="text-xs font-bold">{{ user?.name }}</span>
-                <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-[10px] font-black">
+
+            <!-- Profile Widget -->
+            <div class="flex items-center gap-4 pl-4 border-l border-slate-200 dark:border-white/10">
+                <div class="text-right hidden xl:block">
+                    <p class="text-[11px] font-black dark:text-white text-slate-900 uppercase tracking-wide">{{ user?.name }}</p>
+                    <p class="text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-[0.2em] mt-0.5">Operador Autorizado</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-white/10 flex items-center justify-center text-[11px] font-black text-slate-400 dark:text-white shadow-xl">
                     {{ user?.name?.substring(0,2).toUpperCase() }}
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
-import Swal from 'sweetalert2'
+import Swal from '@/Utils/Swal'
 
 /**
  * Composable for managing CFDI massive downloads and polling.
@@ -49,7 +49,7 @@ export function useCfdiDownloads(props, notyf) {
             } else {
                 stopPolling()
             }
-        }, 3000)
+        }, 15000)
     }
 
     const stopPolling = () => {
@@ -97,7 +97,17 @@ export function useCfdiDownloads(props, notyf) {
     }
 
     const eliminarDescarga = async (id) => {
-        if (!confirm('¿Seguro que deseas eliminar el registro de esta descarga?')) return
+        const result = await Swal.fire({
+            title: 'Eliminar descarga',
+            text: '¿Seguro que deseas eliminar el registro de esta descarga?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#ef4444',
+        })
+
+        if (!result.isConfirmed) return
         isDeletingDescarga.value[id] = true
         try {
             const response = await axios.delete(route('cfdi.descarga-masiva.destroy', id))

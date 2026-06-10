@@ -6,3 +6,5 @@ export { default as PageHeader } from './PageHeader.vue';
 export { default as StatCard } from './StatCard.vue';
 export { default as ActionIcon } from './ActionIcon.vue';
 export { default as DataTable } from './DataTable.vue';
+export { default as LoadingSpinner } from './LoadingSpinner.vue';
+export { default as Alert } from './Alert.vue';

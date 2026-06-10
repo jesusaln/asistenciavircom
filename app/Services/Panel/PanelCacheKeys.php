@@ -21,8 +21,12 @@ final class PanelCacheKeys
     public static function key(string $suffix): string
     {
         $eid = EmpresaResolver::resolveId();
-
-        return 'panel:'.$suffix.':'.($eid ?? 'global');
+        $connection = config('database.default');
+        $fullKey = 'panel:'.$connection.':'.$suffix.':'.($eid ?? 'global');
+        
+        // \Illuminate\Support\Facades\Log::debug("PanelCacheKey: " . $fullKey);
+        
+        return $fullKey;
     }
 
     /**

@@ -55,12 +55,22 @@ class CfdiFileService
         ];
 
         if ($fechaEmision) {
-            $date = Carbon::parse($fechaEmision);
-            $year = $date->format('Y');
-            $month = $date->format('m');
-            $tipo = $direccion === 'recibido' ? 'recibidos' : 'emitidos';
-            $paths[] = "cfdis/{$tipo}/{$year}/{$month}/{$uuid}.xml";
-            $paths[] = "cfdis/{$tipo}/{$uuid}.xml";
+            try {
+                $date = Carbon::parse($fechaEmision);
+                $year = $date->format('Y');
+                $month = $date->format('m');
+                
+                $tipos = $direccion ? 
+                    ($direccion === 'recibido' ? ['recibidos'] : ['emitidos']) : 
+                    ['recibidos', 'emitidos'];
+
+                foreach ($tipos as $tipo) {
+                    $paths[] = "cfdis/{$tipo}/{$year}/{$month}/{$uuid}.xml";
+                    $paths[] = "cfdis/{$tipo}/{$uuid}.xml";
+                }
+            } catch (\Exception $e) {
+                // Fecha inválida, ignorar rutas dinámicas
+            }
         }
 
         foreach ($paths as $path) {
@@ -70,9 +80,30 @@ class CfdiFileService
             if (Storage::disk('public')->exists($path)) {
                 return Storage::disk('public')->path($path);
             }
+            // Fallback absolute check for non-disk managed files
+            $abs = storage_path('app/' . $path);
+            if (is_file($abs)) return $abs;
+            $absPub = storage_path('app/public/' . $path);
+            if (is_file($absPub)) return $absPub;
         }
 
-        return null; // No encontrado en sistema de archivos
+        return null;
+    }
+
+    /**
+     * Verifica si el CFDI tiene un archivo XML disponible (en disco o BD)
+     */
+    public function hasXml(Cfdi $cfdi): bool
+    {
+        if ($this->getXmlPath($cfdi->uuid, $cfdi->getRawOriginal('fecha_emision'), $cfdi->direccion)) {
+            return true;
+        }
+
+        if ($this->resolveStoredPath($cfdi->xml_url)) {
+            return true;
+        }
+
+        return !empty($this->getXmlContent($cfdi));
     }
 
     /**
@@ -147,13 +178,7 @@ class CfdiFileService
      */
     public function getXmlContent(Cfdi $cfdi): ?string
     {
-        // Reutilizamos la lógica del PdfService que ya es robusta, 
-        // o mejor aún, centralizamos aquí si PdfService usa este servicio.
-        // Por ahora, delegamos al PdfService para evitar duplicar lógica de lectura
-        // de PdfService::getXmlContent, o movemos esa lógica aquí.
-        // Dado el refactor, lo ideal es que este servicio sea la fuente de verdad.
-
-        $path = $this->getXmlPath($cfdi->uuid, $cfdi->fecha_emision, $cfdi->direccion);
+        $path = $this->getXmlPath($cfdi->uuid, $cfdi->getRawOriginal('fecha_emision'), $cfdi->direccion);
         if ($path) {
             return file_get_contents($path);
         }
@@ -165,7 +190,18 @@ class CfdiFileService
             }
         }
 
-        return $cfdi->xml_content;
+        $satDetalle = \Illuminate\Support\Facades\DB::table('sat_descarga_detalles')
+            ->where('uuid', $cfdi->uuid)
+            ->whereNotNull('xml_content')
+            ->first();
+
+        if ($satDetalle && !empty($satDetalle->xml_content)) {
+            $xml = $satDetalle->xml_content;
+            try { \Illuminate\Support\Facades\Storage::disk('public')->put('cfdis/' . strtolower($cfdi->uuid) . '.xml', $xml); } catch (\Exception $e) {}
+            return $xml;
+        }
+
+        return null;
     }
 
     /**

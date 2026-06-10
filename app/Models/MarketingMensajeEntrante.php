@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 
 class MarketingMensajeEntrante extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $table = 'marketing_mensajes_entrantes';

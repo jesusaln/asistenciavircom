@@ -272,13 +272,13 @@ const formatearFecha = (date) => {
 
 const obtenerClasesEstado = (estado) => {
   const clases = {
-    'disponible': 'bg-green-100 text-green-700',
-    'rentado': 'bg-blue-100 text-blue-700',
-    'mantenimiento': 'bg-yellow-100 text-yellow-700',
-    'reparacion': 'bg-orange-100 text-orange-700',
-    'fuera_servicio': 'bg-red-100 text-red-700'
+    'disponible': 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200',
+    'rentado': 'bg-sky-100 text-sky-800 dark:text-sky-200',
+    'mantenimiento': 'bg-brand-100 text-brand-800 dark:text-brand-200 dark:text-amber-200',
+    'reparacion': 'bg-brand-100 text-amber-800',
+    'fuera_servicio': 'bg-rose-100 text-rose-800 dark:text-rose-200 dark:text-rose-200'
   }
-  return clases[estado] || 'bg-gray-100 text-gray-700'
+  return clases[estado] || 'bg-slate-100 text-slate-700'
 }
 
 const obtenerLabelEstado = (estado) => {
@@ -294,13 +294,13 @@ const obtenerLabelEstado = (estado) => {
 
 const obtenerClasesCondicion = (condicion) => {
   const clases = {
-    'nuevo': 'bg-green-100 text-green-700',
-    'excelente': 'bg-blue-100 text-blue-700',
-    'bueno': 'bg-yellow-100 text-yellow-700',
-    'regular': 'bg-orange-100 text-orange-700',
-    'malo': 'bg-red-100 text-red-700'
+    'nuevo': 'bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200',
+    'excelente': 'bg-sky-100 text-sky-800 dark:text-sky-200',
+    'bueno': 'bg-brand-100 text-brand-800 dark:text-brand-200 dark:text-amber-200',
+    'regular': 'bg-brand-100 text-amber-800',
+    'malo': 'bg-rose-100 text-rose-800 dark:text-rose-200 dark:text-rose-200'
   }
-  return clases[condicion] || 'bg-gray-100 text-gray-700'
+  return clases[condicion] || 'bg-slate-100 text-slate-700'
 }
 
 const obtenerLabelCondicion = (condicion) => {
@@ -317,7 +317,7 @@ const obtenerLabelCondicion = (condicion) => {
 
 <template>
   <Head title="Equipos" />
-  <div class="equipos-index min-h-screen bg-white">
+  <div class="equipos-index min-h-screen bg-[var(--ui-surface)]">
     <div class="w-full px-6 py-8">
       <!-- Header específico de equipos -->
       <EquiposHeader
@@ -339,64 +339,64 @@ const obtenerLabelCondicion = (condicion) => {
       />
 
       <!-- Tabla -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-white">
+          <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Equipo</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Código</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Precio Renta</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Condición</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Equipo</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Código</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Precio Renta</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Condición</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
               <tr v-for="equipo in equiposDocumentos" :key="equipo.id" class="hover:bg-white transition-colors duration-150">
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-900">{{ formatearFecha(equipo.fecha) }}</div>
+                  <div class="text-sm text-slate-900">{{ formatearFecha(equipo.fecha) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">{{ equipo.titulo }}</div>
-                  <div class="text-sm text-gray-500">{{ equipo.subtitulo }}</div>
+                  <div class="text-sm font-medium text-slate-900">{{ equipo.titulo }}</div>
+                  <div class="text-sm text-slate-500">{{ equipo.subtitulo }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">{{ equipo.raw.codigo }}</div>
+                  <div class="text-sm text-slate-700">{{ equipo.raw.codigo }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="text-sm text-gray-700">${{ formatNumber(equipo.raw.precio_renta_mensual) }}</div>
+                  <div class="text-sm text-slate-700">${{ formatNumber(equipo.raw.precio_renta_mensual) }}</div>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="obtenerClasesEstado(equipo.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <span :class="obtenerClasesEstado(equipo.estado)" class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-medium">
                     {{ obtenerLabelEstado(equipo.estado) }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="obtenerClasesCondicion(equipo.raw.condicion)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <span :class="obtenerClasesCondicion(equipo.raw.condicion)" class="inline-flex items-center px-2.5 py-0.5 rounded-xl text-xs font-medium">
                     {{ obtenerLabelCondicion(equipo.raw.condicion) }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end space-x-1">
-                    <button @click="verDetalles(equipo)" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-150" title="Ver detalles">
+                    <button @click="verDetalles(equipo)" class="w-10 h-10 bg-sky-50 dark:bg-sky-900/20 text-blue-600 rounded-xl hover:bg-sky-100 transition-colors duration-150" title="Ver detalles">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </button>
-                    <button @click="editarEquipo(equipo.id)" class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors duration-150" title="Editar">
+                    <button @click="editarEquipo(equipo.id)" class="w-10 h-10 bg-brand-50 dark:bg-brand-900/20 text-brand-600 rounded-xl hover:bg-brand-100 transition-colors duration-150" title="Editar">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button @click="toggleEquipo(equipo.id)" class="w-8 h-8 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors duration-150" title="Cambiar estado">
+                    <button @click="toggleEquipo(equipo.id)" class="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors duration-150" title="Cambiar estado">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                     </button>
-                    <button @click="confirmarEliminacion(equipo.id)" class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-150" title="Eliminar">
+                    <button @click="confirmarEliminacion(equipo.id)" class="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors duration-150" title="Eliminar">
                       <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -406,15 +406,15 @@ const obtenerLabelCondicion = (condicion) => {
               </tr>
               <tr v-if="equiposDocumentos.length === 0">
                 <td colspan="7" class="px-6 py-16 text-center">
-                  <div class="flex flex-col items-center space-y-4">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="flex flex-col items-center space-y-6">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                      <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div class="space-y-1">
-                      <p class="text-gray-700 font-medium">No hay equipos</p>
-                      <p class="text-sm text-gray-500">Los equipos aparecerán aquí cuando se creen</p>
+                      <p class="text-slate-700 font-medium">No hay equipos</p>
+                      <p class="text-sm text-slate-500">Los equipos aparecerán aquí cuando se creen</p>
                     </div>
                   </div>
                 </td>
@@ -424,16 +424,16 @@ const obtenerLabelCondicion = (condicion) => {
         </div>
 
         <!-- Paginación -->
-        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-gray-200 px-4 py-3 sm:px-6">
+        <div v-if="paginationData.lastPage > 1" class="bg-white border-t border-slate-200 px-4 py-3 sm:px-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <p class="text-sm text-gray-700">
+              <p class="text-sm text-slate-700">
                 Mostrando {{ paginationData.from }} - {{ paginationData.to }} de {{ paginationData.total }} resultados
               </p>
               <select
                 :value="paginationData.perPage"
                 @change="handlePerPageChange(parseInt($event.target.value))"
-                class="border border-gray-300 rounded-md text-sm py-1 px-2 bg-white"
+                class="border border-slate-300 rounded-xl text-sm py-1 px-2 bg-white"
               >
                 <option value="10">10</option>
                 <option value="15">15</option>
@@ -442,18 +442,18 @@ const obtenerLabelCondicion = (condicion) => {
               </select>
             </div>
 
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <nav class="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px">
               <button
                 v-if="paginationData.prevPageUrl"
                 @click="handlePageChange(paginationData.currentPage - 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-slate-100 text-sm font-medium text-slate-400">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -463,7 +463,7 @@ const obtenerLabelCondicion = (condicion) => {
                 v-for="page in [paginationData.currentPage - 1, paginationData.currentPage, paginationData.currentPage + 1].filter(p => p > 0 && p <= paginationData.lastPage)"
                 :key="page"
                 @click="handlePageChange(page)"
-                :class="page === paginationData.currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-white'"
+                :class="page === paginationData.currentPage ? 'bg-sky-50 dark:bg-sky-900/20 border-blue-500 text-blue-600' : 'bg-white border-slate-300 text-slate-500 hover:bg-white'"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
               >
                 {{ page }}
@@ -472,14 +472,14 @@ const obtenerLabelCondicion = (condicion) => {
               <button
                 v-if="paginationData.nextPageUrl"
                 @click="handlePageChange(paginationData.currentPage + 1)"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-white"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-white"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
 
-              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+              <span v-else class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-slate-100 text-sm font-medium text-slate-400">
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -491,14 +491,14 @@ const obtenerLabelCondicion = (condicion) => {
 
       <!-- Modal mejorado -->
       <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showModal = false">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <!-- Header del modal -->
-          <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+          <div class="flex items-center justify-between p-6 border-b border-slate-200">
+            <h3 class="text-lg font-medium text-slate-900">
               {{ modalMode === 'details' ? 'Detalles del Equipo' : 'Confirmar Eliminación' }}
             </h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button @click="showModal = false" class="text-slate-400 hover:text-brand-600 transition-colors">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -506,77 +506,77 @@ const obtenerLabelCondicion = (condicion) => {
 
           <div class="p-6">
             <div v-if="modalMode === 'details' && selectedEquipo">
-              <div class="space-y-4">
+              <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.nombre }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Nombre</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ selectedEquipo.nombre }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Código</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.codigo }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Código</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ selectedEquipo.codigo }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Marca</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.marca || 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Marca</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ selectedEquipo.marca || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Modelo</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.modelo || 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Modelo</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ selectedEquipo.modelo || 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Estado</label>
-                      <span :class="obtenerClasesEstado(selectedEquipo.estado)" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
+                      <label class="block text-sm font-medium text-slate-700">Estado</label>
+                      <span :class="obtenerClasesEstado(selectedEquipo.estado)" class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium mt-1">
                         {{ obtenerLabelEstado(selectedEquipo.estado) }}
                       </span>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Condición</label>
-                      <span :class="obtenerClasesCondicion(selectedEquipo.condicion)" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1">
+                      <label class="block text-sm font-medium text-slate-700">Condición</label>
+                      <span :class="obtenerClasesCondicion(selectedEquipo.condicion)" class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium mt-1">
                         {{ obtenerLabelCondicion(selectedEquipo.condicion) }}
                       </span>
                     </div>
                   </div>
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Precio Renta Mensual</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">${{ formatNumber(selectedEquipo.precio_renta_mensual) }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Precio Renta Mensual</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">${{ formatNumber(selectedEquipo.precio_renta_mensual) }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Precio Compra</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.precio_compra ? '$' + formatNumber(selectedEquipo.precio_compra) : 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Precio Compra</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ selectedEquipo.precio_compra ? '$' + formatNumber(selectedEquipo.precio_compra) : 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Fecha de Adquisición</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ selectedEquipo.fecha_adquisicion ? formatearFecha(selectedEquipo.fecha_adquisicion) : 'N/A' }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Fecha de Adquisición</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ selectedEquipo.fecha_adquisicion ? formatearFecha(selectedEquipo.fecha_adquisicion) : 'N/A' }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEquipo.created_at) }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Fecha de Creación</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ formatearFecha(selectedEquipo.created_at) }}</p>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700">Última Actualización</label>
-                      <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md">{{ formatearFecha(selectedEquipo.updated_at) }}</p>
+                      <label class="block text-sm font-medium text-slate-700">Última Actualización</label>
+                      <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl">{{ formatearFecha(selectedEquipo.updated_at) }}</p>
                     </div>
                   </div>
                 </div>
                 <div v-if="selectedEquipo.descripcion">
-                  <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                  <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded-md whitespace-pre-wrap">{{ selectedEquipo.descripcion }}</p>
+                  <label class="block text-sm font-medium text-slate-700">Descripción</label>
+                  <p class="mt-1 text-sm text-slate-900 bg-white px-3 py-2 rounded-xl whitespace-pre-wrap">{{ selectedEquipo.descripcion }}</p>
                 </div>
               </div>
             </div>
 
             <div v-if="modalMode === 'confirm'">
               <div class="text-center">
-                <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 mx-auto bg-rose-100 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-10 h-10 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">¿Eliminar Equipo?</h3>
-                <p class="text-sm text-gray-500 mb-4">
+                <h3 class="text-lg font-medium text-slate-900 mb-2">¿Eliminar Equipo?</h3>
+                <p class="text-sm text-slate-500 mb-4">
                   ¿Estás seguro de que deseas eliminar el equipo <strong>{{ selectedEquipo?.nombre }}</strong>?
                   Esta acción no se puede deshacer.
                 </p>
@@ -585,19 +585,19 @@ const obtenerLabelCondicion = (condicion) => {
           </div>
 
           <!-- Footer del modal -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-white">
-            <button @click="showModal = false" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-white">
+            <button @click="showModal = false" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-xl hover:bg-slate-400 transition-colors">
               {{ modalMode === 'details' ? 'Cerrar' : 'Cancelar' }}
             </button>
             <div v-if="modalMode === 'details'" class="flex gap-2">
-              <button @click="toggleEquipo(selectedEquipo.id)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              <button @click="toggleEquipo(selectedEquipo.id)" class="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
                 Cambiar Estado
               </button>
-              <button @click="editarEquipo(selectedEquipo.id)" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+              <button @click="editarEquipo(selectedEquipo.id)" class="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors">
                 Editar
               </button>
             </div>
-            <button v-if="modalMode === 'confirm'" @click="eliminarEquipo" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+            <button v-if="modalMode === 'confirm'" @click="eliminarEquipo" class="px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors">
               Eliminar
             </button>
           </div>

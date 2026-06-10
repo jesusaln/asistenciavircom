@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 
 class PlanPoliza extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, SoftDeletes, BelongsToEmpresa;
 
     protected static array $columnExistsCache = [];
@@ -30,6 +32,8 @@ class PlanPoliza extends Model
         'icono',
         'color',
         'precio_mensual',
+        'precio_por_equipo',
+        'precios_por_tipo',
         'precio_anual',
         'precio_instalacion',
         'horas_incluidas',
@@ -50,6 +54,7 @@ class PlanPoliza extends Model
         'terminos_pago',
         'mantenimiento_frecuencia_meses',
         'mantenimientos_anuales',
+        'meses_mantenimiento',
         'mantenimiento_dias_anticipacion',
         'generar_cita_automatica',
         'visitas_sitio_mensuales',
@@ -67,6 +72,8 @@ class PlanPoliza extends Model
         'sla_horas_respuesta' => 'integer',
         'sla_horas_resolucion' => 'integer',
         'mantenimientos_anuales' => 'integer',
+        'meses_mantenimiento' => 'array',
+        'precios_por_tipo' => 'array',
         'beneficios' => 'array',
         'incluye_servicios' => 'array',
         'activo' => 'boolean',

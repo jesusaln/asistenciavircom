@@ -6,7 +6,7 @@
                 title="Rendimiento de Técnicos (Tickets Completados)"
                 :labels="graficaTecnicos.labels"
                 :datasets="graficaTecnicos.datasets"
-                class="hover:shadow-md transition-shadow duration-300"
+                class="hover:shadow-xl transition-shadow duration-200"
             />
 
             <!-- Gráfica de Ventas por Almacén -->
@@ -14,17 +14,17 @@
                 title="Ventas por Almacén (Mes Actual)"
                 :labels="graficaVentas.labels"
                 :datasets="graficaVentas.datasets"
-                 class="hover:shadow-md transition-shadow duration-300"
+                 class="hover:shadow-xl transition-shadow duration-200"
             />
         </div>
 
-        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+        <div class="bg-sky-50 dark:bg-sky-900/20 border-l-4 border-blue-400 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <font-awesome-icon icon="info-circle" class="h-5 w-5 text-blue-400" />
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm text-blue-700">
+                    <p class="text-sm text-sky-800 dark:text-sky-200">
                         Estas gráficas se actualizan periódicamente. Para ver datos más granulares, consulte las pestañas específicas.
                     </p>
                 </div>

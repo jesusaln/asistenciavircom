@@ -38,7 +38,7 @@ const formatNumber = (val) => {
         </div>
 
         <!-- Body -->
-        <div class="p-6 max-h-[40vh] overflow-y-auto">
+        <div class="p-6 max-h-[40vh] overflow-y-auto custom-scrollbar">
           <ul class="space-y-2">
             <li
               v-for="(msg, index) in messages"
@@ -63,18 +63,18 @@ const formatNumber = (val) => {
         <div v-if="stockDetails && stockDetails.length > 0" class="p-6 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 space-y-4">
            <div class="flex items-center gap-2 mb-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <h4 class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Sugerencias de Solución</h4>
+              <h4 class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide">Sugerencias de Solución</h4>
            </div>
            
            <div v-for="item in stockDetails" :key="item.producto_id" class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
               <div class="flex justify-between items-start">
-                  <p class="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">{{ item.producto_nombre }}</p>
-                  <span class="px-2 py-0.5 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-[9px] font-black rounded-full">Sin Stock</span>
+                  <p class="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">{{ item.producto_nombre }}</p>
+                  <span class="px-2 py-0.5 bg-rose-50 dark:bg-rose-900/20/30 text-rose-600 dark:text-rose-400 text-[9px] font-black rounded-full">Sin Stock</span>
               </div>
               
               <!-- Si hay stock en otros almacenes -->
               <div v-if="item.otros_almacenes && item.otros_almacenes.length > 0" class="space-y-2">
-                 <p class="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+                 <p class="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
                     Disponible en otros almacenes:
                  </p>
@@ -84,7 +84,7 @@ const formatNumber = (val) => {
                        <div class="flex items-center gap-3">
                           <span class="text-[11px] font-black text-emerald-700 dark:text-emerald-400">{{ formatNumber(alt.cantidad) }} un.</span>
                           <a :href="`/traspasos/create?producto_id=${item.producto_id}&almacen_destino_id=${item.almacen_id}&almacen_origen_id=${alt.almacen_id}`" 
-                             class="px-3 py-1 bg-emerald-600 text-white text-[9px] font-black uppercase rounded-lg hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+                             class="px-3 py-1 bg-emerald-600 text-white text-[9px] font-black uppercase rounded-xl hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
                              Solicitar Traspaso
                           </a>
                        </div>
@@ -93,9 +93,9 @@ const formatNumber = (val) => {
               </div>
 
               <!-- Si NO hay stock en otros almacenes -->
-              <div v-else class="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/20 flex items-center gap-3">
-                 <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-                 <span class="text-[9px] font-bold text-amber-700 dark:text-amber-500 uppercase tracking-tight">No se encontró stock en ningún otro almacén.</span>
+              <div v-else class="p-3 bg-brand-50 dark:bg-brand-900/10 rounded-xl border border-brand-100 dark:border-brand-900/20 flex items-center gap-3">
+                 <svg class="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                 <span class="text-[9px] font-bold text-brand-700 dark:text-brand-500 uppercase tracking-wider">No se encontró stock en ningún otro almacén.</span>
               </div>
               
               <!-- Botón Orden de Compra -->
@@ -111,7 +111,7 @@ const formatNumber = (val) => {
         <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button
             @click="$emit('close')"
-            class="px-8 py-3 bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-800 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-700 dark:hover:bg-slate-300 transition-all shadow-lg active:scale-95"
+            class="px-8 py-3 bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-800 rounded-2xl font-black text-[10px] uppercase tracking-wide hover:bg-slate-700 dark:hover:bg-slate-300 transition-all shadow-lg active:scale-95"
           >
             Entendido
           </button>

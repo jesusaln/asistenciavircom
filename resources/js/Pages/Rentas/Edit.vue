@@ -472,7 +472,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Head :title="`Editar Renta ${renta?.numero_contrato || ''}`" />
-  <div class="ventas-edit min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+  <div class="ventas-edit min-h-screen bg-[var(--ui-surface)] p-6">
     <div class="w-full">
       <!-- Header -->
       <Header
@@ -485,12 +485,12 @@ onBeforeUnmount(() => {
         @close-shortcuts="closeShortcuts"
       />
 
-      <form @submit.prevent="actualizarRenta" class="space-y-8">
+      <form @submit.prevent="actualizarRenta" class="space-y-6">
         <!-- Cliente -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               Información del Cliente
@@ -508,10 +508,10 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Equipos -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
               </svg>
               Equipos Rentados
@@ -537,10 +537,10 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Configuración de Renta -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
               Configuración del Contrato
@@ -549,18 +549,18 @@ onBeforeUnmount(() => {
           <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Fecha de Inicio</label>
                 <input
                   v-model="form.fecha_inicio"
                   type="date"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Duración (meses)</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Duración (meses)</label>
                 <select
                   v-model="form.duracion_meses"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   <option value="6">6 meses</option>
                   <option value="12">12 meses</option>
@@ -570,19 +570,19 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Día de Pago</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Día de Pago</label>
                 <select
                   v-model="form.dia_pago"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   <option v-for="dia in 28" :key="dia" :value="dia">Día {{ dia }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Forma de Pago</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Forma de Pago</label>
                 <select
                   v-model="form.forma_pago"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   <option value="transferencia">Transferencia Bancaria</option>
                   <option value="efectivo">Efectivo</option>
@@ -591,13 +591,13 @@ onBeforeUnmount(() => {
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Depósito de Garantía</label>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Depósito de Garantía</label>
                 <input
                   v-model="form.deposito_garantia"
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -605,10 +605,10 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Notas -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
               Notas Adicionales
@@ -617,7 +617,7 @@ onBeforeUnmount(() => {
           <div class="p-6">
             <textarea
               v-model="form.observaciones"
-              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+              class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-vertical"
               rows="4"
               placeholder="Agrega notas adicionales, términos y condiciones, o información relevante para la renta..."
             ></textarea>
@@ -649,10 +649,10 @@ onBeforeUnmount(() => {
       <!-- Atajos de teclado -->
       <button
         @click="mostrarAtajos = !mostrarAtajos"
-        class="fixed bottom-4 left-4 bg-gray-600 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors duration-200"
+        class="fixed bottom-4 left-4 bg-slate-600 text-white p-3 rounded-full shadow-xl hover:bg-slate-700 transition-colors duration-200"
         title="Mostrar atajos de teclado"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </button>

@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\EntregaDinero;
+use App\Models\User;
 use App\Services\Cobros\MiCorteCobrosCalculator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class EntregaDineroService
 {
@@ -122,20 +124,22 @@ class EntregaDineroService
      * Marcar entrega como recibida y, opcionalmente, crear movimiento bancario (depósito).
      * Si $registrarMovimientoBancario es false o no hay cuenta, solo queda la confirmación física (tesorería).
      */
-    public static function marcarComoRecibido(EntregaDinero $entrega, int $userId, ?int $cuentaBancariaId, ?string $notas, bool $registrarMovimientoBancario = true): void
+    public static function marcarComoRecibido(EntregaDinero $entrega, int $userId, ?int $cuentaBancariaId, ?string $notas, bool $registrarMovimientoBancario = true, ?string $fechaHora = null): void
     {
+        $fechaReal = $fechaHora ? \Carbon\Carbon::parse($fechaHora) : now();
+
         $entrega->update([
             'estado' => 'recibido',
             'recibido_por' => $userId,
-            'fecha_recibido' => now(),
+            'fecha_recibido' => $fechaReal,
             'notas_recibido' => $notas,
             'cuenta_bancaria_id' => $cuentaBancariaId,
         ]);
 
-        if ($entrega->tipo_origen === 'lote') {
+        if (in_array($entrega->tipo_origen, ['lote', 'declaracion_mi_corte'], true)) {
             foreach ($entrega->children as $child) {
                 // Deshabilitar movimiento bancario para hijos para evitar duplicados en el banco
-                self::marcarComoRecibido($child, $userId, $cuentaBancariaId, "Recibido vía Lote #{$entrega->id}", false);
+                self::marcarComoRecibido($child, $userId, $cuentaBancariaId, "Recibido vía Lote #{$entrega->id}", false, $fechaHora);
             }
         }
 
@@ -149,14 +153,14 @@ class EntregaDineroService
                 'deposito',
                 $entrega->total,
                 "Entrega de dinero #{$entrega->id} - " . ($notas ?? 'Sin notas'),
-                'cobro'
+                'cobro',
+                $entrega,
+                $fechaHora
             );
 
             $movimiento->update([
-                'conciliable_type' => \App\Models\EntregaDinero::class,
-                'conciliable_id' => $entrega->id,
                 'conciliado_por' => $userId,
-                'conciliado_at' => now(),
+                'conciliado_at' => $fechaReal,
             ]);
         }
     }
@@ -201,21 +205,65 @@ class EntregaDineroService
         }
 
         $bloqueNotas = $tag."\n".($notasUsuario ? trim($notasUsuario)."\n" : '');
+        $empresaId = User::find($userId)->empresa_id;
 
-        return EntregaDinero::create([
-            'user_id' => $userId,
-            'fecha_entrega' => $hasta->toDateString(),
-            'monto_efectivo' => $montoEfectivo,
-            'monto_transferencia' => 0,
-            'monto_cheques' => 0,
-            'monto_tarjetas' => 0,
-            'monto_otros' => 0,
-            'total' => $montoEfectivo,
-            'estado' => 'pendiente',
-            'notas' => 'Declaración app Mi corte'."\n".$bloqueNotas,
-            'tipo_origen' => self::TIPO_DECLARACION_MI_CORTE,
-            'id_origen' => null,
-        ]);
+        return DB::transaction(function () use ($userId, $hasta, $montoEfectivo, $bloqueNotas, $resumen, $empresaId) {
+            // 1. Crear el registro Maestro (La Declaración del Usuario)
+            $lote = EntregaDinero::create([
+                'user_id' => $userId,
+                'fecha_entrega' => $hasta->toDateString(),
+                'monto_efectivo' => $montoEfectivo,
+                'monto_transferencia' => 0,
+                'monto_cheques' => 0,
+                'monto_tarjetas' => 0,
+                'monto_otros' => 0,
+                'total' => $montoEfectivo,
+                'estado' => 'pendiente',
+                'notas' => 'Declaración app Mi corte'."\n".$bloqueNotas,
+                'tipo_origen' => self::TIPO_DECLARACION_MI_CORTE,
+                'id_origen' => null,
+                'empresa_id' => $empresaId,
+            ]);
+
+            // 2. Vincular todas las VENTAS que entraron en este cálculo
+            if (isset($resumen['ventas'])) {
+                foreach ($resumen['ventas'] as $v) {
+                    // Solo si es efectivo (que es lo que se está entregando)
+                    if ($v->metodo_pago === 'efectivo' || $v->metodo_pago === 'Efectivo') {
+                        EntregaDinero::create([
+                            'user_id' => $userId,
+                            'parent_id' => $lote->id,
+                            'fecha_entrega' => $hasta->toDateString(),
+                            'monto_efectivo' => $v->total,
+                            'total' => $v->total,
+                            'estado' => 'pendiente',
+                            'tipo_origen' => 'venta',
+                            'id_origen' => $v->id,
+                            'empresa_id' => $empresaId,
+                        ]);
+                    }
+                }
+            }
+
+            // 3. Vincular todos los GASTOS que entraron en este cálculo
+            if (isset($resumen['gastos_detalle'])) {
+                foreach ($resumen['gastos_detalle'] as $g) {
+                    EntregaDinero::create([
+                        'user_id' => $userId,
+                        'parent_id' => $lote->id,
+                        'fecha_entrega' => $hasta->toDateString(),
+                        'monto_efectivo' => -$g->total, // Los gastos restan
+                        'total' => -$g->total,
+                        'estado' => 'pendiente',
+                        'tipo_origen' => 'gasto',
+                        'id_origen' => $g->id,
+                        'empresa_id' => $empresaId,
+                    ]);
+                }
+            }
+
+            return $lote;
+        });
     }
     /**
      * Decide estado por método según configuración.
@@ -373,12 +421,17 @@ class EntregaDineroService
                     $cuenta->registrarMovimiento(
                         'deposito',
                         $monto,
-                        "Cobro por {$tipoOrigen} {$referencia} ({$metodoPago})"
+                        "Cobro por {$tipoOrigen} {$referencia} ({$metodoPago})",
+                        'cobro',
+                        $entrega
                     );
                 }
-            } elseif (in_array($metodoPago, ['transferencia', 'tarjeta', 'cheque'])) {
+            } elseif (in_array($metodoLower, ['transferencia', 'tarjeta', 'cheque', 'tarjeta_credito', 'tarjeta_debito', 'tarjeta de crédito', 'tarjeta de débito'])) {
                 // ⚠️ CRITICAL ALERT: Received payment via bank method but no bank account ID provided
                 \Log::error("EntregaDineroService: Pago RECIBIDO via {$metodoPago} sin cuentaBancariaId para {$tipoOrigen} #{$idOrigen}. El saldo bancario NO se actualizó.");
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'cuenta_bancaria_id' => "Se requiere seleccionar una cuenta bancaria para registrar un pago electrónico ({$metodoPago})."
+                ]);
             }
         }
 

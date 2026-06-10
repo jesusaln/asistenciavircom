@@ -14,10 +14,10 @@
           </div>
 
           <!-- Contenido del modal con scroll -->
-          <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          <div class="p-6 overflow-y-auto custom-scrollbar max-h-[calc(90vh-140px)]">
             <div class="space-y-6">
               <!-- Información General -->
-              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+              <div class="bg-blue-50 dark:bg-sky-900/20 rounded-xl p-4">
                 <h3 class="text-lg font-medium text-blue-800 dark:text-blue-200 mb-4 flex items-center">
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -27,26 +27,26 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Nombre</label>
-                    <p class="mt-1 block w-full rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.nombre }}</p>
+                    <p class="mt-1 block w-full rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.nombre }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Descripción</label>
-                    <p class="mt-1 block w-full rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.descripcion }}</p>
+                    <p class="mt-1 block w-full rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.descripcion }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Código</label>
-                    <p class="mt-1 block w-full rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.codigo }}</p>
+                    <p class="mt-1 block w-full rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.codigo }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Categoría</label>
-                    <p class="mt-1 block w-full rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ categoriaNombre || 'Cargando...' }}</p>
+                    <p class="mt-1 block w-full rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ categoriaNombre || 'Cargando...' }}</p>
                   </div>
                 </div>
               </div>
 
               <!-- Detalles del Servicio -->
-              <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-                <h3 class="text-lg font-medium text-green-800 dark:text-green-200 mb-4 flex items-center">
+              <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4">
+                <h3 class="text-lg font-medium text-emerald-800 dark:text-emerald-200 mb-4 flex items-center">
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.654 0 3-1.346 3-3s-1.346-3-3-3-3 1.346-3 3 1.346 3 3 3zm0 2c-2.21 0-4 1.79-4 4v1h8v-1c0-2.21-1.79-4-4-4zm0 8c2.21 0 4-1.79 4-4h-8c0 2.21 1.79 4 4 4z" />
                   </svg>
@@ -55,11 +55,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Precio</label>
-                    <p class="mt-1 block w-full rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.precio }}</p>
+                    <p class="mt-1 block w-full rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.precio }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Duración (minutos)</label>
-                    <p class="mt-1 block w-full rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.duracion }}</p>
+                    <p class="mt-1 block w-full rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2">{{ servicio.duracion }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-600 dark:text-slate-300">Estado</label>
@@ -67,10 +67,10 @@
                       <button
                         @click="toggleEstado"
                         :disabled="isUpdating"
-                        class="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                        class="px-4 py-2 rounded-xl font-medium transition-colors flex items-center gap-2"
                         :class="localEstado === 'activo' 
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                          : 'bg-red-100 text-red-800 hover:bg-red-200'"
+                          ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' 
+                          : 'bg-rose-100 text-rose-800 hover:bg-rose-200'"
                       >
                         <span v-if="isUpdating" class="animate-spin">⏳</span>
                         <span v-else>{{ localEstado === 'activo' ? '✓ Activo' : '✗ Inactivo' }}</span>
@@ -86,7 +86,7 @@
           <!-- Footer del modal -->
           <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
             <div class="flex justify-end space-x-3">
-              <button @click="closeModal" class="px-6 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors">
+              <button @click="closeModal" class="px-6 py-2 bg-slate-700 text-white rounded-xl hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors">
                 Cerrar
               </button>
             </div>

@@ -4,16 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Facades\Log;
 
 class Notification extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'notifications';
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'user_id',
+        'notifiable_id',
+        'notifiable_type',
         'type',
         'title',
         'message',
@@ -121,7 +128,7 @@ class Notification extends Model
                         'client_id' => $cliente->id,
                         'client_name' => $cliente->nombre_razon_social,
                         'client_email' => $cliente->email,
-                        'created_at' => $cliente->created_at->toISOString()
+                        'created_at' => $cliente->created_at->toIso8601String()
                     ],
                     "/clientes/{$cliente->id}",
                     'fas fa-user-plus'

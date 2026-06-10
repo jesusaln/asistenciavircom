@@ -17,10 +17,10 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
-        \App\Http\Middleware\HandleInertiaRequests::class, // Necesario para Inertia
-        \App\Http\Middleware\DebugCorsMiddleware::class, // Middleware para debuggear CORS
+        // \App\Http\Middleware\HandleInertiaRequests::class, // Eliminado de global, ya está en web group en bootstrap/app.php
+        // \App\Http\Middleware\DebugCorsMiddleware::class, // Middleware para debuggear CORS
         // eliminado \App\Http\Middleware\CorsMiddleware::class,
-        \App\Http\Middleware\AlignSequencesMiddleware::class, // Alinea secuencias en PostgreSQL
+        // \App\Http\Middleware\AlignSequencesMiddleware::class, // Alinea secuencias en PostgreSQL
     ];
 
     /**
@@ -35,7 +35,7 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\HandleSessionExpiration::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
+            \App\Http\Middleware\CustomVerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\HandleInertiaRequests::class, // Necesario para Inertia
             \App\Http\Middleware\CleanJsonResponse::class, // Limpia caracteres UTF-8 inválidos
@@ -44,10 +44,14 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\EncryptCookies::class, // Necesario para descifrar la sesión
+            \Illuminate\Session\Middleware\StartSession::class, // FORZAR inicio de sesión para evitar 401
+            \App\Http\Middleware\ForceWebAuthForApi::class, // PUENTE: usar sesión web para API
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\CorsMiddleware::class, // Añadido aquí para que se aplique solo a las rutas API
+            \App\Http\Middleware\EnforceEmpresaContext::class, // 🛡️ Blindaje Multi-empresa (Añadido para API)
         ],
     ];
 
@@ -71,6 +75,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class, // Registramos tu middleware aquí
+        '2fa.required' => \App\Http\Middleware\EnsureTwoFactorEnabled::class,
     ];
 
     /**

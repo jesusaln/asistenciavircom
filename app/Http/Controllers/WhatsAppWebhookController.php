@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class WhatsAppWebhookController extends Controller
 {
-    /**
-     * Verificar webhook (GET challenge)
-     */
     public function verify(Request $request)
     {
         // Meta envía parámetros con puntos (hub.mode, hub.verify_token, hub.challenge)
@@ -68,7 +65,15 @@ class WhatsAppWebhookController extends Controller
      */
     public function receive(Request $request)
     {
-        \Log::channel("whatsapp")->info("WHATSAPP WEBHOOK: Recibida petición POST", ["header" => $request->header("X-Hub-Signature-256"), "all" => $request->all()]);
+        $logPayload = $request->all();
+        if (isset($logPayload['entry'])) {
+            array_walk_recursive($logPayload['entry'], function (&$value, $key) {
+                if (in_array($key, ['from', 'phone_number', 'wa_id', 'body', 'text', 'profile'], true) && is_string($value)) {
+                    $value = substr($value, 0, 4) . '***REDACTED***';
+                }
+            });
+        }
+        \Log::channel("whatsapp")->info("WHATSAPP WEBHOOK: Recibida petición POST", ["header" => $request->header("X-Hub-Signature-256"), "payload" => $logPayload]);
         // Obtener el cuerpo raw para validación de firma
         $rawBody = $request->getContent();
         $signatureHeader = $request->header('X-Hub-Signature-256', '');
@@ -94,8 +99,7 @@ class WhatsAppWebhookController extends Controller
         }
 
         // Validar firma HMAC OBLIGATORIA
-        // TEMPORAL: Bypass de firma para diagnóstico
-        if (false && (!$signatureHeader || !$this->validateSignature($rawBody, $signatureHeader, $phoneNumberId))) {
+        if (!$signatureHeader || !$this->validateSignature($rawBody, $signatureHeader, $phoneNumberId)) {
             Log::channel("whatsapp")->warning('Firma HMAC de webhook inválida o ausente', [
                 'signature_header' => $signatureHeader,
                 'phoneNumberId' => $phoneNumberId,
@@ -176,6 +180,24 @@ class WhatsAppWebhookController extends Controller
         $whatsappMessage = WhatsAppMessage::where('message_id', $messageId)->first();
 
         if (!$whatsappMessage) {
+            // Buscar en la tabla de chats manuales (Bandeja de Entrada)
+            $chatMessage = \App\Models\WhatsAppChat::where('message_id', $messageId)->first();
+            if ($chatMessage) {
+                $chatMessage->update([
+                    'status' => $statusValue,
+                ]);
+
+                // Disparar evento para que la interfaz se actualice en tiempo real
+                event(new \App\Events\WhatsAppMessageReceived($chatMessage));
+
+                Log::info('Estado de mensaje WhatsAppChat actualizado', [
+                    'message_id' => $messageId,
+                    'new_status' => $statusValue,
+                    'empresa_id' => $chatMessage->empresa_id,
+                ]);
+                return;
+            }
+
             Log::info('Estado recibido para mensaje no encontrado en BD', [
                 'message_id' => $messageId,
                 'status' => $statusValue,
@@ -223,6 +245,15 @@ class WhatsAppWebhookController extends Controller
     {
         $from = $message['from'] ?? null;
         $id = $message['id'] ?? null;
+
+        if ($id) {
+            $cacheKey = "whatsapp_processed_msg_{$id}";
+            if (\Illuminate\Support\Facades\Cache::add($cacheKey, true, 300) === false) {
+                \Log::channel("whatsapp")->info("WHATSAPP WEBHOOK: Mensaje ya procesado o en cola (duplicado omitido)", ["message_id" => $id]);
+                return;
+            }
+        }
+
         $type = $message['type'] ?? 'text';
         $text = null;
         
@@ -284,8 +315,14 @@ class WhatsAppWebhookController extends Controller
         }
         $identifier = WhatsAppService::canonicalWaId($rawId);
         $telLimpio = strlen($identifier) >= 10 ? substr($identifier, -10) : null;
+        $isOptOut = $text && in_array(strtoupper(trim($text)), ['SALIR', 'BAJA', 'BAJAR', 'CANCELAR SUSCRIPCION', 'STOP']);
 
-        // 1. GUARDAR EN EL HISTORIAL DE CHATS (Universal)
+        // 1. MANEJAR OPT-OUT (Baja) — ANTES de guardar chat o crear prospecto
+        if ($isOptOut) {
+            $this->handleOptOut($telLimpio, $empresaId, $waUserId);
+        }
+
+        // 2. GUARDAR EN EL HISTORIAL DE CHATS (Universal)
         try {
 
             $chatRecord = \App\Models\WhatsAppChat::create([
@@ -306,30 +343,44 @@ class WhatsAppWebhookController extends Controller
                 [
                     'contact_name' => $profileName,
                     'last_message_at' => now(),
-                    'status' => 'open'
+                    'status' => $isOptOut ? 'closed' : 'open'
                 ]
             );
 
             // DISPARAR EVENTO PARA REAL-TIME
             event(new \App\Events\WhatsAppMessageReceived($chatRecord));
 
-            // DISPARAR CHATBOT AUTÓNOMO (Si aplica)
-            if ($type === 'text' && $text) {
-                // El chatbot también necesita saber si es por BSUID
-                \App\Jobs\ProcessWhatsAppChatbot::dispatch($empresaId, $identifier, $text);
+            // Cuando el cliente escribe, reactivar el bot (quitar bloqueo de asesor humano)
+            \Illuminate\Support\Facades\Cache::forget("whatsapp_human_active_{$empresaId}_{$identifier}");
+
+            // DISPARAR CHATBOT AUTÓNOMO (solo si no es opt-out)
+            if (!$isOptOut && $text) {
+                // Para mensajes interactivos (botones/listas), extraer el ID de la respuesta
+                // que es más robusto que el título para la máquina de estados
+                $chatbotText = $text;
+                if ($type === 'interactive') {
+                    $chatbotText = $message['interactive']['button_reply']['id']
+                        ?? $message['interactive']['list_reply']['id']
+                        ?? $text;
+                } elseif ($type === 'button') {
+                    $chatbotText = $message['button']['payload'] ?? $text;
+                }
+
+                if (in_array($type, ['text', 'interactive', 'button'])) {
+                    \App\Jobs\ProcessWhatsAppChatbot::dispatch($empresaId, $identifier, $chatbotText);
+                }
             }
         } catch (\Exception $e) {
             Log::channel("whatsapp")->error("WHATSAPP CHAT Error: " . $e->getMessage());
         }
 
-        try {
-            // 2. Manejar OPT-OUT (Baja)
-            if ($text && strtoupper(trim($text)) === 'SALIR') {
-                $this->handleOptOut($telLimpio, $empresaId, $waUserId);
-                return;
-            }
+        // 3. Si es opt-out, no crear prospecto ni actividad CRM
+        if ($isOptOut) {
+            return;
+        }
 
-            // 3. Integrar con CRM (Crear/Actualizar Prospecto)
+        try {
+            // 4. Integrar con CRM (Crear/Actualizar Prospecto)
             $this->syncToCRM($telLimpio, $text ?? '', $empresaId, $waUserId, $waUsername, $profileName);
 
         } catch (\Exception $e) {
@@ -389,7 +440,7 @@ class WhatsAppWebhookController extends Controller
                 'etapa' => 'prospecto',
                 'prioridad' => 'media',
                 'notas' => "Interesado desde WhatsApp:\n" . $mensaje,
-                'vendedor_id' => \App\Models\User::role('ventas')->where('empresa_id', $empresaId)->where('activo', true)->first()?->id ?? 1,
+                'vendedor_id' => \App\Models\User::role('ventas')->where('empresa_id', $empresaId)->where('activo', true)->first()?->id,
             ]);
             Log::info("CRM SYNC: Prospecto NUEVO creado con BSUID: " . $waUserId);
         } elseif ($prospecto) {
@@ -406,7 +457,9 @@ class WhatsAppWebhookController extends Controller
         // Registrar la actividad en el historial del prospecto si es posible
         if ($prospecto) {
             try {
-                $systemUserId = \App\Models\User::role('super-admin')->value('id') ?? 1;
+                $systemUserId = \App\Models\User::role('super-admin')
+                    ->where('empresa_id', $empresaId)
+                    ->value('id');
                 $prospecto->actividades()->create([
                     'empresa_id' => $empresaId,
                     'user_id' => $systemUserId,
@@ -426,13 +479,13 @@ class WhatsAppWebhookController extends Controller
     private function handleOptOut(?string $telefono, int $empresaId, ?string $waUserId = null): void
     {
         if ($waUserId) {
-            \App\Models\Cliente::where('wa_user_id', $waUserId)->update(['opt_out_at' => now()]);
-            \App\Models\CrmProspecto::where('wa_user_id', $waUserId)->update(['notas' => "SOLICITÓ BAJA POR WHATSAPP (BSUID: $waUserId) EL " . now()]);
+            \App\Models\Cliente::where('empresa_id', $empresaId)->where('wa_user_id', $waUserId)->update(['whatsapp_optin' => false, 'opt_out_at' => now()]);
+            \App\Models\CrmProspecto::where('empresa_id', $empresaId)->where('wa_user_id', $waUserId)->update(['notas' => "SOLICITÓ BAJA POR WHATSAPP (BSUID: $waUserId) EL " . now()]);
         }
         
         if ($telefono) {
-            \App\Models\Cliente::where('telefono', 'like', "%$telefono%")->update(['opt_out_at' => now()]);
-            \App\Models\CrmProspecto::where('telefono', 'like', "%$telefono%")->update(['notas' => "SOLICITÓ BAJA POR WHATSAPP EL " . now()]);
+            \App\Models\Cliente::where('empresa_id', $empresaId)->where('telefono', 'like', "%$telefono%")->update(['whatsapp_optin' => false, 'opt_out_at' => now()]);
+            \App\Models\CrmProspecto::where('empresa_id', $empresaId)->where('telefono', 'like', "%$telefono%")->update(['notas' => "SOLICITÓ BAJA POR WHATSAPP EL " . now()]);
         }
         
         Log::info("Opt-out procesado para identifier: " . ($waUserId ?: $telefono));

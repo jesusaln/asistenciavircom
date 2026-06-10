@@ -2,11 +2,9 @@ import { ref, watch } from 'vue';
 
 export const usePosDraft = ({
     storageKey,
-    selectedItems,
-    clienteId,
+    tabs,
+    activeTabIndex,
     almacenId,
-    priceListId,
-    paymentMethod,
     notify,
 }) => {
     const isRestoring = ref(true);
@@ -16,11 +14,9 @@ export const usePosDraft = ({
 
         try {
             const payload = {
-                items: JSON.parse(JSON.stringify(selectedItems.value)),
-                cliente: clienteId.value,
+                tabs: JSON.parse(JSON.stringify(tabs.value)),
+                activeTabIndex: activeTabIndex.value,
                 almacen: almacenId.value,
-                priceList: priceListId.value,
-                method: paymentMethod.value,
                 ts: Date.now()
             };
             localStorage.setItem(storageKey, JSON.stringify(payload));
@@ -39,20 +35,22 @@ export const usePosDraft = ({
             }
 
             const data = JSON.parse(raw);
-            // TTL: 6 horas (21600000ms) para evitar conflictos entre turnos
-            if (Date.now() - (data.ts || 0) > 21600000) {
+            // TTL: 12 horas para multi-tab
+            if (Date.now() - (data.ts || 0) > 43200000) {
                 localStorage.removeItem(storageKey);
                 isRestoring.value = false;
                 return;
             }
 
-            if (Array.isArray(data.items) && data.items.length > 0) {
-                selectedItems.value = data.items;
-                if (data.cliente) clienteId.value = data.cliente;
+            if (data.tabs && Array.isArray(data.tabs)) {
+                tabs.value = data.tabs;
+                activeTabIndex.value = data.activeTabIndex || 0;
                 if (data.almacen) almacenId.value = data.almacen;
-                if (data.priceList) priceListId.value = data.priceList;
-                if (data.method) paymentMethod.value = data.method;
-                notify.info(`Caja: Se han recuperado ${data.items.length} productos.`);
+                
+                const totalItems = data.tabs.reduce((acc, t) => acc + (t.items?.length || 0), 0);
+                if (totalItems > 0) {
+                    notify.info(`Caja: Sesión recuperada (${data.tabs.length} pestañas).`);
+                }
             }
         } catch (e) {
             console.warn('POS Load Error:', e);
@@ -66,7 +64,7 @@ export const usePosDraft = ({
     const persistDraft = () => saveDraft();
 
     watch(
-        () => [selectedItems.value, clienteId.value, almacenId.value, priceListId.value, paymentMethod.value],
+        () => [tabs.value, activeTabIndex.value, almacenId.value],
         () => {
             if (!isRestoring.value) {
                 saveDraft();

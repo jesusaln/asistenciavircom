@@ -31,11 +31,11 @@ const close = () => {
         @close="close"
     >
         <div class="px-6 py-4 bg-[var(--ui-surface)] text-[var(--ui-text)]">
-            <div class="text-lg font-medium font-ui">
+            <div class="text-lg font-medium font-sans">
                 <slot name="title" />
             </div>
 
-            <div class="mt-4 text-sm text-[var(--ui-text-muted)] font-ui">
+            <div class="mt-4 text-sm text-[var(--ui-text-muted)] font-sans">
                 <slot name="content" />
             </div>
         </div>

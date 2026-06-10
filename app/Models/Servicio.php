@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Servicio extends Model
 {
-    use HasFactory, BelongsToEmpresa;
+    use BelongsToEmpresa;
+
+    use HasFactory, BelongsToEmpresa, \App\Models\Traits\HasTrigramSearch;
+    
+    protected array $searchable = ['nombre', 'descripcion', 'codigo'];
 
     protected static function booted()
     {

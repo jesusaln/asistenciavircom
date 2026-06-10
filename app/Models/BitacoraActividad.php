@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,8 @@ use Illuminate\Support\Carbon;
 
 class BitacoraActividad extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'bitacora_actividades';

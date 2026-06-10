@@ -79,9 +79,16 @@ class CuentasPorCobrarObserver
         if ($venta->pagado !== $nuevoEstadoPagado) {
             $venta->pagado = $nuevoEstadoPagado;
 
-            // Si se pagó, aseguramos que el estado sea Aprobada (si no estaba cancelada)
-            if ($nuevoEstadoPagado && $venta->estado !== EstadoVenta::Cancelada) {
-                $venta->estado = EstadoVenta::Aprobada;
+            if ($nuevoEstadoPagado) {
+                // Sincronizar fecha de pago si no la tiene
+                if (!$venta->fecha_pago) {
+                    $venta->fecha_pago = now();
+                }
+
+                // Asegurar que el estado sea Aprobada (si no estaba cancelada)
+                if ($venta->estado !== EstadoVenta::Cancelada) {
+                    $venta->estado = EstadoVenta::Aprobada;
+                }
             }
 
             $venta->saveQuietly();

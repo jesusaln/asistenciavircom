@@ -22,16 +22,22 @@ class GeminiService
 
     public function __construct()
     {
-        $config = null;
+        $dbApiKey = '';
+        $dbModel = '';
+        $dbTemp = 0.7;
+
         try {
             $config = EmpresaConfiguracion::getConfig();
+            $dbApiKey = (string) ($config->gemini_api_key ?? '');
+            $dbModel = (string) ($config->gemini_model ?? '');
+            $dbTemp = (float) ($config->gemini_temperature ?? 0.7);
         } catch (Throwable $e) {
-            // Silenciar errores de BD durante migraciones o testing
+            // Silenciar DecryptException o errores de BD y usar fallback del env
         }
 
-        $this->apiKey = (string) ($config->gemini_api_key ?? config('services.gemini.api_key', ''));
-        $this->model = (string) ($config->gemini_model ?? config('services.gemini.model', 'gemini-2.0-flash'));
-        $this->temperature = (float) ($config->gemini_temperature ?? config('services.gemini.temperature', 0.7));
+        $this->apiKey = $dbApiKey !== '' ? $dbApiKey : (string) config('services.gemini.api_key', '');
+        $this->model = $dbModel !== '' ? $dbModel : 'gemini-3-flash-preview';
+        $this->temperature = $dbTemp > 0 ? $dbTemp : (float) config('services.gemini.temperature', 0.2);
         $this->configured = $this->apiKey !== '';
     }
 
@@ -58,26 +64,29 @@ class GeminiService
                     'temperature' => $this->temperature,
                     'topP' => 0.95,
                     'topK' => 64,
-                    'maxOutputTokens' => 2048,
+                    'maxOutputTokens' => 8192,
                 ],
             ];
 
             if (! empty($tools)) {
                 $payload['tools'] = [['functionDeclarations' => $this->transformTools($tools)]];
-                $payload['toolConfig'] = ['functionCallingConfig' => ['mode' => 'AUTO']];
+                $payload['toolConfig'] = ['functionCallingConfig' => ['mode' => 'ANY']];
             }
 
             $url = "{$this->baseUrl}/{$this->model}:generateContent?key={$this->apiKey}";
 
-            $response = Http::timeout(30)->post($url, $payload);
+            $response = Http::timeout(120)->post($url, $payload);
 
             if ($response->failed()) {
+                $errBody = $response->json();
+                $errMsg = $errBody['error']['message'] ?? 'Error comunicándose con Gemini API.';
+                
                 Log::error('Gemini API Error:', [
                     'status' => $response->status(),
-                    'body' => $response->body(),
+                    'body' => $errBody,
                 ]);
 
-                return ['success' => false, 'error' => 'Error comunicándose con Gemini API.'];
+                return ['success' => false, 'error' => $errMsg, 'status' => $response->status()];
             }
 
             $data = $response->json();
@@ -87,18 +96,29 @@ class GeminiService
                 return ['success' => false, 'error' => 'Respuesta vacía de Gemini'];
             }
 
-            $aiContent = $candidate['content']['parts'][0] ?? null;
+            $parts = $candidate['content']['parts'] ?? [];
+            $textContent = '';
+            $functionCall = null;
 
-            $message = ['role' => 'assistant', 'content' => $aiContent['text'] ?? ''];
+            foreach ($parts as $part) {
+                if (isset($part['text'])) {
+                    $textContent .= $part['text'] . ' ';
+                }
+                if (isset($part['functionCall'])) {
+                    $functionCall = $part['functionCall'];
+                }
+            }
 
-            if (isset($aiContent['functionCall'])) {
+            $message = ['role' => 'assistant', 'content' => trim($textContent)];
+
+            if ($functionCall) {
                 $message['tool_calls'] = [
                     [
                         'id' => 'call_'.uniqid(),
                         'type' => 'function',
                         'function' => [
-                            'name' => $aiContent['functionCall']['name'],
-                            'arguments' => $aiContent['functionCall']['args'],
+                            'name' => $functionCall['name'],
+                            'arguments' => $functionCall['args'],
                         ],
                     ],
                 ];
@@ -128,6 +148,14 @@ class GeminiService
         foreach ($messages as $msg) {
             $role = ($msg['role'] === 'user' || $msg['role'] === 'system') ? 'user' : 'model';
 
+            if (isset($msg['parts']) && is_array($msg['parts'])) {
+                $contents[] = [
+                    'role' => $role,
+                    'parts' => $msg['parts'],
+                ];
+                continue;
+            }
+
             $content = $msg['content'] ?? '';
 
             if ($msg['role'] === 'system') {
@@ -156,7 +184,7 @@ class GeminiService
                 'description' => $f['description'],
                 'parameters' => [
                     'type' => 'OBJECT',
-                    'properties' => $this->fixPropertyTypes($f['parameters']['properties']),
+                    'properties' => $this->fixPropertyTypes((array) ($f['parameters']['properties'] ?? [])),
                     'required' => $f['parameters']['required'] ?? [],
                 ],
             ];

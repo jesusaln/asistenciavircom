@@ -7,10 +7,10 @@
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
     >
-        <div v-if="show" class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div v-if="show" class="fixed inset-0 z-[9999] overflow-y-auto custom-scrollbar" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <!-- Background overlay -->
-                <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="close"></div>
+                <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="close"></div>
 
                 <!-- Modal panel -->
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -22,10 +22,10 @@
                     leave-from-class="opacity-100 translate-y-0 sm:scale-100"
                     leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
-                    <div v-if="show" class="inline-block align-bottom bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl text-left overflow-hidden shadow-[var(--ui-shadow)] transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-red-200/50 dark:border-red-900/30">
+                    <div v-if="show" class="inline-block align-bottom bg-[var(--ui-surface)] text-[var(--ui-text)] rounded-3xl text-left overflow-hidden shadow-[var(--ui-shadow)] transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-rose-200/50 dark:border-rose-900/30">
                         <!-- Header with gradient icon -->
                         <div class="px-6 pt-8 pb-4 text-center">
-                            <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-50 mb-6">
+                            <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-rose-50 mb-6">
                                 <div class="h-16 w-16 rounded-full bg-gradient-to-br from-red-500 to-orange-400 flex items-center justify-center shadow-lg shadow-red-200">
                                     <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -55,8 +55,8 @@
                                     {{ copied ? '¡Copiado!' : 'Copiar para soporte' }}
                                 </button>
                             </div>
-                            <div class="max-h-32 overflow-y-auto rounded-lg bg-slate-900 p-3 shadow-inner">
-                                <code class="text-xs text-green-400 break-all leading-tight font-mono">
+                            <div class="max-h-32 overflow-y-auto custom-scrollbar rounded-xl bg-slate-900 p-3 shadow-inner">
+                                <code class="text-xs text-emerald-400 break-all leading-tight font-mono">
                                     {{ error }}
                                 </code>
                             </div>
@@ -66,14 +66,14 @@
                         <div class="px-6 py-6 bg-[var(--ui-surface)] sm:flex sm:flex-row-reverse gap-3">
                             <button 
                                 type="button" 
-                                class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-md px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-semibold text-white hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                                class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-md px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-semibold text-white hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:ml-3 sm:w-auto transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                                 @click="contactSupport"
                             >
                                 Contactar a Soporte
                             </button>
                             <button 
                                 type="button" 
-                                class="mt-3 w-full inline-flex justify-center rounded-xl border border-[var(--ui-border)] px-6 py-3 bg-[var(--ui-surface)] text-base font-medium text-[var(--ui-text-muted)] hover:bg-black/5 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto transition-colors"
+                                class="mt-3 w-full inline-flex justify-center rounded-xl border border-[var(--ui-border)] px-6 py-3 bg-[var(--ui-surface)] text-base font-medium text-[var(--ui-text-muted)] hover:bg-black/5 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:w-auto transition-colors"
                                 @click="close"
                             >
                                 Entendido

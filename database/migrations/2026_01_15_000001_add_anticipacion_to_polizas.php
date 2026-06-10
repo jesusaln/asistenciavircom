@@ -10,13 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('plan_polizas', function (Blueprint $table) {
-            $table->integer('mantenimiento_dias_anticipacion')->default(7)->after('generar_cita_automatica');
-        });
+        if (!Schema::hasColumn('plan_polizas', 'mantenimiento_dias_anticipacion')) {
+            Schema::table('plan_polizas', function (Blueprint $table) {
+                $table->integer('mantenimiento_dias_anticipacion')->default(7)->after('generar_cita_automatica');
+            });
+        }
 
-        Schema::table('polizas_servicio', function (Blueprint $table) {
-            $table->integer('mantenimiento_dias_anticipacion')->default(7)->after('generar_cita_automatica');
-        });
+        if (!Schema::hasColumn('polizas_servicio', 'mantenimiento_dias_anticipacion')) {
+            Schema::table('polizas_servicio', function (Blueprint $table) {
+                $table->integer('mantenimiento_dias_anticipacion')->default(7)->after('generar_cita_automatica');
+            });
+        }
     }
 
     /**

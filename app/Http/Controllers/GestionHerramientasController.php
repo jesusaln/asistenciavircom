@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Models\Notification;
+use App\Support\EmpresaResolver;
 use Exception;
 
 class GestionHerramientasController extends Controller
@@ -189,9 +191,26 @@ class GestionHerramientasController extends Controller
 
             // Asignar herramientas INDIVIDUALMENTE para que el Observer se ejecute
             foreach ($herramientas as $herramienta) {
-                $herramienta->tecnico_id = $data['tecnico_id'];
+                $herramienta->user_id = $data['user_id'];
                 $herramienta->save(); // Dispara Observer -> crea historial automáticamente
             }
+
+            // Notificar al técnico (Misma lógica que la API)
+            $nombres = $herramientas->pluck('nombre')->take(2)->join(', ');
+            $total = $herramientas->count();
+            $msg = "Se te han asignado {$total} herramientas: {$nombres}" . ($total > 2 ? "..." : "");
+
+            Notification::create([
+                'user_id' => $data['user_id'],
+                'notifiable_id' => $data['user_id'],
+                'notifiable_type' => 'App\Models\User',
+                'type' => 'asignacion_herramientas',
+                'title' => 'Nuevo Equipo Asignado',
+                'message' => $msg,
+                'data' => ['total' => $total],
+                'action_url' => '/tabs/mis-herramientas',
+                'icon' => 'fas fa-tools'
+            ]);
 
             DB::commit();
 
@@ -201,7 +220,7 @@ class GestionHerramientasController extends Controller
             DB::rollBack();
 
             Log::error('Error al asignar herramientas: ' . $e->getMessage(), [
-                'tecnico_id' => $data['tecnico_id'],
+                'user_id' => $data['user_id'],
                 'herramientas' => $ids,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -302,7 +321,7 @@ class GestionHerramientasController extends Controller
             $herramienta = Herramienta::lockForUpdate()->findOrFail($data['herramienta_id']);
 
             // Verificar que la herramienta pertenece al técnico anterior
-            if ($herramienta->tecnico_id !== $data['tecnico_anterior_id']) {
+            if ($herramienta->user_id !== $data['tecnico_anterior_id']) {
                 DB::rollBack();
                 return redirect()->back()->with('error', 'La herramienta no pertenece al técnico especificado');
             }
@@ -344,6 +363,19 @@ class GestionHerramientasController extends Controller
                     ]);
                 }
             }
+
+            // Notificar al nuevo técnico
+            Notification::create([
+                'user_id' => $data['tecnico_nuevo_id'],
+                'notifiable_id' => $data['tecnico_nuevo_id'],
+                'notifiable_type' => 'App\Models\User',
+                'type' => 'reasignacion_herramienta',
+                'title' => 'Equipo Reasignado',
+                'message' => "Se te ha reasignado la herramienta: {$herramienta->nombre}",
+                'data' => ['herramienta_id' => $herramienta->id],
+                'action_url' => '/tabs/mis-herramientas',
+                'icon' => 'fas fa-exchange-alt'
+            ]);
 
             DB::commit();
 

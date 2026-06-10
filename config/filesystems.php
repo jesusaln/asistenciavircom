@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'local'),
+    'default' => env('FILESYSTEM_DISK', 'public'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,6 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
+            'url' => env('LOCAL_STORAGE_URL', '/storage-private'),
             'serve' => true,
             'throw' => false,
             'report' => false,
@@ -42,6 +43,7 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('STORAGE_URL', '/storage'),
+            'serve' => true,
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -56,6 +58,17 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'google-drive' => [
+            'driver' => 'google-drive',
+            'client_id' => env('GOOGLE_DRIVE_CLIENT_ID'),
+            'client_secret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+            'refresh_token' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+            'folder_id' => env('GOOGLE_DRIVE_FOLDER_ID'),
+            'team_drive_id' => env('GOOGLE_DRIVE_TEAM_DRIVE_ID'),
             'throw' => false,
             'report' => false,
         ],

@@ -390,6 +390,150 @@ class WhatsAppService
             throw new \Exception('Error al enviar media: ' . $errorBody);
         }
     }
+    /**
+     * Enviar mensaje interactivo con botones de respuesta rápida (máximo 3 botones)
+     *
+     * @param string $to Número del destinatario
+     * @param string $bodyText Texto principal del mensaje
+     * @param array $buttons Array de ['id' => string, 'title' => string] (máx 3, título máx 20 chars)
+     * @param string|null $header Texto de header opcional (máx 60 chars)
+     * @param string|null $footer Texto de footer opcional (máx 60 chars)
+     */
+    public function sendInteractiveButtons(string $to, string $bodyText, array $buttons, ?string $header = null, ?string $footer = null): array
+    {
+        $formattedPhone = self::formatPhoneToE164($to);
+
+        $actionButtons = [];
+        foreach (array_slice($buttons, 0, 3) as $btn) {
+            $actionButtons[] = [
+                'type' => 'reply',
+                'reply' => [
+                    'id' => $btn['id'],
+                    'title' => mb_substr($btn['title'], 0, 20),
+                ],
+            ];
+        }
+
+        $interactive = [
+            'type' => 'button',
+            'body' => ['text' => $bodyText],
+            'action' => ['buttons' => $actionButtons],
+        ];
+
+        if ($header) {
+            $interactive['header'] = ['type' => 'text', 'text' => mb_substr($header, 0, 60)];
+        }
+        if ($footer) {
+            $interactive['footer'] = ['text' => mb_substr($footer, 0, 60)];
+        }
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $formattedPhone,
+            'type' => 'interactive',
+            'interactive' => $interactive,
+        ];
+
+        try {
+            Log::info('Enviando botones interactivos WhatsApp', SensitiveDataLog::redact([
+                'to' => $to,
+                'buttons_count' => count($actionButtons),
+            ]));
+
+            $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
+                'headers' => ['Authorization' => "Bearer {$this->accessToken}"],
+                'json' => $payload,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error enviando botones interactivos WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al enviar botones interactivos: ' . $errorBody);
+        }
+    }
+
+    /**
+     * Enviar mensaje interactivo con lista desplegable (hasta 10 opciones por sección)
+     *
+     * @param string $to Número del destinatario
+     * @param string $bodyText Texto principal del mensaje
+     * @param string $buttonText Texto del botón que abre la lista (máx 20 chars)
+     * @param array $sections Array de secciones: [['title' => 'Sección', 'rows' => [['id' => 'x', 'title' => 'Opción', 'description' => '...']]]]
+     * @param string|null $header Texto de header opcional (máx 60 chars)
+     * @param string|null $footer Texto de footer opcional (máx 60 chars)
+     */
+    public function sendInteractiveList(string $to, string $bodyText, string $buttonText, array $sections, ?string $header = null, ?string $footer = null): array
+    {
+        $formattedPhone = self::formatPhoneToE164($to);
+
+        // Sanitizar secciones: títulos máx 24 chars, descripciones máx 72 chars
+        $sanitizedSections = [];
+        foreach ($sections as $section) {
+            $rows = [];
+            foreach (($section['rows'] ?? []) as $row) {
+                $rowData = [
+                    'id' => $row['id'],
+                    'title' => mb_substr($row['title'], 0, 24),
+                ];
+                if (!empty($row['description'])) {
+                    $rowData['description'] = mb_substr($row['description'], 0, 72);
+                }
+                $rows[] = $rowData;
+            }
+            $sectionData = ['rows' => $rows];
+            if (!empty($section['title'])) {
+                $sectionData['title'] = mb_substr($section['title'], 0, 24);
+            }
+            $sanitizedSections[] = $sectionData;
+        }
+
+        $interactive = [
+            'type' => 'list',
+            'body' => ['text' => $bodyText],
+            'action' => [
+                'button' => mb_substr($buttonText, 0, 20),
+                'sections' => $sanitizedSections,
+            ],
+        ];
+
+        if ($header) {
+            $interactive['header'] = ['type' => 'text', 'text' => mb_substr($header, 0, 60)];
+        }
+        if ($footer) {
+            $interactive['footer'] = ['text' => mb_substr($footer, 0, 60)];
+        }
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $formattedPhone,
+            'type' => 'interactive',
+            'interactive' => $interactive,
+        ];
+
+        try {
+            Log::info('Enviando lista interactiva WhatsApp', SensitiveDataLog::redact([
+                'to' => $to,
+                'sections_count' => count($sanitizedSections),
+            ]));
+
+            $response = $this->httpClient->post("{$this->phoneNumberId}/messages", [
+                'headers' => ['Authorization' => "Bearer {$this->accessToken}"],
+                'json' => $payload,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->getResponse();
+            $errorBody = $errorResponse ? $errorResponse->getBody()->getContents() : 'No response body';
+            Log::error('Error enviando lista interactiva WhatsApp', ['error' => $errorBody]);
+            throw new \Exception('Error al enviar lista interactiva: ' . $errorBody);
+        }
+    }
+
     public static function formatPhoneToE164(string $phone): string
     {
         // Limpiar el número: dejar solo dígitos
@@ -569,6 +713,45 @@ class WhatsAppService
     /**
      * Listar plantillas de WhatsApp disponibles
      */
+    /**
+     * Obtener la URL pública de un media de WhatsApp
+     */
+    public function getMediaUrl(string $mediaId): string
+    {
+        try {
+            $response = $this->httpClient->get("{$mediaId}", [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+            ]);
+            $data = json_decode($response->getBody()->getContents(), true);
+            return $data['url'] ?? '';
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorBody = $e->getResponse()?->getBody()->getContents() ?? 'No response';
+            Log::error('Error obteniendo URL de media WhatsApp', ['media_id' => $mediaId, 'error' => $errorBody]);
+            throw new \Exception('Error al obtener URL del media: ' . $errorBody);
+        }
+    }
+
+    /**
+     * Descargar un media desde una URL de WhatsApp
+     */
+    public function downloadMedia(string $mediaUrl): string
+    {
+        try {
+            $response = $this->httpClient->get($mediaUrl, [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                ],
+            ]);
+            return $response->getBody()->getContents();
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorBody = $e->getResponse()?->getBody()->getContents() ?? 'No response';
+            Log::error('Error descargando media de WhatsApp', ['url' => $mediaUrl, 'error' => $errorBody]);
+            throw new \Exception('Error al descargar media: ' . $errorBody);
+        }
+    }
+
     public function listTemplates(): array
     {
         try {

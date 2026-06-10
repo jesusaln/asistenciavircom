@@ -43,6 +43,18 @@
     ExpiresDefault "access plus 2 days"
 </IfModule>
 
+# 🔥 IMPORTANTE: No cachear Service Worker ni Manifest
+<FilesMatch "(sw\.js|manifest\.webmanifest)$">
+    <IfModule mod_expires.c>
+        ExpiresActive Off
+    </IfModule>
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </IfModule>
+</FilesMatch>
+
 # Configuración de compresión GZIP
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/plain

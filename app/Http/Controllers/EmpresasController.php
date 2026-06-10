@@ -55,6 +55,11 @@ class EmpresasController extends Controller
 
         $empresa->save();
 
+        // Asignar la empresa al usuario autenticado si aún no tiene una
+        if (auth()->check() && !auth()->user()->empresa_id) {
+            auth()->user()->update(['empresa_id' => $empresa->id]);
+        }
+
         return redirect()->route('empresas.index')->with('success', 'Empresa guardada exitosamente.');
     }
 }

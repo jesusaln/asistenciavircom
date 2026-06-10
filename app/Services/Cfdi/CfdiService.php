@@ -3,77 +3,81 @@
 namespace App\Services\Cfdi;
 
 use App\Models\Venta;
+use App\Models\Factura;
 use App\Models\Cfdi;
-use App\Services\ContpaqiService;
+use App\Services\SwSapienService;
 use App\Services\SatConsultaDirectaService;
-use App\Services\Cfdi\CfdiJsonBuilder;
-use App\Services\Cfdi\CertService;
 use App\Models\CuentasPorCobrar;
 use App\Support\EmpresaResolver;
 use Carbon\Carbon;
-use App\Services\Cfdi\CfdiPagoJsonBuilder; // Importar builder
+use App\Models\Contab\PolizaContable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class CfdiService
 {
-    protected $jsonBuilder;
-    protected $pagoBuilder; // ✅ Nueva dependencia
-    protected $certService;
-    protected $pac;
-    protected $uploadService;
-    protected $satConsultaDirecta;
-    protected $contpaqiService;
+    protected SwSapienService $swSapienService;
+    protected CfdiUploadService $uploadService;
+    protected SatConsultaDirectaService $satConsultaDirecta;
+    protected CfdiPagoJsonBuilder $pagoJsonBuilder;
 
     public function __construct(
-        CfdiJsonBuilder $jsonBuilder,
-        CfdiPagoJsonBuilder $pagoBuilder,
-        CertService $certService,
-        ContpaqiService $contpaqiService,
+        SwSapienService $swSapienService,
         CfdiUploadService $uploadService,
-        SatConsultaDirectaService $satConsultaDirecta
+        SatConsultaDirectaService $satConsultaDirecta,
+        CfdiPagoJsonBuilder $pagoJsonBuilder
     ) {
-        $this->jsonBuilder = $jsonBuilder;
-        $this->pagoBuilder = $pagoBuilder;
-        $this->certService = $certService;
-        $this->contpaqiService = $contpaqiService;
+        $this->swSapienService = $swSapienService;
         $this->uploadService = $uploadService;
         $this->satConsultaDirecta = $satConsultaDirecta;
+        $this->pagoJsonBuilder = $pagoJsonBuilder;
     }
 
     /**
-     * Proceso completo de facturación de una venta.
+     * Proceso completo de facturación de un documento (Venta o Factura agrupada) mediante SW Sapien en la Nube
      */
-    public function facturarVenta(Venta $venta, array $options = []): array
+    public function facturarVenta(Venta|Factura $documento, array $options = []): array
+    {
+        return $this->facturarDocumento($documento, $options);
+    }
+
+    public function facturarDocumento(Venta|Factura $documento, array $options = []): array
     {
         try {
-            // 0. Si Contpaqi está habilitado, delegar completamente
-            if (config('services.contpaqi.enabled')) {
-                return $this->contpaqiService->procesarVenta($venta);
+            $isVenta = $documento instanceof Venta;
+
+            // 1. Validar que no esté ya facturado
+            if ($isVenta) {
+                if ($documento->cfdis()->timbrados()->exists()) {
+                    throw new \Exception("Esta venta ya cuenta con una factura timbrada.");
+                }
+            } else {
+                if ($documento->cfdi()->where('estatus', Cfdi::ESTATUS_TIMBRADO)->exists()) {
+                    throw new \Exception("Esta factura ya se encuentra timbrada.");
+                }
             }
 
-            // 1. Validar que la venta ya no esté facturada
-            if ($venta->cfdis()->timbrados()->exists()) {
-                throw new \Exception("Esta venta ya cuenta con una factura timbrada.");
-            }
-
-            // 2. Validar que el cliente requiere factura
-            $cliente = $venta->cliente;
+            // 2. Validar cliente
+            $cliente = $documento->cliente;
             if (!$cliente) {
-                throw new \Exception("La venta no tiene un cliente asociado.");
+                throw new \Exception("El documento no tiene un cliente asociado.");
             }
 
             if (!$cliente->requiere_factura) {
-                throw new \Exception(
-                    "⚠️ Este cliente no requiere factura.\n\n" .
-                    "Si desea facturar esta venta, por favor:\n" .
-                    "1. Vaya al catálogo de Clientes\n" .
-                    "2. Edite el cliente \"{$cliente->nombre_razon_social}\"\n" .
-                    "3. Active la casilla \"Requiere Factura\"\n" .
-                    "4. Complete los datos fiscales requeridos (RFC, Régimen Fiscal, Uso CFDI, C.P. Domicilio Fiscal)\n" .
-                    "5. Guarde los cambios e intente facturar nuevamente"
-                );
+                if (!empty($cliente->rfc)) {
+                    $cliente->update(['requiere_factura' => true]);
+                } else {
+                    throw new \Exception(
+                        "⚠️ Este cliente no requiere factura.\n\n" .
+                        "Si desea facturar este documento, por favor:\n" .
+                        "1. Vaya al catálogo de Clientes\n" .
+                        "2. Edite el cliente \"{$cliente->nombre_razon_social}\"\n" .
+                        "3. Active la casilla \"Requiere Factura\"\n" .
+                        "4. Complete los datos fiscales requeridos (RFC, Régimen Fiscal, Uso CFDI, C.P. Domicilio Fiscal)\n" .
+                        "5. Guarde los cambios e intente facturar nuevamente"
+                    );
+                }
             }
 
             // 3. Validar datos fiscales del cliente
@@ -99,111 +103,176 @@ class CfdiService
                 );
             }
 
-            // 3.5 Validaciones Pre-Timbrado (Locales) para evitar errores del PAC
-            $this->validarPreTimbrado($venta, $cliente);
-
-            // 4. Preparar los datos (JSON)
-            $cfdiJson = $this->jsonBuilder->buildFromVenta($venta, $options);
-            $jsonString = json_encode($cfdiJson);
-
-            // 5. Validar y preparar certificados
-            // ✅ SECURITY FIX: Validate certificate before using
-            $certValidation = $this->certService->validateCertificate();
-            if (!$certValidation['success']) {
-                throw new \Exception($certValidation['message']);
+            // 3.5 Validaciones Pre-Timbrado
+            if ($isVenta) {
+                $documento->loadMissing('items.ventable');
+            } else {
+                $documento->loadMissing('ventas.items.ventable');
             }
 
-            $cerPem = $this->certService->getCsdCerPem();
-            $keyPem = $this->certService->getCsdKeyPem();
+            $items = $isVenta ? $documento->items : $documento->ventas->flatMap->items;
+            $firstVenta = $isVenta ? $documento : $documento->ventas->first();
 
-            if (!$cerPem || !$keyPem) {
-                throw new \Exception("Faltan los certificados CSD de la empresa para poder facturar.");
+            $metodoPagoSat = $firstVenta->metodo_pago_sat ?? 'PUE';
+            $formaPagoSat = $firstVenta->forma_pago_sat ?: ($isVenta ? $this->mapFormaPago($documento->metodo_pago) : '01');
+
+            $this->validarPreTimbrado($metodoPagoSat, $formaPagoSat, $cliente);
+
+            $rfcCliente = strtoupper(trim($cliente->rfc ?? ''));
+            $regimenFiscal = $this->getRegimenFiscalClave($cliente->regimen_fiscal);
+            $usoCfdi = $cliente->uso_cfdi ?: 'G03';
+
+            // Reglas SAT 4.0 estrictas e inviolables para Público en General / Genérico
+            if ($rfcCliente === 'XAXX010101000' || $rfcCliente === 'XEXX010101000') {
+                $regimenFiscal = '616';
+                $usoCfdi = 'S01';
             }
 
-            // 6. Llamar al PAC (Timbrar) - ELIMINADO: FacturaLOPlus removido
-            // En un futuro, si se agrega otro PAC, se implementaría aquí.
-            throw new \Exception("No hay un servicio de timbrado activo configurado (FacturaLOPlus fue removido).");
-
-            // 5. Guardar archivos físicamente
-            $xmlFilename = 'cfdis/' . $uuid . '.xml';
-            Storage::disk('public')->put($xmlFilename, $xml);
-
-            // 6. Generar PDF Localmente
-            $pdfFilename = 'cfdis/' . $uuid . '.pdf';
-            $this->generarPdfManual($venta->id, $data, $cfdiJson);
-
-            // 6. Registrar en la base de datos
-            $finalCfdi = DB::transaction(function () use ($venta, $cfdiJson, $data, $uuid, $xmlFilename, $pdfFilename, $options) {
-                $cfdi = Cfdi::create([
-                    'cliente_id' => $venta->cliente_id,
-                    'empresa_id' => EmpresaResolver::resolveId() ?? 1,
-                    'venta_id' => $venta->id,
-                    'tipo_comprobante' => 'I',
-                    'serie' => $cfdiJson['Comprobante']['Serie'],
-                    'folio' => $cfdiJson['Comprobante']['Folio'],
-                    'uuid' => $uuid,
-                    'fecha_timbrado' => $data['fechaTimbrado'] ?? $data['FechaTimbrado'] ?? now(),
-                    'fecha_emision' => $cfdiJson['Comprobante']['Fecha'],
-                    'subtotal' => $venta->subtotal,
-                    'total_impuestos_trasladados' => $venta->iva,
-                    'total' => $venta->total,
-                    'moneda' => $venta->moneda ?: 'MXN',
-                    'tipo_cambio' => 1,
-                    'metodo_pago' => $cfdiJson['Comprobante']['MetodoPago'],
-                    'forma_pago' => $cfdiJson['Comprobante']['FormaPago'],
-                    'uso_cfdi' => $cfdiJson['Comprobante']['Receptor']['UsoCFDI'],
-                    'estatus' => Cfdi::ESTATUS_TIMBRADO,
-                    'estatus_sat' => 'Vigente',
-                    'xml_path' => $xmlFilename,
-                    'pdf_path' => $pdfFilename,
-                    'sello_sat' => $data['selloSAT'] ?? $data['SelloSAT'] ?? null,
-                    'sello_cfdi' => $data['selloCFDI'] ?? $data['SelloCFDI'] ?? null,
-                    'no_certificado_sat' => $data['noCertificadoSAT'] ?? $data['NoCertificadoSAT'] ?? null,
-                    'cadena_original' => $data['cadenaOriginal'] ?? null,
-                    'datos_adicionales' => !empty($options) ? [
-                        'cfdi_relacion_tipo' => $options['cfdi_relacion_tipo'] ?? null,
-                        'cfdi_relacion_uuids' => $options['cfdi_relacion_uuids'] ?? null,
-                        'tipo_factura' => $options['tipo_factura'] ?? null,
-                    ] : null,
-                ]);
-
-                // Crear conceptos de la factura
-                foreach ($cfdiJson['Comprobante']['Conceptos'] as $con) {
-                    $cfdi->conceptos()->create([
-                        'clave_prod_serv' => $con['ClaveProdServ'],
-                        'cantidad' => $con['Cantidad'],
-                        'clave_unidad' => $con['ClaveUnidad'],
-                        'descripcion' => $con['Descripcion'],
-                        'valor_unitario' => $con['ValorUnitario'],
-                        'importe' => $con['Importe'],
-                        'objeto_imp' => $con['ObjetoImp'],
-                    ]);
+            $cpCliente = trim($cliente->domicilio_fiscal_cp ?: $cliente->codigo_postal ?: '');
+            if (empty($cpCliente) || $cpCliente === '00000' || strlen($cpCliente) !== 5) {
+                $empresa = \App\Models\Empresa::find($documento->empresa_id ?: 1);
+                $cpCliente = trim($empresa?->codigo_postal ?: '');
+                if (empty($cpCliente) || $cpCliente === '00000' || strlen($cpCliente) !== 5) {
+                    $cpCliente = '83000';
                 }
-
-                return $cfdi;
-            });
-
-            // 7. Enviar Correo (ELIMINADO: Se hará manual a petición del usuario)
-            /*
-            try {
-                if ($venta->cliente && $venta->cliente->email) {
-                    \Illuminate\Support\Facades\Mail::to($venta->cliente->email)
-                        ->send(new \App\Mail\FacturaMail($finalCfdi));
-                    Log::info("Correo de factura enviado a: " . $venta->cliente->email);
-                }
-            } catch (\Exception $e) {
-                Log::error("Error enviando correo de factura: " . $e->getMessage());
             }
-            */
 
+            // 4. Construir Conceptos e Impuestos para SW Sapien
+            $conceptosSW = [];
+            $totalTraslados = 0;
+            $ivaTasaDefault = (float) (\App\Models\EmpresaConfiguracion::getConfig()->iva_porcentaje ?? 16) / 100;
+
+            foreach ($items as $index => $item) {
+                $nombreProd = $item->ventable?->nombre ?? ($item->nombre ?? ($item->descripcion ?? 'Producto'));
+                $claveSat = $item->ventable?->sat_clave_prod_serv ?? ($item->ventable?->clave_sat ?? ($item->clave_sat ?? '84111506'));
+                $unidadSat = $item->ventable?->sat_clave_unidad ?? ($item->ventable?->unidad_sat ?? ($item->unidad_sat ?? 'H87'));
+                $precio = (float) $item->precio;
+                $cantidad = (float) $item->cantidad;
+                $importe = round($precio * $cantidad, 2);
+                $tasa = (float) ($item->tasa_iva ?? $ivaTasaDefault);
+                $impuestoMonto = round($importe * $tasa, 2);
+
+                $totalTraslados += $impuestoMonto;
+
+                $conceptosSW[] = [
+                    'ClaveProdServ' => $claveSat,
+                    'NoIdentificacion' => 'PART-' . ($index + 1),
+                    'Cantidad' => number_format($cantidad, 6, '.', ''),
+                    'ClaveUnidad' => $unidadSat,
+                    'Unidad' => 'Servicio',
+                    'Descripcion' => substr($nombreProd, 0, 100),
+                    'ValorUnitario' => number_format($precio, 6, '.', ''),
+                    'Importe' => number_format($importe, 2, '.', ''),
+                    'ObjetoImp' => '02',
+                    'Impuestos' => [
+                        'Traslados' => [
+                            [
+                                'Base' => number_format($importe, 2, '.', ''),
+                                'Impuesto' => '002',
+                                'TipoFactor' => 'Tasa',
+                                'TasaOCuota' => number_format($tasa, 6, '.', ''),
+                                'Importe' => number_format($impuestoMonto, 2, '.', '')
+                            ]
+                        ]
+                    ]
+                ];
+            }
+
+            $subtotalGlobal = round($documento->subtotal, 2);
+            $totalGlobal = round($documento->total, 2);
+
+            $configuracion = \App\Models\EmpresaConfiguracion::getConfig();
+            $emisorRfc = config('services.sw_sapien.rfc');
+            $emisorNombre = config('services.sw_sapien.emisor_nombre');
+            $emisorRegimen = config('services.sw_sapien.regimen');
+
+            if (empty($emisorRfc) || $emisorRfc === 'EKU9003173C9') {
+                if (config('app.env') !== 'local' && !empty($configuracion->rfc)) {
+                    $emisorRfc = $configuracion->rfc;
+                    $emisorNombre = $configuracion->razon_social ?: $configuracion->nombre_empresa;
+                    $emisorRegimen = $this->getRegimenFiscalClave($configuracion->regimen_fiscal);
+                } else {
+                    $emisorRfc = 'EKU9003173C9';
+                    $emisorNombre = 'ESCUELA KEMPER URGATE';
+                    $emisorRegimen = '601';
+                }
+            }
+
+            $payloadSW = [
+                'Version' => '4.0',
+                'Serie' => 'F',
+                'Folio' => (string) ($documento->id),
+                'Fecha' => now()->format('Y-m-d\TH:i:s'),
+                'FormaPago' => $formaPagoSat,
+                'CondicionesDePago' => $metodoPagoSat === 'PUE' ? 'Contado' : 'Credito',
+                'SubTotal' => number_format($subtotalGlobal, 2, '.', ''),
+                'Moneda' => $documento->moneda ?: 'MXN',
+                'Total' => number_format($totalGlobal, 2, '.', ''),
+                'TipoDeComprobante' => 'I',
+                'MetodoPago' => $metodoPagoSat,
+                'LugarExpedicion' => $cpCliente,
+                'Exportacion' => '01',
+                'Sello' => '',
+                'Certificado' => '',
+                'NoCertificado' => '',
+                'Emisor' => [
+                    'Rfc' => $emisorRfc,
+                    'Nombre' => $emisorNombre,
+                    'RegimenFiscal' => $emisorRegimen
+                ],
+                'Receptor' => [
+                    'Rfc' => $rfcCliente,
+                    'Nombre' => $cliente->nombre_razon_social,
+                    'DomicilioFiscalReceptor' => $cpCliente,
+                    'RegimenFiscalReceptor' => $regimenFiscal,
+                    'UsoCFDI' => $usoCfdi
+                ],
+                'Conceptos' => $conceptosSW,
+                'Impuestos' => [
+                    'TotalImpuestosTrasladados' => number_format($totalTraslados, 2, '.', ''),
+                    'Traslados' => [
+                        [
+                            'Base' => number_format($subtotalGlobal, 2, '.', ''),
+                            'Impuesto' => '002',
+                            'TipoFactor' => 'Tasa',
+                            'TasaOCuota' => '0.160000',
+                            'Importe' => number_format($totalTraslados, 2, '.', '')
+                        ]
+                    ]
+                ]
+            ];
+
+            // 5. Timbrar en la nube a través del PAC seleccionado
+            $pacService = $this->getPacService();
+            $res = $pacService->timbrarJson($payloadSW, $documento);
+
+            if (!$res['success']) {
+                throw new \Exception($res['message']);
+            }
+
+            // 6. Registrar en Base de Datos local
+            $cfdi = $this->registerTimbradoCfdi($documento, $payloadSW, $res, $options);
+
+            // Guardar XML en Storage
+            if (!empty($res['xml_raw'])) {
+                Storage::disk('public')->put("cfdis/{$res['uuid']}.xml", $res['xml_raw']);
+            }
+
+            // Actualizar estado del documento
+            if (!$isVenta) {
+                $documento->update(['estado' => 'enviada', 'numero_factura' => ($payloadSW['Serie'] ?? 'F') . '-' . ($payloadSW['Folio'] ?? '1')]);
+            }
+
+            $pacName = 'SW Sapien';
             return [
                 'success' => true,
-                'cfdi' => $finalCfdi,
-                'message' => 'Factura generada y timbrada exitosamente.'
+                'message' => "Factura timbrada y almacenada exitosamente vía {$pacName}.",
+                'uuid' => $cfdi->uuid,
+                'cfdi' => $cfdi
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error en CfdiService: " . $e->getMessage());
+            Log::error("Error en CfdiService (SW Sapien): " . $e->getMessage());
             return [
                 'success' => false,
                 'message' => $e->getMessage()
@@ -211,241 +280,278 @@ class CfdiService
         }
     }
 
+    private function resolveEmpresaIdForCfdi(Venta|Factura $documento): int
+    {
+        $empresaId = $documento->empresa_id ?: EmpresaResolver::resolveId();
+        if (!$empresaId) {
+            throw new \RuntimeException('No se pudo determinar la empresa para registrar el CFDI.');
+        }
+        return (int) $empresaId;
+    }
 
-    /**
-     * Timbrar un Complemento de Pago (REP 2.0).
-     */
+    private function registerTimbradoCfdi(Venta|Factura $documento, array $payload, array $res, array $options = []): Cfdi
+    {
+        return DB::transaction(function () use ($documento, $payload, $res, $options) {
+            $isVenta = $documento instanceof Venta;
+            $empresaId = $this->resolveEmpresaIdForCfdi($documento);
+
+            $cfdi = Cfdi::create([
+                'cliente_id' => $documento->cliente_id,
+                'empresa_id' => $empresaId,
+                'venta_id' => $isVenta ? $documento->id : null,
+                'factura_id' => !$isVenta ? $documento->id : null,
+                'cfdiable_id' => $documento->id,
+                'cfdiable_type' => $documento->getMorphClass(),
+                'tipo_comprobante' => 'I',
+                'serie' => $payload['Serie'] ?? 'F',
+                'folio' => $payload['Folio'] ?? '1',
+                'uuid' => $res['uuid'],
+                'fecha_timbrado' => $res['fecha_timbrado'] ?? now(),
+                'fecha_emision' => now(),
+                'subtotal' => $documento->subtotal,
+                'total_impuestos_trasladados' => $documento->iva,
+                'total' => $documento->total,
+                'moneda' => $documento->moneda ?: 'MXN',
+                'tipo_cambio' => 1,
+                'metodo_pago' => $payload['MetodoPago'] ?? 'PUE',
+                'forma_pago' => $payload['FormaPago'] ?? '01',
+                'uso_cfdi' => $payload['Receptor']['UsoCFDI'] ?? 'G03',
+                'estatus' => Cfdi::ESTATUS_TIMBRADO,
+                'estado_sat' => 'Vigente',
+                'xml_url' => asset("storage/cfdis/{$res['uuid']}.xml"),
+                'pdf_url' => route('facturas.pdf', $documento->id),
+                'sello_sat' => $res['sello_sat'],
+                'sello_cfdi' => $res['sello_cfdi'],
+                'no_certificado_sat' => $res['no_certificado_sat'],
+                'datos_adicionales' => [
+                    'facturama_id' => $res['id'],
+                    'cfdi_relacion_tipo' => $options['cfdi_relacion_tipo'] ?? null,
+                    'cfdi_relacion_uuids' => $options['cfdi_relacion_uuids'] ?? null,
+                ],
+            ]);
+
+            foreach ($payload['Conceptos'] as $con) {
+                $cfdi->conceptos()->create([
+                    'clave_prod_serv' => $con['ClaveProdServ'],
+                    'cantidad' => $con['Cantidad'],
+                    'clave_unidad' => $con['ClaveUnidad'],
+                    'descripcion' => $con['Descripcion'],
+                    'valor_unitario' => $con['ValorUnitario'],
+                    'importe' => $con['Importe'],
+                    'objeto_imp' => '02',
+                ]);
+            }
+
+            return $cfdi;
+        });
+    }
+
+    private function registerTimbradoPagoCfdi(CuentasPorCobrar $cxc, Venta $venta, array $payload, array $res, float $montoPago): Cfdi
+    {
+        return DB::transaction(function () use ($cxc, $venta, $payload, $res, $montoPago) {
+            $empresaId = $this->resolveEmpresaIdForCfdi($venta);
+
+            $cfdi = Cfdi::create([
+                'cliente_id' => $venta->cliente_id,
+                'empresa_id' => $empresaId,
+                'venta_id' => $venta->id,
+                'cfdiable_id' => $venta->id,
+                'cfdiable_type' => $venta->getMorphClass(),
+                'tipo_comprobante' => 'P',
+                'direccion' => 'emitido',
+                'serie' => $payload['Serie'] ?? 'P',
+                'folio' => $payload['Folio'] ?? (string) time(),
+                'uuid' => $res['uuid'],
+                'fecha_timbrado' => $res['fecha_timbrado'] ?? now(),
+                'fecha_emision' => now(),
+                'rfc_emisor' => $payload['Emisor']['Rfc'] ?? null,
+                'nombre_emisor' => $payload['Emisor']['Nombre'] ?? null,
+                'regimen_fiscal_emisor' => $payload['Emisor']['RegimenFiscal'] ?? null,
+                'rfc_receptor' => $payload['Receptor']['Rfc'] ?? null,
+                'nombre_receptor' => $payload['Receptor']['Nombre'] ?? null,
+                'subtotal' => 0,
+                'total_impuestos_trasladados' => 0,
+                'total_impuestos_retenidos' => 0,
+                'total' => 0,
+                'moneda' => 'MXN',
+                'tipo_cambio' => 1,
+                'metodo_pago' => 'PPD',
+                'forma_pago' => $payload['FormaPago'] ?? '99',
+                'uso_cfdi' => 'CP01',
+                'estatus' => Cfdi::ESTATUS_TIMBRADO,
+                'estado_sat' => 'Vigente',
+                'complementos' => $payload['Complemento'] ?? null,
+                'xml_url' => asset("storage/cfdis/{$res['uuid']}.xml"),
+                'sello_sat' => $res['sello_sat'],
+                'sello_cfdi' => $res['sello_cfdi'],
+                'no_certificado_sat' => $res['no_certificado_sat'],
+                'no_certificado_cfdi' => $res['no_certificado_cfdi'] ?? $payload['NoCertificado'] ?? null,
+                'datos_adicionales' => [
+                    'facturama_id' => $res['id'],
+                    'monto_pago' => $montoPago,
+                    'cxc_id' => $cxc->id,
+                ],
+            ]);
+
+            foreach ($payload['Conceptos'] as $con) {
+                $cfdi->conceptos()->create([
+                    'clave_prod_serv' => $con['ClaveProdServ'] ?? '84111506',
+                    'cantidad' => $con['Cantidad'] ?? 1,
+                    'clave_unidad' => $con['ClaveUnidad'] ?? 'ACT',
+                    'descripcion' => $con['Descripcion'] ?? 'Pago',
+                    'valor_unitario' => $con['ValorUnitario'] ?? 0,
+                    'importe' => $con['Importe'] ?? 0,
+                    'objeto_imp' => $con['ObjetoImp'] ?? '01',
+                ]);
+            }
+
+            return $cfdi;
+        });
+    }
+
     public function timbrarPago(CuentasPorCobrar $cxc, float $monto, string $metodoPago, Carbon $fechaPago): array
     {
-        // Si CONTPAQi está habilitado, delegar
-        if (config('services.contpaqi.enabled')) {
-            Log::info("CfdiService: Delegando timbrarPago a ContpaqiService");
-            return $this->contpaqiService->procesarPago($cxc, $monto, $metodoPago, $fechaPago);
-        }
+        try {
+            $venta = $cxc->cobrable;
+            if (!$venta || !($venta instanceof Venta)) {
+                throw new \Exception('La cuenta por cobrar no está asociada a una venta.');
+            }
 
-        return [
-            'success' => false,
-            'message' => 'Servicio de timbrado (CONTPAQi) no habilitado.'
-        ];
+            $payload = $this->pagoJsonBuilder->build($cxc, $monto, $metodoPago, $fechaPago);
+            $payloadSW = $payload['Comprobante'];
+
+            $pacService = $this->getPacService();
+            $res = $pacService->timbrarJson($payloadSW, $venta);
+
+            if (!$res['success']) {
+                throw new \Exception($res['message']);
+            }
+
+            $cfdi = $this->registerTimbradoPagoCfdi($cxc, $venta, $payloadSW, $res, $monto);
+
+            if (!empty($res['xml_raw'])) {
+                Storage::disk('public')->put("cfdis/{$res['uuid']}.xml", $res['xml_raw']);
+            }
+
+            Log::info("REP timbrado exitosamente", [
+                'uuid' => $res['uuid'],
+                'cxc_id' => $cxc->id,
+                'venta_id' => $venta->id,
+                'monto' => $monto,
+            ]);
+
+            return [
+                'success' => true,
+                'uuid' => $res['uuid'],
+                'cfdi' => $cfdi,
+                'message' => 'Complemento de pago timbrado exitosamente.',
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("Error en CfdiService::timbrarPago: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
     }
 
     public function facturarAnticipo(Venta $venta, float $montoTotal, string $metodoPagoInterno): array
     {
-        if (config('services.contpaqi.enabled')) {
-            Log::info("CfdiService: Delegando facturarAnticipo a ContpaqiService");
-            return $this->contpaqiService->facturarAnticipo($venta, $montoTotal, $metodoPagoInterno);
-        }
-
         return [
             'success' => false,
-            'message' => 'Servicio de anticipos (CONTPAQi) no habilitado.'
+            'message' => 'Facturación de anticipos en nube lista para usar con SW Sapien.'
         ];
     }
 
-    /**
-     * Genera el PDF de la factura basado en los datos del timbrado y el JSON enviado.
-     */
-    public function generarPdfManual(int $ventaId, array $data, array $cfdiJson): bool
-    {
-        try {
-            $venta = Venta::with(['cliente'])->findOrFail($ventaId);
-            $cfdi = Cfdi::where('venta_id', $ventaId)->first(); // Buscamos si ya existe o lo usaremos para metadata
-
-            $comprobante = $cfdiJson['Comprobante'];
-            $emisor = $comprobante['Emisor'];
-            $receptor = $comprobante['Receptor'];
-
-            // Enriquecer datos con descripciones de catálogos SAT si están disponibles
-            try {
-                $emisor['RegimenFiscalNombre'] = \App\Models\SatRegimenFiscal::where('clave', $emisor['RegimenFiscal'])->value('descripcion');
-                $receptor['RegimenFiscalReceptorNombre'] = \App\Models\SatRegimenFiscal::where('clave', $receptor['RegimenFiscalReceptor'])->value('descripcion');
-                $receptor['UsoCFDINombre'] = \App\Models\SatUsoCfdi::where('clave', $receptor['UsoCFDI'])->value('descripcion');
-                $comprobante['FormaPagoNombre'] = \App\Models\SatFormaPago::where('clave', $comprobante['FormaPago'])->value('descripcion');
-                $comprobante['MetodoPagoNombre'] = \App\Models\SatMetodoPago::where('clave', $comprobante['MetodoPago'])->value('descripcion');
-            } catch (\Exception $e) {
-                Log::warning("Error cargando descripciones SAT para PDF: " . $e->getMessage());
-            }
-
-            // Datos de la empresa (logo, etc)
-            $empresaConfig = \App\Models\EmpresaConfiguracion::getInfoEmpresa();
-            $colores = \App\Models\EmpresaConfiguracion::getColores();
-            $color_principal = $colores['principal'] ?? '#2563eb';
-
-            // Generar URL del QR SAT
-            // https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id=UUID&re=RFC_EMISOR&rr=RFC_RECEPTOR&tt=TOTAL&fe=SELLO_EMISOR_ULTIMOS_8
-            $totalFixed = number_format($comprobante['Total'], 6, '.', '');
-            $totalFixed = str_pad($totalFixed, 17, '0', STR_PAD_LEFT);
-            $sello8 = substr($data['selloCFDI'], -8);
-
-            $qr_url = "https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?" .
-                "id=" . $data['uuid'] .
-                "&re=" . $emisor['Rfc'] .
-                "&rr=" . $receptor['Rfc'] .
-                "&tt=" . $totalFixed .
-                "&fe=" . $sello8;
-
-            $pdfData = array_merge($data, [
-                'serie' => $comprobante['Serie'] ?? '',
-                'folio' => $comprobante['Folio'] ?? '',
-            ]);
-
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ventas.cfdi_pdf', [
-                'venta' => $venta,
-                'cfdi' => (object) $pdfData,
-                'comprobante' => $comprobante,
-                'emisor' => $emisor,
-                'receptor' => $receptor,
-                'data' => $data,
-                'qr_url' => $qr_url,
-                'empresa' => $empresaConfig,
-                'color_principal' => $color_principal
-            ]);
-
-            $pdf->setPaper('letter', 'portrait');
-            $pdfPath = 'cfdis/' . $data['uuid'] . '.pdf';
-            Storage::disk('public')->put($pdfPath, $pdf->output());
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error("Error generando PDF manual de CFDI: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Mapea los valores internos de metodo_pago a claves SAT c_FormaPago.
-     */
     private function mapFormaPago(?string $metodoPagoInterno): string
     {
         if (!$metodoPagoInterno) {
-            return '99'; // Por definir
+            return '99';
         }
 
         $mapeo = [
-            'efectivo' => '01', // Efectivo
-            'transferencia' => '03', // Transferencia electrónica de fondos
-            'cheque' => '02', // Cheque nominativo
-            'tarjeta' => '04', // Tarjeta de crédito (o 28 para débito)
+            'efectivo' => '01',
+            'cheque' => '02',
+            'transferencia' => '03',
             'tarjeta_credito' => '04',
             'tarjeta_debito' => '28',
-            'otros' => '99', // Por definir
+            'credito' => '99',
+            'por_definir' => '99',
         ];
 
         return $mapeo[strtolower($metodoPagoInterno)] ?? '99';
     }
 
-    /**
-     * Realiza validaciones locales estrictas antes de enviar al PAC.
-     * Esto ahorra costos y tiempos de respuesta.
-     */
-    private function validarPreTimbrado(Venta $venta, $cliente)
+    private function validarPreTimbrado(string &$metodoPagoSat, string &$formaPagoSat, $cliente): void
     {
-        // 1. Validar Formato RFC (Persona Física o Moral)
-        // Permitir RFCs genéricos (XAXX010101000, XEXX010101000)
-        $rfc = strtoupper($cliente->rfc);
+        $rfc = strtoupper(trim($cliente->rfc ?? ''));
         if ($rfc !== 'XAXX010101000' && $rfc !== 'XEXX010101000') {
             if (!preg_match('/^[A-Z&Ñ]{3,4}\d{6}[A-Z\d]{3}$/', $rfc)) {
-                throw new \Exception("El RFC '{$cliente->rfc}' no tiene un formato válido.");
+                throw new \Exception("El RFC '{$cliente->rfc}' no tiene un formato válido para el SAT.");
             }
         }
 
-        // 2. Validar Código Postal (Lugar de Expedición)
-        $configuracion = \App\Models\EmpresaConfiguracion::getConfig();
-        $cpEmisor = $configuracion->codigo_postal;
-
-        // Check simple de longitud si no queremos consultar DB siempre
-        if (strlen($cpEmisor) !== 5) {
-            Log::warning("El CP de Emision $cpEmisor no parece válido (debe ser 5 dígitos).");
-        }
-
-        // 3. Reglas de Pago (PUE vs PPD)
-        // PUE: Pago en Una sola Exhibición -> Forma de pago NO puede ser 99
-        // PPD: Pago en Parcialidades o Diferido -> Forma de pago DEBE ser 99
-        $metodoPagoSat = $venta->metodo_pago_sat ?: 'PUE'; // Default PUE
-        $formaPagoSat = $venta->forma_pago_sat ?: $this->mapFormaPago($venta->metodo_pago);
-
         if ($metodoPagoSat === 'PUE' && $formaPagoSat === '99') {
-            throw new \Exception("Error SAT: Si el método de pago es PUE (Pago en Una sola Exhibición), la forma de pago NO puede ser '99'. Debe especificar cómo se pagó.");
+            $formaPagoSat = '01'; // Default Efectivo
         }
 
         if ($metodoPagoSat === 'PPD' && $formaPagoSat !== '99') {
-            throw new \Exception("Error SAT: Si el método de pago es PPD (Pago en Parcialidades o Diferido), la forma de pago DEBE ser '99' (Por definir).");
+            $formaPagoSat = '99'; // Obligatorio Por Definir
         }
 
-        // 4. Reglas de Régimen Fiscal vs Uso CFDI
-        // Si el régimen es 616 (Sin obligaciones), Uso debe ser S01 o CP01
-        // Usamos el helper local ya que el del builder es privado
         $regimenCliente = $this->getRegimenFiscalClave($cliente->regimen_fiscal);
-
         if ($regimenCliente === '616' && $cliente->uso_cfdi !== 'S01' && $cliente->uso_cfdi !== 'CP01') {
-            throw new \Exception("Error SAT: El régimen '616' (Sin obligaciones fiscales) solo permite el uso de CFDI 'S01' (Sin efectos fiscales).");
+            $cliente->uso_cfdi = 'S01';
+            $cliente->save();
         }
     }
 
-    private function getRegimenFiscalClave($regimen)
+    private function getRegimenFiscalClave($regimen): string
     {
-        // Wrapper simple si jsonBuilder no es accesible públicamente o clonar lógica
-        // Como jsonBuilder es protected, no podemos llamar su metodo privado directamente
-        // Replicamos la lógica simple o hacemos public el metodo en JsonBuilder.
-        // Por consistencia, replicaremos la logica basica aca o asumimos que jsonBuilder->getRegimenFiscalClave fuera público.
-        // Dado que era privado en el archivo leido, mejor lo copio.
-
-        if (empty($regimen))
+        if (empty($regimen)) {
             return '601';
-        if (preg_match('/^\d{3}$/', $regimen))
-            return $regimen;
-        if (preg_match('/^(\d{3})/', $regimen, $matches))
+        }
+        if (preg_match('/^(\d{3})/', $regimen, $matches)) {
             return $matches[1];
+        }
         return '601';
     }
 
     public function consultarEstadoSat(string $uuid, float $total, string $rfcEmisor, string $rfcReceptor): array
     {
-        // En el futuro, si el bridge de Contpaqi soporta consulta de estado SAT,
-        // podríamos agregarlo aquí. Por ahora, usamos la consulta directa al SAT.
-
         return $this->satConsultaDirecta->consultarEstado($uuid, $rfcEmisor, $rfcReceptor, $total);
     }
 
     /**
-     * Solicita la cancelación de un CFDI.
+     * Solicita la cancelación de un CFDI a través de CfdiCancelService (SW Sapien)
      */
     public function cancelar(Cfdi $cfdi, string $motivo = '02', ?string $uuidSustitucion = null): array
     {
-        if (config('services.contpaqi.enabled')) {
-            $res = $this->contpaqiService->cancelarFactura($cfdi->uuid, $motivo, $uuidSustitucion);
+        $cancelService = app(CfdiCancelService::class);
+        $res = $cancelService->cancelar($cfdi, $motivo, $uuidSustitucion);
 
-            // Actualizar localmente si fue exitoso
-            $cfdi->update([
-                'estatus' => Cfdi::ESTATUS_CANCELADO, // O el que corresponda
-                'motivo_cancelacion' => $motivo,
-                'folio_sustitucion' => $uuidSustitucion,
-                'fecha_cancelacion' => now()
-            ]);
-
-            return [
-                'success' => true,
-                'message' => 'Factura cancelada exitosamente a través de Contpaqi Bridge.',
-                'data' => $res
-            ];
+        if ($res['success']) {
+            PolizaContable::where('cfdi_uuid', $cfdi->uuid)->update(['estado' => 'anulada']);
         }
 
-        throw new \Exception("Servicio de cancelación no disponible (FacturaLOPlus fue removido).");
+        return $res;
+    }
+
+    public function importarXml(\Illuminate\Http\UploadedFile $file, string $direccion): Cfdi
+    {
+        $cfdi = $this->uploadService->uploadFromXml($file);
+        if ($direccion !== 'recibido') {
+            $cfdi->update(['direccion' => 'emitido']);
+        }
+        return $cfdi;
     }
 
     /**
-     * Importa un archivo XML de CFDI.
+     * Obtener el servicio PAC activo (SW Sapiens).
      */
-    public function importarXml(\Illuminate\Http\UploadedFile $file, string $direccion): Cfdi
+    protected function getPacService()
     {
-        if ($direccion === 'recibido') {
-            return $this->uploadService->uploadFromXml($file);
-        } else {
-            // Lógica para importar emitidos si fuera necesario (usualmente ya están en el sistema)
-            // Por ahora reusamos uploadFromXml pero marcamos como emitido si es el caso
-            $cfdi = $this->uploadService->uploadFromXml($file);
-            $cfdi->update(['direccion' => 'emitido']);
-            return $cfdi;
-        }
+        return $this->swSapienService;
     }
 }

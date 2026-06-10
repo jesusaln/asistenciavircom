@@ -133,7 +133,9 @@ class ReportService
 
     public function getBalanceComparativoData($fechaInicio, $fechaFin)
     {
-        $ventas = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])->sum('total');
+        $ventas = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->where('estado', '!=', \App\Enums\EstadoVenta::Cancelada->value)
+            ->sum('total');
         $compras = Compra::where('tipo', 'compra')->whereBetween('fecha_compra', [$fechaInicio, $fechaFin])->sum('total');
         $gastos = Compra::where('tipo', 'gasto')->whereBetween('fecha_compra', [$fechaInicio, $fechaFin])->sum('total');
 

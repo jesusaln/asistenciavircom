@@ -10,16 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('landing_procesos', function (Blueprint $table) {
-            $table->id();
-            $table->string('titulo');
-            $table->text('descripcion')->nullable();
-            $table->string('icono')->nullable();
-            $table->string('tipo')->default('reparacion'); // reparacion, instalacion
-            $table->integer('orden')->default(0);
-            $table->boolean('activo')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('landing_procesos')) {
+            Schema::create('landing_procesos', function (Blueprint $table) {
+                $table->id();
+                $table->string('titulo');
+                $table->text('descripcion')->nullable();
+                $table->string('icono')->nullable();
+                $table->string('tipo')->default('reparacion'); // reparacion, instalacion
+                $table->integer('orden')->default(0);
+                $table->boolean('activo')->default(true);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

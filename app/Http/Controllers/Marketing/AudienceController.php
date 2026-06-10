@@ -20,6 +20,19 @@ class AudienceController extends Controller
             ->orderBy('nombre')
             ->get();
 
+        // Obtener wa_ids de los últimos mensajes entrantes en las últimas 24 horas
+        $activeWaIds = \App\Models\WhatsAppChat::where('direction', 'inbound')
+            ->where('received_at', '>=', now()->subHours(24))
+            ->pluck('wa_id')
+            ->unique()
+            ->map(function($id) {
+                $digits = preg_replace('/\D+/', '', (string) $id);
+                return strlen($digits) >= 10 ? substr($digits, -10) : $digits;
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+
         $clientes = $this->eligibleClientsQuery()
             ->select([
                 'id',
@@ -29,6 +42,8 @@ class AudienceController extends Controller
                 'activo',
                 'marketing_optin',
                 'whatsapp_optin',
+                'whatsapp_consent_date',
+                'opt_out_at',
                 'municipio',
                 'price_list_id',
             ])
@@ -40,7 +55,13 @@ class AudienceController extends Controller
                 },
             ])
             ->orderBy('nombre_razon_social')
-            ->get();
+            ->get()
+            ->map(function ($client) use ($activeWaIds) {
+                $telClean = preg_replace('/\D+/', '', (string) $client->telefono);
+                $suffix = strlen($telClean) >= 10 ? substr($telClean, -10) : $telClean;
+                $client->has_active_window = !empty($suffix) && in_array($suffix, $activeWaIds);
+                return $client;
+            });
 
         $priceLists = PriceList::activas()
             ->select(['id', 'nombre'])

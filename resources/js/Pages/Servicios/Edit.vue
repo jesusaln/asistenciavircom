@@ -1,15 +1,15 @@
 <template>
     <Head title="Editar Servicio" />
     <div class="w-full">
-        <div class="bg-white shadow-sm rounded-lg">
+        <div class="glass-panel shadow-sm rounded-xl">
             <!-- Header -->
-            <div class="border-b border-gray-200 px-6 py-4">
-                <h1 class="text-2xl font-semibold text-gray-900">Editar Servicio</h1>
-                <p class="text-sm text-gray-600 mt-1">Modifique la información del servicio</p>
+            <div class="border-b border-slate-800 px-6 py-4">
+                <h1 class="text-2xl font-semibold text-slate-100">Editar Servicio</h1>
+                <p class="text-sm text-slate-400 mt-1">Modifique la información del servicio</p>
             </div>
 
             <!-- Navigation Tabs -->
-            <div class="border-b border-gray-200">
+            <div class="border-b border-slate-800">
                 <nav class="flex space-x-8 px-6" aria-label="Tabs">
                     <button
                         @click="activeTab = 'general'"
@@ -17,7 +17,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'general'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -29,7 +29,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'pricing'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -41,7 +41,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'additional'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -53,7 +53,7 @@
                             'py-4 px-1 border-b-2 font-medium text-sm',
                             activeTab === 'sat'
                                 ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-brand-500'
                         ]"
                         type="button"
                     >
@@ -69,8 +69,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Nombre -->
                         <div>
-                            <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nombre del Servicio <span class="text-red-500">*</span>
+                            <label for="nombre" class="block text-sm font-medium text-slate-300 mb-2">
+                                Nombre del Servicio <span class="text-rose-500">*</span>
                             </label>
                             <input
                                 v-model="form.nombre"
@@ -84,8 +84,8 @@
 
                         <!-- Código -->
                         <div>
-                            <label for="codigo" class="block text-sm font-medium text-gray-700 mb-2">
-                                Código <span class="text-red-500">*</span>
+                            <label for="codigo" class="block text-sm font-medium text-slate-300 mb-2">
+                                Código <span class="text-rose-500">*</span>
                             </label>
                             <input
                                 v-model="form.codigo"
@@ -99,8 +99,8 @@
 
                         <!-- Categoría -->
                         <div>
-                            <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Categoría <span class="text-red-500">*</span>
+                            <label for="categoria_id" class="block text-sm font-medium text-slate-300 mb-2">
+                                Categoría <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.categoria_id" id="categoria_id" class="input-field">
                                 <option value="">Seleccione una categoría</option>
@@ -114,7 +114,7 @@
 
                     <!-- Descripción -->
                     <div>
-                        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="descripcion" class="block text-sm font-medium text-slate-300 mb-2">
                             Descripción
                         </label>
                         <textarea
@@ -132,8 +132,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Precio -->
                         <div>
-                            <label for="precio" class="block text-sm font-medium text-gray-700 mb-2">
-                                Precio <span class="text-red-500">*</span>
+                            <label for="precio" class="block text-sm font-medium text-slate-300 mb-2">
+                                Precio <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <input
@@ -151,8 +151,8 @@
 
                         <!-- Duración -->
                         <div>
-                            <label for="duracion" class="block text-sm font-medium text-gray-700 mb-2">
-                                Duración (minutos) <span class="text-red-500">*</span>
+                            <label for="duracion" class="block text-sm font-medium text-slate-300 mb-2">
+                                Duración (minutos) <span class="text-rose-500">*</span>
                             </label>
                             <input
                                 v-model="form.duracion"
@@ -167,18 +167,18 @@
                     </div>
 
                     <!-- Vista Previa de Costos -->
-                    <div v-if="form.precio && form.duracion" class="bg-white p-4 rounded-lg">
-                        <h4 class="text-sm font-medium text-gray-700 mb-2">Resumen del Servicio</h4>
+                    <div v-if="form.precio && form.duracion" class="glass-panel p-4 rounded-xl">
+                        <h4 class="text-sm font-medium text-slate-300 mb-2">Resumen del Servicio</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-600">Precio por minuto:</span>
+                                <span class="text-slate-400">Precio por minuto:</span>
                                 <span class="font-medium text-blue-600 ml-2">
                                     ${{ (parseFloat(form.precio) / parseInt(form.duracion)).toFixed(2) }}/min
                                 </span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Duración estimada:</span>
-                                <span class="font-medium text-gray-900 ml-2">
+                                <span class="text-slate-400">Duración estimada:</span>
+                                <span class="font-medium text-slate-100 ml-2">
                                     {{ form.duracion }} minutos
                                 </span>
                             </div>
@@ -187,7 +187,7 @@
 
                     <!-- Comisión Vendedor -->
                     <div>
-                        <label for="comision_vendedor" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="comision_vendedor" class="block text-sm font-medium text-slate-300 mb-2">
                             Comisión Vendedor ($)
                         </label>
                         <div class="relative">
@@ -201,7 +201,7 @@
                                 min="0"
                             />
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">
+                        <p class="text-xs text-slate-400 mt-1">
                             Monto fijo que recibe el vendedor por cada prestación de este servicio
                         </p>
                         <div v-if="form.errors.comision_vendedor" class="error-message">{{ form.errors.comision_vendedor }}</div>
@@ -213,8 +213,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Estado -->
                         <div>
-                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estado <span class="text-red-500">*</span>
+                            <label for="estado" class="block text-sm font-medium text-slate-300 mb-2">
+                                Estado <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.estado" id="estado" class="input-field">
                                 <option value="activo">Activo</option>
@@ -225,7 +225,7 @@
 
                         <!-- Es Instalación -->
                         <div>
-                            <label for="es_instalacion" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="es_instalacion" class="block text-sm font-medium text-slate-300 mb-2">
                                 ¿Es servicio de instalación?
                             </label>
                             <div class="flex items-center space-x-4">
@@ -235,9 +235,9 @@
                                         type="radio"
                                         name="es_instalacion"
                                         :value="true"
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        class="h-4 w-4 text-blue-600 focus:ring-brand-500 border-slate-300"
                                     />
-                                    <span class="ml-2 text-sm text-gray-700">Sí</span>
+                                    <span class="ml-2 text-sm text-slate-300">Sí</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input
@@ -245,12 +245,12 @@
                                         type="radio"
                                         name="es_instalacion"
                                         :value="false"
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        class="h-4 w-4 text-blue-600 focus:ring-brand-500 border-slate-300"
                                     />
-                                    <span class="ml-2 text-sm text-gray-700">No</span>
+                                    <span class="ml-2 text-sm text-slate-300">No</span>
                                 </label>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-400 mt-1">
                                 Si es instalación, se aplicará comisión adicional al técnico
                             </p>
                             <div v-if="form.errors.es_instalacion" class="error-message">{{ form.errors.es_instalacion }}</div>
@@ -258,7 +258,7 @@
 
                         <!-- Tipo Comisión Técnica -->
                         <div class="md:col-span-2">
-                            <label for="tipo_comision_tecnica" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="tipo_comision_tecnica" class="block text-sm font-medium text-slate-300 mb-2">
                                 Categoría Técnica (Para Comisiones)
                             </label>
                             <select v-model="form.tipo_comision_tecnica" id="tipo_comision_tecnica" class="input-field">
@@ -270,7 +270,7 @@
                                 <option value="diagnostico">Diagnóstico (Aplica % de margen del técnico)</option>
                                 <option value="preventivo">Mantenimiento Preventivo (Aplica % de margen del técnico)</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-slate-400 mt-1">
                                 Esta categoría determina cómo se le paga al técnico por realizar este servicio.
                             </p>
                             <div v-if="form.errors.tipo_comision_tecnica" class="error-message">{{ form.errors.tipo_comision_tecnica }}</div>
@@ -280,11 +280,11 @@
 
                 <!-- Información Fiscal Tab -->
                 <div v-show="activeTab === 'sat'" class="space-y-6">
-                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg mb-6 flex items-start">
+                    <div class="bg-sky-50 dark:bg-sky-900/20 border border-blue-100 p-4 rounded-xl mb-6 flex items-start">
                         <svg class="h-5 w-5 text-blue-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                         </svg>
-                        <p class="text-sm text-blue-800 leading-relaxed">
+                        <p class="text-sm text-sky-800 dark:text-sky-200 leading-relaxed">
                             Configure la información necesaria para el timbrado de facturas CFDI 4.0. Estos datos son obligatorios si planea emitir facturas electrónicas para este servicio.
                         </p>
                     </div>
@@ -301,8 +301,8 @@
 
                         <!-- Clave Unidad SAT -->
                         <div>
-                            <label for="sat_clave_unidad" class="block text-sm font-medium text-gray-700 mb-2">
-                                Unidad SAT <span class="text-red-500">*</span>
+                            <label for="sat_clave_unidad" class="block text-sm font-medium text-slate-300 mb-2">
+                                Unidad SAT <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.sat_clave_unidad" id="sat_clave_unidad" class="input-field">
                                 <option value="">Seleccione una unidad SAT</option>
@@ -315,8 +315,8 @@
 
                         <!-- Objeto Impuesto -->
                         <div>
-                            <label for="sat_objeto_imp" class="block text-sm font-medium text-gray-700 mb-2">
-                                Objeto de Impuesto <span class="text-red-500">*</span>
+                            <label for="sat_objeto_imp" class="block text-sm font-medium text-slate-300 mb-2">
+                                Objeto de Impuesto <span class="text-rose-500">*</span>
                             </label>
                             <select v-model="form.sat_objeto_imp" id="sat_objeto_imp" class="input-field">
                                 <option v-for="obj in satCatalogos.objetosImp" :key="obj.clave" :value="obj.clave">
@@ -329,18 +329,18 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-slate-800">
                     <button
                         type="button"
                         @click="$inertia.visit(route('servicios.index'))"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-slate-300 glass-panel border border-slate-300 rounded-xl hover:glass-panel focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         <span v-if="form.processing">Actualizando...</span>
                         <span v-else>Actualizar Servicio</span>

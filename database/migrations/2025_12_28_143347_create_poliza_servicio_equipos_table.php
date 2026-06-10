@@ -10,13 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('poliza_servicio_equipos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('poliza_id')->constrained('polizas_servicio')->onDelete('cascade');
-            $table->foreignId('equipo_id')->constrained('equipos')->onDelete('cascade');
-            $table->text('notas')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('poliza_servicio_equipos')) {
+            Schema::create('poliza_servicio_equipos', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('poliza_id')->constrained('polizas_servicio')->onDelete('cascade');
+                $table->foreignId('equipo_id')->constrained('equipos')->onDelete('cascade');
+                $table->text('notas')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

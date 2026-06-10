@@ -1,30 +1,30 @@
 <template>
   <Head :title="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? 'Solicitar Vacaciones' : (props.empleadoSeleccionado ? `Vacaciones para ${props.empleadoSeleccionado.name}` : 'Nueva Solicitud de Vacaciones')" />
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-[var(--ui-surface)] py-12 px-4 sm:px-6 lg:px-8">
     <div class="w-full">
       <!-- Header -->
       <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-600 to-blue-600 rounded-full mb-4">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-full mb-4">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">
           {{ props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? 'Solicitar Vacaciones' : (props.empleadoSeleccionado ? `Vacaciones para ${props.empleadoSeleccionado.name}` : 'Nueva Solicitud de Vacaciones') }}
         </h1>
-        <p class="text-gray-600">
+        <p class="text-slate-500">
           {{ props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? 'Completa la información para solicitar tus vacaciones' : (props.empleadoSeleccionado ? 'Crear vacaciones para el empleado seleccionado' : 'Completa la información para solicitar vacaciones') }}
         </p>
       </div>
 
       <!-- Form Card -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <form @submit.prevent="submit" class="p-8 space-y-8">
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+        <form @submit.prevent="submit" class="p-8 space-y-6">
           <!-- Información del Empleado -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 Información del Empleado
@@ -32,13 +32,13 @@
             </div>
 
             <!-- Si es el propio empleado, mostrar información en lugar del selector -->
-            <div v-if="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div v-if="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id" class="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
               <div class="flex items-center">
-                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 <div>
-                  <p class="text-sm font-medium text-blue-800">
+                  <p class="text-sm font-medium text-sky-800 dark:text-sky-200">
 Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
                   </p>
                   <p class="text-xs text-blue-600">{{ props.empleadoSeleccionado.puesto }}</p>
@@ -49,16 +49,16 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
 
             <!-- Si es administrador creando para otro empleado, mostrar selector -->
             <div v-else class="form-group">
-              <label for="user_id" class="block text-sm font-semibold text-gray-700 mb-2">
+              <label for="user_id" class="block text-sm font-medium text-slate-700 mb-2">
                 Empleado *
               </label>
               <select
                 v-model="form.user_id"
                 id="user_id"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                class="block w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                 :class="{
-                  'border-red-300 bg-red-50 focus:ring-red-500': form.errors.user_id,
-                  'border-green-300 bg-green-50': form.user_id && !form.errors.user_id
+                  'border-rose-300 bg-rose-50 dark:bg-rose-900/20 focus:ring-brand-500': form.errors.user_id,
+                  'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20': form.user_id && !form.errors.user_id
                 }"
               >
                 <option value="" disabled>Seleccionar empleado</option>
@@ -72,9 +72,9 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
 
           <!-- Información de Vacaciones -->
           <div class="space-y-6">
-            <div class="border-b border-gray-200 pb-4">
-              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-b border-slate-200 pb-4">
+              <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 Información de Vacaciones
@@ -83,7 +83,7 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="form-group">
-                <label for="fecha_inicio" class="block text-sm font-semibold text-gray-700 mb-2">
+                <label for="fecha_inicio" class="block text-sm font-medium text-slate-700 mb-2">
                   Fecha de Inicio *
                 </label>
                 <input
@@ -91,17 +91,17 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
                   type="date"
                   id="fecha_inicio"
                   :min="minDate"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  class="block w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   :class="{
-                    'border-red-300 bg-red-50 focus:ring-red-500': form.errors.fecha_inicio,
-                    'border-green-300 bg-green-50': form.fecha_inicio && !form.errors.fecha_inicio
+                    'border-rose-300 bg-rose-50 dark:bg-rose-900/20 focus:ring-brand-500': form.errors.fecha_inicio,
+                    'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20': form.fecha_inicio && !form.errors.fecha_inicio
                   }"
                 />
                 <InputError class="mt-2" :message="form.errors.fecha_inicio" />
               </div>
 
               <div class="form-group">
-                <label for="fecha_fin" class="block text-sm font-semibold text-gray-700 mb-2">
+                <label for="fecha_fin" class="block text-sm font-medium text-slate-700 mb-2">
                   Fecha de Fin *
                 </label>
                 <input
@@ -109,10 +109,10 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
                   type="date"
                   id="fecha_fin"
                   :min="form.fecha_inicio || minDate"
-                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                  class="block w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                   :class="{
-                    'border-red-300 bg-red-50 focus:ring-red-500': form.errors.fecha_fin,
-                    'border-green-300 bg-green-50': form.fecha_fin && !form.errors.fecha_fin
+                    'border-rose-300 bg-rose-50 dark:bg-rose-900/20 focus:ring-brand-500': form.errors.fecha_fin,
+                    'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20': form.fecha_fin && !form.errors.fecha_fin
                   }"
                 />
                 <InputError class="mt-2" :message="form.errors.fecha_fin" />
@@ -120,17 +120,17 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
             </div>
 
             <!-- Información de días disponibles -->
-            <div v-if="props.empleadoSeleccionado && props.registroVacaciones" class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div v-if="props.empleadoSeleccionado && props.registroVacaciones" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 rounded-xl p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-emerald-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                   <div>
-                    <p class="text-sm text-green-800">
+                    <p class="text-sm text-emerald-800 dark:text-emerald-200">
                       Días disponibles: <strong>{{ props.registroVacaciones.dias_disponibles }}</strong>
                     </p>
-                    <p class="text-xs text-green-600">
+                    <p class="text-xs text-emerald-600">
                       Año {{ props.registroVacaciones.anio }} • {{ props.registroVacaciones.dias_correspondientes }} días correspondientes
                     </p>
                   </div>
@@ -139,23 +139,23 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
             </div>
 
             <!-- Información de días solicitados -->
-            <div v-if="form.fecha_inicio && form.fecha_fin" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div v-if="form.fecha_inicio && form.fecha_fin" class="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-xl p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  <span class="text-sm text-blue-800">
+                  <span class="text-sm text-sky-800 dark:text-sky-200">
                     Días solicitados: <strong>{{ diasSolicitados }}</strong>
                   </span>
                 </div>
 
                 <!-- Verificación de días disponibles -->
                 <div v-if="props.registroVacaciones" class="flex items-center">
-                  <span v-if="diasSolicitados <= props.registroVacaciones.dias_disponibles" class="text-green-600 text-sm">
+                  <span v-if="diasSolicitados <= props.registroVacaciones.dias_disponibles" class="text-emerald-600 text-sm">
                     ✅ Disponibles
                   </span>
-                  <span v-else class="text-red-600 text-sm">
+                  <span v-else class="text-rose-600 text-sm">
                     ❌ Insuficientes (necesitas {{ diasSolicitados - props.registroVacaciones.dias_disponibles }} más)
                   </span>
                 </div>
@@ -163,14 +163,14 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
             </div>
 
             <div class="form-group">
-              <label for="motivo" class="block text-sm font-semibold text-gray-700 mb-2">
+              <label for="motivo" class="block text-sm font-medium text-slate-700 mb-2">
                 Motivo
               </label>
               <textarea
                 v-model="form.motivo"
                 id="motivo"
                 rows="3"
-                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
+                class="block w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 bg-white hover:bg-white"
                 placeholder="Describe el motivo de las vacaciones (opcional)"
               ></textarea>
               <InputError class="mt-2" :message="form.errors.motivo" />
@@ -178,18 +178,18 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
           </div>
 
           <!-- Action Buttons -->
-          <div class="pt-6 border-t border-gray-200">
+          <div class="pt-6 border-t border-slate-200">
             <div class="flex flex-col sm:flex-row gap-4 justify-end">
               <Link :href="props.empleadoSeleccionado && $page.props.auth.user && props.empleadoSeleccionado.id === $page.props.auth.user.id ? route('vacaciones.mis-vacaciones') : route('vacaciones.index')"
-                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-white font-semibold transition-all duration-200 hover:shadow-md">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-300 rounded-xl text-slate-700 bg-white hover:bg-white font-semibold transition-all duration-200 hover:shadow-xl">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 Cancelar
               </Link>
               <button
                 type="submit"
-                class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+                class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-xl transform hover:shadow-xl hover:shadow-xl.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
                 :disabled="form.processing || !isFormValid"
               >
                 <div v-if="form.processing" class="flex items-center">
@@ -200,7 +200,7 @@ Creando vacaciones para: <strong>{{ props.empleadoSeleccionado.name }}</strong>
                   <span>Enviando Solicitud...</span>
                 </div>
                 <div v-else class="flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                   </svg>
                   <span>Enviar Solicitud</span>
@@ -380,20 +380,20 @@ input:hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) {
 }
 
 /* Estilo para campos válidos */
-.border-green-300 {
+.border-emerald-300 {
   border-color: #86efac;
 }
 
-.bg-green-50 {
+.bg-emerald-50 {
   background-color: #f0fdf4;
 }
 
 /* Estilo para campos con error */
-.border-red-300 {
+.border-rose-300 {
   border-color: #fca5a5;
 }
 
-.bg-red-50 {
+.bg-rose-50 {
   background-color: #fef2f2;
 }
 </style>

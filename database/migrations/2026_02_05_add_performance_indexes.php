@@ -69,11 +69,11 @@ return new class extends Migration {
         if (Schema::hasTable('cfdis')) {
             $this->addIndexes('cfdis', [
                 ['columns' => ['uuid'], 'name' => 'idx_cfdis_uuid'],
-                ['columns' => ['estado'], 'name' => 'idx_cfdis_estado'],
+                ['columns' => ['estatus'], 'name' => 'idx_cfdis_estatus'],
                 ['columns' => ['rfc_emisor'], 'name' => 'idx_cfdis_emisor'],
                 ['columns' => ['rfc_receptor'], 'name' => 'idx_cfdis_receptor'],
                 ['columns' => ['fecha_timbrado'], 'name' => 'idx_cfdis_timbrado'],
-                ['columns' => ['empresa_id', 'estado'], 'name' => 'idx_cfdis_empresa_estado'],
+                ['columns' => ['empresa_id', 'estatus'], 'name' => 'idx_cfdis_empresa_estatus'],
             ]);
         }
 
@@ -117,11 +117,11 @@ return new class extends Migration {
             ],
             'cfdis' => [
                 'idx_cfdis_uuid',
-                'idx_cfdis_estado',
+                'idx_cfdis_estatus',
                 'idx_cfdis_emisor',
                 'idx_cfdis_receptor',
                 'idx_cfdis_timbrado',
-                'idx_cfdis_empresa_estado',
+                'idx_cfdis_empresa_estatus',
             ],
         ];
 

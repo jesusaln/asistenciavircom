@@ -2,13 +2,13 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto custom-scrollbar" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Backdrop -->
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="cerrarModal"></div>
         
         <!-- Modal Panel -->
         <div class="flex min-h-full items-center justify-center p-4">
-          <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+          <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all border border-transparent dark:border-slate-800">
             
             <!-- Header -->
             <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-5 rounded-t-2xl">
@@ -33,10 +33,10 @@
             </div>
 
             <!-- Resumen del Total -->
-            <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
+            <div class="bg-emerald-50 dark:bg-emerald-900/20 px-6 py-4 border-b border-emerald-100 dark:border-emerald-900/30">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-emerald-700">Total a Pagar</span>
-                <span class="text-2xl font-bold text-emerald-800">{{ formatearMoneda(totalCompra) }}</span>
+                <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Total a Pagar</span>
+                <span class="text-2xl font-bold text-emerald-800 dark:text-emerald-300">{{ formatearMoneda(totalCompra) }}</span>
               </div>
             </div>
 
@@ -45,8 +45,8 @@
               
               <!-- Método de Pago -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-3">
-                  Método de Pago <span class="text-red-500">*</span>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                  Método de Pago <span class="text-rose-500">*</span>
                 </label>
                 <div class="grid grid-cols-2 gap-3">
                   <button
@@ -57,8 +57,8 @@
                     :class="[
                       'flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-200',
                       metodoPago === metodo.value 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-md' 
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 shadow-md' 
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                     ]"
                   >
                     <span class="text-xl">{{ metodo.icon }}</span>
@@ -69,16 +69,16 @@
 
               <!-- Cuenta Bancaria -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Cuenta Bancaria de Origen
-                  <span class="text-gray-400 font-normal">(opcional)</span>
+                  <span class="text-slate-400 dark:text-slate-500 font-normal">(opcional)</span>
                 </label>
-                <p class="text-xs text-gray-500 mb-3">
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
                   Selecciona de qué cuenta sale el dinero para esta compra
                 </p>
                 <select
                   v-model="cuentaBancariaId"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                   @change="onCuentaChange"
                 >
                   <option value="">Sin especificar (no descuenta de banco)</option>
@@ -87,6 +87,7 @@
                     :key="cuenta.id" 
                     :value="cuenta.id"
                     :disabled="cuenta.saldo_actual < totalCompra"
+                    class="dark:bg-slate-800"
                   >
                     🏦 {{ cuenta.banco }} - {{ cuenta.numero_cuenta }} 
                     | Saldo: {{ formatearMoneda(cuenta.saldo_actual) }}
@@ -97,14 +98,14 @@
                 <!-- Mensaje de saldo insuficiente -->
                 <div 
                   v-if="cuentaSeleccionada && saldoInsuficiente" 
-                  class="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2"
+                  class="mt-3 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/30 rounded-xl flex items-start gap-2"
                 >
-                  <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <div>
-                    <p class="text-sm font-medium text-red-700">Saldo Insuficiente</p>
-                    <p class="text-xs text-red-600">
+                    <p class="text-sm font-medium text-rose-700 dark:text-rose-400">Saldo Insuficiente</p>
+                    <p class="text-xs text-rose-600 dark:text-rose-300">
                       La cuenta tiene <strong>{{ formatearMoneda(cuentaSeleccionada.saldo_actual) }}</strong> 
                       pero necesitas <strong>{{ formatearMoneda(totalCompra) }}</strong>.
                       Faltan <strong>{{ formatearMoneda(totalCompra - cuentaSeleccionada.saldo_actual) }}</strong>.
@@ -115,14 +116,14 @@
                 <!-- Mensaje de confirmación de descuento -->
                 <div 
                   v-if="cuentaSeleccionada && !saldoInsuficiente" 
-                  class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2"
+                  class="mt-3 p-3 bg-blue-50 dark:bg-sky-900/20 border border-blue-200 dark:border-blue-900/30 rounded-xl flex items-start gap-2"
                 >
                   <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <p class="text-sm font-medium text-blue-700">Se descontará de esta cuenta</p>
-                    <p class="text-xs text-blue-600">
+                    <p class="text-sm font-medium text-blue-700 dark:text-blue-400">Se descontará de esta cuenta</p>
+                    <p class="text-xs text-blue-600 dark:text-blue-300">
                       Saldo actual: <strong>{{ formatearMoneda(cuentaSeleccionada.saldo_actual) }}</strong>
                       → Nuevo saldo: <strong>{{ formatearMoneda(cuentaSeleccionada.saldo_actual - totalCompra) }}</strong>
                     </p>
@@ -132,14 +133,14 @@
 
               <!-- Notas del Pago -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Notas del Pago
-                  <span class="text-gray-400 font-normal">(opcional)</span>
+                  <span class="text-slate-400 dark:text-slate-500 font-normal">(opcional)</span>
                 </label>
                 <textarea
                   v-model="notasPago"
                   rows="2"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors resize-none"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors resize-none"
                   placeholder="Agregar detalles o referencias del pago..."
                 ></textarea>
               </div>
@@ -147,11 +148,11 @@
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-200 flex items-center justify-end gap-3">
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 rounded-b-2xl border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
               <button
                 @click="cerrarModal"
                 type="button"
-                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                class="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancelar
               </button>
@@ -162,8 +163,8 @@
                 :class="[
                   'px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center gap-2',
                   puedeConfirmar
-                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/20'
+                    : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                 ]"
               >
                 <template v-if="isProcessing">

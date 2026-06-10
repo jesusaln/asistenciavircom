@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CategoriaHerramienta extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected $fillable = [

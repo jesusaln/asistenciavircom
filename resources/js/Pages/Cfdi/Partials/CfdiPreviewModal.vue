@@ -1,219 +1,13 @@
-<template>
-    <Teleport to="body">
-        <div v-if="show" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="emitClose"></div>
-
-            <div class="relative bg-white rounded-3xl shadow-2xl w-full w-full h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
-                <!-- Header -->
-                <div class="px-8 py-4 border-b border-gray-100 flex items-center justify-between bg-white/50">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-black text-gray-900 leading-tight">Vista Previa CFDI</h2>
-                            <span class="text-[10px] font-mono text-gray-400 select-all uppercase tracking-widest">{{ selectedUuid }}</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <button v-if="parsedCfdiData" @click="downloadXml" class="px-4 h-10 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-xl transition-all border border-indigo-100">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" /></svg>
-                            XML
-                        </button>
-                        <button v-if="parsedCfdiData" type="button" @click="verPdfNuevaPestana" class="px-4 h-10 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-600 bg-sky-50 hover:bg-sky-600 hover:text-white rounded-xl transition-all border border-sky-100" title="Abrir visor de PDF">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            Ver PDF
-                        </button>
-                        <button v-if="parsedCfdiData" type="button" @click="downloadPdf" class="px-4 h-10 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white rounded-xl transition-all border border-emerald-100" title="Descargar PDF con nombre serie-folio">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            PDF
-                        </button>
-                        <div class="w-[1px] h-8 bg-gray-200 mx-1"></div>
-                        <button @click="emitClose" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tabs -->
-                <div class="px-8 bg-white border-b border-gray-100 flex gap-8">
-                    <button v-for="tab in tabs" :key="tab.id" 
-                            @click="activeTab = tab.id"
-                            :class="['py-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative', 
-                                     activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600']">
-                        {{ tab.label }}
-                        <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-t-full"></div>
-                    </button>
-                </div>
-
-                <div class="flex-1 overflow-hidden relative bg-white flex flex-col p-8">
-                    <div v-if="isLoadingXml" class="flex-1 flex flex-col items-center justify-center">
-                        <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                        <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Analizando comprobante...</p>
-                    </div>
-
-                    <template v-else-if="parsedCfdiData">
-                        <!-- Tab: General Info -->
-                        <div v-if="activeTab === 'info'" class="h-full overflow-y-auto custom-scrollbar pr-4 space-y-8">
-                            <!-- Summary Cards -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="p-6 bg-blue-50 rounded-3xl border border-blue-100">
-                                    <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest block mb-2">Total Comprobante</span>
-                                    <span class="text-3xl font-black text-blue-700 tracking-tight">{{ formatMoney(parsedCfdiData.total) }}</span>
-                                    <span class="block mt-2 text-xs font-bold text-blue-500 uppercase">{{ parsedCfdiData.moneda }}</span>
-                                </div>
-                                <div class="p-6 bg-white rounded-3xl border border-gray-200">
-                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Fecha Emisión</span>
-                                    <span class="text-2xl font-black text-gray-800 tracking-tight">{{ formatDate(parsedCfdiData.fecha) }}</span>
-                                </div>
-                                <div class="p-6 bg-emerald-50 rounded-3xl border border-emerald-100 text-center">
-                                    <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-2">Tipo de CFDI</span>
-                                    <span class="px-4 py-1.5 bg-emerald-600 text-white text-[11px] font-black uppercase rounded-full tracking-widest inline-block mt-2">
-                                        {{ getTipoLabel(parsedCfdiData.tipoComprobante) }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                                <!-- Emisor -->
-                                <div class="space-y-4">
-                                    <h3 class="text-sm font-black text-gray-700 uppercase tracking-widest flex items-center gap-2">
-                                        <div class="w-1.5 h-4 bg-blue-600 rounded-full"></div>
-                                        Datos del Emisor
-                                    </h3>
-                                    <div class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-4">
-                                        <div>
-                                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Nombre o Razón Social</span>
-                                            <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.emisor.nombre }}</span>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">RFC</span>
-                                                <span class="text-sm font-mono font-bold text-blue-600">{{ parsedCfdiData.emisor.rfc }}</span>
-                                            </div>
-                                            <div>
-                                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Régimen Fiscal</span>
-                                                <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.emisor.regimenFiscal }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Receptor -->
-                                <div class="space-y-4">
-                                    <h3 class="text-sm font-black text-gray-700 uppercase tracking-widest flex items-center gap-2">
-                                        <div class="w-1.5 h-4 bg-violet-600 rounded-full"></div>
-                                        Datos del Receptor
-                                    </h3>
-                                    <div class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-4">
-                                        <div>
-                                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Nombre o Razón Social</span>
-                                            <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.receptor.nombre }}</span>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">RFC</span>
-                                                <span class="text-sm font-mono font-bold text-violet-600">{{ parsedCfdiData.receptor.rfc }}</span>
-                                            </div>
-                                            <div>
-                                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Uso CFDI</span>
-                                                <span class="text-sm font-bold text-gray-900">{{ parsedCfdiData.receptor.usoCfdi }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tab: Conceptos -->
-                        <div v-if="activeTab === 'items'" class="h-full flex flex-col">
-                            <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-3">
-                                <div v-for="(concepto, idx) in parsedCfdiData.conceptos" :key="idx" 
-                                     class="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm hover:border-blue-200 transition-all flex justify-between items-center gap-6">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-3 mb-1">
-                                            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black rounded uppercase">{{ concepto.clave }}</span>
-                                            <p class="text-sm font-bold text-gray-900 whitespace-normal break-words leading-tight">{{ concepto.descripcion }}</p>
-                                        </div>
-                                        <div class="flex gap-4 text-[11px] font-bold text-gray-400">
-                                            <span>CANT: {{ concepto.cantidad }}</span>
-                                            <span>UNIT: {{ formatMoney(concepto.valorUnitario) }}</span>
-                                            <span v-if="concepto.descuento > 0" class="text-red-400">DESC: {{ formatMoney(concepto.descuento) }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="text-sm font-black text-gray-900 italic tracking-tight">{{ formatMoney(concepto.importe) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tab: Impuestos -->
-                        <div v-if="activeTab === 'taxes'" class="h-full overflow-y-auto custom-scrollbar pr-4 space-y-8">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div class="space-y-4">
-                                    <h3 class="text-sm font-black text-emerald-600 uppercase tracking-widest">Traslados</h3>
-                                    <div v-if="parsedCfdiData.impuestos.traslados.length" class="space-y-3">
-                                        <div v-for="(t, idx) in parsedCfdiData.impuestos.traslados" :key="idx" class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex justify-between items-center">
-                                            <div class="flex flex-col">
-                                                <span class="text-[9px] font-black text-emerald-400 uppercase">Impuesto {{ t.impuesto }} ({{ t.tasaOCuota * 100 }}%)</span>
-                                                <span class="text-xs font-bold text-emerald-700">Base: {{ formatMoney(t.base) }}</span>
-                                            </div>
-                                            <span class="text-sm font-black text-emerald-600">{{ formatMoney(t.importe) }}</span>
-                                        </div>
-                                    </div>
-                                    <p v-else class="text-xs font-bold text-gray-400 italic px-4">Sin traslados</p>
-                                </div>
-
-                                <div class="space-y-4">
-                                    <h3 class="text-sm font-black text-red-600 uppercase tracking-widest">Retenciones</h3>
-                                    <div v-if="parsedCfdiData.impuestos.retenciones.length" class="space-y-3">
-                                        <div v-for="(r, idx) in parsedCfdiData.impuestos.retenciones" :key="idx" class="p-4 bg-red-50 border border-red-100 rounded-2xl flex justify-between items-center">
-                                            <span class="text-[9px] font-black text-red-400 uppercase">Impuesto {{ r.impuesto }}</span>
-                                            <span class="text-sm font-black text-red-600">{{ formatMoney(r.importe) }}</span>
-                                        </div>
-                                    </div>
-                                    <p v-else class="text-xs font-bold text-gray-400 italic px-4">Sin retenciones</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tab: XML -->
-                        <div v-if="activeTab === 'xml'" class="h-full flex flex-col">
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Código Fuente XML</span>
-                                <button @click="copyXml" class="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-                                    Copiar XML
-                                </button>
-                            </div>
-                            <div class="flex-1 bg-gray-900 rounded-3xl p-6 overflow-auto custom-scrollbar font-mono text-xs text-blue-300 select-all whitespace-pre leading-relaxed">
-                                {{ xmlContent }}
-                            </div>
-                        </div>
-                    </template>
-
-                    <div v-else class="flex-1 flex flex-col items-center justify-center text-gray-400">
-                        <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <p class="text-sm font-bold uppercase tracking-widest">No se pudo interpretar el archivo digital</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </Teleport>
-</template>
-
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref } from 'vue'
 
 const props = defineProps({
     show: { type: Boolean, default: false },
-    selectedUuid: { type: String, default: '' },
+    uuid: { type: String, default: '' },
     xmlContent: { type: String, default: '' },
-    parsedCfdiData: { type: Object, default: null },
-    isLoadingXml: { type: Boolean, default: false },
-    formatMoney: { type: Function, required: true }
+    parsedData: { type: Object, default: null },
+    isLoading: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['close', 'copied'])
@@ -227,6 +21,13 @@ const tabs = [
 ]
 
 const emitClose = () => emit('close')
+
+const formatMoney = (val) => {
+    return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN'
+    }).format(val || 0)
+}
 
 const copyXml = () => {
     if (!props.xmlContent) return
@@ -258,51 +59,250 @@ const getTipoLabel = (tipo) => {
 }
 
 const downloadXml = () => {
+    if (!props.xmlContent) return
     const blob = new Blob([props.xmlContent], { type: 'text/xml' })
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
-    link.download = `${props.selectedUuid}.xml`
+    link.download = `${props.uuid}.xml`
     link.click()
 }
 
 const verPdfNuevaPestana = () => {
-    window.open(route('cfdi.ver-pdf-view', props.selectedUuid), '_blank', 'noopener,noreferrer')
+    window.open(route('cfdi.ver-pdf-view', props.uuid), '_blank', 'noopener,noreferrer')
 }
 
 const downloadPdf = () => {
-    window.open(route('cfdi.ver-pdf', { uuid: props.selectedUuid, download: 1 }), '_blank', 'noopener,noreferrer')
+    window.open(route('cfdi.ver-pdf', { uuid: props.uuid, download: 1 }), '_blank', 'noopener,noreferrer')
 }
 </script>
 
+<template>
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="show" class="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md" @click="emitClose"></div>
+
+        <!-- Modal Content -->
+        <div class="relative w-full max-w-5xl h-[85vh] bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-zoomIn">
+          
+          <!-- Header -->
+          <div class="px-8 py-5 border-b border-white/5 flex items-center justify-between bg-black/50 backdrop-blur-sm">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center ring-1 ring-cyan-500/20 shadow-xl shadow-cyan-900/20">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              </div>
+              <div>
+                <h2 class="text-xl font-black text-white tracking-tight leading-none mb-1">Visor de Comprobante</h2>
+                <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wide">{{ uuid }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button @click="downloadXml" class="h-10 px-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-wide text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all border border-indigo-500/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" /></svg>
+                XML
+              </button>
+              <button @click="verPdfNuevaPestana" class="h-10 px-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-wide text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-xl transition-all border border-cyan-500/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                PDF
+              </button>
+              <div class="w-px h-8 bg-white/5 mx-2"></div>
+              <button @click="emitClose" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="px-8 bg-slate-900 border-b border-white/5 flex gap-8">
+            <button v-for="tab in tabs" :key="tab.id" 
+                    @click="activeTab = tab.id"
+                    :class="['py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative', 
+                             activeTab === tab.id ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300']">
+              {{ tab.label }}
+              <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-1 bg-cyan-500 rounded-t-full shadow-[0_0_15px_rgba(34,211,238,0.5)]"></div>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="flex-1 overflow-hidden p-8 bg-slate-950/20">
+            
+            <div v-if="isLoading" class="h-full flex flex-col items-center justify-center">
+              <svg class="animate-spin h-10 w-10 text-cyan-500 mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+              <p class="text-xs font-black uppercase tracking-wide text-slate-500">Decodificando XML...</p>
+            </div>
+
+            <template v-else-if="parsedData">
+              <!-- Info Tab -->
+              <div v-if="activeTab === 'info'" class="h-full overflow-y-auto custom-scrollbar pr-4 space-y-6 animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div class="p-6 bg-slate-900/50 rounded-[2rem] border border-white/5 relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-cyan-500/5 blur-2xl transition-colors group-hover:bg-cyan-500/10"></div>
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-wide block mb-2">Monto Total</span>
+                    <span class="text-2xl font-black text-white tracking-tight tabular-nums">{{ formatMoney(parsedData.total) }}</span>
+                    <span class="block mt-1 text-[10px] font-black text-cyan-400/80 uppercase tracking-wide">{{ parsedData.moneda }}</span>
+                  </div>
+                  
+                  <div class="p-6 bg-slate-900/50 rounded-[2rem] border border-white/5">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-wide block mb-2">Fecha Certificación</span>
+                    <span class="text-2xl font-black text-slate-100 tracking-tight block">{{ formatDate(parsedData.fecha) }}</span>
+                  </div>
+
+                  <div class="p-6 bg-slate-900/50 rounded-[2rem] border border-white/5 text-center flex flex-col items-center justify-center">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-wide block mb-2">Tipo Comprobante</span>
+                    <span class="px-4 py-1.5 bg-cyan-500/10 text-cyan-400 text-[10px] font-black uppercase rounded-full ring-1 ring-cyan-500/20 tracking-[0.1em]">
+                      {{ getTipoLabel(parsedData.tipoComprobante) }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                  <div class="space-y-6">
+                    <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(34,211,238,0.5)]"></div>
+                      Emisor
+                    </h4>
+                    <div class="p-6 bg-slate-900/50 border border-white/5 rounded-[2rem] space-y-6">
+                      <div>
+                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-wide block mb-1">Razón Social</span>
+                        <p class="text-sm font-bold text-slate-100 leading-tight">{{ parsedData.emisor.nombre }}</p>
+                      </div>
+                      <div class="flex gap-8">
+                        <div>
+                          <span class="text-[8px] font-black text-slate-500 uppercase tracking-wide block mb-1">RFC</span>
+                          <p class="text-xs font-mono font-bold text-cyan-400/80">{{ parsedData.emisor.rfc }}</p>
+                        </div>
+                        <div>
+                          <span class="text-[8px] font-black text-slate-500 uppercase tracking-wide block mb-1">Régimen</span>
+                          <p class="text-[11px] font-bold text-slate-400">{{ parsedData.emisor.regimenFiscal }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="space-y-6">
+                    <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"></div>
+                      Receptor
+                    </h4>
+                    <div class="p-6 bg-slate-900/50 border border-white/5 rounded-[2rem] space-y-6">
+                      <div>
+                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-wide block mb-1">Razón Social</span>
+                        <p class="text-sm font-bold text-slate-100 leading-tight">{{ parsedData.receptor.nombre }}</p>
+                      </div>
+                      <div class="flex gap-8">
+                        <div>
+                          <span class="text-[8px] font-black text-slate-500 uppercase tracking-wide block mb-1">RFC</span>
+                          <p class="text-xs font-mono font-bold text-violet-400/80">{{ parsedData.receptor.rfc }}</p>
+                        </div>
+                        <div>
+                          <span class="text-[8px] font-black text-slate-500 uppercase tracking-wide block mb-1">Uso CFDI</span>
+                          <p class="text-[11px] font-bold text-slate-400">{{ parsedData.receptor.usoCfdi }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Concepts Tab -->
+              <div v-if="activeTab === 'items'" class="h-full flex flex-col animate-fadeIn">
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-3">
+                  <div v-for="(concepto, idx) in parsedData.conceptos" :key="idx" 
+                       class="p-5 bg-slate-900/50 border border-white/5 rounded-2xl hover:bg-slate-900/50 hover:border-white/10 transition-all flex justify-between items-center gap-6 group">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1.5">
+                        <span class="px-2 py-0.5 bg-slate-950 text-slate-500 text-[9px] font-black rounded-xl uppercase ring-1 ring-white/5">{{ concepto.clave }}</span>
+                        <p class="text-xs font-bold text-slate-200 group-hover:text-white transition-colors">{{ concepto.descripcion }}</p>
+                      </div>
+                      <div class="flex gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <span>Cant: <b class="text-slate-300">{{ concepto.cantidad }}</b></span>
+                        <span>Unit: <b class="text-slate-300">{{ formatMoney(concepto.valorUnitario) }}</b></span>
+                        <span v-if="concepto.descuento > 0" class="text-rose-500/80">Desc: {{ formatMoney(concepto.descuento) }}</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-sm font-black text-slate-100 tabular-nums italic tracking-tighter">{{ formatMoney(concepto.importe) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Taxes Tab -->
+              <div v-if="activeTab === 'taxes'" class="h-full overflow-y-auto custom-scrollbar pr-4 space-y-6 animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="space-y-6">
+                    <h5 class="text-[10px] font-black text-emerald-500/80 uppercase tracking-wide flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
+                      Traslados (Impuestos Cobrados)
+                    </h5>
+                    <div v-if="parsedData.impuestos.traslados.length" class="space-y-3">
+                      <div v-for="(t, idx) in parsedData.impuestos.traslados" :key="idx" class="p-4 bg-brand-500/5 border border-emerald-500/10 rounded-2xl flex justify-between items-center">
+                        <div class="flex flex-col">
+                          <span class="text-[9px] font-black text-emerald-600 uppercase tracking-wide">Impuesto {{ t.impuesto }} ({{ t.tasaOCuota * 100 }}%)</span>
+                          <span class="text-[11px] font-bold text-slate-400 italic">Base: {{ formatMoney(t.base) }}</span>
+                        </div>
+                        <span class="text-sm font-black text-emerald-400">{{ formatMoney(t.importe) }}</span>
+                      </div>
+                    </div>
+                    <p v-else class="text-[11px] font-bold text-slate-500 italic px-4">Sin impuestos trasladados</p>
+                  </div>
+
+                  <div class="space-y-6">
+                    <h5 class="text-[10px] font-black text-rose-500/80 uppercase tracking-wide flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
+                      Retenciones
+                    </h5>
+                    <div v-if="parsedData.impuestos.retenciones.length" class="space-y-3">
+                      <div v-for="(r, idx) in parsedData.impuestos.retenciones" :key="idx" class="p-4 bg-brand-500/5 border border-rose-500/10 rounded-2xl flex justify-between items-center">
+                        <span class="text-[9px] font-black text-rose-600 uppercase tracking-wide">Impuesto {{ r.impuesto }}</span>
+                        <span class="text-sm font-black text-rose-400">{{ formatMoney(r.importe) }}</span>
+                      </div>
+                    </div>
+                    <p v-else class="text-[11px] font-bold text-slate-500 italic px-4">Sin retenciones</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Raw XML Tab -->
+              <div v-if="activeTab === 'xml'" class="h-full flex flex-col animate-fadeIn">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-[9px] font-black text-slate-500 uppercase tracking-wide">Estructura XML original</span>
+                  <button @click="copyXml" class="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-xl text-[9px] font-black text-slate-300 uppercase tracking-wide flex items-center gap-2 transition-all border border-white/5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                    Copiar
+                  </button>
+                </div>
+                <div class="flex-1 bg-slate-950/80 rounded-[2rem] p-6 overflow-auto custom-scrollbar font-mono text-[11px] text-cyan-300/80 select-all whitespace-pre leading-relaxed border border-white/5 shadow-inner">
+                  {{ xmlContent }}
+                </div>
+              </div>
+            </template>
+
+            <div v-else class="h-full flex flex-col items-center justify-center text-slate-500">
+              <svg class="w-16 h-16 mb-4 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <p class="text-sm font-black uppercase tracking-wide">Error al cargar datos del comprobante</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+</template>
+
 <style scoped>
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
 
-.animate-fadeIn {
-    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+.animate-zoomIn { animation: zoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
 
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #d1d5db;
-}
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.slide-up-enter-active, .slide-up-leave-active {
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.slide-up-enter-from, .slide-up-leave-to {
-    transform: translateY(100%);
-    opacity: 0;
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

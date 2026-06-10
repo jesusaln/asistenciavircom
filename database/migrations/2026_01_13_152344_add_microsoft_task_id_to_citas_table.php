@@ -10,9 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('citas', function (Blueprint $table) {
-            $table->string('microsoft_task_id')->nullable()->index();
-        });
+        if (!Schema::hasColumn('citas', 'microsoft_task_id')) {
+            Schema::table('citas', function (Blueprint $table) {
+                $table->string('microsoft_task_id')->nullable()->index();
+            });
+        }
     }
 
     /**

@@ -27,13 +27,8 @@
       margin-bottom: 8px;
       padding: 6px 8px;
       background: #f8fafc;
-
-      border: 1px solid {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      border: 1px solid
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       border-radius: 4px;
     }
@@ -53,13 +48,8 @@
     .empresa-nombre {
       font-size: 18px;
       font-weight: bold;
-
-      color: {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      color:
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       margin-bottom: 2px;
     }
@@ -72,13 +62,8 @@
 
     .doc-info {
       text-align: right;
-
-      color: {
-          {
-          $configuracion['colores']['secundario'] ?? '#1a365d'
-        }
-      }
-
+      color:
+        {{ $configuracion['colores']['secundario'] ?? '#1a365d' }}
       ;
       min-width: 180px;
     }
@@ -111,25 +96,15 @@
 
     .titulo {
       font-weight: bold;
-
-      color: {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      color:
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       margin-bottom: 4px;
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: .5px;
-
-      border-bottom: 1px solid {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      border-bottom: 1px solid
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       padding-bottom: 1px;
     }
@@ -158,12 +133,8 @@
     }
 
     th {
-      background: {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      background:
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       color: #fff;
       font-weight: bold;
@@ -211,26 +182,16 @@
       gap: 6px;
       padding: 6px;
       background: #f8fafc;
-
-      border: 1px solid {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      border: 1px solid
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       border-radius: 4px;
     }
 
     .firma .linea {
       margin-top: 14px;
-
-      border-top: 1px solid {
-          {
-          $configuracion['colores']['principal'] ?? '#2b6cb0'
-        }
-      }
-
+      border-top: 1px solid
+        {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }}
       ;
       padding-top: 6px;
       text-align: center;
@@ -244,7 +205,7 @@
   <div class="header">
     <div class="empresa-info">
       @if($configuracion['logo_path'] ?? false)
-      <img src="{{ $configuracion['logo_path'] }}" alt="Logo" class="empresa-logo">
+        <img src="{{ $configuracion['logo_path'] }}" alt="Logo" class="empresa-logo">
       @endif
       <div class="empresa-nombre">{{ $configuracion['empresa']['nombre'] }}</div>
       <div class="empresa-detalles">
@@ -267,8 +228,8 @@
       <div class="box">
         <div class="titulo">Datos del Cliente</div>
         <div>
-          <strong style="color: {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }};">{{
-            $renta->cliente->nombre_razon_social ?? 'Cliente' }}</strong><br>
+          <strong
+            style="color: {{ $configuracion['colores']['principal'] ?? '#2b6cb0' }};">{{ $renta->cliente->nombre_razon_social ?? 'Cliente' }}</strong><br>
           @if($renta->cliente->email ?? false) <strong>Email:</strong> {{ $renta->cliente->email }}<br> @endif
           @if($renta->cliente->telefono ?? false) <strong>Tel:</strong> {{ $renta->cliente->telefono }}<br> @endif
           @if($renta->cliente->rfc ?? false) <strong>RFC:</strong> {{ $renta->cliente->rfc }}<br> @endif
@@ -304,34 +265,32 @@
                 {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->monto_mensual) }}</td>
             </tr>
             @if($renta->deposito_garantia)
-            <tr>
-              <td class="muted">Depósito garantía:</td>
-              <td class="text-right">
-                {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->deposito_garantia) }}</td>
-            </tr>
+              <tr>
+                <td class="muted">Depósito garantía:</td>
+                <td class="text-right">
+                  {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->deposito_garantia) }}</td>
+              </tr>
             @endif
             @php
-            $li = $renta->lugar_instalacion;
-            $li_str = '';
-            if (is_string($li)) {
-            $li_str = $li;
-            } elseif (is_array($li)) {
-            $li_str = implode(', ', array_filter([$li['calle'] ?? null, $li['numero_exterior'] ?? ($li['numero'] ??
-            null), $li['colonia'] ?? null, $li['codigo_postal'] ?? null, $li['municipio'] ?? null, $li['estado'] ??
-            null]));
-            }
+              $li = $renta->lugar_instalacion;
+              $li_str = '';
+              if (is_string($li)) {
+                $li_str = $li;
+              } elseif (is_array($li)) {
+                $li_str = implode(', ', array_filter([$li['calle'] ?? null, $li['numero_exterior'] ?? ($li['numero'] ?? null), $li['colonia'] ?? null, $li['codigo_postal'] ?? null, $li['municipio'] ?? null, $li['estado'] ?? null]));
+              }
             @endphp
             @if(!empty($li_str))
-            <tr>
-              <td class="muted">Lugar de instalación:</td>
-              <td class="text-right">{{ $li_str }}</td>
-            </tr>
+              <tr>
+                <td class="muted">Lugar de instalación:</td>
+                <td class="text-right">{{ $li_str }}</td>
+              </tr>
             @endif
             @if($renta->forma_pago)
-            <tr>
-              <td class="muted">Forma de pago:</td>
-              <td class="text-right">{{ ucfirst($renta->forma_pago) }}</td>
-            </tr>
+              <tr>
+                <td class="muted">Forma de pago:</td>
+                <td class="text-right">{{ ucfirst($renta->forma_pago) }}</td>
+              </tr>
             @endif
           </tbody>
         </table>
@@ -401,24 +360,23 @@
       </thead>
       <tbody>
         @foreach($renta->equipos as $equipo)
-        <tr>
-          <td>{{ $loop->iteration }}</td>
-          <td>{{ $equipo->codigo ?? '-' }}</td>
-          <td>{{ $equipo->nombre ?? '-' }}</td>
-          <td>
-            @if($equipo->marca || $equipo->modelo)
-            <span class="badge">{{ trim(($equipo->marca ?? '') . ' ' . ($equipo->modelo ?? '')) }}</span>
-            @endif
-            @if(is_array($equipo->accesorios) && count($equipo->accesorios))
-            <div class="muted">Accesorios: {{ implode(', ', $equipo->accesorios) }}</div>
-            @endif
-          </td>
-          <td>{{ $equipo->numero_serie ?? '-' }}</td>
-          <td class="text-right">
-            {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($equipo->pivot->precio_mensual ??
-            $equipo->precio_renta_mensual ?? 0) }}
-          </td>
-        </tr>
+          <tr>
+            <td>{{ $loop->iteration }}</td>
+            <td>{{ $equipo->codigo ?? '-' }}</td>
+            <td>{{ $equipo->nombre ?? '-' }}</td>
+            <td>
+              @if($equipo->marca || $equipo->modelo)
+                <span class="badge">{{ trim(($equipo->marca ?? '') . ' ' . ($equipo->modelo ?? '')) }}</span>
+              @endif
+              @if(is_array($equipo->accesorios) && count($equipo->accesorios))
+                <div class="muted">Accesorios: {{ implode(', ', $equipo->accesorios) }}</div>
+              @endif
+            </td>
+            <td>{{ $equipo->numero_serie ?? '-' }}</td>
+            <td class="text-right">
+              {{ \App\Services\EmpresaConfiguracionService::formatearMoneda($equipo->pivot->precio_mensual ?? $equipo->precio_renta_mensual ?? 0) }}
+            </td>
+          </tr>
         @endforeach
       </tbody>
     </table>
@@ -482,17 +440,14 @@
         <strong>{{ $renta->dia_pago ? min(28, (int) $renta->dia_pago) : 5 }}</strong> días naturales de cada mes.
         Asimismo, “EL CLIENTE” entregará a “EL PROVEEDOR”, al momento de la firma del presente contrato, un depósito en
         garantía por la cantidad de
-        <strong>{{ $renta->deposito_garantia ?
-          \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->deposito_garantia) : 'N/A' }}</strong>,
-        el cual será devuelto al término del contrato, siempre y cuando no existan adeudos ni daños al equipo.
-      </p>
+        <strong>{{ $renta->deposito_garantia ? \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->deposito_garantia) : 'N/A' }}</strong>,
+        el cual será devuelto al término del contrato, siempre y cuando no existan adeudos ni daños al equipo.</p>
       <p style="margin:0 0 4px 0;"><strong>QUINTA. FORMA DE PAGO.</strong> El pago podrá realizarse mediante
         transferencia electrónica a la cuenta señalada por “EL PROVEEDOR” (Banco:
         {{ $configuracion['empresa']['banco'] ?? '—' }}, Sucursal: {{ $configuracion['empresa']['sucursal'] ?? '—' }},
         Cuenta: {{ $configuracion['empresa']['cuenta'] ?? '—' }}, CLABE:
         {{ $configuracion['empresa']['clabe'] ?? '—' }}, Titular:
-        {{ $configuracion['empresa']['titular'] ?? ($configuracion['empresa']['razon_social'] ?:
-        $configuracion['empresa']['nombre']) }}),
+        {{ $configuracion['empresa']['titular'] ?? ($configuracion['empresa']['razon_social'] ?: $configuracion['empresa']['nombre']) }}),
         o en efectivo al trabajador designado por “EL PROVEEDOR”, previa confirmación entre las partes.</p>
       <p style="margin:0 0 4px 0;"><strong>SEXTA. VIGENCIA.</strong> El presente contrato tendrá vigencia indefinida,
         con un período mínimo forzoso de <strong>{{ $renta->meses_duracion ?? 6 }}</strong> meses. Concluido dicho
@@ -510,8 +465,7 @@
       <p style="margin:0 0 4px 0;"><strong>DÉCIMA. RECONOCIMIENTO DE PERSONALIDAD.</strong> Las partes reconocen
         plenamente la personalidad y derechos de la contraparte y, en el caso de “EL PROVEEDOR”, de su trabajador
         designado para la firma del presente contrato:
-        <strong>{{ optional(auth()->user())->name ?? '________________' }}</strong>.
-      </p>
+        <strong>{{ optional(auth()->user())->name ?? '________________' }}</strong>.</p>
       <p style="margin:0;"><strong>DÉCIMA PRIMERA. JURISDICCIÓN.</strong> Para la interpretación y cumplimiento de este
         contrato, así como para todo lo no previsto en el mismo, las partes se someten a la jurisdicción de los
         tribunales competentes de <strong>Hermosillo, Sonora</strong>, renunciando a cualquier fuero que por razón de su
@@ -523,46 +477,44 @@
   <div class="section">
     <div class="titulo">Cronograma de Pagos</div>
     @php
-    $diaPago = (int) ($renta->dia_pago ?? 1);
-    $inicio = \Carbon\Carbon::parse($renta->fecha_inicio);
-    $primerVenc = $inicio->copy()->day(min($diaPago, $inicio->daysInMonth));
-    if ($primerVenc->lt($inicio)) {
-    $primerVenc = $inicio->copy()->addMonthNoOverflow()->day(min($diaPago,
-    $inicio->copy()->addMonthNoOverflow()->daysInMonth));
-    }
-    $fechas = [];
-    $fechaProg = $primerVenc->copy();
-    $meses = (int) ($renta->meses_duracion ?? 0);
-    for ($i = 0; $i < $meses; $i++) { $fechas[]=$fechaProg->copy()->day(min($diaPago, $fechaProg->daysInMonth));
-      $fechaProg = $fechaProg->copy()->addMonthNoOverflow();
+      $diaPago = (int) ($renta->dia_pago ?? 1);
+      $inicio = \Carbon\Carbon::parse($renta->fecha_inicio);
+      $primerVenc = $inicio->copy()->day(min($diaPago, $inicio->daysInMonth));
+      if ($primerVenc->lt($inicio)) {
+        $primerVenc = $inicio->copy()->addMonthNoOverflow()->day(min($diaPago, $inicio->copy()->addMonthNoOverflow()->daysInMonth));
       }
-      @endphp
-      <table>
-        <thead>
-          <tr>
-            <th style="width:10%">#</th>
-            <th style="width:55%">Fecha de vencimiento</th>
-            <th style="width:35%" class="text-right">Monto</th>
-          </tr>
-        </thead>
-        <tbody>
-          @php $fechas = $fechas ?? []; @endphp
-          @forelse($fechas as $idx => $f)
+      $fechas = [];
+      $fechaProg = $primerVenc->copy();
+      $meses = (int) ($renta->meses_duracion ?? 0);
+      for ($i = 0; $i < $meses; $i++) {
+        $fechas[] = $fechaProg->copy()->day(min($diaPago, $fechaProg->daysInMonth));
+        $fechaProg = $fechaProg->copy()->addMonthNoOverflow();
+      }
+    @endphp
+    <table>
+      <thead>
+        <tr>
+          <th style="width:10%">#</th>
+          <th style="width:55%">Fecha de vencimiento</th>
+          <th style="width:35%" class="text-right">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($fechas as $idx => $f)
           <tr>
             <td>{{ $idx + 1 }}</td>
             <td>{{ \App\Services\EmpresaConfiguracionService::formatearFecha($f) }}</td>
-            <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->monto_mensual)
-              }}
+            <td class="text-right">{{ \App\Services\EmpresaConfiguracionService::formatearMoneda($renta->monto_mensual) }}
             </td>
           </tr>
-          @empty
+        @empty
           <tr>
             <td colspan="3" class="text-center muted">Sin programar.</td>
           </tr>
-          @endforelse
-        </tbody>
-      </table>
-      <div class="muted">Pagos por adelantado, conforme al día {{ $diaPago }} de cada mes.</div>
+        @endforelse
+      </tbody>
+    </table>
+    <div class="muted">Pagos por adelantado, conforme al día {{ $diaPago }} de cada mes.</div>
   </div>
 
   <!-- Domicilio convencional -->
@@ -580,7 +532,7 @@
         <div class="muted">{{ $renta->cliente->nombre_razon_social ?? 'Cliente' }}</div>
         <div>{{ $renta->cliente->direccion_completa ?? '' }}</div>
         @if($renta->cliente->rfc ?? false)
-        <div class="muted">RFC: {{ $renta->cliente->rfc }}</div>
+          <div class="muted">RFC: {{ $renta->cliente->rfc }}</div>
         @endif
       </div>
     </div>
@@ -595,31 +547,42 @@
     <div class="linea">
       EL CLIENTE<br>
       @if($renta->firma_digital)
-      <div style="margin-bottom: 5px;">
-        <img src="{{ $renta->firma_digital }}" style="max-width: 200px; max-height: 80px;">
-      </div>
-      <div style="font-size: 7px; color: #718096; line-height: 1;">
-        Firmado digitalmente por: {{ $renta->firmado_nombre }}<br>
-        Fecha: {{ $renta->firmado_at->format('d/m/Y H:i:s') }}<br>
-        IP: {{ $renta->firmado_ip }}<br>
-        Hash: <span style="font-family: monospace;">{{ substr($renta->firma_hash, 0, 16) }}...</span>
-      </div>
+        <div style="margin-bottom: 5px;">
+          @php
+            $firmaUrl = \App\Helpers\Base64ToFile::getUrl($renta->firma_digital);
+            // Si es ruta de archivo (no base64), convertir a base64 para DomPDF
+            if ($firmaUrl && !str_starts_with($firmaUrl, 'data:')) {
+              $firmaAbsPath = storage_path('app/public/' . $renta->firma_digital);
+              if (file_exists($firmaAbsPath)) {
+                $ext = strtolower(pathinfo($firmaAbsPath, PATHINFO_EXTENSION));
+                $firmaUrl = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($firmaAbsPath));
+              }
+            }
+          @endphp
+          <img src="{{ $firmaUrl }}" style="max-width: 200px; max-height: 80px;">
+        </div>
+        <div style="font-size: 7px; color: #718096; line-height: 1;">
+          Firmado digitalmente por: {{ $renta->firmado_nombre }}<br>
+          Fecha: {{ $renta->firmado_at->format('d/m/Y H:i:s') }}<br>
+          IP: {{ $renta->firmado_ip }}<br>
+          Hash: <span style="font-family: monospace;">{{ substr($renta->firma_hash, 0, 16) }}...</span>
+        </div>
       @else
-      <br><br>
-      <strong>{{ $renta->cliente->nombre_razon_social ?? 'Cliente' }}</strong>
+        <br><br>
+        <strong>{{ $renta->cliente->nombre_razon_social ?? 'Cliente' }}</strong>
       @endif
     </div>
   </div>
 
   @if($renta->firma_digital)
-  <div
-    style="margin-top: 15px; padding: 8px; border: 1px dashed #cbd5e0; border-radius: 4px; background: #fdfdfd; font-size: 7px; color: #4a5568;">
-    <strong>CERTIFICADO DE VALIDEZ ELECTRÓNICA:</strong> Este documento ha sido firmado electrónicamente mediante el
-    Portal de Clientes de {{ $configuracion['empresa']['nombre'] }}.
-    La firma electrónica avanzada capturada cumple con los requisitos de integridad y autoría. El código hash único
-    garantiza que el contenido del contrato no ha sido alterado
-    desde el momento de su firma. Identificador único de transacción: {{ $renta->firma_hash }}.
-  </div>
+    <div
+      style="margin-top: 15px; padding: 8px; border: 1px dashed #cbd5e0; border-radius: 4px; background: #fdfdfd; font-size: 7px; color: #4a5568;">
+      <strong>CERTIFICADO DE VALIDEZ ELECTRÓNICA:</strong> Este documento ha sido firmado electrónicamente mediante el
+      Portal de Clientes de {{ $configuracion['empresa']['nombre'] }}.
+      La firma electrónica avanzada capturada cumple con los requisitos de integridad y autoría. El código hash único
+      garantiza que el contenido del contrato no ha sido alterado
+      desde el momento de su firma. Identificador único de transacción: {{ $renta->firma_hash }}.
+    </div>
   @endif
 </body>
 

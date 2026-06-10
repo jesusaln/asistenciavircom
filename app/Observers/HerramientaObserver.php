@@ -14,8 +14,18 @@ class HerramientaObserver
      */
     public function updating(Herramienta $herramienta)
     {
-        // Detectar si cambió tecnico_id
-        if ($herramienta->isDirty('tecnico_id')) {
+        // Sincronización bidireccional para evitar inconsistencias
+        if ($herramienta->isDirty('user_id') && !$herramienta->isDirty('tecnico_id')) {
+            $herramienta->tecnico_id = $herramienta->user_id;
+        } elseif ($herramienta->isDirty('tecnico_id') && !$herramienta->isDirty('user_id')) {
+            $herramienta->user_id = $herramienta->tecnico_id;
+        } elseif ($herramienta->isDirty('user_id') && $herramienta->isDirty('tecnico_id')) {
+            // Ambos cambiaron: usar user_id como fuente de verdad
+            $herramienta->tecnico_id = $herramienta->user_id;
+        }
+
+        // Detectar si cambió la asignación (usando user_id como fuente de verdad ahora)
+        if ($herramienta->isDirty('user_id')) {
             $this->sincronizarEstadoPorTecnico($herramienta);
         }
 
@@ -32,23 +42,38 @@ class HerramientaObserver
      */
     public function saved(Herramienta $herramienta)
     {
-        // Verificar si cambió tecnico_id comparando con el original
-        $tecnicoOriginal = $herramienta->getOriginal('tecnico_id');
-        $tecnicoActual = $herramienta->tecnico_id;
-        
+        // Verificar si cambió user_id usando el atributo original antes de esta operación
+        $original = $herramienta->getOriginal('user_id');
+        $current = $herramienta->user_id;
+
+        // Usar getOriginal() DESPUÉS de un save() devuelve los valores recién persistidos,
+        // por lo que debemos verificar si hubo cambios en el updating() vía atributos internos.
+        // Alternativa: comparar con el valor antes del save usando el event dispatcher.
+        static $previousUserId = null;
+        static $herramientaId = null;
+
+        if ($herramientaId !== $herramienta->id) {
+            $previousUserId = $herramienta->getOriginal('user_id');
+            $herramientaId = $herramienta->id;
+        }
+
+        $tecnicoOriginal = $previousUserId;
+        $tecnicoActual = $herramienta->user_id;
+
         // Solo registrar si realmente cambió el técnico
         if ($tecnicoOriginal != $tecnicoActual) {
             $this->registrarEnHistorial($herramienta, $tecnicoOriginal, $tecnicoActual);
+            $previousUserId = $tecnicoActual;
         }
     }
 
     /**
-     * Sincronizar estado cuando cambia tecnico_id
+     * Sincronizar estado cuando cambia user_id
      */
     protected function sincronizarEstadoPorTecnico(Herramienta $herramienta)
     {
-        $tecnicoAnterior = $herramienta->getOriginal('tecnico_id');
-        $tecnicoNuevo = $herramienta->tecnico_id;
+        $tecnicoAnterior = $herramienta->getOriginal('user_id');
+        $tecnicoNuevo = $herramienta->user_id;
 
         // Si se asigna un técnico (NULL -> ID)
         if (empty($tecnicoAnterior) && !empty($tecnicoNuevo)) {
@@ -70,7 +95,7 @@ class HerramientaObserver
     }
 
     /**
-     * Sincronizar tecnico_id cuando cambia estado
+     * Sincronizar user_id cuando cambia estado
      */
     protected function sincronizarTecnicoPorEstado(Herramienta $herramienta)
     {
@@ -78,15 +103,15 @@ class HerramientaObserver
 
         // Si cambia a disponible, liberar técnico
         if ($estadoNuevo === Herramienta::ESTADO_DISPONIBLE) {
-            if (!empty($herramienta->tecnico_id)) {
-                $herramienta->tecnico_id = null;
+            if (!empty($herramienta->user_id)) {
+                $herramienta->user_id = null;
                 $herramienta->fecha_recepcion = now();
             }
         }
 
         // Si cambia a asignada, validar que tenga técnico
         if ($estadoNuevo === Herramienta::ESTADO_ASIGNADA) {
-            if (empty($herramienta->tecnico_id)) {
+            if (empty($herramienta->user_id)) {
                 // Prevenir cambio de estado sin técnico
                 throw new \Exception('No se puede cambiar el estado a "asignada" sin un técnico asignado');
             }

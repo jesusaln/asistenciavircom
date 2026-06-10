@@ -10,18 +10,20 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('proyecto_productos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('proyecto_id')->constrained()->onDelete('cascade');
-            $table->foreignId('producto_id')->constrained()->onDelete('cascade');
-            $table->decimal('cantidad', 10, 2)->default(1);
-            $table->decimal('precio_unitario', 12, 2)->nullable(); // Precio al momento de agregar
-            $table->text('notas')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('proyecto_productos')) {
+            Schema::create('proyecto_productos', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('proyecto_id')->constrained()->onDelete('cascade');
+                $table->foreignId('producto_id')->constrained()->onDelete('cascade');
+                $table->decimal('cantidad', 10, 2)->default(1);
+                $table->decimal('precio_unitario', 12, 2)->nullable(); // Precio al momento de agregar
+                $table->text('notas')->nullable();
+                $table->timestamps();
 
-            // Índice para evitar duplicados
-            $table->unique(['proyecto_id', 'producto_id']);
-        });
+                // Índice para evitar duplicados
+                $table->unique(['proyecto_id', 'producto_id']);
+            });
+        }
     }
 
     /**

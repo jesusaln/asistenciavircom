@@ -53,14 +53,16 @@ class CitaPublicaController extends Controller
             $diasDisponibles = $this->generarDiasFallback();
         }
 
+        $config = \App\Models\EmpresaConfiguracion::getConfig($empresa->id);
+
         return Inertia::render('Public/AgendarCita', [
             'empresa' => [
                 'id' => $empresa->id,
-                'nombre' => $empresa->nombre_empresa ?? $empresa->nombre,
-                'logo' => $empresa->logo_url ?? null,
-                'color_principal' => $empresa->color_principal ?? '#FF6B35',
-                'whatsapp' => $empresa->whatsapp,
-                'telefono' => $empresa->telefono,
+                'nombre' => $config->nombre_empresa ?? ($empresa->nombre_empresa ?? $empresa->nombre),
+                'logo' => $config->logo_url ?? ($empresa->logo_url ?? null),
+                'color_principal' => $config->color_principal ?? ($empresa->color_principal ?? '#FF6B35'),
+                'whatsapp' => $config->whatsapp ?? $empresa->whatsapp,
+                'telefono' => $config->telefono ?? $empresa->telefono,
             ],
             'tiendas' => Cita::TIENDAS_ORIGEN,
             'horarios' => Cita::HORARIOS_PREFERIDOS,
@@ -136,28 +138,10 @@ class CitaPublicaController extends Controller
             // Datos personales
             'nombre' => 'required|string|max:255',
             'telefono' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-
-            // Dirección
-            'direccion_calle' => 'required|string|max:255',
-            'direccion_colonia' => 'required|string|max:255',
-            'direccion_cp' => 'nullable|string|max:10',
-            'direccion_referencias' => 'nullable|string|max:500',
 
             // Preferencias de fecha/hora
             'dias_preferidos' => 'required|array|min:1|max:5',
             'dias_preferidos.*' => 'date|after_or_equal:today',
-            'horario_preferido' => 'required|string|in:manana,mediodia,tarde,noche',
-
-            // Servicio
-            'tipo_servicio' => 'required|string',
-            'tipo_equipo' => 'required|string',
-            'origen_tienda' => 'required|string',
-            'numero_ticket_tienda' => 'nullable|string|max:100',
-            'descripcion' => 'nullable|string|max:1000',
-
-            // Aceptación
-            'acepta_terminos' => 'required|accepted',
         ]);
 
         try {
@@ -171,8 +155,8 @@ class CitaPublicaController extends Controller
                 ],
                 [
                     'nombre_razon_social' => $validated['nombre'],
-                    'email' => $validated['email'] ?? null,
-                    'direccion' => $validated['direccion_calle'] . ', ' . $validated['direccion_colonia'],
+                    'email' => $request->input('email') ?: 'contacto@climasdeldesierto.com',
+                    'direccion' => ($request->input('direccion_calle') ?: 'Por definir') . ', ' . ($request->input('direccion_colonia') ?: 'Por definir'),
                     'requiere_factura' => false,
                 ]
             );
@@ -191,24 +175,24 @@ class CitaPublicaController extends Controller
                 'prioridad' => Cita::PRIORIDAD_MEDIA,
 
                 // Servicio
-                'tipo_servicio' => $validated['tipo_servicio'],
-                'tipo_equipo' => $validated['tipo_equipo'],
-                'descripcion' => $validated['descripcion'] ?? '',
-                'problema_reportado' => $validated['descripcion'] ?? '',
+                'tipo_servicio' => $request->input('tipo_servicio') ?: 'mantenimiento',
+                'tipo_equipo' => $request->input('tipo_equipo') ?: 'minisplit',
+                'descripcion' => $request->input('descripcion') ?: 'Solicitud de cita rápida en línea.',
+                'problema_reportado' => $request->input('descripcion') ?: 'Solicitud de cita rápida en línea.',
 
                 // Tienda
-                'origen_tienda' => $validated['origen_tienda'],
-                'numero_ticket_tienda' => $validated['numero_ticket_tienda'] ?? null,
+                'origen_tienda' => $request->input('origen_tienda') ?: 'otro',
+                'numero_ticket_tienda' => $request->input('numero_ticket_tienda') ?? null,
 
                 // Preferencias
                 'dias_preferidos' => $validated['dias_preferidos'],
-                'horario_preferido' => $validated['horario_preferido'],
+                'horario_preferido' => $request->input('horario_preferido') ?: 'manana',
 
                 // Dirección
-                'direccion_calle' => $validated['direccion_calle'],
-                'direccion_colonia' => $validated['direccion_colonia'],
-                'direccion_cp' => $validated['direccion_cp'] ?? null,
-                'direccion_referencias' => $validated['direccion_referencias'] ?? null,
+                'direccion_calle' => $request->input('direccion_calle') ?: 'Por definir',
+                'direccion_colonia' => $request->input('direccion_colonia') ?: 'Por definir',
+                'direccion_cp' => $request->input('direccion_cp') ?? null,
+                'direccion_referencias' => $request->input('direccion_referencias') ?? null,
 
                 // Seguimiento
                 'link_seguimiento' => Str::uuid(),
@@ -219,11 +203,13 @@ class CitaPublicaController extends Controller
             // Enviar WhatsApp de confirmación de recepción
             $this->enviarWhatsAppRecepcion($cita);
 
+            $config = \App\Models\EmpresaConfiguracion::getConfig($empresa->id);
+
             return Inertia::render('Public/AgendarCitaExito', [
                 'empresa' => [
-                    'nombre' => $empresa->nombre_empresa ?? $empresa->nombre,
-                    'whatsapp' => $empresa->whatsapp,
-                    'color_principal' => $empresa->color_principal ?? '#FF6B35',
+                    'nombre' => $config->nombre_empresa ?? ($empresa->nombre_empresa ?? $empresa->nombre),
+                    'whatsapp' => $config->whatsapp ?? $empresa->whatsapp,
+                    'color_principal' => $config->color_principal ?? ($empresa->color_principal ?? '#FF6B35'),
                 ],
                 'cita' => [
                     'folio' => $cita->folio,
@@ -307,6 +293,7 @@ class CitaPublicaController extends Controller
         $cita->load(['cliente', 'tecnico', 'venta.items.ventable', 'venta.cuentaPorCobrar']);
 
         $empresa = Empresa::find($cita->empresa_id);
+        $config = \App\Models\EmpresaConfiguracion::getConfig($empresa->id);
 
         // Timeline de estados
         $timeline = $this->buildTimeline($cita);
@@ -332,11 +319,11 @@ class CitaPublicaController extends Controller
 
         return Inertia::render('Public/SeguimientoCita', [
             'empresa' => [
-                'nombre' => $empresa->nombre_empresa ?? $empresa->nombre,
-                'logo' => $empresa->logo_url ?? null,
-                'color_principal' => $empresa->color_principal ?? '#FF6B35',
-                'whatsapp' => $empresa->whatsapp,
-                'telefono' => $empresa->telefono,
+                'nombre' => $config->nombre_empresa ?? ($empresa->nombre_empresa ?? $empresa->nombre),
+                'logo' => $config->logo_url ?? ($empresa->logo_url ?? null),
+                'color_principal' => $config->color_principal ?? ($empresa->color_principal ?? '#FF6B35'),
+                'whatsapp' => $config->whatsapp ?? $empresa->whatsapp,
+                'telefono' => $config->telefono ?? $empresa->telefono,
             ],
             'cita' => [
                 'folio' => $cita->folio,
@@ -364,7 +351,7 @@ class CitaPublicaController extends Controller
                 ] : null,
                 // Cliente
                 'cliente' => [
-                    'nombre' => $cita->cliente->nombre,
+                    'nombre' => $cita->cliente->nombre_razon_social,
                 ],
                 // Fechas
                 'created_at' => $cita->created_at->format('d/m/Y H:i'),
@@ -449,13 +436,9 @@ class CitaPublicaController extends Controller
             return Empresa::find($resolvedId);
         }
 
-        // 3. Último recurso: usar la primera empresa si solo hay una (o para desarrollo)
-        // Pero loguear advertencia si hay más de una empresa
-        if (Empresa::count() > 1) {
-            Log::warning("Se resolvió la primera empresa por fallback en CitaPublica para el host: {$host}");
-        }
-        
-        return Empresa::first();
+        // 3. Ya no usamos fallback a Empresa::first() por seguridad multi-tenant.
+        // Si no se pudo resolver la empresa, abortamos.
+        abort(404, 'No se pudo identificar la empresa correspondiente.');
     }
 
     /**
@@ -484,15 +467,13 @@ class CitaPublicaController extends Controller
 
             // Datos para la plantilla
             // Plantilla estándar: confirmacion_cita_informativa
-            // params: {{1}} Nombre Cliente, {{2}} Folio Cita, {{3}} URL Seguimiento
+            // params: {{1}} Nombre Cliente (único parámetro requerido por esta plantilla en Meta)
             $whatsappService->sendTemplate(
                 $cita->cliente->telefono,
                 'confirmacion_cita_informativa',
                 'es_MX',
                 [
-                    $cita->cliente->nombre_completo ?? 'Cliente',
-                    $cita->folio,
-                    $cita->url_seguimiento ?? route('agendar.seguimiento', $cita->link_seguimiento)
+                    $cita->cliente->nombre_razon_social ?? 'Cliente',
                 ]
             );
 

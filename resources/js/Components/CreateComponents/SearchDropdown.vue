@@ -3,7 +3,7 @@
     <div
       v-if="show && hasItems"
       ref="panelEl"
-      class="z-[100] mt-1 bg-[var(--ui-surface)] text-[var(--ui-text)] border border-[var(--ui-border)] rounded-2xl shadow-lg overflow-y-auto"
+      class="z-[100] mt-1 bg-[var(--ui-surface)] text-[var(--ui-text)] border border-[var(--ui-border)] rounded-2xl shadow-lg overflow-y-auto custom-scrollbar"
       :style="{
         position: 'absolute',
         width: width + 'px',

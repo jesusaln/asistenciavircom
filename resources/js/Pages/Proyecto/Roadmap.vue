@@ -6,7 +6,7 @@
                     <Link :href="route('proyectos.index')" class="text-indigo-500 hover:text-indigo-700 mr-4 text-sm font-bold">
                         <font-awesome-icon icon="arrow-left" class="mr-1" /> Volver
                     </Link>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center border-l-2 pl-4 border-gray-300">
+                    <h2 class="font-semibold text-xl text-slate-800 leading-tight flex items-center border-l-2 pl-4 border-slate-300">
                         <span class="w-4 h-4 rounded-full mr-3 block" :style="{ backgroundColor: proyecto.color }"></span>
                         {{ proyecto.nombre }}
                     </h2>
@@ -15,7 +15,7 @@
                     <button 
                          v-if="isOwner"
                          @click="showingShareModal = true"
-                         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                         class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-xs text-slate-700 uppercase tracking-wide shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                     >
                         <font-awesome-icon icon="users" class="mr-2 text-indigo-500" />
                         Compartir
@@ -24,22 +24,23 @@
                     <button 
                          v-if="isOwner"
                          @click="confirmDeleteProject"
-                         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-red-600 uppercase tracking-widest shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                         class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-xs text-rose-600 uppercase tracking-wide shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                          title="Eliminar Proyecto"
                     >
                         <font-awesome-icon icon="trash-can" />
                     </button>
 
                     <button 
+                        v-if="canEdit"
                         @click="openCreateModal"
-                        class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-700 focus:bg-amber-700 active:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+                        class="inline-flex items-center px-4 py-2 bg-brand-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-brand-700 focus:bg-brand-700 active:bg-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
                     >
                         <font-awesome-icon icon="plus" class="mr-2" />
                         Nueva Tarea
                     </button>
                     <button 
                         @click="generatePDF"
-                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+                        class="inline-flex items-center px-4 py-2 bg-rose-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
                         title="Generar PDF"
                     >
                         <font-awesome-icon icon="file-pdf" class="mr-2" />
@@ -48,13 +49,13 @@
                 </div>
             </div>
             <!-- Lista de Miembros -->
-            <div class="mt-2 flex items-center text-xs text-gray-500 ml-20">
+            <div class="mt-2 flex items-center text-xs text-slate-500 ml-20">
                 <span class="mr-2 font-bold">Miembros:</span>
                 <div class="flex -space-x-2 overflow-hidden">
-                    <div class="relative inline-block h-6 w-6 rounded-full ring-2 ring-white bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-800" title="Dueño">
-                       OP
+                    <div class="relative inline-block h-6 w-6 rounded-full ring-2 ring-slate-200 bg-sky-100 flex items-center justify-center text-[10px] font-bold text-indigo-800" :title="`Dueño: ${proyecto.owner?.name || 'Desconocido'}`">
+                       {{ proyecto.owner ? proyecto.owner.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'OP' }}
                     </div>
-                     <div v-for="member in members" :key="member.id" class="relative inline-block h-6 w-6 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-[10px]" :title="member.name">
+                     <div v-for="member in members" :key="member.id" class="relative inline-block h-6 w-6 rounded-full ring-2 ring-slate-200 bg-slate-100 flex items-center justify-center text-[10px]" :title="member.name">
                         {{ member.name.charAt(0) }}
                     </div>
                 </div>
@@ -66,12 +67,12 @@
             <div class="flex space-x-4 overflow-x-auto pb-4 custom-scrollbar px-4">
                 <!-- Columns -->
                 <div v-for="(tasks, status) in localColumnas" :key="status" class="flex-shrink-0 w-80">
-                    <div class="bg-gray-100 rounded-lg p-3 shadow-inner h-full min-h-[500px]">
+                    <div class="bg-slate-100 rounded-xl p-3 shadow-inner h-full min-h-[500px]">
                         <div class="flex items-center justify-between mb-4 px-2">
-                            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center">
+                            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center">
                                 <span :class="getStatusColor(status)" class="w-2 h-2 rounded-full mr-2"></span>
                                 {{ getStatusLabel(status) }}
-                                <span class="ml-2 bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">{{ tasks ? tasks.length : 0 }}</span>
+                                <span class="ml-2 bg-slate-200 text-slate-500 text-xs px-2 py-0.5 rounded-full">{{ tasks ? tasks.length : 0 }}</span>
                             </h3>
                         </div>
 
@@ -82,35 +83,37 @@
                             :group="{ name: 'tareas', pull: true, put: true }"
                             item-key="id"
                             :animation="300"
+                            :disabled="!canEdit"
                             ghost-class="kanban-ghost"
                             drag-class="kanban-drag"
                             chosen-class="kanban-chosen"
-                            class="space-y-3 min-h-[500px] transition-all duration-300"
+                            class="space-y-3 min-h-[500px] transition-all duration-200"
                             @change="onDragChange($event, status)"
                         >
                             <template #item="{ element: tarea }">
                                 <div 
-                                    class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group relative"
-                                    @click="editTarea(tarea)"
+                                    class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 hover:shadow-xl transition-all duration-200 group relative"
+                                    :class="canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'"
+                                    @click="canEdit && editTarea(tarea)"
                                 >
                                     <div class="flex justify-between items-start mb-2">
-                                        <span :class="getPriorityBadge(tarea.prioridad)" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">
+                                        <span :class="getPriorityBadge(tarea.prioridad)" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
                                             {{ tarea.prioridad }}
                                         </span>
-                                        <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button @click.stop="confirmDelete(tarea)" class="text-gray-400 hover:text-red-500 p-1">
+                                        <div v-if="canEdit" class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button @click.stop="confirmDelete(tarea)" class="text-slate-400 hover:text-rose-500 p-1">
                                                 <font-awesome-icon icon="trash-can" />
                                             </button>
                                         </div>
                                     </div>
-                                    <h4 class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-amber-600 transition-colors">
+                                    <h4 class="text-sm font-semibold text-slate-900 mb-1 transition-colors" :class="{ 'group-hover:text-brand-600': canEdit }">
                                         {{ tarea.titulo }}
                                     </h4>
-                                    <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                                    <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                                         {{ tarea.descripcion || 'Sin descripción' }}
                                     </p>
                                     
-                                    <div class="mt-3 flex items-center justify-between text-[10px] text-gray-400">
+                                    <div class="mt-3 flex items-center justify-between text-[10px] text-slate-400">
                                         <div class="flex items-center">
                                             <font-awesome-icon icon="clock" class="mr-1" />
                                             {{ formatDate(tarea.created_at) }}
@@ -125,41 +128,41 @@
 
             <!-- Cost Summary Panel -->
             <div class="mt-6 px-4">
-                <div class="bg-white rounded-lg shadow border border-gray-200">
-                    <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <font-awesome-icon icon="receipt" class="text-amber-500 mr-2" />
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200">
+                    <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+                            <font-awesome-icon icon="receipt" class="text-brand-500 mr-2" />
                             Resumen de Costos
                         </h3>
                         <div class="flex items-center space-x-4">
-                            <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalGastos) }}</span>
-                            <button @click="showingGastoModal = true" class="bg-amber-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-amber-700">
+                            <span class="text-2xl font-bold text-slate-900">{{ formatCurrency(totalGastos) }}</span>
+                            <button v-if="canEdit" @click="showingGastoModal = true" class="bg-brand-600 text-white px-3 py-1.5 rounded-xl text-sm hover:bg-amber-700">
                                 <font-awesome-icon icon="plus" class="mr-1" /> Agregar
                             </button>
                         </div>
                     </div>
                     <div v-if="gastos && gastos.length > 0" class="max-h-64 overflow-y-auto overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                             <thead>
                                 <tr class="bg-white">
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase w-20">Fecha</th>
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">Categoría</th>
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                    <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Proveedor</th>
-                                    <th class="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Monto</th>
-                                    <th class="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase w-20">Acciones</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase w-20">Fecha</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase w-32">Categoría</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Descripción</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Proveedor</th>
+                                    <th class="px-2 py-2 text-right text-xs font-medium text-slate-500 uppercase w-28">Monto</th>
+                                    <th v-if="canEdit" class="px-2 py-2 text-center text-xs font-medium text-slate-500 uppercase w-20">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                                 <tr v-for="gasto in gastos" :key="gasto.id" class="hover:bg-white">
-                                    <td class="px-2 py-2 text-xs text-gray-500">{{ formatDateShort(gasto.fecha_compra) }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-900">{{ gasto.categoria_gasto?.nombre || '-' }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-500 max-w-xs truncate" :title="gasto.notas">{{ gasto.notas || '-' }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-500">{{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}</td>
-                                    <td class="px-2 py-2 text-xs text-gray-900 text-right font-medium">{{ formatCurrency(gasto.total) }}</td>
-                                    <td class="px-2 py-2 text-center">
+                                    <td class="px-2 py-2 text-xs text-slate-500">{{ formatDateShort(gasto.fecha_compra) }}</td>
+                                    <td class="px-2 py-2 text-xs text-slate-900">{{ gasto.categoria_gasto?.nombre || '-' }}</td>
+                                    <td class="px-2 py-2 text-xs text-slate-500 max-w-xs truncate" :title="gasto.notas">{{ gasto.notas || '-' }}</td>
+                                    <td class="px-2 py-2 text-xs text-slate-500">{{ gasto.proveedor?.nombre_razon_social || 'Sin proveedor' }}</td>
+                                    <td class="px-2 py-2 text-xs text-slate-900 text-right font-medium">{{ formatCurrency(gasto.total) }}</td>
+                                    <td v-if="canEdit" class="px-2 py-2 text-center">
                                         <div class="flex justify-center space-x-1">
-                                            <button @click="removeGasto(gasto.id)" class="text-red-500 hover:text-red-700" title="Eliminar">
+                                            <button @click="removeGasto(gasto.id)" class="text-rose-500 hover:text-rose-800 dark:text-rose-200 dark:text-rose-200" title="Eliminar">
                                                 <font-awesome-icon icon="trash-can" class="w-3 h-3" />
                                             </button>
                                         </div>
@@ -168,10 +171,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <div v-else class="px-4 py-8 text-center text-gray-500">
-                        <font-awesome-icon icon="folder-open" class="text-gray-300 text-3xl mb-2" />
+                    <div v-else class="px-4 py-8 text-center text-slate-500">
+                        <font-awesome-icon icon="folder-open" class="text-slate-300 text-3xl mb-2" />
                         <p class="text-sm">No hay gastos asociados a este proyecto</p>
-                        <button @click="showingGastoModal = true" class="mt-2 text-amber-600 hover:text-amber-800 font-medium text-sm">
+                        <button v-if="canEdit" @click="showingGastoModal = true" class="mt-2 text-brand-600 hover:text-brand-800 dark:text-brand-200 font-medium text-sm">
                             Agregar gasto
                         </button>
                     </div>
@@ -180,41 +183,41 @@
 
             <!-- Products Panel -->
             <div class="mt-6 px-4">
-                <div class="bg-white rounded-lg shadow border border-gray-200">
-                    <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200">
+                    <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-slate-900 flex items-center">
                             <font-awesome-icon icon="boxes-stacked" class="text-indigo-500 mr-2" />
                             Productos del Proyecto
                         </h3>
                         <div class="flex items-center space-x-4">
-                            <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalProductos) }}</span>
-                            <button @click="showingProductModal = true" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-indigo-700">
+                            <span class="text-2xl font-bold text-slate-900">{{ formatCurrency(totalProductos) }}</span>
+                            <button v-if="canEdit" @click="showingProductModal = true" class="bg-indigo-600 text-white px-3 py-1.5 rounded-xl text-sm hover:bg-indigo-700">
                                 <font-awesome-icon icon="plus" class="mr-1" /> Agregar
                             </button>
                         </div>
                     </div>
                     <div v-if="productosProyecto && productosProyecto.length > 0" class="max-h-64 overflow-y-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-white sticky top-0">
+                        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50">
                                 <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Precio Unit.</th>
-                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase">Cantidad</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Precio Unit.</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Subtotal</th>
+                                    <th v-if="canEdit" class="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                                 <tr v-for="prod in productosProyecto" :key="prod.id" class="hover:bg-white">
-                                    <td class="px-4 py-2 text-sm text-gray-900">
+                                    <td class="px-4 py-2 text-sm text-slate-900">
                                         <div class="font-medium">{{ prod.nombre }}</div>
-                                        <div class="text-xs text-gray-500">{{ prod.codigo }}</div>
+                                        <div class="text-xs text-slate-500">{{ prod.codigo }}</div>
                                     </td>
-                                    <td class="px-4 py-2 text-sm text-gray-900 text-center">{{ prod.pivot.cantidad }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-900 text-right">{{ formatCurrency(prod.pivot.precio_unitario) }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-900 text-right font-medium">{{ formatCurrency(prod.pivot.cantidad * prod.pivot.precio_unitario) }}</td>
-                                    <td class="px-4 py-2 text-center">
-                                        <button @click="removeProducto(prod.id)" class="text-red-500 hover:text-red-700" title="Eliminar">
+                                    <td class="px-4 py-2 text-sm text-slate-900 text-center">{{ prod.pivot.cantidad }}</td>
+                                    <td class="px-4 py-2 text-sm text-slate-900 text-right">{{ formatCurrency(prod.pivot.precio_unitario) }}</td>
+                                    <td class="px-4 py-2 text-sm text-slate-900 text-right font-medium">{{ formatCurrency(prod.pivot.cantidad * prod.pivot.precio_unitario) }}</td>
+                                    <td v-if="canEdit" class="px-4 py-2 text-center">
+                                        <button @click="removeProducto(prod.id)" class="text-rose-500 hover:text-rose-800 dark:text-rose-200 dark:text-rose-200" title="Eliminar">
                                             <font-awesome-icon icon="trash-can" />
                                         </button>
                                     </td>
@@ -222,10 +225,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <div v-else class="px-4 py-8 text-center text-gray-500">
-                        <font-awesome-icon icon="boxes-stacked" class="text-gray-300 text-3xl mb-2" />
+                    <div v-else class="px-4 py-8 text-center text-slate-500">
+                        <font-awesome-icon icon="boxes-stacked" class="text-slate-300 text-3xl mb-2" />
                         <p class="text-sm">No hay productos asignados a este proyecto</p>
-                        <button @click="showingProductModal = true" class="mt-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                        <button v-if="canEdit" @click="showingProductModal = true" class="mt-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm">
                             Agregar productos
                         </button>
                     </div>
@@ -239,19 +242,19 @@
              <template #content>
                  <div class="space-y-6">
                      <div>
-                         <h4 class="text-sm font-medium text-gray-900">Agregar Colaborador</h4>
+                         <h4 class="text-sm font-medium text-slate-900">Agregar Colaborador</h4>
                          <div class="flex mt-2 space-x-2">
-                             <select v-model="shareForm.user_id" class="flex-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                             <select v-model="shareForm.user_id" class="flex-1 border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm">
                                  <option value="">Seleccionar usuario...</option>
                                  <option v-for="usuario in availableUsers" :key="usuario.id" :value="usuario.id">
                                      {{ usuario.name }} ({{ usuario.email }})
                                  </option>
                              </select>
-                             <select v-model="shareForm.role" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm sm:text-sm">
+                             <select v-model="shareForm.role" class="border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm sm:text-sm">
                                  <option value="editor">Editor</option>
                                  <option value="viewer">Lector</option>
                              </select>
-                             <button @click="shareProject" class="bg-indigo-600 text-white px-3 py-2 rounded-md hover:bg-indigo-700" :disabled="shareForm.processing || !shareForm.user_id">
+                             <button @click="shareProject" class="bg-indigo-600 text-white px-3 py-2 rounded-xl hover:bg-indigo-700" :disabled="shareForm.processing || !shareForm.user_id">
                                  <font-awesome-icon icon="plus" />
                              </button>
                          </div>
@@ -259,23 +262,23 @@
                      </div>
 
                      <div v-if="members.length > 0">
-                         <h4 class="text-sm font-medium text-gray-900 mb-2">Miembros Actuales</h4>
-                         <ul class="divide-y divide-gray-200 border rounded-md">
+                         <h4 class="text-sm font-medium text-slate-900 mb-2">Miembros Actuales</h4>
+                         <ul class="divide-y divide-slate-200 border rounded-xl">
                              <li v-for="member in members" :key="member.id" class="px-4 py-3 flex justify-between items-center text-sm">
                                  <div class="flex items-center">
-                                      <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold mr-3">
+                                      <div class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold mr-3">
                                           {{ member.name.charAt(0) }}
                                       </div>
                                       <div>
-                                          <div class="font-medium text-gray-900">{{ member.name }}</div>
-                                          <div class="text-gray-500 text-xs">{{ member.email }}</div>
+                                          <div class="font-medium text-slate-900">{{ member.name }}</div>
+                                          <div class="text-slate-500 text-xs">{{ member.email }}</div>
                                       </div>
                                  </div>
                                  <div class="flex items-center space-x-3">
-                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                     <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-sky-100 text-sky-800 dark:text-sky-200">
                                          {{ member.pivot.role === 'editor' ? 'Editor' : 'Lector' }}
                                      </span>
-                                     <button @click="removeMember(member)" class="text-red-500 hover:text-red-700">
+                                     <button @click="removeMember(member)" class="text-rose-500 hover:text-rose-800 dark:text-rose-200 dark:text-rose-200">
                                          <font-awesome-icon icon="trash-can" />
                                      </button>
                                  </div>
@@ -294,8 +297,8 @@
         <component is="style">
         .kanban-ghost {
             opacity: 0.5;
-            background: #fef3c7; /* amber-100 */
-            border: 2px dashed #d97706; /* amber-600 */
+            background: #fef3c7; /* brand-100 */
+            border: 2px dashed #d97706; /* brand-600 */
         }
         .kanban-drag {
             opacity: 1;
@@ -303,7 +306,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         .kanban-chosen {
-            background: #fffbeb; /* amber-50 */
+            background: #fffbeb; /* brand-50 */
         }
         /* Animación suave para movimientos de lista */
         .list-move,
@@ -340,7 +343,7 @@
                         <textarea 
                             id="descripcion" 
                             v-model="form.descripcion" 
-                            class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm text-sm" 
+                            class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm text-sm" 
                             rows="3"
                             placeholder="Detalles sobre lo que se necesita hacer..."
                         ></textarea>
@@ -350,7 +353,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <InputLabel for="estado" value="Estado" />
-                            <select id="estado" v-model="form.estado" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm text-sm">
+                            <select id="estado" v-model="form.estado" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm text-sm">
                                 <option value="sugerencias">Sugerencias</option>
                                 <option value="pendiente">Pendiente</option>
                                 <option value="en_progreso">En Progreso</option>
@@ -360,7 +363,7 @@
                         </div>
                         <div>
                             <InputLabel for="prioridad" value="Prioridad" />
-                            <select id="prioridad" v-model="form.prioridad" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm text-sm">
+                            <select id="prioridad" v-model="form.prioridad" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm text-sm">
                                 <option value="baja">Baja</option>
                                 <option value="media">Media</option>
                                 <option value="alta">Alta</option>
@@ -377,7 +380,7 @@
                 <button 
                     @click="saveTarea" 
                     :disabled="form.processing"
-                    class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-700 active:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm disabled:opacity-50"
+                    class="inline-flex items-center px-4 py-2 bg-brand-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-brand-700 active:bg-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm disabled:opacity-50"
                 >
                     {{ form.id ? 'Actualizar' : 'Guardar' }}
                 </button>
@@ -391,8 +394,8 @@
                 <div class="space-y-3">
                     <p>¿Estás seguro de que deseas eliminar este proyecto "{{ proyecto.nombre }}"? Se eliminarán también todas sus tareas asociadas. Esta acción es irreversible.</p>
                     
-                    <div v-if="deleteProjectForm.errors.error" class="p-3 bg-red-50 border border-red-200 rounded-md">
-                        <p class="text-sm text-red-600 font-medium">
+                    <div v-if="deleteProjectForm.errors.error" class="p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/30 rounded-xl">
+                        <p class="text-sm text-rose-600 font-medium">
                             <font-awesome-icon icon="circle-exclamation" class="mr-2" />
                             {{ deleteProjectForm.errors.error }}
                         </p>
@@ -421,7 +424,7 @@
         <DialogModal :show="showingProductModal" @close="showingProductModal = false">
             <template #title>Agregar Producto al Proyecto</template>
             <template #content>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
                         <InputLabel value="Buscar Producto" />
                         <TextInput 
@@ -432,7 +435,7 @@
                             @input="onProductoSearch"
                         />
                         <!-- Selected product display -->
-                        <div v-if="productoSeleccionado" class="mt-2 p-3 bg-indigo-50 border border-indigo-200 rounded-md flex justify-between items-center">
+                        <div v-if="productoSeleccionado" class="mt-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex justify-between items-center">
                             <div>
                                 <div class="font-medium text-indigo-900">{{ productoSeleccionado.nombre }}</div>
                                 <div class="text-sm text-indigo-600">{{ productoSeleccionado.codigo }} - {{ formatCurrency(productoSeleccionado.precio_venta) }}</div>
@@ -442,19 +445,19 @@
                             </button>
                         </div>
                         <!-- Search results -->
-                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length > 0" class="mt-1 border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-lg">
+                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length > 0" class="mt-1 border border-slate-300 rounded-xl max-h-48 overflow-y-auto bg-white shadow-xl">
                             <button 
                                 v-for="prod in productosFiltrados" 
                                 :key="prod.id" 
                                 @click="selectProducto(prod)"
                                 type="button"
-                                class="w-full px-4 py-2 text-left hover:bg-indigo-50 border-b border-gray-100 last:border-b-0"
+                                class="w-full px-4 py-2 text-left hover:bg-indigo-50 border-b border-slate-100 last:border-b-0"
                             >
-                                <div class="font-medium text-gray-900">{{ prod.nombre }}</div>
-                                <div class="text-sm text-gray-500">{{ prod.codigo }} - {{ formatCurrency(prod.precio_venta) }}</div>
+                                <div class="font-medium text-slate-900">{{ prod.nombre }}</div>
+                                <div class="text-sm text-slate-500">{{ prod.codigo }} - {{ formatCurrency(prod.precio_venta) }}</div>
                             </button>
                         </div>
-                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length === 0" class="mt-1 p-3 text-center text-gray-500 text-sm">
+                        <div v-else-if="productoBusqueda.length >= 2 && productosFiltrados.length === 0" class="mt-1 p-3 text-center text-slate-500 text-sm">
                             No se encontraron productos
                         </div>
                         <InputError :message="productoForm.errors.producto_id" class="mt-1" />
@@ -472,13 +475,13 @@
                     </div>
                     <div>
                         <InputLabel value="Notas (opcional)" />
-                        <textarea v-model="productoForm.notas" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="2"></textarea>
+                        <textarea v-model="productoForm.notas" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm" rows="2"></textarea>
                     </div>
                 </div>
             </template>
             <template #footer>
                 <SecondaryButton @click="showingProductModal = false" class="mr-2">Cancelar</SecondaryButton>
-                <button @click="addProducto" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 disabled:opacity-50" :disabled="productoForm.processing || !productoForm.producto_id">
+                <button @click="addProducto" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-indigo-700 disabled:opacity-50" :disabled="productoForm.processing || !productoForm.producto_id">
                     Agregar
                 </button>
             </template>
@@ -488,16 +491,16 @@
         <DialogModal :show="showingGastoModal" @close="showingGastoModal = false">
             <template #title>Agregar Gasto al Proyecto</template>
             <template #content>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
                         <div class="flex items-center justify-between">
                             <InputLabel value="Categoría" />
-                            <button @click="openCategoriaModal" class="text-xs text-amber-600 hover:text-amber-800 font-semibold flex items-center">
+                            <button @click="openCategoriaModal" class="text-xs text-brand-600 hover:text-brand-800 dark:text-brand-200 font-semibold flex items-center">
                                 <font-awesome-icon icon="plus" class="mr-1" />
                                 Nueva
                             </button>
                         </div>
-                        <select v-model="gastoForm.categoria_gasto_id" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm">
+                        <select v-model="gastoForm.categoria_gasto_id" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm">
                             <option value="">Seleccionar categoría...</option>
                             <option v-for="cat in categoriasGasto" :key="cat.id" :value="cat.id">
                                 {{ cat.nombre }}
@@ -519,13 +522,13 @@
                     </div>
                     <div>
                         <InputLabel value="Descripción (opcional)" />
-                        <textarea v-model="gastoForm.descripcion" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" rows="2" placeholder="Descripción del gasto..."></textarea>
+                        <textarea v-model="gastoForm.descripcion" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm" rows="2" placeholder="Descripción del gasto..."></textarea>
                     </div>
                 </div>
             </template>
             <template #footer>
                 <SecondaryButton @click="showingGastoModal = false" class="mr-2">Cancelar</SecondaryButton>
-                <button @click="addGasto" class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-700 disabled:opacity-50" :disabled="gastoForm.processing || !gastoForm.total">
+                <button @click="addGasto" class="inline-flex items-center px-4 py-2 bg-brand-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-brand-700 disabled:opacity-50" :disabled="gastoForm.processing || !gastoForm.total">
                     Agregar
                 </button>
             </template>
@@ -535,7 +538,7 @@
         <DialogModal :show="showingCategoriaModal" @close="showingCategoriaModal = false">
             <template #title>Nueva Categoría de Gasto</template>
             <template #content>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
                         <InputLabel value="Nombre *" />
                         <TextInput v-model="categoriaForm.nombre" type="text" class="mt-1 block w-full" placeholder="Ej: Viáticos, Materiales..." />
@@ -543,14 +546,14 @@
                     </div>
                     <div>
                         <InputLabel value="Descripción (opcional)" />
-                        <textarea v-model="categoriaForm.descripcion" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="2" placeholder="Descripción de la categoría..."></textarea>
+                        <textarea v-model="categoriaForm.descripcion" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm" rows="2" placeholder="Descripción de la categoría..."></textarea>
                         <InputError :message="categoriaForm.errors.descripcion" class="mt-1" />
                     </div>
                 </div>
             </template>
             <template #footer>
                 <SecondaryButton @click="showingCategoriaModal = false" class="mr-2">Cancelar</SecondaryButton>
-                <button @click="addCategoria" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 disabled:opacity-50" :disabled="categoriaForm.processing || !categoriaForm.nombre">
+                <button @click="addCategoria" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-indigo-700 disabled:opacity-50" :disabled="categoriaForm.processing || !categoriaForm.nombre">
                     Guardar
                 </button>
             </template>
@@ -559,6 +562,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref, watch, onMounted, computed } from 'vue';
 import { useForm, router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -573,7 +577,6 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faPlus, faTasks, faClock, faChevronLeft, faChevronRight, faTrashCan, faFolderOpen, faArrowLeft, faUsers, faReceipt, faBoxesStacked, faTimes, faFilePdf, faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import draggable from 'vuedraggable';
-import { jsPDF } from 'jspdf';
 
 library.add(faPlus, faTasks, faClock, faChevronLeft, faChevronRight, faTrashCan, faFolderOpen, faArrowLeft, faUsers, faReceipt, faBoxesStacked, faTimes, faFilePdf, faCircleExclamation);
 
@@ -582,6 +585,7 @@ const props = defineProps({
     proyecto: Object,
     members: Array,
     isOwner: Boolean,
+    canEdit: Boolean,
     gastos: Array,
     totalGastos: Number,
     usuarios: Array,
@@ -838,22 +842,20 @@ const formatDate = (dateString) => {
     return new Intl.DateTimeFormat('es-MX', { day: '2-digit', month: 'short' }).format(date);
 };
 const getPriorityBadge = (prioridad) => {
-    const classes = { 'urgente': 'bg-red-100 text-red-700', 'alta': 'bg-orange-100 text-orange-700', 'media': 'bg-amber-100 text-amber-700', 'baja': 'bg-blue-100 text-blue-700' };
-    return classes[prioridad] || 'bg-gray-100 text-gray-700';
+    const classes = { 'urgente': 'bg-rose-100 text-rose-800 dark:text-rose-200 dark:text-rose-200', 'alta': 'bg-brand-100 text-amber-800', 'media': 'bg-brand-100 text-brand-800 dark:text-brand-200 dark:text-amber-200', 'baja': 'bg-sky-100 text-sky-800 dark:text-sky-200' };
+    return classes[prioridad] || 'bg-slate-100 text-slate-700';
 };
 const getStatusLabel = (status) => {
     const labels = { 'sugerencias': 'Sugerencias', 'pendiente': 'Por Hacer', 'en_progreso': 'En Progreso', 'completado': 'Completado' };
     return labels[status] || status;
 };
 const getStatusColor = (status) => {
-    const colors = { 'sugerencias': 'bg-purple-500', 'pendiente': 'bg-gray-400', 'en_progreso': 'bg-amber-500', 'completado': 'bg-emerald-500' };
-    return colors[status] || 'bg-gray-300';
+    const colors = { 'sugerencias': 'bg-purple-500', 'pendiente': 'bg-slate-400', 'en_progreso': 'bg-brand-500', 'completado': 'bg-brand-500' };
+    return colors[status] || 'bg-slate-300';
 };
 
 // Currency formatter
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value || 0);
-};
+const { formatCurrency } = useFormatters();
 
 const formatDateShort = (dateString) => {
     if (!dateString) return '-';
@@ -862,7 +864,8 @@ const formatDateShort = (dateString) => {
 };
 
 // PDF Report Generation
-const generatePDF = () => {
+const generatePDF = async () => {
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 20;
@@ -999,7 +1002,7 @@ const generatePDF = () => {
             }
             doc.text(formatDateShort(gasto.fecha_compra) || '-', leftMargin + 2, y);
             doc.text((gasto.categoria_gasto?.nombre || '-').substring(0, 18), leftMargin + 28, y);
-            doc.text((gasto.descripcion || '-').substring(0, 30), leftMargin + 65, y);
+            doc.text((gasto.notas || '-').substring(0, 30), leftMargin + 65, y);
             doc.text(formatCurrency(gasto.total || 0), pageWidth - 35, y);
             y += 6;
         });

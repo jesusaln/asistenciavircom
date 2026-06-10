@@ -6,8 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 class EnsureSystemInstalled
 {
@@ -20,45 +18,30 @@ class EnsureSystemInstalled
      */
     public function handle(Request $request, Closure $next)
     {
-        // Excluir rutas de debug, assets, api o sanctum para no interferir
-        if ($request->is('_debugbar/*') || $request->is('sanctum/*') || $request->is('api/*') || app()->environment('testing')) {
+        // Excluir rutas de debug, assets, api o sanctum para no interferir, o si estamos en local/testing
+        if ($request->is('_debugbar/*') || $request->is('sanctum/*') || $request->is('api/*') || app()->environment('testing') || app()->environment('local')) {
             return $next($request);
         }
 
-        // Verificar si existe algún super-admin o al menos una empresa configurada
+        // Verificar si existe algún usuario registrado en el sistema
         $isInstalled = false;
         try {
-            // Opción 1: Checar si hay super-admin (producción)
-            if (Schema::hasTable('roles')) {
-                $isInstalled = User::role('super-admin')->exists();
-            }
-            // Opción 2: En desarrollo, si hay al menos una empresa configurada, permitir acceso
-            if (!$isInstalled && Schema::hasTable('empresa_configuracion')) {
-                $isInstalled = DB::table('empresa_configuracion')->exists();
-            }
+            $isInstalled = \App\Models\User::withoutGlobalScope('empresa')->exists();
         } catch (\Exception $e) {
-            // Si hay error de DB, intentar fallback a empresa_configuracion
-            try {
-                if (Schema::hasTable('empresa_configuracion')) {
-                    $isInstalled = DB::table('empresa_configuracion')->exists();
-                }
-            } catch (\Exception $e2) {
-                $isInstalled = false;
-            }
+            $isInstalled = false;
         }
 
-        // Si NO está instalado
+        // Si NO hay usuarios registrados
         if (!$isInstalled) {
-            // Si ya estamos en una ruta de setup, permitir
-            if ($request->routeIs('setup.*')) {
+            // Si ya estamos en la ruta de registro o api, permitir el paso
+            if ($request->is('register') || $request->is('api/*') || $request->is('sanctum/*')) {
                 return $next($request);
             }
-            // Verificar si la ruta setup.index existe antes de redirigir
-            if (Route::has('setup.index')) {
-                return redirect()->route('setup.index');
+
+            // Redirigir a la pantalla de registro
+            if (Route::has('register')) {
+                return redirect()->route('register');
             }
-            // Fallback: si no hay ruta de setup, permitir paso (dev mode)
-            return $next($request);
         }
 
         // Si SÍ está instalado

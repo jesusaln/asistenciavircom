@@ -10,13 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('cotizaciones', function (Blueprint $table) {
-            $table->uuid('sharing_token')->nullable()->unique()->after('id');
-        });
+        if (!Schema::hasColumn('cotizaciones', 'sharing_token')) {
+            Schema::table('cotizaciones', function (Blueprint $table) {
+                $table->uuid('sharing_token')->nullable()->unique()->after('id');
+            });
+        }
 
-        Schema::table('pedidos', function (Blueprint $table) {
-            $table->uuid('sharing_token')->nullable()->unique()->after('id');
-        });
+        if (!Schema::hasColumn('pedidos', 'sharing_token')) {
+            Schema::table('pedidos', function (Blueprint $table) {
+                $table->uuid('sharing_token')->nullable()->unique()->after('id');
+            });
+        }
     }
 
     /**

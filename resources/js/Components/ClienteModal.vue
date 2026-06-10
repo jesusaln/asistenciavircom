@@ -21,7 +21,7 @@
                 </h2>
                 <div class="flex items-center gap-2 mt-1">
                    <span class="w-1.5 h-1.5 rounded-full" :class="cliente.activo !== false ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500'"></span>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
                      {{ cliente.activo !== false ? 'Cliente Activo' : 'Cliente Inactivo' }}
                    </p>
                 </div>
@@ -42,10 +42,10 @@
               <!-- Tarjeta 1: Información General -->
               <div class="bg-slate-900/50 rounded-3xl border border-slate-800 overflow-hidden shadow-sm hover:border-indigo-500/30 transition-colors duration-300">
                 <div class="px-6 py-4 border-b border-slate-800 bg-slate-900 flex items-center gap-3">
-                  <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                  <div class="p-2 bg-indigo-500/10 rounded-xl text-indigo-400">
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   </div>
-                  <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest">Identidad Corporativa</h3>
+                  <h3 class="text-xs font-black text-slate-300 uppercase tracking-wide">Identidad Corporativa</h3>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                   <ClientField label="Razón Social" :value="cliente.nombre_razon_social" />
@@ -57,10 +57,10 @@
                 <!-- Tarjeta 2: Contacto -->
                 <div class="bg-slate-900/50 rounded-3xl border border-slate-800 overflow-hidden shadow-sm hover:border-emerald-500/30 transition-colors duration-300 h-full">
                   <div class="px-6 py-4 border-b border-slate-800 bg-slate-900 flex items-center gap-3">
-                    <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                    <div class="p-2 bg-emerald-500/10 rounded-xl text-emerald-400">
                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     </div>
-                    <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest">Medios de Contacto</h3>
+                    <h3 class="text-xs font-black text-slate-300 uppercase tracking-wide">Medios de Contacto</h3>
                   </div>
                   <div class="p-6 space-y-6">
                     <ClientField label="Correo Electrónico" :value="cliente.email" type="email" />
@@ -71,10 +71,10 @@
                 <!-- Tarjeta 3: Fiscal -->
                 <div class="bg-slate-900/50 rounded-3xl border border-slate-800 overflow-hidden shadow-sm hover:border-purple-500/30 transition-colors duration-300 h-full">
                   <div class="px-6 py-4 border-b border-slate-800 bg-slate-900 flex items-center gap-3">
-                    <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                    <div class="p-2 bg-purple-500/10 rounded-xl text-purple-400">
                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
-                    <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest">Datos Fiscales (SAT)</h3>
+                    <h3 class="text-xs font-black text-slate-300 uppercase tracking-wide">Datos Fiscales (SAT)</h3>
                   </div>
                   <div class="p-6 space-y-6">
                     <ClientField label="Régimen Fiscal" :value="cliente.regimen_fiscal" />
@@ -84,12 +84,12 @@
               </div>
 
               <!-- Tarjeta 4: Dirección -->
-              <div class="bg-slate-900/50 rounded-3xl border border-slate-800 overflow-hidden shadow-sm hover:border-amber-500/30 transition-colors duration-300">
+              <div class="bg-slate-900/50 rounded-3xl border border-slate-800 overflow-hidden shadow-sm hover:border-brand-500/30 transition-colors duration-300">
                 <div class="px-6 py-4 border-b border-slate-800 bg-slate-900 flex items-center gap-3">
-                  <div class="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+                  <div class="p-2 bg-brand-500/10 rounded-xl text-amber-400">
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                   </div>
-                  <h3 class="text-xs font-black text-slate-300 uppercase tracking-widest">Ubicación Física</h3>
+                  <h3 class="text-xs font-black text-slate-300 uppercase tracking-wide">Ubicación Física</h3>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <ClientField label="Dirección Completa" :value="formatAddress" class="md:col-span-2 lg:col-span-3" :is-address="true" />
@@ -117,7 +117,7 @@
 
           <!-- Footer del modal -->
           <div class="px-8 py-5 bg-slate-900 border-t border-slate-800 flex justify-end">
-            <button @click="closeModal" class="px-8 py-3 bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-700 hover:shadow-lg transition-all border border-slate-700">
+            <button @click="closeModal" class="px-8 py-3 bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-700 hover:shadow-lg transition-all border border-slate-700">
               Cerrar Detalle
             </button>
           </div>

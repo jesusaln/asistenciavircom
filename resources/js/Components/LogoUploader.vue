@@ -2,17 +2,17 @@
 <template>
   <div class="logo-uploader">
     <div class="mb-4">
-      <h3 class="text-lg font-medium text-gray-900 mb-2">{{ titulo }}</h3>
-      <p class="text-sm text-gray-600 mb-4">{{ descripcion }}</p>
+      <h3 class="text-lg font-medium text-slate-900 mb-2">{{ titulo }}</h3>
+      <p class="text-sm text-slate-600 mb-4">{{ descripcion }}</p>
     </div>
 
     <!-- Logo actual -->
     <div v-if="logoActual" class="mb-6">
       <div class="flex items-center gap-4">
-        <img :src="logoActual" :alt="altText" class="w-24 h-24 object-contain border border-gray-200 rounded-lg p-2" />
+        <img :src="logoActual" :alt="altText" class="w-24 h-24 object-contain border border-slate-200 rounded-xl p-2" />
         <div>
-          <p class="text-sm font-medium text-gray-700">Logo actual</p>
-          <button @click="eliminarLogo" class="mt-1 px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700">
+          <p class="text-sm font-medium text-slate-700">Logo actual</p>
+          <button @click="eliminarLogo" class="mt-1 px-3 py-1 bg-rose-600 text-white text-sm rounded-xl hover:bg-rose-700">
             Eliminar
           </button>
         </div>
@@ -21,8 +21,8 @@
 
     <!-- Área de subida -->
     <div
-      class="border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200"
-      :class="dragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'"
+      class="border-2 border-dashed rounded-xl p-6 text-center transition-colors duration-200"
+      :class="dragOver ? 'border-blue-400 bg-blue-50' : 'border-slate-300'"
       @dragover.prevent="dragOver = true"
       @dragleave.prevent="dragOver = false"
       @drop.prevent="handleDrop"
@@ -36,30 +36,30 @@
       />
 
       <div v-if="!archivoSeleccionado">
-        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+        <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
           <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <div class="mt-4">
-          <button @click="$refs.fileInput.click()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button @click="$refs.fileInput.click()" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
             Seleccionar Archivo
           </button>
-          <p class="mt-2 text-xs text-gray-500">{{ textoAyuda }}</p>
+          <p class="mt-2 text-xs text-slate-500">{{ textoAyuda }}</p>
         </div>
       </div>
 
       <!-- Archivo seleccionado -->
       <div v-else class="text-center">
-        <svg class="mx-auto h-12 w-12 text-green-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+        <svg class="mx-auto h-12 w-12 text-emerald-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
           <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <p class="mt-2 text-sm font-medium text-gray-900">{{ archivoSeleccionado.name }}</p>
-        <p class="text-xs text-gray-500">{{ formatearTamanio(archivoSeleccionado.size) }}</p>
+        <p class="mt-2 text-sm font-medium text-slate-900">{{ archivoSeleccionado.name }}</p>
+        <p class="text-xs text-slate-500">{{ formatearTamanio(archivoSeleccionado.size) }}</p>
 
         <div class="mt-4 flex justify-center gap-2">
-          <button @click="subirArchivo" :disabled="subiendo" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
+          <button @click="subirArchivo" :disabled="subiendo" class="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:opacity-50">
             {{ subiendo ? 'Subiendo...' : 'Subir Archivo' }}
           </button>
-          <button @click="cancelarSeleccion" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+          <button @click="cancelarSeleccion" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-xl hover:bg-slate-400">
             Cancelar
           </button>
         </div>
@@ -68,26 +68,26 @@
 
     <!-- Progreso de subida -->
     <div v-if="progreso > 0 && progreso < 100" class="mt-4">
-      <div class="w-full bg-gray-200 rounded-full h-2">
+      <div class="w-full bg-slate-200 rounded-full h-2">
         <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" :style="{ width: progreso + '%' }"></div>
       </div>
-      <p class="text-xs text-gray-600 mt-1">{{ progreso }}% completado</p>
+      <p class="text-xs text-slate-600 mt-1">{{ progreso }}% completado</p>
     </div>
 
     <!-- Vista previa -->
     <div v-if="vistaPrevia" class="mt-4">
-      <p class="text-sm font-medium text-gray-700 mb-2">Vista previa:</p>
-      <img :src="vistaPrevia" :alt="altText + ' preview'" class="w-24 h-24 object-contain border border-gray-200 rounded-lg p-2" />
+      <p class="text-sm font-medium text-slate-700 mb-2">Vista previa:</p>
+      <img :src="vistaPrevia" :alt="altText + ' preview'" class="w-24 h-24 object-contain border border-slate-200 rounded-xl p-2" />
     </div>
 
     <!-- Mensajes de error -->
-    <div v-if="error" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-      <p class="text-sm text-red-600">{{ error }}</p>
+    <div v-if="error" class="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl">
+      <p class="text-sm text-rose-600">{{ error }}</p>
     </div>
 
     <!-- Mensajes de éxito -->
-    <div v-if="mensajeExito" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-      <p class="text-sm text-green-600">{{ mensajeExito }}</p>
+    <div v-if="mensajeExito" class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+      <p class="text-sm text-emerald-600">{{ mensajeExito }}</p>
     </div>
   </div>
 </template>
@@ -95,6 +95,7 @@
 <script setup>
 import { ref, defineProps } from 'vue'
 import { router } from '@inertiajs/vue3'
+import Swal from '@/Utils/Swal'
 
 // Props
 const props = defineProps({
@@ -239,8 +240,18 @@ const subirArchivo = () => {
   })
 }
 
-const eliminarLogo = () => {
-  if (confirm('¿Estás seguro de que deseas eliminar este logo?')) {
+const eliminarLogo = async () => {
+  const result = await Swal.fire({
+    title: 'Eliminar logo',
+    text: '¿Estás seguro de que deseas eliminar este logo?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ef4444',
+  });
+
+  if (result.isConfirmed) {
     router.delete(props.rutaEliminacion, {
       onSuccess: () => {
         mensajeExito.value = 'Logo eliminado correctamente'

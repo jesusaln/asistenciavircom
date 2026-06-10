@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\RegisterResponse;
+use Illuminate\Auth\Events\Login;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -38,32 +39,57 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Personalizar la autenticación para verificar si el usuario está activo
-        /* Fortify::authenticateUsing(function (Request $request) {
+        // Setear contexto de empresa después del login exitoso
+        $this->app['events']->listen(Login::class, function (Login $event) {
+            $user = $event->user;
+            if ($user && $user->empresa_id) {
+                \App\Support\EmpresaResolver::setContext($user->empresa_id);
+            }
+        });
+
+        // Personalizar la autenticación para verificar si el usuario está activo y saltar el scope de empresa
+        Fortify::authenticateUsing(function (Request $request) {
             $user = User::withoutGlobalScopes()->where('email', $request->email)->first();
 
             if ($user && Hash::check($request->password, $user->password)) {
                 if (!$user->activo) {
                     throw ValidationException::withMessages([
-                        Fortify::username() => ['Tu cuenta está pendiente de aprobación por un administrador.'],
+                        Fortify::username() => ['Tu cuenta está desactivada o pendiente de aprobación.'],
                     ]);
                 }
                 return $user;
             }
             return null;
-        }); */
+        });
 
         // Redirigir después del registro a una página de espera
         $this->app->singleton(RegisterResponse::class, function () {
             return new class implements RegisterResponse {
                 public function toResponse($request)
                 {
-                    // Cerrar sesión inmediatamente después del registro automático de Fortify
+                    // Si solo hay 1 usuario en el sistema, es el creador principal
+                    if (\App\Models\User::count() <= 1) {
+                        return \Inertia\Inertia::location(route('empresas.index'));
+                    }
+
+                    // Cerrar sesión inmediatamente después del registro automático de Fortify para otros usuarios
                     auth()->logout();
 
                     return redirect()->route('login')->with('status', 'Registro exitoso. Tu cuenta está pendiente de aprobación por un administrador.');
                 }
             };
+        });
+
+        // Reemplazar AttemptToAuthenticate + PrepareAuthenticatedSession 
+        // con una sola acción que NO hace migrate() para evitar perder la sesión en Redis
+        Fortify::authenticateThrough(function (Request $request) {
+            return array_filter([
+                config('fortify.limiters.login') ? null : \Laravel\Fortify\Actions\EnsureLoginIsNotThrottled::class,
+                config('fortify.lowercase_usernames') ? \Laravel\Fortify\Actions\CanonicalizeUsername::class : null,
+                \Laravel\Fortify\Features::enabled(\Laravel\Fortify\Features::twoFactorAuthentication()) 
+                    ? \Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable::class : null,
+                \App\Actions\Fortify\AttemptAndPrepareSession::class,
+            ]);
         });
 
         // Rate limiting desactivado temporalmente para desarrollo local (evitar 429)

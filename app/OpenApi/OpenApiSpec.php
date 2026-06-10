@@ -8,12 +8,12 @@ namespace App\OpenApi;
  *     title="CDD App ERP - API",
  *     description="API REST para el sistema de gestión empresarial CDD App ERP. Utiliza autenticación basada en sesión (cookies) para solicitudes desde el frontend, y Bearer tokens para solicitudes desde clientes externos.",
  *     @OA\Contact(
- *         email="soporte@asistenciavircom.com",
+ *         email="soporte@climasdeldesierto.com",
  *         name="Soporte Técnico"
  *     ),
  *     @OA\License(
  *         name="Propietario",
- *         url="https://asistenciavircom.com"
+ *         url="https://climasdeldesierto.com"
  *     )
  * )
  *

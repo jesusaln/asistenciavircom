@@ -20,6 +20,7 @@ class CitaApiControllerTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
+        $this->actingAs($this->user);
         Sanctum::actingAs($this->user);
 
         $this->cliente = Cliente::factory()->create();
@@ -58,7 +59,7 @@ class CitaApiControllerTest extends TestCase
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
             'tipo_servicio' => 'Reparación',
-            'fecha_hora' => now()->addDays(1)->format('Y-m-d H:i:s'),
+            'fecha_hora' => now()->next('Monday')->setHour(10)->format('Y-m-d H:i:s'),
             'tipo_equipo' => 'Computadora',
             'marca_equipo' => 'Dell',
             'modelo_equipo' => 'Inspiron 15',
@@ -195,7 +196,7 @@ class CitaApiControllerTest extends TestCase
         Cita::factory()->create([
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
-            'fecha_hora' => now()->addDays(1)->setHour(10),
+            'fecha_hora' => now()->next('Tuesday')->setHour(10),
             'estado' => Cita::ESTADO_PENDIENTE
         ]);
 
@@ -204,7 +205,7 @@ class CitaApiControllerTest extends TestCase
             'tecnico_id' => $this->tecnico->id,
             'cliente_id' => $this->cliente->id,
             'tipo_servicio' => 'Reparación',
-            'fecha_hora' => now()->addDays(1)->setHour(10)->format('Y-m-d H:i:s'),
+            'fecha_hora' => now()->next('Tuesday')->setHour(10)->format('Y-m-d H:i:s'),
             'tipo_equipo' => 'Computadora',
             'marca_equipo' => 'Dell',
             'modelo_equipo' => 'Inspiron 15',

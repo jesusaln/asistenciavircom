@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class RegistroVacaciones extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $fillable = [
@@ -97,7 +100,7 @@ class RegistroVacaciones extends Model
         }
 
         $fechaCalculo = now();
-        $aniosAntiguedad = $fechaCalculo->diffInYears($fechaContratacion);
+        $aniosAntiguedad = (int) abs($fechaCalculo->diffInYears($fechaContratacion));
 
         // Calcular días correspondientes según antigüedad
         $diasCorrespondientes = self::calcularDiasSegunAntiguedad($aniosAntiguedad);

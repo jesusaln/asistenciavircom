@@ -17,7 +17,7 @@ class TestEmailCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'test:email {--email= : Email destino para la prueba} {--orden= : ID de orden de compra existente}';
+    protected $signature = 'debug:test-email-order {--email= : Email destino para la prueba} {--orden= : ID de orden de compra existente}';
 
     /**
      * The console command description.

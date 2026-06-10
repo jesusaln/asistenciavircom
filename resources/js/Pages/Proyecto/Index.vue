@@ -2,13 +2,13 @@
     <AppLayout title="Proyectos">
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center">
+                <h2 class="font-semibold text-xl text-slate-800 leading-tight flex items-center">
                     <font-awesome-icon icon="folder-open" class="mr-3 text-indigo-500 dark:text-indigo-300" />
                     Mis Proyectos
                 </h2>
                 <button 
                     @click="openModal()"
-                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 transition ease-in-out duration-150 shadow-sm"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-400 transition ease-in-out duration-150 shadow-sm"
                 >
                     <font-awesome-icon icon="plus" class="mr-2" />
                     Nuevo Proyecto
@@ -17,49 +17,49 @@
         </template>
 
         <div class="py-12">
-            <div class="w-full sm:px-6 lg:px-8 space-y-8">
+            <div class="w-full sm:px-6 lg:px-8 space-y-6">
                 
                 <!-- Sección: Mis Proyectos -->
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-l-4 border-indigo-500 pl-3">
+                    <h3 class="text-lg font-medium text-slate-900 mb-4 border-l-4 border-indigo-500 pl-3">
                         Proyectos Propios
                     </h3>
                     
-                    <div v-if="misProyectos.length === 0" class="text-center py-12 bg-white dark:bg-slate-950/70 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-800">
-                         <font-awesome-icon icon="clipboard-list" class="text-4xl text-gray-400 dark:text-slate-500 mb-3" />
-                         <p class="text-gray-500 dark:text-slate-400">No has creado ningún proyecto aún.</p>
+                    <div v-if="misProyectos.length === 0" class="py-12 text-center bg-white dark:bg-slate-950/70 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-800">
+                         <font-awesome-icon icon="clipboard-list" class="text-4xl text-slate-400 dark:text-slate-500 mb-3" />
+                         <p class="text-slate-500 dark:text-slate-400">No has creado ningún proyecto aún.</p>
                          <button @click="openModal()" class="mt-4 text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-200 font-medium">Crear mi primer proyecto</button>
                     </div>
 
                     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="proyecto in misProyectos" :key="proyecto.id" 
-                            class="bg-white dark:bg-slate-950/70 overflow-hidden shadow-sm dark:shadow-slate-950/40 sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 cursor-pointer group relative dark:border dark:border-slate-800"
+                            class="bg-white dark:bg-slate-950/70 overflow-hidden shadow-sm dark:shadow-slate-950/40 sm:rounded hover:shadow-xl transition-shadow duration-200 border-t-4 cursor-pointer group relative dark:border dark:border-slate-800"
                             :style="{ borderColor: proyecto.color }"
                             @click="irAProyecto(proyecto.id)"
                         >
                             <div class="p-6">
                                 <div class="flex justify-between items-start">
-                                    <h4 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-2 truncate pr-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors w-3/4">
+                                    <h4 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 truncate pr-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors w-3/4">
                                         {{ proyecto.nombre }}
                                     </h4>
                                     <!-- Action Buttons -->
-                                    <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 bg-white dark:bg-slate-900 p-1 rounded-md shadow-sm dark:shadow-slate-950/40">
-                                        <button @click.stop="openModal(proyecto)" class="p-1.5 text-gray-400 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Editar">
+                                    <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 bg-white dark:bg-slate-800 p-1 rounded-xl shadow-sm dark:shadow-slate-950/40">
+                                        <button @click.stop="openModal(proyecto)" class="p-1.5 text-slate-400 hover:text-brand-600 dark:text-slate-400 dark:hover:text-indigo-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Editar">
                                             <font-awesome-icon icon="pen" class="w-3 h-3" />
                                         </button>
-                                        <button @click.stop="confirmDelete(proyecto)" class="p-1.5 text-gray-400 hover:text-red-600 dark:text-slate-400 dark:hover:text-rose-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar">
+                                        <button @click.stop="confirmDelete(proyecto)" class="p-1.5 text-slate-400 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Eliminar">
                                             <font-awesome-icon icon="trash-can" class="w-3 h-3" />
                                         </button>
                                     </div>
                                 </div>
-                                <p class="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
                                     {{ proyecto.descripcion || 'Sin descripción' }}
                                 </p>
-                                <div v-if="proyecto.cliente" class="flex items-center text-xs text-gray-600 dark:text-slate-400 mb-2">
-                                    <font-awesome-icon icon="user" class="mr-1 text-gray-400 dark:text-slate-500" />
-                                    <span class="font-medium">{{ proyecto.cliente.nombre_razon_social }}</span>
+                                <div v-if="proyecto.cliente" class="flex items-center text-xs text-slate-500 dark:text-slate-400 mb-2">
+                                    <font-awesome-icon icon="user" class="mr-1 text-slate-400 dark:text-slate-500" />
+                                    <span class="font-medium">{{ proyecto.cliente?.nombre_razon_social || 'Cliente no disponible' }}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-xs text-gray-400 dark:text-slate-500 mt-4 border-t pt-4 dark:border-slate-800">
+                                <div class="flex justify-between items-center text-xs text-slate-400 dark:text-slate-500 mt-4 border-t pt-4 dark:border-slate-800">
                                      <span>Creado el {{ formatDate(proyecto.created_at) }}</span>
                                      <span class="bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-200 px-2 py-1 rounded-full font-semibold">Dueño</span>
                                 </div>
@@ -70,26 +70,26 @@
 
                 <!-- Sección: Proyectos Compartidos -->
                 <div v-if="proyectosCompartidos.length > 0">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-l-4 border-emerald-500 pl-3">
+                    <h3 class="text-lg font-medium text-slate-900 mb-4 border-l-4 border-emerald-500 pl-3">
                         Compartidos conmigo
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                          <div v-for="proyecto in proyectosCompartidos" :key="proyecto.id" 
-                            class="bg-white dark:bg-slate-950/70 overflow-hidden shadow-sm dark:shadow-slate-950/40 sm:rounded-lg hover:shadow-md transition-shadow duration-300 border-t-4 border-emerald-400 cursor-pointer group dark:border dark:border-slate-800"
+                            class="bg-white dark:bg-slate-950/70 overflow-hidden shadow-sm dark:shadow-slate-950/40 sm:rounded hover:shadow-xl transition-shadow duration-200 border-t-4 border-emerald-400 cursor-pointer group dark:border dark:border-slate-800"
                             @click="irAProyecto(proyecto.id)"
                         >
                             <div class="p-6 relative">
-                                <div class="absolute top-0 right-0 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                                <div class="absolute top-0 right-0 bg-emerald-100 text-emerald-800 dark:text-emerald-200 dark:bg-brand-500/20 dark:text-emerald-200 text-[10px] font-bold px-2 py-1 rounded-bl-lg">
                                     {{ proyecto.pivot?.role === 'viewer' ? 'LECTOR' : 'EDITOR' }}
                                 </div>
                                 
-                                <h4 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-2 truncate pr-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors mt-2">
+                                <h4 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 truncate pr-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors mt-2">
                                     {{ proyecto.nombre }}
                                 </h4>
-                                <p class="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                <p class="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
                                     {{ proyecto.descripcion || 'Sin descripción' }}
                                 </p>
-                                <div class="flex justify-between items-center text-xs text-gray-400 dark:text-slate-500 mt-4 border-t pt-4 dark:border-slate-800">
+                                <div class="flex justify-between items-center text-xs text-slate-400 dark:text-slate-500 mt-4 border-t pt-4 dark:border-slate-800">
                                      <span>Compartido por <strong>{{ getOwnerName(proyecto) }}</strong></span>
                                 </div>
                             </div>
@@ -104,7 +104,7 @@
         <DialogModal :show="showingInfoModal" @close="closeModal">
             <template #title>{{ form.id ? 'Editar Proyecto' : 'Nuevo Proyecto' }}</template>
             <template #content>
-                 <div class="space-y-4">
+                 <div class="space-y-6">
                     <div>
                         <InputLabel value="Nombre del Proyecto" />
                         <TextInput v-model="form.nombre" type="text" class="mt-1 block w-full" placeholder="Ej: Rediseño Web Corporativa" autofocus />
@@ -112,22 +112,22 @@
                     </div>
                     <div>
                         <InputLabel value="Descripción" />
-                        <textarea v-model="form.descripcion" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="3"></textarea>
+                        <textarea v-model="form.descripcion" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm" rows="3"></textarea>
                     </div>
                     <div>
                         <InputLabel value="Color Identificador" />
                         <div class="flex space-x-2 mt-2">
                             <button v-for="color in colors" :key="color" 
                                 @click="form.color = color"
-                                class="w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none"
-                                :class="[form.color === color ? 'border-gray-600 ring-2 ring-indigo-200' : 'border-transparent']"
+                                class="w-10 h-10 rounded-full border-2 transition-transform hover:scale-105 focus:outline-none"
+                                :class="[form.color === color ? 'border-slate-600 ring-2 ring-indigo-200' : 'border-transparent']"
                                 :style="{ backgroundColor: color }"
                             ></button>
                         </div>
                     </div>
                     <div>
                         <InputLabel value="Cliente (opcional)" />
-                        <select v-model="form.cliente_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                        <select v-model="form.cliente_id" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm">
                             <option value="">Sin cliente asignado</option>
                             <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
                                 {{ cliente.nombre_razon_social }} {{ cliente.rfc ? `(${cliente.rfc})` : '' }}
@@ -139,7 +139,7 @@
             </template>
             <template #footer>
                 <SecondaryButton @click="closeModal" class="mr-2">Cancelar</SecondaryButton>
-                <button @click="saveProyecto" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 disabled:opacity-50 min-w-[100px] justify-center text-center" :disabled="form.processing">
+                <button @click="saveProyecto" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-wide hover:bg-indigo-700 disabled:opacity-50 min-w-[100px] justify-center text-center" :disabled="form.processing">
                     {{ form.processing ? 'Guardando...' : (form.id ? 'Actualizar' : 'Crear') }}
                 </button>
             </template>
@@ -152,8 +152,8 @@
                 <div class="space-y-3">
                     <p>¿Estás seguro de que deseas eliminar este proyecto? Se eliminarán también todas sus tareas asociadas. Esta acción es irreversible.</p>
                     
-                    <div v-if="deleteForm.errors.error" class="p-3 bg-red-50 border border-red-200 rounded-md">
-                        <p class="text-sm text-red-600 font-medium">
+                    <div v-if="deleteForm.errors.error" class="p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/30 rounded-xl">
+                        <p class="text-sm text-rose-600 font-medium">
                             <font-awesome-icon icon="circle-exclamation" class="mr-2" />
                             {{ deleteForm.errors.error }}
                         </p>
@@ -172,6 +172,7 @@
 </template>
 
 <script setup>
+import { useFormatters } from '@/Composables/useFormatters';
 import { ref } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';

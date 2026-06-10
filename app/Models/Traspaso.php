@@ -10,6 +10,8 @@ use App\Models\Concerns\BelongsToEmpresa;
 
 class Traspaso extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory, BelongsToEmpresa;
 
     protected static function booted()

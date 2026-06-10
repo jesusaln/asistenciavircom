@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToEmpresa;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,12 +9,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CfdiConcepto extends Model
 {
+    use BelongsToEmpresa;
+
     use HasFactory;
 
     protected $table = 'cfdi_conceptos';
 
     protected $fillable = [
         'cfdi_id',
+        'empresa_id',
         'clave_prod_serv',
         'no_identificacion',
         'cantidad',
@@ -29,6 +33,7 @@ class CfdiConcepto extends Model
         'complemento',
         'producto_id',
         'servicio_id',
+        'objeto_imp',
     ];
 
     protected $casts = [

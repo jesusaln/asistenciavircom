@@ -438,7 +438,7 @@
             <div class="sig-block">
                 <div class="sig-image-container">
                     @if($poliza->firma_cliente)
-                        <img src="{{ $poliza->firma_cliente }}" style="max-height: 80px;">
+                        <img src="{{ \App\Helpers\Base64ToFile::getUrl($poliza->firma_cliente) }}" style="max-height: 80px;">
                     @else
                         <div
                             style="height: 60px; color: #cbd5e1; display: flex; align-items: flex-end; justify-content: center; font-size: 10px;">

@@ -14,7 +14,7 @@
           </div>
         </div>
 
-        <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+        <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
           <!-- Total Prominente -->
           <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800 p-6 rounded-2xl text-center">
             <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] mb-2">Total a Cobrar</p>
@@ -33,13 +33,13 @@
                 :class="[
                   'relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-300 group',
                   metodoPagoInmediato === metodo.value
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 shadow-lg shadow-indigo-500/10 scale-[1.02]'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-sky-900/20 shadow-lg shadow-indigo-500/10 scale-[1.02]'
                     : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md'
                 ]"
               >
                 <span class="text-2xl transition-transform group-hover:scale-110">{{ metodo.icon }}</span>
                 <span :class="[
-                  'text-[10px] font-black uppercase tracking-widest transition-colors',
+                  'text-[10px] font-black uppercase tracking-wide transition-colors',
                   metodoPagoInmediato === metodo.value ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'
                 ]">{{ metodo.label }}</span>
                 <div v-if="metodoPagoInmediato === metodo.value" class="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center shadow-lg">
@@ -62,7 +62,7 @@
                     :value="importeRecibido"
                     @input="handleImporteInput"
                     @keypress="validarSoloNumeros"
-                    class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-4 text-2xl font-black text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0 text-right transition-all"
+                    class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-4 text-2xl font-black text-slate-800 dark:text-white focus:border-brand-500 focus:ring-0 text-right transition-all"
                     placeholder="0.00"
                   />
                 </div>
@@ -93,7 +93,7 @@
                   : 'bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-800/30'
               ]">
                 <span :class="[
-                  'text-[10px] font-black uppercase tracking-widest',
+                  'text-[10px] font-black uppercase tracking-wide',
                   cambioNumerico >= 0 ? 'text-emerald-600' : 'text-rose-600'
                 ]">{{ cambioNumerico >= 0 ? 'Cambio' : 'Faltante' }}</span>
                 <span :class="[
@@ -111,7 +111,7 @@
               <select
                 :value="cuentaBancariaId"
                 @change="$emit('update:cuentaBancariaId', $event.target.value)"
-                class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0 transition-all"
+                class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white focus:border-brand-500 focus:ring-0 transition-all"
               >
                 <option value="">Selecciona una cuenta...</option>
                 <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta.id">
@@ -128,7 +128,7 @@
               :value="notasPago"
               @input="$emit('update:notasPago', $event.target.value)"
               rows="2"
-              class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0 resize-none transition-all"
+              class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-white focus:border-brand-500 focus:ring-0 resize-none transition-all"
               placeholder="Referencia, observaciones..."
             ></textarea>
           </div>
@@ -136,14 +136,14 @@
 
         <!-- Footer -->
         <div class="px-8 py-5 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-          <button @click="$emit('cancel')" class="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+          <button @click="$emit('cancel')" class="px-6 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wide hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
             Cancelar
           </button>
           <button
             @click="$emit('confirm')"
             :disabled="processing || !metodoPagoInmediato || (metodoPagoInmediato === 'efectivo' && cambioNumerico < 0)"
             :class="[
-              'px-8 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center gap-2',
+              'px-8 py-3 text-[10px] font-black uppercase tracking-wide rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center gap-2',
               !metodoPagoInmediato || processing || (metodoPagoInmediato === 'efectivo' && cambioNumerico < 0)
                 ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed shadow-none'
                 : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50'

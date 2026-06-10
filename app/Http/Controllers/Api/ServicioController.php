@@ -10,16 +10,80 @@ use Illuminate\Http\Request;
 class ServicioController extends Controller
 {
     /**
-     * Muestra una lista de todos los servicios en formato JSON.
+     * Muestra una lista de todos los servicios con paginación y filtros.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $servicios = Servicio::with('categoria')->get();
+            $query = Servicio::query()->with('categoria');
+
+            // Filtros
+            if ($search = trim($request->input('search', ''))) {
+                $query->search($search);
+            }
+
+            if ($estado = $request->input('estado')) {
+                if (in_array($estado, ['activo', 'inactivo'])) {
+                    $query->where('estado', $estado);
+                }
+            }
+
+            if ($categoriaId = $request->input('categoria_id')) {
+                $query->where('categoria_id', $categoriaId);
+            }
+
+            // Ordenamiento
+            $sortBy = $request->input('sort_by', 'nombre');
+            $sortDirection = $request->input('sort_direction', 'asc');
+            $validSortFields = ['nombre', 'codigo', 'precio', 'created_at'];
+            if (!in_array($sortBy, $validSortFields)) {
+                $sortBy = 'nombre';
+            }
+
+            if (!empty($search)) {
+                // Prioridad a la relevancia si hay búsqueda
+                $query->orderByRelevance($search, 'nombre');
+            } else {
+                $query->orderBy($sortBy, $sortDirection);
+            }
+
+            // Paginación
+            // Paginación: aumentar el límite para permitir que la app móvil obtenga el catálogo completo
+            $perPage = min((int) $request->input('per_page', 200), 500);
+
+            if ($request->has('nopaginate') || $request->input('all') == '1') {
+                $servicios = $query->get();
+                return response()->json([
+                    'success' => true,
+                    'data' => $servicios
+                ]);
+            }
+
+            $paginator = $query->paginate($perPage);
+
+            // Estadísticas
+            $stats = [];
+            if ($request->boolean('with_stats')) {
+                $stats = [
+                    'total' => Servicio::count(),
+                    'activos' => Servicio::where('estado', 'activo')->count(),
+                    'inactivos' => Servicio::where('estado', 'inactivo')->count(),
+                ];
+            }
+
             return response()->json([
                 'success' => true,
-                'data' => $servicios
-            ], 200);
+                'data' => [
+                    'items' => $paginator->items(),
+                    'pagination' => [
+                        'current_page' => $paginator->currentPage(),
+                        'last_page' => $paginator->lastPage(),
+                        'per_page' => $paginator->perPage(),
+                        'total' => $paginator->total(),
+                    ],
+                    'stats' => $stats
+                ]
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

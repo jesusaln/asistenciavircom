@@ -11,6 +11,22 @@ class FolioService
     /**
      * Map document types to their Model classes
      */
+    /**
+     * Custom prefixes and padding for specific document types.
+     * Overrides the default (first letter + 4-digit padding).
+     */
+    protected array $customFormat = [
+        'ecoclimas' => ['prefix' => 'EC', 'padding' => 3],
+        'liverpool' => ['prefix' => 'LIV', 'padding' => 3],
+        'sears' => ['prefix' => 'SEA', 'padding' => 3],
+        'home_depot' => ['prefix' => 'HOM', 'padding' => 3],
+        'coppel' => ['prefix' => 'COP', 'padding' => 3],
+        'electra' => ['prefix' => 'ELE', 'padding' => 3],
+        'city_club' => ['prefix' => 'CIT', 'padding' => 3],
+        'sams_club' => ['prefix' => 'SAM', 'padding' => 3],
+        'kit' => ['prefix' => 'KIT', 'padding' => 3],
+    ];
+
     protected array $modelMap = [
         'cotizacion' => \App\Models\Cotizacion::class,
         'venta' => \App\Models\Venta::class,
@@ -30,6 +46,16 @@ class FolioService
         'ticket' => \App\Models\Ticket::class,
         'traspaso' => \App\Models\Traspaso::class,
         'vacacion' => \App\Models\Vacacion::class,
+        'taller' => \App\Models\TallerOrden::class,
+        'kit' => \App\Models\Producto::class,
+        'ecoclimas' => \App\Models\Cita::class,
+        'liverpool' => \App\Models\Cita::class,
+        'sears' => \App\Models\Cita::class,
+        'home_depot' => \App\Models\Cita::class,
+        'coppel' => \App\Models\Cita::class,
+        'electra' => \App\Models\Cita::class,
+        'city_club' => \App\Models\Cita::class,
+        'sams_club' => \App\Models\Cita::class,
     ];
 
     /**
@@ -46,8 +72,8 @@ class FolioService
             'pedido' => 'numero_pedido',
             'orden_compra' => 'numero_orden',
             'compra' => 'numero_compra',
-            'cliente', 'proveedor', 'producto', 'servicio' => 'codigo',
-            'cita', 'mantenimiento', 'nomina', 'prestamo', 'traspaso', 'vacacion', 'ticket' => 'folio',
+            'cliente', 'proveedor', 'producto', 'servicio', 'kit' => 'codigo',
+            'cita', 'mantenimiento', 'nomina', 'prestamo', 'traspaso', 'vacacion', 'ticket', 'taller' => 'folio',
             'herramienta' => 'codigo_inventario',
             'renta' => 'numero_contrato',
             default => 'codigo' // Default fallback
@@ -62,13 +88,16 @@ class FolioService
     {
         return DB::transaction(function () use ($type) {
             // Lock the config row for update or create it if missing (Atomic)
+            $fmt = $this->customFormat[$type] ?? [];
             $config = FolioConfig::firstOrCreate(
-                ['document_type' => $type],
                 [
-                    'empresa_id' => \App\Support\EmpresaResolver::resolveId(),
-                    'prefix' => strtoupper(substr($type, 0, 1)),
+                    'document_type' => $type,
+                    'empresa_id' => \App\Support\EmpresaResolver::resolveId()
+                ],
+                [
+                    'prefix' => $fmt['prefix'] ?? strtoupper(substr($type, 0, 1)),
                     'current_number' => 0,
-                    'padding' => 4
+                    'padding' => $fmt['padding'] ?? 4,
                 ]
             );
 
@@ -156,13 +185,17 @@ class FolioService
         $castType = config('database.default') === 'pgsql' ? 'INTEGER' : 'UNSIGNED';
         $prefixLength = strlen($prefix);
 
+        $query = in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($modelClass))
+            ? $modelClass::withTrashed()
+            : $modelClass::query();
+
         try {
             if (empty($prefix)) {
-                 $maxRecord = $modelClass::selectRaw("MAX(CAST({$fieldName} AS {$castType})) as max_num")->first();
+                 $maxRecord = $query->selectRaw("MAX(CAST({$fieldName} AS {$castType})) as max_num")->first();
             } else {
                  // Sintaxis compatible con Postgres y MySQL: SUBSTRING(campo, posicion)
-                 $maxRecord = $modelClass::where($fieldName, 'LIKE', $prefix . '%')
-                    ->selectRaw("MAX(CAST(SUBSTRING({$fieldName}, ?) AS {$castType})) as max_num", [$prefixLength + 1])
+                 $maxRecord = $query->where($fieldName, 'LIKE', $prefix . '%')
+                    ->selectRaw("MAX(CAST(SUBSTRING({$fieldName}, " . ($prefixLength + 1) . ") AS {$castType})) as max_num")
                     ->first();
             }
             return (int) ($maxRecord->max_num ?? 0);
@@ -186,7 +219,11 @@ class FolioService
         // We might need a map for field names too if they are inconsistent.
         $fieldName = $this->getFieldNameByType($type);
 
-        return $modelClass::where($fieldName, $folio)->exists();
+        $query = in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($modelClass))
+            ? $modelClass::withTrashed()
+            : $modelClass::query();
+
+        return $query->where($fieldName, $folio)->exists();
     }
 
     /**
@@ -195,7 +232,9 @@ class FolioService
      */
     public function analyzeAndRepair(string $type): int
     {
-        $config = FolioConfig::where('document_type', $type)->first();
+        $config = FolioConfig::where('document_type', $type)
+            ->where('empresa_id', \App\Support\EmpresaResolver::resolveId())
+            ->first();
         if (!$config || !isset($this->modelMap[$type])) {
             return 0;
         }
@@ -220,10 +259,14 @@ class FolioService
 
         $prefixLength = strlen($prefix);
 
+        $query = in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive($modelClass))
+            ? $modelClass::withTrashed()
+            : $modelClass::query();
+
         // This finds the max number part appearing after the prefix
         // Filtered by empresa automáticamente via global scope in $modelClass
-        $maxRecord = $modelClass::where($fieldName, 'LIKE', $prefix . '%')
-            ->selectRaw("MAX(CAST(SUBSTRING({$fieldName}, ?) AS {$castType})) as max_num", [$prefixLength + 1])
+        $maxRecord = $query->where($fieldName, 'LIKE', $prefix . '%')
+            ->selectRaw("MAX(CAST(SUBSTRING({$fieldName}, " . ($prefixLength + 1) . ") AS {$castType})) as max_num")
             ->first();
 
 

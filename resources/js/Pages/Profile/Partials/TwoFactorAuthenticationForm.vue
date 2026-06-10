@@ -9,6 +9,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import axios from 'axios';
 
 const props = defineProps({
     requiresConfirmation: Boolean,
@@ -105,21 +106,21 @@ const disableTwoFactorAuthentication = () => {
 </script>
 
 <template>
-    <div class="space-y-8">
+    <div class="space-y-6">
         <div class="flex items-center gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl">
-            <div class="w-12 h-12 flex items-center justify-center bg-[#0b0f19] rounded-xl text-amber-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-10 h-10 flex items-center justify-center bg-[#0b0f19] rounded-xl text-brand-500">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                 </svg>
             </div>
             <div>
-                <h3 v-if="twoFactorEnabled && !confirming" class="text-sm font-black text-emerald-400 uppercase tracking-widest">
+                <h3 v-if="twoFactorEnabled && !confirming" class="text-sm font-black text-emerald-400 uppercase tracking-wide">
                     Seguridad Activada
                 </h3>
-                <h3 v-else-if="twoFactorEnabled && confirming" class="text-sm font-black text-amber-500 uppercase tracking-widest">
+                <h3 v-else-if="twoFactorEnabled && confirming" class="text-sm font-black text-brand-500 uppercase tracking-wide">
                     Pendiente de Confirmación
                 </h3>
-                <h3 v-else class="text-sm font-black text-slate-500 uppercase tracking-widest">
+                <h3 v-else class="text-sm font-black text-slate-500 uppercase tracking-wide">
                     Seguridad Básica
                 </h3>
                 <p class="text-xs text-slate-400 font-medium">Añade una capa extra de seguridad a tu cuenta.</p>
@@ -133,20 +134,20 @@ const disableTwoFactorAuthentication = () => {
         <div v-if="twoFactorEnabled">
             <div v-if="qrCode">
                 <div class="mt-4 p-6 bg-white/5 border border-white/5 rounded-3xl flex flex-col items-center">
-                    <p class="text-xs font-bold text-white uppercase tracking-widest mb-4 text-center">
+                    <p class="text-xs font-bold text-white uppercase tracking-wide mb-4 text-center">
                         {{ confirming ? 'Escanea este código para finalizar' : 'Código QR de configuración' }}
                     </p>
                     
-                    <div class="p-4 bg-white rounded-2xl shadow-2xl" v-html="qrCode" />
+                    <div class="p-4 bg-white rounded-2xl shadow-xl" v-html="qrCode" />
 
                     <div v-if="setupKey" class="mt-6 text-center">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Clave de Configuración Manual</p>
-                        <code class="px-4 py-2 bg-black rounded-xl text-amber-500 font-mono text-xs border border-white/5" v-html="setupKey"></code>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide mb-1">Clave de Configuración Manual</p>
+                        <code class="px-4 py-2 bg-black rounded-xl text-brand-500 font-mono text-xs border border-white/5" v-html="setupKey"></code>
                     </div>
                 </div>
 
                 <div v-if="confirming" class="mt-6 group">
-                    <InputLabel for="code" value="Introduce el código de tu App" class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2" />
+                    <InputLabel for="code" value="Introduce el código de tu App" class="text-xs font-black uppercase tracking-wide text-slate-500 mb-2" />
                     <div class="relative">
                         <div class="absolute -inset-0.5 bg-[#ff6600]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
                         <input
@@ -166,12 +167,12 @@ const disableTwoFactorAuthentication = () => {
             </div>
 
             <div v-if="recoveryCodes.length > 0 && !confirming" class="mt-6">
-                <div class="p-6 bg-amber-500/5 border border-amber-500/10 rounded-3xl">
-                    <p class="text-xs font-black text-amber-500 uppercase tracking-widest mb-4">Códigos de Recuperación</p>
-                    <p class="text-xs text-amber-200/60 font-medium mb-4">Guarda estos códigos en un lugar seguro. Te permitirán acceder si pierdes tu dispositivo.</p>
+                <div class="p-6 bg-brand-500/5 border border-brand-500/10 rounded-3xl">
+                    <p class="text-xs font-black text-brand-500 uppercase tracking-wide mb-4">Códigos de Recuperación</p>
+                    <p class="text-xs text-brand-200/60 font-medium mb-4">Guarda estos códigos en un lugar seguro. Te permitirán acceder si pierdes tu dispositivo.</p>
                     
                     <div class="grid grid-cols-2 gap-2 font-mono text-xs">
-                        <div v-for="code in recoveryCodes" :key="code" class="px-3 py-2 bg-black/40 rounded-xl text-white border border-white/5 text-center">
+                        <div v-for="code in recoveryCodes" :key="code" class="px-3 py-2 bg-black/50 rounded-xl text-white border border-white/5 text-center">
                             {{ code }}
                         </div>
                     </div>
@@ -182,7 +183,7 @@ const disableTwoFactorAuthentication = () => {
         <div class="flex flex-wrap gap-4 pt-4 border-t border-white/5">
             <div v-if="!twoFactorEnabled">
                 <ConfirmsPassword @confirmed="enableTwoFactorAuthentication">
-                    <button type="button" :class="{ 'opacity-25': enabling }" :disabled="enabling" class="h-12 px-8 bg-[#ff6600] text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white transition-all shadow-xl shadow-[#ff6600]/10">
+                    <button type="button" :class="{ 'opacity-25': enabling }" :disabled="enabling" class="h-12 px-8 bg-[#ff6600] text-black font-black uppercase tracking-wide text-xs rounded-2xl hover:bg-white transition-all shadow-xl shadow-[#ff6600]/10">
                         Activar 2FA
                     </button>
                 </ConfirmsPassword>
@@ -193,7 +194,7 @@ const disableTwoFactorAuthentication = () => {
                     <button
                         v-if="confirming"
                         type="button"
-                        class="h-12 px-8 bg-[#ff6600] text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-white transition-all shadow-xl"
+                        class="h-12 px-8 bg-[#ff6600] text-black font-black uppercase tracking-wide text-xs rounded-2xl hover:bg-white transition-all shadow-xl"
                         :class="{ 'opacity-25': enabling }"
                         :disabled="enabling"
                     >
@@ -204,7 +205,7 @@ const disableTwoFactorAuthentication = () => {
                 <ConfirmsPassword @confirmed="regenerateRecoveryCodes">
                     <button
                         v-if="recoveryCodes.length > 0 && !confirming"
-                        class="h-12 px-6 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl border border-white/10 transition-all"
+                        class="h-10 px-6 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-wide text-[10px] rounded-2xl border border-white/10 transition-all"
                     >
                         Regenerar Recuperación
                     </button>
@@ -213,7 +214,7 @@ const disableTwoFactorAuthentication = () => {
                 <ConfirmsPassword @confirmed="showRecoveryCodes">
                     <button
                         v-if="recoveryCodes.length === 0 && !confirming"
-                        class="h-12 px-6 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl border border-white/10 transition-all"
+                        class="h-10 px-6 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-wide text-[10px] rounded-2xl border border-white/10 transition-all"
                     >
                         Ver Códigos
                     </button>
@@ -222,7 +223,7 @@ const disableTwoFactorAuthentication = () => {
                 <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
                     <button
                         v-if="confirming"
-                        class="h-12 px-6 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                        class="h-10 px-6 text-slate-500 font-black uppercase tracking-wide text-[10px] hover:text-white transition-all"
                         :class="{ 'opacity-25': disabling }"
                         :disabled="disabling"
                     >
@@ -233,7 +234,7 @@ const disableTwoFactorAuthentication = () => {
                 <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
                     <button
                         v-if="!confirming"
-                        class="h-12 px-6 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 font-black uppercase tracking-widest text-[10px] rounded-2xl border border-rose-500/20 transition-all"
+                        class="h-10 px-6 bg-brand-500/10 hover:bg-slate-500/20 text-rose-500 font-black uppercase tracking-wide text-[10px] rounded-2xl border border-rose-500/20 transition-all"
                         :class="{ 'opacity-25': disabling }"
                         :disabled="disabling"
                     >

@@ -51,6 +51,11 @@ return [
     */
 
     'channels' => [
+        'whatsapp' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/whatsapp.log'),
+            'level' => 'debug',
+        ],
 
         'stack' => [
             'driver' => 'stack',
@@ -65,19 +70,20 @@ return [
             'replace_placeholders' => true,
         ],
 
-        'daily' => [
+        'daily-vite-filtered' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+            'tap' => [App\Logging\ViteFilterTap::class],
         ],
 
-        'rustdesk' => [
+        'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/rustdesk.log'),
-            'level' => env('LOG_RUSTDESK_LEVEL', 'info'),
-            'days' => env('LOG_RUSTDESK_DAYS', 14),
+            'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
         ],
 
@@ -97,7 +103,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -129,6 +135,14 @@ return [
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
+        ],
+
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => 'info',
+            'days' => 90,
+            'replace_placeholders' => true,
         ],
 
         'emergency' => [

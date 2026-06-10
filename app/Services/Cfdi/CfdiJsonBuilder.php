@@ -21,7 +21,7 @@ class CfdiJsonBuilder
     }
 
     /**
-     * Construye el JSON estructurado para el PAC FacturaLO Plus basado en una Venta.
+     * Construye el JSON estructurado para SW Sapien basado en una Venta.
      */
     public function buildFromVenta(Venta $venta, array $options = []): array
     {
@@ -422,8 +422,7 @@ class CfdiJsonBuilder
             'transferencia' => '03', // Transferencia electrónica de fondos
             'cheque' => '02', // Cheque nominativo
             'tarjeta' => '04', // Tarjeta de crédito
-            'creedito' => '99',
-            'credit' => '99',
+            'credito' => '99',
             'transfer' => '03',
             'otros' => '99', // Por definir
         ];

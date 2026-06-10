@@ -17,7 +17,7 @@ return new class extends Migration {
                 $table->string('nombre');
                 $table->text('descripcion')->nullable();
                 $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
-                $table->string('color')->default('#3B82F6'); // Color por defecto azul
+                $table->string('color')->default('#FF6B35'); // Color por defecto azul
                 $table->timestamps();
             });
         }

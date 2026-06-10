@@ -42,6 +42,28 @@ class NotifyUsersOfWhatsAppInboxMessage
         $url = '/marketing/whatsapp-inbox?wa='.$waParam;
 
         foreach ($users as $user) {
+            // Buscar si ya hay una notificación SIN LEER del mismo cliente
+            $existing = UserNotification::forUser($user->id)
+                ->byType('whatsapp_inbox')
+                ->unread()
+                ->where('data->wa_id', $msg->wa_id)
+                ->first();
+
+            if ($existing) {
+                // Ya existe → actualizar el mensaje sin broadcast (evita saturar)
+                $existing->forceFill([
+                    'message' => $preview,
+                    'data' => array_merge($existing->data ?? [], [
+                        'message_id' => $msg->message_id,
+                        'whats_app_chat_id' => $msg->id,
+                    ]),
+                    'created_at' => now(),
+                ])->save();
+
+                continue;
+            }
+
+            // No existe → crear una nueva
             UserNotification::createForUser(
                 $user->id,
                 'whatsapp_inbox',

@@ -229,7 +229,11 @@
     <div class="signature-grid">
         <div class="signature-box">
             @if($cliente->credito_firma)
-                <img src="{{ $cliente->credito_firma }}" style="max-height: 80px; max-width: 200px;">
+                @php
+                    $firmaUrl = \App\Helpers\Base64ToFile::getUrl($cliente->credito_firma);
+                    // Para impresión directa (no PDF), las URLs normales funcionan bien
+                @endphp
+                <img src="{{ $firmaUrl }}" style="max-height: 80px; max-width: 200px;">
                 <div class="signature-line">
                     <strong>{{ $cliente->credito_firmado_nombre ?: $cliente->nombre_razon_social }}</strong><br>
                     Firma Digital del Solicitante<br>

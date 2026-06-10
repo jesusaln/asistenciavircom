@@ -1,0 +1,1 @@
+var a=["super-admin","super_admin"],r=[...a,"admin","administrador"];export{a as n,r as t};

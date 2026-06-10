@@ -156,6 +156,13 @@ class CotizacionController extends Controller
                 'productos' => $items->toArray(),
 
                 // Totales/estado
+                'subtotal' => (float) $cotizacion->subtotal,
+                'descuento_general' => (float) $cotizacion->descuento_general,
+                'descuento_items' => (float) $cotizacion->descuento_items,
+                'iva' => (float) $cotizacion->iva,
+                'retencion_iva' => (float) $cotizacion->retencion_iva,
+                'retencion_isr' => (float) $cotizacion->retencion_isr,
+                'isr' => (float) $cotizacion->isr,
                 'total' => (float) $cotizacion->total,
                 'estado' => is_object($cotizacion->estado) ? $cotizacion->estado->value : $cotizacion->estado,
                 'notas' => $cotizacion->notas,
@@ -1042,5 +1049,34 @@ class CotizacionController extends Controller
 
         // Si no hay lotes, usar costo promedio o último costo de compra
         return (float) ($producto->costo_promedio ?? $producto->ultimo_costo ?? 0);
+    }
+
+    /**
+     * Crear cotización desde un equipo de una póliza.
+     */
+    public function desdeEquipo(Request $request)
+    {
+        $validated = $request->validate([
+            'poliza_id' => 'required|exists:polizas_servicio,id',
+            'equipo_nombre' => 'required|string|max:255',
+        ]);
+
+        $poliza = \App\Models\PolizaServicio::with('cliente')->findOrFail($validated['poliza_id']);
+
+        $cotizacion = \App\Models\Cotizacion::create([
+            'empresa_id' => $poliza->empresa_id,
+            'cliente_id' => $poliza->cliente_id,
+            'poliza_id' => $poliza->id,
+            'equipo_nombre' => $validated['equipo_nombre'],
+            'numero_cotizacion' => \App\Models\Cotizacion::obtenerSiguienteNumero($poliza->empresa_id),
+            'fecha_cotizacion' => now()->toDateString(),
+            'subtotal' => 0,
+            'iva' => 0,
+            'total' => 0,
+            'estado' => 'Pendiente',
+        ]);
+
+        return redirect()->route('cotizaciones.edit', $cotizacion->id)
+            ->with('success', "Cotización para {$validated['equipo_nombre']} creada. Agrega los productos/servicios.");
     }
 }

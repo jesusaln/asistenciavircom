@@ -10,6 +10,7 @@ class CitaItem extends Model
 {
     use HasFactory, BelongsToEmpresa;
 
+
     protected $fillable = [
         'empresa_id',
         'cita_id',
@@ -21,6 +22,11 @@ class CitaItem extends Model
         'subtotal',
         'descuento_monto',
         'notas',
+        'series',
+    ];
+
+    protected $casts = [
+        'series' => 'array',
     ];
 
     public function citable()

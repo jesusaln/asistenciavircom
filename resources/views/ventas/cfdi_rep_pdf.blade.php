@@ -375,7 +375,7 @@
 
     <div class="footer">
         Este documento es una representación impresa de un CFDI de Pago (REP 2.0 - Versión 4.0).<br>
-        <strong>Gracias por su pago - Asistencia Vircom</strong>
+        <strong>Gracias por su pago - Climas del Desierto</strong>
     </div>
 </body>
 

@@ -225,24 +225,24 @@ const triggerBackupInput = () => {
 <template>
     <Head title="Instalación del Sistema" />
 
-    <div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+    <div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
         
         <!-- Logo/Branding -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/25 mb-4">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl shadow-xl shadow-blue-500/25 mb-4">
                 <font-awesome-icon icon="bolt" class="text-3xl text-white" />
             </div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
                 Asistente de Instalación
             </h1>
-            <p class="text-gray-500 mt-2">Configura tu sistema en unos simples pasos</p>
+            <p class="text-slate-500 mt-2">Configura tu sistema en unos simples pasos</p>
         </div>
 
         <!-- Stepper Visual -->
         <div class="w-full max-w-2xl mb-8">
             <div class="flex items-center justify-between relative">
                 <!-- Progress Line Background -->
-                <div class="absolute top-5 left-0 right-0 h-0.5 bg-gray-700 z-0"></div>
+                <div class="absolute top-5 left-0 right-0 h-0.5 bg-slate-700 z-0"></div>
                 <!-- Progress Line Active -->
                 <div class="absolute top-5 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 z-0 transition-all duration-500"
                      :style="{ width: ((currentStep - 1) / (totalSteps - 1)) * 100 + '%' }"></div>
@@ -251,17 +251,17 @@ const triggerBackupInput = () => {
                 <div v-for="step in stepInfo" :key="step.num" 
                      class="relative z-10 flex flex-col items-center cursor-pointer group"
                      @click="goToStep(step.num)">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-300 shadow-lg"
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-200 shadow-xl"
                          :class="{
-                             'bg-gradient-to-br from-blue-500 to-indigo-600 text-white scale-110 shadow-blue-500/40': currentStep === step.num,
-                             'bg-green-500 text-white': currentStep > step.num,
-                             'bg-gray-700 text-gray-400': currentStep < step.num
+                             'bg-gradient-to-br from-brand-500 to-brand-600 text-white scale-110 shadow-blue-500/40': currentStep === step.num,
+                             'bg-brand-500 text-white': currentStep > step.num,
+                             'bg-slate-700 text-slate-400': currentStep < step.num
                          }">
                         <font-awesome-icon v-if="currentStep > step.num" icon="check" />
                         <font-awesome-icon v-else :icon="step.icon" />
                     </div>
                     <span class="mt-2 text-xs font-medium transition-colors"
-                          :class="currentStep >= step.num ? 'text-white' : 'text-gray-500'">
+                          :class="currentStep >= step.num ? 'text-white' : 'text-slate-500'">
                         {{ step.title }}
                     </span>
                 </div>
@@ -270,17 +270,17 @@ const triggerBackupInput = () => {
 
         <!-- Main Card -->
         <div class="w-full max-w-2xl">
-            <div class="bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden">
+            <div class="bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden">
                 
                 <!-- Card Header -->
-                <div class="px-8 py-6 bg-gradient-to-r from-gray-800 to-gray-800/50 border-b border-gray-700/50">
+                <div class="px-8 py-6 bg-gradient-to-r from-slate-800 to-slate-800/50 border-b border-slate-700/50">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center text-2xl">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center text-2xl">
                             <font-awesome-icon :icon="stepInfo[currentStep - 1]?.icon || 'circle-dot'" class="text-blue-300" />
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-white">{{ stepTitle }}</h2>
-                            <p class="text-sm text-gray-400">{{ stepInfo[currentStep - 1]?.desc }}</p>
+                            <p class="text-sm text-slate-400">{{ stepInfo[currentStep - 1]?.desc }}</p>
                         </div>
                     </div>
                 </div>
@@ -289,12 +289,12 @@ const triggerBackupInput = () => {
                     
                     <!-- General Error Message -->
                     <div v-if="Object.keys(form.errors).length > 0" 
-                         class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl animate-shake">
+                         class="mb-6 p-4 bg-brand-500/10 border border-rose-500/30 rounded-xl animate-shake">
                         <div class="flex items-start gap-3">
-                            <font-awesome-icon icon="triangle-exclamation" class="text-red-400 text-xl mt-0.5" />
+                            <font-awesome-icon icon="triangle-exclamation" class="text-rose-400 text-xl mt-0.5" />
                             <div>
-                                <p class="text-red-400 font-semibold">Por favor, corrige los siguientes errores:</p>
-                                <ul class="list-disc list-inside text-sm text-red-300/80 mt-2">
+                                <p class="text-rose-400 font-semibold">Por favor, corrige los siguientes errores:</p>
+                                <ul class="list-disc list-inside text-sm text-rose-300/80 mt-2">
                                     <li v-for="(error, key) in form.errors" :key="key">{{ error }}</li>
                                 </ul>
                             </div>
@@ -304,37 +304,37 @@ const triggerBackupInput = () => {
                     <!-- STEP 1: ADMIN -->
                     <div v-show="currentStep === 1" class="space-y-5 animate-slide-in">
                         <div>
-                            <InputLabel for="admin_name" value="Nombre completo" class="text-gray-300" />
+                            <InputLabel for="admin_name" value="Nombre completo" class="text-slate-300" />
                             <TextInput id="admin_name" v-model="form.admin_name" type="text" 
-                                       class="mt-2 block w-full bg-gray-700/50 border-gray-600 focus:border-blue-500 focus:ring-blue-500/20" 
+                                       class="mt-2 block w-full bg-slate-700/50 border-slate-600 focus:border-brand-500 focus:ring-brand-500/20" 
                                        placeholder="Ej. Juan Pérez" required autofocus />
                             <InputError :message="form.errors.admin_name" class="mt-2" />
                         </div>
                         
                         <div>
-                            <InputLabel for="admin_email" value="Correo electrónico" class="text-gray-300" />
+                            <InputLabel for="admin_email" value="Correo electrónico" class="text-slate-300" />
                             <TextInput id="admin_email" v-model="form.admin_email" type="email" 
-                                       class="mt-2 block w-full bg-gray-700/50 border-gray-600 focus:border-blue-500" 
+                                       class="mt-2 block w-full bg-slate-700/50 border-slate-600 focus:border-brand-500" 
                                        placeholder="correo@empresa.com" required />
                             <InputError :message="form.errors.admin_email" class="mt-2" />
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel for="password" value="Contraseña" class="text-gray-300" />
+                                <InputLabel for="password" value="Contraseña" class="text-slate-300" />
                                 <TextInput id="password" v-model="form.password" type="password" 
-                                           class="mt-2 block w-full bg-gray-700/50 border-gray-600" 
+                                           class="mt-2 block w-full bg-slate-700/50 border-slate-600" 
                                            placeholder="••••••••" required />
-                                <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres</p>
+                                <p class="text-xs text-slate-500 mt-1">Mínimo 8 caracteres</p>
                                 <InputError :message="form.errors.password" class="mt-2" />
                             </div>
                             <div>
-                                <InputLabel for="password_confirmation" value="Confirmar contraseña" class="text-gray-300" />
+                                <InputLabel for="password_confirmation" value="Confirmar contraseña" class="text-slate-300" />
                                 <TextInput id="password_confirmation" v-model="form.password_confirmation" type="password" 
-                                           class="mt-2 block w-full bg-gray-700/50 border-gray-600" 
+                                           class="mt-2 block w-full bg-slate-700/50 border-slate-600" 
                                            placeholder="••••••••" required />
                                 <p v-if="form.password && form.password_confirmation && form.password !== form.password_confirmation" 
-                                   class="text-xs text-red-400 mt-1">Las contraseñas no coinciden</p>
+                                   class="text-xs text-rose-400 mt-1">Las contraseñas no coinciden</p>
                             </div>
                         </div>
                     </div>
@@ -342,32 +342,32 @@ const triggerBackupInput = () => {
                     <!-- STEP 2: EMPRESA -->
                     <div v-show="currentStep === 2" class="space-y-5 animate-slide-in">
                         <div>
-                            <InputLabel for="empresa_nombre" value="Nombre comercial / Razón social" class="text-gray-300" />
+                            <InputLabel for="empresa_nombre" value="Nombre comercial / Razón social" class="text-slate-300" />
                             <TextInput id="empresa_nombre" v-model="form.empresa_nombre" type="text" 
-                                       class="mt-2 block w-full bg-gray-700/50 border-gray-600" 
+                                       class="mt-2 block w-full bg-slate-700/50 border-slate-600" 
                                        placeholder="Ej. Climas del Desierto S.A. de C.V." required />
                             <InputError :message="form.errors.empresa_nombre" class="mt-2" />
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel for="empresa_rfc" value="RFC" class="text-gray-300" />
+                                <InputLabel for="empresa_rfc" value="RFC" class="text-slate-300" />
                                 <TextInput id="empresa_rfc" v-model="form.empresa_rfc" type="text" 
-                                           class="mt-2 block w-full bg-gray-700/50 border-gray-600 uppercase" 
+                                           class="mt-2 block w-full bg-slate-700/50 border-slate-600 uppercase" 
                                            placeholder="XAXX010101000" maxlength="13" />
                                 <InputError :message="form.errors.empresa_rfc" class="mt-2" />
                             </div>
                             <div>
-                                <InputLabel for="empresa_cp" class="text-gray-300">
+                                <InputLabel for="empresa_cp" class="text-slate-300">
                                     Código Postal
                                     <span v-if="loadingCp" class="ml-2 inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
                                 </InputLabel>
                                 <TextInput id="empresa_cp" v-model="form.empresa_cp" type="text" 
-                                           class="mt-2 block w-full bg-gray-700/50 border-gray-600" 
-                                           :class="{ 'border-green-500': colonias.length > 0, 'border-red-500': cpError }"
+                                           class="mt-2 block w-full bg-slate-700/50 border-slate-600" 
+                                           :class="{ 'border-emerald-500': colonias.length > 0, 'border-rose-500': cpError }"
                                            placeholder="83117" maxlength="5" required />
-                                <p v-if="cpError" class="text-xs text-red-400 mt-1">{{ cpError }}</p>
-                                <p v-else-if="colonias.length > 0" class="text-xs text-green-400 mt-1">
+                                <p v-if="cpError" class="text-xs text-rose-400 mt-1">{{ cpError }}</p>
+                                <p v-else-if="colonias.length > 0" class="text-xs text-emerald-400 mt-1">
                                     <font-awesome-icon icon="check-circle" class="mr-1" />{{ form.empresa_estado }}, {{ form.empresa_municipio }}
                                 </p>
                                 <InputError :message="form.errors.empresa_cp" class="mt-2" />
@@ -376,9 +376,9 @@ const triggerBackupInput = () => {
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel for="empresa_regimen" value="Régimen Fiscal" class="text-gray-300" />
+                                <InputLabel for="empresa_regimen" value="Régimen Fiscal" class="text-slate-300" />
                                 <select id="empresa_regimen" v-model="form.empresa_regimen" 
-                                        class="mt-2 block w-full rounded-md bg-gray-700/50 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500/20">
+                                        class="mt-2 block w-full rounded-xl bg-slate-700/50 border-slate-600 text-white focus:border-brand-500 focus:ring-brand-500/20">
                                     <option value="601">601 - General de Ley PM</option>
                                     <option value="603">603 - PM Fines no Lucrativos</option>
                                     <option value="605">605 - Sueldos y Salarios</option>
@@ -389,9 +389,9 @@ const triggerBackupInput = () => {
                                 </select>
                             </div>
                             <div>
-                                <InputLabel for="empresa_uso_cfdi" value="Uso de CFDI" class="text-gray-300" />
+                                <InputLabel for="empresa_uso_cfdi" value="Uso de CFDI" class="text-slate-300" />
                                 <select id="empresa_uso_cfdi" v-model="form.empresa_uso_cfdi" 
-                                        class="mt-2 block w-full rounded-md bg-gray-700/50 border-gray-600 text-white focus:border-blue-500">
+                                        class="mt-2 block w-full rounded-xl bg-slate-700/50 border-slate-600 text-white focus:border-brand-500">
                                     <option value="G01">G01 - Adquisición de mercancías</option>
                                     <option value="G03">G03 - Gastos en general</option>
                                     <option value="P01">P01 - Por definir</option>
@@ -400,50 +400,50 @@ const triggerBackupInput = () => {
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-700 pt-5 mt-5">
-                            <h4 class="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+                        <div class="border-t border-slate-700 pt-5 mt-5">
+                            <h4 class="text-sm font-medium text-slate-400 mb-4 flex items-center gap-2">
                                 <font-awesome-icon icon="map-marker-alt" />
                                 <span>Dirección Fiscal</span>
                             </h4>
                             
                             <div class="grid grid-cols-3 gap-4">
                                 <div class="col-span-2">
-                                    <InputLabel for="empresa_direccion" value="Calle" class="text-gray-300" />
+                                    <InputLabel for="empresa_direccion" value="Calle" class="text-slate-300" />
                                     <TextInput id="empresa_direccion" v-model="form.empresa_direccion" type="text" 
-                                               class="mt-2 block w-full bg-gray-700/50 border-gray-600" placeholder="Av. Principal" />
+                                               class="mt-2 block w-full bg-slate-700/50 border-slate-600" placeholder="Av. Principal" />
                                 </div>
                                 <div>
-                                    <InputLabel for="empresa_numero_exterior" value="No. Ext" class="text-gray-300" />
+                                    <InputLabel for="empresa_numero_exterior" value="No. Ext" class="text-slate-300" />
                                     <TextInput id="empresa_numero_exterior" v-model="form.empresa_numero_exterior" type="text" 
-                                               class="mt-2 block w-full bg-gray-700/50 border-gray-600" placeholder="123" />
+                                               class="mt-2 block w-full bg-slate-700/50 border-slate-600" placeholder="123" />
                                 </div>
                             </div>
                             
                             <div class="grid grid-cols-2 gap-4 mt-4">
                                 <div>
-                                    <InputLabel for="empresa_colonia" value="Colonia" class="text-gray-300" />
+                                    <InputLabel for="empresa_colonia" value="Colonia" class="text-slate-300" />
                                     <select v-if="colonias.length > 1" id="empresa_colonia" v-model="form.empresa_colonia" 
-                                            class="mt-2 block w-full rounded-md bg-gray-700/50 border-gray-600 text-white focus:border-blue-500">
+                                            class="mt-2 block w-full rounded-xl bg-slate-700/50 border-slate-600 text-white focus:border-brand-500">
                                         <option value="">Selecciona una colonia...</option>
                                         <option v-for="col in colonias" :key="col" :value="col">{{ col }}</option>
                                     </select>
                                     <TextInput v-else id="empresa_colonia" v-model="form.empresa_colonia" type="text" 
-                                               class="mt-2 block w-full bg-gray-700/50 border-gray-600" 
+                                               class="mt-2 block w-full bg-slate-700/50 border-slate-600" 
                                                :placeholder="loadingCp ? 'Buscando...' : 'Ingresa el CP primero'" 
                                                :disabled="loadingCp" />
                                 </div>
                                 <div>
-                                    <InputLabel for="empresa_municipio" value="Municipio" class="text-gray-300" />
+                                    <InputLabel for="empresa_municipio" value="Municipio" class="text-slate-300" />
                                     <TextInput id="empresa_municipio" v-model="form.empresa_municipio" type="text" 
-                                               class="mt-2 block w-full bg-gray-700/50 border-gray-600 read-only:bg-gray-800" 
+                                               class="mt-2 block w-full bg-slate-700/50 border-slate-600 read-only:bg-slate-800" 
                                                readonly />
                                 </div>
                             </div>
                             
                             <div class="mt-4">
-                                <InputLabel for="empresa_estado" value="Estado" class="text-gray-300" />
+                                <InputLabel for="empresa_estado" value="Estado" class="text-slate-300" />
                                 <select id="empresa_estado" v-model="form.empresa_estado" 
-                                        class="mt-2 block w-full rounded-md bg-gray-700/50 border-gray-600 text-white focus:border-blue-500">
+                                        class="mt-2 block w-full rounded-xl bg-slate-700/50 border-slate-600 text-white focus:border-brand-500">
                                     <option value="">Selecciona un estado...</option>
                                     <option v-for="edo in ['Aguascalientes','Baja California','Baja California Sur','Campeche','Chiapas','Chihuahua','Ciudad de México','Coahuila','Colima','Durango','Estado de México','Guanajuato','Guerrero','Hidalgo','Jalisco','Michoacán','Morelos','Nayarit','Nuevo León','Oaxaca','Puebla','Querétaro','Quintana Roo','San Luis Potosí','Sinaloa','Sonora','Tabasco','Tamaulipas','Tlaxcala','Veracruz','Yucatán','Zacatecas']" 
                                             :key="edo" :value="edo">{{ edo }}</option>
@@ -452,21 +452,21 @@ const triggerBackupInput = () => {
                         </div>
 
                         <div class="mt-4">
-                            <InputLabel for="empresa_logo" value="Logo de la empresa (opcional)" class="text-gray-300" />
+                            <InputLabel for="empresa_logo" value="Logo de la empresa (opcional)" class="text-slate-300" />
                             <div class="mt-2 flex items-center justify-center w-full">
                                 <label for="empresa_logo" 
-                                       class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-xl cursor-pointer bg-gray-700/30 hover:bg-gray-700/50 transition-colors">
+                                       class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-700/30 hover:bg-slate-700/50 transition-colors">
                                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                         <font-awesome-icon icon="camera" class="text-3xl mb-2 text-blue-400" />
-                                        <p class="text-sm text-gray-400">
+                                        <p class="text-sm text-slate-400">
                                             <span class="font-semibold text-blue-400">Click para subir</span> o arrastra aquí
                                         </p>
-                                        <p class="text-xs text-gray-500 mt-1">PNG, JPG (max. 2MB)</p>
+                                        <p class="text-xs text-slate-500 mt-1">PNG, JPG (max. 2MB)</p>
                                     </div>
                                     <input id="empresa_logo" type="file" class="hidden" @input="form.empresa_logo = $event.target.files[0]" accept="image/*" />
                                 </label>
                             </div>
-                            <p v-if="form.empresa_logo" class="text-xs text-green-400 mt-2">
+                            <p v-if="form.empresa_logo" class="text-xs text-emerald-400 mt-2">
                                 <font-awesome-icon icon="check-circle" class="mr-1" />Archivo seleccionado: {{ form.empresa_logo.name }}
                             </p>
                         </div>
@@ -481,76 +481,76 @@ const triggerBackupInput = () => {
                             </h3>
                             <div class="flex items-center gap-4">
                                 <div class="flex-1">
-                                    <InputLabel for="iva_porcentaje" value="Tasa de IVA (%)" class="text-gray-300" />
+                                    <InputLabel for="iva_porcentaje" value="Tasa de IVA (%)" class="text-slate-300" />
                                     <TextInput id="iva_porcentaje" v-model="form.iva_porcentaje" type="number" step="0.01" 
-                                               class="mt-2 block w-32 bg-gray-700/50 border-gray-600 text-2xl font-bold text-center" />
+                                               class="mt-2 block w-32 bg-slate-700/50 border-slate-600 text-2xl font-bold text-center" />
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-4xl text-gray-400">%</span>
+                                    <span class="text-4xl text-slate-400">%</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <h3 class="text-gray-400 font-medium text-sm uppercase tracking-wider">Retenciones (Opcional)</h3>
-                            <p class="text-xs text-gray-500">Activa solo si tu empresa aplica retenciones de impuestos.</p>
+                        <div class="space-y-6">
+                            <h3 class="text-slate-400 font-medium text-sm uppercase tracking-wider">Retenciones (Opcional)</h3>
+                            <p class="text-xs text-slate-500">Activa solo si tu empresa aplica retenciones de impuestos.</p>
 
                             <!-- ISR Switch -->
-                            <div class="flex items-center justify-between bg-gray-700/30 p-4 rounded-xl hover:bg-gray-700/50 transition-colors">
-                                <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-between bg-slate-700/30 p-4 rounded-xl hover:bg-slate-700/50 transition-colors">
+                                <div class="flex items-center gap-2">
                                     <font-awesome-icon icon="dollar-sign" class="text-2xl text-emerald-400" />
                                     <div>
-                                        <span class="text-gray-200 font-medium">ISR (Impuesto Sobre Renta)</span>
-                                        <p class="text-xs text-gray-500">Para reportes y cálculos</p>
+                                        <span class="text-slate-200 font-medium">ISR (Impuesto Sobre Renta)</span>
+                                        <p class="text-xs text-slate-500">Para reportes y cálculos</p>
                                     </div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" v-model="form.enable_isr" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    <div class="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                 </label>
                             </div>
 
                             <!-- Retencion IVA -->
-                            <div class="bg-gray-700/30 p-4 rounded-xl">
+                            <div class="bg-slate-700/30 p-4 rounded-xl">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2">
                                         <font-awesome-icon icon="chart-line" class="text-2xl text-blue-400 rotate-180" />
                                         <div>
-                                            <span class="text-gray-200 font-medium">Retención de IVA</span>
-                                            <p class="text-xs text-gray-500">Se aplica a ciertos servicios</p>
+                                            <span class="text-slate-200 font-medium">Retención de IVA</span>
+                                            <p class="text-xs text-slate-500">Se aplica a ciertos servicios</p>
                                         </div>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" v-model="form.enable_retencion_iva" class="sr-only peer">
-                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <div class="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                     </label>
                                 </div>
                                 <div v-if="form.enable_retencion_iva" class="mt-4 pl-11 animate-slide-down">
-                                    <InputLabel for="retencion_iva_default" value="Porcentaje por defecto (%)" class="text-gray-400" />
+                                    <InputLabel for="retencion_iva_default" value="Porcentaje por defecto (%)" class="text-slate-400" />
                                     <TextInput id="retencion_iva_default" v-model="form.retencion_iva_default" type="number" step="0.01" 
-                                               class="mt-2 block w-24 bg-gray-700 border-gray-600" />
+                                               class="mt-2 block w-24 bg-slate-700 border-slate-600" />
                                 </div>
                             </div>
 
                             <!-- Retencion ISR -->
-                            <div class="bg-gray-700/30 p-4 rounded-xl">
+                            <div class="bg-slate-700/30 p-4 rounded-xl">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2">
                                         <font-awesome-icon icon="chart-line" class="text-2xl text-indigo-400" />
                                         <div>
-                                            <span class="text-gray-200 font-medium">Retención de ISR</span>
-                                            <p class="text-xs text-gray-500">Para honorarios y servicios profesionales</p>
+                                            <span class="text-slate-200 font-medium">Retención de ISR</span>
+                                            <p class="text-xs text-slate-500">Para honorarios y servicios profesionales</p>
                                         </div>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" v-model="form.enable_retencion_isr" class="sr-only peer">
-                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <div class="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                     </label>
                                 </div>
                                 <div v-if="form.enable_retencion_isr" class="mt-4 pl-11 animate-slide-down">
-                                    <InputLabel for="retencion_isr_default" value="Porcentaje por defecto (%)" class="text-gray-400" />
+                                    <InputLabel for="retencion_isr_default" value="Porcentaje por defecto (%)" class="text-slate-400" />
                                     <TextInput id="retencion_isr_default" v-model="form.retencion_isr_default" type="number" step="0.01" 
-                                               class="mt-2 block w-24 bg-gray-700 border-gray-600" />
+                                               class="mt-2 block w-24 bg-slate-700 border-slate-600" />
                                 </div>
                             </div>
                         </div>
@@ -558,51 +558,51 @@ const triggerBackupInput = () => {
 
                     <!-- STEP 4: ALMACEN Y RESUMEN -->
                     <div v-show="currentStep === 4" class="space-y-6 animate-slide-in">
-                        <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 p-5 rounded-xl border border-green-500/20">
-                            <h3 class="text-green-300 font-semibold mb-2 flex items-center gap-2">
+                        <div class="bg-gradient-to-r from-emerald-500/10 to-emerald-500/10 p-5 rounded-xl border border-emerald-500/20">
+                            <h3 class="text-emerald-300 font-semibold mb-2 flex items-center gap-2">
                                 <font-awesome-icon icon="warehouse" />
                                 <span>Almacén Principal</span>
                             </h3>
-                            <p class="text-sm text-gray-400 mb-4">El sistema soporta múltiples almacenes. Este será el primero.</p>
+                            <p class="text-sm text-slate-400 mb-4">El sistema soporta múltiples almacenes. Este será el primero.</p>
                             <TextInput id="almacen_nombre" v-model="form.almacen_nombre" type="text" 
-                                       class="block w-full bg-gray-700/50 border-gray-600" 
+                                       class="block w-full bg-slate-700/50 border-slate-600" 
                                        placeholder="Ej. Bodega Central, Sucursal Matriz" required />
                         </div>
 
                         <!-- Resumen Final -->
-                        <div class="bg-gray-700/30 rounded-xl overflow-hidden">
-                            <div class="px-5 py-3 bg-gray-700/50 border-b border-gray-600">
+                        <div class="bg-slate-700/30 rounded-xl overflow-hidden">
+                            <div class="px-5 py-3 bg-slate-700/50 border-b border-slate-600">
                                 <h4 class="text-white font-bold flex items-center gap-2">
                                     <font-awesome-icon icon="clipboard-list" />
                                     <span>Resumen de Instalación</span>
                                 </h4>
                             </div>
                             <div class="p-5 space-y-3">
-                                <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-                                    <span class="text-gray-400 flex items-center gap-2"><font-awesome-icon icon="user-circle" />Administrador</span>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                                    <span class="text-slate-400 flex items-center gap-2"><font-awesome-icon icon="user-circle" />Administrador</span>
                                     <span class="text-white font-medium">{{ form.admin_name || '-' }}</span>
                                 </div>
-                                <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-                                    <span class="text-gray-400 flex items-center gap-2"><font-awesome-icon icon="envelope" />Email</span>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                                    <span class="text-slate-400 flex items-center gap-2"><font-awesome-icon icon="envelope" />Email</span>
                                     <span class="text-white font-medium">{{ form.admin_email || '-' }}</span>
                                 </div>
-                                <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-                                    <span class="text-gray-400 flex items-center gap-2"><font-awesome-icon icon="building" />Empresa</span>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                                    <span class="text-slate-400 flex items-center gap-2"><font-awesome-icon icon="building" />Empresa</span>
                                     <span class="text-white font-medium">{{ form.empresa_nombre || '-' }}</span>
                                 </div>
-                                <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-                                    <span class="text-gray-400 flex items-center gap-2"><font-awesome-icon icon="map-marker-alt" />Ubicación</span>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-700/50">
+                                    <span class="text-slate-400 flex items-center gap-2"><font-awesome-icon icon="map-marker-alt" />Ubicación</span>
                                     <span class="text-white font-medium">{{ form.empresa_municipio }}, {{ form.empresa_estado }}</span>
                                 </div>
                                 <div class="flex justify-between items-center py-2">
-                                    <span class="text-gray-400 flex items-center gap-2"><font-awesome-icon icon="dollar-sign" />IVA</span>
+                                    <span class="text-slate-400 flex items-center gap-2"><font-awesome-icon icon="dollar-sign" />IVA</span>
                                     <span class="text-white font-medium">{{ form.iva_porcentaje }}%</span>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="text-center py-4">
-                            <p class="text-gray-400 text-sm">
+                            <p class="text-slate-400 text-sm">
                                 Al hacer clic en <span class="text-blue-400 font-medium">"Finalizar"</span>, 
                                 se creará tu cuenta y empresa.
                             </p>
@@ -610,7 +610,7 @@ const triggerBackupInput = () => {
                     </div>
 
                     <!-- Navigation Buttons -->
-                    <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-700/50">
+                    <div class="flex items-center justify-between mt-10 pt-6 border-t border-slate-700/50">
                         <!-- Input oculto para archivo de respaldo -->
                         <input 
                             type="file" 
@@ -623,7 +623,7 @@ const triggerBackupInput = () => {
                         <button type="button" 
                                 v-if="currentStep > 1"
                                 @click="prevStep"
-                                class="flex items-center gap-2 text-gray-400 hover:text-white font-medium transition-colors group">
+                                class="flex items-center gap-2 text-slate-400 hover:text-white font-medium transition-colors group">
                             <span class="group-hover:-translate-x-1 transition-transform">←</span>
                             Anterior
                         </button>
@@ -633,8 +633,8 @@ const triggerBackupInput = () => {
                             <button type="button"
                                     @click="backupFile ? restoreBackup() : triggerBackupInput()"
                                     :disabled="isRestoring"
-                                    class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-500/50 font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed group">
-                                <span v-if="isRestoring" class="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></span>
+                                    class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-500/20 to-brand-500/20 text-brand-400 hover:text-brand-300 border border-brand-500/30 hover:border-brand-500/50 font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed group">
+                                <span v-if="isRestoring" class="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin"></span>
                                 <font-awesome-icon v-else icon="file-archive" />
                                 <span v-if="isRestoring">Restaurando...</span>
                                 <span v-else-if="backupFile">Restaurar: {{ backupFile.name }}</span>
@@ -645,20 +645,20 @@ const triggerBackupInput = () => {
                             <button v-if="backupFile && !isRestoring" 
                                     type="button"
                                     @click="triggerBackupInput"
-                                    class="text-xs text-gray-500 hover:text-gray-400 underline">
+                                    class="text-xs text-slate-500 hover:text-slate-400 underline">
                                 Cambiar archivo
                             </button>
                             
                             <!-- Mensajes de error/éxito -->
-                            <p v-if="restoreError" class="text-xs text-red-400">{{ restoreError }}</p>
-                            <p v-if="restoreSuccess" class="text-xs text-green-400">{{ restoreSuccess }}</p>
+                            <p v-if="restoreError" class="text-xs text-rose-400">{{ restoreError }}</p>
+                            <p v-if="restoreSuccess" class="text-xs text-emerald-400">{{ restoreSuccess }}</p>
                         </div>
 
                         <button v-if="currentStep < totalSteps" 
                                 type="button" 
                                 @click="nextStep"
                                 :disabled="!canProceed"
-                                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group">
+                                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-semibold rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group">
                             Siguiente
                             <span class="group-hover:translate-x-1 transition-transform">→</span>
                         </button>
@@ -666,8 +666,8 @@ const triggerBackupInput = () => {
                         <button v-else 
                                 type="submit"
                                 :disabled="form.processing || !canProceed"
-                                class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all disabled:opacity-50">
-                            <span v-if="form.processing" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all disabled:opacity-50">
+                            <span v-if="form.processing" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                             <font-awesome-icon v-else icon="paper-plane" />
                             {{ form.processing ? 'Instalando...' : 'Finalizar e Instalar' }}
                         </button>
@@ -678,7 +678,7 @@ const triggerBackupInput = () => {
         </div>
 
         <!-- Footer -->
-        <p class="mt-8 text-gray-600 text-sm">
+        <p class="mt-8 text-slate-500 text-sm">
             Versión 2.0 • Sistema ERP
         </p>
     </div>

@@ -1,397 +1,288 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Recibo de Comisión #{{ $pago->id }}</title>
+    <title>Liquidación de Comisiones #{{ str_pad($pago->id, 6, '0', STR_PAD_LEFT) }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 12px;
-            color: #333;
-            background: #fff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            color: #334155;
+            background: #ffffff;
+            line-height: 1.4;
         }
-        .container {
-            padding: 30px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .container { padding: 40px; max-width: 800px; margin: 0 auto; }
+        
         /* Header */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 3px solid #F59E0B;
+            display: table;
+            width: 100%;
+            border-bottom: 2px solid #e2e8f0;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
-        .company-info h1 {
-            color: #F59E0B;
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .company-info p {
-            color: #666;
-            font-size: 11px;
-            line-height: 1.5;
-        }
-        .recibo-info {
-            text-align: right;
-        }
-        .recibo-info h2 {
-            color: #333;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        .recibo-info .numero {
-            font-size: 24px;
-            font-weight: bold;
-            color: #F59E0B;
-        }
-        .recibo-info .fecha {
-            color: #666;
-            margin-top: 5px;
-        }
-        /* Vendedor Info */
-        .vendedor-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        .vendedor-section h3 {
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 8px;
-        }
-        .vendedor-grid {
-            display: table;
-            width: 100%;
-        }
-        .vendedor-row {
-            display: table-row;
-        }
-        .vendedor-label {
+        .company-logo { display: table-cell; width: 120px; vertical-align: top; padding-right: 15px; }
+        .company-logo img { max-width: 120px; max-height: 80px; }
+        .header-left { display: table-cell; vertical-align: top; }
+        .header-right { display: table-cell; width: 40%; text-align: right; vertical-align: top; }
+        
+        .company-name { font-size: 22px; font-weight: bold; color: #0f172a; margin-bottom: 5px; text-transform: uppercase; }
+        .company-details { color: #64748b; font-size: 10px; }
+        
+        .document-title { font-size: 18px; font-weight: bold; color: #1e3a8a; margin-bottom: 5px; letter-spacing: 1px; }
+        .document-meta { font-size: 12px; color: #475569; }
+        .document-meta strong { color: #0f172a; }
+        
+        /* Info Blocks */
+        .info-container { display: table; width: 100%; margin-bottom: 30px; }
+        .info-box {
             display: table-cell;
-            color: #666;
-            padding: 5px 0;
-            width: 150px;
+            width: 48%;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            vertical-align: top;
         }
-        .vendedor-value {
-            display: table-cell;
-            color: #333;
-            font-weight: 500;
-            padding: 5px 0;
-        }
-        /* Periodo Info */
-        .periodo-section {
-            background: #FEF3C7;
-            border-left: 4px solid #F59E0B;
-            padding: 15px 20px;
-            margin-bottom: 25px;
-        }
-        .periodo-section h3 {
-            color: #B45309;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        .periodo-section .periodo {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-        /* Detalles Table */
-        .detalles-section {
-            margin-bottom: 25px;
-        }
-        .detalles-section h3 {
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th {
-            background: #333;
-            color: #fff;
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 11px;
-            text-transform: uppercase;
-        }
-        th:last-child {
-            text-align: right;
-        }
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        td:last-child {
-            text-align: right;
-            font-weight: 500;
-        }
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-        /* Totales */
-        .totales-section {
-            text-align: right;
-            margin-bottom: 30px;
-        }
-        .totales-grid {
-            display: inline-block;
-            text-align: left;
-            min-width: 300px;
-        }
-        .totales-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .totales-row:last-child {
-            border-bottom: none;
-        }
-        .totales-row.total {
-            background: #F59E0B;
-            color: #fff;
-            padding: 12px 15px;
-            margin-top: 10px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .totales-label {
-            color: #666;
-        }
-        .totales-value {
-            font-weight: 600;
-            color: #333;
-        }
-        .totales-row.total .totales-label,
-        .totales-row.total .totales-value {
-            color: #fff;
-        }
-        /* Pago Info */
-        .pago-section {
-            background: #ECFDF5;
-            border: 1px solid #10B981;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        .pago-section h3 {
-            color: #047857;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-        .pago-grid {
-            display: table;
-            width: 100%;
-        }
-        .pago-row {
-            display: table-row;
-        }
-        .pago-label {
-            display: table-cell;
-            color: #666;
-            padding: 5px 0;
-            width: 150px;
-        }
-        .pago-value {
-            display: table-cell;
-            color: #333;
-            font-weight: 500;
-            padding: 5px 0;
-        }
+        .info-spacer { display: table-cell; width: 4%; }
+        
+        .box-title { font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        .info-row { margin-bottom: 4px; }
+        .info-label { color: #64748b; display: inline-block; width: 80px; }
+        .info-value { color: #0f172a; font-weight: bold; }
+        
+        /* Table */
+        .table-title { font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 10px; border-left: 3px solid #1e3a8a; padding-left: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background: #1e293b; color: #ffffff; padding: 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        th.text-right { text-align: right; }
+        th.text-center { text-align: center; }
+        td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        td.text-right { text-align: right; }
+        td.text-center { text-align: center; }
+        
+        .venta-row { background: #ffffff; }
+        .venta-row td { font-weight: bold; color: #0f172a; }
+        
+        /* Subtable for items */
+        .items-row td { padding: 0 !important; border-bottom: 2px solid #cbd5e1 !important; }
+        .subtable { width: 100%; margin: 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+        .subtable th { background: #f1f5f9; color: #475569; padding: 6px 10px; font-size: 9px; border-bottom: 1px solid #e2e8f0; }
+        .subtable td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-weight: normal; color: #334155; font-size: 10px; }
+        .subtable tr:last-child td { border-bottom: none; }
+        
+        .tag-servicio { color: #7c3aed; font-weight: bold; }
+        .tag-producto { color: #2563eb; font-weight: bold; }
+        .comision-verde { color: #059669; font-weight: bold; }
+        
+        /* Totals */
+        .totals-container { display: table; width: 100%; margin-bottom: 40px; }
+        .totals-notes { display: table-cell; width: 60%; padding-right: 20px; vertical-align: top; }
+        .totals-summary { display: table-cell; width: 40%; vertical-align: top; }
+        
+        .notes-box { background: #f1f5f9; padding: 15px; border-radius: 6px; font-size: 10px; color: #475569; }
+        .notes-box strong { color: #0f172a; display: block; margin-bottom: 5px; }
+        
+        .summary-table { width: 100%; border-collapse: collapse; }
+        .summary-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+        .summary-table tr:last-child td { border-bottom: none; }
+        .summary-label { color: #64748b; }
+        .summary-value { text-align: right; font-weight: bold; color: #0f172a; font-size: 12px; }
+        
+        .summary-total td { background: #1e3a8a; color: #ffffff; font-size: 14px; font-weight: bold; border-radius: 4px; }
+        .summary-total .summary-label { color: #e0e7ff; }
+        .summary-total .summary-value { color: #ffffff; }
+        
+        /* Signatures */
+        .signatures { display: table; width: 100%; margin-top: 60px; text-align: center; }
+        .signature-box { display: table-cell; width: 50%; padding: 0 40px; }
+        .signature-line { border-top: 1px solid #0f172a; padding-top: 8px; margin-top: 40px; font-weight: bold; color: #0f172a; }
+        .signature-role { color: #64748b; font-size: 10px; }
+        
         /* Footer */
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            text-align: center;
-            color: #999;
-            font-size: 10px;
-        }
-        /* Firmas */
-        .firmas {
-            margin-top: 60px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .firma {
-            text-align: center;
-            width: 200px;
-        }
-        .firma-linea {
-            border-top: 1px solid #333;
-            padding-top: 10px;
-            margin-top: 40px;
-        }
+        .footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; text-align: center; color: #94a3b8; font-size: 9px; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="company-info">
-                <h1>{{ $empresa->nombre ?? 'CDD App' }}</h1>
-                <p>
-                    {{ $empresa->direccion ?? '' }}<br>
-                    Tel: {{ $empresa->telefono ?? '' }}<br>
-                    {{ $empresa->email ?? '' }}
-                </p>
+            @if($empresa['logo_base64'])
+            <div class="company-logo">
+                <img src="{{ $empresa['logo_base64'] }}" alt="Logo">
             </div>
-            <div class="recibo-info">
-                <h2>RECIBO DE COMISIÓN</h2>
-                <div class="numero">#{{ str_pad($pago->id, 6, '0', STR_PAD_LEFT) }}</div>
-                <div class="fecha">Fecha: {{ $pago->fecha_pago?->format('d/m/Y') ?? now()->format('d/m/Y') }}</div>
+            @endif
+            <div class="header-left">
+                <div class="company-name">{{ $empresa['nombre'] ?? 'SISTEMA CDD' }}</div>
+                <div class="company-details">
+                    @if($empresa['razon_social'] && $empresa['razon_social'] !== $empresa['nombre'])
+                        {{ $empresa['razon_social'] }}<br>
+                    @endif
+                    RFC: {{ $empresa['rfc'] ?? 'N/D' }}<br>
+                    {{ $empresa['direccion'] ?? 'Dirección no especificada' }}<br>
+                    Tel: {{ $empresa['telefono'] ?? 'N/D' }} | Email: {{ $empresa['email'] ?? 'N/D' }}
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="document-title">COMPROBANTE DE LIQUIDACIÓN</div>
+                <div class="document-meta">
+                    Recibo Folio: <strong>#{{ str_pad($pago->id, 6, '0', STR_PAD_LEFT) }}</strong><br>
+                    Fecha de Emisión: <strong>{{ $pago->fecha_pago?->format('d/m/Y') ?? now()->format('d/m/Y') }}</strong><br>
+                    Estado: <strong style="color: #059669;">{{ strtoupper($pago->estado) }}</strong>
+                </div>
             </div>
         </div>
 
-        <!-- Vendedor Info -->
-        <div class="vendedor-section">
-            <h3>Información del Beneficiario</h3>
-            <div class="vendedor-grid">
-                <div class="vendedor-row">
-                    <span class="vendedor-label">Nombre:</span>
-                    <span class="vendedor-value">{{ $pago->vendedor?->name ?? 'N/A' }}</span>
+        <!-- Info Blocks -->
+        <div class="info-container">
+            <!-- Beneficiario -->
+            <div class="info-box">
+                <div class="box-title">Datos del Beneficiario</div>
+                <div class="info-row">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value">{{ $pago->vendedor?->name ?? 'N/A' }}</span>
                 </div>
-                <div class="vendedor-row">
-                    <span class="vendedor-label">Tipo:</span>
-                    <span class="vendedor-value">{{ $pago->vendedor_type === 'App\\Models\\User' ? 'Vendedor' : 'Técnico' }}</span>
+                <div class="info-row">
+                    <span class="info-label">Puesto/Rol:</span>
+                    <span class="info-value">{{ $pago->vendedor_type === 'App\\Models\\User' && $pago->vendedor?->es_tecnico ? 'Técnico Instalador' : 'Ejecutivo de Ventas' }}</span>
                 </div>
-                @if($pago->vendedor?->email)
-                <div class="vendedor-row">
-                    <span class="vendedor-label">Email:</span>
-                    <span class="vendedor-value">{{ $pago->vendedor->email }}</span>
+                <div class="info-row">
+                    <span class="info-label">ID Sistema:</span>
+                    <span class="info-value">{{ $pago->vendedor_id }}</span>
+                </div>
+            </div>
+            
+            <div class="info-spacer"></div>
+            
+            <!-- Detalles del Pago -->
+            <div class="info-box">
+                <div class="box-title">Detalles de la Operación</div>
+                <div class="info-row">
+                    <span class="info-label">Periodo:</span>
+                    <span class="info-value">{{ \Carbon\Carbon::parse($pago->periodo_inicio)->format('d/m/Y') }} al {{ \Carbon\Carbon::parse($pago->periodo_fin)->format('d/m/Y') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Método:</span>
+                    <span class="info-value">{{ ucfirst($pago->metodo_pago ?? 'Efectivo') }}</span>
+                </div>
+                @if($pago->referencia_pago || $pago->cuentaBancaria)
+                <div class="info-row">
+                    <span class="info-label">Referencia:</span>
+                    <span class="info-value">
+                        {{ $pago->referencia_pago ? $pago->referencia_pago . ' ' : '' }}
+                        {{ $pago->cuentaBancaria ? '('.$pago->cuentaBancaria->banco.')' : '' }}
+                    </span>
                 </div>
                 @endif
             </div>
         </div>
 
-        <!-- Periodo -->
-        <div class="periodo-section">
-            <h3>Periodo de Comisión</h3>
-            <div class="periodo">
-                {{ \Carbon\Carbon::parse($pago->periodo_inicio)->format('d M Y') }} - {{ \Carbon\Carbon::parse($pago->periodo_fin)->format('d M Y') }}
-            </div>
-        </div>
-
-        <!-- Detalles de Ventas -->
+        <!-- Tabla de Ventas Liquidadas -->
         @if(!empty($pago->detalles_ventas) && count($pago->detalles_ventas) > 0)
-        <div class="detalles-section">
-            <h3>Detalle de Ventas ({{ $pago->num_ventas }} ventas)</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Venta</th>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th>Total Venta</th>
-                        <th>Comisión</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pago->detalles_ventas as $detalle)
-                    <tr>
-                        <td>{{ $detalle['numero_venta'] ?? '-' }}</td>
-                        <td>{{ isset($detalle['fecha']) ? \Carbon\Carbon::parse($detalle['fecha'])->format('d/m/Y') : '-' }}</td>
-                        <td>{{ $detalle['cliente'] ?? '-' }}</td>
-                        <td>${{ number_format($detalle['total_venta'] ?? 0, 2) }}</td>
-                        <td>${{ number_format($detalle['comision_total'] ?? 0, 2) }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        <div class="table-title">Ventas Liquidadas en este Comprobante ({{ count($pago->detalles_ventas) }})</div>
+        <table>
+            <thead>
+                <tr>
+                    <th width="15%">Venta #</th>
+                    <th width="15%" class="text-center">Fecha</th>
+                    <th width="40%">Cliente</th>
+                    <th width="15%" class="text-right">Monto Venta</th>
+                    <th width="15%" class="text-right">Comisión</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($pago->detalles_ventas as $detalle)
+                <tr class="venta-row">
+                    <td>{{ $detalle['numero_venta'] ?? '-' }}</td>
+                    <td class="text-center">{{ isset($detalle['fecha']) ? \Carbon\Carbon::parse($detalle['fecha'])->format('d/m/y') : '-' }}</td>
+                    <td>{{ $detalle['cliente'] ?? '-' }}</td>
+                    <td class="text-right">${{ number_format($detalle['total_venta'] ?? 0, 2) }}</td>
+                    <td class="text-right comision-verde">${{ number_format($detalle['comision_total'] ?? 0, 2) }}</td>
+                </tr>
+                @if(!empty($detalle['items']))
+                <tr class="items-row">
+                    <td colspan="5">
+                        <table class="subtable">
+                            <thead>
+                                <tr>
+                                    <th width="50%">Concepto / Partida</th>
+                                    <th width="15%" class="text-center">Tipo</th>
+                                    <th width="10%" class="text-center">Cant.</th>
+                                    <th width="25%" class="text-right">Comisión Base</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($detalle['items'] as $item)
+                                <tr>
+                                    <td>{{ $item['nombre'] }}</td>
+                                    <td class="text-center">
+                                        <span class="{{ $item['tipo'] === 'Servicio' ? 'tag-servicio' : 'tag-producto' }}">{{ $item['tipo'] }}</span>
+                                    </td>
+                                    <td class="text-center">{{ $item['cantidad'] }}</td>
+                                    <td class="text-right comision-verde">${{ number_format($item['comision'], 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                @endif
+                @endforeach
+            </tbody>
+        </table>
         @endif
 
-        <!-- Totales -->
-        <div class="totales-section">
-            <div class="totales-grid">
-                <div class="totales-row">
-                    <span class="totales-label">Total Ventas:</span>
-                    <span class="totales-value">${{ number_format($pago->total_ventas, 2) }}</span>
-                </div>
-                <div class="totales-row">
-                    <span class="totales-label">Comisión Calculada:</span>
-                    <span class="totales-value">${{ number_format($pago->monto_comision, 2) }}</span>
-                </div>
-                <div class="totales-row total">
-                    <span class="totales-label">MONTO PAGADO:</span>
-                    <span class="totales-value">${{ number_format($pago->monto_pagado, 2) }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info de Pago -->
-        <div class="pago-section">
-            <h3>Información del Pago</h3>
-            <div class="pago-grid">
-                <div class="pago-row">
-                    <span class="pago-label">Estado:</span>
-                    <span class="pago-value">{{ ucfirst($pago->estado) }}</span>
-                </div>
-                <div class="pago-row">
-                    <span class="pago-label">Método de Pago:</span>
-                    <span class="pago-value">{{ ucfirst($pago->metodo_pago ?? 'N/A') }}</span>
-                </div>
-                @if($pago->referencia_pago)
-                <div class="pago-row">
-                    <span class="pago-label">Referencia:</span>
-                    <span class="pago-value">{{ $pago->referencia_pago }}</span>
+        <!-- Totals & Notes -->
+        <div class="totals-container">
+            <div class="totals-notes">
+                @if($pago->notas)
+                <div class="notes-box">
+                    <strong>Observaciones:</strong>
+                    {{ $pago->notas }}
                 </div>
                 @endif
-                @if($pago->cuentaBancaria)
-                <div class="pago-row">
-                    <span class="pago-label">Cuenta:</span>
-                    <span class="pago-value">{{ $pago->cuentaBancaria->banco }} - {{ $pago->cuentaBancaria->nombre }}</span>
-                </div>
-                @endif
-                <div class="pago-row">
-                    <span class="pago-label">Pagado por:</span>
-                    <span class="pago-value">{{ $pago->pagadoPorUser?->name ?? 'N/A' }}</span>
-                </div>
+            </div>
+            <div class="totals-summary">
+                <table class="summary-table">
+                    <tr>
+                        <td class="summary-label">Ventas Procesadas:</td>
+                        <td class="summary-value">{{ $pago->num_ventas }}</td>
+                    </tr>
+                    <tr>
+                        <td class="summary-label">Monto de Ventas:</td>
+                        <td class="summary-value">${{ number_format($pago->total_ventas, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="summary-label">Comisión Calculada:</td>
+                        <td class="summary-value">${{ number_format($pago->monto_comision, 2) }}</td>
+                    </tr>
+                    <tr class="summary-total">
+                        <td class="summary-label">TOTAL LIQUIDADO:</td>
+                        <td class="summary-value">${{ number_format($pago->monto_pagado, 2) }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
 
-        @if($pago->notas)
-        <div style="margin-bottom: 25px;">
-            <strong>Notas:</strong>
-            <p style="color: #666; margin-top: 5px;">{{ $pago->notas }}</p>
-        </div>
-        @endif
-
-        <!-- Firmas -->
-        <div class="firmas">
-            <div class="firma">
-                <div class="firma-linea">
-                    Recibí Conforme
-                </div>
+        <!-- Signatures -->
+        <div class="signatures">
+            <div class="signature-box">
+                <div class="signature-line">{{ $pago->pagadoPorUser?->name ?? 'Firma Autorizada' }}</div>
+                <div class="signature-role">DEPARTAMENTO DE ADMINISTRACIÓN</div>
             </div>
-            <div class="firma">
-                <div class="firma-linea">
-                    Autorizado por
-                </div>
+            <div class="signature-box">
+                <div class="signature-line">{{ $pago->vendedor?->name ?? 'Nombre del Beneficiario' }}</div>
+                <div class="signature-role">RECIBÍ DE CONFORMIDAD</div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p>Documento generado el {{ now()->format('d/m/Y H:i:s') }}</p>
-            <p>{{ $empresa->nombre ?? 'CDD App' }} - Sistema de Gestión</p>
+            Este documento constituye un comprobante interno de liquidación de comisiones.
+            Emitido desde {{ $empresa['nombre'] ?? 'CDD App' }} el {{ now()->format('d/m/Y') }} a las {{ now()->format('H:i') }} hrs.
         </div>
     </div>
 </body>
 </html>
+

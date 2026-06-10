@@ -12,12 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('clientes', function (Blueprint $table) {
-            $table->string('wa_profile_name')->nullable()->after('wa_username');
+            if (!Schema::hasColumn('clientes', 'wa_profile_name')) {
+                $table->string('wa_profile_name')->nullable()->after('wa_username');
+            }
         });
 
-        Schema::table('crm_prospectos', function (Blueprint $table) {
-            $table->string('wa_profile_name')->nullable()->after('wa_username');
-        });
+        if (Schema::hasTable('crm_prospectos')) {
+            Schema::table('crm_prospectos', function (Blueprint $table) {
+                if (!Schema::hasColumn('crm_prospectos', 'wa_profile_name')) {
+                    $table->string('wa_profile_name')->nullable()->after('wa_username');
+                }
+            });
+        }
     }
 
     /**
@@ -26,11 +32,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('clientes', function (Blueprint $table) {
-            $table->dropColumn('wa_profile_name');
+            if (Schema::hasColumn('clientes', 'wa_profile_name')) {
+                $table->dropColumn('wa_profile_name');
+            }
         });
 
-        Schema::table('crm_prospectos', function (Blueprint $table) {
-            $table->dropColumn('wa_profile_name');
-        });
+        if (Schema::hasTable('crm_prospectos')) {
+            Schema::table('crm_prospectos', function (Blueprint $table) {
+                if (Schema::hasColumn('crm_prospectos', 'wa_profile_name')) {
+                    $table->dropColumn('wa_profile_name');
+                }
+            });
+        }
     }
 };

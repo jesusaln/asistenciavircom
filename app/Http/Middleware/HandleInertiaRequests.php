@@ -48,10 +48,32 @@ class HandleInertiaRequests extends Middleware
                 'created_poliza_id' => fn() => $request->session()->get('created_poliza_id'),
                 'metodo_pago' => fn() => $request->session()->get('metodo_pago'),
                 'stamping_error' => fn() => $request->session()->get('stamping_error'),
+                'whatsapp_cotizacion_reciente' => fn() => $request->session()->get('whatsapp_cotizacion_reciente'),
+                'requiere_confirmacion_margen' => fn() => $request->session()->get('requiere_confirmacion_margen'),
+                'productos_bajo_margen' => fn() => $request->session()->get('productos_bajo_margen'),
             ],
             'empresa_config' => fn() => EmpresaConfiguracionService::getConfiguracion(),
             'app_version' => fn() => \App\Support\VersionHelper::getVersion(),
-            'business' => config('app.business'),
+            'selected_company' => fn() => $request->cookie('selected_company') ?: $request->session()->get('selected_company', 'climas'),
+            'is_local' => fn() => app()->environment('local'),
+            'tareas_pendientes' => function () use ($request) {
+                if (Auth::check()) {
+                    return app(\App\Services\Panel\PanelBitacoraService::class)->getTareasPendientes(Auth::id());
+                }
+                return null;
+            },
+            'show_tasks_modal' => function() use ($request) {
+                if (!Auth::check()) return false;
+                
+                if (!$request->session()->has('tasks_modal_shown')) {
+                    $request->session()->put('tasks_modal_shown', true);
+                    return true;
+                }
+                return false;
+            },
+            'contab_daily_report' => function() {
+                return \Illuminate\Support\Facades\Cache::get('daily_contab_summary');
+            },
         ];
 
         // 1. Staff Auth (Guard: web)

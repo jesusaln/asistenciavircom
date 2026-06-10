@@ -15,7 +15,7 @@ class TestNotification extends Command
      *
      * @var string
      */
-    protected $signature = 'test:notification {--type= : Tipo de notificación a crear}';
+    protected $signature = 'debug:test-notification {--type= : Tipo de notificación a crear}';
 
     /**
      * The console command description.
@@ -74,7 +74,7 @@ class TestNotification extends Command
                     [
                         'client_id' => $cliente->id,
                         'client_name' => $cliente->nombre_razon_social,
-                        'created_at' => now()->toISOString()
+                        'created_at' => now()->toIso8601String()
                     ],
                     "/clientes/{$cliente->id}",
                     'fas fa-user-plus'
@@ -85,7 +85,7 @@ class TestNotification extends Command
                     'type' => $type,
                     'title' => 'Notificación de Prueba',
                     'message' => 'Esta es una notificación de prueba creada desde el comando.',
-                    'data' => ['test' => true, 'timestamp' => now()->toISOString()],
+                    'data' => ['test' => true, 'timestamp' => now()->toIso8601String()],
                     'action_url' => '/panel',
                     'icon' => 'fas fa-bell',
                     'read' => false

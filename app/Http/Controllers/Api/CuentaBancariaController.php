@@ -15,6 +15,9 @@ class CuentaBancariaController extends Controller
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'banco', 'numero_cuenta', 'saldo_actual']);
 
-        return response()->json($cuentas);
+        return response()->json([
+            'success' => true,
+            'data' => $cuentas
+        ]);
     }
 }

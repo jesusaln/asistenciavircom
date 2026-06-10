@@ -2,7 +2,7 @@
   <div ref="root" class="buscar-producto">
     <!-- Campo de búsqueda -->
     <div class="mb-6">
-      <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
+      <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide">
         {{ label }}
       </label>
       <div class="relative group">
@@ -13,9 +13,9 @@
           @input="handleInput"
           @focus="mostrarLista = true"
           :placeholder="placeholder"
-          class="w-full px-4 py-3 bg-white dark:bg-slate-950 border-2 border-gray-200 dark:border-slate-800 rounded-xl focus:ring-0 focus:border-indigo-500 dark:focus:border-indigo-500 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 transition-all shadow-sm"
+          class="w-full px-4 py-3 bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-0 focus:border-brand-500 dark:focus:border-brand-500 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 transition-all shadow-sm"
         />
-        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-gray-400 dark:text-slate-600">
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500 text-slate-400 dark:text-slate-600">
           <svg v-if="!cargando" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
@@ -31,10 +31,10 @@
           type="button"
           @click="filtroActivo = 'todos'"
           :class="[
-            'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
+            'px-4 py-1.5 text-[10px] font-black uppercase tracking-wide rounded-xl transition-all border',
             filtroActivo === 'todos'
               ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-800 dark:border-slate-100 shadow-md transform scale-105'
-              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-600'
+              : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
           ]"
         >
           {{ textoTodos }} ({{ itemsFiltrados.length }})
@@ -43,10 +43,10 @@
           type="button"
           @click="filtroActivo = 'productos'"
           :class="[
-            'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
+            'px-4 py-1.5 text-[10px] font-black uppercase tracking-wide rounded-xl transition-all border',
             filtroActivo === 'productos'
-              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20 transform scale-105'
-              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 hover:text-blue-500'
+              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-sky-500/20 transform scale-105'
+              : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 hover:text-blue-500'
           ]"
         >
           {{ textoProductos }} ({{ productosCount }})
@@ -56,10 +56,10 @@
           type="button"
           @click="filtroActivo = 'servicios'"
           :class="[
-            'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border',
+            'px-4 py-1.5 text-[10px] font-black uppercase tracking-wide rounded-xl transition-all border',
             filtroActivo === 'servicios'
               ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-500/20 transform scale-105'
-              : 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-500 border-gray-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-900 hover:text-purple-500'
+              : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-900 hover:text-purple-500'
           ]"
         >
           {{ textoServicios }} ({{ serviciosCount }})
@@ -98,9 +98,9 @@
           <div class="grid grid-cols-12 gap-3 items-center">
             <div class="col-span-1 flex justify-center">
               <span :class="[
-                'w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black shadow-sm',
+                'w-6 h-6 flex items-center justify-center rounded-xl text-[10px] font-black shadow-sm',
                 item.tipo === 'producto'
-                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                  ? 'bg-blue-50 dark:bg-sky-900/20/30 text-blue-700 dark:text-blue-400'
                   : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
               ]">
                 {{ item.tipo === 'producto' ? 'P' : 'S' }}
@@ -114,13 +114,13 @@
               <div v-if="item.descripcion" class="text-[10px] text-[var(--ui-text-soft)] truncate mt-0.5">
                   {{ item.descripcion }}
               </div>
-              <div v-if="getStock(item) <= 0 && getAvailabilityInfo(item)" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1 animate-pulse">
+              <div v-if="getStock(item) <= 0 && getAvailabilityInfo(item)" class="text-[10px] text-brand-600 dark:text-brand-400 font-bold mt-1 animate-pulse">
                 {{ getAvailabilityInfo(item) }}
               </div>
             </div>
 
             <div class="col-span-2">
-              <span class="text-xs font-mono text-[var(--ui-text-muted)] bg-[var(--ui-surface-alt)] px-1.5 py-0.5 rounded border border-[var(--ui-border)]">
+              <span class="text-xs font-mono text-[var(--ui-text-muted)] bg-[var(--ui-surface-alt)] px-1.5 py-0.5 rounded-xl border border-[var(--ui-border)]">
                   {{ item.codigo || '---' }}
               </span>
             </div>
@@ -139,15 +139,15 @@
 
             <div class="col-span-1 flex justify-center">
               <div v-if="item.tipo === 'producto'">
-                <span v-if="item.tipo_producto === 'kit'" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 uppercase">
+                <span v-if="item.tipo_producto === 'kit'" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 dark:bg-sky-900/30 text-indigo-700 dark:text-indigo-400 uppercase">
                   Kit
                 </span>
                 <template v-else>
                   <span :class="[
                     'text-[10px] px-2 py-0.5 rounded-full font-bold',
-                    getStock(item) > 10 ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' :
-                    getStock(item) > 0 ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' :
-                    'bg-rose-100 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
+                    getStock(item) > 10 ? 'bg-emerald-50 dark:bg-emerald-900/20/20 text-emerald-700 dark:text-emerald-400' :
+                    getStock(item) > 0 ? 'bg-brand-50 dark:bg-brand-900/20/20 text-brand-700 dark:text-amber-400' :
+                    'bg-rose-50 dark:bg-rose-900/20/20 text-rose-700 dark:text-rose-400'
                   ]">
                     {{ getStock(item) }}
                   </span>
@@ -164,7 +164,7 @@
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 transform active:scale-95 shadow-sm',
                   props.validarStock && item.tipo === 'producto' && item.tipo_producto !== 'kit' && getStock(item) <= 0
-                    ? 'bg-gray-100 dark:bg-slate-800 text-gray-300 dark:text-slate-600 cursor-not-allowed'
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed'
                     : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50'
                 ]"
               >
@@ -195,6 +195,7 @@
 <script setup>
 import { ref, computed, nextTick, watch } from 'vue';
 import { resolverPrecio } from '@/Utils/precioHelper';
+import { includesSearch } from '@/Utils/searchHelper';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 import { useClickOutside } from '@/Composables/useClickOutside';
@@ -310,14 +311,14 @@ const itemsFiltrados = computed(() => {
   if (busqueda.value) {
     const termino = busqueda.value.toLowerCase();
     items = items.filter(item =>
-      (item.nombre && item.nombre.toLowerCase().includes(termino)) ||
-      (item.codigo && item.codigo.toLowerCase().includes(termino)) ||
+      includesSearch(item.nombre, busqueda.value) ||
+      includesSearch(item.codigo, busqueda.value) ||
       (item.categoria && (
         typeof item.categoria === 'string'
-          ? item.categoria.toLowerCase().includes(termino)
-          : (item.categoria.nombre && item.categoria.nombre.toLowerCase().includes(termino))
+          ? includesSearch(item.categoria, busqueda.value)
+          : includesSearch(item.categoria.nombre, busqueda.value)
       )) ||
-      (item.descripcion && item.descripcion.toLowerCase().includes(termino))
+      includesSearch(item.descripcion, busqueda.value)
     );
   }
   return items.slice(0, 150); // Limitar a 150 resultados
@@ -380,6 +381,10 @@ const buscarEnApi = debounce(async () => {
         
         resultadosApi.value = nuevosResultados;
     } catch (error) {
+        if (error?.response?.status === 419) {
+          window.location.reload();
+          return;
+        }
         console.error('Error buscando en API:', error);
     } finally {
         cargando.value = false;

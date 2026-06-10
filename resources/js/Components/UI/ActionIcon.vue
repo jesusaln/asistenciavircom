@@ -108,19 +108,19 @@ const sizeClasses = computed(() => {
 // Variant classes
 const variantClasses = computed(() => {
     const variants = {
-        default: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
-        primary: 'bg-amber-100 text-amber-600 hover:bg-amber-200',
-        info: 'bg-blue-100 text-blue-600 hover:bg-blue-200',
-        success: 'bg-green-100 text-green-600 hover:bg-green-200',
-        warning: 'bg-amber-100 text-amber-600 hover:bg-amber-200',
-        danger: 'bg-red-100 text-red-600 hover:bg-red-200'
+        default: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+        primary: 'bg-brand-100 text-brand-600 hover:bg-amber-200',
+        info: 'bg-sky-100 text-sky-700 hover:bg-blue-200',
+        success: 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200',
+        warning: 'bg-brand-100 text-brand-600 hover:bg-amber-200',
+        danger: 'bg-rose-100 text-rose-600 hover:bg-rose-200'
     };
     return variants[effectiveVariant.value];
 });
 
 // Combined classes
 const iconClasses = computed(() => [
-    'inline-flex items-center justify-center rounded-lg transition-colors duration-200',
+    'inline-flex items-center justify-center rounded-xl transition-colors duration-200',
     'focus:outline-none focus:ring-2 focus:ring-offset-1',
     sizeClasses.value,
     variantClasses.value,

@@ -34,10 +34,13 @@ class MiCorteCobrosCalculator
      */
     public function resumenParaUsuario(?int $userId, Carbon $desde, Carbon $hasta): array
     {
+        $desdeUtc = $desde->copy()->setTimezone('UTC');
+        $hastaUtc = $hasta->copy()->setTimezone('UTC');
+
         $candidatas = Venta::query()
             ->where('pagado', true)
             ->where('estado', '!=', EstadoVenta::Cancelada)
-            ->whereBetween('created_at', [$desde, $hasta])
+            ->whereBetween('created_at', [$desdeUtc, $hastaUtc])
             // Solo ventas que NO tengan una entrega de dinero pendiente o recibida
             ->whereDoesntHave('entregas', function($q) {
                 $q->whereIn('estado', ['pendiente', 'recibido']);
@@ -58,7 +61,7 @@ class MiCorteCobrosCalculator
         if ($ventaIds !== []) {
             $descuentosPartidas = $this->sumDescuentosPartidasVentaItems($ventaIds);
         }
-        $ventasPeriodoCobradas = $candidatas->count();
+        $ventasPeriodoCobradas = $ventas->count();
         $descuentoGeneralSum = round((float) $ventas->sum(fn (Venta $v) => (float) ($v->descuento_general ?? 0)), 2);
         $descuentosPartidas = round($descuentosPartidas, 2);
         $totalDescuentos = round($descuentosPartidas + $descuentoGeneralSum, 2);
@@ -86,15 +89,30 @@ class MiCorteCobrosCalculator
         $efectivoGenerado = $porMetodo['efectivo'];
 
         // Gastos pagados en efectivo por el usuario en el periodo
+        // Solo gastos que NO tengan cuenta bancaria (que sean de caja física)
         $gastosQuery = Compra::query()
             ->where('tipo', 'gasto')
             ->where('metodo_pago', 'efectivo')
-            ->when($userId, fn($q) => $q->where('created_by', $userId))
+            ->whereNull('cuenta_bancaria_id') // <--- FIX: Excluir gastos bancarios del corte de efectivo
+            ->when($userId, fn($q) => $q->where(function($sub) use ($userId) {
+                $sub->where('user_id', $userId)
+                    ->orWhere(function($sub2) use ($userId) {
+                        $sub2->whereNull('user_id')->where('created_by', $userId);
+                    });
+            }))
             ->whereBetween('fecha_compra', [$desde, $hasta])
-            ->where('estado', '!=', 'cancelado');
+            ->where('estado', '!=', 'cancelado')
+            // Solo gastos que NO tengan una entrega de dinero pendiente o recibida
+            ->where(function ($query) {
+                $query->whereDoesntHave('entregas', function ($q) {
+                    $q->whereIn('estado', ['pendiente', 'recibido']);
+                })->whereDoesntHave('entregasGasto', function ($q) {
+                    $q->whereIn('estado', ['pendiente', 'recibido']);
+                });
+            });
 
         $gastosEfectivo = (float) $gastosQuery->sum('total');
-        $gastosDetalle = $gastosQuery->with('categoriaGasto:id,nombre')->get(['id', 'numero_compra', 'total', 'fecha_compra', 'notas', 'categoria_gasto_id']);
+        $gastosDetalle = $gastosQuery->with(['categoriaGasto:id,nombre', 'user:id,name'])->get(['id', 'numero_compra', 'total', 'fecha_compra', 'notas', 'categoria_gasto_id', 'user_id', 'created_by']);
 
         $tag = 'PERIODO:'.$desde->format('Y-m-d').'|'.$hasta->format('Y-m-d');
         $yaEntregado = (float) EntregaDinero::query()
@@ -156,19 +174,26 @@ class MiCorteCobrosCalculator
         $tieneVendedorAsignado = filled($v->vendedor_id) && filled(trim((string) ($v->vendedor_type ?? '')));
 
         if ($bucket === 'efectivo') {
+            // Si pagado_por está seteado, el efectivo es de quien lo cobró
+            if (filled($v->pagado_por)) {
+                return (int) $v->pagado_por === $userId;
+            }
+
+            // Si no hay pagado_por, va para el vendedor asignado
             if ($tieneVendedorAsignado) {
                 if ($esVendedor) {
                     return true;
                 }
                 $rel = $v->relationLoaded('vendedor') ? $v->getRelation('vendedor') : $v->vendedor;
                 if ($rel === null) {
-                    return $esPagador || $esCreador;
+                    return $esCreador;
                 }
 
                 return false;
             }
 
-            return $esPagador || $esCreador;
+            // Si no hay vendedor ni pagado_por, va para el creador
+            return $esCreador;
         }
 
         if ($esPagador || $esVendedor) {

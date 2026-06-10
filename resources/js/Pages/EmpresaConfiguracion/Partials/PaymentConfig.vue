@@ -60,16 +60,16 @@ const updatePaymentConfig = () => {
             
             <!-- PayPal -->
             <div class="col-span-6">
-                <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                <h3 class="text-lg font-medium text-slate-900 flex items-center">
                     <span class="text-2xl mr-2">🅿️</span> PayPal
                 </h3>
-                <div class="mt-1 border-b border-gray-200"></div>
+                <div class="mt-1 border-b border-slate-200"></div>
             </div>
 
             <div class="col-span-6 sm:col-span-4">
                 <label class="flex items-center">
                     <Checkbox v-model:checked="form.paypal_sandbox" />
-                    <span class="ml-2 text-sm text-gray-600">Activar Modo Sandbox (Pruebas)</span>
+                    <span class="ml-2 text-sm text-slate-500">Activar Modo Sandbox (Pruebas)</span>
                 </label>
             </div>
 
@@ -98,16 +98,16 @@ const updatePaymentConfig = () => {
 
             <!-- MercadoPago -->
             <div class="col-span-6 mt-6">
-                <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                <h3 class="text-lg font-medium text-slate-900 flex items-center">
                     <span class="text-2xl mr-2">🤝</span> MercadoPago
                 </h3>
-                <div class="mt-1 border-b border-gray-200"></div>
+                <div class="mt-1 border-b border-slate-200"></div>
             </div>
 
             <div class="col-span-6 sm:col-span-4">
                 <label class="flex items-center">
                     <Checkbox v-model:checked="form.mercadopago_sandbox" />
-                    <span class="ml-2 text-sm text-gray-600">Activar Modo Sandbox / Pruebas</span>
+                    <span class="ml-2 text-sm text-slate-500">Activar Modo Sandbox / Pruebas</span>
                 </label>
             </div>
 
@@ -136,16 +136,16 @@ const updatePaymentConfig = () => {
 
             <!-- Stripe -->
             <div class="col-span-6 mt-6">
-                <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                <h3 class="text-lg font-medium text-slate-900 flex items-center">
                     <span class="text-2xl mr-2">💳</span> Stripe
                 </h3>
-                <div class="mt-1 border-b border-gray-200"></div>
+                <div class="mt-1 border-b border-slate-200"></div>
             </div>
 
             <div class="col-span-6 sm:col-span-4">
                 <label class="flex items-center">
                     <Checkbox v-model:checked="form.stripe_sandbox" />
-                    <span class="ml-2 text-sm text-gray-600">Activar Modo Sandbox / Test Keys</span>
+                    <span class="ml-2 text-sm text-slate-500">Activar Modo Sandbox / Test Keys</span>
                 </label>
             </div>
 
@@ -181,7 +181,7 @@ const updatePaymentConfig = () => {
                     placeholder="Opcional: Deja vacío para mantener el actual"
                     class="mt-1 block w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">Necesario para validar webhooks de Stripe en producción.</p>
+                <p class="text-xs text-slate-500 mt-1">Necesario para validar webhooks de Stripe en producción.</p>
                 <InputError :message="form.errors.stripe_webhook_secret" class="mt-2" />
             </div>
 

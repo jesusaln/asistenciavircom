@@ -9,15 +9,67 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use App\Models\Concerns\BelongsToEmpresa;
 
-use \OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Auditable;
 
+/**
+ * @property int $id
+ * @property string $folio
+ * @property int|null $empresa_id
+ * @property int $tecnico_id
+ * @property int $cliente_id
+ * @property string $tipo_servicio
+ * @property \Carbon\Carbon $fecha_hora
+ * @property string|null $descripcion
+ * @property string|null $problema_reportado
+ * @property string $prioridad
+ * @property string $estado
+ * @property \Carbon\Carbon|null $fecha_hora_fin
+ * @property array|null $evidencias
+ * @property string|null $foto_equipo
+ * @property string|null $foto_hoja_servicio
+ * @property string|null $foto_identificacion
+ * @property string $tipo_equipo
+ * @property string|null $marca_equipo
+ * @property string|null $modelo_equipo
+ * @property float $subtotal
+ * @property float $descuento_general
+ * @property float $descuento_items
+ * @property float $iva
+ * @property float $total
+ * @property string|null $notas
+ * @property string|null $notas_internas
+ * @property \Carbon\Carbon|null $inicio_servicio
+ * @property \Carbon\Carbon|null $fin_servicio
+ * @property int|null $tiempo_servicio
+ * @property array|null $fotos_finales
+ * @property int|null $ticket_id
+ * @property string|null $firma_cliente
+ * @property string|null $nombre_firmante
+ * @property \Carbon\Carbon|null $fecha_firma
+ * @property string|null $firma_tecnico
+ * @property int|null $poliza_id
+ * @property float|null $latitud
+ * @property float|null $longitud
+ * @property \Carbon\Carbon|null $fecha_gps
+ * @property array|null $evidencias_previas
+ */
 class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
-    use HasFactory, SoftDeletes, BelongsToEmpresa, Auditable;
+    use BelongsToEmpresa;
+
+    use HasFactory, SoftDeletes, Auditable;
 
     protected static function booted()
     {
         static::creating(function (Cita $cita) {
+            if (empty($cita->empresa_id)) {
+                $cita->empresa_id = auth()->user()?->empresa_id
+                    ?? \App\Support\EmpresaResolver::resolveId();
+                
+                if (empty($cita->empresa_id)) {
+                    throw new \RuntimeException("No se puede crear la Cita: empresa_id es requerido y no pudo ser resuelto.");
+                }
+            }
             if (empty($cita->folio)) {
                 try {
                     $folio = app(\App\Services\Folio\FolioService::class)->getNextFolio('cita');
@@ -45,6 +97,29 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $cita->items()->delete();
             }
         });
+
+        // Notificaciones Push a Técnicos
+        static::created(function (Cita $cita) {
+            if ($cita->tecnico_id && $cita->tecnico && $cita->tecnico->fcm_token) {
+                \App\Jobs\SendPushNotification::dispatch(
+                    $cita->tecnico->fcm_token,
+                    '📅 Nueva Cita Asignada',
+                    "Tienes una nueva cita para: {$cita->cliente->nombre_razon_social} el {$cita->fecha_hora->format('d/m H:i')}",
+                    ['cita_id' => $cita->id, 'type' => 'cita_new']
+                );
+            }
+        });
+
+        static::updated(function (Cita $cita) {
+            if ($cita->isDirty('tecnico_id') && $cita->tecnico_id && $cita->tecnico && $cita->tecnico->fcm_token) {
+                \App\Jobs\SendPushNotification::dispatch(
+                    $cita->tecnico->fcm_token,
+                    '🔄 Cita Reasignada',
+                    "Se te ha reasignado una cita para: {$cita->cliente->nombre_razon_social}",
+                    ['cita_id' => $cita->id, 'type' => 'cita_reasigned']
+                );
+            }
+        });
     }
 
     // Constantes para estados
@@ -52,9 +127,12 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
     const ESTADO_PENDIENTE_ASIGNACION = 'pendiente_asignacion'; // Nuevo: citas públicas
     const ESTADO_PROGRAMADO = 'programado';
     const ESTADO_EN_PROCESO = 'en_proceso';
+    const ESTADO_PAUSADO = 'pausado';
     const ESTADO_COMPLETADO = 'completado';
     const ESTADO_CANCELADO = 'cancelado';
     const ESTADO_REPROGRAMADO = 'reprogramado';
+    const ESTADO_REPROGRAMADA = 'reprogramado'; // Alias para compatibilidad
+    const ESTADO_NO_PRESENTO = 'no_presento';
 
     // Constantes para prioridades
     const PRIORIDAD_BAJA = 'baja';
@@ -77,16 +155,17 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     // Constantes para horarios preferidos
     const HORARIOS_PREFERIDOS = [
-        'manana' => ['nombre' => 'Mañana', 'inicio' => '08:00', 'fin' => '11:00', 'emoji' => '🌅'],
-        'mediodia' => ['nombre' => 'Medio día', 'inicio' => '11:00', 'fin' => '14:00', 'emoji' => '☀️'],
-        'tarde' => ['nombre' => 'Tarde', 'inicio' => '14:00', 'fin' => '17:00', 'emoji' => '🌤️'],
-        'noche' => ['nombre' => 'Noche', 'inicio' => '17:00', 'fin' => '20:00', 'emoji' => '🌙'],
+        'manana' => ['nombre' => 'Mañana', 'inicio' => '08:00', 'fin' => '10:00', 'emoji' => '🌅'],
+        'mediodia' => ['nombre' => 'Medio día', 'inicio' => '11:00', 'fin' => '13:00', 'emoji' => '☀️'],
+        'tarde' => ['nombre' => 'Tarde', 'inicio' => '14:00', 'fin' => '16:00', 'emoji' => '🌤️'],
+        'noche' => ['nombre' => 'Noche', 'inicio' => '17:00', 'fin' => '19:00', 'emoji' => '🌙'],
     ];
 
     protected $fillable = [
         'folio',
         'empresa_id',
         'tecnico_id',
+        'ayudante_id',
         'cliente_id',
         'tipo_servicio',
         'fecha_hora',
@@ -108,6 +187,7 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'iva',
         'total',
         'notas',
+        'notas_internas',
         'inicio_servicio',
         'fin_servicio',
         'tiempo_servicio',
@@ -135,11 +215,14 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'nombre_firmante',
         'fecha_firma',
         'firma_tecnico',
+        'firma_cliente_hash',
+        'firma_tecnico_hash',
         'poliza_id',
-        'microsoft_list_id',
         'latitud',
         'longitud',
         'fecha_gps',
+        'evidencias_previas',
+        'equipos_servicio',
     ];
 
     protected $casts = [
@@ -154,6 +237,7 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'total' => 'decimal:2',
         'inicio_servicio' => 'datetime',
         'fin_servicio' => 'datetime',
+        'equipos_servicio' => 'array',
         'fecha_hora_fin' => 'datetime',
         // Casts para campos públicos
         'es_publica' => 'boolean',
@@ -165,7 +249,17 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'whatsapp_confirmacion_at' => 'datetime',
         'evidencias' => 'array',
         'fotos_finales' => 'array',
+        'evidencias_previas' => 'array',
         'fecha_firma' => 'datetime',
+    ];
+
+    /**
+     * Atributos ocultos en JSON por defecto.
+     * ✅ PERFORMANCE: Evita enviar datos pesados (firmas base64/rutas) en cada serialización.
+     */
+    protected $hidden = [
+        'firma_cliente',
+        'firma_tecnico',
     ];
 
     // Scopes útiles
@@ -307,6 +401,14 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
     }
 
     /**
+     * Ayudante asignado (Usuario)
+     */
+    public function ayudante()
+    {
+        return $this->belongsTo(User::class, 'ayudante_id');
+    }
+
+    /**
      * Ticket de soporte origen (si aplica)
      */
     public function ticket()
@@ -320,6 +422,14 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function poliza()
     {
         return $this->belongsTo(PolizaServicio::class, 'poliza_id');
+    }
+
+    /**
+     * Historial de cambios de estado (Auditoría)
+     */
+    public function historial()
+    {
+        return $this->hasMany(CitaHistorial::class, 'cita_id')->latest();
     }
 
     /**
@@ -417,12 +527,13 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function getSiguientesEstadosValidos(): array
     {
         return match ($this->estado) {
-            self::ESTADO_PENDIENTE => [self::ESTADO_PROGRAMADO, self::ESTADO_EN_PROCESO, self::ESTADO_CANCELADO],
-            self::ESTADO_PROGRAMADO => [self::ESTADO_EN_PROCESO, self::ESTADO_REPROGRAMADO, self::ESTADO_CANCELADO],
-            self::ESTADO_EN_PROCESO => [self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO, self::ESTADO_PROGRAMADO],
+            self::ESTADO_PENDIENTE => [self::ESTADO_PROGRAMADO, self::ESTADO_EN_PROCESO, self::ESTADO_CANCELADO, self::ESTADO_COMPLETADO],
+            self::ESTADO_PROGRAMADO => [self::ESTADO_EN_PROCESO, self::ESTADO_REPROGRAMADO, self::ESTADO_CANCELADO, self::ESTADO_COMPLETADO],
+            self::ESTADO_EN_PROCESO => [self::ESTADO_COMPLETADO, self::ESTADO_PAUSADO, self::ESTADO_CANCELADO, self::ESTADO_PROGRAMADO],
+            self::ESTADO_PAUSADO => [self::ESTADO_EN_PROCESO, self::ESTADO_COMPLETADO, self::ESTADO_CANCELADO],
             self::ESTADO_COMPLETADO => [], // No se puede cambiar de completado
             self::ESTADO_CANCELADO => [self::ESTADO_PENDIENTE], // Solo se puede reactivar
-            self::ESTADO_REPROGRAMADO => [self::ESTADO_PROGRAMADO, self::ESTADO_EN_PROCESO, self::ESTADO_CANCELADO],
+            self::ESTADO_REPROGRAMADO => [self::ESTADO_PROGRAMADO, self::ESTADO_EN_PROCESO, self::ESTADO_CANCELADO, self::ESTADO_COMPLETADO],
             default => []
         };
     }
@@ -460,7 +571,25 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return null;
     }
 
-    protected $appends = ['tiempo_servicio_formateado'];
+    protected $appends = ['tiempo_servicio_formateado', 'motivo_cancelacion'];
+
+    public function getMotivoCancelacionAttribute()
+    {
+        if (in_array($this->estado, ['cancelado', 'cancelada'])) {
+            if ($this->evidencias && stripos($this->evidencias, 'cancelad') !== false) {
+                return $this->evidencias;
+            }
+            if ($this->notas && stripos($this->notas, 'cancelac') !== false) {
+                return $this->notas;
+            }
+            $historial = $this->historial()->where('estado_nuevo', 'cancelado')->first();
+            if ($historial && $historial->comentario) {
+                return $historial->comentario;
+            }
+            return $this->evidencias ?: ($this->notas ?: 'Cancelado por el administrador o técnico');
+        }
+        return null;
+    }
 
 
 
@@ -488,8 +617,8 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         } elseif ($nuevoEstado === self::ESTADO_COMPLETADO) {
             $this->fin_servicio = now();
             if ($this->inicio_servicio) {
-                $inicio = \Carbon\Carbon::parse($this->inicio_servicio);
-                $fin = \Carbon\Carbon::parse($this->fin_servicio);
+                $inicio = Carbon::parse($this->inicio_servicio);
+                $fin = Carbon::parse($this->fin_servicio);
                 $this->tiempo_servicio = (int) $inicio->diffInMinutes($fin);
             }
 
@@ -499,6 +628,13 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 if ($poliza && $poliza->isActiva()) {
                     $poliza->registrarVisitaSitio();
                 }
+            }
+        } elseif ($nuevoEstado === self::ESTADO_CANCELADO && $comentario) {
+            // Guardar el motivo en las evidencias para que la app móvil pueda mostrarlo
+            if (!$this->evidencias) {
+                $this->evidencias = $comentario;
+            } else {
+                $this->evidencias = $comentario . "\n\nNotas previas:\n" . $this->evidencias;
             }
         }
 
@@ -524,6 +660,8 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
             ],
         ]);
 
+        \App\Events\CitaEstadoActualizado::dispatch($this);
+        
         if ($nuevoEstado === self::ESTADO_COMPLETADO) {
             \App\Events\CitaCompletada::dispatch($this);
         }
@@ -536,23 +674,26 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
     /**
      * Verificar si hay conflicto de horario (Solapamiento)
      * @param int $tecnicoId
-     * @param string $fechaHoraInicio (Y-m-d H:i:s)
-     * @param string|null $fechaHoraFin (Y-m-d H:i:s)
+     * @param string $fechaHora (Y-m-d H:i:s)
      * @param int|null $excludeId
-     * @return bool
+     * @param int $duracionMin
+     * @return Cita|null
      */
-    public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null, int $duracionMin = 60): ?Cita
+    public static function hayConflictoHorario(int $tecnicoId, string $fechaHora, ?int $excludeId = null, int $duracionMin = 120): ?Cita
     {
         $nuevoInicio = Carbon::parse($fechaHora);
         $nuevoFin = $nuevoInicio->copy()->addMinutes($duracionMin);
 
-        $query = self::where('tecnico_id', $tecnicoId)
-            ->whereNotIn('estado', [self::ESTADO_CANCELADO, self::ESTADO_COMPLETADO])
+        $query = self::where(function ($q) use ($tecnicoId) {
+                $q->where('tecnico_id', $tecnicoId)
+                  ->orWhere('ayudante_id', $tecnicoId);
+            })
+            ->whereNotIn('estado', [self::ESTADO_CANCELADO, 'cancelada', self::ESTADO_COMPLETADO])
             ->whereDate('fecha_hora', $nuevoInicio->toDateString())
             ->where(function ($q) use ($nuevoInicio, $nuevoFin) {
                 // Un traslape ocurre si: (InicioA < FinB) AND (FinA > InicioB)
                 $q->where('fecha_hora', '<', $nuevoFin)
-                  ->whereRaw("COALESCE(fecha_hora_fin, fecha_hora + interval '60 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
+                  ->whereRaw("COALESCE(fecha_hora_fin, fecha_hora + interval '120 minutes') > ?", [$nuevoInicio->toDateTimeString()]);
             });
 
         if ($excludeId) {
@@ -652,7 +793,15 @@ class Cita extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
 
         $hora = Carbon::parse($this->hora_confirmada);
-        $horaFin = $hora->copy()->addHour();
+        
+        $duracionMinutos = 120;
+        if (isset(self::HORARIOS_PREFERIDOS[$this->horario_preferido])) {
+            $pref = self::HORARIOS_PREFERIDOS[$this->horario_preferido];
+            $inicioPref = Carbon::parse($pref['inicio']);
+            $finPref = Carbon::parse($pref['fin']);
+            $duracionMinutos = $inicioPref->diffInMinutes($finPref);
+        }
+        $horaFin = $hora->copy()->addMinutes($duracionMinutos);
 
         return $hora->format('h:i A') . ' - ' . $horaFin->format('h:i A');
     }

@@ -82,19 +82,19 @@ const submit = () => {
 
     <div class="py-12">
         <div class="w-full sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <div class="mb-6 pb-4 border-b border-gray-200 dark:border-slate-800">
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded p-6">
+                <div class="mb-6 pb-4 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800">
                         {{ form.id ? 'Editar Datos de Empresa' : 'Registrar Nueva Empresa' }}
                     </h2>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm mt-1">
+                    <p class="text-slate-500 text-sm mt-1">
                         Utiliza este formulario para {{ form.id ? 'actualizar' : 'capturar' }} la información fiscal y general de tu empresa.
                     </p>
                 </div>
 
                 <form @submit.prevent="submit" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Columna Izquierda -->
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div>
                             <InputLabel for="nombre_razon_social" value="Razón Social / Nombre" />
                             <TextInput id="nombre_razon_social" v-model="form.nombre_razon_social" type="text" class="mt-1 block w-full" required />
@@ -109,7 +109,7 @@ const submit = () => {
 
                         <div>
                             <InputLabel for="tipo_persona" value="Tipo de Persona" />
-                            <select id="tipo_persona" v-model="form.tipo_persona" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm">
+                            <select id="tipo_persona" v-model="form.tipo_persona" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm">
                                 <option value="fisica">Persona Física</option>
                                 <option value="moral">Persona Moral</option>
                             </select>
@@ -118,7 +118,7 @@ const submit = () => {
 
                         <div>
                             <InputLabel for="regimen_fiscal" value="Régimen Fiscal" />
-                             <select id="regimen_fiscal" v-model="form.regimen_fiscal" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" required>
+                             <select id="regimen_fiscal" v-model="form.regimen_fiscal" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm" required>
                                 <option value="601">601 - General de Ley Personas Morales</option>
                                 <option value="603">603 - Personas Morales con Fines no Lucrativos</option>
                                 <option value="605">605 - Sueldos y Salarios e Ingresos Asimilados a Salarios</option>
@@ -132,7 +132,7 @@ const submit = () => {
                         
                         <div>
                             <InputLabel for="uso_cfdi" value="Uso de CFDI (Default)" />
-                             <select id="uso_cfdi" v-model="form.uso_cfdi" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm">
+                             <select id="uso_cfdi" v-model="form.uso_cfdi" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm">
                                 <option value="G01">G01 - Adquisición de mercancías</option>
                                 <option value="G03">G03 - Gastos en general</option>
                                 <option value="P01">P01 - Por definir</option>
@@ -151,7 +151,7 @@ const submit = () => {
                     </div>
 
                     <!-- Columna Derecha -->
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div>
                             <InputLabel for="calle" value="Calle" />
                             <TextInput id="calle" v-model="form.calle" type="text" class="mt-1 block w-full" required />
@@ -166,7 +166,7 @@ const submit = () => {
                             </div>
                             <div class="w-2/3">
                                 <InputLabel for="colonia" value="Colonia" />
-                                <select v-if="colonias.length > 0" id="colonia" v-model="form.colonia" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm">
+                                <select v-if="colonias.length > 0" id="colonia" v-model="form.colonia" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm">
                                    <option v-for="col in colonias" :key="col" :value="col">{{ col }}</option>
                                 </select>
                                 <TextInput v-else id="colonia" v-model="form.colonia" type="text" class="mt-1 block w-full" required />
@@ -189,7 +189,7 @@ const submit = () => {
 
                         <div>
                             <InputLabel for="estado" value="Estado" />
-                             <select id="estado" v-model="form.estado" class="mt-1 block w-full border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm" required>
+                             <select id="estado" v-model="form.estado" class="mt-1 block w-full border-slate-300 focus:border-brand-500 focus:ring-brand-500 rounded-xl shadow-sm" required>
                                 <option value="Aguascalientes">Aguascalientes</option>
                                 <option value="Baja California">Baja California</option>
                                 <option value="Baja California Sur">Baja California Sur</option>
@@ -226,21 +226,21 @@ const submit = () => {
                             <InputError :message="form.errors.estado" class="mt-2" />
                         </div>
 
-                         <div class="mt-4 pt-4 border-t border-gray-100">
+                         <div class="mt-4 pt-4 border-t border-slate-100">
                             <InputLabel for="logo" value="Logotipo (Opcional)" />
-                            <input type="file" @input="form.logo = $event.target.files[0]" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400
+                            <input type="file" @input="form.logo = $event.target.files[0]" class="mt-1 block w-full text-sm text-slate-500
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-full file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-amber-50 file:text-amber-700
+                                file:bg-brand-50 dark:bg-brand-900/20 file:text-brand-800 dark:text-brand-200 dark:text-amber-200
                                 hover:file:bg-amber-100
                               "/>
-                             <p v-if="props.empresa?.logo_path" class="text-xs text-green-600 mt-1">Logo actual cargado.</p>
+                             <p v-if="props.empresa?.logo_path" class="text-xs text-emerald-600 mt-1">Logo actual cargado.</p>
                              <InputError :message="form.errors.logo" class="mt-2" />
                         </div>
                     </div>
 
-                    <div class="col-span-1 md:col-span-2 flex justify-end mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
+                    <div class="col-span-1 md:col-span-2 flex justify-end mt-6 pt-6 border-t border-slate-200">
                         <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                             {{ form.id ? 'Actualizar Empresa' : 'Guardar Empresa' }}
                         </PrimaryButton>
