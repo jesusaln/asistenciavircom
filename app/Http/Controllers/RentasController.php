@@ -20,7 +20,19 @@ class RentasController extends Controller
      */
     public function index()
     {
-        $query = Renta::with([
+        $query = Renta::select([
+            'id',
+            'numero_contrato',
+            'cliente_id',
+            'fecha_inicio',
+            'fecha_fin',
+            'monto_mensual',
+            'estado',
+            'deposito_garantia',
+            'dia_pago',
+            'created_at',
+            'empresa_id'
+        ])->with([
             'cliente' => function ($q) {
                 $q->selectRaw('id, nombre_razon_social, nombre_razon_social as nombre, email');
             },

@@ -461,7 +461,10 @@ class ReporteController extends Controller
         $ingresosCobranzas = $cobranzas->sum('monto_pagado');
 
         // Rentas activas (ingresos proyectados)
-        $rentasActivas = Renta::where('estado', 'activa')->with('cobranzas')->get();
+        $rentasActivas = Renta::select(['id', 'monto_mensual', 'meses_duracion', 'estado'])
+            ->where('estado', 'activo')
+            ->with(['cobranzas:id,renta_id,monto_pagado,estado'])
+            ->get();
         $ingresosRentasProyectados = $rentasActivas->sum(function ($renta) {
             $pagado = $renta->cobranzas->whereIn('estado', ['pagado', 'parcial'])->sum('monto_pagado');
             return $renta->monto_total - $pagado;
@@ -982,8 +985,12 @@ class ReporteController extends Controller
             'ventas' => function ($q) use ($fechaInicio, $fechaFin) {
                 $q->whereBetween('fecha', [$fechaInicio, $fechaFin]);
             },
+            'rentas' => function ($q) {
+                $q->select(['id', 'cliente_id', 'monto_mensual', 'meses_duracion', 'estado']);
+            },
             'rentas.cobranzas' => function ($q) use ($fechaInicio, $fechaFin) {
-                $q->whereBetween('fecha_pago', [$fechaInicio, $fechaFin]);
+                $q->select(['id', 'renta_id', 'monto_pagado', 'fecha_pago', 'estado'])
+                  ->whereBetween('fecha_pago', [$fechaInicio, $fechaFin]);
             }
         ]);
 
@@ -994,7 +1001,7 @@ class ReporteController extends Controller
         $clientes = $clientesQuery->limit($limit)->get()->map(function ($cliente) {
             $totalVentas = $cliente->ventas->sum('total');
             $totalCobranzas = $cliente->rentas->flatMap->cobranzas->sum('monto_pagado');
-            $deudaPendiente = $cliente->rentas->where('estado', 'activa')->sum('monto_total') - $totalCobranzas;
+            $deudaPendiente = $cliente->rentas->where('estado', 'activo')->sum('monto_total') - $totalCobranzas;
 
             return [
                 'Nombre/Razón Social' => $cliente->nombre_razon_social,

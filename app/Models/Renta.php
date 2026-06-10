@@ -205,4 +205,13 @@ class Renta extends Model
         return $query->where('fecha_fin', '<', now())
             ->whereIn('estado', ['vencido', 'moroso']);
     }
+
+    /**
+     * Accesor para el monto total del contrato (monto_mensual * meses_duracion)
+     */
+    public function getMontoTotalAttribute()
+    {
+        return $this->monto_mensual * ($this->meses_duracion ?? 1);
+    }
 }
+

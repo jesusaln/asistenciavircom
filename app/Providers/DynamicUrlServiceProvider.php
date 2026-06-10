@@ -39,12 +39,7 @@ class DynamicUrlServiceProvider extends ServiceProvider
         }
 
         try {
-            // Check if table exists
-            if (!Schema::hasTable('empresa_configuracion')) {
-                return;
-            }
-
-            // Get configuration from database
+            // Get configuration from database (fails gracefully if DB/table is missing)
             $config = \App\Models\EmpresaConfiguracion::getConfig();
 
             if ($config) {

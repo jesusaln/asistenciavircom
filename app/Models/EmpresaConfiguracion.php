@@ -337,11 +337,6 @@ class EmpresaConfiguracion extends Model
                 return $defaultConfig;
             }
 
-            // Skip database query if table doesn't exist (during migrations)
-            if (!\Illuminate\Support\Facades\Schema::hasTable('empresa_configuracion')) {
-                return $defaultConfig;
-            }
-
             $empresaId = $empresaId ?: EmpresaResolver::resolveId();
             $connection = config('database.default');
             $cacheKey = $empresaId ? "empresa_configuracion_{$connection}_{$empresaId}" : "empresa_configuracion_{$connection}";

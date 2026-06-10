@@ -159,7 +159,9 @@ class CuentasPorCobrarController extends Controller
                     $cuenta->setRelation('cobrable', $venta);
                 }
             } elseif (str_contains($cuenta->cobrable_type, 'Renta')) {
-                $renta = Renta::with('cliente')->find($cuenta->cobrable_id);
+                $renta = Renta::select(['id', 'numero_contrato', 'cliente_id', 'estado'])
+                    ->with('cliente:id,nombre_razon_social,rfc,email')
+                    ->find($cuenta->cobrable_id);
                 if ($renta) {
                     $cuenta->setRelation('cobrable', $renta);
                 }
