@@ -106,11 +106,15 @@ ssh $USER@$VPS_IP "docker restart $CONTAINER_QUEUE && \
     docker exec -u root $CONTAINER_APP php artisan up"
 
 # 8. Sincronización de IA (Segundo plano)
-echo "🤖 8/8 Sincronizando componente IA (OpenClaw)..."
-rsync -avz --delete --exclude='*.log' ./openclaw $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
-ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/openclaw/.openclaw $CONTAINER_APP:/var/www/ && \
-    docker cp $REMOTE_PATH/ia_staging/openclaw $CONTAINER_APP:/var/www/ && \
-    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/.openclaw /var/www/openclaw"
+if [ -d "./openclaw" ]; then
+    echo "🤖 8/8 Sincronizando componente IA (OpenClaw)..."
+    rsync -avz --delete --exclude='*.log' ./openclaw $USER@$VPS_IP:$REMOTE_PATH/ia_staging/ || true
+    ssh $USER@$VPS_IP "docker cp $REMOTE_PATH/ia_staging/openclaw/.openclaw $CONTAINER_APP:/var/www/ && \
+        docker cp $REMOTE_PATH/ia_staging/openclaw $CONTAINER_APP:/var/www/ && \
+        docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/.openclaw /var/www/openclaw"
+else
+    echo "🤖 8/8 Omitiendo sincronización de IA (OpenClaw no se encuentra localmente)."
+fi
 
 echo "--------------------------------------------------------"
 echo "✨ ¡DESPLIEGUE COMPLETADO EN SEGUNDOS! (v$NEXT_VERSION) ✨"

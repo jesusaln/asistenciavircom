@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(\App\Services\AI\AIManager::class);
+        $this->app->singleton(\App\Contracts\RustDeskClientInterface::class, \App\Services\RustDeskService::class);
+        $this->app->singleton(\App\Contracts\FaceVerificationService::class, \App\Services\Biometrics\MockFaceVerificationService::class);
     }
 
     /**

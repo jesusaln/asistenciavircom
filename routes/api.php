@@ -33,6 +33,8 @@ use App\Http\Controllers\Api\CrmController;
 use App\Http\Controllers\Api\HerramientaTransferController;
 use App\Http\Controllers\Api\ContabilidadApiController;
 use App\Http\Controllers\Api\TodoController;
+use App\Http\Controllers\Api\RustDeskController;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 /*
 |--------------------------------------------------------------------------
