@@ -27,45 +27,59 @@ class ResolveEmpresaFromHost
             return $next($request);
         }
 
-        if (!Schema::hasTable('empresa_configuracion')) {
-            return $next($request);
-        }
+        try {
+            $mapping = Cache::remember('empresa_host_mapping_v2', 120, function () {
+                $columns = ['dominio_principal', 'dominio_secundario', 'sitio_web', 'app_url'];
 
-        $mapping = Cache::remember('empresa_host_mapping_v1', 120, function () {
-            $columns = ['dominio_principal', 'dominio_secundario', 'sitio_web', 'app_url'];
-            $existingColumns = array_values(array_filter($columns, fn (string $column) => Schema::hasColumn('empresa_configuracion', $column)));
+                try {
+                    $rows = DB::table('empresa_configuracion')
+                        ->select(array_merge(['empresa_id'], $columns))
+                        ->whereNotNull('empresa_id')
+                        ->get();
+                    $colsToCheck = $columns;
+                } catch (\Throwable $e) {
+                    // Fallback only if table/columns don't exist
+                    if (!Schema::hasTable('empresa_configuracion')) {
+                        return ['exact' => [], 'wildcards' => []];
+                    }
 
-            if (empty($existingColumns)) {
-                return ['exact' => [], 'wildcards' => []];
-            }
+                    $existingColumns = array_values(array_filter($columns, fn (string $column) => Schema::hasColumn('empresa_configuracion', $column)));
+                    if (empty($existingColumns)) {
+                        return ['exact' => [], 'wildcards' => []];
+                    }
 
-            $rows = DB::table('empresa_configuracion')
-                ->select(array_merge(['empresa_id'], $existingColumns))
-                ->whereNotNull('empresa_id')
-                ->get();
+                    $rows = DB::table('empresa_configuracion')
+                        ->select(array_merge(['empresa_id'], $existingColumns))
+                        ->whereNotNull('empresa_id')
+                        ->get();
+                    $colsToCheck = $existingColumns;
+                }
 
-            $exact = [];
-            $wildcards = [];
+                $exact = [];
+                $wildcards = [];
 
-            foreach ($rows as $row) {
-                foreach ($existingColumns as $column) {
-                    $value = (string) ($row->{$column} ?? '');
-                    foreach ($this->extractHosts($value) as $candidateHost) {
-                        if (str_starts_with($candidateHost, '*.')) {
-                            $wildcards[] = [
-                                'suffix' => substr($candidateHost, 2),
-                                'empresa_id' => (int) $row->empresa_id,
-                            ];
-                            continue;
+                foreach ($rows as $row) {
+                    foreach ($colsToCheck as $column) {
+                        $value = (string) ($row->{$column} ?? '');
+                        foreach ($this->extractHosts($value) as $candidateHost) {
+                            if (str_starts_with($candidateHost, '*.')) {
+                                $wildcards[] = [
+                                    'suffix' => substr($candidateHost, 2),
+                                    'empresa_id' => (int) $row->empresa_id,
+                                ];
+                                continue;
+                            }
+
+                            $exact[$candidateHost] = (int) $row->empresa_id;
                         }
-
-                        $exact[$candidateHost] = (int) $row->empresa_id;
                     }
                 }
-            }
 
-            return ['exact' => $exact, 'wildcards' => $wildcards];
-        });
+                return ['exact' => $exact, 'wildcards' => $wildcards];
+            });
+        } catch (\Throwable $e) {
+            $mapping = ['exact' => [], 'wildcards' => []];
+        }
 
         if (isset($mapping['exact'][$host])) {
             EmpresaResolver::setContext((int) $mapping['exact'][$host]);

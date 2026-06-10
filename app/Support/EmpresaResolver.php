@@ -237,24 +237,20 @@ class EmpresaResolver
         try {
             $host = request()->getHost();
             
-            // Only query if the table exists and has the required columns to avoid Postgres transaction aborts
-            if (Schema::hasTable('empresa_configuracion') && 
-                Schema::hasColumn('empresa_configuracion', 'dominio_principal') && 
-                Schema::hasColumn('empresa_configuracion', 'dominio_secundario')) {
-                
-                // Cache the domain-to-ID mapping for 1 hour to avoid constant DB queries
-                return \Illuminate\Support\Facades\Cache::remember("empresa_domain_{$host}", 3600, function () use ($host) {
-                    return (int) DB::table('empresa_configuracion')
+            // Cache physical query for 1 hour. If table/columns don't exist, it fails gracefully.
+            return (int) \Illuminate\Support\Facades\Cache::remember("empresa_domain_v2_{$host}", 3600, function () use ($host) {
+                try {
+                    return DB::table('empresa_configuracion')
                         ->where('dominio_principal', $host)
                         ->orWhere('dominio_secundario', $host)
                         ->value('id');
-                }) ?: null;
-            }
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            }) ?: null;
         } catch (\Throwable $e) {
             return null;
         }
-
-        return null;
     }
 
     private static function resolveFromFallback(): ?int
