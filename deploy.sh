@@ -96,7 +96,8 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     docker exec -u root $CONTAINER_APP php artisan storage:link && \
     
     # Migraciones Críticas
-    docker exec -u root $CONTAINER_APP php artisan migrate --force"
+    docker exec -u root $CONTAINER_APP php artisan migrate --force && \
+    docker exec -u root $CONTAINER_APP chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache"
 
 # 7. Reiniciar colas y Reactivar
 echo "🔄 7/8 Reiniciando servicios y Reactivando sitio..."
