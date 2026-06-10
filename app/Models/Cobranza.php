@@ -52,7 +52,8 @@ class Cobranza extends Model
      */
     public function renta(): BelongsTo
     {
-        return $this->belongsTo(Renta::class, 'renta_id');
+        return $this->belongsTo(Renta::class, 'renta_id')
+            ->select(['id', 'numero_contrato', 'cliente_id', 'monto_mensual', 'estado', 'deposito_garantia', 'dia_pago', 'created_at', 'empresa_id']);
     }
 
     /**
