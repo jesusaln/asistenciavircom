@@ -19,6 +19,13 @@ const page = usePage();
 const currentUser = computed(() => page.props.auth?.user || page.props.auth?.client);
 const { itemCount } = useCart();
 
+const isVircom = computed(() => {
+    const name = (props.empresa?.nombre_empresa || props.empresa?.nombre || page.props.empresa_config?.nombre_empresa || '').toLowerCase();
+    const isVircomName = name.includes('vircom') || name.includes('asistencia vircom');
+    const isVircomHost = typeof window !== 'undefined' && window.location.hostname.includes('vircom');
+    return isVircomName || isVircomHost;
+});
+
 const navLinks = [
     { name: 'Inicio', route: 'landing', id: 'landing' },
     { name: 'Servicios', id: 'servicios', dropdown: true },
@@ -27,7 +34,7 @@ const navLinks = [
     { name: 'Contacto', route: 'public.contacto', id: 'contacto' },
 ];
 
-const serviciosLinks = [
+const climasServiciosLinks = [
     { name: 'Instalación Gratis Mirage', route: 'public.instalacion-mirage', id: 'instalacion-mirage' },
     { name: 'Instalación con Costo', route: 'public.instalacion-con-costo', id: 'instalacion-con-costo' },
     { name: 'Reparación de Minisplit', route: 'public.reparacion', id: 'reparacion' },
@@ -38,11 +45,46 @@ const serviciosLinks = [
     { name: 'Renta de Equipos', route: 'catalogo.rentas', id: 'rentas' },
 ];
 
-const productosLinks = [
+const vircomServiciosLinks = [
+    { name: 'Cámaras (CCTV)', route: 'public.servicio.show', params: { slug: 'camaras-cctv' }, id: 'cctv' },
+    { name: 'Alarmas', route: 'public.servicio.show', params: { slug: 'alarmas-seguridad' }, id: 'alarmas' },
+    { name: 'Control de Acceso', route: 'public.servicio.show', params: { slug: 'control-acceso' }, id: 'acceso' },
+    { name: 'Reloj Checador', route: 'public.servicio.show', params: { slug: 'relojes-checadores' }, id: 'relojes' },
+    { name: 'Punto de Venta', route: 'public.servicio.show', params: { slug: 'punto-de-venta' }, id: 'pos' },
+    { name: 'Redes e Infraestructura', route: 'public.servicio.show', params: { slug: 'redes-infraestructura' }, id: 'redes' },
+    { name: 'Soporte Técnico', route: 'public.soporte', id: 'soporte' },
+    { name: 'Pólizas de Soporte', route: 'catalogo.polizas', id: 'polizas' },
+    { name: 'Renta de Equipos', route: 'catalogo.rentas', id: 'rentas' },
+];
+
+const dynamicServiciosLinks = computed(() => {
+    return isVircom.value ? vircomServiciosLinks : climasServiciosLinks;
+});
+
+const climasProductosLinks = [
     { name: 'Todos los Productos', route: 'catalogo.index', id: 'tienda' },
     { name: 'Minisplit Life 12+', route: 'public.life12plus', id: 'life12plus', highlighted: true },
     { name: 'Minisplit Magnum 22', route: 'public.magnum22', id: 'magnum22', highlighted: true },
 ];
+
+const vircomProductosLinks = [
+    { name: 'Todos los Productos', route: 'catalogo.index', id: 'tienda' },
+];
+
+const dynamicProductosLinks = computed(() => {
+    return isVircom.value ? vircomProductosLinks : climasProductosLinks;
+});
+
+const isServiciosActive = computed(() => {
+    return dynamicServiciosLinks.value.some(link => props.activeTab === link.id);
+});
+
+const isProductosActive = computed(() => {
+    return props.activeTab === 'tienda' || (!isVircom.value && (props.activeTab === 'life12plus' || props.activeTab === 'magnum22'));
+});
+
+const showProductosMenu = ref(false);
+const showMobileProductos = ref(false);
 
 const computeLogo = computed(() => {
     // Usar primero URLs resueltas por backend (ya validadas)
@@ -74,17 +116,6 @@ const showUserMenu = ref(false);
 const showServiciosMenu = ref(false);
 const showMobileMenu = ref(false);
 const showMobileServicios = ref(false);
-
-const isServiciosActive = computed(() => {
-    return serviciosLinks.some(link => props.activeTab === link.id);
-});
-
-const isProductosActive = computed(() => {
-    return props.activeTab === 'tienda' || props.activeTab === 'life12plus' || props.activeTab === 'magnum22';
-});
-
-const showProductosMenu = ref(false);
-const showMobileProductos = ref(false);
 
 // Form para cerrar sesión
 const logoutForm = useForm({});
@@ -159,7 +190,7 @@ onMounted(() => {
                 </Link>
                 
                 <!-- CAS Badge -->
-                <div class="hidden sm:flex flex-col items-start leading-none border-l border-[var(--ui-border)] pl-4">
+                <div v-if="!isVircom" class="hidden sm:flex flex-col items-start leading-none border-l border-[var(--ui-border)] pl-4">
                     <span class="text-[var(--color-primary)] font-black text-[10px] uppercase tracking-wide">Centro Autorizado</span>
                     <span class="text-[var(--ui-text)] font-black text-[12px] uppercase tracking-wide flex items-center gap-1">
                         Mirage
@@ -199,10 +230,10 @@ onMounted(() => {
                         >
                             <div v-if="showServiciosMenu" class="absolute left-0 mt-2 w-48 bg-[var(--ui-surface)] rounded-xl shadow-xl border border-[var(--ui-border)] py-2 z-50">
                                 <Link 
-                                    v-for="sLink in serviciosLinks" 
+                                    v-for="sLink in dynamicServiciosLinks" 
                                     :key="sLink.id"
                                     :href="route(sLink.route, sLink.params || {})" 
-                                    class="block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[var(--ui-text-muted)] text-[var(--ui-text-muted)] hover:bg-[var(--ui-surface-soft)] hover:text-[var(--color-primary)] transition-colors"
+                                    class="block px-4 py-3 text-sm font-bold uppercase tracking-wider text-[var(--ui-text-muted)] hover:bg-[var(--ui-surface-soft)] hover:text-[var(--color-primary)] transition-colors"
                                     @click="showServiciosMenu = false"
                                 >
                                     {{ sLink.name }}
@@ -239,11 +270,11 @@ onMounted(() => {
                         >
                             <div v-if="showProductosMenu" class="absolute left-0 mt-2 w-56 bg-[var(--ui-surface)] rounded-xl shadow-xl border border-[var(--ui-border)] py-2 z-50">
                                 <Link 
-                                    v-for="pLink in productosLinks" 
+                                    v-for="pLink in dynamicProductosLinks" 
                                     :key="pLink.id"
                                     :href="route(pLink.route, pLink.params || {})" 
                                     class="block px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors"
-                                    :class="pLink.highlighted ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 hover:bg-[var(--color-primary)]/10' : 'text-[var(--ui-text-muted)] text-[var(--ui-text-muted)] hover:bg-[var(--ui-surface-soft)] hover:text-[var(--color-primary)]'"
+                                    :class="pLink.highlighted ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 hover:bg-[var(--color-primary)]/10' : 'text-[var(--ui-text-muted)] hover:bg-[var(--ui-surface-soft)] hover:text-[var(--color-primary)]'"
                                     @click="showProductosMenu = false"
                                 >
                                     {{ pLink.name }}
@@ -441,10 +472,10 @@ onMounted(() => {
                                         >
                                             <div v-if="showMobileServicios" class="mt-4 bg-[var(--ui-surface-soft)] rounded-3xl overflow-hidden border border-[var(--ui-border)]">
                                                 <Link 
-                                                    v-for="sLink in serviciosLinks" 
+                                                    v-for="sLink in dynamicServiciosLinks" 
                                                     :key="sLink.id"
                                                     :href="route(sLink.route, sLink.params || {})"
-                                                    class="block px-6 py-4 text-base font-bold text-slate-600text-[var(--ui-text-soft)] border-b border-[var(--ui-border)] last:border-0 active:bg-[var(--color-primary)] active:text-white"
+                                                    class="block px-6 py-4 text-base font-bold text-slate-600 text-[var(--ui-text-soft)] border-b border-[var(--ui-border)] last:border-0 active:bg-[var(--color-primary)] active:text-white"
                                                     @click="showMobileMenu = false"
                                                 >
                                                     {{ sLink.name }}
@@ -464,11 +495,11 @@ onMounted(() => {
                                         >
                                             <div v-if="showMobileProductos" class="mt-4 bg-[var(--ui-surface-soft)] rounded-3xl overflow-hidden border border-[var(--ui-border)]">
                                                 <Link 
-                                                    v-for="pLink in productosLinks" 
+                                                    v-for="pLink in dynamicProductosLinks" 
                                                     :key="pLink.id"
                                                     :href="route(pLink.route, pLink.params || {})"
                                                     class="block px-6 py-4 text-base font-bold border-b border-[var(--ui-border)] last:border-0 active:bg-[var(--color-primary)] active:text-white"
-                                                    :class="pLink.highlighted ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'text-slate-600text-[var(--ui-text-soft)]'"
+                                                    :class="pLink.highlighted ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'text-slate-600 text-[var(--ui-text-soft)]'"
                                                     @click="showMobileMenu = false"
                                                 >
                                                     {{ pLink.name }}

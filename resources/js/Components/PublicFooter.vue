@@ -18,6 +18,13 @@ const empresaData = computed(() => {
     return { ...globalConfig, ...localProp };
 });
 
+const isVircom = computed(() => {
+    const name = (empresaData.value?.nombre_empresa || empresaData.value?.nombre || '').toLowerCase();
+    const isVircomName = name.includes('vircom') || name.includes('asistencia vircom');
+    const isVircomHost = typeof window !== 'undefined' && window.location.hostname.includes('vircom');
+    return isVircomName || isVircomHost;
+});
+
 const computeLogo = computed(() => {
     const logoSource = empresaData.value?.logo_url ||
                      page.props.empresa_config?.logo_url ||
@@ -89,10 +96,18 @@ const whatsappLink = computed(() => {
                 <div>
                     <h4 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wider mb-6">Servicios</h4>
                     <ul class="space-y-4">
-                        <li><Link :href="route('public.instalacion-con-costo')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Instalación con Costo</Link></li>
-                        <li><Link :href="route('catalogo.polizas')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Pólizas Premium</Link></li>
-                        <li><Link :href="route('catalogo.index')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Productos</Link></li>
-                        <li><Link :href="route('public.soporte')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Soporte Técnico</Link></li>
+                        <template v-if="isVircom">
+                            <li><Link :href="route('public.servicio.show', { slug: 'camaras-cctv' })" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Cámaras (CCTV)</Link></li>
+                            <li><Link :href="route('catalogo.polizas')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Pólizas de Soporte</Link></li>
+                            <li><Link :href="route('catalogo.rentas')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Renta de Equipos</Link></li>
+                            <li><Link :href="route('public.soporte')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Soporte Técnico</Link></li>
+                        </template>
+                        <template v-else>
+                            <li><Link :href="route('public.instalacion-con-costo')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Instalación con Costo</Link></li>
+                            <li><Link :href="route('catalogo.polizas')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Pólizas Premium</Link></li>
+                            <li><Link :href="route('catalogo.index')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Productos</Link></li>
+                            <li><Link :href="route('public.soporte')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Soporte Técnico</Link></li>
+                        </template>
                     </ul>
                 </div>
                 
@@ -147,24 +162,46 @@ const whatsappLink = computed(() => {
             <!-- Secciones de SEO Local -->
             <div class="mb-12 pt-12 border-t border-[var(--ui-border)]/50">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div>
-                        <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Especialistas en Sonora</h5>
-                        <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
-                            Expertos en <strong class="text-[var(--ui-text-soft)]">Venta de Aire Acondicionado en Hermosillo</strong> y todo Sonora. Ofrecemos soluciones de climatización de alta eficiencia adaptadas al clima del desierto.
-                        </p>
-                    </div>
-                    <div>
-                        <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Marcas Líderes</h5>
-                        <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
-                            Distribuidor autorizado de <strong class="text-[var(--ui-text-soft)]">Minisplits Mirage en Hermosillo</strong>. Contamos con tecnología Inverter para ahorro de energía en hogares y empresas.
-                        </p>
-                    </div>
-                    <div>
-                        <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Servicio Integral</h5>
-                        <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
-                            Desde la <strong class="text-[var(--ui-text-soft)]">Instalación de Minisplits</strong> hasta el mantenimiento preventivo y correctivo. Tu confort es nuestra prioridad en cada proyecto.
-                        </p>
-                    </div>
+                    <template v-if="isVircom">
+                        <div>
+                            <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Especialistas en Sonora</h5>
+                            <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                                Expertos en <strong class="text-[var(--ui-text-soft)]">Seguridad Electrónica en Hermosillo</strong> y todo el Estado de Sonora. Diseñamos e instalamos soluciones a la medida de tu empresa.
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Soporte de IT y Redes</h5>
+                            <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                                Proveemos servicios de <strong class="text-[var(--ui-text-soft)]">Cableado Estructurado y Redes</strong>. Garantizamos conectividad estable y segura para tu infraestructura corporativa.
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Sistemas Biométricos y POS</h5>
+                            <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                                Implementación de <strong class="text-[var(--ui-text-soft)]">Relojes Checadores y Puntos de Venta (POS)</strong>. Automatiza el control de asistencia y optimiza tus procesos de facturación y cobro.
+                            </p>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div>
+                            <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Especialistas en Sonora</h5>
+                            <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                                Expertos en <strong class="text-[var(--ui-text-soft)]">Venta de Aire Acondicionado en Hermosillo</strong> y todo Sonora. Ofrecemos soluciones de climatización de alta eficiencia adaptadas al clima del desierto.
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Marcas Líderes</h5>
+                            <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                                Distribuidor autorizado de <strong class="text-[var(--ui-text-soft)]">Minisplits Mirage en Hermosillo</strong>. Contamos con tecnología Inverter para ahorro de energía en hogares y empresas.
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4">Servicio Integral</h5>
+                            <p class="text-[10px] text-slate-500 leading-relaxed uppercase">
+                                Desde la <strong class="text-[var(--ui-text-soft)]">Instalación de Minisplits</strong> hasta el mantenimiento preventivo y correctivo. Tu confort es nuestra prioridad en cada proyecto.
+                            </p>
+                        </div>
+                    </template>
                 </div>
             </div>
 
