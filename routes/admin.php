@@ -82,6 +82,9 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\VentaDocumentoController;
 use App\Http\Controllers\ContabilidadController;
 use App\Http\Controllers\ComisionesController;
+use App\Http\Controllers\Admin\CVAController;
+use App\Http\Controllers\Admin\NewsletterStatsController;
+use App\Http\Controllers\PolizaMantenimientoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -113,6 +116,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('panel');
     })->name('dashboard');
+
+    Route::get('/finanzas', function () {
+        return Inertia::render('Finanzas/Index');
+    })->name('finanzas.index')->middleware('can:view finanzas');
 
     Route::get('/panel', [PanelController::class, 'index'])->name('panel');
     Route::get('/dispositivos', [DeviceSessionController::class, 'webView'])->name('dispositivos.index');
@@ -211,6 +218,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('ordenescompra/{id}/duplicate', [OrdenCompraController::class, 'duplicate'])->name('ordenescompra.duplicate');
     Route::post('ordenescompra/{id}/urgente', [OrdenCompraController::class, 'marcarUrgente'])->name('ordenescompra.urgente');
 
+    Route::get('/clientes/template', [ClienteController::class, 'downloadTemplate'])->name('clientes.template');
+    Route::post('/clientes/import', [ClienteController::class, 'import'])->name('clientes.import')->middleware('role:ventas|admin|super-admin');
     Route::post('/clientes/{cliente}/quick-fiscal', [ClienteController::class, 'quickFiscalUpdate'])->name('clientes.quick-fiscal')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
     Route::resource('clientes', ClienteController::class)->names('clientes')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
     Route::post('clientes/{cliente}/whatsapp', [ClienteController::class, 'initWhatsApp'])->name('clientes.whatsapp');
@@ -246,6 +255,12 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/productos/{producto}/toggle-destacado', [ProductoController::class, 'toggleDestacado'])->name('productos.toggle-destacado')->middleware('can:edit productos');
     Route::put('/productos/{producto}/toggle-catalogo-web', [ProductoController::class, 'toggleCatalogoWeb'])->name('productos.toggle-catalogo-web')->middleware('can:edit productos');
     Route::put('/productos/{producto}/prices', [ProductoController::class, 'updatePrices'])->name('productos.update-prices')->middleware('can:edit productos');
+
+    Route::prefix('cva')->name('cva.')->group(function () {
+        Route::get('/importar', [CVAController::class, 'importView'])->name('import');
+        Route::get('/buscar', [CVAController::class, 'search'])->name('search');
+        Route::post('/importar-producto', [CVAController::class, 'import'])->name('import-product');
+    });
     
     // Solicitudes de Material
     Route::prefix('admin')->group(function () {
@@ -265,11 +280,19 @@ Route::middleware(['auth'])->group(function () {
 
     // Gestión de Blog
     Route::resource('gestion-blog', App\Http\Controllers\Admin\BlogPostController::class)->names('admin.blog');
+    Route::get('gestion-blog/unsubscribed', [NewsletterStatsController::class, 'unsubscribed'])->name('admin.blog.unsubscribed');
+    Route::get('gestion-blog/{id}/stats', [NewsletterStatsController::class, 'show'])->name('admin.blog.stats');
+    Route::post('gestion-blog/{blog}/send-newsletter', [App\Http\Controllers\Admin\BlogPostController::class, 'sendNewsletter'])->name('admin.blog.send-newsletter');
+    Route::post('gestion-blog/{blog}/send-test', [App\Http\Controllers\Admin\BlogPostController::class, 'sendTestNewsletter'])->name('admin.blog.send-test');
 
     Route::resource('proveedores', ProveedorController::class)->names('proveedores')->middleware('can:view proveedores');
     Route::put('/proveedores/{proveedor}/toggle', [ProveedorController::class, 'toggle'])->name('proveedores.toggle');
 
     Route::resource('categorias', CategoriaController::class)->names('categorias')->middleware('can:view categorias');
+    Route::resource('marcas', MarcaController::class)->names('marcas')->middleware('can:view marcas');
+
+    Route::get('/almacenes/export', [AlmacenController::class, 'export'])->name('almacenes.export');
+    Route::put('/almacenes/{almacen}/toggle', [AlmacenController::class, 'toggle'])->name('almacenes.toggle');
     Route::post('almacenes/finalizar-auditoria/{id}', [AlmacenController::class, 'finalizarAuditoria'])->name('almacenes.finalizar-auditoria');
     Route::get('almacenes/exportar-mermas', [AlmacenController::class, 'exportarMermas'])->name('almacenes.exportar-mermas-global');
     Route::get('almacenes/exportar-mermas/{id}', [AlmacenController::class, 'exportarMermas'])->name('almacenes.exportar-mermas');
@@ -305,6 +328,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cotizaciones/desde-equipo', [CotizacionController::class, 'desdeEquipo'])->name('cotizaciones.desde-equipo')->middleware('can:create cotizaciones');
     Route::post('/cotizaciones/{cotizacion}/whatsapp-api', [\App\Http\Controllers\Marketing\WhatsAppChatController::class, 'sendCotizacionPdfLink'])->name('cotizaciones.whatsapp-api')->middleware('can:view cotizaciones');
     Route::get('/cotizaciones/{id}/pdf', [CotizacionDocumentoController::class, 'generarPDF'])->name('cotizaciones.pdf');
+    Route::post('/cotizaciones/{id}/enviar-email', [CotizacionDocumentoController::class, 'enviarEmail'])->name('cotizaciones.enviar-email');
 
     Route::get('/pedidos/siguiente-numero', [PedidoController::class, 'obtenerSiguienteNumero'])->name('pedidos.siguiente-numero')->middleware('can:view pedidos');
     Route::post('/pedidos/{id}/enviar-a-venta', [PedidoVentaController::class, 'enviarAVenta'])->name('pedidos.enviar-a-venta')->middleware('can:view pedidos');
@@ -425,6 +449,28 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ventas-semana', [ReporteController::class, 'ventasSemanaOperativo'])->name('ventas-semana');
         Route::get('/productos-para-comprar', [ReporteController::class, 'productosParaComprar'])->name('productos-para-comprar');
         Route::get('/ventas-utilidad', [ReporteController::class, 'reporteVentasUtilidad'])->name('ventas-utilidad');
+        Route::get('/ventas', [ReporteController::class, 'ventas'])->name('ventas');
+        Route::get('/ganancias', [ReporteController::class, 'ganancias'])->name('ganancias');
+        Route::get('/ventas-pendientes', [ReporteController::class, 'ventasPendientes'])->name('ventas-pendientes');
+        Route::get('/balance-comparativo', [ReporteController::class, 'balanceComparativo'])->name('balance-comparativo');
+        Route::get('/productos', [ReporteController::class, 'productos'])->name('productos');
+        Route::get('/gastos-operativos', [ReporteController::class, 'gastosOperativos'])->name('gastos-operativos');
+        Route::get('/compras-proveedores', [ReporteController::class, 'comprasProveedores'])->name('compras-proveedores');
+        Route::get('/inventario', [ReporteController::class, 'inventario'])->name('inventario');
+        Route::get('/corte-diario', [ReporteController::class, 'corteDiario'])->name('corte-diario');
+        Route::get('/cobranzas', [ReporteController::class, 'cobranzas'])->name('cobranzas');
+        Route::get('/antiguedad-saldos', [ReporteController::class, 'antiguedadSaldos'])->name('antiguedad-saldos');
+        Route::get('/citas', [ReporteController::class, 'citas'])->name('citas');
+        Route::get('/mantenimientos', [ReporteController::class, 'mantenimientos'])->name('mantenimientos');
+        Route::get('/tecnicos', [ReporteController::class, 'getRendimientoTecnicos'])->name('tecnicos');
+        Route::get('/clientes', [ReporteController::class, 'clientes'])->name('clientes');
+        Route::get('/servicios', [ReporteController::class, 'servicios'])->name('servicios');
+        Route::get('/rentas', [ReporteController::class, 'rentas'])->name('rentas');
+        Route::get('/proveedores', [ReporteController::class, 'proveedores'])->name('proveedores');
+        Route::get('/auditoria', [ReporteController::class, 'auditoria'])->name('auditoria');
+        Route::get('/empleados', [ReporteController::class, 'empleados'])->name('empleados');
+        Route::get('/export', [ReporteController::class, 'exportarCorteDiario'])->name('export');
+        Route::get('/prestamos-por-cliente', [ReporteController::class, 'prestamosPorCliente'])->name('prestamos-por-cliente');
     });
 
 
@@ -514,6 +560,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/polizas-servicio/{polizaServicio}/generar-cobro', [PolizaServicioController::class, 'generarCobro'])->name('polizas-servicio.generar-cobro');
     Route::post('/polizas-servicio/{polizaServicio}/enviar-recordatorio', [PolizaServicioController::class, 'enviarRecordatorioRenovacion'])->name('polizas-servicio.enviar-recordatorio');
     Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
+    Route::post('/polizas-servicio/{poliza}/mantenimientos', [PolizaMantenimientoController::class, 'store'])->name('polizas-servicio.mantenimientos.store');
+    Route::put('/polizas-servicio/mantenimientos/{mantenimiento}', [PolizaMantenimientoController::class, 'update'])->name('polizas-servicio.mantenimientos.update');
+    Route::delete('/polizas-servicio/mantenimientos/{mantenimiento}', [PolizaMantenimientoController::class, 'destroy'])->name('polizas-servicio.mantenimientos.destroy');
+
     Route::resource('planes-poliza', PlanPolizaController::class)->middleware('role:admin|editor|super-admin');
     Route::put('/planes-poliza/{planes_poliza}/toggle-destacado', [PlanPolizaController::class, 'toggleDestacado'])->name('planes-poliza.toggle-destacado');
 
@@ -641,6 +691,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/remote-list', [DatabaseBackupController::class, 'listRemote'])->name('remote.list');
         Route::get('/remote-download/{remotePath}', [DatabaseBackupController::class, 'downloadRemote'])->name('remote.download');
         Route::get('/logs/{type?}', [DatabaseBackupController::class, 'logs'])->name('logs');
+        Route::post('/granular-restore/{filename}', [DatabaseBackupController::class, 'granularRestore'])->name('granular-restore');
+        Route::post('/upload', [DatabaseBackupController::class, 'upload'])->name('upload');
+        Route::get('/verify-advanced/{filename}', [DatabaseBackupController::class, 'verifyAdvanced'])->name('verify-advanced');
+        Route::get('/security-stats', [DatabaseBackupController::class, 'securityStats'])->name('security.stats');
+        Route::get('/compression-stats', [DatabaseBackupController::class, 'compressionStats'])->name('compression.stats');
     });
 
     // Reportes (Nuevo)
