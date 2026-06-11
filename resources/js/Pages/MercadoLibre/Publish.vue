@@ -7,14 +7,16 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { 
   faStore, faSearch, faSpinner, faArrowLeft, faInfoCircle, 
   faCalculator, faCoins, faTags, faArrowRight, faCheckCircle,
-  faChevronRight, faExclamationCircle, faChartLine
+  faChevronRight, faExclamationCircle, faChartLine, faBalanceScale,
+  faTag, faRocket, faLightbulb
 } from '@fortawesome/free-solid-svg-icons'
 import { notyf } from '@/Utils/notyf.js'
 
 library.add(
   faStore, faSearch, faSpinner, faArrowLeft, faInfoCircle, 
   faCalculator, faCoins, faTags, faArrowRight, faCheckCircle,
-  faChevronRight, faExclamationCircle, faChartLine
+  faChevronRight, faExclamationCircle, faChartLine, faBalanceScale,
+  faTag, faRocket, faLightbulb
 )
 
 defineOptions({ layout: AppLayout })
@@ -34,6 +36,12 @@ const searching = ref(false)
 const isModalOpen = ref(false)
 const publishing = ref(false)
 const selectedProduct = ref(null)
+
+// Price Suggestion State
+const searchingPrices = ref(false)
+const priceAnalysis = ref(null)
+const priceAnalysisError = ref(null)
+const autoSearchDone = ref(false)
 
 // Simulation settings
 const listingType = ref('gold_special') // gold_special = Clásica, gold_premium = Premium
@@ -138,6 +146,54 @@ const openPublishModal = (product) => {
   // Stock to publish: minimum of 10 or CVA stock
   const localStock = parseInt(product.stock || 0) + parseInt(product.stock_cedis || 0)
   publishStock.value = Math.min(Math.max(1, localStock - 1), 10) // Leave 1 safety margin, capped at 10
+
+  // Auto-search ML for similar products to suggest competitive price
+  autoSearchDone.value = false
+  priceAnalysis.value = null
+  priceAnalysisError.value = null
+  meliSearchResults.value = []
+  
+  searchingPrices.value = true
+  
+  // Search ML using product name
+  const searchQuery = product.nombre.substring(0, 60)
+  
+  router.post(
+    route('mercadolibre.analizar-competencia'),
+    { meli_item_id: searchQuery }, // Using name as search query instead of ML ID
+    {
+      preserveState: true,
+      onSuccess: (data) => {
+        if (data.props.error) {
+          priceAnalysisError.value = data.props.error
+        } else if (data.props.source?.id) {
+          // Got actual ML item data
+          priceAnalysis.value = data.props
+          autoSearchDone.value = true
+          // Update suggested price based on ML competition
+          if (data.props.suggestion?.price) {
+            sellPrice.value = Math.round(data.props.suggestion.price)
+          }
+        } else if (data.props.competitors?.count > 0) {
+          // Got search results with competitors
+          priceAnalysis.value = data.props
+          autoSearchDone.value = true
+          if (data.props.suggestion?.price) {
+            sellPrice.value = Math.round(data.props.suggestion.price)
+          }
+        } else {
+          priceAnalysisError.value = 'No se encontraron productos similares en MercadoLibre'
+        }
+      },
+      onError: (errors) => {
+        const firstError = Object.values(errors)[0]
+        priceAnalysisError.value = firstError
+      },
+      onFinish: () => {
+        searchingPrices.value = false
+      }
+    }
+  )
 
   isModalOpen.value = true
 }
@@ -491,6 +547,88 @@ const publishProduct = () => {
               </div>
             </div>
 
+          </div>
+
+          <!-- ML Competition Analysis (Auto-loaded) -->
+          <div class="p-4 bg-blue-500/5 border border-blue-500/20 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <FontAwesomeIcon icon="balance-scale" class="text-blue-500 text-sm" />
+                <span class="text-xs font-bold uppercase text-blue-500 tracking-wider">Análisis de Competencia en ML</span>
+              </div>
+              <FontAwesomeIcon v-if="searchingPrices" icon="spinner" spin class="text-blue-500 text-sm" />
+            </div>
+
+            <!-- Loading State -->
+            <div v-if="searchingPrices" class="text-center py-4">
+              <FontAwesomeIcon icon="spinner" spin class="text-blue-500 text-xl mb-2" />
+              <p class="text-xs text-slate-500">Buscando productos similares en MercadoLibre...</p>
+            </div>
+
+            <!-- Error State -->
+            <div v-else-if="priceAnalysisError" class="text-center py-3">
+              <p class="text-xs text-slate-500 mb-2">{{ priceAnalysisError }}</p>
+              <p class="text-[10px] text-slate-400">Usando precio sugerido por margen</p>
+            </div>
+
+            <!-- Results State -->
+            <div v-else-if="priceAnalysis && priceAnalysis.competitors" class="space-y-3">
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="p-2 bg-white/5 rounded-xl">
+                  <span class="text-[10px] text-slate-400 block uppercase">Mín</span>
+                  <span class="font-bold text-emerald-400 text-sm">${{ priceAnalysis.competitors.min_price?.toFixed(0) }}</span>
+                </div>
+                <div class="p-2 bg-white/5 rounded-xl">
+                  <span class="text-[10px] text-slate-400 block uppercase">Promedio</span>
+                  <span class="font-bold text-blue-400 text-sm">${{ priceAnalysis.competitors.avg_price?.toFixed(0) }}</span>
+                </div>
+                <div class="p-2 bg-white/5 rounded-xl">
+                  <span class="text-[10px] text-slate-400 block uppercase">Máx</span>
+                  <span class="font-bold text-rose-400 text-sm">${{ priceAnalysis.competitors.max_price?.toFixed(0) }}</span>
+                </div>
+              </div>
+
+              <!-- Most Sold Product -->
+              <div v-if="priceAnalysis.most_sold" class="p-3 bg-white/5 rounded-xl text-xs">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <FontAwesomeIcon icon="rocket" class="text-yellow-500 text-[10px]" />
+                  <span class="font-bold text-yellow-500 uppercase tracking-wider">Más Vendido</span>
+                </div>
+                <p class="text-slate-300 font-medium truncate">{{ priceAnalysis.most_sold.title }}</p>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-slate-500">${{ priceAnalysis.most_sold.price?.toFixed(2) }} MXN</span>
+                  <span class="text-slate-500">{{ priceAnalysis.most_sold.sold_quantity }} vendidos</span>
+                </div>
+              </div>
+
+              <!-- Suggested Price -->
+              <div v-if="priceAnalysis.suggestion" class="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <FontAwesomeIcon icon="lightbulb" class="text-yellow-500 text-sm" />
+                    <span class="text-xs font-bold text-yellow-500 uppercase tracking-wider">Precio Sugerido (ML)</span>
+                  </div>
+                  <span class="font-black text-yellow-500 text-lg">${{ Math.round(priceAnalysis.suggestion.price) }}</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">{{ priceAnalysis.suggestion.label || 'Basado en promedio de productos competitivos' }}</p>
+              </div>
+
+              <!-- Product Found on ML -->
+              <div v-if="priceAnalysis.source && priceAnalysis.source.id" class="text-center">
+                <a 
+                  :href="'https://articulo.mercadolibre.com.mx/' + priceAnalysis.source.id" 
+                  target="_blank"
+                  class="text-[10px] text-blue-400 hover:underline"
+                >
+                  Ver producto de referencia en ML →
+                </a>
+              </div>
+            </div>
+
+            <!-- No Analysis Available -->
+            <div v-else class="text-center py-3">
+              <p class="text-xs text-slate-500">No se encontró análisis de competencia</p>
+            </div>
           </div>
 
           <!-- Alert / Warning if price >= 299 (obligation shipping free) -->

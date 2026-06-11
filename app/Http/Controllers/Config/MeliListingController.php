@@ -285,7 +285,7 @@ class MeliListingController extends Controller
                   ->orWhere('cva_clave', 'ilike', "%{$search}%");
             })
             ->limit(10)
-            ->get(['id', 'nombre', 'codigo', 'cva_clave', 'imagen', 'precio_venta', 'stock', 'stock_cedis']);
+            ->get(['id', 'nombre', 'codigo', 'cva_clave', 'imagen', 'precio_venta', 'precio_compra', 'stock', 'stock_cedis']);
 
         return response()->json($productos);
     }
@@ -321,5 +321,45 @@ class MeliListingController extends Controller
         }
 
         return redirect()->back()->with('success', 'Publicación vinculada al producto local correctamente.');
+    }
+
+    public function sugerirPrecio(Request $request)
+    {
+        $request->validate([
+            'meli_item_id' => 'required|string|min:3',
+            'costo' => 'nullable|numeric|min:0',
+        ]);
+
+        $meliItemId = $request->input('meli_item_id');
+        $costo = $request->input('costo');
+
+        if (!$this->meli->isConfigured()) {
+            return response()->json(['error' => 'MercadoLibre no está configurado'], 422);
+        }
+
+        $result = $this->meli->suggestPrice($meliItemId, $costo);
+
+        if (isset($result['error'])) {
+            return response()->json($result, 400);
+        }
+
+        return response()->json($result);
+    }
+
+    public function analizarCompetencia(Request $request)
+    {
+        $request->validate([
+            'meli_item_id' => 'required|string|min:2',
+        ]);
+
+        $meliItemId = $request->input('meli_item_id');
+
+        if (!$this->meli->isConfigured()) {
+            return response()->json(['error' => 'MercadoLibre no está configurado'], 422);
+        }
+
+        $result = $this->meli->analyzeCompetition($meliItemId);
+
+        return response()->json($result);
     }
 }

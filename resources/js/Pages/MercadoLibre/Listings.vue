@@ -105,14 +105,65 @@ const syncListings = () => {
   })
 }
 
-const deleteListing = (id) => {
-  if (confirm('¿Estás seguro de que deseas eliminar esta publicación de MercadoLibre? Esta acción la cerrará en MercadoLibre y la eliminará de tu sitio.')) {
-    deletingId.value = id
-    router.delete(route('mercadolibre.listings.destroy', id), {
-      onSuccess: () => notyf.success('Publicación eliminada correctamente'),
-      onError: () => notyf.error('Error al eliminar la publicación'),
-      onFinish: () => deletingId.value = null
-    })
+// Smart calculation for MercadoLibre suggested price
+const getMeliSuggestedPrice = (product, type = 'gold_special') => {
+  if (!product || !product.precio_compra) return 0
+  const cost = parseFloat(product.precio_compra) * 1.16 // Cost with 16% IVA estimate
+  const targetMargin = 0.15 // Target net profit margin on cost (15%)
+  const target = cost * (1 + targetMargin)
+
+  const commRate = type === 'gold_special' ? 0.13 : 0.175
+  const taxRate = 0.08
+  const R = 1 - commRate - taxRate
+
+  // Estimate low price (< 299) where fixed fee is $25 and shipping is $0
+  const pLow = (target + 25) / R
+  if (pLow < 299) {
+    return Math.round(pLow)
+  }
+
+  // Estimate high price (>= 299) where fixed fee is $0 and shipping is $59.60
+  const pHigh = (target + 59.60) / R
+  
+  if (289 * R - 25 >= target) {
+    return 289
+  }
+
+  return Math.round(pHigh)
+}
+
+// Smart calculation of profit/loss for a listing at its current price
+const getListingAnalysis = (item) => {
+  if (!item.producto || !item.producto.precio_compra) return null
+
+  const price = parseFloat(item.price) || 0
+  const cost = parseFloat(item.producto.precio_compra) * 1.16 // Cost with 16% IVA estimate
+
+  // ML Commission percentage (approximate rates: Gold Special 13%, Gold Premium 17.5% - default to 13%)
+  const commRate = 0.13
+  const commission = price * commRate
+
+  // Fixed fee for cheap products (< $299 MXN)
+  const fixedFee = price < 299 && price > 0 ? 25.00 : 0.00
+
+  // Free shipping cost for products >= $299 MXN (obligatory on ML)
+  const shippingFee = price >= 299 ? 59.60 : 0.00
+
+  // Standard tax withholding estimate (8% approx for IVA + ISR)
+  const taxWithholding = price * 0.08
+
+  // Net payout
+  const netReceived = price - commission - fixedFee - shippingFee - taxWithholding
+  
+  // Real cash profit
+  const netProfit = netReceived - cost
+  const profitMargin = price > 0 ? (netProfit / price) * 100 : 0
+
+  return {
+    cost,
+    netReceived,
+    netProfit,
+    profitMargin
   }
 }
 </script>
@@ -121,7 +172,7 @@ const deleteListing = (id) => {
   <Head title="Publicaciones de MercadoLibre" />
 
   <div class="min-h-screen bg-[var(--ui-surface)] pb-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 bg-white/5 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl p-6 shadow-sm">
@@ -222,10 +273,11 @@ const deleteListing = (id) => {
               <tr class="bg-slate-50 dark:bg-slate-900/40 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                 <th class="px-6 py-4">Producto</th>
                 <th class="px-6 py-4">ID de Publicación</th>
-                <th class="px-6 py-4">Precio</th>
+                <th class="px-6 py-4">Precio ML</th>
+                <th class="px-6 py-4">Costo CVA (+IVA)</th>
+                <th class="px-6 py-4">Margen Real</th>
                 <th class="px-6 py-4">Stock</th>
                 <th class="px-6 py-4">Estado</th>
-                <th class="px-6 py-4">Sincronizado</th>
                 <th class="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
@@ -257,8 +309,50 @@ const deleteListing = (id) => {
                 </td>
 
                 <!-- Price -->
-                <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-200">
-                  ${{ parseFloat(item.price).toFixed(2) }} MXN
+                <td class="px-6 py-4">
+                  <div class="flex flex-col">
+                    <span class="font-bold text-slate-900 dark:text-slate-200">
+                      ${{ parseFloat(item.price).toFixed(2) }} MXN
+                    </span>
+                    <span v-if="item.producto" class="text-[10px] text-slate-400 font-semibold mt-0.5">
+                      Sugerido: ${{ getMeliSuggestedPrice(item.producto, 'gold_special') }}.00
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Costo CVA (+IVA) -->
+                <td class="px-6 py-4">
+                  <span v-if="item.producto" class="font-semibold text-slate-600 dark:text-slate-300">
+                    ${{ (parseFloat(item.producto.precio_compra) * 1.16).toFixed(2) }} MXN
+                  </span>
+                  <span v-else class="text-xs text-slate-400 italic">
+                    Sin vincular
+                  </span>
+                </td>
+
+                <!-- Margen Real -->
+                <td class="px-6 py-4">
+                  <div v-if="item.producto && getListingAnalysis(item)" class="flex flex-col">
+                    <span 
+                      :class="[
+                        'font-bold text-xs',
+                        getListingAnalysis(item).netProfit > 0 ? 'text-green-500' : 'text-rose-500'
+                      ]"
+                    >
+                      {{ getListingAnalysis(item).netProfit > 0 ? '+' : '' }}${{ getListingAnalysis(item).netProfit.toFixed(2) }} MXN
+                    </span>
+                    <span 
+                      :class="[
+                        'text-[10px] font-bold block mt-0.5',
+                        getListingAnalysis(item).netProfit > 0 ? 'text-green-500/80' : 'text-rose-500/80'
+                      ]"
+                    >
+                      {{ getListingAnalysis(item).netProfit > 0 ? 'Ganancia' : 'Pérdida' }} ({{ getListingAnalysis(item).profitMargin.toFixed(1) }}%)
+                    </span>
+                  </div>
+                  <span v-else class="text-xs text-slate-400 italic">
+                    N/A
+                  </span>
                 </td>
 
                 <!-- Stock -->
@@ -278,11 +372,6 @@ const deleteListing = (id) => {
                   >
                     {{ item.status === 'active' ? 'Activo' : 'Cerrado' }}
                   </span>
-                </td>
-
-                <!-- Last Sync -->
-                <td class="px-6 py-4 text-xs text-slate-400 font-medium">
-                  {{ item.last_sync_at ? new Date(item.last_sync_at).toLocaleString() : 'Nunca' }}
                 </td>
 
                 <!-- Actions -->
@@ -418,9 +507,14 @@ const deleteListing = (id) => {
                   @error="(e) => e.target.src = '/images/placeholder-product.svg'"
                 />
                 <div class="min-w-0">
-                  <span class="font-bold text-xs text-slate-900 dark:text-slate-200 block truncate">{{ prod.nombre }}</span>
+                  <span class="font-bold text-xs text-slate-900 dark:text-slate-200 block truncate" :title="prod.nombre">{{ prod.nombre }}</span>
                   <span class="text-[10px] text-slate-400 font-mono block mt-0.5">Clave: {{ prod.codigo || prod.cva_clave || 'N/A' }}</span>
-                  <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">Precio: ${{ parseFloat(prod.precio_venta).toFixed(2) }} MXN | Stock: {{ (prod.stock || 0) + (prod.stock_cedis || 0) }}</span>
+                  <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">
+                    Costo (+IVA): ${{ (parseFloat(prod.precio_compra) * 1.16).toFixed(2) }} MXN | Stock: {{ (prod.stock || 0) + (prod.stock_cedis || 0) }}
+                  </span>
+                  <span class="text-[10px] text-emerald-500 font-bold block mt-0.5">
+                    Sugerido ML (Clásica): ${{ getMeliSuggestedPrice(prod, 'gold_special') }}.00 MXN
+                  </span>
                 </div>
               </div>
               <button
