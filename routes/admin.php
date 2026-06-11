@@ -312,6 +312,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mercadolibre/publicaciones/sync', [\App\Http\Controllers\Config\MeliListingController::class, 'sync'])->name('mercadolibre.listings.sync');
     Route::get('/mercadolibre/publicar', [\App\Http\Controllers\Config\MeliListingController::class, 'publicarView'])->name('mercadolibre.listings.publicar-view');
     Route::post('/mercadolibre/publicar', [\App\Http\Controllers\Config\MeliListingController::class, 'publicar'])->name('mercadolibre.listings.publicar');
+    Route::post('/mercadolibre/publicaciones/{id}/vincular', [\App\Http\Controllers\Config\MeliListingController::class, 'vincularProduct'])->name('mercadolibre.listings.vincular');
+    Route::get('/mercadolibre/productos/buscar', [\App\Http\Controllers\Config\MeliListingController::class, 'buscarProductos'])->name('mercadolibre.listings.buscar-productos');
 
     Route::resource('ajustes-inventario', AjusteInventarioController::class)->names('ajustes-inventario')->middleware('can:view ajustes_inventario');
     

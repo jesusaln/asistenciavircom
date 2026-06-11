@@ -240,6 +240,9 @@ class EmpresaResolver
             // Cache physical query for 1 hour. If table/columns don't exist, it fails gracefully.
             return (int) \Illuminate\Support\Facades\Cache::remember("empresa_domain_v2_{$host}", 3600, function () use ($host) {
                 try {
+                    if (!Schema::hasTable('empresa_configuracion') || !Schema::hasColumn('empresa_configuracion', 'dominio_principal')) {
+                        return null;
+                    }
                     return DB::table('empresa_configuracion')
                         ->where('dominio_principal', $host)
                         ->orWhere('dominio_secundario', $host)

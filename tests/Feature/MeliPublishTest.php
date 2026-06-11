@@ -24,18 +24,15 @@ class MeliPublishTest extends TestCase
     {
         parent::setUp();
 
-        // Forzar contexto de empresa a ID 1
-        \App\Support\EmpresaResolver::setContext(1);
-
+        // 1. Create/Retrieve Empresa using unique RFC to avoid ID collision
         $this->empresa = Empresa::updateOrCreate(
-            ['id' => 1],
+            ['rfc' => 'XAXX010101000'],
             [
                 'nombre_razon_social' => 'Empresa Test S.A.',
                 'tipo_persona' => 'moral',
                 'regimen_fiscal' => '601',
                 'uso_cfdi' => 'G03',
                 'estado' => 'activo',
-                'rfc' => 'XAXX010101000',
                 'email' => 'admin@test.com',
                 'telefono' => '1234567890',
                 'calle' => 'Calle Falsa 123',
@@ -45,13 +42,17 @@ class MeliPublishTest extends TestCase
             ]
         );
 
+        // 2. Set the context of EmpresaResolver to the actual ID of the created Empresa
+        \App\Support\EmpresaResolver::setContext($this->empresa->id);
+
+        // 3. Create/Retrieve User linked to the actual Empresa ID
         $this->user = User::updateOrCreate(
-            ['email' => 'test@example.com'],
+            ['email' => 'publisher.test@example.com'],
             [
                 'name' => 'Test User',
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
-                'empresa_id' => 1
+                'empresa_id' => $this->empresa->id
             ]
         );
 
@@ -118,8 +119,8 @@ class MeliPublishTest extends TestCase
 
     public function test_publish_creates_item_successfully(): void
     {
-        $marca = Marca::create(['nombre' => 'Test Marca', 'empresa_id' => 1]);
-        $categoria = Categoria::create(['nombre' => 'Test Categoria', 'empresa_id' => 1]);
+        $marca = Marca::create(['nombre' => 'Test Marca', 'empresa_id' => $this->empresa->id]);
+        $categoria = Categoria::create(['nombre' => 'Test Categoria', 'empresa_id' => $this->empresa->id]);
 
         $producto = Producto::create([
             'nombre' => 'Monitor LED Test',
@@ -128,7 +129,7 @@ class MeliPublishTest extends TestCase
             'precio_compra' => 100,
             'stock' => 10,
             'estado' => 'activo',
-            'empresa_id' => 1,
+            'empresa_id' => $this->empresa->id,
             'origen' => 'CVA',
             'marca_id' => $marca->id,
             'categoria_id' => $categoria->id,
@@ -156,5 +157,83 @@ class MeliPublishTest extends TestCase
 
         $response->assertRedirect(route('mercadolibre.listings.index'));
         $response->assertSessionHas('success');
+    }
+
+    public function test_buscar_productos_returns_matching_products(): void
+    {
+        $marca = Marca::create(['nombre' => 'Test Marca', 'empresa_id' => $this->empresa->id]);
+        $categoria = Categoria::create(['nombre' => 'Test Categoria', 'empresa_id' => $this->empresa->id]);
+
+        Producto::create([
+            'nombre' => 'Mouse Optico Inalambrico',
+            'codigo' => 'MOU-WIRELESS',
+            'precio_venta' => 20,
+            'precio_compra' => 10,
+            'stock' => 10,
+            'estado' => 'activo',
+            'empresa_id' => $this->empresa->id,
+            'origen' => 'CVA',
+            'marca_id' => $marca->id,
+            'categoria_id' => $categoria->id,
+            'unidad_medida' => 'pieza',
+            'tipo_producto' => 'fisico',
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('mercadolibre.listings.buscar-productos', ['search' => 'Mouse']));
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['nombre' => 'Mouse Optico Inalambrico']);
+    }
+
+    public function test_vincular_product_maps_listing_locally_and_updates_meli_sku(): void
+    {
+        $marca = Marca::create(['nombre' => 'Test Marca', 'empresa_id' => $this->empresa->id]);
+        $categoria = Categoria::create(['nombre' => 'Test Categoria', 'empresa_id' => $this->empresa->id]);
+
+        $producto = Producto::create([
+            'nombre' => 'Teclado Mecanico Test',
+            'codigo' => 'TEC-MEC-123',
+            'precio_venta' => 80,
+            'precio_compra' => 50,
+            'stock' => 10,
+            'estado' => 'activo',
+            'empresa_id' => $this->empresa->id,
+            'origen' => 'CVA',
+            'marca_id' => $marca->id,
+            'categoria_id' => $categoria->id,
+            'unidad_medida' => 'pieza',
+            'tipo_producto' => 'fisico',
+        ]);
+
+        $listing = \App\Models\MercadoLibreListing::create([
+            'empresa_id' => $this->empresa->id,
+            'listing_id' => 'MLM998877665',
+            'permalink' => 'https://articulo.mercadolibre.com.mx/MLM998877665',
+            'status' => 'active',
+            'price' => 100,
+            'stock_published' => 2,
+            'meli_category_id' => 'MLM1055',
+            'title' => 'Teclado Mecanico Sin Vincular',
+        ]);
+
+        $this->meliMock->shouldReceive('isConfigured')->once()->andReturn(true);
+        $this->meliMock->shouldReceive('put')
+            ->once()
+            ->with('/items/MLM998877665', ['seller_custom_field' => 'TEC-MEC-123'])
+            ->andReturn(['success' => true]);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('mercadolibre.listings.vincular', $listing->id), [
+                'producto_id' => $producto->id,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        
+        $this->assertDatabaseHas('mercadolibre_listings', [
+            'id' => $listing->id,
+            'producto_id' => $producto->id,
+        ]);
     }
 }

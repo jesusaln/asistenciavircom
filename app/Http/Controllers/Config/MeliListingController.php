@@ -188,6 +188,7 @@ class MeliListingController extends Controller
         $query = Producto::where('estado', 'activo')
             ->where('origen', 'CVA')
             ->where('precio_compra', '>', 0)
+            ->whereRaw('(COALESCE(stock, 0) + COALESCE(stock_cedis, 0)) >= 5')
             ->whereDoesntHave('mercadolibreListings');
 
         // Apply filters
@@ -268,5 +269,57 @@ class MeliListingController extends Controller
         return redirect()->back()
             ->withInput()
             ->with('error', 'Error al publicar en MercadoLibre: ' . $errorMsg);
+    }
+
+    public function buscarProductos(Request $request)
+    {
+        $search = $request->input('search');
+        if (empty($search)) {
+            return response()->json([]);
+        }
+
+        $productos = Producto::where('estado', 'activo')
+            ->where(function($q) use ($search) {
+                $q->where('nombre', 'ilike', "%{$search}%")
+                  ->orWhere('codigo', 'ilike', "%{$search}%")
+                  ->orWhere('cva_clave', 'ilike', "%{$search}%");
+            })
+            ->limit(10)
+            ->get(['id', 'nombre', 'codigo', 'cva_clave', 'imagen', 'precio_venta', 'stock', 'stock_cedis']);
+
+        return response()->json($productos);
+    }
+
+    public function vincularProduct(Request $request, $id)
+    {
+        $request->validate([
+            'producto_id' => 'required|exists:productos,id',
+        ]);
+
+        $listing = MercadoLibreListing::findOrFail($id);
+        $producto = Producto::findOrFail($request->input('producto_id'));
+
+        // Update database record
+        $listing->update([
+            'producto_id' => $producto->id,
+        ]);
+
+        // Attempt to update the custom SKU field in MercadoLibre (seller_custom_field)
+        if ($this->meli->isConfigured()) {
+            $sku = $producto->codigo ?: $producto->cva_clave;
+            try {
+                $result = $this->meli->put("/items/{$listing->listing_id}", [
+                    'seller_custom_field' => $sku
+                ]);
+
+                if (isset($result['error'])) {
+                    Log::warning("Could not update seller_custom_field on ML for listing {$listing->listing_id}: " . ($result['error'] ?? 'unknown'));
+                }
+            } catch (\Exception $e) {
+                Log::error("Exception updating seller_custom_field on ML for listing {$listing->listing_id}: " . $e->getMessage());
+            }
+        }
+
+        return redirect()->back()->with('success', 'Publicación vinculada al producto local correctamente.');
     }
 }

@@ -7,14 +7,14 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { 
   faStore, faSync, faTrash, faExternalLinkAlt, faSpinner, 
   faExclamationTriangle, faBoxOpen, faInfoCircle, faChevronRight,
-  faSearch
+  faSearch, faLink
 } from '@fortawesome/free-solid-svg-icons'
 import { notyf } from '@/Utils/notyf.js'
 
 library.add(
   faStore, faSync, faTrash, faExternalLinkAlt, faSpinner, 
   faExclamationTriangle, faBoxOpen, faInfoCircle, faChevronRight,
-  faSearch
+  faSearch, faLink
 )
 
 defineOptions({ layout: AppLayout })
@@ -28,6 +28,63 @@ const props = defineProps({
 const searchQuery = ref('')
 const syncing = ref(false)
 const deletingId = ref(null)
+
+// Product mapping / linking variables
+import axios from 'axios'
+const showLinkModal = ref(false)
+const selectedListing = ref(null)
+const productSearchQuery = ref('')
+const searchResults = ref([])
+const searchingProducts = ref(false)
+const linkingId = ref(null)
+
+let searchTimeout = null
+const searchProducts = () => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  
+  if (!productSearchQuery.value.trim()) {
+    searchResults.value = []
+    return
+  }
+  
+  searchingProducts.value = true
+  searchTimeout = setTimeout(async () => {
+    try {
+      const response = await axios.get(route('mercadolibre.listings.buscar-productos'), {
+        params: { search: productSearchQuery.value }
+      })
+      searchResults.value = response.data
+    } catch (err) {
+      console.error(err)
+      notyf.error('Error al buscar productos')
+    } finally {
+      searchingProducts.value = false
+    }
+  }, 300)
+}
+
+const openLinkModal = (listing) => {
+  selectedListing.value = listing
+  productSearchQuery.value = ''
+  searchResults.value = []
+  showLinkModal.value = true
+}
+
+const linkProduct = (productoId) => {
+  linkingId.value = productoId
+  router.post(route('mercadolibre.listings.vincular', selectedListing.value.id), {
+    producto_id: productoId
+  }, {
+    onSuccess: () => {
+      notyf.success('Publicación vinculada correctamente')
+      showLinkModal.value = false
+    },
+    onError: () => notyf.error('Error al vincular el producto'),
+    onFinish: () => {
+      linkingId.value = null
+    }
+  })
+}
 
 const filteredListings = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
@@ -241,6 +298,13 @@ const deleteListing = (id) => {
                       <FontAwesomeIcon icon="external-link-alt" class="text-xs" />
                     </a>
                     <button 
+                      @click="openLinkModal(item)"
+                      class="p-2 text-slate-500 hover:text-emerald-500 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 border border-slate-200 dark:border-slate-700 rounded-xl transition-all"
+                      title="Vincular a Producto Local"
+                    >
+                      <FontAwesomeIcon icon="link" class="text-xs" />
+                    </button>
+                    <button 
                       @click="deleteListing(item.id)"
                       :disabled="deletingId === item.id"
                       class="p-2 text-slate-500 hover:text-rose-500 bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/10 border border-slate-200 dark:border-slate-700 rounded-xl transition-all"
@@ -257,6 +321,132 @@ const deleteListing = (id) => {
         </div>
       </div>
       
+    </div>
+  </div>
+
+  <!-- Modal de Vinculación -->
+  <div v-if="showLinkModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm" @click="showLinkModal = false"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] z-10">
+      
+      <!-- Modal Header -->
+      <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <FontAwesomeIcon icon="link" class="text-yellow-500" />
+            <span>Vincular Producto Local</span>
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Asocia la publicación <span class="font-mono text-slate-700 dark:text-slate-300">{{ selectedListing?.listing_id }}</span> a un producto de tu catálogo.
+          </p>
+        </div>
+        <button 
+          @click="showLinkModal = false"
+          class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1"
+        >
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto flex-1 space-y-5">
+        <!-- Publication details -->
+        <div class="p-4 bg-slate-50 dark:bg-slate-950/30 rounded-2xl border border-slate-200/50 dark:border-slate-800 flex items-center gap-3">
+          <img 
+            :src="selectedListing?.producto?.imagen || selectedListing?.thumbnail || '/images/placeholder-product.svg'" 
+            alt="Thumbnail" 
+            class="w-12 h-12 object-cover rounded-xl border border-slate-200 dark:border-slate-800"
+            @error="(e) => e.target.src = '/images/placeholder-product.svg'"
+          />
+          <div class="flex-1 min-w-0">
+            <span class="text-xs text-slate-400 font-bold block">Publicación en MercadoLibre:</span>
+            <span class="font-bold text-sm text-slate-900 dark:text-slate-200 block truncate">{{ selectedListing?.producto?.nombre || selectedListing?.title || 'Publicación externa' }}</span>
+            <span class="text-xs font-semibold text-yellow-500 mt-0.5 block">${{ parseFloat(selectedListing?.price).toFixed(2) }} MXN</span>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Buscar en tu Catálogo</label>
+          <div class="relative">
+            <FontAwesomeIcon icon="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+            <input
+              v-model="productSearchQuery"
+              @input="searchProducts"
+              type="text"
+              placeholder="Buscar por nombre, código CVA o clave..."
+              class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500/30 focus:border-yellow-500 transition-all text-slate-800 dark:text-slate-100"
+            />
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Resultados</label>
+          
+          <!-- Loading -->
+          <div v-if="searchingProducts" class="py-10 flex flex-col items-center justify-center text-slate-400">
+            <FontAwesomeIcon icon="spinner" spin size="lg" class="mb-2" />
+            <span class="text-xs">Buscando productos...</span>
+          </div>
+
+          <!-- Empty -->
+          <div v-else-if="productSearchQuery && searchResults.length === 0" class="py-10 text-center text-slate-500 text-sm">
+            No se encontraron productos coincidentes en tu catálogo.
+          </div>
+
+          <!-- Prompt -->
+          <div v-else-if="!productSearchQuery" class="py-10 text-center text-slate-400 text-sm">
+            Escribe arriba para comenzar a buscar productos activos.
+          </div>
+
+          <!-- List -->
+          <div v-else class="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-60 overflow-y-auto rounded-2xl border border-slate-200/50 dark:border-slate-800/80">
+            <div 
+              v-for="prod in searchResults" 
+              :key="prod.id"
+              class="p-3.5 hover:bg-slate-50 dark:hover:bg-slate-950/40 transition-colors flex items-center justify-between gap-3"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <img 
+                  :src="prod.imagen || '/images/placeholder-product.svg'" 
+                  alt="Product" 
+                  class="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-800"
+                  @error="(e) => e.target.src = '/images/placeholder-product.svg'"
+                />
+                <div class="min-w-0">
+                  <span class="font-bold text-xs text-slate-900 dark:text-slate-200 block truncate">{{ prod.nombre }}</span>
+                  <span class="text-[10px] text-slate-400 font-mono block mt-0.5">Clave: {{ prod.codigo || prod.cva_clave || 'N/A' }}</span>
+                  <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">Precio: ${{ parseFloat(prod.precio_venta).toFixed(2) }} MXN | Stock: {{ (prod.stock || 0) + (prod.stock_cedis || 0) }}</span>
+                </div>
+              </div>
+              <button
+                @click="linkProduct(prod.id)"
+                :disabled="linkingId === prod.id"
+                class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 text-slate-950 font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 shrink-0"
+              >
+                <FontAwesomeIcon icon="spinner" spin v-if="linkingId === prod.id" />
+                <span>Vincular</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-50 dark:bg-slate-950/20 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <button 
+          @click="showLinkModal = false"
+          class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white font-bold text-xs rounded-xl"
+        >
+          Cancelar
+        </button>
+      </div>
+
     </div>
   </div>
 </template>
