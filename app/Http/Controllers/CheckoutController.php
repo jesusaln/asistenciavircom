@@ -410,11 +410,6 @@ class CheckoutController extends Controller
                 'notas' => ($validated['notas'] ?? '') . ($validated['tipo_entrega'] === 'recoger' ? ' [RECOGER EN TIENDA]' : ''),
             ]);
 
-            // Reducir stock de productos
-            foreach ($productosActualizar as $data) {
-                $data['producto']->decrement('stock', $data['cantidad']);
-            }
-
             // SOLO ENVIAR A CVA si el método es Transferencia/Efectivo
             // Para pagos ONLINE (PayPal/MP), esperaremos al WEBHOOK para confirmar y disparar la orden
             $isManualPayment = in_array($validated['metodo_pago'], ['transferencia', 'efectivo', 'credito']);

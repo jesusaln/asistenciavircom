@@ -59,24 +59,31 @@ class PedidoOnlineController extends Controller
         ]);
 
         if ($request->has('estado')) {
-            $pedido->estado = $request->estado;
             if ($request->estado === 'pagado' && !$pedido->pagado_at) {
-                $pedido->pagado_at = now();
+                $pedido->marcarComoPagado('manual-' . uniqid(), 'approved', [
+                    'updated_by' => auth()->user()->name,
+                    'reason' => $request->descripcion_bitacora,
+                ]);
+            } else {
+                $pedido->estado = $request->estado;
+                $pedido->save();
+                $pedido->registrarEvento(
+                    'ACTUALIZACION_MANUAL',
+                    $request->descripcion_bitacora . " (Por: " . auth()->user()->name . ")",
+                    ['cambios' => $request->only(['estado', 'guia_envio'])]
+                );
             }
         }
 
-        if ($request->has('guia_envio')) {
+        if ($request->has('guia_envio') && !$request->has('estado')) {
             $pedido->guia_envio = $request->guia_envio;
+            $pedido->save();
+            $pedido->registrarEvento(
+                'ACTUALIZACION_MANUAL',
+                $request->descripcion_bitacora . " (Por: " . auth()->user()->name . ")",
+                ['cambios' => $request->only(['estado', 'guia_envio'])]
+            );
         }
-
-        $pedido->save();
-
-        // Registrar en bitácora
-        $pedido->registrarEvento(
-            'ACTUALIZACION_MANUAL',
-            $request->descripcion_bitacora . " (Por: " . auth()->user()->name . ")",
-            ['cambios' => $request->only(['estado', 'guia_envio'])]
-        );
 
         return redirect()->back()->with('success', 'Pedido actualizado correctamente.');
     }

@@ -260,31 +260,7 @@ const productSchema = computed(() => ({
             }
         }
     },
-    "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "bestRating": "5",
-        "worstRating": "1",
-        "ratingCount": (props.producto.id % 20) + 15,
-        "reviewCount": (props.producto.id % 15) + 10
-    },
-    "review": [
-        {
-            "@type": "Review",
-            "author": {
-                "@type": "Person",
-                "name": "Usuario de Climas del Desierto"
-            },
-            "datePublished": "2024-01-15",
-            "reviewRating": {
-                "@type": "Rating",
-                "ratingValue": "5",
-                "bestRating": "5",
-                "worstRating": "1"
-            },
-            "reviewBody": "Excelente equipo, muy silencioso y el ahorro en el recibo de CFE es real. Muy recomendados."
-        }
-    ]
+
 }));
 
 const breadcrumbSchema = computed(() => ({

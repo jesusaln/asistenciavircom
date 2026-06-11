@@ -234,9 +234,16 @@ class MeliService
             $params['category'] = $categoryId;
         }
 
-        $results = $this->get('/sites/MLM/search', $params);
+        try {
+            $response = Http::timeout(15)
+                ->get(self::API_URL . '/sites/MLM/search', $params);
+            $results = $response->json() ?? [];
+        } catch (\Exception $e) {
+            Log::error('Meli search error', ['query' => $query, 'msg' => $e->getMessage()]);
+            return ['error' => 'Error en búsqueda', 'details' => $e->getMessage()];
+        }
 
-        if (isset($results['error'])) {
+        if ($response->status() === 403 || isset($results['error'])) {
             return ['error' => 'Error en búsqueda', 'details' => $results];
         }
 
@@ -498,7 +505,14 @@ class MeliService
      */
     public function getSuggestedPriceFromML(string $query): ?float
     {
-        $analysis = $this->analyzeCompetition($query);
+        $parts = preg_split('/\s*\/\s*/', $query);
+        $cleanQuery = trim($parts[0] ?? $query);
+
+        if (strlen($cleanQuery) < 5) {
+            $cleanQuery = $query;
+        }
+
+        $analysis = $this->analyzeCompetition($cleanQuery);
 
         if (isset($analysis['error']) || !isset($analysis['suggestion']['price'])) {
             return null;

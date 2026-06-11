@@ -157,6 +157,16 @@ class PedidoOnline extends Model
 
         $this->registrarEvento('PAGO_CONFIRMADO', "Pago confirmado mediante {$this->metodo_pago}. Ref: {$paymentId}");
 
+        // DESCONTAR STOCK DE PRODUCTOS LOCALES (solo al confirmar pago)
+        foreach ($this->items ?? [] as $item) {
+            if (isset($item['origen']) && $item['origen'] === 'local' && isset($item['producto_id'])) {
+                $producto = \App\Models\Producto::find($item['producto_id']);
+                if ($producto) {
+                    $producto->decrement('stock', (int) $item['cantidad']);
+                }
+            }
+        }
+
         // AUTOMATIZACIÓN DE BANCOS:
         // Registrar movimiento en el banco automáticamente dependiendo del método
         try {
