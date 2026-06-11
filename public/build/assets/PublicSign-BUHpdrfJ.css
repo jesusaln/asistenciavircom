@@ -1,0 +1,1 @@
+@keyframes slide-in-from-right-10{0%{transform:translate(10%);opacity:0}to{transform:translate(0);opacity:1}}.animate-in{animation:slide-in-from-right-10 .5s ease-out}
