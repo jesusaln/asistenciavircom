@@ -71,6 +71,19 @@ class MeliSyncCatalog extends Command
                     if ($dryRun) {
                         $this->line("  Publicaría: {$producto->codigo} - {$producto->nombre}");
                     } else {
+                        // Obtener precio sugerido de ML basado en competencia
+                        $mlSuggestedPrice = $meli->getSuggestedPriceFromML($producto->nombre);
+
+                        // Actualizar precio_tienda_online con el precio sugerido de ML
+                        if ($mlSuggestedPrice && $mlSuggestedPrice > 0) {
+                            $producto->update(['precio_tienda_online' => $mlSuggestedPrice]);
+                            $this->line("    ML sugiere: \${$mlSuggestedPrice} → precio_tienda_online actualizado");
+                            $priceToUse = $mlSuggestedPrice;
+                        } else {
+                            // Si no hay sugerencia de ML, usar el precio_venta normal
+                            $priceToUse = $producto->precio_venta;
+                        }
+
                         $catNombre = $producto->categoria?->nombre;
                         $mapping = MeliCategoryMapping::where('cva_grupo', $catNombre)->first();
                         $categoryId = $mapping?->meli_category_id ?? 'MLM0000';
@@ -78,7 +91,7 @@ class MeliSyncCatalog extends Command
                         $itemData = [
                             'title' => mb_substr($producto->nombre, 0, 60),
                             'category_id' => $categoryId,
-                            'price' => $producto->precio_venta,
+                            'price' => $priceToUse,
                             'currency_id' => 'MXN',
                             'available_quantity' => min($stockTotal, 10),
                             'buying_mode' => 'buy_it_now',

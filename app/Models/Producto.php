@@ -45,6 +45,7 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
     protected $casts = [
         'precio_compra' => 'decimal:2',
         'precio_venta' => 'decimal:2',
+        'precio_tienda_online' => 'decimal:2',
         'margen_ganancia' => 'decimal:2',
         'comision_vendedor' => 'decimal:2',
         'requiere_serie' => 'boolean',
@@ -74,6 +75,7 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'requiere_serie',
         'precio_compra',
         'precio_venta',
+        'precio_tienda_online',
         'margen_ganancia',
         'comision_vendedor',
         'unidad_medida',

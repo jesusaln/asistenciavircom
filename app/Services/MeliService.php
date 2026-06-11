@@ -492,4 +492,18 @@ class MeliService
     {
         return $this->get("/{$topic}/{$resource}");
     }
+
+    /**
+     * Obtener precio sugerido de ML para un producto basado en búsqueda
+     */
+    public function getSuggestedPriceFromML(string $query): ?float
+    {
+        $analysis = $this->analyzeCompetition($query);
+
+        if (isset($analysis['error']) || !isset($analysis['suggestion']['price'])) {
+            return null;
+        }
+
+        return (float) $analysis['suggestion']['price'];
+    }
 }

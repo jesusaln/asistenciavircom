@@ -382,20 +382,24 @@ class CatalogoController extends Controller
 
     private function transformModelToView($model, $lite = false)
     {
-        $precio_con_iva = round(($model->precio_venta ?? 0) * 1.16, 2);
+        // Usar precio de tienda online si está configurado, si no el precio de venta normal
+        $precioMostrar = $model->precio_tienda_online ?? $model->precio_venta;
+        $precio_con_iva = round(($precioMostrar ?? 0) * 1.16, 2);
 
         // Debugging
         if ($model->origen === 'CVA') {
-            \Illuminate\Support\Facades\Log::info("Transforming CVA Product: {$model->nombre} | Price: {$model->precio_venta} | Final: {$precio_con_iva}");
+            \Illuminate\Support\Facades\Log::info("Transforming CVA Product: {$model->nombre} | Price: {$precioMostrar} | Final: {$precio_con_iva}");
         }
 
         $data = [
             'id' => $model->id,
             'nombre' => $model->nombre,
             'descripcion' => $model->descripcion,
-            'precio' => (float) $model->precio_venta,
-            'precio_venta' => (float) $model->precio_venta,
+            'precio' => (float) $precioMostrar,
+            'precio_venta' => (float) $precioMostrar,
             'precio_con_iva' => $precio_con_iva,
+            'precio_original' => (float) $model->precio_venta,
+            'tiene_precio_ml' => $model->precio_tienda_online !== null,
             'codigo' => $model->codigo,
             'unidad_medida' => $model->unidad_medida,
             'stock' => (int) $model->stock,
