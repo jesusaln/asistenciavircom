@@ -7,7 +7,6 @@ import PublicFooter from '@/Components/PublicFooter.vue';
 import SocialProofNotification from '@/Components/SocialProofNotification.vue';
 import WhatsAppWidget from '@/Components/WhatsAppWidget.vue';
 import { useDarkMode } from '@/Utils/useDarkMode';
-import axios from 'axios';
 
 const props = defineProps({
     productos: Object,
@@ -47,30 +46,7 @@ const soloLocal = ref(props.filters?.local ?? false)
 const soloSinFoto = ref(props.filters?.sin_foto ?? false)
 const cvaPage = ref(1)
 const hasMoreCva = ref(true)
-const suggestions = ref([])
 const isFiltering = ref(false)
-
-// Suggestions Logic
-let suggestionTimeout = null
-const fetchSuggestions = async () => {
-    if (!search.value || search.value.length < 2) {
-        suggestions.value = []
-        return
-    }
-    try {
-        const response = await axios.get('/api/tienda/search-suggestions', { 
-            params: { q: search.value } 
-        })
-        suggestions.value = response.data || []
-    } catch (e) {
-        suggestions.value = []
-    }
-}
-
-const debouncedSuggestions = () => {
-    clearTimeout(suggestionTimeout)
-    suggestionTimeout = setTimeout(fetchSuggestions, 300)
-} 
 
 const fetchCvaProducts = (fresh = true) => {
     if (fresh) {
@@ -355,7 +331,7 @@ const metaDescription = computed(() => {
                                 v-model="search"
                                 @focus="handleSearchFocus"
                                 @blur="handleSearchBlur"
-                                @input="debouncedSuggestions"
+
                                 type="text" 
                                 placeholder="Buscar productos por nombre, código o descripción..." 
                                 class="w-full h-14 px-4 bg-transparent border-0 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-0"
@@ -370,56 +346,7 @@ const metaDescription = computed(() => {
                         </div>
                     </div>
 
-                    <!-- Autocomplete Dropdown (Premium Version) -->
-                    <div v-show="searchFocused && suggestions.length > 0" 
-                         class="absolute w-full bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto custom-scrollbar ring-1 ring-black/5">
-                        <div class="p-2.5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 sticky top-0 z-10">
-                            <span class="text-[10px] font-black tracking-wide text-slate-400 dark:text-slate-500 uppercase ml-2">Sugerencias de productos</span>
-                            <button @click="searchFocused = false" class="text-[10px] font-bold text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-slate-300 px-2 uppercase">Cerrar</button>
-                        </div>
-                        <ul class="divide-y divide-slate-50 dark:divide-slate-700">
-                            <li v-for="sug in suggestions" :key="sug.id">
-                                <Link :href="route('catalogo.show', sug.id)" 
-                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-white dark:hover:bg-slate-700 transition-all relative">
-                                    <div class="w-14 h-14 rounded-xl bg-[var(--ui-surface)] border border-slate-100 dark:border-slate-700 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-200">
-                                        <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.webp')">
-                                    </div>
-                                    <div class="flex-1 min-w-0 text-left">
-                                        <div class="flex items-center gap-2 mb-0.5">
-                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-50 dark:bg-sky-900/20/40 text-sky-800 dark:text-sky-200 dark:text-blue-300 rounded-xl text-[9px] font-black uppercase tracking-wide">CVA</span>
-                                            <p class="text-sm font-bold text-slate-900 dark:text-white truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
-                                                {{ sug.label }}
-                                            </p>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ sug.category }}</p>
-                                            <div class="flex items-center gap-1.5">
-                                                <span v-if="sug.origen === 'CVA'" 
-                                                      :class="[
-                                                          'h-2 w-2 rounded-full',
-                                                          sug.stock > 0 ? 'bg-brand-500 animate-pulse' : 'bg-amber-400'
-                                                      ]"></span>
-                                                <span class="text-[11px] font-black uppercase tracking-wider" :class="sug.stock > 0 ? 'text-emerald-600 dark:text-slate-400' : 'text-brand-600 dark:text-amber-400'">
-                                                    {{ sug.stock > 0 ? `Entrega Inmediata (${sug.stock})` : 'Bajo pedido' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-[14px] font-black text-slate-900 dark:text-white leading-none">
-                                            {{ formatCurrency(sug.price) }}
-                                        </p>
-                                        <p class="text-[9px] text-emerald-500 dark:text-slate-400 font-black uppercase mt-1 tracking-wide">IVA Incluido</p>
-                                    </div>
-                                </Link>
-                            </li>
-                            <li>
-                                <button @click="applyFilters" class="w-full py-3 text-center bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-xs font-bold text-slate-500 dark:text-slate-200 transition-colors uppercase tracking-wide">
-                                    Ver todos los resultados para "{{ search }}"
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+
                 </div>
                 
                 <!-- Filtros rápidos -->
