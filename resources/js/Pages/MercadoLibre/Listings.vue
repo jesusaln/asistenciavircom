@@ -133,11 +133,12 @@ const getMeliSuggestedPrice = (product, type = 'gold_special') => {
 }
 
 // Smart calculation of profit/loss for a listing at its current price
-const getListingAnalysis = (item) => {
-  if (!item.producto || !item.producto.precio_compra) return null
+const getListingAnalysis = (item, useCandidate = false) => {
+  const prod = useCandidate ? item.candidate_product : item.producto
+  if (!prod || !prod.precio_compra) return null
 
   const price = parseFloat(item.price) || 0
-  const cost = parseFloat(item.producto.precio_compra) * 1.16 // Cost with 16% IVA estimate
+  const cost = parseFloat(prod.precio_compra) * 1.16 // Cost with 16% IVA estimate
 
   // ML Commission percentage (approximate rates: Gold Special 13%, Gold Premium 17.5% - default to 13%)
   const commRate = 0.13
@@ -164,6 +165,57 @@ const getListingAnalysis = (item) => {
     netReceived,
     netProfit,
     profitMargin
+  }
+}
+
+// Simulates profit/loss for a catalog product if linked to the selected listing
+const getCandidateAnalysis = (prod) => {
+  if (!selectedListing.value || !prod || !prod.precio_compra) return null
+  
+  const price = parseFloat(selectedListing.value.price) || 0
+  const cost = parseFloat(prod.precio_compra) * 1.16 // Cost with 16% IVA estimate
+
+  const commRate = 0.13
+  const commission = price * commRate
+  const fixedFee = price < 299 && price > 0 ? 25.00 : 0.00
+  const shippingFee = price >= 299 ? 59.60 : 0.00
+  const taxWithholding = price * 0.08
+
+  const netReceived = price - commission - fixedFee - shippingFee - taxWithholding
+  const netProfit = netReceived - cost
+  const profitMargin = price > 0 ? (netProfit / price) * 100 : 0
+
+  return {
+    netProfit,
+    profitMargin
+  }
+}
+
+const linkProductDirectly = (listing, productoId) => {
+  linkingId.value = productoId
+  router.post(route('mercadolibre.listings.vincular', listing.id), {
+    producto_id: productoId
+  }, {
+    onSuccess: () => {
+      notyf.success('Publicación vinculada al candidato sugerido correctamente')
+    },
+    onError: () => notyf.error('Error al vincular el candidato'),
+    onFinish: () => {
+      linkingId.value = null
+    }
+  })
+}
+
+const deleteListing = (id) => {
+  if (confirm('¿Estás seguro de que deseas eliminar esta publicación de MercadoLibre? Esta acción la cerrará en MercadoLibre y la eliminará de tu base de datos local.')) {
+    deletingId.value = id
+    router.delete(route('mercadolibre.listings.destroy', id), {
+      onSuccess: () => notyf.success('Publicación eliminada correctamente'),
+      onError: () => notyf.error('Error al eliminar la publicación'),
+      onFinish: () => {
+        deletingId.value = null
+      }
+    })
   }
 }
 </script>
@@ -291,14 +343,21 @@ const getListingAnalysis = (item) => {
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <img 
-                      :src="item.producto?.imagen || item.thumbnail || '/images/placeholder-product.svg'" 
+                      :src="item.producto?.imagen || item.candidate_product?.imagen || item.thumbnail || '/images/placeholder-product.svg'" 
                       alt="Thumbnail" 
                       class="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
                       @error="(e) => e.target.src = '/images/placeholder-product.svg'"
                     />
                     <div class="max-w-xs md:max-w-md truncate">
                       <span class="font-bold text-slate-900 dark:text-slate-200 block truncate">{{ item.producto?.nombre || item.title || 'Publicación externa' }}</span>
-                      <span class="text-xs text-slate-400 block mt-0.5 font-mono">{{ item.producto?.codigo || 'Sin SKU local' }}</span>
+                      <span class="text-xs text-slate-400 block mt-0.5 font-mono">
+                        {{ item.producto?.codigo || 'Sin SKU local' }}
+                      </span>
+                      <div v-if="!item.producto && item.candidate_product" class="mt-1 flex items-center">
+                        <span class="px-1.5 py-0.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded text-[9px] font-bold tracking-wide">
+                          Candidato Sugerido: {{ item.candidate_product.codigo }}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -317,6 +376,9 @@ const getListingAnalysis = (item) => {
                     <span v-if="item.producto" class="text-[10px] text-slate-400 font-semibold mt-0.5">
                       Sugerido: ${{ getMeliSuggestedPrice(item.producto, 'gold_special') }}.00
                     </span>
+                    <span v-else-if="item.candidate_product" class="text-[10px] text-yellow-500/80 font-bold mt-0.5">
+                      Sugerido: ${{ getMeliSuggestedPrice(item.candidate_product, 'gold_special') }}.00
+                    </span>
                   </div>
                 </td>
 
@@ -325,6 +387,14 @@ const getListingAnalysis = (item) => {
                   <span v-if="item.producto" class="font-semibold text-slate-600 dark:text-slate-300">
                     ${{ (parseFloat(item.producto.precio_compra) * 1.16).toFixed(2) }} MXN
                   </span>
+                  <div v-else-if="item.candidate_product" class="flex flex-col">
+                    <span class="font-semibold text-yellow-600 dark:text-yellow-400/80">
+                      ${{ (parseFloat(item.candidate_product.precio_compra) * 1.16).toFixed(2) }} MXN
+                    </span>
+                    <span class="text-[9px] text-slate-400 font-medium">
+                      (Sugerido)
+                    </span>
+                  </div>
                   <span v-else class="text-xs text-slate-400 italic">
                     Sin vincular
                   </span>
@@ -332,22 +402,40 @@ const getListingAnalysis = (item) => {
 
                 <!-- Margen Real -->
                 <td class="px-6 py-4">
-                  <div v-if="item.producto && getListingAnalysis(item)" class="flex flex-col">
+                  <div v-if="item.producto && getListingAnalysis(item, false)" class="flex flex-col">
                     <span 
                       :class="[
                         'font-bold text-xs',
-                        getListingAnalysis(item).netProfit > 0 ? 'text-green-500' : 'text-rose-500'
+                        getListingAnalysis(item, false).netProfit > 0 ? 'text-green-500' : 'text-rose-500'
                       ]"
                     >
-                      {{ getListingAnalysis(item).netProfit > 0 ? '+' : '' }}${{ getListingAnalysis(item).netProfit.toFixed(2) }} MXN
+                      {{ getListingAnalysis(item, false).netProfit > 0 ? '+' : '' }}${{ getListingAnalysis(item, false).netProfit.toFixed(2) }} MXN
                     </span>
                     <span 
                       :class="[
                         'text-[10px] font-bold block mt-0.5',
-                        getListingAnalysis(item).netProfit > 0 ? 'text-green-500/80' : 'text-rose-500/80'
+                        getListingAnalysis(item, false).netProfit > 0 ? 'text-green-500/80' : 'text-rose-500/80'
                       ]"
                     >
-                      {{ getListingAnalysis(item).netProfit > 0 ? 'Ganancia' : 'Pérdida' }} ({{ getListingAnalysis(item).profitMargin.toFixed(1) }}%)
+                      {{ getListingAnalysis(item, false).netProfit > 0 ? 'Ganancia' : 'Pérdida' }} ({{ getListingAnalysis(item, false).profitMargin.toFixed(1) }}%)
+                    </span>
+                  </div>
+                  <div v-else-if="item.candidate_product && getListingAnalysis(item, true)" class="flex flex-col">
+                    <span 
+                      :class="[
+                        'font-bold text-xs',
+                        getListingAnalysis(item, true).netProfit > 0 ? 'text-yellow-500' : 'text-rose-500'
+                      ]"
+                    >
+                      {{ getListingAnalysis(item, true).netProfit > 0 ? '+' : '' }}${{ getListingAnalysis(item, true).netProfit.toFixed(2) }} MXN
+                    </span>
+                    <span 
+                      :class="[
+                        'text-[10px] font-bold block mt-0.5',
+                        getListingAnalysis(item, true).netProfit > 0 ? 'text-yellow-500/80' : 'text-rose-500/80'
+                      ]"
+                    >
+                      Est. ({{ getListingAnalysis(item, true).profitMargin.toFixed(1) }}%)
                     </span>
                   </div>
                   <span v-else class="text-xs text-slate-400 italic">
@@ -377,6 +465,17 @@ const getListingAnalysis = (item) => {
                 <!-- Actions -->
                 <td class="px-6 py-4 text-right whitespace-nowrap">
                   <div class="flex items-center justify-end gap-2">
+                    <button 
+                      v-if="!item.producto && item.candidate_product"
+                      @click="linkProductDirectly(item, item.candidate_product.id)"
+                      :disabled="linkingId === item.candidate_product.id"
+                      class="px-2.5 py-1.5 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-500 hover:text-slate-950 border border-yellow-500/20 rounded-xl transition-all flex items-center gap-1 shrink-0"
+                      title="Vincular a Candidato Sugerido"
+                    >
+                      <FontAwesomeIcon icon="spinner" spin v-if="linkingId === item.candidate_product.id" class="text-xs" />
+                      <FontAwesomeIcon icon="link" v-else class="text-xs" />
+                      <span class="text-[10px] font-bold">Vincular Rápido</span>
+                    </button>
                     <a 
                       v-if="item.permalink"
                       :href="item.permalink" 
@@ -515,6 +614,19 @@ const getListingAnalysis = (item) => {
                   <span class="text-[10px] text-emerald-500 font-bold block mt-0.5">
                     Sugerido ML (Clásica): ${{ getMeliSuggestedPrice(prod, 'gold_special') }}.00 MXN
                   </span>
+                  <!-- Simulated margin analysis -->
+                  <div v-if="getCandidateAnalysis(prod)" class="mt-1 flex items-center gap-2">
+                    <span 
+                      :class="[
+                        'text-[10px] font-bold px-1.5 py-0.5 rounded border',
+                        getCandidateAnalysis(prod).netProfit > 0 
+                          ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                          : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+                      ]"
+                    >
+                      Ganancia si vinculas: {{ getCandidateAnalysis(prod).netProfit > 0 ? '+' : '' }}${{ getCandidateAnalysis(prod).netProfit.toFixed(2) }} MXN ({{ getCandidateAnalysis(prod).profitMargin.toFixed(1) }}%)
+                    </span>
+                  </div>
                 </div>
               </div>
               <button

@@ -22,6 +22,7 @@ class CatalogoController extends Controller
 
         $query = Producto::query()
             ->where('estado', 'activo')
+            ->where('precio_venta', '>', 0)
             ->with(['categoria', 'marca']);
 
         if ($tieneCatalogoWeb) {
@@ -388,6 +389,7 @@ class CatalogoController extends Controller
         }
 
         $productos = Producto::where('estado', 'activo')
+            ->where('precio_venta', '>', 0)
             ->where(function ($q) use ($query) {
                 $q->where('nombre', 'ilike', "%{$query}%")
                   ->orWhere('codigo', 'ilike', "%{$query}%")
@@ -421,11 +423,13 @@ class CatalogoController extends Controller
     {
         $categorias = Categoria::whereHas('productos', function ($q) {
             $q->where('estado', 'activo')
+              ->where('precio_venta', '>', 0)
               ->whereNotNull('imagen')
               ->where('imagen', '!=', '')
               ->where('stock', '>', 0);
         })->withCount(['productos' => function ($q) {
             $q->where('estado', 'activo')
+              ->where('precio_venta', '>', 0)
               ->whereNotNull('imagen')
               ->where('imagen', '!=', '')
               ->where('stock', '>', 0);

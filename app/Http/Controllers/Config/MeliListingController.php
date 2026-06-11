@@ -34,6 +34,12 @@ class MeliListingController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
+        foreach ($listings as $listing) {
+            if (!$listing->producto) {
+                $listing->candidate_product = $this->findCandidateProduct($listing);
+            }
+        }
+
         $meliUser = null;
         try {
             $userResponse = $this->meli->getUser();
@@ -48,6 +54,78 @@ class MeliListingController extends Controller
             'listings' => $listings,
             'meliUser' => $meliUser
         ]);
+    }
+
+    private function findCandidateProduct(MercadoLibreListing $listing)
+    {
+        $title = $listing->title;
+        if (empty($title)) {
+            return null;
+        }
+
+        // 1. Search for exact name match
+        $prod = Producto::where('estado', 'activo')
+            ->where('nombre', $title)
+            ->first(['id', 'nombre', 'codigo', 'cva_clave', 'imagen', 'precio_venta', 'precio_compra', 'stock', 'stock_cedis']);
+        if ($prod) {
+            return $prod;
+        }
+
+        // 2. Extract potential SKU / model tokens from title
+        $tokens = preg_split('/[\s,\/|()\[\]]+/u', $title);
+        $candidates = [];
+        $ignoredWords = [
+            'MXN', 'MLM', 'CVA', 'IVA', 'USD', 'CON', 'PARA', 'DEL', 'LAS', 'LOS', 'POR', 
+            'CONECTOR', 'POLIZA', 'GARANTIA', 'LENOVO', 'TECHZONE', 'TECH', 'ZONE', 
+            'PULGADAS', 'MARCA', 'MODELO', 'ESTUCHE', 'MALETIN', 'UNIVERSAL'
+        ];
+
+        foreach ($tokens as $token) {
+            $cleanToken = trim($token, '.-_');
+            if (strlen($cleanToken) >= 3 && preg_match('/[A-Z0-9-]/i', $cleanToken)) {
+                if (in_array(strtoupper($cleanToken), $ignoredWords)) {
+                    continue;
+                }
+                $candidates[] = $cleanToken;
+            }
+        }
+
+        if (!empty($candidates)) {
+            // Sort by length descending to check more specific codes first
+            usort($candidates, function($a, $b) {
+                return strlen($b) - strlen($a);
+            });
+
+            // Try exact code match
+            foreach ($candidates as $candidate) {
+                $prod = Producto::where('estado', 'activo')
+                    ->where(function($q) use ($candidate) {
+                        $q->where('codigo', 'ilike', $candidate)
+                          ->orWhere('cva_clave', 'ilike', $candidate);
+                    })
+                    ->first(['id', 'nombre', 'codigo', 'cva_clave', 'imagen', 'precio_venta', 'precio_compra', 'stock', 'stock_cedis']);
+                
+                if ($prod) {
+                    return $prod;
+                }
+            }
+
+            // Try name matching with strong alphanumeric codes
+            foreach ($candidates as $candidate) {
+                $isStrongCode = (preg_match('/[A-Z]/i', $candidate) && preg_match('/[0-9]/', $candidate)) || strlen($candidate) >= 5;
+                if ($isStrongCode) {
+                    $prod = Producto::where('estado', 'activo')
+                        ->where('nombre', 'ilike', "%{$candidate}%")
+                        ->first(['id', 'nombre', 'codigo', 'cva_clave', 'imagen', 'precio_venta', 'precio_compra', 'stock', 'stock_cedis']);
+                    
+                    if ($prod) {
+                        return $prod;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public function destroy($id)
