@@ -421,21 +421,15 @@ class CatalogoController extends Controller
 
     public function categoriasParaNav()
     {
-        $categorias = Categoria::whereHas('productos', function ($q) {
-            $q->where('estado', 'activo')
-              ->where('precio_venta', '>', 0)
-              ->whereNotNull('imagen')
-              ->where('imagen', '!=', '')
-              ->where('stock', '>', 0);
-        })->withCount(['productos' => function ($q) {
-            $q->where('estado', 'activo')
-              ->where('precio_venta', '>', 0)
-              ->whereNotNull('imagen')
-              ->where('imagen', '!=', '')
-              ->where('stock', '>', 0);
-        }])->orderBy('productos_count', 'desc')
-          ->limit(12)
-          ->get(['id', 'nombre']);
+        $categorias = Categoria::activas()
+            ->whereHas('productos', function ($q) {
+                $q->where('estado', 'activo')
+                  ->where('precio_venta', '>', 0);
+            })->withCount(['productos' => function ($q) {
+                $q->where('estado', 'activo')
+                  ->where('precio_venta', '>', 0);
+            }])->orderBy('productos_count', 'desc')
+            ->get(['id', 'nombre']);
 
         return response()->json($categorias);
     }

@@ -46,6 +46,16 @@ class ImageProxyController extends Controller
         };
 
         try {
+            // Para URLs de CVA, intentar primero la imagen de alta resolución
+            if (str_contains($url, 'grupocva.com') && !str_contains($url, 'img_large')) {
+                $highRes = $this->resolveHighResCvaImage($url);
+                if ($highRes) {
+                    return response(base64_decode($highRes['content']))
+                        ->header('Content-Type', $highRes['mime'])
+                        ->header('Cache-Control', 'public, max-age=86400');
+                }
+            }
+
             $cachedData = \Illuminate\Support\Facades\Cache::remember('img_proxy_' . md5($url), now()->addHours(24), function () use ($url) {
                 // Usar HTTP Client de Laravel con User-Agent para evitar bloqueos
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
@@ -65,15 +75,6 @@ class ImageProxyController extends Controller
                     if (preg_match("/<img[^>]+src=['\"]([^'\"]+)['\"]/i", $content, $matches)) {
                         $realImageUrl = $matches[1];
 
-                        // Si es la imagen de "No Disponible" de CVA que sabemos que falla, o si queremos forzar una mejor imagen
-                        if (str_contains($realImageUrl, 'na1.gif') || str_contains($url, 'me2.grupocva.com')) {
-                            // Intentar resolver por clave de producto si es una URL de CVA
-                            $resolved = $this->resolveFallbackCvaImage($url);
-                            if ($resolved) {
-                                return $resolved;
-                            }
-                        }
-
                         if (str_contains($realImageUrl, 'na1.gif')) {
                             return null;
                         }
@@ -89,12 +90,6 @@ class ImageProxyController extends Controller
                                 'mime' => $response->header('Content-Type') ?? 'image/jpeg'
                             ];
                         }
-                    }
-
-                    // Si no hubo suerte con regex, intentar resolver por DB igual
-                    $resolved = $this->resolveFallbackCvaImage($url);
-                    if ($resolved) {
-                        return $resolved;
                     }
 
                     return null;
@@ -131,62 +126,81 @@ class ImageProxyController extends Controller
         }
     }
 
-    /**
-     * Intenta encontrar una imagen alternativa para un URL de CVA
-     * buscando el producto en nuestra DB y pidiendo imágenes HD a la API
-     */
-    private function resolveFallbackCvaImage($url)
+    private function findProductByImageUrl($url)
     {
-        try {
-            // Buscar producto que use esta imagen
-            $producto = \App\Models\Producto::where('imagen', $url)
+        $producto = \App\Models\Producto::where('imagen', $url)
+            ->whereNotNull('cva_clave')
+            ->first();
+
+        if (!$producto && preg_match('/fProd=(\d+)/', $url, $m)) {
+            $producto = \App\Models\Producto::where('imagen', 'like', "%fProd={$m[1]}%")
                 ->whereNotNull('cva_clave')
                 ->first();
+        }
 
-            if (!$producto) {
-                // Intentar extraer el ID fProd de la URL (ej: fProd=10477696)
-                if (preg_match('/fProd=(\d+)/', $url, $m)) {
-                    $producto = \App\Models\Producto::where('imagen', 'like', "%fProd={$m[1]}%")
-                        ->whereNotNull('cva_clave')
-                        ->first();
-                }
-            }
+        return $producto;
+    }
 
-            if ($producto && $producto->cva_clave) {
-                $service = app(\App\Services\CVAService::class);
-                $images = $service->getHighResImages($producto->cva_clave);
+    private function fetchImageWithHeaders($url)
+    {
+        $response = \Illuminate\Support\Facades\Http::withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Referer' => 'https://www.grupocva.com/',
+        ])->timeout(10)->get($url);
 
-                // Si no hay imágenes "oficiales", intentar adivinar por patrón
-                if (empty($images)) {
-                    $clave = $producto->cva_clave;
-                    $images = [
-                        "https://www.grupocva.com/articulos_img/{$clave}.webp",
-                        "https://www.grupocva.com/nuevo/catalogo/product_images/{$clave}.webp",
-                        "https://www.grupocva.com/articulos_img/{$clave}.JPG",
-                    ];
-                }
-
-                foreach ($images as $realUrl) {
-                    try {
-                        $response = \Illuminate\Support\Facades\Http::withHeaders([
-                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                            'Referer' => 'https://www.grupocva.com/',
-                        ])->timeout(8)->get($realUrl);
-
-                        if ($response->successful() && str_contains($response->header('Content-Type'), 'image')) {
-                            return [
-                                'content' => base64_encode($response->body()),
-                                'mime' => $response->header('Content-Type') ?? 'image/jpeg'
-                            ];
-                        }
-                    } catch (\Exception $e) {
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            \Log::debug("Fallback CVA Resolution failed: " . $e->getMessage());
+        if ($response->successful() && str_contains($response->header('Content-Type') ?? '', 'image')) {
+            return [
+                'content' => base64_encode($response->body()),
+                'mime' => $response->header('Content-Type') ?? 'image/jpeg'
+            ];
         }
 
         return null;
+    }
+
+    private function resolveHighResCvaImage($url)
+    {
+        try {
+            $producto = $this->findProductByImageUrl($url);
+            if (!$producto || !$producto->cva_clave) {
+                return null;
+            }
+
+            $service = app(\App\Services\CVAService::class);
+            $images = $service->getHighResImages($producto->cva_clave);
+
+            if (!empty($images)) {
+                foreach ($images as $imgUrl) {
+                    $result = $this->fetchImageWithHeaders($imgUrl);
+                    if ($result) {
+                        \Illuminate\Support\Facades\Cache::put('img_proxy_' . md5($url), $result, now()->addHours(24));
+                        return $result;
+                    }
+                }
+            }
+
+            $clave = $producto->cva_clave;
+            $guessUrls = [
+                "https://www.grupocva.com/articulos_img/{$clave}.webp",
+                "https://www.grupocva.com/nuevo/catalogo/product_images/{$clave}.webp",
+            ];
+
+            foreach ($guessUrls as $guessUrl) {
+                $result = $this->fetchImageWithHeaders($guessUrl);
+                if ($result) {
+                    \Illuminate\Support\Facades\Cache::put('img_proxy_' . md5($url), $result, now()->addHours(24));
+                    return $result;
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::debug("High-res CVA image resolution failed: " . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    private function resolveFallbackCvaImage($url)
+    {
+        return $this->resolveHighResCvaImage($url);
     }
 }

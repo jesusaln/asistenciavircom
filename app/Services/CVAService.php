@@ -345,6 +345,17 @@ class CVAService
         );
 
         try {
+            $imagenUrl = $detalle['imagen_url'];
+
+            // Intentar usar imagen de alta resolución si está disponible
+            try {
+                $highRes = $this->getHighResImages($detalle['clave']);
+                if (!empty($highRes)) {
+                    $imagenUrl = $highRes[0];
+                }
+            } catch (\Exception $e) {
+            }
+
             $producto = Producto::create([
                 'empresa_id' => $empresaId,
                 'nombre' => $detalle['nombre'],
@@ -357,7 +368,7 @@ class CVAService
                 'precio_venta' => $detalle['precio'],
                 'stock' => $detalle['stock_local'],
                 'stock_cedis' => $detalle['stock_cedis'],
-                'imagen' => $detalle['imagen_url'],
+                'imagen' => $imagenUrl,
                 'origen' => 'CVA',
                 'cva_clave' => $detalle['clave'],
                 'cva_last_sync' => now(),

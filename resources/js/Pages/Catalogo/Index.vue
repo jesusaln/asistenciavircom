@@ -27,6 +27,13 @@ const empresaData = computed(() => {
     return { ...globalConfig, ...localProp };
 });
 
+const isVircom = computed(() => {
+    const name = (empresaData.value?.nombre_empresa || empresaData.value?.nombre || page.props.empresa_config?.nombre_empresa || '').toLowerCase();
+    const isVircomName = name.includes('vircom') || name.includes('asistencia vircom');
+    const isVircomHost = typeof window !== 'undefined' && window.location.hostname.includes('vircom');
+    return isVircomName || isVircomHost;
+});
+
 // Integrar modo oscuro centralizado
 useDarkMode(empresaData.value);
 
@@ -67,7 +74,7 @@ const smartFilters = computed(() => {
         /\b(\d+GB)\b/gi, /\b(\d+TB)\b/gi, /\b(SSD)\b/gi,
         /\b(HP)\b/gi, /\b(Dell)\b/gi, /\b(Lenovo)\b/gi, /\b(Asus)\b/gi, /\b(Acer)\b/gi, 
         /\b(Epson)\b/gi, /\b(Canon)\b/gi, /\b(Brother)\b/gi,
-        /\b(Laptop)\b/gi, /\b(Desktop)\b/gi, /\b(Monitor)\b/gi, /\b(Impresora)\b/gi
+        /\b(Laptop)\b/gi, /\b(Desktop)\b/gi, /\b(Impresora)\b/gi
     ]
 
     allProducts.value.forEach(p => {
@@ -246,30 +253,62 @@ if (typeof window !== 'undefined') {
 }
 // SEO dinámico basado en filtros
 const pageTitle = computed(() => {
-    let title = 'Tienda de Aires Acondicionados'
+    let title = isVircom.value ? 'Tienda de Tecnología y Seguridad' : 'Tienda de Aires Acondicionados'
     if (selectedMarca.value) {
         const marca = props.marcas.find(m => m.id == selectedMarca.value)
         if (marca) title = `${marca.nombre} - Distribuidor Autorizado`
     } else if (selectedCategoria.value) {
         const cat = props.categorias.find(c => c.id == selectedCategoria.value)
-        if (cat) title = `${cat.nombre} en Hermosillo`
+        if (cat) title = `${cat.nombre} | ${isVircom.value ? 'Equipos y Licencias' : 'Hermosillo'}`
     }
     
     if (search.value) title = `Buscar: ${search.value}`
     
-    return `${title} | ${empresaData.value?.nombre_empresa || 'Climas del Desierto'}`
+    return `${title} | ${empresaData.value?.nombre_empresa || (isVircom.value ? 'Asistencia Vircom' : 'Climas del Desierto')}`
 })
 
 const metaDescription = computed(() => {
-    let desc = `Explora el catálogo de ${empresaData.value?.nombre_empresa || 'Climas del Desierto'}. Envíos a todo México y entrega inmediata en Hermosillo.`
+    let desc = isVircom.value 
+        ? `Explora el catálogo de equipos de seguridad y tecnología de ${empresaData.value?.nombre_empresa || 'Asistencia Vircom'}. Cámaras de seguridad, alarmas, controles de acceso y soporte técnico.`
+        : `Explora el catálogo de climatización de ${empresaData.value?.nombre_empresa || 'Climas del Desierto'}. Envíos a todo México y entrega inmediata en Hermosillo.`
     
     if (selectedMarca.value) {
         const marca = props.marcas.find(m => m.id == selectedMarca.value)
-        if (marca) desc = `Venta y distribución de equipos ${marca.nombre} en Sonora. Encuentra los mejores precios en minisplits ${marca.nombre} e Inverters con garantía oficial.`
+        if (marca) {
+            desc = isVircom.value
+                ? `Venta y distribución de equipos ${marca.nombre}. Encuentra los mejores precios en tecnología ${marca.nombre} con garantía oficial.`
+                : `Venta y distribución de equipos ${marca.nombre} en Sonora. Encuentra los mejores precios en minisplits ${marca.nombre} e Inverters con garantía oficial.`
+        }
     }
-    
     return desc
 })
+
+const faqs = ref([
+    {
+        question: '¿Cuánto cuesta el envío o la entrega?',
+        answer: 'La entrega local o envío nacional tiene un costo de $100 MXN. Sin embargo, si tu compra total es de $1,500 MXN o más, ¡el envío es completamente gratis!',
+        open: false
+    },
+    {
+        question: '¿Qué garantía tienen los productos y servicios?',
+        answer: 'Todos nuestros productos y equipos (como minisplits Mirage) cuentan con su garantía oficial directa de fábrica. Adicionalmente, todas nuestras instalaciones y servicios técnicos de mano de obra cuentan con garantía por escrito para tu tranquilidad.',
+        open: false
+    },
+    {
+        question: '¿Cuáles son los tiempos de entrega?',
+        answer: 'Para productos con existencias locales indicados como "Entrega Inmediata", la entrega en Hermosillo es el mismo día o al día siguiente. Para productos "Bajo Pedido" (que se envían desde nuestro CEDIS nacional), el plazo de entrega estimado es de 2 a 5 días hábiles.',
+        open: false
+    },
+    {
+        question: '¿Cómo puedo agendar una instalación o mantenimiento?',
+        answer: 'Puedes agendar directamente desde nuestro portal, rellenando el formulario en la pestaña de Citas/Contacto, o enviándonos un mensaje directo a través de nuestro widget flotante de WhatsApp. ¡Te atenderemos de inmediato!',
+        open: false
+    }
+])
+
+const toggleFaq = (index) => {
+    faqs.value[index].open = !faqs.value[index].open
+}
 </script>
 
 <template>
@@ -294,9 +333,10 @@ const metaDescription = computed(() => {
             <!-- Background Image -->
             <div class="absolute inset-0">
                 <img 
-                    src="/storage/servicios/tienda-hero.webp" 
-                    alt="Tienda Mirage" 
+                    :src="isVircom ? '/storage/servicios/tecnologia-hero.webp' : '/storage/servicios/tienda-hero.webp'" 
+                    alt="Hero Banner" 
                     class="w-full h-full object-cover opacity-25"
+                    @error="(e) => e.target.src = '/storage/servicios/tienda-hero.webp'"
                 >
                 <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/50 to-slate-900/90"></div>
             </div>
@@ -309,12 +349,12 @@ const metaDescription = computed(() => {
                      style="background-color: var(--color-secondary);"></div>
             </div>
             
-            <div class="w-full px-4 sm:px-6 text-center relative z-10">
+            <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
                 <h1 class="text-3xl lg:text-5xl font-black text-white mb-4 tracking-tight">
-                    Explora nuestros productos
+                    {{ isVircom ? 'Catálogo de Tecnología y Seguridad' : 'Explora nuestros productos' }}
                 </h1>
                 <p class="text-slate-300 mb-8 w-full font-medium">
-                    Encuentra lo que necesitas con la mejor calidad y precio
+                    {{ isVircom ? 'Cámaras de seguridad, alarmas, controles de acceso y refacciones originales con soporte certificado.' : 'Encuentra lo que necesitas con la mejor calidad y precio' }}
                 </p>
                 
                 <!-- Barra de búsqueda con efecto cristal -->
@@ -331,7 +371,6 @@ const metaDescription = computed(() => {
                                 v-model="search"
                                 @focus="handleSearchFocus"
                                 @blur="handleSearchBlur"
-
                                 type="text" 
                                 placeholder="Buscar productos por nombre, código o descripción..." 
                                 class="w-full h-14 px-4 bg-transparent border-0 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-0"
@@ -345,8 +384,6 @@ const metaDescription = computed(() => {
                             </button>
                         </div>
                     </div>
-
-
                 </div>
                 
                 <!-- Filtros rápidos -->
@@ -357,20 +394,20 @@ const metaDescription = computed(() => {
                             'px-4 py-2 rounded-full text-sm font-medium transition-all',
                             !selectedCategoria 
                                 ? 'text-white' 
-                                : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
+                                : 'bg-white/10 text-slate-200 hover:bg-white/20'
                         ]"
                         :style="!selectedCategoria ? { backgroundColor: 'var(--color-primary)' } : {}">
                         Todos
                     </button>
                     <button 
-                        v-for="cat in categorias?.slice(0, 5)" 
+                        v-for="cat in categorias?.slice(0, 6)" 
                         :key="cat.id"
                         @click="selectedCategoria = cat.id; applyFilters()"
                         :class="[
                             'px-4 py-2 rounded-full text-sm font-medium transition-all',
                             selectedCategoria == cat.id 
                                 ? 'text-white' 
-                                : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
+                                : 'bg-white/10 text-slate-200 hover:bg-white/20'
                         ]"
                         :style="selectedCategoria == cat.id ? { backgroundColor: 'var(--color-primary)' } : {}">
                         {{ cat.nombre }}
@@ -383,10 +420,71 @@ const metaDescription = computed(() => {
                     <button v-for="tag in smartFilters" 
                             :key="tag"
                             @click="handleSmartFilter(tag)"
-                            class="px-3 py-1 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 border border-blue-100 dark:border-blue-700 hover:bg-sky-100 dark:hover:bg-blue-900/40 transition-colors">
+                            class="px-3 py-1 rounded-xl text-xs font-bold text-blue-400 bg-sky-900/20 border border-blue-700/50 hover:bg-sky-900/40 transition-colors">
                         + {{ tag }}
                     </button>
                 </div>
+            </div>
+        </section>
+
+        <!-- Banners de Confianza / Trust indicators -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Card 1: Distribuidor Oficial -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/80 flex items-start gap-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 duration-300">
+                    <div class="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider mb-1">Distribuidor Autorizado</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">Garantía oficial y equipos 100% originales directo de fábrica.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Pago Seguro -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/80 flex items-start gap-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 duration-300">
+                    <div class="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider mb-1">Compra 100% Segura</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">Pagos encriptados mediante Stripe y transferencias verificadas.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Soporte Experto -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/80 flex items-start gap-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 duration-300">
+                    <div class="p-3 bg-orange-500/10 text-orange-500 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider mb-1">Instalación & Soporte</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">Técnicos certificados listos para tu servicio de instalación y configuración.</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: Envíos Rápidos -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/80 flex items-start gap-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 duration-300">
+                    <div class="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider mb-1">Cobertura Nacional</h4>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">Entrega inmediata local y envíos rápidos a todo el país.</p>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -676,6 +774,36 @@ const metaDescription = computed(() => {
             </div>
         </main>
 
+        <!-- FAQ Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300">
+            <div class="text-center mb-12">
+                <span class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] mb-2 block">Respuestas Rápidas</span>
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Preguntas Frecuentes</h2>
+                <p class="text-slate-400 dark:text-slate-500 mt-2 text-sm font-medium">Todo lo que necesitas saber sobre envíos, garantías y entregas</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto space-y-4">
+                <div v-for="(faq, idx) in faqs" :key="idx" 
+                     class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="toggleFaq(idx)" 
+                            class="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-slate-900 dark:text-white hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary)] transition-colors focus:outline-none">
+                        <span class="text-sm md:text-base">{{ faq.question }}</span>
+                        <svg class="w-5 h-5 text-slate-400 transform transition-transform duration-300" 
+                             :class="{ 'rotate-180 text-[var(--color-primary)]': faq.open }" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    
+                    <Transition name="faq-slide">
+                        <div v-show="faq.open" class="px-6 pb-6 text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-50 dark:border-slate-700/50 pt-4">
+                            {{ faq.answer }}
+                        </div>
+                    </Transition>
+                </div>
+            </div>
+        </section>
+
         <!-- Public Footer removed by user request -->
     </div>
 </template>
@@ -687,5 +815,16 @@ const metaDescription = computed(() => {
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+.faq-slide-enter-active, .faq-slide-leave-active {
+    transition: all 0.3s ease-in-out;
+    max-height: 250px;
+    overflow: hidden;
+}
+.faq-slide-enter-from, .faq-slide-leave-to {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 </style>

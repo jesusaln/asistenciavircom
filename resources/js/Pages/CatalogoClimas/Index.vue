@@ -91,7 +91,7 @@ const smartFilters = computed(() => {
         /\b(\d+GB)\b/gi, /\b(\d+TB)\b/gi, /\b(SSD)\b/gi,
         /\b(HP)\b/gi, /\b(Dell)\b/gi, /\b(Lenovo)\b/gi, /\b(Asus)\b/gi, /\b(Acer)\b/gi, 
         /\b(Epson)\b/gi, /\b(Canon)\b/gi, /\b(Brother)\b/gi,
-        /\b(Laptop)\b/gi, /\b(Desktop)\b/gi, /\b(Monitor)\b/gi, /\b(Impresora)\b/gi
+        /\b(Laptop)\b/gi, /\b(Desktop)\b/gi, /\b(Impresora)\b/gi
     ]
 
     allProducts.value.forEach(p => {
