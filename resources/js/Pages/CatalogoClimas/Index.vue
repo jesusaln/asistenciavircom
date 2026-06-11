@@ -35,13 +35,13 @@ const { items, itemCount, addItem, isInCart } = useCart()
 const search = ref(props.filters?.search || '')
 const selectedCategoria = ref(props.filters?.categoria || '')
 const selectedMarca = ref(props.filters?.marca || '')
-const selectedOrden = ref(props.filters?.orden || 'recientes')
+const selectedOrden = ref(props.filters?.orden || 'mas_vendidos')
 const precioMin = ref(props.filters?.precio_min || props.priceRange?.min || 0)
 const precioMax = ref(props.filters?.precio_max || props.priceRange?.max || 100000)
 const showMobileFilters = ref(false)
 const addedToCart = ref(null)
 const searchFocused = ref(false)
-const soloExistencia = ref(props.filters?.existencia ?? true) 
+const soloExistencia = ref(props.filters?.existencia ?? false) 
 const soloLocal = ref(props.filters?.local ?? false)
 const soloSinFoto = ref(props.filters?.sin_foto ?? false)
 const cvaPage = ref(1)
@@ -136,7 +136,7 @@ const applyFilters = () => {
         search: search.value || undefined,
         categoria: selectedCategoria.value || undefined,
         marca: selectedMarca.value || undefined,
-        orden: selectedOrden.value !== 'recientes' ? selectedOrden.value : undefined,
+        orden: selectedOrden.value !== 'mas_vendidos' ? selectedOrden.value : undefined,
         existencia: soloExistencia.value ? 1 : undefined,
         local: soloLocal.value ? 1 : undefined,
         sin_foto: soloSinFoto.value ? 1 : undefined,
@@ -159,7 +159,7 @@ const clearFilters = () => {
     search.value = ''
     selectedCategoria.value = ''
     selectedMarca.value = ''
-    selectedOrden.value = 'recientes'
+    selectedOrden.value = 'mas_vendidos'
     soloSinFoto.value = false
     precioMin.value = props.priceRange?.min || 0
     precioMax.value = props.priceRange?.max || 100000
@@ -294,6 +294,33 @@ const metaDescription = computed(() => {
     
     return desc
 })
+
+const faqs = ref([
+    {
+        question: '¿Cuánto cuesta el envío o la entrega?',
+        answer: 'La entrega local o envío nacional tiene un costo de $100 MXN. Sin embargo, si tu compra total es de $1,500 MXN o más, ¡el envío es completamente gratis!',
+        open: false
+    },
+    {
+        question: '¿Qué garantía tienen los productos y servicios?',
+        answer: 'Todos nuestros productos y equipos (como minisplits Mirage) cuentan con su garantía oficial directa de fábrica. Adicionalmente, todas nuestras instalaciones y servicios técnicos de mano de obra cuentan con garantía por escrito para tu tranquilidad.',
+        open: false
+    },
+    {
+        question: '¿Cuáles son los tiempos de entrega?',
+        answer: 'Para productos con existencias locales indicados como "Entrega Inmediata", la entrega en Hermosillo es el mismo día o al día siguiente. Para productos "Bajo Pedido" (que se envían desde nuestro CEDIS nacional), el plazo de entrega estimado es de 2 a 5 días hábiles.',
+        open: false
+    },
+    {
+        question: '¿Cómo puedo agendar una instalación o mantenimiento?',
+        answer: 'Puedes agendar directamente desde nuestro portal, rellenando el formulario en la pestaña de Citas/Contacto, o enviándonos un mensaje directo a través de nuestro widget flotante de WhatsApp. ¡Te atenderemos de inmediato!',
+        open: false
+    }
+])
+
+const toggleFaq = (index) => {
+    faqs.value[index].open = !faqs.value[index].open
+}
 </script>
 
 <template>
@@ -603,6 +630,7 @@ const metaDescription = computed(() => {
                         <div class="flex items-center gap-2 w-full md:w-auto">
                             <select v-model="selectedOrden" @change="applyFilters"
                                     class="w-full md:w-auto px-5 py-2.5 bg-white dark:bg-gray-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-300 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
+                                <option value="mas_vendidos">Más Vendidos</option>
                                 <option value="recientes">Novedades</option>
                                 <option value="precio_asc">Precio: Bajo a Alto</option>
                                 <option value="precio_desc">Precio: Alto a Bajo</option>
@@ -746,6 +774,36 @@ const metaDescription = computed(() => {
             </div>
         </main>
 
+        <!-- FAQ Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300">
+            <div class="text-center mb-12">
+                <span class="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] mb-2 block">Respuestas Rápidas</span>
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Preguntas Frecuentes</h2>
+                <p class="text-slate-400 dark:text-slate-500 mt-2 text-sm font-medium">Todo lo que necesitas saber sobre envíos, garantías y entregas</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto space-y-4">
+                <div v-for="(faq, idx) in faqs" :key="idx" 
+                     class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="toggleFaq(idx)" 
+                            class="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-slate-900 dark:text-white hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary)] transition-colors focus:outline-none">
+                        <span class="text-sm md:text-base">{{ faq.question }}</span>
+                        <svg class="w-5 h-5 text-slate-400 transform transition-transform duration-300" 
+                             :class="{ 'rotate-180 text-[var(--color-primary)]': faq.open }" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    
+                    <Transition name="faq-slide">
+                        <div v-show="faq.open" class="px-6 pb-6 text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-50 dark:border-slate-700/50 pt-4">
+                            {{ faq.answer }}
+                        </div>
+                    </Transition>
+                </div>
+            </div>
+        </section>
+
         <!-- Public Footer removed by user request -->
     </div>
 </template>
@@ -757,5 +815,16 @@ const metaDescription = computed(() => {
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+.faq-slide-enter-active, .faq-slide-leave-active {
+    transition: all 0.3s ease-in-out;
+    max-height: 250px;
+    overflow: hidden;
+}
+.faq-slide-enter-from, .faq-slide-leave-to {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 </style>

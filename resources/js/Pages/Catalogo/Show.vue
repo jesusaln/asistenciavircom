@@ -445,21 +445,21 @@ const decrementar = () => {
                         
                         <!-- Stock badge -->
                         <div class="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
-                            <!-- Stock disponible Hermosillo -->
+                            <!-- Stock Hermosillo - Entrega Inmediata -->
                             <span v-if="producto.stock > 0" class="px-3 py-1 rounded-xl text-xs font-black bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 uppercase tracking-wider">
-                                Stock Hermosillo: {{ producto.stock }}
+                                Entrega Inmediata (Hermosillo: {{ producto.stock }})
                             </span>
-                            <!-- Stock CEDIS -->
-                            <span v-if="producto.stock_cedis > 0" class="px-3 py-1 rounded-xl text-xs font-black bg-blue-100 dark:bg-slate-800/50 text-blue-800 dark:text-blue-200 uppercase tracking-wider">
-                                Stock CEDIS: {{ producto.stock_cedis }}
+                            <!-- Stock CEDIS - 4-7 días -->
+                            <span v-if="producto.stock_cedis > 0 && (!producto.stock || producto.stock <= 0)" class="px-3 py-1 rounded-xl text-xs font-black bg-blue-100 dark:bg-slate-800/50 text-blue-800 dark:text-blue-200 uppercase tracking-wider">
+                                Envío 4-7 días (CEDIS: {{ producto.stock_cedis }})
                             </span>
-                            <!-- En tránsito (si no hay stock pero hay en camino) -->
+                            <!-- En tránsito -->
                             <span v-else-if="producto.en_transito > 0" class="px-3 py-1 rounded-xl text-xs font-medium bg-brand-50 dark:bg-brand-900/20/40 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-amber-300">
                                 🚚 {{ producto.en_transito }} unidades en camino
                             </span>
-                            <!-- Bajo pedido -->
+                            <!-- Sin stock -->
                             <span v-else class="px-3 py-1 rounded-xl text-xs font-medium bg-brand-50 dark:bg-brand-900/20/40 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-amber-300">
-                                Bajo pedido
+                                Sin stock
                             </span>
                         </div>
                     </div>

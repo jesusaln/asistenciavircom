@@ -687,7 +687,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-BgpQgTjc.css",
+    "file": "assets/app-fgfSf6Za.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-DBDmxQ3D.js",
+    "file": "assets/Index-DlLpyRFY.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -1043,7 +1043,7 @@
     ],
     "css": [
       "assets/Index-B2ZG0pJB.css",
-      "assets/app-BgpQgTjc.css"
+      "assets/app-fgfSf6Za.css"
     ]
   },
   "resources/js/Pages/Admin/Pos/Partials/CajaAperturaModal.vue": {
@@ -1842,7 +1842,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Index.vue": {
-    "file": "assets/Index-DGYM7nTK.js",
+    "file": "assets/Index-VtGWzOa7.js",
     "name": "Index",
     "src": "resources/js/Pages/Catalogo/Index.vue",
     "isDynamicEntry": true,
@@ -1859,7 +1859,7 @@
       "node_modules/chart.js/auto/auto.js"
     ],
     "css": [
-      "assets/Index-BwMJ00G6.css",
+      "assets/Index-CcSIksDg.css",
       "assets/GoogleMapEmbed-D4WyIh8p.css"
     ]
   },
@@ -1963,7 +1963,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Show.vue": {
-    "file": "assets/Show-DvdKMVWw.js",
+    "file": "assets/Show-CiVkt8kS.js",
     "name": "Show",
     "src": "resources/js/Pages/Catalogo/Show.vue",
     "isDynamicEntry": true,
@@ -1979,7 +1979,7 @@
       "_useDarkMode-Bs6HVTsr.js"
     ],
     "css": [
-      "assets/Show-BzZ2_vHJ.css",
+      "assets/Show-Xl7m1o8b.css",
       "assets/GoogleMapEmbed-D4WyIh8p.css"
     ]
   },
@@ -2024,7 +2024,7 @@
     ]
   },
   "resources/js/Pages/CatalogoClimas/Index.vue": {
-    "file": "assets/Index-DtQWp9Ah.js",
+    "file": "assets/Index-BDkF7kZC.js",
     "name": "Index",
     "src": "resources/js/Pages/CatalogoClimas/Index.vue",
     "isDynamicEntry": true,
@@ -2041,7 +2041,7 @@
       "node_modules/chart.js/auto/auto.js"
     ],
     "css": [
-      "assets/Index-CpE4d4Os.css",
+      "assets/Index-E7gAFIKJ.css",
       "assets/GoogleMapEmbed-D4WyIh8p.css"
     ]
   },
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-eTDz8o7Q.js",
+    "file": "assets/Create-DLLPiwb2.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10288,7 +10288,7 @@
     ],
     "css": [
       "assets/Create-D8klW5HN.css",
-      "assets/app-BgpQgTjc.css",
+      "assets/app-fgfSf6Za.css",
       "assets/Index-tn0RQdqM.css"
     ]
   },
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-C2Rmom_V.js",
+    "file": "assets/app-juvQ2cwu.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -10884,7 +10884,7 @@
       "resources/js/Pages/WelcomeClimas.vue"
     ],
     "css": [
-      "assets/app-BgpQgTjc.css"
+      "assets/app-fgfSf6Za.css"
     ]
   },
   "resources/js/icons.js": {

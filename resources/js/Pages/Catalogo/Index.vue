@@ -42,13 +42,13 @@ const { items, itemCount, addItem, isInCart } = useCart()
 const search = ref(props.filters?.search || '')
 const selectedCategoria = ref(props.filters?.categoria || '')
 const selectedMarca = ref(props.filters?.marca || '')
-const selectedOrden = ref(props.filters?.orden || 'recientes')
+const selectedOrden = ref(props.filters?.orden || 'mas_vendidos')
 const precioMin = ref(props.filters?.precio_min || props.priceRange?.min || 0)
 const precioMax = ref(props.filters?.precio_max || props.priceRange?.max || 100000)
 const showMobileFilters = ref(false)
 const addedToCart = ref(null)
 const searchFocused = ref(false)
-const soloExistencia = ref(props.filters?.existencia ?? true) 
+const soloExistencia = ref(props.filters?.existencia ?? false) 
 const soloLocal = ref(props.filters?.local ?? false)
 const soloSinFoto = ref(props.filters?.sin_foto ?? false)
 const cvaPage = ref(1)
@@ -119,7 +119,7 @@ const applyFilters = () => {
         search: search.value || undefined,
         categoria: selectedCategoria.value || undefined,
         marca: selectedMarca.value || undefined,
-        orden: selectedOrden.value !== 'recientes' ? selectedOrden.value : undefined,
+        orden: selectedOrden.value !== 'mas_vendidos' ? selectedOrden.value : undefined,
         existencia: soloExistencia.value ? 1 : undefined,
         local: soloLocal.value ? 1 : undefined,
         sin_foto: soloSinFoto.value ? 1 : undefined,
@@ -142,7 +142,7 @@ const clearFilters = () => {
     search.value = ''
     selectedCategoria.value = ''
     selectedMarca.value = ''
-    selectedOrden.value = 'recientes'
+    selectedOrden.value = 'mas_vendidos'
     soloSinFoto.value = false
     precioMin.value = props.priceRange?.min || 0
     precioMax.value = props.priceRange?.max || 100000
@@ -628,6 +628,7 @@ const toggleFaq = (index) => {
                         <div class="flex items-center gap-2 w-full md:w-auto">
                             <select v-model="selectedOrden" @change="applyFilters"
                                     class="w-full md:w-auto px-5 py-2.5 bg-white dark:bg-slate-700 border-0 rounded-2xl text-[10px] font-black uppercase tracking-wide text-slate-500 dark:text-slate-200 focus:ring-2 focus:ring-[var(--color-primary-soft)] cursor-pointer transition-colors">
+                                <option value="mas_vendidos">Más Vendidos</option>
                                 <option value="recientes">Novedades</option>
                                 <option value="precio_asc">Precio: Bajo a Alto</option>
                                 <option value="precio_desc">Precio: Alto a Bajo</option>
@@ -683,10 +684,10 @@ const toggleFaq = (index) => {
                                             Entrega Inmediata ({{ producto.stock_local }})
                                         </span>
                                         <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 dark:text-blue-300 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
-                                            Bajo Pedido ({{ producto.stock_cedis }})
+                                            Envío 4-7 días ({{ producto.stock_cedis }})
                                         </span>
                                         <span v-else class="text-[9px] font-black text-brand-600 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
-                                            Bajo Pedido
+                                            Envío 4-7 días
                                         </span>
                                     </div>
                                     <p class="text-[9px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] mb-1 leading-none">

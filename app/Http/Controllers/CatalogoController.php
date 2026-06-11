@@ -105,7 +105,7 @@ class CatalogoController extends Controller
         }
 
         // Ordenamiento
-        $orden = $request->get('orden', 'recientes');
+        $orden = $request->get('orden', 'mas_vendidos');
         $search = $request->get('search');
 
         if ($search) {
@@ -129,7 +129,7 @@ class CatalogoController extends Controller
                 case 'nombre':
                     $query->orderBy('nombre', 'asc');
                     break;
-                default:
+                case 'recientes':
                     // 1. Disponibles en Hermosillo (stock > 0)
                     // 2. Disponibles en CEDIS/Otros (stock_cedis > 0)
                     // 3. Los demás (sin stock)
@@ -139,6 +139,18 @@ class CatalogoController extends Controller
                         ELSE 3 
                     END ASC')
                         ->orderBy('created_at', 'desc');
+                    break;
+                case 'mas_vendidos':
+                default:
+                    // Ordenar por cantidad vendida y luego disponibilidad
+                    $query->withCount('ventaItems')
+                        ->orderByRaw('CASE 
+                            WHEN stock > 0 THEN 1 
+                            WHEN stock_cedis > 0 THEN 2 
+                            ELSE 3 
+                        END ASC')
+                        ->orderBy('venta_items_count', 'desc');
+                    break;
             }
         }
 

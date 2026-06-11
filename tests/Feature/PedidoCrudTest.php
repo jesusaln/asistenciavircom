@@ -124,13 +124,17 @@ class PedidoCrudTest extends TestCase
 
         \Illuminate\Support\Facades\DB::select('SELECT 1');
 
-        try {
-            $response = $this->post(route('pedidos.store'), $payload);
-            $response->dump();
-            $response->assertRedirect(route('pedidos.index'));
-        } catch (\Throwable $e) {
-            dd('REAL EXCEPTION:', $e->getMessage(), $e->getFile() . ':' . $e->getLine());
+        $response = $this->post(route('pedidos.store'), $payload);
+        if (session('error')) {
+            dump('Session Error:', session('error'));
         }
+        if (session('errors')) {
+            dump('Validation Errors:', session('errors')->getBag('default')->getMessages());
+        }
+        if (session('warning')) {
+            dump('Session Warning:', session('warning'));
+        }
+        $response->assertRedirect(route('pedidos.index'));
 
         $this->assertDatabaseHas('pedidos', [
             'cliente_id' => $cliente->id,
