@@ -74,13 +74,22 @@ class MeliSyncCatalog extends Command
                         // Obtener precio sugerido de ML basado en competencia
                         $mlSuggestedPrice = $meli->getSuggestedPriceFromML($producto->nombre);
 
-                        // Actualizar precio_tienda_online con el precio sugerido de ML
-                        if ($mlSuggestedPrice && $mlSuggestedPrice > 0) {
+                        // Precio mínimo seguro: costo CVA + 30% margen mínimo
+                        $costoCva = $producto->precio_compra * 1.16; // Con IVA
+                        $precioMinimoSeguro = $costoCva * 1.30;
+
+                        // Usar el mayor entre el precio de ML o el mínimo seguro
+                        if ($mlSuggestedPrice && $mlSuggestedPrice > $precioMinimoSeguro) {
+                            // El precio de ML es rentable
+                            $priceToUse = $mlSuggestedPrice;
                             $producto->update(['precio_tienda_online' => $mlSuggestedPrice]);
                             $this->line("    ML sugiere: \${$mlSuggestedPrice} → precio_tienda_online actualizado");
-                            $priceToUse = $mlSuggestedPrice;
+                        } elseif ($mlSuggestedPrice && $mlSuggestedPrice > 0) {
+                            // El precio de ML está por debajo del costo seguro, usar nuestro precio con margen
+                            $priceToUse = max($producto->precio_venta, $precioMinimoSeguro);
+                            $this->line("    ML sugiere: \${$mlSuggestedPrice} (muy bajo, costo: \${$costoCva}) → usando margen seguro");
                         } else {
-                            // Si no hay sugerencia de ML, usar el precio_venta normal
+                            // No hay sugerencia de ML, usar precio normal
                             $priceToUse = $producto->precio_venta;
                         }
 
