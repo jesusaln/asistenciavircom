@@ -424,7 +424,14 @@ class CatalogoController extends Controller
               ->whereNotNull('imagen')
               ->where('imagen', '!=', '')
               ->where('stock', '>', 0);
-        })->orderBy('nombre')->get(['id', 'nombre']);
+        })->withCount(['productos' => function ($q) {
+            $q->where('estado', 'activo')
+              ->whereNotNull('imagen')
+              ->where('imagen', '!=', '')
+              ->where('stock', '>', 0);
+        }])->orderBy('productos_count', 'desc')
+          ->limit(12)
+          ->get(['id', 'nombre']);
 
         return response()->json($categorias);
     }

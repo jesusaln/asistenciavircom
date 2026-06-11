@@ -291,6 +291,13 @@ onMounted(() => {
                                 >
                                     {{ cat.nombre }}
                                 </Link>
+                                <Link 
+                                    :href="route('catalogo.index')" 
+                                    class="block px-4 py-3 text-center text-xs font-bold text-[var(--color-primary)] hover:bg-[var(--ui-surface-soft)] rounded-b-xl border-t border-[var(--ui-border)] mt-1"
+                                    @click="showProductosMenu = false"
+                                >
+                                    Ver todas las categorías →
+                                </Link>
                             </div>
                         </Transition>
                     </div>
@@ -521,6 +528,13 @@ onMounted(() => {
                                                     @click="showMobileMenu = false"
                                                 >
                                                     {{ cat.nombre }}
+                                                </Link>
+                                                <Link 
+                                                    :href="route('catalogo.index')"
+                                                    class="block px-6 py-4 text-center text-sm font-bold text-[var(--color-primary)] border-t border-[var(--ui-border)] active:bg-[var(--color-primary)] active:text-white"
+                                                    @click="showMobileMenu = false"
+                                                >
+                                                    Ver todas las categorías →
                                                 </Link>
                                             </div>
                                         </Transition>
