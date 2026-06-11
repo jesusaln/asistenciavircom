@@ -1,7 +1,7 @@
 <template>
   <AppLayout title="Soporte Remoto">
     <div class="min-h-screen bg-[var(--ui-surface)] text-slate-800 dark:text-slate-200 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div class="max-w-7xl mx-auto">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           
           <!-- Header Section -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">

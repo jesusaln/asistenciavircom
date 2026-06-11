@@ -151,7 +151,6 @@ const openPublishModal = (product) => {
   autoSearchDone.value = false
   priceAnalysis.value = null
   priceAnalysisError.value = null
-  meliSearchResults.value = []
   
   searchingPrices.value = true
   

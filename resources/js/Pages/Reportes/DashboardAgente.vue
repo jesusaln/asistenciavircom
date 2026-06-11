@@ -46,7 +46,7 @@ const getPrioridadTextClass = (prioridad) => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
                 <!-- Alerta de Tickets Vencidos -->
                 <div v-if="ticketsVencidosCount > 0" class="mb-6 p-4 bg-rose-100 border-l-4 border-rose-500 rounded-r-lg">
                     <div class="flex items-center">

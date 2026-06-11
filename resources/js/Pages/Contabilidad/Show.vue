@@ -49,7 +49,7 @@ const getTipoColor = (tipo) => {
 <template>
   <Head :title="'Póliza ' + poliza.numero" />
 
-  <div class="py-12 px-4 sm:px-6 max-w-7xl mx-auto">
+  <div class="py-12 px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
     <!-- Header de la Póliza -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
       <div class="flex items-center gap-4">

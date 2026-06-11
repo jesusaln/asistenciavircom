@@ -31,7 +31,7 @@ const getStatusClasses = (estado) => {
     <Head title="Mis Rentas - Punto de Venta" />
 
     <ClientLayout :empresa="empresa">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
             <!-- Header -->
             <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>

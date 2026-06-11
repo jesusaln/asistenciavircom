@@ -67,7 +67,7 @@ const generarMasivo = () => {
   <Head title="Matriz de Cumplimiento Legal" />
 
   <div class="min-h-screen bg-[var(--ui-surface)] dark:bg-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       
       <!-- Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">

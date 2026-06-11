@@ -3,7 +3,7 @@
   <div class="citas-show min-h-screen bg-[var(--ui-surface)] transition-colors duration-200">
     <!-- Header Premium -->
     <div class="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shadow-sm transition-colors sticky top-0 z-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div class="flex items-center justify-between h-20">
           <div class="flex items-center gap-4">
             <Link :href="route('citas.index')" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--ui-surface)] dark:bg-slate-700 text-slate-400 hover:text-brand-600 dark:hover:text-white transition-all">

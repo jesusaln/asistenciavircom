@@ -4,7 +4,7 @@
 
     <!-- Progress Header Premium -->
     <div class="sticky top-0 z-40 bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         <div class="flex flex-col py-4">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-4">

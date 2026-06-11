@@ -57,7 +57,7 @@ const getDiasColor = (dias) => {
         </template>
 
         <div class="py-12 bg-slate-50 dark:bg-slate-950 min-h-screen">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
                 <!-- Filtros -->
                 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 mb-6">
                     <div class="flex flex-wrap gap-4 items-end">

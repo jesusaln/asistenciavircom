@@ -565,7 +565,7 @@ const submitMovement = async () => {
 <template>
   <Head title="Bancos y Tesorería" />
 
-  <div class="p-6 max-w-7xl mx-auto space-y-8 text-slate-100 selection:bg-indigo-500/30">
+  <div class="p-6 w-full px-4 sm:px-6 lg:px-8 xl:px-12 space-y-8 text-slate-100 selection:bg-indigo-500/30">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>

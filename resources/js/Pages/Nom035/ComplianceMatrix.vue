@@ -33,7 +33,7 @@ const getStatusColor = (accepted) => {
             </div>
         </template>
 
-        <div class="py-12 px-6 max-w-7xl mx-auto">
+        <div class="py-12 px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
             <div class="bg-[var(--ui-surface-soft)] border border-[var(--ui-border)] rounded-[2.5rem] overflow-hidden shadow-xl">
                 <table class="w-full text-left">
                     <thead>

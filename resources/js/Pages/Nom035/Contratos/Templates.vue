@@ -49,7 +49,7 @@ const deleteTemplate = async (id) => {
             </div>
         </template>
 
-        <div class="py-12 px-6 max-w-7xl mx-auto">
+        <div class="py-12 px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div v-for="t in templates" :key="t.id" class="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all group">
                     <div class="flex justify-between items-start mb-4">

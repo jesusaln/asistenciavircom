@@ -61,7 +61,7 @@ const formatearMoneda = (monto) => {
   <Head title="Facturación CFDI 4.0" />
   <div :style="cssVars" class="min-h-screen bg-[var(--ui-surface)] font-sans text-slate-300">
     <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
         
         <!-- Header Section -->
         <div class="md:flex md:items-center md:justify-between mb-8">

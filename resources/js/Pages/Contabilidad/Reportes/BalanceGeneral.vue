@@ -41,7 +41,7 @@ const cuentaCuadra = computed(() => {
         </template>
 
         <div class="py-12 bg-slate-50 dark:bg-slate-950 min-h-screen">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
                 <div class="bg-white dark:bg-slate-900 shadow-2xl rounded-[3rem] overflow-hidden border border-slate-100 dark:border-slate-800 p-8 sm:p-10">
 
                     <!-- Filtros -->

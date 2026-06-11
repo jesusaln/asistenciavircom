@@ -17,7 +17,7 @@
       </div>
     </template>
 
-    <div class="py-12 px-6 max-w-7xl mx-auto">
+    <div class="py-12 px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
       <!-- Error State -->
       <div v-if="error" class="mb-8 p-6 rounded-[2rem] bg-brand-500/10 border-2 border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-start gap-4 shadow-xl shadow-rose-500/5 animate-fade-in">
         <div class="p-3 rounded-xl bg-brand-500 text-white shadow-xl shadow-rose-500/30">

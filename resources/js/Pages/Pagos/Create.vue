@@ -231,7 +231,7 @@ watch(
   <Head title="Registrar Pago de Préstamo" />
 
   <div class="pagos-create min-h-screen bg-[var(--ui-surface)] text-slate-200 font-sans selection:bg-indigo-500/30">
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
       <!-- Header Premium -->
       <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
         <div class="flex items-center gap-6">

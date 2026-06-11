@@ -158,7 +158,7 @@
             </div>
         <!-- Sticky Payment Bar -->
         <div v-if="selectedVentas.length > 0" class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 shadow-2xl z-50 transform animate-slide-up transition-colors">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-brand-50 dark:bg-brand-900/30 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 shadow-inner">
                         <FontAwesomeIcon :icon="['fas', 'money-bill-wave']" class="w-6 h-6" />

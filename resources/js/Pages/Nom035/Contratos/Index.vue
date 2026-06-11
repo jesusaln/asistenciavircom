@@ -92,7 +92,7 @@ const getStatusBadge = (status) => {
             </div>
         </template>
 
-        <div class="py-12 px-6 max-w-7xl mx-auto space-y-8">
+        <div class="py-12 px-4 sm:px-6 lg:px-8 xl:px-12 w-full space-y-8">
             <!-- Compliance Alerts Section -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-rose-50 border border-rose-100 rounded-[2rem] p-6 flex items-center gap-5">

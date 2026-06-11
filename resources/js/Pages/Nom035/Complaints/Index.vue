@@ -13,7 +13,7 @@
             </div>
         </template>
 
-        <div class="py-12 px-6 max-w-7xl mx-auto">
+        <div class="py-12 px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Stats Cards -->
                 <div class="bg-[var(--ui-surface-soft)] p-6 rounded-[2rem] border border-[var(--ui-border)] shadow-sm">

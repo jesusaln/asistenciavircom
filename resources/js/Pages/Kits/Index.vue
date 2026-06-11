@@ -1,7 +1,7 @@
 <template>
   <AppLayout title="Kits Premium">
     <div class="min-h-screen bg-[var(--ui-surface)] text-slate-900 dark:text-slate-100 font-sans selection:bg-brand-500 selection:text-white transition-colors duration-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
         
         <!-- Header -->
         <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">

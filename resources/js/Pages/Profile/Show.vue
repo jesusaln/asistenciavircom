@@ -193,7 +193,7 @@ const updateAlmacenCompra = async () => {
             </div>
 
             <!-- Contenido Principal -->
-            <div class="max-w-7xl mx-auto px-6 pb-20">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pb-20">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     
                     <!-- Información Personal (Card Estilo Premium) -->

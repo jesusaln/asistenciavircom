@@ -295,7 +295,7 @@ const eliminarProducto = (item) => {
   <Head title="Editar Registro de Venta" />
   
   <div class="min-h-screen bg-[var(--ui-surface)] transition-colors duration-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
       
       <!-- Premium Header Section -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">

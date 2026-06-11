@@ -285,7 +285,7 @@ const submitFondeo = () => {
                 </div>
             </div>
 
-            <div class="max-w-7xl mx-auto px-6 space-y-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 space-y-8">
                 
                 <!-- Advanced Stats & Charts Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in slide-in-from-bottom-4 duration-700">

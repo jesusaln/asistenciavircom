@@ -117,7 +117,7 @@ const getPrioridadBadge = (prioridad) => {
             <!-- Hero Header Section -->
             <div class="relative overflow-hidden bg-white dark:bg-black/50 border-b border-slate-200 dark:border-slate-800 pt-8 pb-12 mb-8">
                 <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full"></div>
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
                             <div class="flex items-center gap-2 mb-2">
@@ -144,7 +144,7 @@ const getPrioridadBadge = (prioridad) => {
                 </div>
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Dashboard Principal: Tareas Asignadas -->
                     <div class="lg:col-span-2 space-y-6">

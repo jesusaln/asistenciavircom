@@ -64,7 +64,7 @@ const getRiskClass = (level) => {
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+            <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 space-y-8">
                 
                 <!-- Recommendations / Alerts -->
                 <div v-if="recommendations.length > 0" class="space-y-4">

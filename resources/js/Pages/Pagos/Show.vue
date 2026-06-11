@@ -131,7 +131,7 @@ const tieneHistorial = computed(() => {
   <Head title="Detalles de Pago" />
 
   <div class="pagos-show min-h-screen bg-[var(--ui-surface)] text-slate-200 font-sans selection:bg-indigo-500/30">
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
       <!-- Header -->
       <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="flex items-center gap-5">
