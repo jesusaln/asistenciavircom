@@ -270,10 +270,10 @@ const publishProduct = () => {
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <img 
-                      :src="item.imagen || '/images/placeholder.jpg'" 
+                      :src="item.imagen || '/images/placeholder-product.svg'" 
                       alt="Thumbnail" 
                       class="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
-                      @error="(e) => e.target.src = '/images/placeholder.jpg'"
+                      @error="(e) => e.target.src = '/images/placeholder-product.svg'"
                     />
                     <div class="max-w-xs md:max-w-md truncate">
                       <span class="font-bold text-slate-900 dark:text-slate-200 block truncate" :title="item.nombre">{{ item.nombre }}</span>
@@ -387,10 +387,10 @@ const publishProduct = () => {
           <!-- Product Summary -->
           <div class="p-4 bg-white/5 dark:bg-slate-800/20 border border-slate-200/20 dark:border-slate-700/20 rounded-2xl flex gap-3">
             <img 
-              :src="selectedProduct.imagen || '/images/placeholder.jpg'" 
+              :src="selectedProduct.imagen || '/images/placeholder-product.svg'" 
               alt="Preview" 
               class="w-14 h-14 object-cover rounded-xl border border-slate-200 dark:border-slate-700 flex-shrink-0"
-              @error="(e) => e.target.src = '/images/placeholder.jpg'"
+              @error="(e) => e.target.src = '/images/placeholder-product.svg'"
             />
             <div class="min-w-0">
               <h4 class="font-bold text-slate-900 dark:text-white text-sm truncate" :title="selectedProduct.nombre">{{ selectedProduct.nombre }}</h4>

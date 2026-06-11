@@ -14,7 +14,7 @@ class MeliService
     const API_URL = 'https://api.mercadolibre.com';
     const TOKEN_URL = 'https://api.mercadolibre.com/oauth/token';
 
-    protected ?EmpresaConfiguracion $config;
+    public ?EmpresaConfiguracion $config;
 
     public function __construct()
     {

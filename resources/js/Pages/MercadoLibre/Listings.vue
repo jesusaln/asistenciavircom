@@ -182,10 +182,10 @@ const deleteListing = (id) => {
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <img 
-                      :src="item.producto?.imagen || '/images/placeholder.jpg'" 
+                      :src="item.producto?.imagen || '/images/placeholder-product.svg'" 
                       alt="Thumbnail" 
                       class="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
-                      @error="(e) => e.target.src = '/images/placeholder.jpg'"
+                      @error="(e) => e.target.src = '/images/placeholder-product.svg'"
                     />
                     <div class="max-w-xs md:max-w-md truncate">
                       <span class="font-bold text-slate-900 dark:text-slate-200 block truncate">{{ item.producto?.nombre || 'Publicación externa' }}</span>
