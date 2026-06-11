@@ -9,12 +9,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::dropIfExists('empresa_whatsapp_numbers');
         Schema::create('empresa_whatsapp_numbers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('empresa_id')->constrained()->onDelete('cascade');
             $table->string('phone_number_id')->unique();
             $table->string('display_phone')->nullable();
-            $table->string('access_token')->nullable();
+            $table->text('access_token')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
         });

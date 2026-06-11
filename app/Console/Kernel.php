@@ -79,6 +79,43 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path('logs/whatsapp_recordatorios.log'));
 
         // =====================================================
+        // MERCADOLIBRE - Sincronización con marketplace
+        // =====================================================
+        // Refrescar token OAuth cada 5 horas (expira en 6h)
+        $schedule->command('meli:auth')
+            ->everyFiveHours()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/meli_auth.log'));
+
+        // Sincronizar catálogo (publicar productos nuevos) cada día a las 04:00
+        $schedule->command('meli:sync-catalog')
+            ->dailyAt('04:00')
+            ->runInBackground()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/meli_catalog.log'));
+
+        // Actualizar stock y precios cada 30 minutos
+        $schedule->command('meli:sync-stock')
+            ->everyThirtyMinutes()
+            ->runInBackground()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/meli_stock.log'));
+
+        // Procesar órdenes pagadas cada 5 minutos
+        $schedule->command('meli:sync-orders')
+            ->everyFiveMinutes()
+            ->runInBackground()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/meli_orders.log'));
+
+        // Sincronizar guías de envío cada 15 minutos
+        $schedule->command('meli:sync-shipments')
+            ->everyFifteenMinutes()
+            ->runInBackground()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/meli_shipments.log'));
+
+        // =====================================================
         // BACKUPS AUTOMÁTICOS - Configuración dinámica desde empresa
         // =====================================================
         // Descarga Masiva del SAT cada día a la 01:00 AM

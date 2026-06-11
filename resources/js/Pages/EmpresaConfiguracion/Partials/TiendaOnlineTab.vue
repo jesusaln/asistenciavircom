@@ -73,6 +73,95 @@
             </div>
         </div>
 
+        <!-- MercadoLibre Integration -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-4 bg-white dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+                <h4 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <FontAwesomeIcon icon="store" class="text-yellow-500" />
+                    MercadoLibre
+                </h4>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    Publica productos CVA en MercadoLibre (dropshipping). Stock mínimo: 3 unidades.
+                </p>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="font-bold text-slate-900 dark:text-white">Activar integración</h5>
+                        <p class="text-sm text-slate-500">Sincronizar catálogo CVA con MercadoLibre</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" v-model="form.meli_active" class="sr-only peer">
+                        <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-500 dark:peer-focus:ring-brand-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-slate-700 peer-checked:bg-gradient-to-r peer-checked:from-yellow-500 peer-checked:to-yellow-600"></div>
+                    </label>
+                </div>
+
+                <div v-if="form.meli_active" class="space-y-4 border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <h5 class="font-bold text-sm text-slate-900 dark:text-white">Credenciales de la App</h5>
+                            <p class="text-xs text-slate-500">Crea o usa una app existente en MercadoLibre</p>
+                        </div>
+                        <a href="https://developers.mercadolibre.com" target="_blank"
+                           class="text-xs px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                            </svg>
+                            Crear App en ML
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">App ID</label>
+                            <input type="text" v-model="form.meli_app_id"
+                                   class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-sm"
+                                   placeholder="Ej: 1234567890123456" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Client Secret</label>
+                            <input type="password" v-model="form.meli_client_secret"
+                                   class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-sm"
+                                   placeholder="Secret de tu app de ML" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Site ID</label>
+                        <select v-model="form.meli_site_id"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-700 text-sm">
+                            <option value="MLM">México (MLM)</option>
+                            <option value="MLA">Argentina (MLA)</option>
+                            <option value="MLB">Brasil (MLB)</option>
+                            <option value="MLC">Chile (MLC)</option>
+                            <option value="MCO">Colombia (MCO)</option>
+                            <option value="MPE">Perú (MPE)</option>
+                        </select>
+                    </div>
+                    <div v-if="form.meli_user_id" class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 flex items-center justify-between">
+                        <div class="text-sm">
+                            ✅ Conectado a MercadoLibre (User ID: {{ form.meli_user_id }})
+                        </div>
+                        <button @click="disconnectMeli" type="button"
+                                class="text-xs px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors">
+                            Desconectar
+                        </button>
+                    </div>
+                    <div v-else>
+                        <a :href="route('empresa-configuracion.meli.auth')"
+                           class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all shadow-lg">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            Conectar con MercadoLibre
+                        </a>
+                        <p class="text-xs text-slate-500 mt-2">
+                            Serás redirigido a MercadoLibre para autorizar la conexión.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Payment Gateways -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-4 bg-white dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
@@ -255,6 +344,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { router } from '@inertiajs/vue3'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps({
@@ -273,4 +363,10 @@ defineEmits(['save'])
 const baseUrl = computed(() => {
     return window.location.origin
 })
+
+function disconnectMeli() {
+    if (confirm('¿Desconectar MercadoLibre?')) {
+        router.post(route('empresa-configuracion.meli.disconnect'))
+    }
+}
 </script>

@@ -224,7 +224,15 @@ class EmpresaConfiguracion extends Model
         'repse_constancia_name',
         'acta_constitutiva_name',
         'curp_pdf_name',
-        'csf_pdf_name'
+        'csf_pdf_name',
+        'meli_active',
+        'meli_app_id',
+        'meli_client_secret',
+        'meli_access_token',
+        'meli_refresh_token',
+        'meli_user_id',
+        'meli_token_expires_at',
+        'meli_site_id',
     ];
 
     protected $casts = [
@@ -284,6 +292,19 @@ class EmpresaConfiguracion extends Model
         'groq_api_key' => 'encrypted',
         'groq_temperature' => 'decimal:2',
         'chatbot_enabled' => 'boolean',
+        'cva_utility_tiers' => 'array',
+        'cva_active' => 'boolean',
+        'cva_tipo_cambio_auto' => 'boolean',
+        'cva_tipo_cambio' => 'decimal:4',
+        'cva_utility_percentage' => 'decimal:2',
+        'cva_codigo_sucursal' => 'integer',
+        'cva_paqueteria_envio' => 'integer',
+        'cva_monedero_balance' => 'decimal:2',
+        'meli_active' => 'boolean',
+        'meli_access_token' => 'encrypted',
+        'meli_client_secret' => 'encrypted',
+        'meli_user_id' => 'integer',
+        'meli_token_expires_at' => 'datetime',
     ];
 
     /**
@@ -309,6 +330,9 @@ class EmpresaConfiguracion extends Model
         'gdrive_refresh_token',
         'gemini_api_key',
         'groq_api_key',
+        'meli_client_secret',
+        'meli_access_token',
+        'meli_refresh_token',
     ];
 
     /**

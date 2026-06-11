@@ -594,6 +594,11 @@ Route::prefix('webhooks')->name('api.webhooks.')->group(function () {
 
     // Chatbot IA Webhook
     Route::post('/chat', [\App\Http\Controllers\Api\ChatbotController::class, 'chat'])->name('chat');
+
+    // MercadoLibre Webhook (notificaciones de órdenes, items, preguntas)
+    Route::post('/mercadolibre', [\App\Http\Controllers\Api\MeliWebhookController::class, 'handle'])
+        ->middleware('throttle:60,1')
+        ->name('mercadolibre');
 });
 
 // WhatsApp Test (Eliminado de aquí, movido a grupo protegido)

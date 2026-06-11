@@ -85,6 +85,9 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'imagen',
         'estado',
         'origen',
+        'cva_clave',
+        'stock_cedis',
+        'cva_last_sync',
         'destacado',
         'incluye_iva',
         'catalogo_web',
@@ -737,5 +740,10 @@ class Producto extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function satObjetoImp(): BelongsTo
     {
         return $this->belongsTo(SatObjetoImp::class, 'sat_objeto_imp', 'clave');
+    }
+
+    public function mercadolibreListings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MercadoLibreListing::class, 'producto_id');
     }
 }

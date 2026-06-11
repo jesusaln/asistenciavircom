@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('empresa_configuracion', function (Blueprint $table) {
-            $table->string('gemini_api_key')->nullable()->after('groq_api_key');
-            $table->string('gemini_model')->nullable()->default('gemini-2.0-flash')->after('gemini_api_key');
+            if (!Schema::hasColumn('empresa_configuracion', 'gemini_api_key')) {
+                $table->string('gemini_api_key')->nullable()->after('groq_api_key');
+            }
+            if (!Schema::hasColumn('empresa_configuracion', 'gemini_model')) {
+                $table->string('gemini_model')->nullable()->default('gemini-2.0-flash')->after('gemini_api_key');
+            }
         });
     }
 

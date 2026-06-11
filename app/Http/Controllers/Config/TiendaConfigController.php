@@ -41,6 +41,10 @@ class TiendaConfigController extends Controller
             'cva_codigo_sucursal' => 'nullable|integer',
             'cva_paqueteria_envio' => 'nullable|integer',
             'cva_utility_tiers' => 'nullable|array',
+            'meli_active' => 'nullable|boolean',
+            'meli_app_id' => 'nullable|string|max:255',
+            'meli_client_secret' => 'nullable|string|max:255',
+            'meli_site_id' => 'nullable|string|max:5',
         ]);
 
         if ($validator->fails()) {
@@ -51,7 +55,7 @@ class TiendaConfigController extends Controller
         $data = $validator->validated();
 
         // 1. Manejo de booleanos (checkboxes no enviados = false)
-        $booleanos = ['tienda_online_activa', 'mercadopago_sandbox', 'paypal_sandbox', 'stripe_sandbox', 'cva_active'];
+        $booleanos = ['tienda_online_activa', 'mercadopago_sandbox', 'paypal_sandbox', 'stripe_sandbox', 'cva_active', 'meli_active'];
         foreach ($booleanos as $campo) {
             if ($request->has($campo)) {
                 $data[$campo] = $request->boolean($campo);
@@ -65,7 +69,8 @@ class TiendaConfigController extends Controller
             'paypal_client_secret',
             'stripe_secret_key',
             'stripe_webhook_secret',
-            'google_client_secret'
+            'google_client_secret',
+            'meli_client_secret',
         ];
 
         foreach ($secretos as $secreto) {

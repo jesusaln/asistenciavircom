@@ -8,6 +8,7 @@ use App\Http\Controllers\Config\EmailConfigController;
 use App\Http\Controllers\Config\GeneralConfigController;
 use App\Http\Controllers\Config\SistemaConfigController;
 use App\Http\Controllers\Config\TiendaConfigController;
+use App\Http\Controllers\Config\MeliAuthController;
 use App\Http\Controllers\Config\ApiKeysConfigController;
 use App\Http\Controllers\Config\SeguridadConfigController;
 use App\Http\Controllers\Config\BancariosConfigController;
@@ -41,6 +42,10 @@ Route::prefix('empresa')->name('empresa-configuracion.')->middleware('role:admin
     Route::post('/folios/config/sync/{id}', [FolioConfigController::class, 'sync'])->name('folios.config.sync');
 
     Route::put('/tienda', [TiendaConfigController::class, 'update'])->name('tienda.update');
+
+    // MercadoLibre OAuth
+    Route::get('/meli/auth', [MeliAuthController::class, 'redirect'])->name('meli.auth');
+    Route::post('/meli/disconnect', [MeliAuthController::class, 'disconnect'])->name('meli.disconnect');
     Route::put('/configuracion/respaldos', [SistemaConfigController::class, 'updateRespaldos'])->name('respaldos.update');
     Route::put('/configuracion/whatsapp', [EmpresaWhatsAppController::class, 'update'])->name('whatsapp.update');
     Route::put('/configuracion/api-keys', [ApiKeysConfigController::class, 'update'])->name('api-keys.update');
@@ -95,3 +100,6 @@ Route::prefix('empresa')->name('empresa-configuracion.')->middleware('role:admin
         Route::delete('/ofertas/{oferta}', [LandingContentController::class, 'destroyOferta'])->name('ofertas.destroy');
     });
 });
+
+// Callback de MercadoLibre (sin auth de admin, viene de redirect externo)
+Route::get('/empresa/meli/callback', [MeliAuthController::class, 'callback'])->name('empresa-configuracion.meli.callback');

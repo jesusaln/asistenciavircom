@@ -280,14 +280,14 @@ Schedule::command('backup:sync-cloud --clean-local')
     ->appendOutputTo(storage_path('logs/cloud_backup.log'));
 
 // Sincronizar catálogo de CVA (Marcas y Categorías) diariamente a las 04:00 AM
-// Schedule::command('cva:sincronizar-datos')
-//     ->dailyAt('04:00')
-//     ->appendOutputTo(storage_path('logs/cva_sync.log'));
+Schedule::command('cva:sincronizar-datos')
+    ->dailyAt('04:00')
+    ->appendOutputTo(storage_path('logs/cva_sync.log'));
 
 // Sincronizar catálogo de productos CVA diariamente a las 03:30 AM
-// Schedule::command('app:sync-cva-catalog --limit=100')
-//     ->dailyAt('03:30')
-//     ->appendOutputTo(storage_path('logs/cva_catalog_sync.log'));
+Schedule::command('app:sync-cva-catalog --limit=100')
+    ->dailyAt('03:30')
+    ->appendOutputTo(storage_path('logs/cva_catalog_sync.log'));
 
 // Limpiar auditorías de más de un año de antigüedad (ventana móvil de 1 año)
 Schedule::call(function () {

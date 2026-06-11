@@ -31,43 +31,46 @@ class SincronizarDatosCVA extends Command
     {
         $this->info('Iniciando sincronización de datos CVA...');
 
-        // 1. Obtener catálogo completo
+        // 1. Obtener catálogo completo (solo primera página para extraer marcas/grupos)
         $this->info('Consultando API de CVA (esto puede tardar)...');
-        // Solicitamos solo lo básico para agilizar, aunque getCatalogo trae todo por defecto según el servicio
-        $catalogo = $cvaService->getCatalogo(['completos' => false]);
-
-        if (isset($catalogo['error'])) {
-            $this->error('Error obteniendo catálogo: ' . $catalogo['error']);
-            Log::error('CVA Sync Error', ['error' => $catalogo]);
-            return 1;
-        }
-
-        if (!is_array($catalogo)) {
-            $this->error('Formato de respuesta inválido.');
-            return 1;
-        }
-
-        $total = count($catalogo);
-        $this->info("Se obtuvieron {$total} productos. Procesando marcas y categorías...");
-
-        // 2. Extraer Marcas y Categorías únicas
+        $page = 1;
+        $maxPages = 50;
         $marcasCVA = [];
         $categoriasCVA = [];
 
-        $bar = $this->output->createProgressBar($total);
-        $bar->start();
+        while ($page <= $maxPages) {
+            $this->line("Procesando página {$page}...");
+            $result = $cvaService->getCatalogo(['completos' => false, 'page' => $page]);
 
-        foreach ($catalogo as $item) {
-            if (!empty($item['marca'])) {
-                $marcasCVA[$item['marca']] = true; // Usar array como set
+            if (isset($result['error'])) {
+                $this->warn("Error en página {$page}: " . $result['error']);
+                $page++;
+                continue;
             }
-            if (!empty($item['grupo'])) {
-                $categoriasCVA[$item['grupo']] = true;
+
+            $articulos = $result['articulos'] ?? [];
+
+            if (empty($articulos)) {
+                break;
             }
-            $bar->advance();
+
+            foreach ($articulos as $item) {
+                if (!empty($item['marca'])) {
+                    $marcasCVA[$item['marca']] = true;
+                }
+                if (!empty($item['grupo'])) {
+                    $categoriasCVA[$item['grupo']] = true;
+                }
+            }
+
+            $totalPaginas = $result['paginacion']['total_paginas'] ?? 0;
+            if ($page >= $totalPaginas) {
+                break;
+            }
+
+            $page++;
+            sleep(1);
         }
-        $bar->finish();
-        $this->newLine();
 
         $marcasUnicas = array_keys($marcasCVA);
         $categoriasUnicas = array_keys($categoriasCVA);

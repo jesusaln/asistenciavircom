@@ -148,4 +148,9 @@ return [
         'secret_password' => env('BELVO_SECRET_PASSWORD'),
         'url' => env('BELVO_URL', 'https://sandbox.belvo.com'),
     ],
+
+    'cva' => [
+        'base_url' => env('CVA_API_BASE_URL', 'https://apicvaservices.grupocva.com/api/v2'),
+        'shipping_url' => env('CVA_SHIPPING_URL', 'https://www.grupocva.com/api/paqueteria_service'),
+    ],
 ];

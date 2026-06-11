@@ -279,6 +279,13 @@ const form = useForm({
   cuenta_id_mercadopago: props.configuracion.cuenta_id_mercadopago || '',
   cuenta_id_stripe: props.configuracion.cuenta_id_stripe || '',
 
+  // MercadoLibre
+  meli_active: props.configuracion.meli_active || false,
+  meli_app_id: props.configuracion.meli_app_id || '',
+  meli_client_secret: '', // Sensitive - no precargar
+  meli_site_id: props.configuracion.meli_site_id || 'MLM',
+  meli_user_id: props.configuracion.meli_user_id || null,
+
   // Redes Sociales
   facebook_url: props.configuracion.facebook_url || '',
   instagram_url: props.configuracion.instagram_url || '',

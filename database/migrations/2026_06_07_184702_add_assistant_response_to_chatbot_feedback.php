@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('chatbot_feedback', function (Blueprint $table) {
-            $table->text('assistant_response')->nullable()->after('user_message');
+            if (!Schema::hasColumn('chatbot_feedback', 'assistant_response')) {
+                $table->text('assistant_response')->nullable()->after('user_message');
+            }
         });
     }
 

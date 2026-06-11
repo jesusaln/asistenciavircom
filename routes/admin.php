@@ -306,6 +306,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pedidos-online/{id}', [App\Http\Controllers\Admin\PedidoOnlineController::class, 'show'])->name('pedidos-online.show');
     Route::post('/pedidos-online/{id}/status', [App\Http\Controllers\Admin\PedidoOnlineController::class, 'updateStatus'])->name('pedidos-online.update-status');
 
+    // MercadoLibre Listings
+    Route::get('/mercadolibre/publicaciones', [\App\Http\Controllers\Config\MeliListingController::class, 'index'])->name('mercadolibre.listings.index');
+    Route::delete('/mercadolibre/publicaciones/{id}', [\App\Http\Controllers\Config\MeliListingController::class, 'destroy'])->name('mercadolibre.listings.destroy');
+    Route::post('/mercadolibre/publicaciones/sync', [\App\Http\Controllers\Config\MeliListingController::class, 'sync'])->name('mercadolibre.listings.sync');
+    Route::get('/mercadolibre/publicar', [\App\Http\Controllers\Config\MeliListingController::class, 'publicarView'])->name('mercadolibre.listings.publicar-view');
+    Route::post('/mercadolibre/publicar', [\App\Http\Controllers\Config\MeliListingController::class, 'publicar'])->name('mercadolibre.listings.publicar');
+
     Route::resource('ajustes-inventario', AjusteInventarioController::class)->names('ajustes-inventario')->middleware('can:view ajustes_inventario');
     
     // Inventario Físico (Auditorías)

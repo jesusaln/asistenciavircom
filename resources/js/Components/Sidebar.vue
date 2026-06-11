@@ -183,6 +183,21 @@
           <NavLink v-if="$can('view ventas')" href="/facturas" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Facturación' : null">Facturación</NavLink>
           <NavLink v-if="$can('view garantias')" href="/garantias" icon="shield-halved" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Garantías' : null">Garantías</NavLink>
         </SidebarSection>
+
+        <!-- 🤝 MercadoLibre -->
+        <SidebarSection
+          v-if="$can('view ventas') && matchesSearch('mercadolibre meli publicaciones publicar ventas dropshipping tienda')"
+          title="MercadoLibre"
+          subtitle="Ventas y publicaciones"
+          icon="store"
+          iconColor="text-yellow-500"
+          :isOpen="accordionStates.mercadolibre"
+          :collapsed="props.isSidebarCollapsed"
+          @toggle="toggleAccordion('mercadolibre')"
+        >
+          <NavLink href="/mercadolibre/publicaciones" icon="list-ul" :collapsed="props.isSidebarCollapsed">Ver Publicaciones</NavLink>
+          <NavLink href="/mercadolibre/publicar" icon="plus-circle" :collapsed="props.isSidebarCollapsed">Publicar Productos</NavLink>
+        </SidebarSection>
         
         <!-- Mirage Integration -->
         <SidebarSection
@@ -981,6 +996,9 @@ function detectSidebarSectionFromPath(path) {
   if (p.startsWith('/marketing/')) {
     return 'marketing';
   }
+  if (p.startsWith('/mercadolibre')) {
+    return 'mercadolibre';
+  }
   if (p.startsWith('/polizas-servicio') || p.startsWith('/planes-poliza') || p.startsWith('/tecnico/mantenimientos') || p.startsWith('/tecnicos')) {
     return 'polizas';
   }
@@ -1062,7 +1080,7 @@ function pathFromInertiaUrl(url) {
 
 const getInitialAccordionState = () => {
   const defaultState = {
-    crm: false, ventas: false, marketing: false,
+    crm: false, ventas: false, marketing: false, mercadolibre: false,
     tickets: false, polizas: false, compras: false, inventario: false,
     tesoreria: false, cuentas: false, rentas_flota: false, taller: false,
     asistencia: false, empleados: false, todos: false,
