@@ -130,6 +130,8 @@ class MeliListingController extends Controller
                 'stock_published' => $item['available_quantity'] ?? 0,
                 'meli_category_id' => $item['category_id'] ?? null,
                 'producto_id' => $producto?->id,
+                'title' => $item['title'] ?? null,
+                'thumbnail' => $item['thumbnail'] ?? null,
                 'last_sync_at' => now(),
             ];
 

@@ -201,6 +201,8 @@ class MeliService
                 'price' => $itemData['price'] ?? 0,
                 'stock_published' => $itemData['available_quantity'] ?? 0,
                 'meli_category_id' => $itemData['category_id'] ?? null,
+                'title' => $result['title'] ?? $itemData['title'] ?? null,
+                'thumbnail' => $result['thumbnail'] ?? null,
             ];
 
             if (isset($itemData['producto_id'])) {

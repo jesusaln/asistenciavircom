@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Tests\Feature\MeliPublishTest" file="/home/vircom/.gemini/antigravity/scratch/asistenciavircom/tests/Feature/MeliPublishTest.php" tests="4" assertions="28" errors="0" failures="0" skipped="0" time="2.649355">
+    <testcase name="test_publicar_view_redirects_unauthenticated" file="/home/vircom/.gemini/antigravity/scratch/asistenciavircom/tests/Feature/MeliPublishTest.php" line="72" class="Tests\Feature\MeliPublishTest" classname="Tests.Feature.MeliPublishTest" assertions="2" time="1.001317"/>
+    <testcase name="test_publicar_view_works_when_configured" file="/home/vircom/.gemini/antigravity/scratch/asistenciavircom/tests/Feature/MeliPublishTest.php" line="81" class="Tests\Feature\MeliPublishTest" classname="Tests.Feature.MeliPublishTest" assertions="12" time="0.754363"/>
+    <testcase name="test_publicar_view_returns_error_when_not_configured" file="/home/vircom/.gemini/antigravity/scratch/asistenciavircom/tests/Feature/MeliPublishTest.php" line="103" class="Tests\Feature\MeliPublishTest" classname="Tests.Feature.MeliPublishTest" assertions="10" time="0.275095"/>
+    <testcase name="test_publish_creates_item_successfully" file="/home/vircom/.gemini/antigravity/scratch/asistenciavircom/tests/Feature/MeliPublishTest.php" line="119" class="Tests\Feature\MeliPublishTest" classname="Tests.Feature.MeliPublishTest" assertions="4" time="0.618581"/>
+  </testsuite>
+</testsuites>

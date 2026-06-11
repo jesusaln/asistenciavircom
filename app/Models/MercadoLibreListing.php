@@ -20,6 +20,8 @@ class MercadoLibreListing extends Model
         'price',
         'stock_published',
         'meli_category_id',
+        'title',
+        'thumbnail',
         'last_sync_at',
     ];
 

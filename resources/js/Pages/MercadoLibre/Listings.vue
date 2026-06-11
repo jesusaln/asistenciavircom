@@ -33,7 +33,7 @@ const filteredListings = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
   if (!query) return props.listings
   return props.listings.filter(item => {
-    const title = (item.producto?.nombre || 'Publicación sin producto local').toLowerCase()
+    const title = (item.producto?.nombre || item.title || 'Publicación externa').toLowerCase()
     const listingId = (item.listing_id || '').toLowerCase()
     return title.includes(query) || listingId.includes(query)
   })
@@ -182,13 +182,13 @@ const deleteListing = (id) => {
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <img 
-                      :src="item.producto?.imagen || '/images/placeholder-product.svg'" 
+                      :src="item.producto?.imagen || item.thumbnail || '/images/placeholder-product.svg'" 
                       alt="Thumbnail" 
                       class="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
                       @error="(e) => e.target.src = '/images/placeholder-product.svg'"
                     />
                     <div class="max-w-xs md:max-w-md truncate">
-                      <span class="font-bold text-slate-900 dark:text-slate-200 block truncate">{{ item.producto?.nombre || 'Publicación externa' }}</span>
+                      <span class="font-bold text-slate-900 dark:text-slate-200 block truncate">{{ item.producto?.nombre || item.title || 'Publicación externa' }}</span>
                       <span class="text-xs text-slate-400 block mt-0.5 font-mono">{{ item.producto?.codigo || 'Sin SKU local' }}</span>
                     </div>
                   </div>
