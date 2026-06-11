@@ -9,6 +9,7 @@ import { useCart } from '@/composables/useCart';
 const props = defineProps({
     producto: Object,
     relacionados: Array,
+    complementarios: Array,
     empresa: Object,
     canLogin: Boolean
 })
@@ -76,6 +77,48 @@ const agregado = ref(false)
 const agregando = ref(false)
 const mainImage = ref(null)
 const showCedisModal = ref(false)
+
+// Estado del cotizador de envío
+const cpInput = ref('')
+const cpResultado = ref(null)
+const cpError = ref('')
+const cotizandoCp = ref(false)
+
+const cotizarCp = () => {
+    cpError.value = ''
+    cpResultado.value = null
+    
+    if (!/^\d{5}$/.test(cpInput.value)) {
+        cpError.value = 'Ingresa un Código Postal válido de 5 dígitos.'
+        return
+    }
+    
+    cotizandoCp.value = true
+    setTimeout(() => {
+        const cpNum = parseInt(cpInput.value)
+        const esHermosillo = cpNum >= 83000 && cpNum <= 83299
+        
+        if (esHermosillo) {
+            const esGratis = props.producto.precio_con_iva >= 1500
+            cpResultado.value = {
+                esHermosillo: true,
+                costo: esGratis ? 0 : 100,
+                mensaje: esGratis ? 'Envío Local ¡GRATIS!' : 'Envío Local: $100.00 MXN',
+                tiempo: 'Entrega estimada: Hoy mismo o mañana (Día hábil)',
+                detalles: 'Entrega exprés a domicilio en Hermosillo, Sonora.'
+            }
+        } else {
+            cpResultado.value = {
+                esHermosillo: false,
+                costo: 180,
+                mensaje: 'Envío Nacional: $180.00 MXN',
+                tiempo: 'Entrega estimada: 2 a 5 días hábiles',
+                detalles: 'Envío terrestre nacional asegurado por DHL, FedEx o Estafeta.'
+            }
+        }
+        cotizandoCp.value = false
+    }, 500)
+}
 
 // Usar el composable de carrito compartido
 const { addItem, isInCart } = useCart()
@@ -508,6 +551,72 @@ const decrementar = () => {
                         </div>
                     </div>
 
+                    <!-- Simulador de Financiamiento -->
+                    <div class="mb-8 p-4 bg-slate-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                        <svg class="w-6 h-6 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <div>
+                            <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Simulador de plazos</p>
+                            <p class="text-xs font-bold text-gray-900 dark:text-white mt-0.5">
+                                Llévatelo a 12 pagos mensuales de <span class="font-black text-emerald-600 dark:text-emerald-400">{{ formatCurrency(producto.precio_con_iva / 12) }}</span> sin tarjeta o hasta 6 MSI.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Insignias de Confianza -->
+                    <div class="mb-8 border-t border-gray-100 dark:border-gray-800 pt-4">
+                        <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2.5">Pagos 100% Seguros</p>
+                        <div class="flex flex-wrap items-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
+                            <svg class="h-5 w-auto text-gray-400 dark:text-gray-500" viewBox="0 0 36 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.3 14.2l-1.9-8.4c0-.1-.1-.2-.2-.2h-3c-.1 0-.2.1-.2.2L7 12.5V14h3.6c.1 0 .2-.1.2-.2l.7-3.6h4c.1 0 .2.1.2.2l-.8 3.6c0 .1.1.2.2.2h3.2c.1 0 .2-.1.2-.2l1.9-8.4c0-.1-.1-.2-.2-.2h-3c-.1 0-.2.1-.2.2l-1.2 5.9z"/>
+                            </svg>
+                            <span class="text-[10px] font-black tracking-widest text-blue-500 dark:text-blue-400 uppercase border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-lg bg-blue-50/50 dark:bg-blue-900/10">Mercado Pago</span>
+                            <span class="text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 uppercase border border-gray-200 dark:border-gray-800 px-2 py-0.5 rounded-lg bg-gray-50/50 dark:bg-gray-900/10">SPEI/OXXO</span>
+                            <span class="text-[10px] font-black tracking-widest text-emerald-500 dark:text-emerald-400 uppercase border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-lg bg-emerald-50/50 dark:bg-emerald-900/10">🔒 SSL Seguro</span>
+                        </div>
+                    </div>
+
+                    <!-- Cotizador de Envíos por CP -->
+                    <div class="mb-8 p-6 bg-slate-50 dark:bg-gray-800/40 rounded-3xl border border-gray-100 dark:border-gray-700">
+                        <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 text-left">Cotizar Envío</h4>
+                        <div class="flex gap-2">
+                            <input v-model="cpInput" 
+                                   type="text" 
+                                   maxlength="5"
+                                   placeholder="Ingresa tu CP (ej. 83100)" 
+                                   class="flex-1 px-4 py-2.5 bg-white dark:bg-gray-700 border-0 rounded-2xl text-xs text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[var(--color-primary-soft)]"
+                                   @keyup.enter="cotizarCp" />
+                            <button @click="cotizarCp" 
+                                    class="px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider text-white transition-all shadow-md"
+                                    style="background-color: var(--color-primary);">
+                                Calcular
+                            </button>
+                        </div>
+                        <p v-if="cpError" class="text-[10px] text-red-500 font-bold mt-2 ml-2 text-left">{{ cpError }}</p>
+                        
+                        <!-- Loader -->
+                        <div v-if="cotizandoCp" class="mt-4 flex items-center gap-2 text-xs text-gray-400 ml-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Calculando costos de entrega...</span>
+                        </div>
+
+                        <!-- Resultado -->
+                        <div v-if="cpResultado" class="mt-4 p-4 rounded-2xl border bg-white dark:bg-gray-800/80 transition-all text-left"
+                             :class="cpResultado.costo === 0 ? 'border-green-100 dark:border-green-900 bg-green-50/10' : 'border-gray-150 dark:border-gray-700'">
+                            <div class="flex items-center gap-2 text-xs font-black uppercase tracking-wider"
+                                 :class="cpResultado.costo === 0 ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'">
+                                <span class="text-base">{{ cpResultado.costo === 0 ? '🎉' : '🚚' }}</span>
+                                {{ cpResultado.mensaje }}
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 font-bold mt-1.5">{{ cpResultado.tiempo }}</p>
+                            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-medium mt-0.5">{{ cpResultado.detalles }}</p>
+                        </div>
+                    </div>
+
                     <!-- Description -->
                     <div class="mb-8">
                         <h3 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3">Descripción</h3>
@@ -601,6 +710,16 @@ const decrementar = () => {
                         </p>
                     </div>
 
+                    <!-- Alerta de Stock Crítico -->
+                    <div v-if="producto.stock > 0 && producto.stock <= 5" 
+                         class="mb-6 p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900 rounded-2xl flex items-center gap-3 animate-pulse">
+                        <span class="text-xl">⚠️</span>
+                        <div class="text-left">
+                            <h4 class="font-black text-xs text-rose-800 dark:text-rose-400 uppercase tracking-widest">¡Stock muy limitado!</h4>
+                            <p class="text-[11px] text-rose-700 dark:text-rose-300 font-medium">Quedan pocas unidades en inventario para entrega inmediata. ¡Asegura el tuyo hoy!</p>
+                        </div>
+                    </div>
+
                     <!-- Cantidad y Comprar (si hay stock o viene en camino) -->
                     <div v-if="producto.stock > 0 || producto.en_transito > 0" class="mb-6">
                         <div class="flex items-center gap-6 mb-4">
@@ -691,6 +810,48 @@ const decrementar = () => {
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                         </Link>
                     </div>
+                </div>
+            </div>
+
+            <!-- Complementary Products (Cross-Selling) -->
+            <div v-if="complementarios?.length" class="mt-16 border-t border-gray-100 dark:border-gray-800 pt-16">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white">Accesorios y Complementos</h2>
+                    <span class="text-xs font-black uppercase tracking-widest text-emerald-500">Recomendado para ti</span>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                    <Link v-for="rel in complementarios" :key="rel.id"
+                          :href="route('catalogo.show', rel.id)"
+                          class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-white transition-all duration-500">
+                        <div class="aspect-square bg-white overflow-hidden relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-10"></div>
+                            <img v-if="getImageUrl(rel)" 
+                                 :src="getImageUrl(rel)" 
+                                 :alt="rel.nombre"
+                                 class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 p-2" />
+                            <div v-else class="w-full h-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div v-if="rel.stock <= 0" class="absolute top-2 right-2 z-20">
+                                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Preguntar</span>
+                            </div>
+                        </div>
+                        <div class="p-5 text-left">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2">
+                                {{ rel.nombre }}
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <p class="font-black text-lg" style="color: var(--color-primary);">
+                                    {{ formatCurrency(rel.precio_con_iva) }}
+                                </p>
+                                <svg class="w-5 h-5 text-gray-300 group-hover:text-[var(--color-primary)] transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                        </div>
+                    </Link>
                 </div>
             </div>
 

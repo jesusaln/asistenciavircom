@@ -205,14 +205,91 @@ const whatsappLink = computed(() => {
                 </div>
             </div>
 
+            <!-- Trust Badges -->
+            <div class="mb-12 pt-12 border-t border-[var(--ui-border)]/50">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <svg class="w-8 h-8 mx-auto mb-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wide">Compra 100% Segura</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Datos protegidos con SSL</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <svg class="w-8 h-8 mx-auto mb-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wide">Envío a Todo México</p>
+                        <p class="text-[10px] text-slate-500 mt-1">2-7 días hábiles</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <svg class="w-8 h-8 mx-auto mb-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wide">30 Días de Garantía</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Devoluciones sin complicaciones</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+                        <svg class="w-8 h-8 mx-auto mb-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wide">Soporte Profesional</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Asesoría especializada</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="mb-12">
+                <h4 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-4 text-center">Aceptamos</h4>
+                <div class="flex items-center justify-center gap-4 flex-wrap">
+                    <!-- MercadoPago -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        <span class="text-xs font-bold text-slate-400">MercadoPago</span>
+                    </div>
+                    <!-- PayPal -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <svg class="w-5 h-5 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/>
+                        </svg>
+                        <span class="text-xs font-bold text-slate-400">PayPal</span>
+                    </div>
+                    <!-- Transferencia -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span class="text-xs font-bold text-slate-400">Transferencia</span>
+                    </div>
+                    <!-- Efectivo -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-xs font-bold text-slate-400">Efectivo</span>
+                    </div>
+                    <!-- Crédito -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <span class="text-xs font-bold text-slate-400">Línea de Crédito</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Copyright Bar -->
             <div class="pt-8 border-t border-[var(--ui-border)] flex flex-col sm:flex-row justify-between items-center gap-4">
                 <p class="text-slate-500 text-xs text-center sm:text-left">
                     © {{ new Date().getFullYear() }} {{ empresaData?.nombre_empresa || empresaData?.nombre || 'Empresa' }} · Todos los derechos reservados
                 </p>
                 <div class="flex items-center gap-6 text-xs">
-                    <Link :href="route('public.privacidad')" class="text-slate-500 hover:text-[var(--ui-text-muted)] transition-colors">Privacidad</Link>
                     <Link :href="route('public.terminos')" class="text-slate-500 hover:text-[var(--ui-text-muted)] transition-colors">Términos</Link>
+                    <Link :href="route('public.privacidad')" class="text-slate-500 hover:text-[var(--ui-text-muted)] transition-colors">Privacidad</Link>
+                    <Link :href="route('public.terminos')" class="text-slate-500 hover:text-emerald-400 transition-colors">Devoluciones</Link>
                 </div>
             </div>
         </div>

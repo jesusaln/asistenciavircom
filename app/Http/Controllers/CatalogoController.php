@@ -366,9 +366,16 @@ class CatalogoController extends Controller
             }
         }
 
+        $complementarios = [];
+        if (isset($productoModel) && $productoModel) {
+            $complementarios = $this->getComplementariosByText($productoModel->nombre, $productoModel->id);
+        } else {
+            $complementarios = $this->getComplementariosByText($producto['nombre'] ?? '');
+        }
+
         // Tracking: Meta CAPI ViewContent
         try {
-            $metaId = $productoModel->sku ?: ('CDD-' . $productoModel->id);
+            $metaId = (isset($productoModel) && $productoModel) ? ($productoModel->sku ?: ('CDD-' . $productoModel->id)) : ('CVA-' . $id);
             $metaService = app(\App\Services\MetaConversionService::class);
             $metaService->sendEvent('ViewContent', [], [
                 'content_ids' => [(string) $metaId],
@@ -384,6 +391,7 @@ class CatalogoController extends Controller
         return Inertia::render('Catalogo/Show', [
             'producto' => $producto,
             'relacionados' => $relacionados,
+            'complementarios' => $complementarios,
             'empresa' => $empresa ? [
                 'nombre' => $empresa->nombre_comercial ?? $empresa->razon_social ?? 'Tienda',
                 'whatsapp' => $empresa->whatsapp ?? $empresa->telefono ?? null,
@@ -391,6 +399,54 @@ class CatalogoController extends Controller
             ] : null,
             'canLogin' => true,
         ]);
+    }
+
+    private function getComplementariosByText($nombre, $excludeId = null)
+    {
+        $name = strtolower($nombre);
+        $tieneCatalogoWeb = \Illuminate\Support\Facades\Schema::hasColumn('productos', 'catalogo_web');
+        
+        $query = Producto::where('estado', 'activo')
+            ->where('precio_venta', '>', 0)
+            ->where(function ($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhere('stock_cedis', '>', 0);
+            });
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        if ($tieneCatalogoWeb) {
+            $query->where('catalogo_web', true)
+                  ->whereNotNull('imagen')
+                  ->where('imagen', '!=', '');
+        }
+
+        if (str_contains($name, 'minisplit') || str_contains($name, 'aire') || str_contains($name, 'clima')) {
+            $query->where(function($q) {
+                $q->where('nombre', 'ilike', '%soporte%')
+                  ->orWhere('nombre', 'ilike', '%kit%')
+                  ->orWhere('nombre', 'ilike', '%pastilla%')
+                  ->orWhere('nombre', 'ilike', '%protector%')
+                  ->orWhere('nombre', 'ilike', '%cable%');
+            });
+        } elseif (str_contains($name, 'laptop') || str_contains($name, 'computadora') || str_contains($name, 'pc') || str_contains($name, 'escritorio') || str_contains($name, 'intel') || str_contains($name, 'ryzen')) {
+            $query->where(function($q) {
+                $q->where('nombre', 'ilike', '%mouse%')
+                  ->orWhere('nombre', 'ilike', '%mochila%')
+                  ->orWhere('nombre', 'ilike', '%funda%')
+                  ->orWhere('nombre', 'ilike', '%antivirus%')
+                  ->orWhere('nombre', 'ilike', '%teclado%')
+                  ->orWhere('nombre', 'ilike', '%disco%')
+                  ->orWhere('nombre', 'ilike', '%ssd%');
+            });
+        } else {
+            // Fallback: 4 productos activos
+            $query->orderBy('id', 'desc');
+        }
+
+        return $query->limit(4)->get()->map(fn($p) => $this->transformModelToView($p, true));
     }
 
     public function searchSuggestions(Request $request)

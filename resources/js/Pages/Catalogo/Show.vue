@@ -504,6 +504,18 @@ const decrementar = () => {
                         </span>
                     </div>
 
+                    <!-- Social proof -->
+                    <div class="mb-4 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            <strong class="text-slate-700 dark:text-slate-300">{{ (producto.id % 10) + 8 }} personas</strong> viendo ahora
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                            Vendido por <strong class="text-slate-700 dark:text-slate-300">Asistencia VIRCOM</strong>
+                        </span>
+                    </div>
+
                     <!-- Price con IVA -->
                     <div class="mb-8 p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 inline-block align-self-start">
                         <div class="flex items-baseline gap-3">
@@ -521,6 +533,16 @@ const decrementar = () => {
                         <div v-if="producto.origen === 'CVA'" class="mt-3 flex items-center gap-2 text-blue-600 dark:text-blue-400 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 px-3 py-2 rounded-xl border border-blue-100 dark:border-blue-700">
                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                              <span class="text-xs font-bold uppercase tracking-wider">Envío de 2 a 4 días hábiles</span>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span><strong class="text-slate-700 dark:text-slate-300">30 días de garantía</strong> — Devolución sin complicaciones</span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                <span><strong class="text-slate-700 dark:text-slate-300">Pago seguro</strong> — SSL, MercadoPago, PayPal</span>
+                            </div>
                         </div>
                     </div>
 

@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import { ref, computed, watch, onMounted } from 'vue'
+import axios from 'axios'
 import { useCart } from '@/composables/useCart'
 import PublicNavbar from '@/Components/PublicNavbar.vue';
 import PublicFooter from '@/Components/PublicFooter.vue';
@@ -54,6 +55,30 @@ const soloSinFoto = ref(props.filters?.sin_foto ?? false)
 const cvaPage = ref(1)
 const hasMoreCva = ref(true)
 const isFiltering = ref(false)
+const suggestions = ref([])
+
+// Suggestions Logic
+let suggestionTimeout = null
+const fetchSuggestions = async () => {
+    if (!search.value || search.value.length < 3) {
+        suggestions.value = []
+        return
+    }
+    try {
+        const response = await axios.get(route('api.tienda.search-suggestions'), { 
+            params: { q: search.value } 
+        })
+        suggestions.value = response.data || []
+    } catch (e) {
+        console.error('Error fetching suggestions', e)
+        suggestions.value = []
+    }
+}
+
+const debouncedSuggestions = () => {
+    clearTimeout(suggestionTimeout)
+    suggestionTimeout = setTimeout(fetchSuggestions, 300)
+}
 
 const fetchCvaProducts = (fresh = true) => {
     if (fresh) {
@@ -230,6 +255,108 @@ const handleAddToCart = (producto) => {
     }, 1500)
 }
 
+// Comparador de Productos (Climas / Vircom)
+const compareList = ref([])
+const showCompareModal = ref(false)
+
+const isComparing = (id) => {
+    return compareList.value.some(p => p.id === id)
+}
+
+const toggleCompare = (producto) => {
+    const idx = compareList.value.findIndex(p => p.id === producto.id)
+    if (idx >= 0) {
+        compareList.value.splice(idx, 1)
+    } else {
+        if (compareList.value.length >= 4) {
+            alert('Puedes comparar hasta 4 productos a la vez.')
+            return
+        }
+        compareList.value.push(producto)
+    }
+    localStorage.setItem('asistencia_compare_list', JSON.stringify(compareList.value))
+}
+
+const removeCompare = (id) => {
+    compareList.value = compareList.value.filter(p => p.id !== id)
+    localStorage.setItem('asistencia_compare_list', JSON.stringify(compareList.value))
+}
+
+const clearCompare = () => {
+    compareList.value = []
+    localStorage.setItem('asistencia_compare_list', JSON.stringify([]))
+}
+
+const parseProductSpecs = (producto) => {
+    let rawSpecs = producto?.especificaciones
+    
+    if (Array.isArray(rawSpecs)) {
+        const unified = {}
+        rawSpecs.forEach(s => {
+            if (s.nombre) unified[s.nombre] = s.valor || 'N/A'
+        });
+        return unified
+    }
+
+    if (rawSpecs && typeof rawSpecs === 'object' && Object.keys(rawSpecs).length > 0) {
+        return rawSpecs
+    }
+    
+    const text = producto?.ficha_tecnica
+    if (!text) return {}
+    
+    const specs = {}
+    const knownKeys = [
+        'MODELO', 'UPC', 'SAT', 'NUMERO DE PARTE', 'PANTALLA', 'TIPO DE PANEL',
+        'TIEMPO DE RESPUESTA', 'BRILLO', 'CONTRASTE', 'ANGULO VISIBLE', 'COLORES',
+        'ENTRADA DE SEÑAL', 'BOCINAS', 'MONTAJE VESA', 'DIMENSIONES', 
+        'FUENTE DE ENERGIA', 'ERGO STAND', 'OTROS', 'GARANTIA',
+        'PROCESADOR', 'RAM', 'ALMACENAMIENTO', 'DISCO DURO', 'SSD',
+        'SISTEMA OPERATIVO', 'RESOLUCION', 'PESO', 'COLOR', 'CONECTIVIDAD',
+        'PUERTOS', 'BATERIA', 'CAMARA', 'WIFI', 'BLUETOOTH', 'HDMI',
+        'CAPACIDAD', 'TIPO', 'VOLTAJE', 'SEER', 'FRIO/CALOR'
+    ]
+    
+    for (const key of knownKeys) {
+        const regex = new RegExp(`(${key}):?\\s*([^\\n]+?)(?=(?:${knownKeys.join('|')})|$)`, 'gi')
+        const match = regex.exec(text)
+        if (match && match[2]) {
+            const value = match[2].trim().replace(/;+$/, '').trim()
+            if (value && value.length > 1) {
+                specs[key] = value
+            }
+        }
+    }
+    
+    if (Object.keys(specs).length === 0) {
+        const lines = text.split(/(?=[A-ZÁÉÍÓÚÑ]{3,}:?\s)/)
+        lines.forEach(line => {
+            const colonMatch = line.match(/^([A-ZÁÉÍÓÚÑ\s]+?):\s*(.+)$/i)
+            if (colonMatch) {
+                specs[colonMatch[1].trim()] = colonMatch[2].trim()
+            }
+        })
+    }
+    
+    return specs
+}
+
+const allSpecKeys = computed(() => {
+    const keysSet = new Set()
+    compareList.value.forEach(p => {
+        const specs = parseProductSpecs(p)
+        Object.keys(specs).forEach(k => keysSet.add(k))
+    })
+    return Array.from(keysSet)
+})
+
+const openWhatsAppForCompare = (producto) => {
+    if (!empresaData.value?.whatsapp) return
+    const phone = empresaData.value.whatsapp.replace(/\D/g, '')
+    const message = encodeURIComponent(`Hola, me interesa preguntar por disponibilidad del producto: *${producto.nombre}*`)
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+}
+
 const handleSearchFocus = () => {
     searchFocused.value = true
 }
@@ -369,6 +496,7 @@ const toggleFaq = (index) => {
                             </svg>
                             <input 
                                 v-model="search"
+                                @input="debouncedSuggestions"
                                 @focus="handleSearchFocus"
                                 @blur="handleSearchBlur"
                                 type="text" 
@@ -383,6 +511,52 @@ const toggleFaq = (index) => {
                                 </svg>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Autocomplete Dropdown (Premium Version) -->
+                    <div v-show="searchFocused && suggestions.length > 0" 
+                         class="absolute w-full bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
+                        <div class="p-2.5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 sticky top-0 z-10">
+                            <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase ml-2">Sugerencias de productos</span>
+                            <button @click="searchFocused = false" class="text-[10px] font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 px-2 uppercase">Cerrar</button>
+                        </div>
+                        <ul class="divide-y divide-slate-50 dark:divide-slate-700">
+                            <li v-for="sug in suggestions" :key="sug.id">
+                                <Link :href="route('catalogo.show', sug.id)" 
+                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all relative">
+                                    <div class="w-14 h-14 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                        <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.webp')">
+                                    </div>
+                                    <div class="flex-1 min-w-0 text-left">
+                                        <div class="flex items-center gap-2 mb-0.5">
+                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded text-[9px] font-black uppercase tracking-tighter">CVA</span>
+                                            <p class="text-sm font-bold text-slate-900 dark:text-white truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
+                                                {{ sug.label }}
+                                            </p>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ sug.category }}</p>
+                                            <div class="flex items-center gap-1.5">
+                                                <span v-if="sug.origen === 'CVA'" 
+                                                      :class="[
+                                                          'h-2 w-2 rounded-full',
+                                                          sug.stock > 0 ? 'bg-green-500 animate-pulse' : 'bg-amber-400'
+                                                      ]"></span>
+                                                <span class="text-[11px] font-black uppercase tracking-tight" :class="sug.stock > 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'">
+                                                    {{ sug.stock > 0 ? `Entrega Inmediata (${sug.stock})` : 'Bajo pedido' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-black text-slate-900 dark:text-white leading-tight">
+                                            {{ formatCurrency(sug.price) }}
+                                        </p>
+                                        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">con IVA</p>
+                                    </div>
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 
@@ -681,18 +855,25 @@ const toggleFaq = (index) => {
                                 <div class="mb-4">
                                     <div class="flex items-center gap-1.5 mb-1">
                                         <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
-                                            Entrega Inmediata ({{ producto.stock_local }})
+                                            Entrega Inmediata
                                         </span>
                                         <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 dark:text-blue-300 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
-                                            Envío 4-7 días ({{ producto.stock_cedis }})
-                                        </span>
-                                        <span v-else class="text-[9px] font-black text-brand-600 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
                                             Envío 4-7 días
                                         </span>
                                     </div>
-                                    <p class="text-[9px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] mb-1 leading-none">
-                                        {{ producto.marca?.nombre || producto.marca }}
-                                    </p>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-[9px] font-black text-[var(--color-primary)] uppercase tracking-[0.3em] leading-none">
+                                            {{ producto.marca?.nombre || producto.marca }}
+                                        </p>
+                                        <!-- Checkbox Comparar -->
+                                        <label class="flex items-center gap-1 cursor-pointer text-[10px] text-slate-500 hover:text-[var(--color-primary)] font-bold">
+                                            <input type="checkbox" 
+                                                   :checked="isComparing(producto.id)" 
+                                                   @change="toggleCompare(producto)" 
+                                                   class="rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)] w-3.5 h-3.5 border-slate-300 dark:bg-slate-750 dark:border-slate-600" />
+                                            <span>Comparar</span>
+                                        </label>
+                                    </div>
                                     <Link :href="route('catalogo.show', producto.id)">
                                         <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm line-clamp-2 leading-relaxed group-hover:text-[var(--color-primary)] transition-colors min-h-[40px]">
                                             {{ producto.nombre }}
@@ -805,6 +986,159 @@ const toggleFaq = (index) => {
             </div>
         </section>
 
+        <!-- Sticky Bottom Compare Bar -->
+        <div v-if="compareList.length > 0" 
+             class="fixed bottom-6 inset-x-4 max-w-4xl mx-auto bg-slate-900/90 dark:bg-gray-950/90 backdrop-blur-xl border border-white/10 text-white rounded-3xl p-4 shadow-2xl z-40 transition-all duration-300 transform translate-y-0">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-black uppercase tracking-widest bg-[var(--color-primary)] text-white px-2.5 py-1 rounded-lg">
+                        Comparador
+                    </span>
+                    <span class="text-xs font-bold text-gray-300">
+                        {{ compareList.length }} {{ compareList.length === 1 ? 'producto' : 'productos' }} para comparar
+                    </span>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Thumbnails of compared products -->
+                    <div class="flex -space-x-2 mr-4">
+                        <div v-for="p in compareList" :key="p.id" class="relative w-10 h-10 rounded-xl bg-white border-2 border-slate-900 overflow-hidden group">
+                            <img :src="getImageUrl(p)" class="w-full h-full object-contain p-1" />
+                            <button @click="removeCompare(p.id)" class="absolute inset-0 bg-red-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-xs font-bold">✕</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button @click="clearCompare" class="text-xs text-gray-400 hover:text-white transition-colors uppercase tracking-wider font-bold">
+                        Limpiar
+                    </button>
+                    
+                    <button @click="showCompareModal = true" 
+                            class="px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider text-white shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                            style="background-color: var(--color-primary);">
+                        Comparar ahora
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compare Modal Overlay -->
+        <Teleport to="body">
+            <Transition name="fade">
+                <div v-if="showCompareModal" 
+                     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-5xl w-full h-[85vh] flex flex-col overflow-hidden animate-bounce-in">
+                        
+                        <!-- Header -->
+                        <div class="flex items-center justify-between p-6 border-b border-gray-150 dark:border-gray-700 bg-slate-50 dark:bg-gray-900/40">
+                            <div>
+                                <h3 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-wider">
+                                    Comparación de Productos
+                                </h3>
+                                <p class="text-xs text-gray-400 dark:text-gray-505 mt-0.5">
+                                    Analiza especificaciones lado a lado para tomar la mejor decisión
+                                </p>
+                            </div>
+                            <button @click="showCompareModal = false" class="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center text-gray-500 dark:text-gray-300">
+                                ✕
+                            </button>
+                        </div>
+                        
+                        <!-- Content (Scrollable Table) -->
+                        <div class="flex-1 overflow-auto p-6">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr class="border-b border-gray-150 dark:border-gray-700">
+                                        <th class="p-3 text-left w-1/4 text-xs font-black text-gray-400 dark:text-gray-505 uppercase tracking-widest bg-transparent">
+                                            Características
+                                        </th>
+                                        <th v-for="p in compareList" :key="p.id" class="p-3 text-center min-w-[200px]">
+                                            <div class="flex flex-col items-center">
+                                                <div class="relative w-24 h-24 rounded-2xl bg-white border border-gray-150 dark:border-gray-700 p-2 overflow-hidden mb-3">
+                                                    <img :src="getImageUrl(p)" class="w-full h-full object-contain" />
+                                                    <button @click="removeCompare(p.id)" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 hover:bg-red-650 text-white flex items-center justify-center text-[10px] transition-colors shadow">
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                                <span class="text-[9px] font-black text-[var(--color-primary)] uppercase tracking-widest leading-none mb-1">
+                                                    {{ p.marca?.nombre || p.marca }}
+                                                </span>
+                                                <h4 class="font-bold text-gray-900 dark:text-white text-xs line-clamp-2 text-center max-w-[180px] mb-2 min-h-[32px]">
+                                                    {{ p.nombre }}
+                                                </h4>
+                                                <p class="font-black text-sm" style="color: var(--color-primary);">
+                                                    {{ formatCurrency(p.precio_con_iva) }}
+                                                </p>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- General Info -->
+                                    <tr class="border-b border-gray-150 dark:border-gray-700 text-xs">
+                                        <td class="p-3 bg-gray-50 dark:bg-gray-800/50 font-bold text-gray-550 dark:text-gray-400">
+                                            Disponibilidad
+                                        </td>
+                                        <td v-for="p in compareList" :key="p.id" class="p-3 text-center">
+                                            <span v-if="p.stock_local > 0" class="px-2.5 py-1 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-300 rounded-lg font-bold text-[10px] uppercase">
+                                                Entrega Inmediata
+                                            </span>
+                                            <span v-else-if="p.stock_cedis > 0" class="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 rounded-lg font-bold text-[10px] uppercase">
+                                                Bajo Pedido (CEDIS)
+                                            </span>
+                                            <span v-else class="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 rounded-lg font-bold text-[10px] uppercase">
+                                                Bajo Pedido
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-150 dark:border-gray-700 text-xs">
+                                        <td class="p-3 bg-gray-50 dark:bg-gray-800/50 font-bold text-gray-550 dark:text-gray-400">
+                                            Categoría
+                                        </td>
+                                        <td v-for="p in compareList" :key="p.id" class="p-3 text-center text-gray-700 dark:text-gray-300 font-medium">
+                                            {{ p.categoria?.nombre || 'General' }}
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Dynamic Technical Specifications -->
+                                    <tr v-for="key in allSpecKeys" :key="key" class="border-b border-gray-150 dark:border-gray-700 text-xs">
+                                        <td class="p-3 bg-gray-50 dark:bg-gray-800/30 font-bold text-gray-550 dark:text-gray-450">
+                                            {{ key }}
+                                        </td>
+                                        <td v-for="p in compareList" :key="p.id" class="p-3 text-center text-gray-600 dark:text-gray-205">
+                                            {{ parseProductSpecs(p)[key] || '-' }}
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Add to Cart Row -->
+                                    <tr>
+                                        <td class="p-3 bg-gray-50 dark:bg-gray-800/50 font-bold text-gray-550 dark:text-gray-450">
+                                            Acción
+                                        </td>
+                                        <td v-for="p in compareList" :key="p.id" class="p-3 text-center">
+                                            <button v-if="p.stock_local > 0 || p.stock_cedis > 0" 
+                                                    @click="handleAddToCart(p)"
+                                                    :disabled="addedToCart === p.id"
+                                                    class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-white transition-all shadow hover:-translate-y-0.5 active:translate-y-0"
+                                                    :style="{ backgroundColor: addedToCart === p.id ? '#10B981' : 'var(--color-primary)' }">
+                                                {{ addedToCart === p.id ? '✓ Agregado' : 'Comprar' }}
+                                            </button>
+                                            <button v-else 
+                                                    @click="openWhatsAppForCompare(p)"
+                                                    class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-amber-500 hover:bg-amber-600 text-white transition-all shadow">
+                                                Preguntar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
         <!-- Public Footer removed by user request -->
     </div>
 </template>
@@ -827,5 +1161,24 @@ const toggleFaq = (index) => {
     opacity: 0;
     padding-top: 0;
     padding-bottom: 0;
+}
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.animate-bounce-in {
+    animation: bounceIn 0.3s ease-out;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); opacity: 1; }
 }
 </style>
