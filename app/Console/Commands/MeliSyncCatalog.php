@@ -32,6 +32,7 @@ class MeliSyncCatalog extends Command
             ->where('estado', 'activo')
             ->where('catalogo_web', true)
             ->where('precio_compra', '>', 0)
+            ->whereRaw('(COALESCE(stock, 0) + COALESCE(stock_cedis, 0)) >= 3')
             ->get();
 
         $bar = $this->output->createProgressBar($productos->count());
@@ -40,12 +41,6 @@ class MeliSyncCatalog extends Command
         foreach ($productos as $producto) {
             try {
                 $stockTotal = ($producto->stock ?? 0) + ($producto->stock_cedis ?? 0);
-
-                if ($stockTotal < 3) {
-                    $skipped++;
-                    $bar->advance();
-                    continue;
-                }
 
                 // ⚠️ BLOQUEO DE MARGEN: No permitir vender si no hay ganancia
                 if ($producto->precio_venta <= $producto->precio_compra || $producto->precio_venta <= 0) {

@@ -469,9 +469,13 @@ const decrementar = () => {
                         
                         <!-- Stock badge -->
                         <div class="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
-                            <!-- Stock disponible -->
-                            <span v-if="producto.stock > 0" class="px-3 py-1 rounded-xl text-xs font-black bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:text-emerald-300 uppercase tracking-wider">
-                                Entrega Inmediata ({{ producto.stock }})
+                            <!-- Stock disponible Hermosillo -->
+                            <span v-if="producto.stock > 0" class="px-3 py-1 rounded-xl text-xs font-black bg-emerald-100 dark:bg-slate-800/50 text-emerald-800 dark:text-emerald-200 uppercase tracking-wider">
+                                Stock Hermosillo: {{ producto.stock }}
+                            </span>
+                            <!-- Stock CEDIS -->
+                            <span v-if="producto.stock_cedis > 0" class="px-3 py-1 rounded-xl text-xs font-black bg-blue-100 dark:bg-slate-800/50 text-blue-800 dark:text-blue-200 uppercase tracking-wider">
+                                Stock CEDIS: {{ producto.stock_cedis }}
                             </span>
                             <!-- En tránsito (si no hay stock pero hay en camino) -->
                             <span v-else-if="producto.en_transito > 0" class="px-3 py-1 rounded-xl text-xs font-medium bg-brand-50 dark:bg-brand-900/20/40 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-amber-300">
@@ -480,10 +484,6 @@ const decrementar = () => {
                             <!-- Bajo pedido -->
                             <span v-else class="px-3 py-1 rounded-xl text-xs font-medium bg-brand-50 dark:bg-brand-900/20/40 text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:text-amber-300">
                                 Bajo pedido
-                            </span>
-                            <!-- Badge Almacén Central -->
-                            <span v-if="producto.stock_cedis > 0 && !(producto.stock_local > 0)" class="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                                Bajo Pedido
                             </span>
                         </div>
                     </div>
@@ -615,14 +615,20 @@ const decrementar = () => {
                     </div>
 
                     <!-- Disponibilidad por Sucursal -->
-                    <div v-if="producto.stock_desglose && Object.keys(producto.stock_desglose).length > 0" class="mb-8">
-                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Stock para Entrega Inmediata:</h4>
+                    <div class="mb-8">
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Disponibilidad por Sucursal:</h4>
                         <div class="flex flex-wrap gap-2">
-                            <div v-for="(qty, branch) in producto.stock_desglose" :key="branch" 
-                                class="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 border border-emerald-100 dark:border-emerald-700 rounded-xl flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-brand-500 dark:bg-emerald-400"></span>
-                                <span class="text-xs text-slate-500 dark:text-slate-200 font-medium">{{ branch }}:</span>
-                                <span class="text-xs font-bold text-slate-900 dark:text-slate-100">{{ qty }}</span>
+                            <!-- Hermosillo -->
+                            <div class="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-700 rounded-xl flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+                                <span class="text-xs text-slate-500 dark:text-slate-200 font-medium">Hermosillo:</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-slate-100">{{ producto.stock || 0 }}</span>
+                            </div>
+                            <!-- CEDIS -->
+                            <div class="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-700 rounded-xl flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+                                <span class="text-xs text-slate-500 dark:text-slate-200 font-medium">CEDIS:</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-slate-100">{{ producto.stock_cedis || 0 }}</span>
                             </div>
                         </div>
                     </div>
@@ -664,7 +670,7 @@ const decrementar = () => {
                                     </svg>
                                 </button>
                             </div>
-                            <span v-if="producto.stock > 0" class="text-xs font-bold text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 px-3 py-1 rounded-full">Entrega Inmediata ({{ producto.stock }})</span>
+                            <span v-if="producto.stock > 0" class="text-xs font-bold text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 px-3 py-1 rounded-full">Stock Hermosillo ({{ producto.stock }})</span>
                             <span v-else class="text-xs font-bold text-brand-600 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 px-3 py-1 rounded-full">Pre-venta (Llega pronto)</span>
                         </div>
                     </div>
