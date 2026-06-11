@@ -89,6 +89,8 @@ Route::post('/facturar', [\App\Http\Controllers\Public\FacturacionPublicaControl
 // Tienda (Público)
 Route::get('/tienda', [CatalogoController::class, 'index'])->name('catalogo.index');
 Route::get('/producto/{id}', [CatalogoController::class, 'show'])->name('catalogo.show');
+Route::get('/api/tienda/search-suggestions', [CatalogoController::class, 'searchSuggestions'])->name('api.tienda.search-suggestions');
+Route::get('/api/tienda/categorias-nav', [CatalogoController::class, 'categoriasParaNav'])->name('api.tienda.categorias-nav');
 
 // Blog (Público)
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('public.blog.index');

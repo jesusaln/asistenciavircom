@@ -1,1 +1,0 @@
-import{g as e,o as s,t as o,S as n}from"./vue-core-CVM6bgH_.js";const l=["for"],r={key:0},c={key:1},f={__name:"InputLabel",props:{value:String,for:String},setup(t){return(a,i)=>(s(),e("label",{for:t.for,class:"block font-medium text-sm text-slate-700 dark:text-slate-300"},[t.value?(s(),e("span",r,o(t.value),1)):(s(),e("span",c,[n(a.$slots,"default")]))],8,l))}};export{f as _};

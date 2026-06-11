@@ -380,6 +380,52 @@ class CatalogoController extends Controller
         ]);
     }
 
+    public function searchSuggestions(Request $request)
+    {
+        $query = $request->get('q', '');
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $productos = Producto::where('estado', 'activo')
+            ->where(function ($q) use ($query) {
+                $q->where('nombre', 'ilike', "%{$query}%")
+                  ->orWhere('codigo', 'ilike', "%{$query}%");
+            })
+            ->whereNotNull('imagen')
+            ->where('imagen', '!=', '')
+            ->where('stock', '>', 0)
+            ->limit(8)
+            ->get();
+
+        $results = $productos->map(function ($p) {
+            $precio = $p->precio_tienda_online ?? $p->precio_venta;
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre,
+                'codigo' => $p->codigo,
+                'precio' => (float) $precio,
+                'precio_con_iva' => round($precio * 1.16, 2),
+                'imagen' => $p->imagen,
+                'stock' => (int) $p->stock,
+            ];
+        });
+
+        return response()->json($results);
+    }
+
+    public function categoriasParaNav()
+    {
+        $categorias = Categoria::whereHas('productos', function ($q) {
+            $q->where('estado', 'activo')
+              ->whereNotNull('imagen')
+              ->where('imagen', '!=', '')
+              ->where('stock', '>', 0);
+        })->orderBy('nombre')->get(['id', 'nombre']);
+
+        return response()->json($categorias);
+    }
+
     private function transformModelToView($model, $lite = false)
     {
         // Usar precio de tienda online si está configurado, si no el precio de venta normal
