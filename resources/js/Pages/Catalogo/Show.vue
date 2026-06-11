@@ -425,6 +425,19 @@ const decrementar = () => {
         <!-- Navbar -->
         <PublicNavbar :empresa="empresaData" activeTab="tienda" />
 
+        <!-- Botón Volver a Productos -->
+        <div class="w-full px-4 sm:px-6 py-6">
+            <Link 
+                :href="route('catalogo.index')" 
+                class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-[var(--color-primary)] transition-colors group"
+            >
+                <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span class="font-medium text-sm">Volver a Productos</span>
+            </Link>
+        </div>
+
         <!-- Product Detail -->
         <main class="w-full px-4 sm:px-6 py-12">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
