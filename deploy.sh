@@ -75,7 +75,7 @@ ssh $USER@$VPS_IP "cd $REMOTE_PATH && \
     chmod -R 777 storage bootstrap/cache || true && \
     chown -R root:www-data storage bootstrap/cache || true && \
 
-    docker exec $CONTAINER_APP php artisan down --retry=60 || true && \
+    docker exec $CONTAINER_APP php artisan down --render="maintenance" --retry=60 || true && \
     
     # Intercambio de archivos
     rsync -a --delete --exclude='storage' $STAGING_PATH/ $REMOTE_PATH/ && \
