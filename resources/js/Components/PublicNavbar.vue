@@ -77,36 +77,6 @@ const fetchCategorias = async () => {
     }
 };
 
-const searchQuery = ref('');
-const searchResults = ref([]);
-const showSearchResults = ref(false);
-let searchTimeout = null;
-
-const onSearchInput = () => {
-    if (searchTimeout) clearTimeout(searchTimeout);
-    if (searchQuery.value.length < 2) {
-        searchResults.value = [];
-        return;
-    }
-    searchTimeout = setTimeout(async () => {
-        try {
-            const res = await axios.get('/api/tienda/search-suggestions', { params: { q: searchQuery.value } });
-            searchResults.value = res.data || [];
-            showSearchResults.value = true;
-        } catch (e) {
-            console.error('Search error', e);
-        }
-    }, 300);
-};
-
-const goToSearch = () => {
-    if (searchQuery.value.length > 0) {
-        router.get(route('catalogo.index', { search: searchQuery.value }));
-        showSearchResults.value = false;
-        searchQuery.value = '';
-    }
-};
-
 onMounted(() => {
     fetchCategorias();
 });
@@ -340,61 +310,6 @@ onMounted(() => {
                     </Link>
                 </template>
 
-                <!-- Search Bar -->
-                <div class="relative" v-click-outside="() => showSearchResults = false">
-                    <div class="flex items-center bg-[var(--ui-surface-soft)] rounded-xl border border-[var(--ui-border)] focus-within:border-[var(--color-primary)] focus-within:ring-1 focus-within:ring-[var(--color-primary)]/20 transition-all overflow-hidden">
-                        <svg class="w-4 h-4 ml-3 text-[var(--ui-text-soft)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <input 
-                            v-model="searchQuery"
-                            @input="onSearchInput"
-                            @focus="showSearchResults = true"
-                            @keydown.enter="goToSearch"
-                            type="text"
-                            placeholder="Buscar productos..."
-                            class="w-44 lg:w-56 bg-transparent border-none outline-none px-3 py-2 text-sm text-[var(--ui-text)] placeholder:text-[var(--ui-text-soft)]/50"
-                        />
-                        <button v-if="searchQuery" @click="searchQuery = ''; searchResults = []" class="pr-2 text-[var(--ui-text-soft)] hover:text-[var(--ui-text)]">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <Transition
-                        enter-active-class="transition-all duration-200 ease-out"
-                        enter-from-class="opacity-0 -translate-y-2"
-                        enter-to-class="opacity-100 translate-y-0"
-                        leave-active-class="transition-all duration-150 ease-in"
-                        leave-from-class="opacity-100 translate-y-0"
-                        leave-to-class="opacity-0 -translate-y-2"
-                    >
-                        <div v-if="showSearchResults && searchResults.length > 0" class="absolute top-full right-0 mt-2 w-96 bg-[var(--ui-surface)] rounded-xl shadow-xl border border-[var(--ui-border)] py-2 z-50">
-                            <Link 
-                                v-for="r in searchResults" 
-                                :key="r.id"
-                                :href="route('catalogo.show', r.id)" 
-                                class="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--ui-surface-soft)] transition-colors border-b border-[var(--ui-border)] last:border-0"
-                                @click="showSearchResults = false; searchQuery = ''"
-                            >
-                                <img v-if="r.imagen" :src="r.imagen.startsWith('http') ? r.imagen : '/storage/' + r.imagen" class="w-10 h-10 rounded-lg object-cover shrink-0" />
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-[var(--ui-text)] truncate">{{ r.nombre }}</p>
-                                    <p class="text-xs text-[var(--ui-text-soft)]">${{ r.precio_con_iva.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</p>
-                                </div>
-                            </Link>
-                            <Link 
-                                :href="route('catalogo.index', { search: searchQuery })"
-                                class="block px-4 py-3 text-center text-xs font-bold text-[var(--color-primary)] hover:bg-[var(--ui-surface-soft)] rounded-b-xl"
-                                @click="showSearchResults = false"
-                            >
-                                Ver todos los resultados →
-                            </Link>
-                        </div>
-                    </Transition>
-                </div>
-
                 <div class="h-6 w-px bg-[var(--ui-border)] ml-2"></div>
 
                 <!-- User Actions -->
@@ -545,46 +460,6 @@ onMounted(() => {
                             </div>
 
                             <div class="flex-grow overflow-y-auto px-6 py-6 space-y-2 custom-scrollbar">
-                                <!-- Mobile Search -->
-                                <div class="relative mb-6">
-                                    <div class="flex items-center bg-[var(--ui-surface-soft)] rounded-xl border border-[var(--ui-border)] overflow-hidden">
-                                        <svg class="w-4 h-4 ml-3 text-[var(--ui-text-soft)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                        <input 
-                                            v-model="searchQuery"
-                                            @input="onSearchInput"
-                                            @focus="showSearchResults = true"
-                                            @keydown.enter="goToSearch(); showMobileMenu = false"
-                                            type="text"
-                                            placeholder="Buscar productos..."
-                                            class="flex-1 bg-transparent border-none outline-none px-3 py-3 text-sm text-[var(--ui-text)] placeholder:text-[var(--ui-text-soft)]/50"
-                                        />
-                                    </div>
-                                    <div v-if="showSearchResults && searchResults.length > 0" class="mt-2 bg-[var(--ui-surface)] rounded-xl shadow-lg border border-[var(--ui-border)] py-2 max-h-60 overflow-y-auto">
-                                        <Link 
-                                            v-for="r in searchResults" 
-                                            :key="r.id"
-                                            :href="route('catalogo.show', r.id)" 
-                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--ui-surface-soft)] transition-colors border-b border-[var(--ui-border)] last:border-0"
-                                            @click="showSearchResults = false; searchQuery = ''; showMobileMenu = false"
-                                        >
-                                            <img v-if="r.imagen" :src="r.imagen.startsWith('http') ? r.imagen : '/storage/' + r.imagen" class="w-10 h-10 rounded-lg object-cover shrink-0" />
-                                            <div class="min-w-0 flex-1">
-                                                <p class="text-sm font-medium text-[var(--ui-text)] truncate">{{ r.nombre }}</p>
-                                                <p class="text-xs text-[var(--ui-text-soft)]">${{ r.precio_con_iva?.toLocaleString('es-MX', { minimumFractionDigits: 2 }) }}</p>
-                                            </div>
-                                        </Link>
-                                        <Link 
-                                            :href="route('catalogo.index', { search: searchQuery })"
-                                            class="block px-4 py-3 text-center text-xs font-bold text-[var(--color-primary)] hover:bg-[var(--ui-surface-soft)]"
-                                            @click="showSearchResults = false; showMobileMenu = false"
-                                        >
-                                            Ver todos los resultados →
-                                        </Link>
-                                    </div>
-                                </div>
-
                                 <template v-for="link in navLinks" :key="link.id">
                                     <div v-if="link.dropdown" class="mb-2">
                                         <button 

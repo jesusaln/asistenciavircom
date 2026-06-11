@@ -53,17 +53,16 @@ const isFiltering = ref(false)
 // Suggestions Logic
 let suggestionTimeout = null
 const fetchSuggestions = async () => {
-    if (!search.value || search.value.length < 3) {
+    if (!search.value || search.value.length < 2) {
         suggestions.value = []
         return
     }
     try {
-        const response = await axios.get(route('tienda.cva.sugerencias'), { 
+        const response = await axios.get('/api/tienda/search-suggestions', { 
             params: { q: search.value } 
         })
         suggestions.value = response.data || []
     } catch (e) {
-        console.error('Error fetching suggestions', e)
         suggestions.value = []
     }
 }

@@ -390,11 +390,13 @@ class CatalogoController extends Controller
         $productos = Producto::where('estado', 'activo')
             ->where(function ($q) use ($query) {
                 $q->where('nombre', 'ilike', "%{$query}%")
-                  ->orWhere('codigo', 'ilike', "%{$query}%");
+                  ->orWhere('codigo', 'ilike', "%{$query}%")
+                  ->orWhere('cva_clave', 'ilike', "%{$query}%");
             })
             ->whereNotNull('imagen')
             ->where('imagen', '!=', '')
             ->where('stock', '>', 0)
+            ->with('categoria')
             ->limit(8)
             ->get();
 
@@ -402,12 +404,13 @@ class CatalogoController extends Controller
             $precio = $p->precio_tienda_online ?? $p->precio_venta;
             return [
                 'id' => $p->id,
-                'nombre' => $p->nombre,
+                'label' => $p->nombre,
                 'codigo' => $p->codigo,
-                'precio' => (float) $precio,
-                'precio_con_iva' => round($precio * 1.16, 2),
-                'imagen' => $p->imagen,
+                'price' => round($precio * 1.16, 2),
+                'image' => $p->imagen,
                 'stock' => (int) $p->stock,
+                'category' => $p->categoria?->nombre ?? 'General',
+                'origen' => $p->origen ?? 'local',
             ];
         });
 
