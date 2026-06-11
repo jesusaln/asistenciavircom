@@ -96,18 +96,45 @@ const handleSearch = () => {
   )
 }
 
+// Smart calculation for MercadoLibre suggested price
+const getMeliSuggestedPrice = (product, type = 'gold_special') => {
+  const cost = parseFloat(product.precio_compra) * 1.16 // Cost with 16% IVA estimate
+  const targetMargin = 0.15 // Target net profit margin on cost (15%)
+  const target = cost * (1 + targetMargin)
+
+  const commRate = type === 'gold_special' ? 0.13 : 0.175
+  const taxRate = 0.08
+  const R = 1 - commRate - taxRate
+
+  // Estimate low price (< 299) where fixed fee is $25 and shipping is $0
+  const pLow = (target + 25) / R
+  if (pLow < 299) {
+    return Math.round(pLow)
+  }
+
+  // Estimate high price (>= 299) where fixed fee is $0 and shipping is $59.60
+  const pHigh = (target + 59.60) / R
+  
+  // If pLow is >= 299 but we can optimize by selling at $289 (below the shipping limit)
+  if (289 * R - 25 >= target) {
+    return 289
+  }
+
+  return Math.round(pHigh)
+}
+
+// Watch listingType to update default selling price dynamically
+watch(listingType, (newType) => {
+  if (selectedProduct.value) {
+    sellPrice.value = getMeliSuggestedPrice(selectedProduct.value, newType)
+  }
+})
+
 // Open publish drawer
 const openPublishModal = (product) => {
   selectedProduct.value = product
-  // Set default suggested sell price (e.g. CVA cost * 1.35 or standard price con IVA)
-  const suggestedPrice = parseFloat(product.precio_con_iva) || (parseFloat(product.precio_compra) * 1.30 * 1.16)
-  sellPrice.value = Math.round(suggestedPrice)
+  sellPrice.value = getMeliSuggestedPrice(product, listingType.value)
   
-  // If price ended up exactly at/near $299, adjust down to $289 or up to cover shipping
-  if (sellPrice.value >= 299 && sellPrice.value < 350) {
-    sellPrice.value = 289 // Suggest stay below free shipping limit
-  }
-
   // Stock to publish: minimum of 10 or CVA stock
   const localStock = parseInt(product.stock || 0) + parseInt(product.stock_cedis || 0)
   publishStock.value = Math.min(Math.max(1, localStock - 1), 10) // Leave 1 safety margin, capped at 10
@@ -311,10 +338,10 @@ const publishProduct = () => {
                 <td class="px-6 py-4">
                   <div class="flex flex-col">
                     <span class="font-bold text-emerald-500">
-                      ${{ Math.round(parseFloat(item.precio_con_iva) || (parseFloat(item.precio_compra) * 1.30 * 1.16)) >= 299 && Math.round(parseFloat(item.precio_con_iva) || (parseFloat(item.precio_compra) * 1.30 * 1.16)) < 350 ? '289.00' : (parseFloat(item.precio_con_iva) || (parseFloat(item.precio_compra) * 1.30 * 1.16)).toFixed(2) }} MXN
+                      ${{ getMeliSuggestedPrice(item, 'gold_special') }}.00 MXN
                     </span>
                     <span class="text-[9px] text-slate-400 font-bold block mt-0.5">
-                      {{ Math.round(parseFloat(item.precio_con_iva) || (parseFloat(item.precio_compra) * 1.30 * 1.16)) >= 299 && Math.round(parseFloat(item.precio_con_iva) || (parseFloat(item.precio_compra) * 1.30 * 1.16)) < 350 ? 'Umbral < $299 (Ahorra Envío)' : 'Márgen Sugerido 30%' }}
+                      {{ getMeliSuggestedPrice(item, 'gold_special') === 289 ? 'Optimizado < $299' : 'Margen Neto 15%' }}
                     </span>
                   </div>
                 </td>
