@@ -276,9 +276,20 @@ class PaymentController extends Controller
                 throw new \Exception('No se pudo crear orden en PayPal');
             }
 
+            $approveUrl = null;
+            if (isset($order->links) && is_array($order->links)) {
+                foreach ($order->links as $link) {
+                    if (isset($link->rel) && $link->rel === 'approve') {
+                        $approveUrl = $link->href;
+                        break;
+                    }
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'order_id' => $order->id,
+                'approve_url' => $approveUrl,
             ]);
 
         } catch (\Exception $e) {

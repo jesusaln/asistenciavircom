@@ -135,9 +135,19 @@ const whatsappLink = computed(() => {
                     </div>
                 </div>
                 
-                <!-- Columna 4: Legal -->
+                <!-- Columna 4: App y Legal -->
                 <div>
-                    <h4 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wider mb-6">Legal</h4>
+                    <h4 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wider mb-6">App Móvil</h4>
+                    <ul class="space-y-4">
+                        <li><a :href="route('public.descargar-app')" class="flex items-center gap-3 px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700">
+                            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                            <div>
+                                <span class="text-xs font-bold text-[var(--ui-text)] block">App Android</span>
+                                <span class="text-[10px] text-slate-400 block">Descargar APK</span>
+                            </div>
+                        </a></li>
+                    </ul>
+                    <h4 class="text-sm font-bold text-[var(--ui-text)] uppercase tracking-wider mb-6 mt-6">Legal</h4>
                     <ul class="space-y-4">
                         <li><Link :href="route('public.privacidad')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Aviso de Privacidad</Link></li>
                         <li><Link :href="route('public.terminos')" class="text-[var(--ui-text-soft)] hover:text-[var(--ui-text)] transition-colors text-sm">Términos de Servicio</Link></li>

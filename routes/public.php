@@ -108,6 +108,17 @@ Route::post('/contratar-renta/{slug}', [ContratacionRentaController::class, 'pro
 // Páginas de Servicios Específicos
 Route::get('/servicio/{slug}', [\App\Http\Controllers\PublicServicioController::class, 'show'])->name('public.servicio.show');
 
+// Descargar APK
+Route::get('/app.apk', function () {
+    $path = public_path('app.apk');
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->download($path, 'AsistenciaVircom.apk', [
+        'Content-Type' => 'application/vnd.android.package-archive',
+    ]);
+})->name('public.descargar-app');
+
 // Checkout de Pólizas (Público inicia aquí)
 Route::get('/contratar/{slug}', [ContratacionPolizaController::class, 'show'])->name('contratacion.show');
 Route::post('/contratar/{slug}', [ContratacionPolizaController::class, 'procesar'])->name('contratacion.procesar');

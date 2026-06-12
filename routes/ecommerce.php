@@ -27,15 +27,23 @@ Route::post('/checkout/procesar', [CheckoutController::class, 'procesar'])->name
 Route::get('/pedido/{numero}', [CheckoutController::class, 'pedido'])->name('tienda.pedido');
 
 // Pasarela de Pagos (Tienda)
-Route::post('/pago/mercadopago/crear', [PaymentController::class, 'createMercadoPago'])->name('pago.mercadopago.crear');
-Route::post('/pago/mercadopago/webhook', [PaymentController::class, 'mercadoPagoWebhook'])->name('pago.mercadopago.webhook');
+Route::post('/pago/mercadopago/crear', [PaymentController::class, 'createMercadoPago'])
+    ->middleware('throttle:15,1')
+    ->name('pago.mercadopago.crear');
+Route::post('/pago/mercadopago/webhook', [PaymentController::class, 'mercadoPagoWebhook'])
+    ->withoutMiddleware([\App\Http\Middleware\CustomVerifyCsrfToken::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('pago.mercadopago.webhook');
 Route::get('/pago/mercadopago/exito', [PaymentController::class, 'mercadoPagoExito'])->name('pago.mercadopago.exito');
 Route::get('/pago/mercadopago/pendiente', [PaymentController::class, 'mercadoPagoPendiente'])->name('pago.mercadopago.pendiente');
 Route::get('/pago/mercadopago/error', [PaymentController::class, 'mercadoPagoError'])->name('pago.mercadopago.error');
 
-Route::post('/pago/paypal/crear', [PaymentController::class, 'createPayPal'])->name('pago.paypal.crear');
+Route::post('/pago/paypal/crear', [PaymentController::class, 'createPayPal'])
+    ->middleware('throttle:15,1')
+    ->name('pago.paypal.crear');
 Route::post('/pago/paypal/capturar', [PaymentController::class, 'capturePayPal'])->name('pago.paypal.capturar');
-Route::post('/pago/paypal/webhook', [PaymentController::class, 'paypalWebhook'])->name('pago.paypal.webhook');
+Route::post('/pago/paypal/webhook', [PaymentController::class, 'paypalWebhook'])
+    ->withoutMiddleware([\App\Http\Middleware\CustomVerifyCsrfToken::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('pago.paypal.webhook');
 
 // Pasarela de Pagos (Pólizas)
 Route::prefix('pago/poliza')->name('pago.poliza.')->group(function () {

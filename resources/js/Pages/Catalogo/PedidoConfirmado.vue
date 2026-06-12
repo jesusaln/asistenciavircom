@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import axios from 'axios'
 import PublicNavbar from '@/Components/PublicNavbar.vue'
 import PublicFooter from '@/Components/PublicFooter.vue'
 
@@ -58,6 +59,17 @@ const steps = computed(() => {
             ]
         }
     }
+
+    // Si el pedido está pendiente de pago (Mercado Pago o PayPal)
+    if (props.pedido.estado === 'pendiente' && (props.pedido.metodo_pago === 'mercadopago' || props.pedido.metodo_pago === 'paypal')) {
+        return [
+            { title: 'Esperando Pago', desc: 'Completa tu transacción en el panel de pasarela de pago.', icon: 'clock' },
+            { title: 'Pago Recibido', desc: 'Validaremos la transacción de forma inmediata.', icon: 'check' },
+            { title: 'Preparación', desc: 'Estamos preparando tu paquete para salida.', icon: 'box' },
+            { title: 'Envío', desc: 'En breve recibirás tu número de guía.', icon: 'truck' }
+        ]
+    }
+
     return [
         { title: 'Pago Recibido', desc: 'Hemos validado tu transacción con éxito.', icon: 'check' },
         { title: 'Preparación', desc: 'Estamos preparando tu paquete para salida.', icon: 'box' },
@@ -70,10 +82,45 @@ const metodoPagoLabel = computed(() => {
         'mercadopago': 'Mercado Pago',
         'paypal': 'PayPal',
         'transferencia': 'Transferencia Bancaria',
-        'efectivo': 'Efectivo en Sucursal'
+        'efectivo': 'Efectivo en Sucursal',
+        'credito': 'Crédito Comercial'
     }
     return labels[props.pedido.metodo_pago] || props.pedido.metodo_pago
 })
+
+const loadingPago = ref(false)
+const errorPago = ref('')
+
+const pagarPedido = async () => {
+    loadingPago.value = true
+    errorPago.value = ''
+    try {
+        if (props.pedido.metodo_pago === 'mercadopago') {
+            const res = await axios.post(route('pago.mercadopago.crear'), {
+                pedido_id: props.pedido.id
+            })
+            if (res.data.success && res.data.init_point) {
+                window.location.href = res.data.init_point
+            } else {
+                throw new Error('No se pudo obtener la URL de Mercado Pago.')
+            }
+        } else if (props.pedido.metodo_pago === 'paypal') {
+            const res = await axios.post(route('pago.paypal.crear'), {
+                pedido_id: props.pedido.id
+            })
+            if (res.data.success && res.data.approve_url) {
+                window.location.href = res.data.approve_url
+            } else {
+                throw new Error('No se pudo obtener la URL de PayPal.')
+            }
+        }
+    } catch (e) {
+        console.error(e)
+        errorPago.value = e.response?.data?.message || e.message || 'Error al iniciar el pago.'
+    } finally {
+        loadingPago.value = false
+    }
+}
 
 const handleWhatsAppClick = () => {
     if (!empresaData.value.whatsapp) return
@@ -171,6 +218,27 @@ onMounted(() => {
                                 <span class="text-sm font-black text-slate-900 dark:text-white uppercase">Total Final</span>
                                 <span class="text-xl font-black text-[var(--color-primary)]">{{ formatCurrency(pedido.total) }}</span>
                             </div>
+                        </div>
+
+                        <!-- Botón de Pago para pasarelas online -->
+                        <div v-if="pedido.estado === 'pendiente' && (pedido.metodo_pago === 'mercadopago' || pedido.metodo_pago === 'paypal')" class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 space-y-4">
+                            <div class="p-4 bg-amber-50 dark:bg-slate-700/50 rounded-2xl border border-amber-200/50 dark:border-slate-700 flex items-start gap-3">
+                                <span class="text-amber-500 mt-0.5">⚠️</span>
+                                <div class="text-xs">
+                                    <p class="font-black text-amber-800 dark:text-amber-200 uppercase">Pago Pendiente</p>
+                                    <p class="text-slate-500 dark:text-slate-400 font-medium">Por favor, completa tu pago para poder procesar y enviar tu pedido.</p>
+                                </div>
+                            </div>
+                            
+                            <button @click="pagarPedido" :disabled="loadingPago" class="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-black text-sm uppercase tracking-wide shadow-xl shadow-[var(--color-primary)]/20 hover:shadow-2xl hover:shadow-[var(--color-primary)]/30 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span v-if="!loadingPago">Pagar con {{ metodoPagoLabel }}</span>
+                                <span v-else>Procesando Pago...</span>
+                                <svg v-if="!loadingPago" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                            
+                            <p v-if="errorPago" class="text-[10px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider text-center">
+                                ❌ {{ errorPago }}
+                            </p>
                         </div>
 
                         <!-- Datos Bancarios (Si aplica) -->

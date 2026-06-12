@@ -32,6 +32,53 @@ class PedidoOnline extends Model
                 ]);
             } catch (\Exception $e) {
             }
+
+            // DESCONTAR STOCK DE PRODUCTOS LOCALES AUTOMÁTICAMENTE AL CREAR EL PEDIDO
+            foreach ($pedido->items ?? [] as $item) {
+                if (isset($item['origen']) && $item['origen'] === 'local' && isset($item['producto_id'])) {
+                    try {
+                        $producto = \App\Models\Producto::find($item['producto_id']);
+                        if ($producto) {
+                            $producto->decrement('stock', (int) $item['cantidad']);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error("Error descontando stock en creación de pedido: " . $e->getMessage());
+                    }
+                }
+            }
+        });
+
+        static::updating(function ($pedido) {
+            // Si cambia a cancelado y antes no estaba cancelado, devolver stock
+            if ($pedido->isDirty('estado') && $pedido->estado === self::ESTADO_CANCELADO && $pedido->getOriginal('estado') !== self::ESTADO_CANCELADO) {
+                foreach ($pedido->items ?? [] as $item) {
+                    if (isset($item['origen']) && $item['origen'] === 'local' && isset($item['producto_id'])) {
+                        try {
+                            $producto = \App\Models\Producto::find($item['producto_id']);
+                            if ($producto) {
+                                $producto->increment('stock', (int) $item['cantidad']);
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error("Error devolviendo stock en cancelación de pedido: " . $e->getMessage());
+                        }
+                    }
+                }
+            }
+            // Si deja de estar cancelado (se restaura)
+            if ($pedido->isDirty('estado') && $pedido->getOriginal('estado') === self::ESTADO_CANCELADO && $pedido->estado !== self::ESTADO_CANCELADO) {
+                foreach ($pedido->items ?? [] as $item) {
+                    if (isset($item['origen']) && $item['origen'] === 'local' && isset($item['producto_id'])) {
+                        try {
+                            $producto = \App\Models\Producto::find($item['producto_id']);
+                            if ($producto) {
+                                $producto->decrement('stock', (int) $item['cantidad']);
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error("Error re-descontando stock en restauración de pedido: " . $e->getMessage());
+                        }
+                    }
+                }
+            }
         });
     }
 
@@ -157,15 +204,7 @@ class PedidoOnline extends Model
 
         $this->registrarEvento('PAGO_CONFIRMADO', "Pago confirmado mediante {$this->metodo_pago}. Ref: {$paymentId}");
 
-        // DESCONTAR STOCK DE PRODUCTOS LOCALES (solo al confirmar pago)
-        foreach ($this->items ?? [] as $item) {
-            if (isset($item['origen']) && $item['origen'] === 'local' && isset($item['producto_id'])) {
-                $producto = \App\Models\Producto::find($item['producto_id']);
-                if ($producto) {
-                    $producto->decrement('stock', (int) $item['cantidad']);
-                }
-            }
-        }
+        // El stock local ya fue descontado automáticamente en el hook static::created() del boot del modelo.
 
         // AUTOMATIZACIÓN DE BANCOS:
         // Registrar movimiento en el banco automáticamente dependiendo del método
