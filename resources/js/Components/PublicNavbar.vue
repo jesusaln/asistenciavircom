@@ -551,6 +551,17 @@ onMounted(() => {
                                 </template>
                             </div>
                             
+                            <!-- Download App -->
+                            <div class="px-6 py-4 border-t border-[var(--ui-border)]">
+                                <Link :href="route('public.descargar-app')" class="flex items-center gap-3 px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all border border-slate-700" @click="showMobileMenu = false">
+                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                    <div>
+                                        <span class="text-sm font-bold text-[var(--ui-text)]">App Android</span>
+                                        <span class="text-[10px] text-slate-400 block">Descargar APK</span>
+                                    </div>
+                                </Link>
+                            </div>
+
                             <!-- Auth Mobile -->
                             <div class="p-8 bg-[var(--ui-surface-alt)] rounded-t-[3rem] border-t border-[var(--ui-border)]">
                                 <div v-if="!currentUser" class="grid grid-cols-1 gap-4">
