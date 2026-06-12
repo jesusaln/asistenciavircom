@@ -4,6 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
+use App\Models\Producto;
+use App\Models\Venta;
+use App\Models\VentaItem;
+use App\Models\Servicio;
+use App\Models\Almacen;
 use Illuminate\Http\Request;
 
 class TicketApiController extends Controller
@@ -90,6 +95,7 @@ class TicketApiController extends Controller
             'fotos' => 'nullable|array',
             'fotos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'con_cobro' => 'nullable|boolean',
+            'items' => 'nullable|json',
         ]);
 
         if ($request->has('estado')) {
@@ -141,8 +147,11 @@ class TicketApiController extends Controller
             ]);
         }
 
-        // Generar venta si es con cobro y no tiene poliza
-        if ($validated['estado'] === 'resuelto' && !$ticket->poliza_id && !$ticket->venta_id && $ticket->cliente_id) {
+        // Generar venta si es con cobro (sin poliza O con items facturables)
+        $itemsFacturables = $request->filled('items') ? json_decode($request->input('items'), true) : [];
+        $debeGenerarVenta = (!$ticket->poliza_id && !$ticket->venta_id && $ticket->cliente_id) || (!empty($itemsFacturables) && !$ticket->venta_id);
+
+        if ($validated['estado'] === 'resuelto' && $debeGenerarVenta) {
             try {
                 \Illuminate\Support\Facades\DB::beginTransaction();
                 $user = $request->user();
@@ -156,8 +165,41 @@ class TicketApiController extends Controller
                     ['codigo' => 'SOPORTE-TKT', 'precio' => 650, 'estado' => 'activo']
                 );
 
-                $horasFacturar = max(1, (int) ($ticket->horas_trabajadas ?? 1));
-                $subtotalBase = 650 * $horasFacturar;
+                $subtotalBase = 0;
+                $itemsVenta = [];
+
+                // Agregar horas de servicio si es sin poliza
+                if (!$ticket->poliza_id) {
+                    $horasFacturar = max(1, (int) ($ticket->horas_trabajadas ?? 1));
+                    $subtotalBase += 650 * $horasFacturar;
+                    $itemsVenta[] = [
+                        'ventable_type' => \App\Models\Servicio::class,
+                        'ventable_id' => $servicioSoporte->id,
+                        'cantidad' => $horasFacturar,
+                        'precio' => 650,
+                    ];
+                }
+
+                // Agregar items facturables (productos extra)
+                if (!empty($itemsFacturables)) {
+                    foreach ($itemsFacturables as $itemData) {
+                        $producto = \App\Models\Producto::find($itemData['id'] ?? 0);
+                        if ($producto) {
+                            $precio = (float) ($itemData['precio'] ?? $producto->precio_venta);
+                            $cantidad = (int) ($itemData['cantidad'] ?? 1);
+                            $subtotalItem = $precio * $cantidad;
+                            $subtotalBase += $subtotalItem;
+                            $itemsVenta[] = [
+                                'ventable_type' => \App\Models\Producto::class,
+                                'ventable_id' => $producto->id,
+                                'cantidad' => $cantidad,
+                                'precio' => $precio,
+                            ];
+                        }
+                    }
+                }
+
+                if ($subtotalBase <= 0) $subtotalBase = 650;
                 $ivaMonto = $subtotalBase * 0.16;
                 $totalMonto = $subtotalBase + $ivaMonto;
 
@@ -173,15 +215,13 @@ class TicketApiController extends Controller
                     'notas' => $notasVenta,
                 ]);
 
-                \App\Models\VentaItem::create([
-                    'venta_id' => $venta->id,
-                    'ventable_type' => \App\Models\Servicio::class,
-                    'ventable_id' => $servicioSoporte->id,
-                    'cantidad' => $horasFacturar,
-                    'precio' => 650,
-                    'descuento' => 0,
-                    'subtotal' => $subtotalBase,
-                ]);
+                foreach ($itemsVenta as $itemData) {
+                    \App\Models\VentaItem::create(array_merge($itemData, [
+                        'venta_id' => $venta->id,
+                        'descuento' => 0,
+                        'subtotal' => $itemData['precio'] * $itemData['cantidad'],
+                    ]));
+                }
 
                 $ticket->update(['venta_id' => $venta->id]);
                 \Illuminate\Support\Facades\DB::commit();
