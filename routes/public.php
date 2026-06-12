@@ -109,10 +109,10 @@ Route::post('/contratar-renta/{slug}', [ContratacionRentaController::class, 'pro
 Route::get('/servicio/{slug}', [\App\Http\Controllers\PublicServicioController::class, 'show'])->name('public.servicio.show');
 
 // Descargar APK
-Route::get('/app.apk', function () {
+Route::get('/descargar-app', function () {
     $path = public_path('app.apk');
     if (!file_exists($path)) {
-        abort(404);
+        return redirect('https://play.google.com/store/apps/details?id=com.asistenciavircom.app');
     }
     return response()->download($path, 'AsistenciaVircom.apk', [
         'Content-Type' => 'application/vnd.android.package-archive',
