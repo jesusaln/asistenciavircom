@@ -820,12 +820,21 @@ const page = usePage();
 const navScrollRef = ref(null);
 const searchQuery = ref('');
 const vpsStatus = ref({ last_backup: 'Cargando...', status: 'pending', size: '' });
+let statusInterval = null;
 
 const fetchVpsStatus = async () => {
     try {
         const response = await axios.get('/admin/backup/vps-status');
         vpsStatus.value = response.data;
     } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403 || error.response.status === 419)) {
+            // Silently stop polling if session expired or unauthorized
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+            return;
+        }
         console.error('Error fetching VPS backup status:', error);
     }
 };
@@ -877,8 +886,7 @@ onMounted(() => {
   if ($can('manage-backups')) {
     fetchVpsStatus();
     // Refrescar cada 5 minutos
-    const interval = setInterval(fetchVpsStatus, 300000);
-    onBeforeUnmount(() => clearInterval(interval));
+    statusInterval = setInterval(fetchVpsStatus, 300000);
   }
   
   removeBeforeListener = router.on('before', () => {
@@ -889,6 +897,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   saveScrollPosition();
   if (removeBeforeListener) removeBeforeListener();
+  if (statusInterval) {
+    clearInterval(statusInterval);
+    statusInterval = null;
+  }
 });
 
 const empresaConfig = computed(() => page.props.empresa_config);

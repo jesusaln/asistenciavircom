@@ -17,15 +17,20 @@ const props = defineProps({
 const nuevoComentario = useForm({
     contenido: '',
     es_interno: false,
+    archivos: [],
 });
 
 const agregarComentario = () => {
     nuevoComentario.post(route('soporte.comentario', props.ticket.id), {
         preserveScroll: true,
         onSuccess: () => {
-            nuevoComentario.reset();
+            nuevoComentario.reset('contenido', 'archivos', 'es_interno');
         },
     });
+};
+
+const onArchivosChange = (e) => {
+    nuevoComentario.archivos = e.target.files;
 };
 
 const showHorasModal = ref(false);
@@ -269,6 +274,11 @@ const formatDate = (date) => {
                                 
                                 <div class="bg-slate-50 dark:bg-black/20 p-8 rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-inner">
                                     <p class="text-lg text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed font-medium italic">"{{ ticket.description || ticket.descripcion }}"</p>
+                                    <div v-if="ticket.archivos?.length > 0" class="mt-4 grid grid-cols-4 gap-2">
+                                      <a v-for="(f, i) in ticket.archivos" :key="i" :href="'/storage/' + f" target="_blank" class="block aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 hover:opacity-80 transition-opacity">
+                                        <img :src="'/storage/' + f" class="w-full h-full object-cover" />
+                                      </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -327,6 +337,11 @@ const formatDate = (date) => {
                                         
                                         <div class="pl-1 space-y-6">
                                             <p class="text-slate-700 dark:text-slate-200 text-sm leading-relaxed font-medium">{{ comentario.contenido }}</p>
+                                            <div v-if="comentario.metadata?.archivos?.length > 0" class="mt-3 grid grid-cols-4 gap-2">
+                                              <a v-for="(f, i) in comentario.metadata.archivos" :key="i" :href="'/storage/' + f" target="_blank" class="block aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 hover:opacity-80 transition-opacity">
+                                                <img :src="'/storage/' + f" class="w-full h-full object-cover" />
+                                              </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -360,6 +375,13 @@ const formatDate = (date) => {
                                         class="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-700 text-sm font-medium resize-none min-h-[120px] custom-scrollbar"
                                     ></textarea>
                                     
+                                    <div class="flex items-center gap-4 mt-4">
+                                        <label class="flex items-center gap-2 text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-wide cursor-pointer hover:text-brand-500 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            <input type="file" multiple accept="image/*" @change="onArchivosChange" class="hidden" />
+                                            {{ nuevoComentario.archivos?.length > 0 ? `${nuevoComentario.archivos.length} foto(s)` : 'Agregar Fotos' }}
+                                        </label>
+                                    </div>
                                     <div class="flex justify-end mt-6">
                                         <button 
                                             type="submit"

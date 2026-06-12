@@ -27,7 +27,13 @@
         </div>
         <div class="border-t border-slate-200 px-4 py-5 sm:px-6">
            <div class="prose max-w-none text-slate-700 whitespace-pre-line">
-             {{ ticket.descripcion }}
+              {{ ticket.descripcion }}
+           </div>
+           <!-- Fotos del ticket -->
+           <div v-if="ticket.archivos?.length > 0" class="mt-4 grid grid-cols-3 gap-2">
+             <a v-for="(f, i) in ticket.archivos" :key="i" :href="'/storage/' + f" target="_blank" class="block aspect-square rounded-lg overflow-hidden border border-slate-200 hover:opacity-80 transition-opacity">
+               <img :src="'/storage/' + f" class="w-full h-full object-cover" />
+             </a>
            </div>
         </div>
       </div>
@@ -58,9 +64,14 @@
                                               {{ comment.user ? comment.user.name : 'Tú' }}
                                           </span>
                                       </p>
-                                      <div class="mt-1 text-sm text-slate-700 whitespace-pre-wrap">
-                                        {{ comment.comentario }}
-                                      </div>
+                                       <div class="mt-1 text-sm text-slate-700 whitespace-pre-wrap">
+                                         {{ comment.comentario }}
+                                       </div>
+                                       <div v-if="comment.metadata?.archivos?.length > 0" class="mt-2 grid grid-cols-3 gap-2">
+                                         <a v-for="(f, i) in comment.metadata.archivos" :key="i" :href="'/storage/' + f" target="_blank" class="block aspect-square rounded-lg overflow-hidden border border-slate-200 hover:opacity-80 transition-opacity">
+                                           <img :src="'/storage/' + f" class="w-full h-full object-cover" />
+                                         </a>
+                                       </div>
                                   </div>
                                   <div class="text-right text-sm whitespace-nowrap text-slate-500">
                                       {{ formatDateTime(comment.created_at) }}

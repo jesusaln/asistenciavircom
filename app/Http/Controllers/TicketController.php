@@ -471,13 +471,26 @@ class TicketController extends Controller
         $validated = $request->validate([
             'contenido' => 'required|string',
             'es_interno' => 'boolean',
+            'archivos' => 'nullable|array',
+            'archivos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
-        $ticket->comentarios()->create([
+        $archivos = [];
+        if ($request->hasFile('archivos')) {
+            foreach ($request->file('archivos') as $file) {
+                $path = $file->store('tickets/evidencias', 'public');
+                if ($path) {
+                    $archivos[] = $path;
+                }
+            }
+        }
+
+        $comentario = $ticket->comentarios()->create([
             'user_id' => auth()->id(),
             'contenido' => $validated['contenido'],
             'es_interno' => $validated['es_interno'] ?? false,
             'tipo' => 'respuesta',
+            'metadata' => !empty($archivos) ? ['archivos' => $archivos] : null,
         ]);
 
         // Marcar primera respuesta si es el primer comentario público

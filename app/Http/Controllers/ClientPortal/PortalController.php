@@ -261,14 +261,13 @@ class PortalController extends Controller
             })
             ->first();
 
-        // Si no tiene póliza activa, verificar si la categoría requiere póliza
+        // Si no tiene póliza activa, solo advertir pero permitir crear ticket
         $categoria = TicketCategory::find($validated['categoria_id']);
         $requierePoliza = $categoria && $categoria->consume_poliza;
 
+        $advertenciaSinPoliza = null;
         if ($requierePoliza && !$polizaActiva) {
-            return back()->withErrors([
-                'poliza' => 'No tienes una póliza de servicio activa. Para solicitar soporte técnico, primero contrata un plan o regulariza tu póliza pendiente de pago.'
-            ])->withInput();
+            $advertenciaSinPoliza = 'No tienes una póliza de servicio activa. El ticket se creará sin cobertura de póliza.';
         }
 
         // Advertir si la póliza está en periodo de gracia
@@ -321,6 +320,9 @@ class PortalController extends Controller
 
         // Construir mensaje de éxito con advertencias si aplica
         $mensajeExito = "Ticket {$numero} creado exitosamente.";
+        if ($advertenciaSinPoliza) {
+            $mensajeExito .= " " . $advertenciaSinPoliza;
+        }
         if ($advertenciaGracia) {
             $mensajeExito .= " " . $advertenciaGracia;
         }
