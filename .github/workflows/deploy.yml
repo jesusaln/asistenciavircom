@@ -1,8 +1,6 @@
 name: CI/CD Pipeline (Climas del Desierto)
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
