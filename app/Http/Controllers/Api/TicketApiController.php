@@ -16,11 +16,21 @@ class TicketApiController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $esAdmin = $user->hasRole('super-admin') || $user->hasRole('admin');
 
-        $query = Ticket::with(['cliente', 'categoria', 'asignado'])
-            ->where('asignado_id', $user->id);
+        $query = Ticket::with(['cliente', 'categoria', 'asignado']);
 
-        // Filtrar por estado si se especifica
+        // Super admin ve todos los tickets; técnicos solo los suyos
+        if (!$esAdmin) {
+            $query->where('asignado_id', $user->id);
+        }
+
+        // Filtrar por técnico específico
+        if ($esAdmin && $request->filled('asignado_id')) {
+            $query->where('asignado_id', $request->asignado_id);
+        }
+
+        // Filtrar por estado
         if ($request->filled('estado')) {
             $estado = $request->estado;
             if ($estado === 'pendientes') {
@@ -34,7 +44,7 @@ class TicketApiController extends Controller
             }
         }
 
-        // Orden: pendientes primero, luego resueltos, luego cancelados
+        // Orden
         $query->orderByRaw("
             CASE 
                 WHEN estado IN ('abierto', 'en_progreso', 'pendiente') THEN 1
@@ -56,13 +66,23 @@ class TicketApiController extends Controller
 
         $tickets = $query->paginate($request->per_page ?? 20);
 
-        // Contar por estado para los filtros
-        $counts = Ticket::where('asignado_id', $user->id)
-            ->selectRaw("
-                COUNT(CASE WHEN estado IN ('abierto', 'en_progreso', 'pendiente') THEN 1 END) as pendientes,
-                COUNT(CASE WHEN estado = 'resuelto' THEN 1 END) as resueltos,
-                COUNT(CASE WHEN estado IN ('cerrado', 'cancelado') THEN 1 END) as cancelados
-            ")->first();
+        // Contar por estado
+        $countsQuery = $esAdmin ? Ticket::query() : Ticket::where('asignado_id', $user->id);
+        if ($esAdmin && $request->filled('asignado_id')) {
+            $countsQuery->where('asignado_id', $request->asignado_id);
+        }
+        $counts = $countsQuery->selectRaw("
+            COUNT(CASE WHEN estado IN ('abierto', 'en_progreso', 'pendiente') THEN 1 END) as pendientes,
+            COUNT(CASE WHEN estado = 'resuelto' THEN 1 END) as resueltos,
+            COUNT(CASE WHEN estado IN ('cerrado', 'cancelado') THEN 1 END) as cancelados
+        ")->first();
+
+        // Técnicos para filtro (solo admin)
+        $tecnicos = $esAdmin ? \App\Models\User::whereIn('id',
+            \App\Models\Ticket::whereNotNull('asignado_id')
+                ->distinct()->pluck('asignado_id')
+        )->get(['id', 'name']) : [];
+
 
         return response()->json([
             'data' => $tickets->items(),
@@ -73,6 +93,7 @@ class TicketApiController extends Controller
                 'total' => $tickets->total(),
             ],
             'counts' => $counts,
+            'tecnicos' => $tecnicos,
         ]);
     }
 

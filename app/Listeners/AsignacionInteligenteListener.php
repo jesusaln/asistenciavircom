@@ -30,16 +30,48 @@ class AsignacionInteligenteListener
             return;
         }
 
-        // Lógica v1: Asignar al primer super-admin disponible.
-        // En futuras versiones, esto podría expandirse para buscar agentes
-        // con menos carga de trabajo, habilidades específicas o asignados al cliente.
+        // Buscar el cliente del ticket
+        $cliente = $ticket->cliente;
+        $esKlaudiaKarina = false;
+
+        if ($cliente) {
+            $nombreCliente = strtolower($cliente->nombre_razon_social ?? $cliente->nombre ?? '');
+            if (str_contains($nombreCliente, 'klaudia karina')) {
+                $esKlaudiaKarina = true;
+            }
+        }
+
+        if ($esKlaudiaKarina) {
+            // Asignar a Alan Aranda Esquer
+            $tecnico = User::where('name', 'ILIKE', '%Alan%Aranda%Esquer%')->first();
+            if ($tecnico) {
+                $ticket->asignado_id = $tecnico->id;
+                $ticket->save();
+                Log::info("Ticket #{$ticket->folio} asignado automáticamente a Alan Aranda Esquer por cliente Klaudia Karina.");
+                return;
+            }
+        }
+
+        // Para todos los demás, asignar a Miriam López
+        $tecnico = User::where('name', 'ILIKE', '%Miriam%Lopez%')
+            ->orWhere('name', 'ILIKE', '%Miriam%L\u00f3pez%')
+            ->first();
+
+        if ($tecnico) {
+            $ticket->asignado_id = $tecnico->id;
+            $ticket->save();
+            Log::info("Ticket #{$ticket->folio} asignado automáticamente a Miriam López.");
+            return;
+        }
+
+        // Fallback si no se encuentra ninguno de los dos
         $admin = User::role('super-admin')->orderBy('id')->first();
 
         if ($admin) {
             $ticket->asignado_id = $admin->id;
             $ticket->save();
 
-            Log::info("Ticket #{$ticket->folio} asignado automáticamente al admin '{$admin->name}'.");
+            Log::info("Ticket #{$ticket->folio} asignado automáticamente al admin '{$admin->name}' (fallback).");
         } else {
             Log::warning("No se encontró un super-admin para la asignación automática del ticket #{$ticket->folio}.");
         }
