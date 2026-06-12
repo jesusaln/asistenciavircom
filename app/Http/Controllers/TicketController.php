@@ -434,6 +434,18 @@ class TicketController extends Controller
             $ticket->cambiarEstado($validated['estado']);
         }
 
+        // Si el ticket no tiene póliza y se está resolviendo/cerrando, forzar "con costo"
+        $sinPoliza = !$ticket->poliza_id;
+        if ($sinPoliza && in_array($validated['estado'], ['resuelto', 'cerrado'])) {
+            if ($ticket->tipo_servicio !== 'costo') {
+                $ticket->update(['tipo_servicio' => 'costo']);
+            }
+            // Forzar a true para que se genere la venta
+            $validated['generar_venta'] = true;
+            $validated['tipo_servicio'] = 'costo';
+            $esCosto = true;
+        }
+
         // Si es "con costo", generar venta automáticamente y redirigir
         if ($esCosto && !$ticket->venta_id && $ticket->cliente_id) {
             return $this->generarVenta($request, $ticket);
@@ -615,12 +627,17 @@ class TicketController extends Controller
             );
 
             // Crear la venta con detalles del servicio
-            $notasVenta = "Ticket #{$ticket->numero}: {$ticket->titulo}\n\nDetalles del servicio:\n{$ticket->descripcion}";
+            $folioServicio = $ticket->numero;
+            $notasVenta = "FOLIO SERVICIO: {$folioServicio}\nTicket #{$ticket->numero}: {$ticket->titulo}\nCliente: {$ticket->cliente?->nombre_razon_social}\n\nDetalles:\n{$ticket->descripcion}";
 
-            $subtotalBase = 650;
+            $horasFacturar = max(1, (int) ($ticket->horas_trabajadas ?? 1));
+            $precioPorHora = 650;
+            $subtotalBase = $precioPorHora * $horasFacturar;
             $ivaPorcentaje = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
             $ivaMonto = $subtotalBase * $ivaPorcentaje;
             $totalMonto = $subtotalBase + $ivaMonto;
+
+            $notasVenta .= "\n\nHoras facturadas: {$horasFacturar}hrs x \${$precioPorHora}/hr";
 
             $venta = Venta::create([
                 'cliente_id' => $ticket->cliente_id,
@@ -639,10 +656,10 @@ class TicketController extends Controller
                 'venta_id' => $venta->id,
                 'ventable_type' => \App\Models\Servicio::class,
                 'ventable_id' => $servicioSoporte->id,
-                'cantidad' => 1,
-                'precio' => 650,
+                'cantidad' => $horasFacturar,
+                'precio' => $precioPorHora,
                 'descuento' => 0,
-                'subtotal' => 650,
+                'subtotal' => $subtotalBase,
             ]);
 
             // Asociar la venta al ticket

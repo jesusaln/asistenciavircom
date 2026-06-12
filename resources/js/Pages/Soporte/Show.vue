@@ -38,8 +38,9 @@ const estadoPendiente = ref('');
 const horasTrabajadas = ref('');
 const servicioInicio = ref('');
 const servicioFin = ref('');
-const tipoServicio = ref(props.ticket.tipo_servicio || 'garantia');
-const generarVentaAlCerrar = ref(!props.ticket.poliza && !props.ticket.venta_id);
+const sinPoliza = !props.ticket.poliza;
+const tipoServicio = ref(props.ticket.tipo_servicio || (sinPoliza ? 'costo' : 'garantia'));
+const generarVentaAlCerrar = ref(sinPoliza && !props.ticket.venta_id);
 
 watch([servicioInicio, servicioFin], ([inicio, fin]) => {
     if (inicio && fin) {
@@ -685,8 +686,15 @@ const formatDate = (date) => {
                                 </div>
                             </div>
 
+                            <!-- Sin póliza: info de costo automático -->
+                            <div v-if="!ticket.poliza && !ticket.venta_id" class="pt-6">
+                                <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-700 dark:text-amber-300 font-medium mb-6">
+                                    ⚡ Cliente sin póliza activa — el servicio se registrará como <strong>Con Cargo</strong> y se generará una venta automáticamente al cerrar el ticket.
+                                </div>
+                            </div>
+
                             <!-- Auto-Sales Check -->
-                            <div v-if="!ticket.poliza && !ticket.venta_id" class="pt-10 border-t border-slate-200 dark:border-white/5">
+                            <div v-if="!ticket.poliza && !ticket.venta_id" class="border-t border-slate-200 dark:border-white/5 pt-10">
                                 <label 
                                     class="flex items-center gap-6 p-6 rounded-[2rem] border cursor-pointer transition-all duration-500 group relative overflow-hidden"
                                     :class="generarVentaAlCerrar ? 'bg-indigo-500/10 border-indigo-500/50' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-white/5 hover:border-brand-500'"
