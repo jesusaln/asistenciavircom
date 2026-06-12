@@ -9,6 +9,9 @@
             <h3 class="text-lg leading-6 font-medium text-slate-900">
               #{{ ticket.numero }} - {{ ticket.titulo }}
             </h3>
+            <p v-if="ticket.folio_externo" class="mt-1 text-sm font-bold text-amber-600 dark:text-amber-400">
+              📋 Folio del cliente: {{ ticket.folio_externo }}
+            </p>
             <p class="mt-1 max-w-2xl text-sm text-slate-500">
               Categoría: {{ ticket.categoria?.nombre || 'General' }}
             </p>

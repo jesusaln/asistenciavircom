@@ -194,6 +194,7 @@ const formatDate = (date) => {
                         <div>
                             <div class="flex flex-wrap items-center gap-3 mb-6">
                                 <span class="font-black text-sm text-brand-500 bg-brand-500/10 px-4 py-1.5 rounded-xl border border-brand-500/20 shadow-2xl tracking-tighter">{{ ticket.numero }}</span>
+                                <span v-if="ticket.folio_externo" class="font-black text-xs text-amber-500 bg-amber-500/10 px-4 py-1.5 rounded-xl border border-amber-500/20 shadow-2xl">📋 {{ ticket.folio_externo }}</span>
                                 <span :class="['px-4 py-1.5 text-[10px] font-black rounded-full uppercase tracking-wide border shadow-xl transition-all duration-500', getEstadoBadge(ticket.estado)]">
                                     {{ ticket.estado.replace('_', ' ') }}
                                 </span>

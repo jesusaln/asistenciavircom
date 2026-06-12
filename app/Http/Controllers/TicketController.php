@@ -239,6 +239,7 @@ class TicketController extends Controller
             'email_contacto' => 'nullable|email|max:255',
             'nombre_contacto' => 'nullable|string|max:255',
             'folio_manual' => 'nullable|string|max:50',
+            'folio_externo' => 'nullable|string|max:100',
             'poliza_id' => 'nullable|exists:polizas_servicio,id',
             'archivos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
@@ -628,7 +629,8 @@ class TicketController extends Controller
 
             // Crear la venta con detalles del servicio
             $folioServicio = $ticket->numero;
-            $notasVenta = "FOLIO SERVICIO: {$folioServicio}\nTicket #{$ticket->numero}: {$ticket->titulo}\nCliente: {$ticket->cliente?->nombre_razon_social}\n\nDetalles:\n{$ticket->descripcion}";
+            $folioExterno = $ticket->folio_externo ? "Folio Cliente: {$ticket->folio_externo}\n" : '';
+            $notasVenta = "{$folioExterno}FOLIO INTERNO: {$folioServicio}\nTicket #{$ticket->numero}: {$ticket->titulo}\nCliente: {$ticket->cliente?->nombre_razon_social}\n\nDetalles:\n{$ticket->descripcion}";
 
             $horasFacturar = max(1, (int) ($ticket->horas_trabajadas ?? 1));
             $precioPorHora = 650;

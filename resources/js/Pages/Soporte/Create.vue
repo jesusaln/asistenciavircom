@@ -25,6 +25,7 @@ const form = useForm({
     email_contacto: '',
     nombre_contacto: '',
     folio_manual: '',
+    folio_externo: '',
     poliza_id: null,
 });
 
@@ -404,11 +405,16 @@ const origenes = [
                                                 <option v-for="u in usuarios" :key="u.id" :value="u.id">{{ u.name }}</option>
                                              </select>
                                          </div>
-                                         <!-- Folio Manual -->
-                                         <div class="p-6 bg-[var(--ui-surface)] dark:bg-slate-950/50 rounded-[2rem] border border-slate-200 dark:border-white/5 group/box hover:border-brand-500/20 transition-all">
-                                             <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4 block italic">Folio Físico Ext.</label>
-                                             <input v-model="form.folio_manual" type="text" placeholder="ID EXTERNO..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-wide text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-800 transition-all" />
-                                         </div>
+                                          <!-- Folio Externo (cliente) -->
+                                          <div class="p-6 bg-[var(--ui-surface)] dark:bg-slate-950/50 rounded-[2rem] border border-slate-200 dark:border-white/5 group/box hover:border-brand-500/20 transition-all">
+                                              <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4 block italic">Folio del Cliente</label>
+                                              <input v-model="form.folio_externo" type="text" placeholder="Ej: 131245537 (opcional)" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-wide text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-800 transition-all" />
+                                          </div>
+                                          <!-- Folio Manual -->
+                                          <div class="p-6 bg-[var(--ui-surface)] dark:bg-slate-950/50 rounded-[2rem] border border-slate-200 dark:border-white/5 group/box hover:border-brand-500/20 transition-all">
+                                              <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4 block italic">Folio Físico Ext.</label>
+                                              <input v-model="form.folio_manual" type="text" placeholder="ID EXTERNO..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-2xl py-4 px-6 text-[10px] font-black uppercase tracking-wide text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-800 transition-all" />
+                                          </div>
                                      </div>
                                 </div>
 

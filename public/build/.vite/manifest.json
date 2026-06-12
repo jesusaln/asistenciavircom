@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-DeZybMIL.js",
+    "file": "assets/Index-fEzjDDWs.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -7062,7 +7062,7 @@
     ]
   },
   "resources/js/Pages/Portal/CreateTicket.vue": {
-    "file": "assets/CreateTicket-qopAswhu.js",
+    "file": "assets/CreateTicket-Bil9MgtI.js",
     "name": "CreateTicket",
     "src": "resources/js/Pages/Portal/CreateTicket.vue",
     "isDynamicEntry": true,
@@ -7395,7 +7395,7 @@
     ]
   },
   "resources/js/Pages/Portal/ShowTicket.vue": {
-    "file": "assets/ShowTicket-Bb40-0Od.js",
+    "file": "assets/ShowTicket-Dy8-mRUC.js",
     "name": "ShowTicket",
     "src": "resources/js/Pages/Portal/ShowTicket.vue",
     "isDynamicEntry": true,
@@ -9274,7 +9274,7 @@
     ]
   },
   "resources/js/Pages/Soporte/Create.vue": {
-    "file": "assets/Create-CSLxlSgb.js",
+    "file": "assets/Create-Ci5cqd1X.js",
     "name": "Create",
     "src": "resources/js/Pages/Soporte/Create.vue",
     "isDynamicEntry": true,
@@ -9293,7 +9293,7 @@
       "_useDarkMode-Bs6HVTsr.js"
     ],
     "css": [
-      "assets/Create-YxMQqxSD.css"
+      "assets/Create-eFyHEMPo.css"
     ]
   },
   "resources/js/Pages/Soporte/Dashboard.vue": {
@@ -9436,7 +9436,7 @@
     ]
   },
   "resources/js/Pages/Soporte/Show.vue": {
-    "file": "assets/Show-DBfH7or7.js",
+    "file": "assets/Show-5j0uVC_7.js",
     "name": "Show",
     "src": "resources/js/Pages/Soporte/Show.vue",
     "isDynamicEntry": true,
@@ -9454,7 +9454,7 @@
       "_useDarkMode-Bs6HVTsr.js"
     ],
     "css": [
-      "assets/Show-Bxxp5i2b.css"
+      "assets/Show-RYdAMo7x.css"
     ]
   },
   "resources/js/Pages/SoporteRemoto/Index.vue": {
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-4UaL34Fl.js",
+    "file": "assets/Create-CSxleFS_.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-BaQ0xXCs.js",
+    "file": "assets/app-Ci8NIfKe.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

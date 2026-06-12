@@ -25,6 +25,7 @@ class Ticket extends Model implements Auditable
         'producto_id',
         'venta_id',
         'folio_manual',
+        'folio_externo',
         'titulo',
         'descripcion',
         'prioridad',

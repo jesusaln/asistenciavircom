@@ -246,6 +246,7 @@ class PortalController extends Controller
             'descripcion' => 'required|string',
             'categoria_id' => 'nullable|exists:ticket_categories,id',
             'prioridad' => 'required|in:baja,media,alta,urgente',
+            'folio_externo' => 'nullable|string|max:100',
         ]);
 
         $cliente = Auth::guard('client')->user();
@@ -314,6 +315,7 @@ class PortalController extends Controller
             'nombre_contacto' => $cliente->nombre_razon_social,
             'email_contacto' => $cliente->email,
             'telefono_contacto' => $cliente->telefono ?? $cliente->celular,
+            'folio_externo' => $validated['folio_externo'] ?? null,
             'fecha_limite' => $fechaLimite,
             'empresa_id' => $cliente->empresa_id,
         ]);

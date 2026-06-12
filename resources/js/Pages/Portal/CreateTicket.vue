@@ -21,6 +21,7 @@ const form = useForm({
   descripcion: '',
   categoria_id: '',
   prioridad: 'media',
+  folio_externo: '',
 });
 
 const submit = () => {
@@ -212,6 +213,19 @@ const formatCurrency = (amount) => {
                 placeholder="Describe tu problema con el mayor detalle posible..."
               ></textarea>
               <div v-if="form.errors.descripcion" class="text-rose-500 text-xs mt-1">{{ form.errors.descripcion }}</div>
+            </div>
+
+            <!-- Folio del Cliente -->
+            <div>
+              <label for="folio_externo" class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Folio de Servicio <span class="text-slate-400 font-normal">(opcional)</span></label>
+              <input
+                type="text"
+                name="folio_externo"
+                id="folio_externo"
+                v-model="form.folio_externo"
+                class="w-full px-4 py-3 border border-slate-200 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all placeholder-slate-400 dark:placeholder-slate-600"
+                placeholder="Ej: 131245537 (número de orden del cliente)"
+              />
             </div>
 
             <!-- Botones -->
