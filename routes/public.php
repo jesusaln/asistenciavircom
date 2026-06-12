@@ -114,7 +114,13 @@ Route::get('/descargar-app', function () {
     if (!file_exists($path)) {
         return redirect('https://play.google.com/store/apps/details?id=com.asistenciavircom.app');
     }
-    return response()->download($path, 'AsistenciaVircom.apk', [
+    $versionPath = public_path('app-version.json');
+    $version = '1.0.0';
+    if (file_exists($versionPath)) {
+        $meta = json_decode(file_get_contents($versionPath), true);
+        $version = $meta['version'] ?? '1.0.0';
+    }
+    return response()->download($path, "AsistenciaVircom_v{$version}.apk", [
         'Content-Type' => 'application/vnd.android.package-archive',
     ]);
 })->name('public.descargar-app');
