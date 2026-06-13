@@ -173,9 +173,9 @@ class TicketApiController extends Controller
         return response()->json($ticket->load(['cliente', 'categoria', 'asignado', 'comentarios.user', 'poliza']));
     }
 
-    public function completar(Request $request, $id)
+    public function completar(Request $request, Ticket $ticket)
     {
         $request->merge(['estado' => 'resuelto']);
-        return $this->update($request, $id);
+        return $this->update($request, $ticket->id);
     }
 }
