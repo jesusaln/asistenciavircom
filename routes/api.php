@@ -402,7 +402,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/payment/pending/{id}', [CitaPaymentController::class, 'pending'])->name('api.citas.pago.pendiente');
     });
 
-    Route::post('tickets/{ticket}/completar', [\App\Http\Controllers\Api\TicketApiController::class, 'completar'])->name('api.tickets.completar');
+    Route::match(['post', 'options'], 'tickets/{ticket}/completar', [\App\Http\Controllers\Api\TicketApiController::class, 'completar'])->name('api.tickets.completar');
     Route::apiResource('tickets', \App\Http\Controllers\Api\TicketApiController::class)->except(['destroy'])->names('api.tickets');
     Route::delete('tickets/{ticket}', [\App\Http\Controllers\Api\TicketApiController::class, 'destroy'])->middleware('can:delete tickets')->name('api.tickets.destroy');
 

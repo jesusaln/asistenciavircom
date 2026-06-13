@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\TokenFromQuery::class,
         ], append: [
+            \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\ForceWebAuthForApi::class,
         ]);
 
