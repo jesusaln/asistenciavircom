@@ -18,7 +18,7 @@ class TicketApiController extends Controller
         $user = $request->user();
         $esAdmin = $user->hasRole('super-admin') || $user->hasRole('admin');
 
-        $query = Ticket::with(['cliente', 'categoria', 'asignado']);
+        $query = Ticket::with(['cliente', 'categoria', 'asignado', 'poliza']);
 
         // Super admin ve todos los tickets; técnicos solo los suyos
         if (!$esAdmin) {
