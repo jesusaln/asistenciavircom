@@ -343,7 +343,7 @@ class PortalController extends Controller
             abort(403);
         }
 
-        $ticket->load(['categoria', 'asignado:id,name', 'comentarios.user']);
+        $ticket->load(['categoria', 'asignado:id,name', 'comentarios.user', 'venta.items']);
 
         return Inertia::render('Portal/ShowTicket', [
             'ticket' => $ticket,
