@@ -415,6 +415,7 @@ class VentaController extends Controller
                 'pago.notas' => 'nullable|string',
                 'pago.monto' => 'nullable|numeric', // Opcional, si no se envía se asume total
                 'pago.pagado_por_user_id' => 'nullable|integer|exists:users,id',
+                'ticket_id' => 'nullable|integer|exists:tickets,id',
             ]);
 
             Log::debug('VentaController@store starting', ['data' => $request->all()]);
@@ -495,6 +496,13 @@ class VentaController extends Controller
             Log::debug('VentaController: Calling VentaCreationService');
             $venta = app(\App\Services\Ventas\VentaCreationService::class)->createVenta($serviceData, true);
             Log::debug('VentaController: Venta created successfully');
+
+            if ($request->filled('ticket_id')) {
+                $ticket = \App\Models\Ticket::find($request->ticket_id);
+                if ($ticket) {
+                    $ticket->update(['venta_id' => $venta->id]);
+                }
+            }
 
             return $this->created($venta->load(['cliente', 'productos', 'servicios', 'cuentaPorCobrar', 'vendedor', 'almacen']), 'Venta creada correctamente');
 
