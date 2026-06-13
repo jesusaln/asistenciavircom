@@ -120,23 +120,32 @@ class UserNotification extends Model
 
     public static function createClientNotification($cliente): void
     {
-        $users = User::all();
-
-        foreach ($users as $user) {
-            static::createForUser(
-                $user->id,
-                'new_client',
-                'Nuevo Cliente Registrado',
-                "Se ha registrado el cliente: {$cliente->nombre_razon_social}",
-                [
-                    'client_id' => $cliente->id,
-                    'client_name' => $cliente->nombre_razon_social,
-                    'client_email' => $cliente->email,
-                    'created_at' => $cliente->created_at->toIso8601String()
-                ],
-                "/clientes/{$cliente->id}",
-                'fas fa-user-plus'
-            );
+        try {
+            dispatch(new \App\Jobs\SendNewClientNotificationsJob($cliente));
+            \Illuminate\Support\Facades\Log::info('SendNewClientNotificationsJob despachado desde UserNotification', ['cliente_id' => $cliente->id]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error despachando SendNewClientNotificationsJob', [
+                'cliente_id' => $cliente->id,
+                'error' => $e->getMessage()
+            ]);
+            // Fallback síncrono si falla el dispatch
+            $users = User::all();
+            foreach ($users as $user) {
+                static::createForUser(
+                    $user->id,
+                    'new_client',
+                    'Nuevo Cliente Registrado',
+                    "Se ha registrado el cliente: {$cliente->nombre_razon_social}",
+                    [
+                        'client_id' => $cliente->id,
+                        'client_name' => $cliente->nombre_razon_social,
+                        'client_email' => $cliente->email,
+                        'created_at' => $cliente->created_at->toIso8601String()
+                    ],
+                    "/clientes/{$cliente->id}",
+                    'fas fa-user-plus'
+                );
+            }
         }
     }
 
