@@ -207,6 +207,7 @@ import ClientForm from './Partials/ClientForm.vue'
 import ExpedienteCredito from './Partials/ExpedienteCredito.vue'
 import { useClientWizard } from './Partials/useClientWizard'
 import { useCompanyColors } from '@/Composables/useCompanyColors'
+import Swal from '@/Utils/Swal'
 
 defineOptions({ layout: AppLayout })
 
@@ -224,8 +225,19 @@ const availableColonias = ref([])
 const isLoadingCp = ref(false)
 const sendingCredentials = ref(false)
 
-const enviarAccesos = () => {
-  if (confirm('¿Estás seguro de que deseas generar una contraseña temporal y enviar los datos de acceso al portal al cliente?')) {
+const enviarAccesos = async () => {
+  const { isConfirmed } = await Swal.fire({
+    title: '¿Enviar accesos al portal?',
+    text: 'Se generará una contraseña temporal y se enviarán los datos de acceso al correo del cliente.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, enviar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: colors.principal,
+    cancelButtonColor: '#64748b',
+  })
+
+  if (isConfirmed) {
     sendingCredentials.value = true
     router.post(route('clientes.enviar-credenciales', props.cliente.id), {}, {
       preserveScroll: true,
