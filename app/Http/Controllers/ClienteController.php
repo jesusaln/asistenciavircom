@@ -1172,4 +1172,41 @@ class ClienteController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Datos fiscales actualizados correctamente.']);
     }
+
+    public function enviarCredenciales(Request $request, Cliente $cliente)
+    {
+        Gate::authorize('update', $cliente);
+
+        if (empty($cliente->email)) {
+            return redirect()->back()->with('error', 'El cliente no tiene un correo electrónico registrado.');
+        }
+
+        try {
+            // Generar una contraseña temporal legible
+            $plainPassword = 'av-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
+
+            DB::beginTransaction();
+            $cliente->password = \Illuminate\Support\Facades\Hash::make($plainPassword);
+            $cliente->save();
+            DB::commit();
+
+            // Enviar el correo
+            Mail::to($cliente->email)->send(new \App\Mail\SendPortalCredentialsMail($cliente, $plainPassword));
+
+            Log::info('Credenciales de portal enviadas a cliente', [
+                'cliente_id' => $cliente->id,
+                'email' => $cliente->email,
+                'usuario_id' => Auth::id()
+            ]);
+
+            return redirect()->back()->with('success', 'Las credenciales de acceso al portal han sido enviadas al correo del cliente.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error al enviar credenciales de portal a cliente: ' . $e->getMessage(), [
+                'cliente_id' => $cliente->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Hubo un error al enviar el correo con los accesos.');
+        }
+    }
 }

@@ -221,6 +221,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/clientes/template', [ClienteController::class, 'downloadTemplate'])->name('clientes.template');
     Route::post('/clientes/import', [ClienteController::class, 'import'])->name('clientes.import')->middleware('role:ventas|admin|super-admin');
     Route::post('/clientes/{cliente}/quick-fiscal', [ClienteController::class, 'quickFiscalUpdate'])->name('clientes.quick-fiscal')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
+    Route::post('/clientes/{cliente}/enviar-credenciales', [ClienteController::class, 'enviarCredenciales'])->name('clientes.enviar-credenciales')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
     Route::resource('clientes', ClienteController::class)->names('clientes')->middleware('can:view clientes')->where(['cliente' => '[0-9]+']);
     Route::post('clientes/{cliente}/whatsapp', [ClienteController::class, 'initWhatsApp'])->name('clientes.whatsapp');
     Route::get('clientes/{cliente}/descargar-solicitud-firmada', [ClienteController::class, 'descargarSolicitudFirmada'])->name('clientes.descargar-solicitud-firmada');

@@ -5,7 +5,7 @@
     <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
 
       <!-- Header compacto -->
-      <div class="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-4 dark:border-slate-700">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-6 py-4 dark:border-slate-700">
         <div class="flex items-center gap-2">
           <div class="flex h-10 w-10 items-center justify-center rounded-2xl shadow-sm" :style="{ background: `linear-gradient(135deg, ${colors.principal} 0%, ${colors.secundario} 100%)` }">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -15,11 +15,23 @@
             <p class="text-xs text-slate-500 dark:text-slate-400">Paso {{ wizard.currentStepIndex + 1 }} de {{ wizard.steps.length }} · {{ wizard.progress }}%</p>
           </div>
         </div>
-        <div class="hidden items-center gap-2 sm:flex">
-          <div class="h-2 w-32 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-            <div class="h-full rounded-full transition-all duration-500 ease-out" :style="{ width: `${wizard.progress}%`, background: `linear-gradient(90deg, ${colors.principal}, ${colors.secundario})` }" />
+        <div class="flex items-center gap-3">
+          <button
+            v-if="cliente.email"
+            type="button"
+            @click="enviarAccesos"
+            :disabled="sendingCredentials"
+            class="flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-2 text-xs font-black uppercase text-slate-700 dark:text-slate-200 transition-all shadow-sm active:scale-95 disabled:opacity-40"
+          >
+            <span v-if="sendingCredentials">Enviando...</span>
+            <span v-else>✉️ Enviar Accesos Portal</span>
+          </button>
+          <div class="hidden items-center gap-2 sm:flex">
+            <div class="h-2 w-32 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+              <div class="h-full rounded-full transition-all duration-500 ease-out" :style="{ width: `${wizard.progress}%`, background: `linear-gradient(90deg, ${colors.principal}, ${colors.secundario})` }" />
+            </div>
+            <span class="text-xs font-bold text-slate-400">{{ wizard.progress }}%</span>
           </div>
-          <span class="text-xs font-bold text-slate-400">{{ wizard.progress }}%</span>
         </div>
       </div>
 
@@ -187,7 +199,7 @@
 </template>
 
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, router, useForm } from '@inertiajs/vue3'
 import axios from 'axios'
 import { computed, onMounted, ref, watch } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
@@ -210,6 +222,19 @@ const showSuccessMessage = ref(false)
 const showAutoCompleteMessage = ref(false)
 const availableColonias = ref([])
 const isLoadingCp = ref(false)
+const sendingCredentials = ref(false)
+
+const enviarAccesos = () => {
+  if (confirm('¿Estás seguro de que deseas generar una contraseña temporal y enviar los datos de acceso al portal al cliente?')) {
+    sendingCredentials.value = true
+    router.post(route('clientes.enviar-credenciales', props.cliente.id), {}, {
+      preserveScroll: true,
+      onFinish: () => {
+        sendingCredentials.value = false
+      }
+    })
+  }
+}
 
 const estadoMapping = {
   'AGUASCALIENTES': 'AGU', 'BAJA CALIFORNIA': 'BCN', 'BAJA CALIFORNIA SUR': 'BCS', 'CAMPECHE': 'CAM',

@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-Bsup--pn.js",
+    "file": "assets/Index-Cr0lxISq.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -2449,7 +2449,7 @@
     ]
   },
   "resources/js/Pages/Clientes/Edit.vue": {
-    "file": "assets/Edit-C2mXeMYu.js",
+    "file": "assets/Edit-C8oz0Zzi.js",
     "name": "Edit",
     "src": "resources/js/Pages/Clientes/Edit.vue",
     "isDynamicEntry": true,
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-BlMnX624.js",
+    "file": "assets/Create-CnZyO2UU.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-C45E8vlI.js",
+    "file": "assets/app-DbfutLIG.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
