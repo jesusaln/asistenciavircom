@@ -313,5 +313,38 @@ class UserNotification extends Model
             );
         }
     }
+
+    public static function createTicketNotification($ticket): void
+    {
+        $cliente = $ticket->cliente;
+        $admins = User::role(['admin', 'super-admin'])
+            ->where('empresa_id', $ticket->empresa_id)
+            ->get();
+
+        if ($admins->isEmpty()) {
+            $admins = User::where('empresa_id', $ticket->empresa_id)->get();
+        }
+
+        $clienteNombre = $cliente->nombre_razon_social ?? $ticket->nombre_contacto ?? 'Cliente';
+        $ticketFolio = $ticket->folio ?? $ticket->numero ?? $ticket->id;
+
+        foreach ($admins as $admin) {
+            static::createForUser(
+                $admin->id,
+                'ticket_registrado',
+                'Nuevo Ticket Registrado',
+                "El cliente {$clienteNombre} ha registrado el ticket {$ticketFolio}.",
+                [
+                    'ticket_id' => $ticket->id,
+                    'client_id' => $ticket->cliente_id,
+                    'client_name' => $clienteNombre,
+                    'folio' => $ticketFolio,
+                ],
+                "/soporte/tickets/{$ticket->id}",
+                'fas fa-ticket-alt'
+            );
+        }
+    }
 }
+
 

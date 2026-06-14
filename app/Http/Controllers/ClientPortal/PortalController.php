@@ -320,6 +320,13 @@ class PortalController extends Controller
             'empresa_id' => $cliente->empresa_id,
         ]);
 
+        // Notificar en la campana al personal administrativo
+        try {
+            \App\Models\UserNotification::createTicketNotification($ticket);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error creating ticket notification: ' . $e->getMessage());
+        }
+
         // Construir mensaje de éxito con advertencias si aplica
         $mensajeExito = "Ticket {$numero} creado exitosamente.";
         if ($advertenciaSinPoliza) {

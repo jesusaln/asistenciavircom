@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-Cr0lxISq.js",
+    "file": "assets/Index-FUc4-CpF.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -2449,7 +2449,7 @@
     ]
   },
   "resources/js/Pages/Clientes/Edit.vue": {
-    "file": "assets/Edit-C8oz0Zzi.js",
+    "file": "assets/Edit-qokaINrD.js",
     "name": "Edit",
     "src": "resources/js/Pages/Clientes/Edit.vue",
     "isDynamicEntry": true,
@@ -2461,11 +2461,11 @@
       "resources/js/Pages/Clientes/Partials/ExpedienteCredito.vue",
       "_useClientWizard-BhejREiv.js",
       "_useCompanyColors-CWrPrK1K.js",
+      "_Swal-DsVKf7EW.js",
       "_vendor-CUOW7xEe.js",
       "_icons-Dg70kTOZ.js",
       "node_modules/chart.js/auto/auto.js",
       "__plugin-vue_export-helper-DlAUqK2U.js",
-      "_Swal-DsVKf7EW.js",
       "_ToastContainer-BHrl8w0o.js",
       "_Modal-P8VY4PKr.js",
       "_useDarkMode-Bs6HVTsr.js"
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-CnZyO2UU.js",
+    "file": "assets/Create-36vIhfVV.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-DbfutLIG.js",
+    "file": "assets/app-Dw7LGRVH.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
