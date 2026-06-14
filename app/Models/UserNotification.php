@@ -325,7 +325,7 @@ class UserNotification extends Model
             $admins = User::where('empresa_id', $ticket->empresa_id)->get();
         }
 
-        $clienteNombre = $cliente->nombre_razon_social ?? $ticket->nombre_contacto ?? 'Cliente';
+        $clienteNombre = $cliente?->nombre_razon_social ?? $ticket->nombre_contacto ?? 'Cliente';
         $ticketFolio = $ticket->folio ?? $ticket->numero ?? $ticket->id;
 
         foreach ($admins as $admin) {
