@@ -400,7 +400,9 @@ class CheckoutController extends Controller
                 'email' => $validated['email'],
                 'nombre' => $validated['nombre'],
                 'telefono' => $validated['telefono'] ?? null,
-                'direccion_envio' => $validated['direccion'] ?? ['tipo' => 'recoger_en_tienda'],
+                'direccion_envio' => $validated['direccion'] 
+                    ? array_merge($validated['direccion'], ['tipo' => $validated['tipo_entrega']]) 
+                    : ['tipo' => 'recoger_en_tienda'],
                 'items' => $itemsConPrecio,
                 'subtotal' => $subtotal,
                 'costo_envio' => $costoEnvio,

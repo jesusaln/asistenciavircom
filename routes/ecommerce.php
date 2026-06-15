@@ -78,15 +78,18 @@ Route::get('/contratacion/exito', [PolizaPaymentController::class, 'success'])->
 Route::get('/contratacion/cancelado', [PolizaPaymentController::class, 'cancel'])->name('pago.poliza.cancelado');
 
 // Integración Grupo CVA (Proxy)
+Route::post('/api/tienda/cva/shipping', [App\Http\Controllers\Tienda\CVAProxyController::class, 'calculateShipping'])
+    ->name('tienda.cva.shipping');
+
 Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('api/tienda/cva')->name('tienda.cva.')->group(function () {
     Route::get('/catalogo', [App\Http\Controllers\Tienda\CVAProxyController::class, 'index'])->name('catalogo');
     Route::get('/sugerencias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'suggestions'])->name('sugerencias');
-    Route::post('/shipping', [App\Http\Controllers\Tienda\CVAProxyController::class, 'calculateShipping'])->name('shipping');
-    Route::get('/producto/{clave}', [App\Http\Controllers\Tienda\CVAProxyController::class, 'show'])->name('producto');
+    Route::get('/producto/{clave}', [App\Http\Controllers\Tienda\CVAProxyController::class, 'producto'])->name('producto');
     Route::post('/importar', [App\Http\Controllers\Tienda\CVAProxyController::class, 'import'])->name('importar');
-    Route::post('/sync-local', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncToLocal'])->name('sync-local');
-    Route::post('/sync-categorias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncCategories'])->name('sync-categorias');
-    Route::post('/sync-marcas', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncBrands'])->name('sync-marcas');
+    Route::post('/sync-marcas', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncMarcas'])->name('sync-marcas');
+    Route::post('/sync-categorias', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncCategorias'])->name('sync-categorias');
+    Route::post('/sync-local', [App\Http\Controllers\Tienda\CVAProxyController::class, 'syncLocal'])->name('sync-local');
+    Route::get('/cliente', [App\Http\Controllers\Auth\SocialAuthController::class, 'getClient'])->name('cliente');
 });
 
 

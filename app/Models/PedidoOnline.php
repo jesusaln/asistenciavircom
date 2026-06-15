@@ -99,9 +99,9 @@ class PedidoOnline extends Model
         'estado',
         'payment_id',
         'payment_status',
-        'payment_status',
         'payment_details',
         'cva_pedido_id',
+        'venta_id',
         'meli_order_id',
         'meli_shipment_id',
         'meli_tracking_notified',
@@ -148,6 +148,11 @@ class PedidoOnline extends Model
     public function bitacora(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PedidoBitacora::class)->orderBy('created_at', 'desc');
+    }
+
+    public function venta(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Venta::class);
     }
 
     /**
@@ -235,16 +240,50 @@ class PedidoOnline extends Model
             \Log::error("Error registrando movimiento bancario automático para pedido {$this->numero_pedido}: " . $e->getMessage());
         }
 
+        // CREAR VENTA EN CRM
+        try {
+            $numeroVenta = app(\App\Services\Folio\FolioService::class)->getNextFolio('venta');
+            $venta = \App\Models\Venta::create([
+                'cliente_id' => \App\Models\Cliente::where('email', $this->email)->first()?->id,
+                'numero_venta' => $numeroVenta,
+                'fecha' => now(),
+                'estado' => 'pendiente',
+                'subtotal' => $this->subtotal,
+                'iva' => $this->total - $this->subtotal,
+                'total' => $this->total,
+                'notas' => "Pedido Web #{$this->numero_pedido}\nCliente: {$this->nombre}\nEmail: {$this->email}",
+            ]);
+
+            foreach ($this->items as $item) {
+                $producto = isset($item['producto_id']) && is_numeric($item['producto_id'])
+                    ? \App\Models\Producto::find($item['producto_id']) : null;
+                if ($producto) {
+                    \App\Models\VentaItem::create([
+                        'venta_id' => $venta->id,
+                        'ventable_type' => \App\Models\Producto::class,
+                        'ventable_id' => $producto->id,
+                        'cantidad' => $item['cantidad'] ?? 1,
+                        'precio' => $item['precio'] ?? 0,
+                        'descuento' => 0,
+                        'subtotal' => ($item['precio'] ?? 0) * ($item['cantidad'] ?? 1),
+                    ]);
+                }
+            }
+
+            $this->update(['venta_id' => $venta->id]);
+            $this->registrarEvento('VENTA_CREADA', "Venta #{$numeroVenta} creada desde pedido web");
+            \Log::info("Venta #{$numeroVenta} creada desde pedido web {$this->numero_pedido}");
+        } catch (\Exception $e) {
+            \Log::error("Error creando venta desde pedido web {$this->numero_pedido}: " . $e->getMessage());
+        }
+
         // INTEGRACIÓN CON CVA:
-        // Si el pedido tiene productos de CVA, enviarlo a CVA cuando se confirme el pago
-        // (Solo si no fue enviado previamente, por ejemplo en manual ya se envía)
         if (str_contains($this->notas ?? '', '[PEDIDO CVA:') || str_contains($this->notas ?? '', '[DETALLE CVA:')) {
-            return; // Ya fue enviado
+            return;
         }
 
         try {
             $itemsCVA = [];
-            foreach ($this->items as $item) {
                 if (isset($item['origen']) && $item['origen'] === 'CVA') {
                     $itemsCVA[] = [
                         'id' => $item['id'] ?? $item['producto_id'],
@@ -259,18 +298,20 @@ class PedidoOnline extends Model
                     'productos' => $itemsCVA,
                 ];
 
-                if ($this->tipo_entrega === 'domicilio') {
-                    $orderData['tipo_flete'] = 'CP'; // Con paquetería
+                $direccion = $this->direccion_envio ?? [];
+                $tipoEntrega = $direccion['tipo'] ?? 'recoger_en_tienda';
+                if ($tipoEntrega === 'domicilio') {
+                    $orderData['tipo_flete'] = 'CP';
                     $orderData['flete'] = [
-                        'calle' => $this->direccion['calle'] ?? '',
+                        'calle' => $direccion['calle'] ?? '',
                         'numero' => 'SN',
-                        'colonia' => $this->direccion['colonia'] ?? '',
-                        'cp' => $this->direccion['cp'] ?? '',
-                        'estado' => $this->direccion['estado'] ?? '',
-                        'ciudad' => $this->direccion['ciudad'] ?? '',
+                        'colonia' => $direccion['colonia'] ?? '',
+                        'cp' => $direccion['cp'] ?? '',
+                        'estado' => $direccion['estado'] ?? '',
+                        'ciudad' => $direccion['ciudad'] ?? '',
                     ];
                 } else {
-                    $orderData['tipo_flete'] = 'SF'; // Sin flete (Recoge)
+                    $orderData['tipo_flete'] = 'SF';
                 }
 
                 $cvaResult = $serviceCva->createOrder($orderData);
