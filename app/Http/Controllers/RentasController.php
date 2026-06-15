@@ -662,7 +662,6 @@ class RentasController extends Controller
             return redirect()->back()->with('error', 'No se puede finalizar una renta en estado: ' . $renta->estado);
         }
 
-        // Liberar equipos cuando se finaliza la renta
         foreach ($renta->equipos as $equipo) {
             $equipo->update(['estado' => 'disponible']);
         }
@@ -673,6 +672,30 @@ class RentasController extends Controller
             return response()->json(['success' => true, 'message' => 'Renta finalizada correctamente']);
         }
         return redirect()->back()->with('success', 'Renta finalizada correctamente');
+    }
+
+    public function cancelar(Request $request, Renta $renta)
+    {
+        if ($renta->estado === 'cancelado') {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'error' => 'La renta ya está cancelada.'], 422);
+            }
+            return redirect()->back()->with('error', 'La renta ya está cancelada.');
+        }
+
+        // Cancelar cuentas por cobrar pendientes
+        $renta->cuentasPorCobrar()->where('estado', 'pendiente')->update(['estado' => 'cancelado']);
+
+        foreach ($renta->equipos as $equipo) {
+            $equipo->update(['estado' => 'disponible']);
+        }
+
+        $renta->update(['estado' => 'cancelado']);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Renta cancelada correctamente']);
+        }
+        return redirect()->back()->with('success', 'Renta cancelada correctamente. Las cuentas pendientes se cancelaron.');
     }
 
     /**

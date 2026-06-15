@@ -63,6 +63,7 @@ const estadoClasses = computed(() => {
         'moroso': 'bg-rose-200 text-rose-900 border-rose-300',
         'suspendido': 'bg-brand-100 text-brand-800 dark:text-brand-200 border-brand-200 dark:border-brand-800/30',
         'finalizado': 'bg-slate-100 text-slate-500 border-slate-200',
+        'cancelado': 'bg-red-100 text-red-700 border-red-200',
     };
     return classes[props.renta.estado] || 'bg-slate-100 text-slate-500';
 });
@@ -75,6 +76,7 @@ const estadoLabels = {
     'suspendido': 'Suspendido',
     'finalizado': 'Finalizado',
     'borrador': 'Borrador',
+    'cancelado': 'Cancelado',
 };
 
 // Estadísticas de cobranza
@@ -185,6 +187,26 @@ const confirmarPago = async () => {
         notyf.error('Error de conexión');
     }
 };
+
+const cancelarRenta = async () => {
+    const confirmed = await Swal.fire({
+        title: '¿Cancelar renta?',
+        text: 'Las cuentas pendientes se cancelarán y los equipos quedarán disponibles.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No',
+    });
+    if (!confirmed.isConfirmed) return;
+    try {
+        await router.post(route('rentas.cancelar', props.renta.id));
+        router.reload();
+    } catch (e) {
+        Swal.fire('Error', 'No se pudo cancelar la renta', 'error');
+    }
+};
 </script>
 
 <template>
@@ -227,6 +249,12 @@ const confirmarPago = async () => {
                             </svg>
                             Contrato PDF
                         </a>
+                        <button v-if="renta.estado !== 'cancelado'" @click="cancelarRenta" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Cancelar
+                        </button>
                     </div>
                 </div>
             </div>

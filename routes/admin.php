@@ -549,6 +549,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('mantenimientos', MantenimientoController::class)->names('mantenimientos')->middleware('role:admin|editor|super-admin');
     Route::resource('equipos', EquipoController::class)->middleware('role:admin|editor|super-admin');
     Route::resource('rentas', RentasController::class)->middleware('role:admin|editor|super-admin');
+    Route::post('/rentas/{renta}/cancelar', [RentasController::class, 'cancelar'])->name('rentas.cancelar');
+    Route::post('/rentas/{renta}/finalizar', [RentasController::class, 'finalizar'])->name('rentas.finalizar');
     Route::get('/rentas/{renta}/contrato', [RentasContratoController::class, 'contratoPDF'])->name('rentas.contrato');
 
     // Taller
