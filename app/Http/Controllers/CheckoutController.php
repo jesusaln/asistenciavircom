@@ -314,27 +314,7 @@ class CheckoutController extends Controller
             }
 
             // Costos de envío DINÁMICOS si es a domicilio
-            $costoEnvio = 0;
-            if ($validated['tipo_entrega'] === 'domicilio') {
-                $cp = $validated['direccion']['cp'];
-                // Formatear items para el cotizador de CVA
-                $itemsParaEnvio = array_map(function ($i) {
-                    return [
-                        'id' => $i['producto_id'],
-                        'cantidad' => $i['cantidad'],
-                        // El peso se obtendrá del producto en el servicio si no viene aquí
-                    ];
-                }, $itemsConPrecio);
-
-                $shippingInfo = $serviceCva->calculateShippingCost($cp, $itemsParaEnvio);
-
-                if (isset($shippingInfo['success']) && $shippingInfo['success']) {
-                    $costoEnvio = (float) $shippingInfo['costo'];
-                } else {
-                    // Fallback: Costo fijo de envío si falla API o no hay cotización
-                    $costoEnvio = 100.00;
-                }
-            }
+            $costoEnvio = $validated['tipo_entrega'] === 'domicilio' ? 100.00 : 0;
 
             $total = $subtotal + $costoEnvio;
 

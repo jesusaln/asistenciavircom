@@ -756,11 +756,11 @@ const toggleFaq = (index) => {
                             <div class="px-6 py-5 flex-1 flex flex-col">
                                 <div class="mb-4">
                                     <div class="flex items-center gap-1.5 mb-1">
-                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-slate-800/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
-                                            Entrega Inmediata
+                                        <span v-if="producto.stock_local > 0" class="text-[9px] font-black text-white bg-emerald-500 px-2 py-0.5 rounded-lg uppercase tracking-wide shadow-sm">
+                                            Entrega Inmediata ({{ producto.stock_local }})
                                         </span>
-                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-blue-600 dark:text-blue-300 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 px-2 py-0.5 rounded-xl uppercase tracking-wide">
-                                            Envío 4-7 días
+                                        <span v-else-if="producto.stock_cedis > 0" class="text-[9px] font-black text-white bg-blue-500 px-2 py-0.5 rounded-lg uppercase tracking-wide shadow-sm">
+                                            Envío 4-7 días ({{ producto.stock_cedis }})
                                         </span>
                                     </div>
                                     <div class="flex items-center justify-between mb-1">

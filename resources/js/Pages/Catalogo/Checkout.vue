@@ -41,77 +41,7 @@ const form = useForm({
     items: [],
 })
 
-const costoEnvio = ref(0)
-const shippingDetails = ref(null)
-const loadingShipping = ref(false)
-
-// Calcular costo de envío dinámicamente
-const fetchShippingCost = async () => {
-    if (form.tipo_entrega === 'recoger') {
-        costoEnvio.value = 0
-        shippingDetails.value = null
-        return
-    }
-
-    if (form.direccion.cp?.length !== 5) return
-
-    loadingShipping.value = true
-    try {
-        const response = await axios.post(route('tienda.cva.shipping'), {
-            cp: form.direccion.cp,
-            items: items.value.map(i => ({
-                id: i.producto_id,
-                cantidad: i.cantidad,
-                peso: i.peso // Si viene del carrito
-            }))
-        })
-        
-        if (response.data.success) {
-            costoEnvio.value = response.data.costo
-            shippingDetails.value = response.data
-        }
-    } catch (e) {
-        console.error('Error calculando envío:', e)
-        
-        // Fallback inteligente basado en PESO
-        const pesoTotal = items.value.reduce((total, item) => total + ((item.peso || 1) * item.cantidad), 0);
-        
-        if (form.direccion.cp && form.direccion.cp.startsWith('83')) {
-            // Local (Hermosillo): $100 base. 
-            // Si pesa más de 25kg (requiere camioneta/ayudante), cobramos $200
-            costoEnvio.value = pesoTotal > 25 ? 200 : 100; 
-        } else {
-             // Nacional: $250 base (hasta 5kg) + $40 por kg extra (Protección alta)
-             const kilosExtra = Math.max(0, pesoTotal - 5);
-             costoEnvio.value = 250 + (kilosExtra * 40);
-        }
-
-        shippingDetails.value = {
-            proveedor: 'Envío Estándar (Calculado por Peso)',
-            tiempo_entrega: '3 a 6 días hábiles'
-        }
-    } finally {
-        loadingShipping.value = false
-    }
-}
-
-
-watch(() => form.tipo_entrega, (newVal) => {
-    if (newVal === 'recoger') {
-        costoEnvio.value = 0
-    } else {
-        costoEnvio.value = 100 // Costo estándar visible de inmediato
-        if (form.direccion.cp?.length === 5) {
-            fetchShippingCost()
-        }
-    }
-})
-
-watch(() => form.direccion.cp, (newVal) => {
-    if (newVal?.length === 5 && form.tipo_entrega === 'domicilio') {
-        fetchShippingCost()
-    }
-})
+const costoEnvio = ref(100)
 const total = computed(() => subtotal.value + costoEnvio.value)
 
 const formatCurrency = (value) => {
@@ -250,10 +180,9 @@ const submitOrder = async () => {
             });
         }
 
-        // Calcular envío inicial si ya hay CP
+        // Envío estándar: $100
         if (form.tipo_entrega === 'domicilio') {
             if (form.direccion.cp?.length === 5) {
-                fetchShippingCost()
             } else {
                 costoEnvio.value = 100
             }
@@ -292,8 +221,6 @@ const submitOrder = async () => {
                 console.error("No se encontraron datos para el CP", e)
             } finally {
                 loadingCP.value = false
-                // Calcular envío
-                if (form.tipo_entrega === 'domicilio') fetchShippingCost()
             }
         }
     })
@@ -390,18 +317,7 @@ const submitOrder = async () => {
                                 </div>
                             </label>
 
-                            <!-- Radio recoger -->
-                            <label class="cursor-pointer relative group">
-                                <input type="radio" v-model="form.tipo_entrega" value="recoger" class="peer sr-only">
-                                <div class="p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-700 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] transition-all flex flex-col gap-2">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-black text-slate-900 dark:text-white uppercase tracking-wider">Recoger en Tienda</span>
-                                    </div>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Pasa por tu pedido a nuestra sucursal sin costo adicional.</p>
-                                    <span class="text-sm font-black text-emerald-600 dark:text-slate-400 mt-2">¡GRATIS!</span>
-                                </div>
-                            </label>
-                        </div>
+                         </div>
                     </div>
 
 
@@ -494,19 +410,16 @@ const submitOrder = async () => {
                             <div class="flex justify-between text-slate-500 dark:text-slate-400 font-medium text-sm pt-2 border-t border-slate-50 dark:border-slate-700 items-center">
                                 <span>Costo de Envío</span>
                                 <div class="flex flex-col items-end">
-                                    <span v-if="loadingShipping" class="flex items-center gap-1 text-[10px] text-blue-500 dark:text-blue-400 animate-pulse">
-                                        Calculando...
-                                    </span>
-                                    <span v-else class="font-bold text-slate-900 dark:text-white">
+                                    <span class="font-bold text-slate-900 dark:text-white">
                                         {{ formatCurrency(costoEnvio) }}
                                     </span>
-                                    <span v-if="shippingDetails" class="text-[9px] text-slate-400 dark:text-slate-500 font-medium uppercase">
-                                        {{ shippingDetails.proveedor }}
+                                     <span class="text-[9px] text-slate-400 dark:text-slate-500 font-medium uppercase">
+                                        {{ shippingDetails.metodo }}
                                     </span>
                                 </div>
                             </div>
-                            <div v-if="shippingDetails?.tiempo_entrega" class="p-2 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 rounded-xl text-[9px] font-bold text-sky-800 dark:text-sky-200 dark:text-blue-300">
-                                🕒 {{ shippingDetails.tiempo_entrega }}
+                            <div class="p-2 bg-sky-50 dark:bg-sky-900/20 rounded-xl text-[9px] font-bold text-sky-800 dark:text-sky-200">
+                                🕒 {{ shippingDetails.tiempo }}
                             </div>
                             <div class="flex justify-between text-lg mt-4 pt-4 border-t-2 border-slate-100 dark:border-slate-700">
                                 <span class="font-black text-slate-900 dark:text-white uppercase tracking-wider">Total a Pagar</span>

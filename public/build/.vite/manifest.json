@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-C7XnaOTk.js",
+    "file": "assets/Index-sIHIg6ku.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -1802,7 +1802,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Carrito.vue": {
-    "file": "assets/Carrito-D6PkpX4_.js",
+    "file": "assets/Carrito-DQCsTEaG.js",
     "name": "Carrito",
     "src": "resources/js/Pages/Catalogo/Carrito.vue",
     "isDynamicEntry": true,
@@ -1822,7 +1822,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Checkout.vue": {
-    "file": "assets/Checkout-CfZQIa8U.js",
+    "file": "assets/Checkout-BkfGpZjf.js",
     "name": "Checkout",
     "src": "resources/js/Pages/Catalogo/Checkout.vue",
     "isDynamicEntry": true,
@@ -1842,7 +1842,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Index.vue": {
-    "file": "assets/Index-CcyeYV7g.js",
+    "file": "assets/Index-BOhzx4VO.js",
     "name": "Index",
     "src": "resources/js/Pages/Catalogo/Index.vue",
     "isDynamicEntry": true,
@@ -1859,7 +1859,7 @@
       "node_modules/chart.js/auto/auto.js"
     ],
     "css": [
-      "assets/Index-BLFxa3uW.css",
+      "assets/Index-DNeOx9_L.css",
       "assets/GoogleMapEmbed-D4WyIh8p.css"
     ]
   },
@@ -1984,7 +1984,7 @@
     ]
   },
   "resources/js/Pages/CatalogoClimas/Carrito.vue": {
-    "file": "assets/Carrito-fHAazIbv.js",
+    "file": "assets/Carrito-4OG0Pxmy.js",
     "name": "Carrito",
     "src": "resources/js/Pages/CatalogoClimas/Carrito.vue",
     "isDynamicEntry": true,
@@ -2004,7 +2004,7 @@
     ]
   },
   "resources/js/Pages/CatalogoClimas/Checkout.vue": {
-    "file": "assets/Checkout-O8blkSTe.js",
+    "file": "assets/Checkout-DpBtUOIB.js",
     "name": "Checkout",
     "src": "resources/js/Pages/CatalogoClimas/Checkout.vue",
     "isDynamicEntry": true,
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-Df9noefV.js",
+    "file": "assets/Create-B-GR5no4.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-BekvjFEH.js",
+    "file": "assets/app-CIc6cvxg.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

@@ -255,7 +255,7 @@ const handleCheckout = async () => {
                                 </svg>
                                 Validando...
                             </span>
-                            <span v-else>Pagar Ahora</span>
+                            <span v-else>Solicitar Pedido</span>
                         </button>
                         
                         <div class="mt-4 text-center">
