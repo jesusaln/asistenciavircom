@@ -48,38 +48,12 @@ const precioMin = ref(props.filters?.precio_min || props.priceRange?.min || 0)
 const precioMax = ref(props.filters?.precio_max || props.priceRange?.max || 100000)
 const showMobileFilters = ref(false)
 const addedToCart = ref(null)
-const searchFocused = ref(false)
 const soloExistencia = ref(props.filters?.existencia ?? false) 
 const soloLocal = ref(props.filters?.local ?? false)
 const soloSinFoto = ref(props.filters?.sin_foto ?? false)
 const cvaPage = ref(1)
 const hasMoreCva = ref(true)
 const isFiltering = ref(false)
-const suggestions = ref([])
-
-// Suggestions Logic
-let suggestionTimeout = null
-const fetchSuggestions = async () => {
-    if (!search.value || search.value.length < 3) {
-        suggestions.value = []
-        return
-    }
-    try {
-        const response = await axios.get(route('api.tienda.search-suggestions'), { 
-            params: { q: search.value } 
-        })
-        suggestions.value = response.data || []
-    } catch (e) {
-        console.error('Error fetching suggestions', e)
-        suggestions.value = []
-    }
-}
-
-const debouncedSuggestions = () => {
-    clearTimeout(suggestionTimeout)
-    suggestionTimeout = setTimeout(fetchSuggestions, 300)
-}
-
 const fetchCvaProducts = (fresh = true) => {
     if (fresh) {
         cvaPage.value = 1
@@ -357,27 +331,6 @@ const openWhatsAppForCompare = (producto) => {
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
 }
 
-const handleSearchFocus = () => {
-    searchFocused.value = true
-}
-
-const handleSearchBlur = () => {
-    // Pequeño delay para permitir que el click en una sugerencia ocurra antes de cerrar
-    setTimeout(() => {
-        searchFocused.value = false
-    }, 200)
-}
-
-// Cerrar sugerencias al hacer scroll o presionar Esc
-if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', () => {
-        if (searchFocused.value) searchFocused.value = false
-    }, { passive: true })
-    
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') searchFocused.value = false
-    })
-}
 // SEO dinámico basado en filtros
 const pageTitle = computed(() => {
     let title = isVircom.value ? 'Tienda de Tecnología y Seguridad' : 'Tienda de Aires Acondicionados'
@@ -486,19 +439,13 @@ const toggleFaq = (index) => {
                 
                 <!-- Barra de búsqueda con efecto cristal -->
                 <div class="relative w-full z-50">
-                    <div :class="[
-                        'relative bg-white dark:bg-slate-800 rounded-2xl transition-all duration-200',
-                        searchFocused ? 'shadow-xl ring-2 rounded-b-none border-b-0' : 'shadow-md'
-                    ]" :style="searchFocused ? { '--tw-ring-color': 'var(--color-primary)' } : {}">
+                    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-md">
                         <div class="flex items-center">
                             <svg class="w-4 h-4 ml-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input 
                                 v-model="search"
-                                @input="debouncedSuggestions"
-                                @focus="handleSearchFocus"
-                                @blur="handleSearchBlur"
                                 type="text" 
                                 placeholder="Buscar productos por nombre, código o descripción..." 
                                 class="w-full h-14 px-4 bg-transparent border-0 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-0"
@@ -513,51 +460,6 @@ const toggleFaq = (index) => {
                         </div>
                     </div>
 
-                    <!-- Autocomplete Dropdown (Premium Version) -->
-                    <div v-show="searchFocused && suggestions.length > 0" 
-                         class="absolute w-full bg-white dark:bg-slate-800 rounded-b-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden z-[100] transition-all max-h-[450px] overflow-y-auto ring-1 ring-black/5">
-                        <div class="p-2.5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-white/50 dark:bg-slate-800/50 sticky top-0 z-10">
-                            <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase ml-2">Sugerencias de productos</span>
-                            <button @click="searchFocused = false" class="text-[10px] font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 px-2 uppercase">Cerrar</button>
-                        </div>
-                        <ul class="divide-y divide-slate-50 dark:divide-slate-700">
-                            <li v-for="sug in suggestions" :key="sug.id">
-                                <Link :href="route('catalogo.show', sug.id)" 
-                                      class="group flex items-center gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all relative">
-                                    <div class="w-14 h-14 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                        <img :src="getImageUrl({ imagen: sug.image })" alt="" class="w-full h-full object-contain p-1" @error="(e) => (e.target.src = '/img/placeholder-product.webp')">
-                                    </div>
-                                    <div class="flex-1 min-w-0 text-left">
-                                        <div class="flex items-center gap-2 mb-0.5">
-                                            <span v-if="sug.origen === 'CVA'" class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded text-[9px] font-black uppercase tracking-tighter">CVA</span>
-                                            <p class="text-sm font-bold text-slate-900 dark:text-white truncate leading-tight group-hover:text-[var(--color-primary)] transition-colors">
-                                                {{ sug.label }}
-                                            </p>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ sug.category }}</p>
-                                            <div class="flex items-center gap-1.5">
-                                                <span v-if="sug.origen === 'CVA'" 
-                                                      :class="[
-                                                          'h-2 w-2 rounded-full',
-                                                          sug.stock > 0 ? 'bg-green-500 animate-pulse' : 'bg-amber-400'
-                                                      ]"></span>
-                                                <span class="text-[11px] font-black uppercase tracking-tight" :class="sug.stock > 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'">
-                                                    {{ sug.stock > 0 ? `Entrega Inmediata (${sug.stock})` : 'Bajo pedido' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-sm font-black text-slate-900 dark:text-white leading-tight">
-                                            {{ formatCurrency(sug.price) }}
-                                        </p>
-                                        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">con IVA</p>
-                                    </div>
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
                 
                 <!-- Filtros rápidos -->

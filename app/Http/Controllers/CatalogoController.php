@@ -112,12 +112,14 @@ class CatalogoController extends Controller
             // Relevancia para búsqueda: 
             // 1. Nombre empieza con el término
             // 2. Nombre contiene el término
-            // 3. Stock disponible
+            // 3. Mayor stock en Hermosillo
+            // 4. Mayor stock en CEDIS
             $query->orderByRaw("CASE 
                 WHEN nombre ILIKE ? THEN 1 
                 WHEN nombre ILIKE ? THEN 2 
                 ELSE 3 END ASC", [$search . '%', '%' . $search . '%'])
-                ->orderByRaw('CASE WHEN stock > 0 OR stock_cedis > 0 THEN 1 ELSE 0 END DESC');
+                ->orderByDesc('stock')
+                ->orderByDesc('stock_cedis');
         } else {
             switch ($orden) {
                 case 'precio_asc':
@@ -130,25 +132,15 @@ class CatalogoController extends Controller
                     $query->orderBy('nombre', 'asc');
                     break;
                 case 'recientes':
-                    // 1. Disponibles en Hermosillo (stock > 0)
-                    // 2. Disponibles en CEDIS/Otros (stock_cedis > 0)
-                    // 3. Los demás (sin stock)
-                    $query->orderByRaw('CASE 
-                        WHEN stock > 0 THEN 1 
-                        WHEN stock_cedis > 0 THEN 2 
-                        ELSE 3 
-                    END ASC')
+                    $query->orderByDesc('stock')
+                        ->orderByDesc('stock_cedis')
                         ->orderBy('created_at', 'desc');
                     break;
                 case 'mas_vendidos':
                 default:
-                    // Ordenar por cantidad vendida y luego disponibilidad
                     $query->withCount('ventaItems')
-                        ->orderByRaw('CASE 
-                            WHEN stock > 0 THEN 1 
-                            WHEN stock_cedis > 0 THEN 2 
-                            ELSE 3 
-                        END ASC')
+                        ->orderByDesc('stock')
+                        ->orderByDesc('stock_cedis')
                         ->orderBy('venta_items_count', 'desc');
                     break;
             }

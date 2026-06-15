@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-BmzVTHQq.js",
+    "file": "assets/Index-C7XnaOTk.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -1842,24 +1842,24 @@
     ]
   },
   "resources/js/Pages/Catalogo/Index.vue": {
-    "file": "assets/Index-CSI9bT7W.js",
+    "file": "assets/Index-CcyeYV7g.js",
     "name": "Index",
     "src": "resources/js/Pages/Catalogo/Index.vue",
     "isDynamicEntry": true,
     "imports": [
       "_vue-core-C4aJwL8b.js",
-      "_utils-C1cdQfIJ.js",
       "_PublicNavbar-C13i68jC.js",
       "__plugin-vue_export-helper-DlAUqK2U.js",
       "_SocialProofNotification-yPfMHetx.js",
       "_WhatsAppWidget-yKxArdF1.js",
       "_useDarkMode-Bs6HVTsr.js",
       "_vendor-CUOW7xEe.js",
+      "_utils-C1cdQfIJ.js",
       "_icons-Dg70kTOZ.js",
       "node_modules/chart.js/auto/auto.js"
     ],
     "css": [
-      "assets/Index-02VkzE4J.css",
+      "assets/Index-BLFxa3uW.css",
       "assets/GoogleMapEmbed-D4WyIh8p.css"
     ]
   },
@@ -1963,7 +1963,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Show.vue": {
-    "file": "assets/Show-7r8Cbeta.js",
+    "file": "assets/Show-CkOQ5peK.js",
     "name": "Show",
     "src": "resources/js/Pages/Catalogo/Show.vue",
     "isDynamicEntry": true,
@@ -1979,7 +1979,7 @@
       "_useDarkMode-Bs6HVTsr.js"
     ],
     "css": [
-      "assets/Show-D6aG1auI.css",
+      "assets/Show-CxzC1jQx.css",
       "assets/GoogleMapEmbed-D4WyIh8p.css"
     ]
   },
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-CObGbxqr.js",
+    "file": "assets/Create-Df9noefV.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-DDwnX65T.js",
+    "file": "assets/app-BekvjFEH.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
