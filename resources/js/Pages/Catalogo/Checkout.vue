@@ -32,8 +32,8 @@ const form = useForm({
     direccion: {
         calle: props.cliente?.direccion_predeterminada?.calle || '',
         colonia: props.cliente?.direccion_predeterminada?.colonia || '',
-        ciudad: props.cliente?.direccion_predeterminada?.ciudad || '',
-        estado: props.cliente?.direccion_predeterminada?.estado || '',
+        ciudad: 'HERMOSILLO',
+        estado: 'SONORA',
         cp: props.cliente?.direccion_predeterminada?.cp || '',
     },
     tipo_entrega: 'domicilio',
@@ -41,8 +41,50 @@ const form = useForm({
     items: [],
 })
 
+const cpError = ref('')
 const costoEnvio = ref(100)
+const shippingDetails = { metodo: 'Envío estándar', costo: 100, tiempo: '2-4 días hábiles' }
 const total = computed(() => subtotal.value + costoEnvio.value)
+
+const validarCp = (cp) => {
+    if (cp.length === 5 && !cp.startsWith('83')) {
+        cpError.value = 'Solo enviamos a Hermosillo, Sonora (CP 83xxx)'
+        costoEnvio.value = 0
+    } else if (cp.length === 5 && cp.startsWith('83')) {
+        cpError.value = ''
+        costoEnvio.value = 100
+    } else {
+        cpError.value = ''
+    }
+}
+
+const emailExistente = ref(false)
+const enviandoPassword = ref(false)
+const passwordEnviado = ref(false)
+let emailTimeout = null
+
+const verificarEmail = () => {
+    clearTimeout(emailTimeout)
+    if (!form.email || form.email.length < 5) { emailExistente.value = false; return }
+    emailTimeout = setTimeout(async () => {
+        try {
+            const res = await axios.get('/api/check-email', { params: { email: form.email } })
+            emailExistente.value = res.data.exists
+        } catch (e) { emailExistente.value = false }
+    }, 600)
+}
+
+const enviarPasswordTemporal = async () => {
+    enviandoPassword.value = true
+    try {
+        await axios.post('/api/enviar-contrasena-temporal', { email: form.email })
+        passwordEnviado.value = true
+    } catch (e) {
+        alert('Error al enviar la contraseña')
+    } finally {
+        enviandoPassword.value = false
+    }
+}
 
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('es-MX', { 
@@ -197,6 +239,7 @@ const submitOrder = async () => {
 
     // Lógica para CP
     watch(() => form.direccion.cp, async (newVal) => {
+        validarCp(newVal || '')
         if (newVal?.length === 5) {
             loadingCP.value = true
             coloniasDisponibles.value = [] // Limpiar previas
@@ -286,8 +329,19 @@ const submitOrder = async () => {
 
                             <div class="space-y-1 md:col-span-2">
                                 <label class="text-[10px] font-black uppercase tracking-wide text-slate-400 dark:text-slate-500 ml-1">Correo Electrónico</label>
-                                <input :value="form.email" @input="toLower($event, 'email')" type="email" class="w-full px-5 py-3 bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-slate-800 dark:text-slate-200 placeholder-slate-300 dark:placeholder-slate-400" placeholder="juan@ejemplo.com" required>
+                                <input :value="form.email" @input="toLower($event, 'email'); verificarEmail()" type="email" class="w-full px-5 py-3 bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-slate-800 dark:text-slate-200 placeholder-slate-300 dark:placeholder-slate-400" placeholder="juan@ejemplo.com" required>
                                 <div v-if="form.errors.email" class="text-rose-500 dark:text-rose-400 text-[10px] font-bold mt-1 uppercase">{{ form.errors.email }}</div>
+                                <div v-if="emailExistente && !passwordEnviado" class="mt-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
+                                    <p class="text-xs font-bold text-amber-800 dark:text-amber-300">👤 Este correo ya tiene una cuenta</p>
+                                    <p class="text-[10px] text-amber-600 dark:text-amber-400 mt-1">Inicia sesión para agilizar tu pedido</p>
+                                    <button @click="enviarPasswordTemporal" :disabled="enviandoPassword" class="mt-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors disabled:opacity-50">
+                                        {{ enviandoPassword ? 'Enviando...' : 'Enviar contraseña al correo' }}
+                                    </button>
+                                </div>
+                                <div v-if="passwordEnviado" class="mt-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                                    <p class="text-xs font-bold text-emerald-800 dark:text-emerald-300">✅ Contraseña enviada a tu correo</p>
+                                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">Revisa tu bandeja de entrada para iniciar sesión</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -336,6 +390,9 @@ const submitOrder = async () => {
                                     <div class="relative">
                                         <input v-model="form.direccion.cp" type="text" maxlength="5" class="w-full px-5 py-3 bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all font-bold text-slate-800 dark:text-slate-200 placeholder-slate-300 dark:placeholder-slate-400" placeholder="Ej. 83000" required>
                                         <div v-if="loadingCP" class="absolute right-3 top-3 text-slate-400 dark:text-slate-500 text-xs animate-spin">⌛</div>
+                                    </div>
+                                     <div v-if="cpError" class="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                                        ⚠️ {{ cpError }}
                                     </div>
                                      <div v-if="form.errors['direccion.cp']" class="text-rose-500 dark:text-rose-400 text-[10px] font-bold mt-1 uppercase">{{ form.errors['direccion.cp'] }}</div>
                                 </div>
@@ -432,49 +489,11 @@ const submitOrder = async () => {
                         <!-- Método de Pago -->
                         <div class="mb-8">
                             <label class="text-[10px] font-black uppercase tracking-wide text-slate-400 dark:text-slate-500 block mb-3">Método de Pago</label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <label v-if="cliente?.credito_activo" class="cursor-pointer relative group">
-                                    <input type="radio" v-model="form.metodo_pago" value="credito" class="peer sr-only" :disabled="cliente.credito_disponible < total">
-                                    <div :class="[
-                                        'p-4 rounded-xl border transition-all text-center h-full flex flex-col items-center justify-center gap-1 group-hover:shadow-xl',
-                                        cliente.credito_disponible < total 
-                                            ? 'bg-slate-100 dark:bg-slate-700 border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed' 
-                                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 peer-checked:bg-emerald-50 dark:bg-emerald-900/20 dark:peer-checked:bg-emerald-900/20 peer-checked:border-emerald-500 dark:peer-checked:border-emerald-700 peer-checked:text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:peer-checked:text-emerald-300 group-hover:bg-white dark:group-hover:bg-slate-600'
-                                    ]">
-                                        <font-awesome-icon icon="credit-card" class="mb-1" />
-                                        <span class="font-bold text-[10px] uppercase leading-tight">Crédito Comercial</span>
-                                        <span class="text-[8px] font-black opacity-60">DP: {{ formatCurrency(cliente.credito_disponible) }}</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-default relative group opacity-60">
-                                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-400 text-center h-full flex flex-col items-center justify-center gap-2">
-                                        <span class="font-bold text-[10px] uppercase">MercadoPago</span>
-                                        <span class="text-[8px] font-black uppercase tracking-wider text-brand-500">Próximamente</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-default relative group opacity-60">
-                                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-400 text-center h-full flex flex-col items-center justify-center gap-2">
-                                        <span class="font-bold text-[10px] uppercase">PayPal</span>
-                                        <span class="text-[8px] font-black uppercase tracking-wider text-brand-500">Próximamente</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group">
-                                    <input type="radio" v-model="form.metodo_pago" value="transferencia" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 peer-checked:bg-emerald-50 dark:bg-emerald-900/20 dark:peer-checked:bg-emerald-900/20 peer-checked:border-emerald-600 dark:peer-checked:border-emerald-700 peer-checked:text-emerald-800 dark:text-emerald-200 dark:text-emerald-200 dark:peer-checked:text-emerald-300 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white dark:group-hover:bg-slate-600 group-hover:shadow-xl">
-                                        <span class="font-bold text-[10px] uppercase">Transferencia</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group">
-                                    <input type="radio" v-model="form.metodo_pago" value="efectivo" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-700 peer-checked:bg-brand-50 dark:bg-brand-900/20 dark:peer-checked:bg-brand-900/20 peer-checked:border-brand-600 dark:peer-checked:border-brand-700 peer-checked:text-brand-800 dark:text-brand-200 dark:text-brand-200 dark:peer-checked:text-brand-300 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white dark:group-hover:bg-slate-600 group-hover:shadow-xl">
-                                        <span class="font-bold text-[10px] uppercase">Efectivo</span>
-                                    </div>
-                                </label>
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 text-center">
+                                <p class="text-sm font-bold text-slate-700 dark:text-slate-200">💰 Pago contra entrega</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Efectivo o Transferencia al recibir tu pedido</p>
                             </div>
-                            <p v-if="cliente?.credito_activo && cliente.credito_disponible < total" class="text-[9px] font-bold text-rose-500 dark:text-rose-400 mt-2 uppercase tracking-wider">
-                                ⚠️ Saldo insuficiente en su línea de crédito.
-                            </p>
-                            <div v-if="form.errors.metodo_pago" class="text-rose-500 dark:text-rose-400 text-[10px] font-bold mt-1 uppercase">{{ form.errors.metodo_pago }}</div>
+                            <input type="hidden" v-model="form.metodo_pago" value="efectivo" />
                         </div>
 
                         <!-- Botón de Acción -->

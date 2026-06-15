@@ -71,8 +71,8 @@ const getImageUrl = (imagen) => {
     return `/storage/${urlStr}`
 }
 
-// $100 base + 16% IVA = $116
-const costoEnvio = computed(() => 116)
+// Envío fijo $100
+const costoEnvio = computed(() => 100)
 const total = computed(() => subtotal.value + costoEnvio.value)
 
 const isValidating = ref(false)
@@ -229,7 +229,7 @@ const handleCheckout = async () => {
                             </div>
                             
                             <div class="p-3 bg-[var(--color-primary-soft)] rounded-xl border border-[var(--color-primary)]/20 text-[10px] font-black uppercase tracking-wide text-[var(--color-primary)] flex items-center gap-2">
-                                🚚 Envío a domicilio: {{ formatCurrency(116) }} (incl. IVA)
+                                🚚 Envío a domicilio: {{ formatCurrency(100) }}
                             </div>
 
                             <div v-if="items.some(i => String(i.producto_id).startsWith('CVA-'))" class="p-3 bg-sky-50 dark:bg-sky-900/20 dark:bg-sky-900/20 rounded-xl border border-blue-100 dark:border-blue-700 text-[10px] font-bold text-sky-800 dark:text-sky-200 dark:text-blue-300 flex items-center gap-2">

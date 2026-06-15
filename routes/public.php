@@ -89,6 +89,39 @@ Route::post('/facturar', [\App\Http\Controllers\Public\FacturacionPublicaControl
 // Tienda (Público)
 Route::get('/tienda', [CatalogoController::class, 'index'])->name('catalogo.index');
 Route::get('/producto/{id}', [CatalogoController::class, 'show'])->name('catalogo.show');
+Route::get('/api/check-email', function (\Illuminate\Http\Request $request) {
+    $email = $request->get('email');
+    if (!$email) return response()->json(['exists' => false]);
+    $exists = \App\Models\ClienteTienda::where('email', $email)->exists()
+        || \App\Models\Cliente::where('email', $email)->exists();
+    return response()->json(['exists' => $exists]);
+})->name('api.check-email');
+Route::post('/api/enviar-contrasena-temporal', function (\Illuminate\Http\Request $request) {
+    $email = $request->get('email');
+    if (!$email) return response()->json(['success' => false, 'message' => 'Email requerido']);
+    $password = \Illuminate\Support\Str::random(10);
+    $cliente = \App\Models\Cliente::where('email', $email)->first();
+    if ($cliente) {
+        $cliente->update(['password' => bcrypt($password)]);
+        try {
+            \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\PasswordTemporal($email, $password));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error enviando email temporal: ' . $e->getMessage());
+        }
+        return response()->json(['success' => true, 'message' => 'Contraseña enviada a tu correo']);
+    }
+    $clienteTienda = \App\Models\ClienteTienda::where('email', $email)->first();
+    if ($clienteTienda) {
+        $clienteTienda->update(['password' => bcrypt($password)]);
+        try {
+            \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\PasswordTemporal($email, $password));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error enviando email temporal: ' . $e->getMessage());
+        }
+        return response()->json(['success' => true, 'message' => 'Contraseña enviada a tu correo']);
+    }
+    return response()->json(['success' => false, 'message' => 'Correo no encontrado']);
+})->name('api.enviar-contrasena');
 Route::get('/api/tienda/search-suggestions', [CatalogoController::class, 'searchSuggestions'])->name('api.tienda.search-suggestions');
 Route::get('/api/tienda/categorias-nav', [CatalogoController::class, 'categoriasParaNav'])->name('api.tienda.categorias-nav');
 

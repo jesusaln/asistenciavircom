@@ -687,7 +687,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-B5xQQXI7.css",
+    "file": "assets/app-C5qEG82g.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-sIHIg6ku.js",
+    "file": "assets/Index-DZ6YQJzp.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -1043,7 +1043,7 @@
     ],
     "css": [
       "assets/Index-B2ZG0pJB.css",
-      "assets/app-B5xQQXI7.css"
+      "assets/app-C5qEG82g.css"
     ]
   },
   "resources/js/Pages/Admin/Pos/Partials/CajaAperturaModal.vue": {
@@ -1802,7 +1802,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Carrito.vue": {
-    "file": "assets/Carrito-DQCsTEaG.js",
+    "file": "assets/Carrito-BxEkFhoH.js",
     "name": "Carrito",
     "src": "resources/js/Pages/Catalogo/Carrito.vue",
     "isDynamicEntry": true,
@@ -1822,7 +1822,7 @@
     ]
   },
   "resources/js/Pages/Catalogo/Checkout.vue": {
-    "file": "assets/Checkout-BkfGpZjf.js",
+    "file": "assets/Checkout-BfmXcg-b.js",
     "name": "Checkout",
     "src": "resources/js/Pages/Catalogo/Checkout.vue",
     "isDynamicEntry": true,
@@ -1984,7 +1984,7 @@
     ]
   },
   "resources/js/Pages/CatalogoClimas/Carrito.vue": {
-    "file": "assets/Carrito-4OG0Pxmy.js",
+    "file": "assets/Carrito-B_CIXTPi.js",
     "name": "Carrito",
     "src": "resources/js/Pages/CatalogoClimas/Carrito.vue",
     "isDynamicEntry": true,
@@ -2004,7 +2004,7 @@
     ]
   },
   "resources/js/Pages/CatalogoClimas/Checkout.vue": {
-    "file": "assets/Checkout-DpBtUOIB.js",
+    "file": "assets/Checkout-DiwB0YFf.js",
     "name": "Checkout",
     "src": "resources/js/Pages/CatalogoClimas/Checkout.vue",
     "isDynamicEntry": true,
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-B-GR5no4.js",
+    "file": "assets/Create-C-XokFK_.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10288,7 +10288,7 @@
     ],
     "css": [
       "assets/Create-D8klW5HN.css",
-      "assets/app-B5xQQXI7.css",
+      "assets/app-C5qEG82g.css",
       "assets/Index-tn0RQdqM.css"
     ]
   },
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CIc6cvxg.js",
+    "file": "assets/app-C2PPpDah.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -10884,7 +10884,7 @@
       "resources/js/Pages/WelcomeClimas.vue"
     ],
     "css": [
-      "assets/app-B5xQQXI7.css"
+      "assets/app-C5qEG82g.css"
     ]
   },
   "resources/js/icons.js": {

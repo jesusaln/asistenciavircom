@@ -175,7 +175,7 @@ class CheckoutController extends Controller
             'direccion.colonia' => 'required_if:tipo_entrega,domicilio|string',
             'direccion.ciudad' => 'required_if:tipo_entrega,domicilio|string',
             'direccion.estado' => 'required_if:tipo_entrega,domicilio|string',
-            'direccion.cp' => 'required_if:tipo_entrega,domicilio|string',
+            'direccion.cp' => 'required_if:tipo_entrega,domicilio|string|regex:/^83\d{3}$/',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required',
             'items.*.cantidad' => 'required|integer|min:1',
