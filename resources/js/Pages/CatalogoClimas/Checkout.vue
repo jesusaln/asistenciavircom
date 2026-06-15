@@ -37,7 +37,7 @@ const form = useForm({
         cp: props.cliente?.direccion_predeterminada?.cp || '',
     },
     tipo_entrega: 'domicilio',
-    metodo_pago: 'mercadopago',
+    metodo_pago: 'efectivo',
     items: [],
 })
 
@@ -533,16 +533,16 @@ const submitOrder = async () => {
                                         <span class="text-[8px] font-black opacity-60">DP: {{ formatCurrency(cliente.credito_disponible) }}</span>
                                     </div>
                                 </label>
-                                <label class="cursor-pointer relative group">
-                                    <input type="radio" v-model="form.metodo_pago" value="mercadopago" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 peer-checked:bg-[var(--color-primary-soft)] peer-checked:border-[var(--color-primary)] peer-checked:text-[var(--color-primary)] transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white dark:group-hover:bg-gray-600 group-hover:shadow-md">
+                                <label class="cursor-default relative group opacity-60">
+                                    <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-400 text-center h-full flex flex-col items-center justify-center gap-2">
                                         <span class="font-bold text-[10px] uppercase">MercadoPago</span>
+                                        <span class="text-[8px] font-black uppercase tracking-wider text-brand-500">Próximamente</span>
                                     </div>
                                 </label>
-                                <label class="cursor-pointer relative group">
-                                    <input type="radio" v-model="form.metodo_pago" value="paypal" class="peer sr-only">
-                                    <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 peer-checked:border-blue-500 dark:peer-checked:border-blue-700 peer-checked:text-blue-600 dark:peer-checked:text-blue-300 transition-all text-center h-full flex flex-col items-center justify-center gap-2 group-hover:bg-white dark:group-hover:bg-gray-600 group-hover:shadow-md">
+                                <label class="cursor-default relative group opacity-60">
+                                    <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-400 text-center h-full flex flex-col items-center justify-center gap-2">
                                         <span class="font-bold text-[10px] uppercase">PayPal</span>
+                                        <span class="text-[8px] font-black uppercase tracking-wider text-brand-500">Próximamente</span>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative group">

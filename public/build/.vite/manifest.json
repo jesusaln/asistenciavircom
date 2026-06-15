@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-ByzwzvDh.js",
+    "file": "assets/Index-BmzVTHQq.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -2004,7 +2004,7 @@
     ]
   },
   "resources/js/Pages/CatalogoClimas/Checkout.vue": {
-    "file": "assets/Checkout-C_pCoHgv.js",
+    "file": "assets/Checkout-O8blkSTe.js",
     "name": "Checkout",
     "src": "resources/js/Pages/CatalogoClimas/Checkout.vue",
     "isDynamicEntry": true,
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-Rjk7A_Nf.js",
+    "file": "assets/Create-CObGbxqr.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-BSzX_FLw.js",
+    "file": "assets/app-DDwnX65T.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

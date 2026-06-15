@@ -285,9 +285,24 @@ Schedule::command('cva:sincronizar-datos')
     ->appendOutputTo(storage_path('logs/cva_sync.log'));
 
 // Sincronizar catálogo de productos CVA diariamente a las 03:30 AM
-Schedule::command('app:sync-cva-catalog --limit=100')
+Schedule::command('app:sync-cva-catalog --limit=500')
     ->dailyAt('03:30')
+    ->timezone('America/Hermosillo')
+    ->runInBackground()
     ->appendOutputTo(storage_path('logs/cva_catalog_sync.log'));
+
+// Sincronizar stock de CVA cada 4 horas (solo actualiza existencias)
+Schedule::command('app:sync-cva-catalog --limit=500 --page=1')
+    ->dailyAt('11:30')
+    ->timezone('America/Hermosillo')
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/cva_stock_sync.log'));
+
+Schedule::command('app:sync-cva-catalog --limit=500 --page=1')
+    ->dailyAt('19:30')
+    ->timezone('America/Hermosillo')
+    ->runInBackground()
+    ->appendOutputTo(storage_path('logs/cva_stock_sync.log'));
 
 // Limpiar auditorías de más de un año de antigüedad (ventana móvil de 1 año)
 Schedule::call(function () {
