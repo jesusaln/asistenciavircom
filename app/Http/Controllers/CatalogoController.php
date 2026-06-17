@@ -108,6 +108,9 @@ class CatalogoController extends Controller
         $orden = $request->get('orden', 'mas_vendidos');
         $search = $request->get('search');
 
+        // Locales primero, luego CVA
+        $query->orderByRaw("CASE WHEN origen = 'local' THEN 0 ELSE 1 END ASC");
+
         if ($search) {
             // Relevancia para búsqueda: 
             // 1. Nombre empieza con el término
