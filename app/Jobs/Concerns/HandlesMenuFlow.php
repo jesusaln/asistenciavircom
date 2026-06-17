@@ -1078,10 +1078,16 @@ trait HandlesMenuFlow
             $this->mostrarCalendarioDisponible($empresa, $stateKey);
             return;
         } elseif ($state === 'vircom_cita_tipo') {
-            $tipos = ['1' => 'Instalación', '2' => 'Reparación', '3' => 'Garantía', '4' => 'Diagnóstico'];
-            $tipo = $tipos[$msg] ?? 'Otro';
-            $this->sendReply("📅 *Cita Agendada*\n\n✅ Hemos registrado tu solicitud de *{$tipo}*.\n\nTe contactaremos pronto para confirmar la fecha y hora.\n\nEscribe *menu* para volver.");
-            Cache::put($stateKey, 'menu', now()->addDay());
+            $tipos = ['1' => 'Instalación', '2' => 'Reparación', '3' => 'Garantía', '4' => 'Diagnóstico', '5' => 'Otro'];
+            $tipo = $tipos[$msg] ?? null;
+            if (!$tipo) {
+                $this->sendReply("⚠️ Opción no válida. Responde 1️⃣ al 5️⃣.\n\nEscribe *menu* para volver.");
+                return;
+            }
+            Cache::put("{$stateKey}_tipo", $tipo, now()->addDay());
+            Cache::put("{$stateKey}_vircom_tipo", true, now()->addDay());
+            $this->sendReply("📝 ¿Cuál es tu *nombre completo*?");
+            Cache::put($stateKey, 'agendar_nombre', now()->addDay());
             return;
         } elseif ($state === 'esperando_descripcion_ticket') {
             $this->sendReply("🎫 *Ticket de Soporte*\n\n✅ Hemos registrado tu solicitud:\n\n*Problema:* {$this->incomingMessage}\n\nUn técnico se comunicará contigo pronto. También puedes dar seguimiento en:\nhttps://asistenciavircom.com/portal/tickets\n\nEscribe *menu* para volver.");
