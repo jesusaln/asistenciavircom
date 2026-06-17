@@ -1090,7 +1090,29 @@ trait HandlesMenuFlow
             Cache::put($stateKey, 'agendar_nombre', now()->addDay());
             return;
         } elseif ($state === 'esperando_descripcion_ticket') {
-            $this->sendReply("🎫 *Ticket de Soporte*\n\n✅ Hemos registrado tu solicitud:\n\n*Problema:* {$this->incomingMessage}\n\nUn técnico se comunicará contigo pronto. También puedes dar seguimiento en:\nhttps://asistenciavircom.com/portal/tickets\n\nEscribe *menu* para volver.");
+            try {
+                $cliente = $this->buscarClientePorWaId();
+                $year = date('Y');
+                $lastTicket = \App\Models\Ticket::whereYear('created_at', $year)->latest()->first();
+                $sequence = $lastTicket ? (int) substr($lastTicket->numero, -5) + 1 : 1;
+                $numero = 'TKT-' . $year . '-' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
+
+                $ticket = \App\Models\Ticket::create([
+                    'numero' => $numero,
+                    'titulo' => 'Soporte WhatsApp: ' . mb_substr($this->incomingMessage, 0, 100),
+                    'descripcion' => $this->incomingMessage,
+                    'estado' => 'abierto',
+                    'origen' => 'whatsapp',
+                    'cliente_id' => $cliente?->id,
+                    'nombre_contacto' => $cliente?->nombre_razon_social ?? 'Cliente WhatsApp',
+                    'email_contacto' => $cliente?->email,
+                    'telefono_contacto' => $cliente?->telefono,
+                    'empresa_id' => $empresa->id ?? 1,
+                ]);
+                $this->sendReply("🎫 *Ticket Creado*\n\n✅ *Folio:* {$numero}\n*Problema:* {$this->incomingMessage}\n\nUn técnico te atenderá pronto. Puedes dar seguimiento en:\nhttps://asistenciavircom.com/portal/tickets\n\nEscribe *menu* para volver.");
+            } catch (\Exception $e) {
+                $this->sendReply("⚠️ Ocurrió un error al crear el ticket. Por favor intenta más tarde.\n\nEscribe *menu* para volver.");
+            }
             Cache::put($stateKey, 'menu', now()->addDay());
             return;
         }
@@ -1133,6 +1155,12 @@ trait HandlesMenuFlow
             ->limit(3)
             ->get();
 
+        $taller = \App\Models\TallerOrden::where('empresa_id', $this->empresaId)
+            ->where('cliente_id', $cliente->id)
+            ->latest()
+            ->limit(3)
+            ->get();
+
         $services = [];
         foreach ($tickets as $ticket) {
             $services[] = [
@@ -1153,6 +1181,17 @@ trait HandlesMenuFlow
                 'fecha' => $cita->fecha_hora->format('d/m/Y H:i'),
                 'detalle' => $cita->descripcion,
                 'timestamp' => $cita->created_at ?? $cita->fecha_hora,
+            ];
+        }
+
+        foreach ($taller as $orden) {
+            $services[] = [
+                'tipo' => 'Taller - Reparación',
+                'folio' => $orden->folio,
+                'estado' => $orden->estado,
+                'fecha' => $orden->fecha_recepcion?->format('d/m/Y') ?? 'N/A',
+                'detalle' => ($orden->equipo_marca ?? '') . ' ' . ($orden->equipo_modelo ?? '') . ' - ' . ($orden->problema_reportado ?? ''),
+                'timestamp' => $orden->fecha_recepcion ?? $orden->created_at,
             ];
         }
 

@@ -284,6 +284,7 @@ class PedidoOnline extends Model
 
         try {
             $itemsCVA = [];
+            foreach ($this->items ?? [] as $item) {
                 if (isset($item['origen']) && $item['origen'] === 'CVA') {
                     $itemsCVA[] = [
                         'id' => $item['id'] ?? $item['producto_id'],

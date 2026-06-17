@@ -527,6 +527,20 @@ class VircomBotService
                     ];
                 }
 
+                // Buscar en Taller
+                $taller = \App\Models\TallerOrden::where('empresa_id', $empresaId)
+                    ->where('folio', $folio)
+                    ->first();
+                if ($taller) {
+                    return [
+                        'tipo' => 'Taller - Reparación',
+                        'folio' => $taller->folio,
+                        'estado' => $taller->estado,
+                        'fecha' => $taller->fecha_recepcion?->format('d/m/Y') ?? 'N/A',
+                        'detalle' => ($taller->equipo_marca ?? '') . ' ' . ($taller->equipo_modelo ?? '') . ' - ' . ($taller->problema_reportado ?? '')
+                    ];
+                }
+
                 return ['error' => 'No encontré ninguna reparación o cita con ese folio.'];
 
             case 'consultar_saldo_poliza':
