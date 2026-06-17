@@ -49,7 +49,6 @@ class Empresa extends Model
 
     protected $casts = [
         'whatsapp_access_token' => 'encrypted',
-        'whatsapp_app_secret' => 'encrypted',
         'whatsapp_enabled' => 'boolean',
         'whatsapp_chatbot_enabled' => 'boolean',
     ];
