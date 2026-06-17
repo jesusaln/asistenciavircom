@@ -223,7 +223,8 @@ trait HandlesMenuFlow
             $isVircom = str_contains(strtolower($empresa->nombre_razon_social ?? ''), 'vircom');
             if ($isVircom) {
                 if ($msg === '1') {
-                    $this->sendReply("💻 *Productos*\n\nVisita nuestra tienda en línea:\nhttps://asistenciavircom.com/tienda\n\nO dime qué producto buscas (cámaras, alarmas, cómputo) y te ayudo.\n\nEscribe *menu* para volver.");
+                    $this->sendReply("📅 *Agendar Cita*\n\n¿Qué tipo de servicio necesitas?\n\n1️⃣ *Instalación*\n2️⃣ *Reparación*\n3️⃣ *Garantía*\n4️⃣ *Diagnóstico*\n5️⃣ *Otro*\n\nResponde el *número* de la opción.");
+                    Cache::put($stateKey, 'vircom_cita_tipo', now()->addDay());
                     return;
                 } elseif ($msg === '2') {
                     $this->sendReply("💰 *Cotización*\n\nPara una cotización, escríbeme los productos o servicios que necesitas.\n\nTambién visita: https://asistenciavircom.com/tienda\n\nEscribe *menu* para volver.");
@@ -233,8 +234,7 @@ trait HandlesMenuFlow
                     Cache::put($stateKey, 'esperando_descripcion_ticket', now()->addDay());
                     return;
                 } elseif ($msg === '5') {
-                    $this->sendReply("📅 *Agendar Cita*\n\n¿Qué tipo de servicio necesitas?\n\n1️⃣ *Instalación*\n2️⃣ *Reparación*\n3️⃣ *Garantía*\n4️⃣ *Diagnóstico*\n5️⃣ *Otro*\n\nResponde el *número* de la opción.");
-                    Cache::put($stateKey, 'vircom_cita_tipo', now()->addDay());
+                    $this->sendReply("💻 *Productos*\n\nVisita nuestra tienda en línea:\nhttps://asistenciavircom.com/tienda\n\nO dime qué producto buscas (cámaras, alarmas, cómputo) y te ayudo.\n\nEscribe *menu* para volver.");
                     return;
                 }
             }
@@ -1325,11 +1325,11 @@ trait HandlesMenuFlow
     {
         if ($isVircom) {
             return "¿Cómo te podemos ayudar?\n\n" .
-                 "1️⃣ *Productos* (Catálogo en línea)\n" .
+                 "1️⃣ *Agendar Cita* (Visita técnica)\n" .
                  "2️⃣ *Cotización*\n" .
                  "3️⃣ *Abrir Ticket de Soporte*\n" .
                  "4️⃣ *Consultar Folio* (Ticket o servicio existente)\n" .
-                 "5️⃣ *Agendar Cita* (Visita técnica)\n" .
+                 "5️⃣ *Productos* (Catálogo en línea)\n" .
                  "6️⃣ *Facturación*\n" .
                  "7️⃣ *Hablar con Asesor*\n" .
                  "8️⃣ *Preguntas Frecuentes*\n" .
