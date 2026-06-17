@@ -222,18 +222,21 @@ trait HandlesMenuFlow
 
             $isVircom = str_contains(strtolower($empresa->nombre_razon_social ?? ''), 'vircom');
             if ($isVircom) {
-                // Vircom no tiene flujos de instalación/citas, redirigir a humano o catálogo
                 if ($msg === '1') {
-                    $this->sendReply("💻 *Productos*\n\nVisita nuestra tienda en línea para ver nuestro catálogo completo:\nhttps://asistenciavircom.com/tienda\n\nO dime qué producto buscas y te ayudo a encontrarlo.\n\nEscribe *menu* para volver.");
+                    $this->sendReply("💻 *Productos*\n\nVisita nuestra tienda en línea:\nhttps://asistenciavircom.com/tienda\n\nO dime qué producto buscas (cámaras, alarmas, cómputo) y te ayudo.\n\nEscribe *menu* para volver.");
                     return;
                 } elseif ($msg === '2') {
-                    $this->sendReply("💰 *Cotización*\n\nPara una cotización personalizada, por escríbeme los productos o servicios que necesitas y con gusto te ayudo.\n\nTambién puedes visitar: https://asistenciavircom.com/tienda\n\nEscribe *menu* para volver.");
+                    $this->sendReply("💰 *Cotización*\n\nPara una cotización, escríbeme los productos o servicios que necesitas.\n\nTambién visita: https://asistenciavircom.com/tienda\n\nEscribe *menu* para volver.");
                     return;
                 } elseif ($msg === '3') {
-                    $this->sendReply("🎫 *Ticket de Soporte*\n\nPara abrir un ticket de soporte técnico, ingresa a:\nhttps://asistenciavircom.com/portal/tickets/crear\n\nO dime tu folio de ticket existente para consultar su estado.\n\nEscribe *menu* para volver.");
+                    $this->sendReply("🎫 *Abrir Ticket de Soporte*\n\nDescribe tu problema técnico y te asignaremos un ticket.\n\nEjemplo: \"Mi cámara no enciende\"\n\nTambién puedes abrirlo en:\nhttps://asistenciavircom.com/portal/tickets/crear\n\nEscribe *menu* para volver.");
+                    Cache::put($stateKey, 'esperando_descripcion_ticket', now()->addDay());
+                    return;
+                } elseif ($msg === '5') {
+                    $this->sendReply("📅 *Agendar Cita*\n\nDescribe brevemente el servicio que necesitas y te agendamos una visita técnica.\n\nEjemplo: \"Instalación de cámara en oficina\"\n\nEscribe *menu* para volver.");
+                    Cache::put($stateKey, 'esperando_cita', now()->addDay());
                     return;
                 }
-                // For options 4-9, use Climas flow but with Vircom-specific links
             }
 
             if ($msg === '1') {
@@ -1264,16 +1267,17 @@ trait HandlesMenuFlow
     {
         if ($isVircom) {
             return "¿Cómo te podemos ayudar?\n\n" .
-                 "1️⃣ *Productos* (Cámaras, Alarmas, Cómputo)\n" .
+                 "1️⃣ *Productos* (Catálogo en línea)\n" .
                  "2️⃣ *Cotización*\n" .
-                 "3️⃣ *Ticket de Soporte* (Abrir o consultar)\n" .
-                 "4️⃣ *Consultar Folio* (Tickets, Servicios)\n" .
-                 "5️⃣ *Facturación*\n" .
-                 "6️⃣ *Hablar con Asesor*\n" .
-                 "7️⃣ *Preguntas Frecuentes*\n" .
-                 "8️⃣ *Garantías*\n" .
+                 "3️⃣ *Abrir Ticket de Soporte*\n" .
+                 "4️⃣ *Consultar Folio* (Ticket o servicio existente)\n" .
+                 "5️⃣ *Agendar Cita* (Visita técnica)\n" .
+                 "6️⃣ *Facturación*\n" .
+                 "7️⃣ *Hablar con Asesor*\n" .
+                 "8️⃣ *Preguntas Frecuentes*\n" .
+                 "9️⃣ *Garantías*\n" .
                  "0️⃣ *Salir*\n" .
-                 "\nEscribe el *número* de la opción deseada.\n💡 *Tip:* Escribe tu folio directo (T-001, TKT-2026-...)";
+                 "\nEscribe el *número* de la opción deseada.\n💡 *Tip:* Escribe tu folio directo (TKT-2026-...)";
         }
         return "¿Cómo te podemos ayudar?\n\n" .
              "1️⃣ *Instalación Sin Costo*\n" .
