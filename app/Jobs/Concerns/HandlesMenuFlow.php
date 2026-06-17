@@ -233,8 +233,8 @@ trait HandlesMenuFlow
                     Cache::put($stateKey, 'esperando_descripcion_ticket', now()->addDay());
                     return;
                 } elseif ($msg === '5') {
-                    $this->sendReply("📅 *Agendar Cita*\n\nDescribe brevemente el servicio que necesitas y te agendamos una visita técnica.\n\nEjemplo: \"Instalación de cámara en oficina\"\n\nEscribe *menu* para volver.");
-                    Cache::put($stateKey, 'esperando_cita', now()->addDay());
+                    $this->sendReply("📅 *Agendar Cita*\n\n¿Qué tipo de servicio necesitas?\n\n1️⃣ *Instalación*\n2️⃣ *Reparación*\n3️⃣ *Garantía*\n4️⃣ *Diagnóstico*\n5️⃣ *Otro*\n\nResponde el *número* de la opción.");
+                    Cache::put($stateKey, 'vircom_cita_tipo', now()->addDay());
                     return;
                 }
             }
@@ -1077,12 +1077,14 @@ trait HandlesMenuFlow
                 "Ahora selecciona una fecha para la visita del técnico:");
             $this->mostrarCalendarioDisponible($empresa, $stateKey);
             return;
-        } elseif ($state === 'esperando_descripcion_ticket') {
-            $this->sendReply("🎫 *Ticket de Soporte*\n\n✅ Hemos registrado tu solicitud:\n\n*Problema:* {$this->incomingMessage}\n\nUn técnico se comunicará contigo pronto. También puedes dar seguimiento en:\nhttps://asistenciavircom.com/portal/tickets\n\nEscribe *menu* para volver.");
+        } elseif ($state === 'vircom_cita_tipo') {
+            $tipos = ['1' => 'Instalación', '2' => 'Reparación', '3' => 'Garantía', '4' => 'Diagnóstico'];
+            $tipo = $tipos[$msg] ?? 'Otro';
+            $this->sendReply("📅 *Cita Agendada*\n\n✅ Hemos registrado tu solicitud de *{$tipo}*.\n\nTe contactaremos pronto para confirmar la fecha y hora.\n\nEscribe *menu* para volver.");
             Cache::put($stateKey, 'menu', now()->addDay());
             return;
-        } elseif ($state === 'esperando_cita') {
-            $this->sendReply("📅 *Cita Agendada*\n\n✅ Hemos registrado tu solicitud de visita técnica:\n\n*Servicio:* {$this->incomingMessage}\n\nTe contactaremos pronto para confirmar la fecha y hora.\n\nEscribe *menu* para volver.");
+        } elseif ($state === 'esperando_descripcion_ticket') {
+            $this->sendReply("🎫 *Ticket de Soporte*\n\n✅ Hemos registrado tu solicitud:\n\n*Problema:* {$this->incomingMessage}\n\nUn técnico se comunicará contigo pronto. También puedes dar seguimiento en:\nhttps://asistenciavircom.com/portal/tickets\n\nEscribe *menu* para volver.");
             Cache::put($stateKey, 'menu', now()->addDay());
             return;
         }
