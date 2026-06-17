@@ -618,8 +618,7 @@ class TicketController extends Controller
                 [
                     'descripcion' => 'Servicio técnico de soporte generado desde tickets',
                     'codigo' => 'SOPORTE-TKT',
-                    'categoria_id' => $categoriaId,
-                    'precio' => 650, // Precio por defecto del servicio de soporte
+                    'precio' => 650, // Precio neto con IVA incluido
                     'duracion' => 60, // Duración estimada en minutos
                     'estado' => 'activo',
                     'margen_ganancia' => 100,
@@ -633,13 +632,13 @@ class TicketController extends Controller
             $notasVenta = "{$folioExterno}FOLIO INTERNO: {$folioServicio}\nTicket #{$ticket->numero}: {$ticket->titulo}\nCliente: {$ticket->cliente?->nombre_razon_social}\n\nDetalles:\n{$ticket->descripcion}";
 
             $horasFacturar = max(1, (int) ($ticket->horas_trabajadas ?? 1));
-            $precioPorHora = 650;
-            $subtotalBase = $precioPorHora * $horasFacturar;
-            $ivaPorcentaje = \App\Services\EmpresaConfiguracionService::getIvaPorcentaje() / 100;
-            $ivaMonto = $subtotalBase * $ivaPorcentaje;
+            $precioNetoPorHora = 650; // Precio neto con IVA incluido
+            $precioSinIva = round($precioNetoPorHora / 1.16, 2);
+            $subtotalBase = $precioSinIva * $horasFacturar;
+            $ivaMonto = round($subtotalBase * 0.16, 2);
             $totalMonto = $subtotalBase + $ivaMonto;
 
-            $notasVenta .= "\n\nHoras facturadas: {$horasFacturar}hrs x \${$precioPorHora}/hr";
+            $notasVenta .= "\n\n{$horasFacturar}hrs x \${$precioNetoPorHora}/hr (IVA incluido)";
 
             $venta = Venta::create([
                 'cliente_id' => $ticket->cliente_id,
@@ -659,7 +658,7 @@ class TicketController extends Controller
                 'ventable_type' => \App\Models\Servicio::class,
                 'ventable_id' => $servicioSoporte->id,
                 'cantidad' => $horasFacturar,
-                'precio' => $precioPorHora,
+                'precio' => $precioSinIva,
                 'descuento' => 0,
                 'subtotal' => $subtotalBase,
             ]);
