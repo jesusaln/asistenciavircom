@@ -534,6 +534,10 @@ trait HandlesAppointmentFlow
         $horarioInicio = Cache::get("{$stateKey}_horario_inicio");
         $horarioFin = Cache::get("{$stateKey}_horario_fin");
         $tecnicoId = Cache::get("{$stateKey}_tecnico_id");
+        // Para Vircom, si no hay técnico asignado, usar Alan Aranda Esquer (ID 3)
+        if (!$tecnicoId && Cache::get("{$stateKey}_vircom_tipo")) {
+            $tecnicoId = 3;
+        }
         $cp = Cache::get("{$stateKey}_cp");
         $calle = Cache::get("{$stateKey}_calle");
         $numero = Cache::get("{$stateKey}_numero");
