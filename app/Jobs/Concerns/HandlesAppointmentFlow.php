@@ -104,6 +104,19 @@ trait HandlesAppointmentFlow
             return;
         }
         Cache::put("{$stateKey}_nombre", $nombre, now()->addDay());
+
+        $cliente = $this->buscarClientePorWaId();
+        $tieneDireccionCompleta = $cliente && $cliente->calle && $cliente->codigo_postal && $cliente->colonia && $cliente->numero_exterior;
+
+        if ($tieneDireccionCompleta) {
+            Cache::put("{$stateKey}_cp", $cliente->codigo_postal, now()->addDay());
+            Cache::put("{$stateKey}_calle", $cliente->calle, now()->addDay());
+            Cache::put("{$stateKey}_numero", $cliente->numero_exterior, now()->addDay());
+            Cache::put("{$stateKey}_colonia", $cliente->colonia, now()->addDay());
+            $this->mostrarResumenConfirmacion($empresa, $stateKey);
+            return;
+        }
+
         $this->sendReply("📬 *Dirección de la cita:*\n\nEscribe tu *Código Postal* (5 dígitos):");
         Cache::put($stateKey, 'agendar_cp', now()->addDay());
     }
@@ -423,7 +436,8 @@ trait HandlesAppointmentFlow
 
         try {
             $url = "https://api-sepomex.hckdrk.mx/query/info_cp/{$cp}";
-            $response = @file_get_contents($url);
+            $ctx = stream_context_create(['http' => ['timeout' => 5]]);
+            $response = @file_get_contents($url, false, $ctx);
             if ($response !== false) {
                 $data = json_decode($response, true);
                 $municipio = $data['response']['municipio'] ?? '';
