@@ -220,6 +220,22 @@ trait HandlesMenuFlow
                 return;
             }
 
+            $isVircom = str_contains(strtolower($empresa->nombre_razon_social ?? ''), 'vircom');
+            if ($isVircom) {
+                // Vircom no tiene flujos de instalación/citas, redirigir a humano o catálogo
+                if ($msg === '1') {
+                    $this->sendReply("💻 *Productos*\n\nVisita nuestra tienda en línea para ver nuestro catálogo completo:\nhttps://asistenciavircom.com/tienda\n\nO dime qué producto buscas y te ayudo a encontrarlo.\n\nEscribe *menu* para volver.");
+                    return;
+                } elseif ($msg === '2') {
+                    $this->sendReply("💰 *Cotización*\n\nPara una cotización personalizada, por escríbeme los productos o servicios que necesitas y con gusto te ayudo.\n\nTambién puedes visitar: https://asistenciavircom.com/tienda\n\nEscribe *menu* para volver.");
+                    return;
+                } elseif ($msg === '3') {
+                    $this->sendReply("🎫 *Ticket de Soporte*\n\nPara abrir un ticket de soporte técnico, ingresa a:\nhttps://asistenciavircom.com/portal/tickets/crear\n\nO dime tu folio de ticket existente para consultar su estado.\n\nEscribe *menu* para volver.");
+                    return;
+                }
+                // For options 4-9, use Climas flow but with Vircom-specific links
+            }
+
             if ($msg === '1') {
                 $this->sendReply("🏪 ¿En qué tienda realizaste tu compra?\n\n1️⃣ *Liverpool*\n2️⃣ *Sears*\n3️⃣ *Home Depot*\n4️⃣ *Coppel*\n5️⃣ *Elektra*\n6️⃣ *City Club*\n7️⃣ *Sams Club*\n8️⃣ *Otra tienda departamental* (escribe el nombre)");
                 Cache::put("{$stateKey}_tipo", 'Instalación', now()->addDay());
@@ -262,40 +278,57 @@ trait HandlesMenuFlow
             } elseif ($msg === '7') {
                 $digits = preg_replace('/\D+/', '', $this->waId);
                 $last10 = strlen($digits) >= 10 ? substr($digits, -10) : $digits;
+                $facturaUrl = $isVircom ? "https://asistenciavircom.com/facturar?telefono={$last10}" : "https://climasdeldesierto.com/facturar?telefono={$last10}";
 
                 $reply = "📄 *Facturación Electrónica:*\n\n" .
                          "Genera tu factura CFDI 4.0 en menos de 1 minuto de manera rápida ingresando al siguiente enlace:\n" .
-                         "https://climasdeldesierto.com/facturar?telefono={$last10}\n\n" .
+                         "{$facturaUrl}\n\n" .
                           "Escribe *menu* para volver al menú principal.";
                 $nextState = 'menu_select';
             } elseif ($msg === '8') {
-                $reply = "❓ *Preguntas Frecuentes:*\n\n" .
-                         "1️⃣ *¿Cuánto tiempo tarda una instalación?* Entre 2 y 4 horas.\n\n" .
-                         "2️⃣ *¿Dan garantía?* 3 meses mano de obra. Equipos nuevos tienen garantía de fábrica.\n\n" .
-                         "3️⃣ *¿Qué necesito tener listo para la instalación?*\n" .
-                         "   🔌 *Térmico* (breaker) exclusivo para el equipo; en 220V usa térmico doble\n" .
-                         "   ⚡ *Tierra física* con su propio cable — NO juntar con otros equipos\n" .
-                         "   📐 *Evaporador* empotrado a 20 cm abajo de loza/techo para retorno de aire\n" .
-                         "   🔌 *Cable calibre 12* mínimo para 1 y 2 ton, uso rudo\n" .
-                         "   📏 Para *Inverter*, cableado y breaker deben ser de mayor capacidad\n\n" .
-                         "4️⃣ *¿Hacen envíos?* Sí, a toda la República. Costo depende del CP.\n\n" .
-                         "5️⃣ *Formas de pago* Efectivo, transferencia y tarjeta.\n\n" .
-                         "6️⃣ *¿Atención a domicilio?* Hermosillo y alrededores. Diagnóstico desde \$350.\n\n" .
-                          "Escribe *menu* para volver.";
+                if ($isVircom) {
+                    $reply = "❓ *Preguntas Frecuentes:*\n\n" .
+                             "1️⃣ *¿Hacen envíos?* Sí, a todo México. Envío gratis en Hermosillo.\n\n" .
+                             "2️⃣ *¿Formas de pago?* Efectivo, transferencia y contra entrega.\n\n" .
+                             "3️⃣ *¿Garantía?* 30 días en todos nuestros productos.\n\n" .
+                             "4️⃣ *¿Atención a domicilio?* Sí, en Hermosillo y alrededores.\n\n" .
+                             "Escribe *menu* para volver.";
+                } else {
+                    $reply = "❓ *Preguntas Frecuentes:*\n\n" .
+                             "1️⃣ *¿Cuánto tiempo tarda una instalación?* Entre 2 y 4 horas.\n\n" .
+                             "2️⃣ *¿Dan garantía?* 3 meses mano de obra. Equipos nuevos tienen garantía de fábrica.\n\n" .
+                             "3️⃣ *¿Qué necesito tener listo para la instalación?*\n" .
+                             "   🔌 *Térmico* (breaker) exclusivo para el equipo; en 220V usa térmico doble\n" .
+                             "   ⚡ *Tierra física* con su propio cable — NO juntar con otros equipos\n" .
+                             "   📐 *Evaporador* empotrado a 20 cm abajo de loza/techo para retorno de aire\n" .
+                             "   🔌 *Cable calibre 12* mínimo para 1 y 2 ton, uso rudo\n" .
+                             "   📏 Para *Inverter*, cableado y breaker deben ser de mayor capacidad\n\n" .
+                             "4️⃣ *¿Hacen envíos?* Sí, a toda la República. Costo depende del CP.\n\n" .
+                             "5️⃣ *Formas de pago* Efectivo, transferencia y tarjeta.\n\n" .
+                             "6️⃣ *¿Atención a domicilio?* Hermosillo y alrededores. Diagnóstico desde \$350.\n\n" .
+                              "Escribe *menu* para volver.";
+                }
                 $nextState = 'menu_select';
             } elseif ($msg === '9') {
-                $reply = "🛡️ *Garantías y Requisitos de Instalación*\n\n" .
-                         "Para que tu equipo conserve la *garantía de fábrica* es obligatorio:\n\n" .
-"🔌 *Térmico dedicado* (breaker exclusivo; en 220V usa térmico doble)\n" .
-                          "⚡ *Tierra física individual* — cable propio, NO compartido\n" .
-                          "📐 *Evaporador* empotrado a 20 cm abajo de loza/techo para retorno de aire\n" .
-                          "🔌 *Cable calibre 12* mínimo para 1 y 2 ton, uso rudo\n" .
-                         "📌 Instalación realizada por técnico certificado\n\n" .
-                         "Sin estos requisitos, la garantía *no será válida*.\n\n" .
-                         "¿Ya tienes tu equipo? Podemos agendar una cita para registrar tu garantía:\n\n" .
-                         "1️⃣ *Registrar Garantía* (agendar cita)\n" .
-                         "2️⃣ *Volver al menú*";
-                Cache::put("{$stateKey}_garantia_menu", true, now()->addDay());
+                if ($isVircom) {
+                    $reply = "🛡️ *Garantías*\n\n" .
+                             "Todos nuestros productos tienen *30 días de garantía*.\n\n" .
+                             "Para hacer válida tu garantía, contáctanos con tu factura o ticket de compra.\n\n" .
+                             "Escribe *menu* para volver.";
+                } else {
+                    $reply = "🛡️ *Garantías y Requisitos de Instalación*\n\n" .
+                             "Para que tu equipo conserve la *garantía de fábrica* es obligatorio:\n\n" .
+                             "🔌 *Térmico dedicado* (breaker exclusivo; en 220V usa térmico doble)\n" .
+                             "⚡ *Tierra física individual* — cable propio, NO compartido\n" .
+                             "📐 *Evaporador* empotrado a 20 cm abajo de loza/techo para retorno de aire\n" .
+                             "🔌 *Cable calibre 12* mínimo para 1 y 2 ton, uso rudo\n" .
+                             "📌 Instalación realizada por técnico certificado\n\n" .
+                             "Sin estos requisitos, la garantía *no será válida*.\n\n" .
+                             "¿Ya tienes tu equipo? Podemos agendar una cita para registrar tu garantía:\n\n" .
+                             "1️⃣ *Registrar Garantía* (agendar cita)\n" .
+                             "2️⃣ *Volver al menú*";
+                    Cache::put("{$stateKey}_garantia_menu", true, now()->addDay());
+                }
                 $nextState = 'garantia_menu';
             } elseif ($msg === '0') {
                 $clienteCheck = $this->buscarClientePorWaId();
