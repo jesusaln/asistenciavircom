@@ -1097,12 +1097,15 @@ trait HandlesMenuFlow
                 $sequence = $lastTicket ? (int) substr($lastTicket->numero, -5) + 1 : 1;
                 $numero = 'TKT-' . $year . '-' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
+                $sinPoliza = !$cliente || !\App\Models\PolizaServicio::where('cliente_id', $cliente->id)
+                    ->whereIn('estado', ['activa', 'vencida_en_gracia'])->exists();
                 $ticket = \App\Models\Ticket::create([
                     'numero' => $numero,
                     'titulo' => 'Soporte WhatsApp: ' . mb_substr($this->incomingMessage, 0, 100),
                     'descripcion' => $this->incomingMessage,
                     'estado' => 'abierto',
                     'origen' => 'whatsapp',
+                    'tipo_servicio' => $sinPoliza ? 'costo' : 'garantia',
                     'cliente_id' => $cliente?->id,
                     'nombre_contacto' => $cliente?->nombre_razon_social ?? 'Cliente WhatsApp',
                     'email_contacto' => $cliente?->email,
