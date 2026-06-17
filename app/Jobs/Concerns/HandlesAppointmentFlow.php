@@ -325,6 +325,11 @@ trait HandlesAppointmentFlow
         }
 
         if ($msg === '1') {
+            $isVircom = Cache::get("{$stateKey}_vircom_tipo");
+            if ($isVircom) {
+                $this->crearCitaFinal($empresa, $stateKey);
+                return;
+            }
             Cache::put($stateKey, 'survey_plantas', now()->addDay());
             $this->sendReply("1️⃣ *¿Su casa es de una planta o de dos plantas?*\n\n" .
                 "1️⃣ Una planta\n" .
@@ -513,17 +518,22 @@ trait HandlesAppointmentFlow
         $colonia = Cache::get("{$stateKey}_colonia", '—');
 
         $esGarantia = $tipo === 'Registro de Garantía';
-        $requisitos = $esGarantia ? "" :
-            "\n\n🛡️ *Requisitos de instalación (garantía):*\n" .
-            "🔌 Térmico dedicado (en 220V usa térmico doble)\n" .
-            "⚡ Tierra física individual — NO compartido\n" .
-            "📐 Evaporador a 20 cm bajo loza/techo\n" .
-            "🔌 Cable calibre 12 mínimo (1 y 2 ton, uso rudo)\n" .
-            "📌 Instalación por técnico certificado\n\n" .
-            "Sin estos requisitos la garantía *no será válida*.\n\n" .
-            "1️⃣ *Sí, cuento con todo — Confirmar cita*\n" .
-            "2️⃣ *No, necesito materiales*\n" .
-            "3️⃣ *Editar dirección*";
+        $isVircom = Cache::get("{$stateKey}_vircom_tipo");
+        if ($isVircom) {
+            $requisitos = "\n\n1️⃣ *Confirmar cita*\n2️⃣ *Editar dirección*";
+        } else {
+            $requisitos = $esGarantia ? "" :
+                "\n\n🛡️ *Requisitos de instalación (garantía):*\n" .
+                "🔌 Térmico dedicado (en 220V usa térmico doble)\n" .
+                "⚡ Tierra física individual — NO compartido\n" .
+                "📐 Evaporador a 20 cm bajo loza/techo\n" .
+                "🔌 Cable calibre 12 mínimo (1 y 2 ton, uso rudo)\n" .
+                "📌 Instalación por técnico certificado\n\n" .
+                "Sin estos requisitos la garantía *no será válida*.\n\n" .
+                "1️⃣ *Sí, cuento con todo — Confirmar cita*\n" .
+                "2️⃣ *No, necesito materiales*\n" .
+                "3️⃣ *Editar dirección*";
+        }
 
         $opciones = $esGarantia
             ? "1️⃣ *Confirmar cita*\n2️⃣ *Editar dirección*"
