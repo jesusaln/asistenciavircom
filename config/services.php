@@ -117,6 +117,10 @@ return [
     // Proveedor de IA preferido: 'groq' o 'ollama'
     'ai_provider' => env('AI_PROVIDER', 'groq'),
 
+    'google_analytics' => [
+        'measurement_id' => env('GA_MEASUREMENT_ID', ''),
+    ],
+
     'meta' => [
         'enabled' => env('META_CAPI_ENABLED', false),
         'pixel_id' => env('META_PIXEL_ID', '244351761667472'),

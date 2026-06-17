@@ -41,6 +41,23 @@
         as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+    {{-- Google Analytics --}}
+    @if(config('services.google_analytics.measurement_id'))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.measurement_id') }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ config('services.google_analytics.measurement_id') }}');
+            {{-- Track Inertia page views --}}
+            document.addEventListener('inertia:navigate', function(event) {
+                gtag('config', '{{ config('services.google_analytics.measurement_id') }}', {
+                    'page_path': event.detail.page.url
+                });
+            });
+        </script>
+    @endif
+
     {{-- Favicon dinámico --}}
     @if($empresaConfig->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresaConfig->favicon_path))
         <link rel="icon" href="{{ \App\Helpers\UrlHelper::storageUrl($empresaConfig->favicon_path) }}" type="image/x-icon">
