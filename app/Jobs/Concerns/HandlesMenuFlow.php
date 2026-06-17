@@ -1077,6 +1077,14 @@ trait HandlesMenuFlow
                 "Ahora selecciona una fecha para la visita del técnico:");
             $this->mostrarCalendarioDisponible($empresa, $stateKey);
             return;
+        } elseif ($state === 'esperando_descripcion_ticket') {
+            $this->sendReply("🎫 *Ticket de Soporte*\n\n✅ Hemos registrado tu solicitud:\n\n*Problema:* {$this->incomingMessage}\n\nUn técnico se comunicará contigo pronto. También puedes dar seguimiento en:\nhttps://asistenciavircom.com/portal/tickets\n\nEscribe *menu* para volver.");
+            Cache::put($stateKey, 'menu', now()->addDay());
+            return;
+        } elseif ($state === 'esperando_cita') {
+            $this->sendReply("📅 *Cita Agendada*\n\n✅ Hemos registrado tu solicitud de visita técnica:\n\n*Servicio:* {$this->incomingMessage}\n\nTe contactaremos pronto para confirmar la fecha y hora.\n\nEscribe *menu* para volver.");
+            Cache::put($stateKey, 'menu', now()->addDay());
+            return;
         }
 
         if ($reply) {
