@@ -198,15 +198,16 @@ trait HandlesMenuFlow
                 $tieneCitas = !is_null($proximaCita);
             }
 
-            $saludo = $cliente ? "🌵 ¡Hola *{$cliente->nombre_razon_social}*!" : "🌵 ¡Hola! Bienvenido a Climas del Desierto.";
+            $isVircom = str_contains(strtolower($empresa->nombre_razon_social ?? ''), 'vircom');
+            $saludo = $cliente ? "😊 ¡Hola *{$cliente->nombre_razon_social}*!" : ($isVircom ? "😊 ¡Hola! Bienvenido a Asistencia Vircom." : "🌵 ¡Hola! Bienvenido a Climas del Desierto.");
             $reply = $saludoPre . "{$saludo}\n\n";
 
-            if ($proximaCita) {
+            if ($proximaCita && !$isVircom) {
                 $fechaCita = $proximaCita->fecha_hora->format('d/m/Y H:i');
                 $reply .= "📅 *Recordatorio:* Tienes {$proximaCita->tipo_servicio} el {$fechaCita}\n\n";
             }
 
-            $reply .= $this->textoMenuCompleto($tieneCitas);
+            $reply .= $this->textoMenuCompleto($tieneCitas, $isVircom);
             $nextState = 'menu_select';
         } elseif ($state === 'menu_select') {
             if (str_starts_with($msg, 'agendar_')) {
@@ -1226,8 +1227,21 @@ trait HandlesMenuFlow
         $this->sendReply($reply);
     }
 
-    protected function textoMenuCompleto(bool $tieneCitas = false): string
+    protected function textoMenuCompleto(bool $tieneCitas = false, bool $isVircom = false): string
     {
+        if ($isVircom) {
+            return "¿Cómo te podemos ayudar?\n\n" .
+                 "1️⃣ *Productos* (Cámaras, Alarmas, Cómputo)\n" .
+                 "2️⃣ *Cotización*\n" .
+                 "3️⃣ *Ticket de Soporte* (Abrir o consultar)\n" .
+                 "4️⃣ *Consultar Folio* (Tickets, Servicios)\n" .
+                 "5️⃣ *Facturación*\n" .
+                 "6️⃣ *Hablar con Asesor*\n" .
+                 "7️⃣ *Preguntas Frecuentes*\n" .
+                 "8️⃣ *Garantías*\n" .
+                 "0️⃣ *Salir*\n" .
+                 "\nEscribe el *número* de la opción deseada.\n💡 *Tip:* Escribe tu folio directo (T-001, TKT-2026-...)";
+        }
         return "¿Cómo te podemos ayudar?\n\n" .
              "1️⃣ *Instalación Sin Costo*\n" .
              "2️⃣ *Instalación Ecoclimas*\n" .
