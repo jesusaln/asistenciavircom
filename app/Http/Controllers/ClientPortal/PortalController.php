@@ -247,6 +247,8 @@ class PortalController extends Controller
             'categoria_id' => 'nullable|exists:ticket_categories,id',
             'prioridad' => 'required|in:baja,media,alta,urgente',
             'folio_externo' => 'nullable|string|max:100',
+            'archivos' => 'nullable|array',
+            'archivos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $cliente = Auth::guard('client')->user();
@@ -288,6 +290,17 @@ class PortalController extends Controller
             }
         }
 
+        // Procesar archivos si existen
+        $rutasArchivos = [];
+        if ($request->hasFile('archivos')) {
+            foreach ($request->file('archivos') as $archivo) {
+                $path = \Illuminate\Support\Facades\Storage::disk('public')->putFile('tickets', $archivo);
+                if ($path) {
+                    $rutasArchivos[] = $path;
+                }
+            }
+        }
+
         // Generar número de folio
         $year = date('Y');
         $lastTicket = Ticket::whereYear('created_at', $year)->latest()->first();
@@ -316,6 +329,7 @@ class PortalController extends Controller
             'email_contacto' => $cliente->email,
             'telefono_contacto' => $cliente->telefono ?? $cliente->celular,
             'folio_externo' => $validated['folio_externo'] ?? null,
+            'archivos' => !empty($rutasArchivos) ? $rutasArchivos : null,
             'fecha_limite' => $fechaLimite,
             'empresa_id' => $cliente->empresa_id,
         ]);
@@ -366,13 +380,26 @@ class PortalController extends Controller
 
         $request->validate([
             'contenido' => 'required|string',
+            'archivos' => 'nullable|array',
+            'archivos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
+
+        $archivos = [];
+        if ($request->hasFile('archivos')) {
+            foreach ($request->file('archivos') as $file) {
+                $path = $file->store('tickets/evidencias', 'public');
+                if ($path) {
+                    $archivos[] = $path;
+                }
+            }
+        }
 
         $ticket->comentarios()->create([
             'contenido' => $request->contenido,
             'es_interno' => false,
             'user_id' => null,
-            'tipo' => 'respuesta', // Ajustar según enum si existe
+            'tipo' => 'respuesta',
+            'metadata' => !empty($archivos) ? ['archivos' => $archivos] : null,
         ]);
 
         return back();

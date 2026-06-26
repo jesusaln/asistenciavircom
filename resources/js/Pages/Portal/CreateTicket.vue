@@ -22,7 +22,31 @@ const form = useForm({
   categoria_id: '',
   prioridad: 'media',
   folio_externo: '',
+  archivos: [],
 });
+
+const archivosPreview = ref([]);
+
+const handleFileChange = (e) => {
+  const files = Array.from(e.target.files);
+  form.archivos = files;
+  archivosPreview.value = files.map(f => ({
+    name: f.name,
+    size: f.size,
+    url: URL.createObjectURL(f),
+  }));
+};
+
+const removeArchivo = (index) => {
+  const newFiles = Array.from(form.archivos).filter((_, i) => i !== index);
+  const dt = new DataTransfer();
+  newFiles.forEach(f => dt.items.add(f));
+  form.archivos = dt.files;
+  archivosPreview.value = archivosPreview.value.filter((_, i) => i !== index);
+  // Reset file input
+  const fileInput = document.getElementById('archivos');
+  if (fileInput) fileInput.files = dt.files;
+};
 
 const submit = () => {
     // Si hay advertencia pendiente y no ha sido aceptada, mostrar modal de nuevo o prevenir envío si es crítico
@@ -226,6 +250,37 @@ const formatCurrency = (amount) => {
                 class="w-full px-4 py-3 border border-slate-200 dark:border-white/10 dark:bg-slate-950/50 dark:text-white rounded-xl focus:ring-2 focus:ring-[var(--color-primary-soft)] dark:focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all placeholder-slate-400 dark:placeholder-slate-600"
                 placeholder="Ej: 131245537 (número de orden del cliente)"
               />
+            </div>
+
+            <!-- Archivos / Evidencias -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Evidencias <span class="text-slate-400 font-normal">(opcional)</span></label>
+              <div class="flex items-center justify-center w-full">
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 dark:border-white/20 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-950/30 hover:bg-slate-100 dark:hover:bg-slate-950/50 transition-colors">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg class="w-8 h-8 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="mb-1 text-sm text-slate-500 dark:text-slate-400"><span class="font-semibold">Da clic para subir</span> o arrastra y suelta</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, WEBP (Máx. 5MB c/u)</p>
+                  </div>
+                  <input id="archivos" type="file" multiple accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden" @change="handleFileChange" />
+                </label>
+              </div>
+              <div v-if="form.errors.archivos" class="text-rose-500 text-xs mt-1">{{ form.errors.archivos }}</div>
+              <div v-if="form.errors.archivos0" class="text-rose-500 text-xs mt-1">{{ form.errors.archivos0 }}</div>
+              <!-- Preview -->
+              <div v-if="archivosPreview.length > 0" class="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                <div v-for="(file, i) in archivosPreview" :key="i" class="relative group aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                  <img :src="file.url" class="w-full h-full object-cover" />
+                  <button type="button" @click="removeArchivo(i)" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
+                    ✕
+                  </button>
+                  <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-1">
+                    <p class="text-[10px] text-white truncate">{{ file.name }}</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Botones -->

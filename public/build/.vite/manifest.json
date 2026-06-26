@@ -687,7 +687,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-C5qEG82g.css",
+    "file": "assets/app-CWhQgDNR.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-DZ6YQJzp.js",
+    "file": "assets/Index-Bb4x_VPL.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -1043,7 +1043,7 @@
     ],
     "css": [
       "assets/Index-B2ZG0pJB.css",
-      "assets/app-C5qEG82g.css"
+      "assets/app-CWhQgDNR.css"
     ]
   },
   "resources/js/Pages/Admin/Pos/Partials/CajaAperturaModal.vue": {
@@ -7062,7 +7062,7 @@
     ]
   },
   "resources/js/Pages/Portal/CreateTicket.vue": {
-    "file": "assets/CreateTicket-Bil9MgtI.js",
+    "file": "assets/CreateTicket-71qpYzc6.js",
     "name": "CreateTicket",
     "src": "resources/js/Pages/Portal/CreateTicket.vue",
     "isDynamicEntry": true,
@@ -7395,7 +7395,7 @@
     ]
   },
   "resources/js/Pages/Portal/ShowTicket.vue": {
-    "file": "assets/ShowTicket-CDdRfQag.js",
+    "file": "assets/ShowTicket-bva1omlT.js",
     "name": "ShowTicket",
     "src": "resources/js/Pages/Portal/ShowTicket.vue",
     "isDynamicEntry": true,
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-C-XokFK_.js",
+    "file": "assets/Create-BGi6kj5I.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10288,7 +10288,7 @@
     ],
     "css": [
       "assets/Create-D8klW5HN.css",
-      "assets/app-C5qEG82g.css",
+      "assets/app-CWhQgDNR.css",
       "assets/Index-tn0RQdqM.css"
     ]
   },
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-C2PPpDah.js",
+    "file": "assets/app-CXfblq34.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -10884,7 +10884,7 @@
       "resources/js/Pages/WelcomeClimas.vue"
     ],
     "css": [
-      "assets/app-C5qEG82g.css"
+      "assets/app-CWhQgDNR.css"
     ]
   },
   "resources/js/icons.js": {

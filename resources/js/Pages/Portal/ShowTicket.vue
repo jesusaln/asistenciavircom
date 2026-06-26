@@ -142,6 +142,21 @@
             <textarea v-model="commentForm.contenido" rows="3"
               class="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 dark:bg-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all resize-none"
               placeholder="Escribe tu mensaje aquí..."></textarea>
+            <div class="mt-3">
+              <label class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Adjuntar imágenes</span>
+                <input id="comment_archivos" type="file" multiple accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden" @change="handleCommentFileChange" />
+              </label>
+              <div v-if="commentArchivosPreview.length > 0" class="mt-2 flex flex-wrap gap-2">
+                <div v-for="(file, i) in commentArchivosPreview" :key="i" class="relative group w-16 h-16 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                  <img :src="file.url" class="w-full h-full object-cover" />
+                  <button type="button" @click="removeCommentArchivo(i)" class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                </div>
+              </div>
+            </div>
             <div class="mt-3 flex justify-end">
               <button type="submit" :disabled="commentForm.processing"
                 class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2">
@@ -184,11 +199,34 @@ const props = defineProps({
   ticket: Object,
 });
 
-const commentForm = useForm({ contenido: '' });
+const commentForm = useForm({ contenido: '', archivos: [] });
+const commentArchivosPreview = ref([]);
+
+const handleCommentFileChange = (e) => {
+  commentForm.archivos = Array.from(e.target.files);
+  commentArchivosPreview.value = Array.from(e.target.files).map(f => ({
+    name: f.name,
+    size: f.size,
+    url: URL.createObjectURL(f),
+  }));
+};
+
+const removeCommentArchivo = (index) => {
+  const newFiles = Array.from(commentForm.archivos).filter((_, i) => i !== index);
+  const dt = new DataTransfer();
+  newFiles.forEach(f => dt.items.add(f));
+  commentForm.archivos = dt.files;
+  commentArchivosPreview.value = commentArchivosPreview.value.filter((_, i) => i !== index);
+  const fileInput = document.getElementById('comment_archivos');
+  if (fileInput) fileInput.files = dt.files;
+};
 
 const submitComment = () => {
     commentForm.post(route('portal.tickets.comments.store', props.ticket.id), {
-        onSuccess: () => commentForm.reset(),
+        onSuccess: () => {
+            commentForm.reset();
+            commentArchivosPreview.value = [];
+        },
         preserveScroll: true,
     });
 };
