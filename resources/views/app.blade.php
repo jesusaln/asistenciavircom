@@ -34,11 +34,10 @@
     </title>
 
     <!-- Fonts -->
-    <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400&display=swap" as="style">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.bunny.net/css?family=figtree:400&display=swap" rel="stylesheet" />
     <!-- Fallback font for better Spanish character support -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     {{-- Google Analytics --}}

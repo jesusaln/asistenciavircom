@@ -24,6 +24,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
       - cdd_network
+      - asistenciavircom_cdd_net
       - coolify_cdd_net
       - coolify
 
@@ -52,6 +53,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
       - cdd_network
+      - asistenciavircom_cdd_net
       - coolify_cdd_net
       - coolify
     depends_on:
@@ -70,6 +72,7 @@ services:
       - ./certs:/etc/nginx/certs
     networks:
       - cdd_network
+      - asistenciavircom_cdd_net
     depends_on:
       - app
 
@@ -100,6 +103,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
       - cdd_network
+      - asistenciavircom_cdd_net
       - coolify_cdd_net
       - coolify
 
@@ -128,6 +132,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
       - cdd_network
+      - asistenciavircom_cdd_net
       - coolify_cdd_net
       - coolify
 
@@ -156,12 +161,16 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
       - cdd_network
+      - asistenciavircom_cdd_net
       - coolify_cdd_net
       - coolify
 
 networks:
   cdd_network:
     driver: bridge
+  asistenciavircom_cdd_net:
+    external: true
+    name: asistenciavircom_cdd_network
   coolify_cdd_net:
     external: true
     name: dgc4wsk44gs0kcoowsogggcw_cdd_net
