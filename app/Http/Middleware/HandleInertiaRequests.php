@@ -137,6 +137,11 @@ class HandleInertiaRequests extends Middleware
             ->where('fecha_vencimiento', '<', $corteLimitDate)
             ->count();
 
+        // Exentos: clientes con póliza de servicio activa
+        if ($cliente->polizas()->whereIn('estado', ['activa', 'vencida_en_gracia'])->exists()) {
+            return false;
+        }
+
         $totalVencidos = $countVentas + $countCxC;
 
         // REGLA DE NEGOCIO (20-01-2026):

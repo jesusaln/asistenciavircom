@@ -380,6 +380,11 @@ class CitaController extends Controller
      */
     public function store(Request $request)
     {
+        // Normalizar ayudante_id: convertir string vacío a null
+        if ($request->exists('ayudante_id') && $request->input('ayudante_id') === '') {
+            $request->merge(['ayudante_id' => null]);
+        }
+
         // Validar los datos recibidos con mejoras
         $validated = $request->validate([
             'tecnico_id' => 'required|exists:users,id',
@@ -590,11 +595,13 @@ class CitaController extends Controller
             throw $e;
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error al crear cita: ' . $e->getMessage());
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Error al crear la cita.');
+            Log::error('Error al crear cita: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'cliente_id' => $validated['cliente_id'] ?? null,
+            ]);
+            throw ValidationException::withMessages([
+                'error' => 'Error al crear la cita: ' . $e->getMessage(),
+            ]);
         }
     }
 
