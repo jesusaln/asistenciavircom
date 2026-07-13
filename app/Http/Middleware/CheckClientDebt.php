@@ -96,6 +96,11 @@ class CheckClientDebt
 
         $totalVencidos = $countVentas + $countCxC;
 
+        // Exentos: clientes con póliza de servicio activa
+        if ($cliente->polizas()->whereIn('estado', ['activa', 'vencida_en_gracia'])->exists()) {
+            return false;
+        }
+
         Log::info('CheckClientDebt: Estado Deuda', [
             'ventas_vencidas' => $countVentas,
             'cxc_vencidas' => $countCxC,
