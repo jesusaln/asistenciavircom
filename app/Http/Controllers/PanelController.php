@@ -36,7 +36,18 @@ class PanelController extends Controller
     {
         $user = Auth::user();
         $userId = $user?->id;
-        $empresaId = (int) ($user?->empresa_id ?? \App\Support\EmpresaResolver::resolveId() ?? 1);
+
+        // Tenant isolation estricto: un usuario SIN empresa_id NO debe
+        // caer al fallback "1" (que sería otra empresa). Mejor 403 que
+        // filtrar datos de otro tenant. EmpresaResolver solo se usa
+        // como contexto cuando el usuario pertenece a la misma empresa
+        // (caso típico de impersonación admin).
+        if (!$user || !$user->empresa_id) {
+            abort(403, 'Usuario sin empresa asignada. Contacta al administrador.');
+        }
+        $empresaId = (int) $user->empresa_id;
+        \App\Support\EmpresaResolver::setContext($empresaId);
+
         $now = Carbon::now(config('app.timezone', 'America/Hermosillo'));
         $nowIso = $now->toIso8601String();
         $defaults = $this->getSafeDefaults($now);
