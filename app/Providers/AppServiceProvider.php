@@ -34,6 +34,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Fix Pusher SDK v7 + Reverb v1 sobre HTTP (Docker interno):
+        // Laravel BroadcastManager::pusher() inyecta `crypto_method => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT`
+        // en el Guzzle client, lo que rompe la firma contra un servidor HTTP.
+        // Solución: registrar un custom creator para el driver 'reverb' en boot() que crea el
+        // Pusher SIN crypto_method.
+        \Illuminate\Support\Facades\Broadcast::extend('reverb', function ($app, $config) {
+            $pusher = new \Pusher\Pusher(
+                $config['key'],
+                $config['secret'],
+                $config['app_id'],
+                $config['options'] ?? [],
+                new \GuzzleHttp\Client([
+                    'connect_timeout' => 10,
+                    'timeout' => 30,
+                ])
+            );
+            return new \Illuminate\Broadcasting\Broadcasters\PusherBroadcaster($pusher, $config['jsonp'] ?? false);
+        });
+
         // ✅ BLINDAJE DE BASE DE DATOS (Modo estricto completo: N+1, Atributos inexistentes y Descarte silencioso)
         Model::shouldBeStrict(!app()->isProduction() && !app()->runningUnitTests());
         DB::whenQueryingForLongerThan(300, function ($connection) {
