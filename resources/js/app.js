@@ -1,18 +1,21 @@
 import './bootstrap';
-import './echo';
 import '../css/app.css';
+
+// Echo/Reverb se inicializa UNA sola vez en ./echo.js (no duplicar aquí).
+// Antes había una copia inline que causaba que se crearan 2 instancias de
+// window.Echo y se triplicaran las notificaciones en el frontend.
+import './echo.js';
 
 import { createApp, h } from 'vue';
 import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from 'ziggy-js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { applyThemeCSSVariables } from './Utils/themeDefaults';
 
 import('./icons.js');
 
 const appName = import.meta.env.VITE_APP_NAME || 'App';
-
-
 
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,
@@ -23,8 +26,17 @@ createInertiaApp({
       .use(ZiggyVue)
       .component('FontAwesomeIcon', FontAwesomeIcon);
 
-    // Seguimiento de Facebook Pixel en cambios de ruta SPA
+    // Tema global: aplica colores de empresa_config en TODAS las páginas
+    const applyGlobalTheme = () => {
+      const cfg = props.initialPage.props?.empresa_config || props.initialPage.props?.empresa;
+      const isDark = document.documentElement.classList.contains('dark');
+      applyThemeCSSVariables(cfg, isDark);
+    };
+    applyGlobalTheme();
+
+    // Re-aplicar en cada navegación SPA (por si cambia empresa_config)
     router.on('finish', () => {
+      applyGlobalTheme();
       if (window.fbq) {
         window.fbq('track', 'PageView');
       }
@@ -109,23 +121,10 @@ if ('serviceWorker' in navigator) {
       return; 
     }
 
-    // 💣 BOMBA DE CACHÉ DE EMERGENCIA (Fuerza limpieza tras despliegue de IA)
-    const APP_VERSION = 'v1.3-reset-sw';
-    if (localStorage.getItem('app_pwa_version') !== APP_VERSION) {
-        console.warn('PWA: Detectada versión antigua. Ejecutando limpieza profunda...');
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let registration of registrations) registration.unregister();
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    for (let name of names) caches.delete(name);
-                });
-            }
-            localStorage.setItem('app_pwa_version', APP_VERSION);
-            console.log('PWA: Caché borrada. Reiniciando sistema...');
-            window.location.reload();
-        });
-        return; // Detener ejecución hasta el reload
-    }
+    // Desregistrar cualquier SW anterior para romper ciclos de cache
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let r of registrations) r.unregister();
+    });
 
     navigator.serviceWorker.register('/sw.js', { scope: '/' })
       .then(registration => {

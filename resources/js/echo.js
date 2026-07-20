@@ -45,42 +45,9 @@ if (reverbKey) {
                     Notification.requestPermission();
                 }
 
-                // Escuchar canal de notificaciones públicas
-                window.Echo.channel('notificaciones')
-                    .listen('CitaCompletada', (e) => {
-                        console.log('🔔 Cita Completada recibida:', e.cita);
-                        
-                        if (Notification.permission === 'granted') {
-                            const title = `✅ Cita #${e.cita.id} Completada`;
-                            const options = {
-                                body: `Técnico: ${e.cita.tecnico?.name || 'N/A'}\nCliente: ${e.cita.cliente?.nombre_razon_social || 'N/A'}\nServicio: ${e.cita.tipo_servicio}`,
-                                icon: '/images/icon-192x192.png',
-                                badge: '/images/icon-192x192.png',
-                                vibrate: [200, 100, 200],
-                                tag: `cita-completada-${e.cita.id}`,
-                                renotify: true,
-                                data: {
-                                    url: `/citas/${e.cita.id}` // Para que al hacer clic te lleve a la cita
-                                }
-                            };
-                            
-                            const notification = new Notification(title, options);
-                            
-                            // Abrir la cita al hacer clic en la notificación
-                            notification.onclick = function(event) {
-                                event.preventDefault();
-                                window.open(this.data.url, '_blank');
-                                notification.close();
-                            };
-
-                            // Sonido opcional (solo si el navegador permite autoplay)
-                            try {
-                                const soundPath = localStorage.getItem('cdd_notification_sound') || '/sounds/modern-chime.mp3';
-                                const audio = new Audio(soundPath);
-                                audio.play();
-                            } catch (err) { /* Ignorar errores de autoplay */ }
-                        }
-                    });
+                // El listener de CitaCompletada + UserNotificationCreated está en
+                // NotificationBell.vue (canal privado App.Models.User.{id}) y en
+                // AppLayout.vue (canal público 'notificaciones'). NO duplicar aquí.
             }
         }
 
