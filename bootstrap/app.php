@@ -35,6 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\TokenFromQuery::class,
+            \App\Http\Middleware\ResolveTenantFromHeader::class,
+            \App\Http\Middleware\ResolveTenantFromDomain::class,
         ], append: [
             \Illuminate\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\ForceWebAuthForApi::class,
@@ -42,6 +44,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(prepend: [
             \App\Http\Middleware\SwitchDatabaseConnection::class,
+            \App\Http\Middleware\ResolveTenantFromHeader::class,
+            \App\Http\Middleware\ResolveTenantFromDomain::class,
         ], append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
@@ -52,6 +56,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->priority([
+            \App\Http\Middleware\ResolveTenantFromHeader::class,
+            \App\Http\Middleware\ResolveTenantFromDomain::class,
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,

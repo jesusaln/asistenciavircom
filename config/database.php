@@ -82,6 +82,20 @@ return [
             ]) : [],
         ],
 
+        'system' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_SYSTEM_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_SYSTEM_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_SYSTEM_DATABASE', 'cdd_system'),
+            'username' => env('DB_SYSTEM_USERNAME', env('DB_USERNAME', 'postgres')),
+            'password' => env('DB_SYSTEM_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),

@@ -83,3 +83,37 @@ class Tenant extends Model
                 $q->whereNotNull('expires_at')
                   ->where('expires_at', '<', now());
             });
+    }
+
+    /**
+     * Resuelve un tenant por dominio (hostname).
+     * Usa cache para evitar golpear la BD en cada request.
+     */
+    public static function resolveFromDomain(string $domain): ?self
+    {
+        try {
+            $id = \Illuminate\Support\Facades\Cache::remember(
+                "tenant_domain_id_{$domain}",
+                now()->addHour(),
+                function () use ($domain) {
+                    $tenant = static::where('dominio', $domain)->first(['id']);
+                    return $tenant?->id;
+                }
+            );
+
+            if (!$id) {
+                return null;
+            }
+
+            return static::find($id);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::debug('Tenant::resolveFromDomain failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public static function clearDomainCache(string $domain): void
+    {
+        \Illuminate\Support\Facades\Cache::forget("tenant_domain_id_{$domain}");
+    }
+}
