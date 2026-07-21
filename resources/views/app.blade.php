@@ -18,6 +18,18 @@
         $empresaConfig = \App\Models\EmpresaConfiguracion::getConfig();
     @endphp
 
+    {{-- Branding dinámico: inyectar CSS variables desde EmpresaConfiguracion --}}
+    @if(!empty($empresaConfig->color_principal))
+    <style id="cdd-brand-vars">
+        :root {
+            --brand-primary: {{ $empresaConfig->color_principal }};
+            --brand-primary-rgb: {{ implode(',', sscanf($empresaConfig->color_principal, '#%02x%02x%02x')) }};
+            --brand-secondary: {{ $empresaConfig->color_secundario ?? $empresaConfig->color_principal }};
+            --brand-name: "{{ $empresaConfig->nombre_empresa ?? 'CDD' }}";
+        }
+    </style>
+    @endif
+
     {{-- Información de la empresa --}}
     <meta name="description" content="{{ $empresaConfig->descripcion_empresa ?? 'Expertos en venta, instalación y mantenimiento de aires acondicionados en Hermosillo y Sonora. Distribuidor autorizado Mirage.' }}">
     <meta name="keywords"
