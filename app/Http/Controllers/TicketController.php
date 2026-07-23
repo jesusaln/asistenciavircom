@@ -301,15 +301,16 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $ticket->load([
-            'cliente',
-            'asignado',
-            'categoria',
-            'creador',
-            'producto',
-            'venta',
-            'poliza',
-            'comentarios.user',
-            'citas',
+            'cliente:id,nombre_razon_social',
+            'asignado:id,name',
+            'categoria:id,nombre',
+            'creador:id,name',
+            'producto:id,nombre,codigo',
+            'venta:id,numero_venta,cliente_id',
+            'poliza:id,folio,nombre',
+            'comentarios' => fn($q) => $q->select('id', 'ticket_id', 'user_id', 'contenido', 'created_at'),
+            'comentarios.user:id,name',
+            'citas:id,ticket_id,fecha_hora',
         ]);
 
         // Historial del cliente (otros tickets)
