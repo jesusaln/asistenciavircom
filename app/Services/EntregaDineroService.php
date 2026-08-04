@@ -290,12 +290,8 @@ class EntregaDineroService
     ): ?EntregaDinero {
         $estado = self::estadoPorMetodo($metodoPago);
 
-        // ✅ Si es efectivo y no se dirige a una cuenta bancaria específica (ej. depósito directo),
-        // NO creamos el registro de entrega automáticamente. Esto obliga a usar el flujo de "Mi Corte" (Lote)
-        // para dar trazabilidad al dinero físico que el técnico trae en mano.
-        if (strtolower($metodoPago) === 'efectivo' && !$cuentaBancariaId) {
-            return null;
-        }
+        // El efectivo queda como entrega pendiente hasta que se confirme en Mi Corte.
+        // No se crea movimiento bancario mientras no exista una cuenta destino.
 
         // ✅ Si se dirige explícitamente a un banco (ej. depósito en efectivo), se considera ingresado/recibido inmediatamente
         if ($cuentaBancariaId) {

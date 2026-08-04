@@ -662,6 +662,12 @@ class PolizaServicio extends Model
         if ($cantidadExtra <= 0)
             return null;
 
+        // BUG FIX [2026-07-22]: Para horas, si NO hay límite configurado en la póliza ni en el plan,
+        // no debe generar cobro por excedente (la póliza es ilimitada).
+        if ($tipo === 'horas' && !$this->tieneLimiteHoras()) {
+            return null;
+        }
+
         // Obtener costos configurables (primero de la póliza, luego del plan, luego defaults)
         $costoUnitario = match ($tipo) {
             'tickets' => $this->planPoliza?->costo_ticket_extra ?? 150,
@@ -960,14 +966,31 @@ class PolizaServicio extends Model
     }
 
     /**
+     * Indica si la póliza tiene límite de horas configurado.
+     * Retorna false cuando tanto horas_incluidas_mensual como plan.horas_incluidas son NULL/0 (sin límite = ilimitado).
+     */
+    public function tieneLimiteHoras(): bool
+    {
+        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas;
+        return $incluidas !== null && (int) $incluidas > 0;
+    }
+
+    /**
      * Obtener las horas disponibles (banco actual).
+     * Si no hay límite configurado, retorna PHP_FLOAT_MAX (horas ilimitadas).
+     * Antes del fix [2026-07-22] retornaba 0 cuando no había límite,
+     * lo que causaba cobros automáticos de excedente en cada ticket cerrado.
      */
     public function getHorasDisponiblesAttribute(): float
     {
-        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas ?? 0;
-        $consumidas = $this->horas_consumidas_mes ?? 0;
+        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas;
 
-        return max(0, $incluidas - $consumidas);
+        if ($incluidas === null || (int) $incluidas <= 0) {
+            return PHP_FLOAT_MAX;
+        }
+
+        $consumidas = (float) ($this->horas_consumidas_mes ?? 0);
+        return max(0.0, (float) $incluidas - $consumidas);
     }
 
     /**
@@ -975,12 +998,15 @@ class PolizaServicio extends Model
      */
     public function getPorcentajeHorasRestantesAttribute(): ?float
     {
-        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas ?? 0;
-        if ($incluidas <= 0) {
+        $incluidas = $this->horas_incluidas_mensual ?? $this->planPoliza?->horas_incluidas;
+        if ($incluidas === null || (int) $incluidas <= 0) {
             return null;
         }
 
         $restantes = $this->horas_disponibles;
+        if (!is_finite($restantes)) {
+            return null;
+        }
         return round(($restantes / $incluidas) * 100, 1);
     }
 
@@ -1024,6 +1050,23 @@ class PolizaServicio extends Model
 
         // 2. Verificar si hay horas suficientes
         $horasDisponibles = $this->horas_disponibles;
+
+        // BUG FIX [2026-07-22]: Si la póliza NO tiene límite de horas configurado
+        // (horas_incluidas_mensual y plan.horas_incluidas ambos NULL), entonces
+        // $horasDisponibles = PHP_FLOAT_MAX y NO debe generar cobro por excedente.
+        // Antes del fix se trataba NULL como 0, generando CXC de $350 en cada ticket.
+        if (!is_finite($horasDisponibles)) {
+            $this->increment('horas_consumidas_mes', $horas);
+            $this->refresh();
+            if ($origen) {
+                PolizaConsumo::registrar($this, PolizaConsumo::TIPO_HORA, $origen, $horas);
+            }
+            return [
+                'consumido' => true,
+                'mensaje' => "Consumidas {$horas} hrs. Tu póliza no tiene límite de horas.",
+                'cobro_extra' => null,
+            ];
+        }
 
         if ($horas > $horasDisponibles) {
             // Consumir lo que queda y cobrar el excedente

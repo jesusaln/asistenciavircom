@@ -687,7 +687,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-CWhQgDNR.css",
+    "file": "assets/app-DLjq7Nbw.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -1011,7 +1011,7 @@
     ]
   },
   "resources/js/Pages/Admin/Pos/Index.vue": {
-    "file": "assets/Index-PF0e91oe.js",
+    "file": "assets/Index-Qa-l6O5m.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Pos/Index.vue",
     "isDynamicEntry": true,
@@ -1043,7 +1043,7 @@
     ],
     "css": [
       "assets/Index-B2ZG0pJB.css",
-      "assets/app-CWhQgDNR.css"
+      "assets/app-DLjq7Nbw.css"
     ]
   },
   "resources/js/Pages/Admin/Pos/Partials/CajaAperturaModal.vue": {
@@ -8456,7 +8456,7 @@
     ]
   },
   "resources/js/Pages/Rentas/Show.vue": {
-    "file": "assets/Show-BgCEtIfx.js",
+    "file": "assets/Show-BIpSxYXa.js",
     "name": "Show",
     "src": "resources/js/Pages/Rentas/Show.vue",
     "isDynamicEntry": true,
@@ -10256,7 +10256,7 @@
     ]
   },
   "resources/js/Pages/Ventas/Create.vue": {
-    "file": "assets/Create-C1LB4o-L.js",
+    "file": "assets/Create-S7sbTTra.js",
     "name": "Create",
     "src": "resources/js/Pages/Ventas/Create.vue",
     "isDynamicEntry": true,
@@ -10288,7 +10288,7 @@
     ],
     "css": [
       "assets/Create-D8klW5HN.css",
-      "assets/app-CWhQgDNR.css",
+      "assets/app-DLjq7Nbw.css",
       "assets/Index-tn0RQdqM.css"
     ]
   },
@@ -10399,7 +10399,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CFgD0qWH.js",
+    "file": "assets/app-CSFEgRQ8.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -10884,7 +10884,7 @@
       "resources/js/Pages/WelcomeClimas.vue"
     ],
     "css": [
-      "assets/app-CWhQgDNR.css"
+      "assets/app-DLjq7Nbw.css"
     ]
   },
   "resources/js/icons.js": {

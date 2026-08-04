@@ -35,6 +35,7 @@ const cuentaSeleccionada = ref(null);
 const montoPago = ref('');
 const notasPago = ref('');
 const cuentaBancariaId = ref('');
+const metodoPago = ref('');
 
 // Formateo de moneda
 const { formatCurrency } = useFormatters();
@@ -150,8 +151,21 @@ const abrirModalPago = (cuenta) => {
     montoPago.value = cuenta.monto_pendiente;
     notasPago.value = '';
     cuentaBancariaId.value = '';
+    metodoPago.value = '';
     showPagoModal.value = true;
 };
+
+const requiereCuentaBancaria = computed(() => {
+    return ['transferencia', 'cheque', 'tarjeta', 'tarjeta_credito', 'tarjeta_debito'].includes(metodoPago.value);
+});
+
+const puedeConfirmarPago = computed(() => {
+    const monto = parseFloat(montoPago.value);
+    if (!monto || monto <= 0) return false;
+    if (!metodoPago.value) return false;
+    if (requiereCuentaBancaria.value && !cuentaBancariaId.value) return false;
+    return true;
+});
 
 // Confirmar pago
 const confirmarPago = async () => {
@@ -160,28 +174,44 @@ const confirmarPago = async () => {
         notyf.error('Ingresa un monto válido');
         return;
     }
-    
+    if (!metodoPago.value) {
+        notyf.error('Selecciona un método de pago');
+        return;
+    }
+    if (requiereCuentaBancaria.value && !cuentaBancariaId.value) {
+        notyf.error('Selecciona una cuenta bancaria');
+        return;
+    }
+
     try {
         const response = await fetch(route('cuentas-por-cobrar.registrar-pago', cuentaSeleccionada.value.id), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
                 monto: monto,
                 notas: notasPago.value || null,
-                cuenta_bancaria_id: cuentaBancariaId.value || null
+                cuenta_bancaria_id: cuentaBancariaId.value || null,
+                metodo_pago: metodoPago.value
             })
         });
-        
+
         if (response.ok) {
             notyf.success('Pago registrado correctamente');
             showPagoModal.value = false;
             router.reload();
         } else {
-            const error = await response.json();
-            notyf.error(error.message || 'Error al registrar el pago');
+            let errorMsg = 'Error al registrar el pago';
+            try {
+                const data = await response.json();
+                errorMsg = data.message || data.error || (data.errors ? Object.values(data.errors).flat()[0] : errorMsg);
+            } catch (parseErr) {
+                errorMsg = `Error ${response.status} al registrar el pago`;
+            }
+            notyf.error(errorMsg);
         }
     } catch (error) {
         notyf.error('Error de conexión');
@@ -553,27 +583,50 @@ const cancelarRenta = async () => {
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Notas (opcional)</label>
-                    <textarea 
-                        v-model="notasPago" 
-                        rows="2" 
+                    <textarea
+                        v-model="notasPago"
+                        rows="2"
                         class="w-full border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:border-emerald-500"
                         placeholder="Referencia, método de pago, etc."
                     ></textarea>
                 </div>
-                
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        Método de Pago <span class="text-red-500">*</span>
+                    </label>
+                    <select
+                        v-model="metodoPago"
+                        class="w-full border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:border-emerald-500"
+                        required
+                    >
+                        <option value="">Seleccionar método...</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="tarjeta_credito">Tarjeta de Crédito</option>
+                        <option value="tarjeta_debito">Tarjeta de Débito</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">
                         Depositar a Cuenta Bancaria
-                        <span class="text-slate-400 font-normal">(opcional)</span>
+                        <span v-if="requiereCuentaBancaria" class="text-red-500">*</span>
+                        <span v-else class="text-slate-400 font-normal">(opcional)</span>
                     </label>
-                    <select 
-                        v-model="cuentaBancariaId" 
+                    <select
+                        v-model="cuentaBancariaId"
                         class="w-full border border-slate-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:border-emerald-500"
+                        :required="requiereCuentaBancaria"
                     >
-                        <option value="">Sin depositar a banco</option>
-                        <option 
-                            v-for="cuenta in cuentasBancarias" 
-                            :key="cuenta.id" 
+                        <option v-if="!requiereCuentaBancaria" value="">Sin depositar a banco</option>
+                        <option v-else value="">Seleccionar cuenta bancaria...</option>
+                        <option
+                            v-for="cuenta in cuentasBancarias"
+                            :key="cuenta.id"
                             :value="cuenta.id"
                         >
                             {{ cuenta.banco }} - {{ cuenta.nombre }}
@@ -584,12 +637,12 @@ const cancelarRenta = async () => {
                     </p>
                 </div>
             </div>
-            
+
             <div class="flex justify-end gap-3 px-6 py-4 bg-white border-t">
                 <button @click="showPagoModal = false" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-xl hover:bg-slate-400 transition-colors">
                     Cancelar
                 </button>
-                <button @click="confirmarPago" class="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                <button @click="confirmarPago" :disabled="!puedeConfirmarPago" class="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     Registrar Pago
                 </button>
             </div>

@@ -329,6 +329,9 @@ class CuentasPorCobrarController extends Controller
                 'metodo_pago' => 'required|in:efectivo,transferencia,cheque,tarjeta,tarjeta_credito,tarjeta_debito,otros',
                 // ✅ CRITICAL FIX: Require bank account for bank methods to ensure MovimientoBancario is created
                 'cuenta_bancaria_id' => 'required_if:metodo_pago,transferencia,cheque,tarjeta,tarjeta_credito,tarjeta_debito|nullable|exists:cuentas_bancarias,id',
+            ], [], [
+                'metodo_pago' => 'método de pago',
+                'cuenta_bancaria_id' => 'cuenta bancaria',
             ]);
 
             // ✅ REGISTRAR PAGO UNIFICADO (CuentasPorCobrar + EntregaDinero + Banco si aplica)
@@ -395,9 +398,27 @@ class CuentasPorCobrarController extends Controller
 
             return redirect()->back()->with('success', 'Pago registrado correctamente' . $mensajeExtra);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            // Si la petición espera JSON (frontend Vue/Inertia fetch), devolver 422 con detalle.
+            // De lo contrario, dejar que Laravel redirija con errores flash (flujo tradicional).
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error registrando pago en CXC', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al registrar el pago: ' . $e->getMessage(),
+                ], 500);
+            }
             return redirect()->back()->withErrors(['error' => 'Error al registrar el pago: ' . $e->getMessage()]);
         }
     }
