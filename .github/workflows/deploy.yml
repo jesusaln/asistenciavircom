@@ -1,147 +1,163 @@
-name: CI/CD Pipeline (Climas del Desierto)
+name: Deploy Vircom to Production
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: jesusaln/cdd_climas
-  REMOTE_HOST: ${{ secrets.HOST || '191.101.233.82' }}
-  REMOTE_USER: ${{ secrets.USERNAME || 'root' }}
+concurrency:
+  group: deploy-vircom
+  cancel-in-progress: false
 
-# ══════════════════════════════════════════════════════════════
-# ETAPA 1: TESTS — Siguen ejecutándose en PR/push; si fallan, el deploy
-# no se bloquea (continue-on-error) hasta arreglar tests rotos p.ej. CompraTest.
-# ══════════════════════════════════════════════════════════════
 jobs:
-  test:
-    name: 🧪 Tests
-    continue-on-error: true
+  deploy:
+    name: Deploy Vircom to VPS
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15-alpine
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: PHP syntax check
+        run: |
+          echo "Verificando sintaxis PHP..."
+          for f in $(find app -name "*.php" | head -40); do
+            php -l "$f" || { echo "Sintaxis invalida en $f"; exit 1; }
+          done
+          echo "Sintaxis OK"
+
+      - name: Sync code to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "${{ github.workspace }}"
+          target: "/tmp/codigo_vircom_nuevo/"
+          rm: true
+          strip_components: 0
+          overwrite: true
+          command_timeout: 15m
+
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1
         env:
-          POSTGRES_DB: cdd_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d cdd_test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+          DEPLOY_VERSION: ${{ github.ref_name }}-${{ github.run_number }}
+          COMMIT_REF: ${{ github.sha }}
         with:
-          php-version: '8.2'
-          extensions: mbstring, bcmath, pdo_pgsql, pgsql, ctype, fileinfo, xml, tokenizer, json
-          tools: composer:v2
-          coverage: none
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 20m
+          envs: DEPLOY_VERSION,COMMIT_REF
+          script: |
+            set -euo pipefail
+            REMOTE_PATH=/root/asistenciavircom
+            NEW_CODE=/tmp/codigo_vircom_nuevo
+            APP=asistencia-app
+            WEB=asistenciavircom-web-v3
+            DB=asistenciavircom-db-v3
 
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-
+            cleanup() {
+              echo "=== LIMPIEZA: Sacando de mantenimiento ==="
+              docker exec $APP php artisan up 2>&1 | tail -2 || true
+            }
+            trap cleanup EXIT INT TERM
 
-      - name: Install PHP Dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
+            echo "=== [1/9] Validando VPS ==="
+            docker ps --filter "name=$APP" --format '{{.Names}}' | head -1 | grep -q . || { echo "ERROR: contenedor $APP no encontrado"; exit 1; }
+            echo "  App: $APP | Web: $WEB"
 
-      - name: Prepare Environment
-        run: |
-          # Eliminar .env.testing si existe en el repo para que no sobreescriba el .env generado para CI
-          rm -f .env.testing 2>/dev/null || true
-          cp .env.example .env 2>/dev/null || true
-          {
-            echo "APP_NAME=CDD"
-            echo "APP_ENV=testing"
-            echo "APP_DEBUG=true"
-            echo "APP_URL=http://localhost"
-            echo "DB_CONNECTION=pgsql"
-            echo "DB_HOST=127.0.0.1"
-            echo "DB_PORT=5432"
-            echo "DB_DATABASE=cdd_test"
-            echo "DB_USERNAME=postgres"
-            echo "DB_PASSWORD=secret"
-            echo "CACHE_STORE=array"
-            echo "QUEUE_CONNECTION=sync"
-            echo "SESSION_DRIVER=array"
-            echo "MAIL_MAILER=array"
-          } > .env
-          php artisan key:generate
+            rm -rf /tmp/codigo_vircom_nuevo
+            [ ! -d "$NEW_CODE" ] && { echo "ERROR: $NEW_CODE no existe"; exit 1; }
+            if [ -d "$NEW_CODE/github" ]; then
+              mv $NEW_CODE/github/* $NEW_CODE/ 2>/dev/null || true
+              mv $NEW_CODE/github/.* $NEW_CODE/ 2>/dev/null || true
+              rmdir $NEW_CODE/github
+            fi
 
-      - name: Run Migrations
-        run: php artisan migrate --force
+            echo "=== [2/9] Modo mantenimiento ==="
+            docker exec $APP php artisan down --refresh=15 --retry=60 --render=maintenance || true
 
-      - name: Run Tests
-        run: php artisan test --without-tty --stop-on-failure
-        timeout-minutes: 10
+            echo "=== [3/9] Backup BD pre-deploy ==="
+            TS=$(date +%Y%m%d_%H%M%S)
+            OUT="$REMOTE_PATH/storage/backups/pre_deploy_${TS}.sql.gz"
+            docker exec "$DB" pg_dump -U postgres cdd_app | gzip -9 > "$OUT"
+            echo "  Backup: $OUT ($(du -h "$OUT" | cut -f1))"
 
-  # ══════════════════════════════════════════════════════════════
-  # ETAPA 2: BUILD — Corre tras el job test (aunque marque fallo por continue-on-error)
-  # ══════════════════════════════════════════════════════════════
-  build:
-    name: 🏗️ Build & Push Image
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+            echo "=== [4/9] Copiar codigo (sin rm, preserva .env/storage/vendor) ==="
+            for DIR in app config database resources routes bootstrap scripts; do
+              if [ -d "$NEW_CODE/$DIR" ]; then
+                mkdir -p "$REMOTE_PATH/$DIR"
+                cp -a "$NEW_CODE/$DIR/." "$REMOTE_PATH/$DIR/" 2>/dev/null || true
+                echo "  Copiado: $DIR/"
+              fi
+            done
+            for FILE in artisan composer.json composer.lock package.json package-lock.json vite.config.js; do
+              if [ -f "$NEW_CODE/$FILE" ]; then
+                cp "$NEW_CODE/$FILE" "$REMOTE_PATH/$FILE" 2>/dev/null || true
+                echo "  Copiado: $FILE"
+              fi
+            done
+            if [ -d "$NEW_CODE/docker" ]; then
+              mkdir -p "$REMOTE_PATH/docker"
+              cp -a "$NEW_CODE/docker/." "$REMOTE_PATH/docker/" 2>/dev/null || true
+              echo "  Copiado: docker/"
+            fi
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+            echo "=== [5/9] Reiniciar app ANTES de composer (refresca mounts) ==="
+            docker restart $APP
+            sleep 8
+            docker exec $APP md5sum /var/www/composer.json /var/www/composer.lock
 
-      - name: Build Frontend Assets
-        run: |
-          npm ci
-          npm run build
+            echo "=== [6/9] Composer install en contenedor ==="
+            docker cp /tmp/composer.phar $APP:/tmp/composer.phar 2>/dev/null || true
+            docker exec -u root -w /var/www $APP bash -c 'GIT_SSH_COMMAND="ssh -i /root/.ssh/id_ed25519_cdd_shared_vircom -o IdentitiesOnly=yes -o BatchMode=yes" php /tmp/composer.phar install --no-interaction --no-dev --prefer-dist 2>&1 | tail -5'
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            echo "=== [7/9] Assets public/build ==="
+            if [ -d "$NEW_CODE/public/build" ]; then
+              mkdir -p "$REMOTE_PATH/public/build"
+              cp -a "$NEW_CODE/public/build/." "$REMOTE_PATH/public/build/" 2>/dev/null || true
+              echo "  public/build/ actualizado"
+              cp "$NEW_CODE/public/build/sw.js" "$REMOTE_PATH/public/sw.js" 2>/dev/null || true
+              cp "$NEW_CODE/public/build/manifest.webmanifest" "$REMOTE_PATH/public/manifest.json" 2>/dev/null || true
+            else
+              echo "  public/build/ no vino en el bundle (requiere npm run build en el VPS si hubo cambios Vue)"
+            fi
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            echo "=== [8/9] Tareas Laravel ==="
+            docker exec -u 0 $APP chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache 2>/dev/null || true
+            docker exec $APP php artisan optimize:clear || true
+            docker exec $APP php artisan migrate --force
+            docker exec $APP php artisan route:cache 2>&1 | tail -2 || true
+            docker exec $APP php artisan view:cache 2>&1 | tail -2 || true
+            docker exec $APP php artisan event:cache 2>&1 | tail -2 || true
+            docker exec $APP php artisan queue:restart || true
+            docker exec $APP php artisan up
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,format=short
+            echo "=== [9/9] Health check + purga Cloudflare ==="
+            HEALTH=$(curl -sS -m 10 -o /tmp/health.json -w '%{http_code}' http://127.0.0.1:8080/health || echo "000")
+            echo "  Health: HTTP $HEALTH"
+            if [ "$HEALTH" != "200" ]; then
+              echo "  ERROR: Health check fallo"
+              cat /tmp/health.json 2>/dev/null | head -30
+              exit 2
+            fi
+            docker exec -u 0 $APP sh -c "echo '${DEPLOY_VERSION}-(${COMMIT_REF:-local})' > /var/www/DEPLOY_VERSION && chown www-data:www-data /var/www/DEPLOY_VERSION"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            CF_TOKEN=$(cat /root/.cloudflare_token 2>/dev/null || echo "")
+            if [ -n "$CF_TOKEN" ]; then
+              CODE=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/690cbc2ae89da7ff935fb97ee18eb5f7/purge_cache" \
+                -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" \
+                -d '{"purge_everything":true}' -w '%{http_code}' -o /dev/null)
+              echo "  Cloudflare vircom: HTTP ${CODE}"
+            else
+              echo "  /root/.cloudflare_token no existe, saltando purge"
+            fi
 
-      - name: Upload Build Assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-assets
-          path: public/build/
-          retention-days: 1
+            echo "=== DEPLOY VIRCOM COMPLETADO ==="
 
+      - name: Notify failure
+        if: failure()
+        run: echo "::error::Deploy Vircom fallo. Revisar logs del workflow."
