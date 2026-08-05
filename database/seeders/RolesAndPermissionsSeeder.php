@@ -62,6 +62,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'bitacora',
             'configuracion_empresa',
             'proyectos',
+            'encuestas_satisfaccion',
             'manage-backups' // Permiso especial
         ];
 

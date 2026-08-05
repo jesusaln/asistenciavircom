@@ -227,8 +227,9 @@
           <NavLink href="/marketing/campanias" icon="paper-plane" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Campañas' : null">Campañas</NavLink>
           <NavLink href="/marketing/audiencias" icon="users" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Audiencias' : null">Audiencias</NavLink>
           <NavLink href="/marketing/plantillas" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Plantillas' : null">Plantillas</NavLink>
-          <NavLink href="/marketing/social-posts" icon="share-nodes" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Redes Sociales' : null">Redes Sociales</NavLink>
-        </SidebarSection>
+           <NavLink href="/marketing/social-posts" icon="share-nodes" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Redes Sociales' : null">Redes Sociales</NavLink>
+           <NavLink v-if="$can('view encuestas_satisfaccion') || isAdmin" :href="route('encuestas.satisfaccion.index')" icon="star" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Encuestas de satisfacción' : null">Encuestas de satisfacción</NavLink>
+         </SidebarSection>
         </div>
 
         <!-- —— Operaciones: soporte, compras, stock, finanzas, campo —— -->

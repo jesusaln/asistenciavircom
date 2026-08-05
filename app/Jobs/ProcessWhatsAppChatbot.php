@@ -122,6 +122,12 @@ class ProcessWhatsAppChatbot implements ShouldQueue
                 return;
             }
 
+            $stateKey = "whatsapp_menu_state_{$this->empresaId}_{$this->waId}";
+            if (str_starts_with((string) Cache::get($stateKey, ''), 'satisfaccion_')) {
+                $this->handleMenuChatbot($empresa);
+                return;
+            }
+
             if (($empresa->whatsapp_chatbot_type ?? 'ai') === 'menu') {
                 try {
                     $this->handleMenuChatbot($empresa);

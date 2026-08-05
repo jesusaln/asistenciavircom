@@ -16,6 +16,8 @@ use App\Services\AI\VircomBotService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Models\EncuestaSatisfaccion;
+use Illuminate\Support\Str;
 
 trait HandlesMenuFlow
 {
@@ -24,6 +26,10 @@ trait HandlesMenuFlow
         $stateKey = "whatsapp_menu_state_{$this->empresaId}_{$this->waId}";
         $state = Cache::get($stateKey, 'menu');
         $msg = trim(strtolower($this->incomingMessage));
+
+        if ($this->handleSatisfactionFlow($state, $msg, $stateKey)) {
+            return;
+        }
 
         if ($this->handleSurveyFlow($state, $msg, $stateKey)) {
             return;
@@ -1319,6 +1325,71 @@ trait HandlesMenuFlow
 
         Cache::put($stateKey, $nextState, now()->addDay());
         $this->sendReply($reply);
+    }
+
+    protected function handleSatisfactionFlow(string $state, string $msg, string $stateKey): bool
+    {
+        $isSatisfactionRequest = in_array($msg, ['encuesta', 'satisfaccion', 'satisfacción', 'opinion', 'opinión']);
+        if (!str_starts_with($state, 'satisfaccion_') && !$isSatisfactionRequest) {
+            return false;
+        }
+
+        if ($isSatisfactionRequest && !str_starts_with($state, 'satisfaccion_')) {
+            $this->sendReply("Queremos conocer tu experiencia. Responde con una calificación del 1 al 5, donde 5 es la mejor experiencia.");
+            Cache::put($stateKey, 'satisfaccion_calificacion', now()->addDays(3));
+            return true;
+        }
+
+        $encuestaId = Cache::get("{$stateKey}_encuesta_id");
+        $encuesta = $encuestaId ? EncuestaSatisfaccion::find($encuestaId) : null;
+        if (!$encuesta) {
+            Cache::put($stateKey, 'menu', now()->addDay());
+            return false;
+        }
+
+        if (in_array($msg, ['menu', 'menú', 'cancelar'])) {
+            Cache::forget("{$stateKey}_encuesta_id");
+            Cache::put($stateKey, 'menu', now()->addDay());
+            $this->mostrarMenu(Empresa::find($this->empresaId), $stateKey);
+            return true;
+        }
+
+        if ($state === 'satisfaccion_calificacion') {
+            $rating = filter_var($this->incomingMessage, FILTER_VALIDATE_INT);
+            if ($rating === false || $rating < 1 || $rating > 5) {
+                $this->sendReply('Responde únicamente con un número del 1 al 5.');
+                return true;
+            }
+
+            $encuesta->update(['calificacion' => $rating]);
+            Cache::put($stateKey, 'satisfaccion_comentario', now()->addDays(3));
+            $this->sendReply('Gracias. ¿Quieres dejar una queja, sugerencia o felicitación? Escribe tu comentario o responde "ninguno".');
+            return true;
+        }
+
+        $comentario = trim($this->incomingMessage);
+        $codigo = $this->generarCodigoCupon();
+        $vigencia = now()->addDays(90);
+        $encuesta->update([
+            'comentario' => in_array(mb_strtolower($comentario), ['ninguno', 'no', 'n/a']) ? null : $comentario,
+            'cupon_codigo' => $codigo,
+            'cupon_vigencia_hasta' => $vigencia,
+            'respondida_at' => now(),
+        ]);
+
+        Cache::forget("{$stateKey}_encuesta_id");
+        Cache::put($stateKey, 'menu', now()->addDay());
+        $this->sendReply("Gracias por compartir tu experiencia. Tu cupón independiente de {$encuesta->cupon_porcentaje}% para mantenimiento preventivo es *{$codigo}*. Tiene vigencia hasta {$vigencia->format('d/m/Y')}.");
+        return true;
+    }
+
+    protected function generarCodigoCupon(): string
+    {
+        do {
+            $code = 'VP-' . Str::upper(Str::random(10));
+        } while (EncuestaSatisfaccion::where('cupon_codigo', $code)->exists());
+
+        return $code;
     }
 
     protected function textoMenuCompleto(bool $tieneCitas = false, bool $isVircom = false): string

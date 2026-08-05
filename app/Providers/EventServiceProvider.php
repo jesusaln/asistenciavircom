@@ -16,9 +16,10 @@ class EventServiceProvider extends ServiceProvider
             \App\Listeners\NotificarClienteTicketCreado::class,
         ],
 
-        \App\Events\CitaCompletada::class => [
-            \App\Listeners\ActualizarTicketDesdeCita::class,
-        ],
+         \App\Events\CitaCompletada::class => [
+             \App\Listeners\ActualizarTicketDesdeCita::class,
+             \App\Listeners\EnviarEncuestaSatisfaccion::class,
+         ],
 
         \App\Events\PolizaProximaAVencer::class => [
             \App\Listeners\CrearTicketRenovacion::class,

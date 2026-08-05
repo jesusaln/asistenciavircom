@@ -85,6 +85,7 @@ use App\Http\Controllers\ComisionesController;
 use App\Http\Controllers\Admin\CVAController;
 use App\Http\Controllers\Admin\NewsletterStatsController;
 use App\Http\Controllers\PolizaMantenimientoController;
+use App\Http\Controllers\EncuestaSatisfaccionController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -122,6 +123,9 @@ Route::middleware(['auth'])->group(function () {
     })->name('finanzas.index')->middleware('can:view finanzas');
 
     Route::get('/panel', [PanelController::class, 'index'])->name('panel');
+    Route::get('/encuestas/satisfaccion', [EncuestaSatisfaccionController::class, 'index'])
+        ->name('encuestas.satisfaccion.index')
+        ->middleware('can:view encuestas_satisfaccion');
     Route::get('/dispositivos', [DeviceSessionController::class, 'webView'])->name('dispositivos.index');
 
 
