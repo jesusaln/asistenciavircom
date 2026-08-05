@@ -69,8 +69,7 @@ jobs:
             docker ps --filter "name=$APP" --format '{{.Names}}' | head -1 | grep -q . || { echo "ERROR: contenedor $APP no encontrado"; exit 1; }
             echo "  App: $APP | Web: $WEB"
 
-            rm -rf /tmp/codigo_vircom_nuevo
-            [ ! -d "$NEW_CODE" ] && { echo "ERROR: $NEW_CODE no existe"; exit 1; }
+            [ ! -d "$NEW_CODE" ] && { echo "ERROR: $NEW_CODE no existe"; ls /tmp/ | head -10; exit 1; }
             if [ -d "$NEW_CODE/github" ]; then
               mv $NEW_CODE/github/* $NEW_CODE/ 2>/dev/null || true
               mv $NEW_CODE/github/.* $NEW_CODE/ 2>/dev/null || true
