@@ -72,6 +72,14 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->appendOutputTo(storage_path('logs/taller_alerts.log'));
 
+        // Encuesta de satisfacción: respaldo del job con delay. Cada 30 min
+        // re-encola encuestas cuya fecha programada ya pasó.
+        $schedule->command('encuesta:enviar-pendientes')
+            ->everyThirtyMinutes()
+            ->runInBackground()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/encuesta_envios.log'));
+
         // Recordatorio WhatsApp: Clientes con instalación de 6+ meses
         $schedule->command('whatsapp:recordatorio-6meses')
             ->dailyAt('10:00')

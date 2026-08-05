@@ -126,6 +126,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/encuestas/satisfaccion', [EncuestaSatisfaccionController::class, 'index'])
         ->name('encuestas.satisfaccion.index')
         ->middleware('can:view encuestas_satisfaccion');
+    Route::get('/encuestas/satisfaccion/{encuesta}', [EncuestaSatisfaccionController::class, 'show'])
+        ->name('encuestas.satisfaccion.show')
+        ->middleware('can:view encuestas_satisfaccion');
     Route::get('/dispositivos', [DeviceSessionController::class, 'webView'])->name('dispositivos.index');
 
 
