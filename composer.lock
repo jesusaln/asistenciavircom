@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d2d0ddf5f695ce1205b27d38c540585",
+    "content-hash": "a421e7160157c7f70a41257ba96cdadd",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2453,6 +2453,53 @@
                 "source": "https://github.com/inertiajs/inertia-laravel/tree/v3.1.0"
             },
             "time": "2026-04-30T15:30:29+00:00"
+        },
+        {
+            "name": "jesusaln/cdd-shared",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jesusaln/cdd-shared.git",
+                "reference": "fe62fbdb675032fb1e30dc9fb2a48d2118209a40"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jesusaln/cdd-shared/zipball/fe62fbdb675032fb1e30dc9fb2a48d2118209a40",
+                "reference": "fe62fbdb675032fb1e30dc9fb2a48d2118209a40",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5 || ^11.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Cdd\\Shared\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Cdd\\Shared\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Shared, tenant-agnostic domain components for CDD applications",
+            "support": {
+                "source": "https://github.com/jesusaln/cdd-shared/tree/main",
+                "issues": "https://github.com/jesusaln/cdd-shared/issues"
+            },
+            "time": "2026-08-05T01:14:26+00:00"
         },
         {
             "name": "laravel/fortify",
@@ -17116,7 +17163,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "jesusaln/cdd-shared": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
