@@ -61,7 +61,7 @@ jobs:
 
             cleanup() {
               echo "=== LIMPIEZA: Sacando de mantenimiento ==="
-              docker exec $APP php artisan up 2>&1 | tail -2 || true
+              docker exec -u 0 $APP php artisan up 2>&1 | tail -2 || true
             }
             trap cleanup EXIT INT TERM
 
@@ -82,8 +82,12 @@ jobs:
             echo "=== [3/9] Backup BD pre-deploy ==="
             TS=$(date +%Y%m%d_%H%M%S)
             OUT="$REMOTE_PATH/storage/backups/pre_deploy_${TS}.sql.gz"
-            docker exec "$DB" pg_dump -U postgres cdd_app | gzip -9 > "$OUT"
-            echo "  Backup: $OUT ($(du -h "$OUT" | cut -f1))"
+            if docker exec "$DB" pg_dump -U postgres cdd_app 2>/dev/null | gzip -9 > "$OUT" && [ -s "$OUT" ]; then
+              echo "  Backup OK: $OUT ($(du -h "$OUT" | cut -f1))"
+            else
+              rm -f "$OUT"
+              echo "  WARN: backup fallo (continua; no criminal)"
+            fi
 
             echo "=== [4/9] Copiar codigo (sin rm, preserva .env/storage/vendor) ==="
             for DIR in app config database resources routes bootstrap scripts; do
@@ -133,11 +137,17 @@ jobs:
             docker exec $APP php artisan view:cache 2>&1 | tail -2 || true
             docker exec $APP php artisan event:cache 2>&1 | tail -2 || true
             docker exec $APP php artisan queue:restart || true
-            docker exec $APP php artisan up
+            docker exec -u 0 $APP php artisan up 2>&1 | tail -2 || true
 
             echo "=== [9/9] Health check + purga Cloudflare ==="
-            HEALTH=$(curl -sS -m 10 -o /tmp/health.json -w '%{http_code}' http://127.0.0.1:8080/health || echo "000")
-            echo "  Health: HTTP $HEALTH"
+            HEALTH="000"
+            for i in 1 2 3 4 5 6; do
+              sleep 5
+              HEALTH=$(curl -sS -m 10 -o /tmp/health.json -w '%{http_code}' http://127.0.0.1:8080/health || echo "000")
+              [ "$HEALTH" = "200" ] && break
+              echo "  Health intento $i: HTTP $HEALTH"
+            done
+            echo "  Health final: HTTP $HEALTH"
             if [ "$HEALTH" != "200" ]; then
               echo "  ERROR: Health check fallo"
               cat /tmp/health.json 2>/dev/null | head -30
