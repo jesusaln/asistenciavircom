@@ -87,7 +87,7 @@ class EncuestaSatisfaccionController extends Controller
         // Estadísticas para el header
         $stats = $this->calcularStats($empresaId);
 
-        return Inertia::render('EncuestaSatisfaccion/Index', [
+        return Inertia::render('Encuestas/Satisfaccion/Index', [
             'encuestas' => $encuestas,
             'stats' => $stats,
             'filtros' => $request->only(['estado', 'search', 'max_calificacion', 'min_calificacion', 'fecha_desde', 'fecha_hasta', 'solo_con_queja', 'sort', 'dir']),
@@ -104,7 +104,7 @@ class EncuestaSatisfaccionController extends Controller
 
         $encuesta->load(['cliente', 'cita', 'cita.tecnico']);
 
-        return Inertia::render('EncuestaSatisfaccion/Show', [
+        return Inertia::render('Encuestas/Satisfaccion/Show', [
             'encuesta' => $encuesta,
         ]);
     }
