@@ -341,6 +341,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cotizaciones/siguiente-numero', [CotizacionController::class, 'obtenerSiguienteNumero'])->name('cotizaciones.siguiente-numero')->middleware('can:view cotizaciones');
     Route::resource('cotizaciones', CotizacionController::class)->names('cotizaciones')->parameters(['cotizaciones' => 'cotizacion'])->middleware('can:view cotizaciones');
     Route::post('/cotizaciones/{id}/convertir-a-venta', [CotizacionConversionController::class, 'convertirAVenta'])->name('cotizaciones.convertir-a-venta');
+    Route::post('/cotizaciones/{id}/aprobar', [CotizacionConversionController::class, 'aprobar'])->name('cotizaciones.aprobar');
     Route::post('/cotizaciones/{id}/enviar-a-pedido', [CotizacionConversionController::class, 'enviarAPedido'])->name('cotizaciones.enviar-a-pedido');
     Route::post('/cotizaciones/{id}/duplicate', [CotizacionAccionController::class, 'duplicate'])->name('cotizaciones.duplicate');
     Route::post('/cotizaciones/{cotizacion}/cancel', [CotizacionController::class, 'cancel'])->name('cotizaciones.cancel');

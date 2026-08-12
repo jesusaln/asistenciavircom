@@ -198,6 +198,11 @@
                             Ejecutar Pedido
                         </button>
 
+                        <button v-else-if="['pendiente', 'borrador'].includes(selected.estado?.toLowerCase())" @click="$emit('aprobar', selected)" class="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] shadow-xl shadow-emerald-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            Aprobar Cotización
+                        </button>
+
                         <button @click="$emit('editar', selected.id)" class="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11" /></svg>
                             Modificar Propuesta
@@ -221,7 +226,7 @@ const props = defineProps({
   auditoria: { type: Object, default: null }
 })
 
-const emit = defineEmits(['close', 'editar', 'enviar-a-pedido'])
+const emit = defineEmits(['close', 'editar', 'enviar-a-pedido', 'aprobar'])
 
 const onClose = () => emit('close')
 

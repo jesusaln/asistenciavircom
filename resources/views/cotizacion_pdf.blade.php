@@ -8,17 +8,26 @@
         $moneda = $configuracion->moneda ?? 'MXN';
     @endphp
     <style>
+        :root {
+            --brand-primary: #1f4e5f;
+            --brand-accent: #2a7f83;
+            --brand-soft: #eaf3f5;
+            --surface: #f5f8fa;
+            --border: #dbe5e9;
+            --text: #243746;
+            --muted: #637480;
+        }
         body {
             font-family: sans-serif;
             font-size: 12px;
-            color: #333;
+            color: var(--text);
             margin: 0;
             padding: 20px;
         }
         .header {
             width: 100%;
             margin-bottom: 25px;
-            border-bottom: 2px solid {{ $empresa['color_principal'] ?? '#FF6B35' }};
+            border-bottom: 2px solid var(--brand-primary);
             padding-bottom: 15px;
         }
         .company-info {
@@ -28,17 +37,17 @@
         .company-info h1 {
             margin: 0 0 5px 0;
             font-size: 20px;
-            color: {{ $empresa['color_principal'] ?? '#FF6B35' }};
+            color: var(--brand-primary);
         }
         .company-info .rfc {
             font-weight: bold;
-            color: #555;
+            color: var(--muted);
             margin-bottom: 5px;
         }
         .company-info p {
             margin: 0;
             line-height: 1.4;
-            color: #666;
+            color: var(--muted);
         }
         .invoice-info {
             float: right;
@@ -48,8 +57,8 @@
         .invoice-info h2 {
             margin: 0;
             font-size: 18px;
-            color: {{ $empresa['color_principal'] ?? '#FF6B35' }};
-            background-color: {{ $empresa['color_principal'] ?? '#FF6B35' }}15;
+            color: var(--brand-primary);
+            background-color: var(--brand-soft);
             padding: 8px 15px;
             border-radius: 4px;
         }
@@ -63,15 +72,15 @@
         }
         .client-info {
             margin: 25px 0;
-            background-color: #f8fafc;
+            background-color: var(--surface);
             padding: 15px;
             border-radius: 6px;
-            border-left: 4px solid {{ $empresa['color_principal'] ?? '#FF6B35' }};
+            border-left: 4px solid var(--brand-accent);
         }
         .client-info h3 {
             margin: 0 0 10px 0;
             font-size: 13px;
-            color: #555;
+            color: var(--brand-primary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -83,7 +92,7 @@
         }
         .client-info p {
             margin: 3px 0;
-            color: #666;
+            color: var(--muted);
         }
         table {
             width: 100%;
@@ -91,7 +100,7 @@
             margin-bottom: 25px;
         }
         th {
-            background-color: {{ $empresa['color_principal'] ?? '#FF6B35' }};
+            background-color: var(--brand-primary);
             color: white;
             padding: 10px 8px;
             text-align: left;
@@ -100,12 +109,12 @@
             text-transform: uppercase;
         }
         td {
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border);
             padding: 10px 8px;
             vertical-align: top;
         }
         tr:nth-child(even) {
-            background-color: #f9fafb;
+            background-color: #fbfcfd;
         }
         .text-right {
             text-align: right;
@@ -134,20 +143,23 @@
         .total-row {
             font-weight: bold;
             font-size: 15px;
-            background-color: {{ $empresa['color_principal'] ?? '#FF6B35' }}15 !important;
+            background-color: var(--brand-soft) !important;
+            color: var(--brand-primary);
         }
         .total-row td {
+            border-top: 2px solid var(--brand-accent);
+        }
         .bank-section {
             clear: both;
             margin-top: 10px; /* Reducido de 25px */
             padding: 8px; /* Reducido de 15px */
-            background-color: #e8f4fd;
-            border-left: 3px solid {{ $empresa['color_principal'] ?? '#FF6B35' }};
+            background-color: var(--brand-soft);
+            border-left: 3px solid var(--brand-accent);
             border-radius: 4px;
         }
         .bank-section h4 {
             margin: 0 0 5px 0; /* Reducido */
-            color: {{ $empresa['color_principal'] ?? '#FF6B35' }};
+            color: var(--brand-primary);
             font-size: 10px; /* Reducido */
         }
         .bank-info-container {
@@ -166,7 +178,7 @@
         .warranty-section {
             margin-top: 10px; /* Reducido de 20px */
             padding: 8px; /* Reducido de 12px */
-            background-color: #f5f5f5;
+            background-color: var(--surface);
             border-radius: 4px;
             font-size: 6px; /* Reducido de 7px */
             line-height: 1.2; /* Line-height más apretado */
@@ -192,14 +204,14 @@
         .notes {
             margin-top: 10px;
             padding: 8px;
-            background-color: #fffbeb;
-            border-left: 3px solid #f59e0b;
+            background-color: #f3f7f8;
+            border-left: 3px solid var(--brand-accent);
             border-radius: 4px;
             page-break-inside: avoid;
         }
         .notes h4 {
             margin: 0 0 3px 0;
-            color: #d97706; /* Amber 600 */
+            color: var(--brand-primary);
             font-size: 10px;
         }
         .notes p {
@@ -292,15 +304,25 @@
 
     <div class="totals-container" style="margin-top: 10px;">
         <div class="totals">
+            @php
+                $descuentoGeneral = (float) ($cotizacion->descuento_general ?? 0);
+                $descuentoItems = (float) ($cotizacion->descuento_items ?? 0);
+                $descuentoTotal = $descuentoGeneral + $descuentoItems;
+                $subtotalNeto = max(0, (float) $cotizacion->subtotal - $descuentoTotal);
+            @endphp
             <table>
                 <tr>
                     <td class="text-right" style="padding: 2px;"><strong>Subtotal:</strong></td>
                     <td class="text-right" style="padding: 2px;">${{ number_format($cotizacion->subtotal, 2) }} {{ $moneda }}</td>
                 </tr>
-                @if($cotizacion->descuento_general > 0)
+                @if($descuentoTotal > 0)
                 <tr>
                     <td class="text-right" style="padding: 2px;"><strong>Descuento:</strong></td>
-                    <td class="text-right" style="padding: 2px;">-${{ number_format($cotizacion->descuento_general, 2) }} {{ $moneda }}</td>
+                    <td class="text-right" style="padding: 2px;">-${{ number_format($descuentoTotal, 2) }} {{ $moneda }}</td>
+                </tr>
+                <tr>
+                    <td class="text-right" style="padding: 2px;"><strong>Subtotal neto:</strong></td>
+                    <td class="text-right" style="padding: 2px;">${{ number_format($subtotalNeto, 2) }} {{ $moneda }}</td>
                 </tr>
                 @endif
                 <tr>
@@ -347,7 +369,7 @@
     {{-- SECCIÓN DE GARANTÍA (Compacta) --}}
     <div class="warranty-section">
         <strong style="font-size: 7px;">GARANTÍA:</strong> <strong>365 días</strong> para equipos nuevos | <strong>3 meses</strong> para partes eléctricas si se instaló con centro de servicio / refacciones.<br>
-        En caso de duda: <strong>662-460-6840</strong> o <strong>climasdeldesierto.com/soporte</strong>.<br>
+        En caso de duda: <strong>662-460-6840</strong> o <strong>asistenciavircom.com/soporte</strong>.<br>
         <strong>Requisitos obligatorios:</strong> Nota de venta original/Cotización, Nombre, Teléfono, Dirección, Modelo/Serie del equipo, descripción de la falla y evidencias (Fotos/Videos).<br>
         <em>Aplica únicamente por defectos de fabricación bajo uso adecuado. No cubre daños por variaciones de voltaje, falta de mantenimiento, siniestros o manipulaciones externas de terceros.</em>
         @php

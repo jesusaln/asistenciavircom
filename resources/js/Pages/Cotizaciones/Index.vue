@@ -132,6 +132,29 @@ const enviarAPedido = async (doc) => {
   }
 }
 
+const aprobarCotizacion = async (doc) => {
+  try {
+    loading.value = true
+    const { data } = await axios.post(`/cotizaciones/${doc.id}/aprobar`)
+    if (data.success) {
+      notyf.success('Cotización aprobada')
+      const updated = props.cotizaciones.map(c => c.id === doc.id ? { ...c, estado: data.estado } : c)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('cotizaciones:refresh', { detail: updated }))
+      }
+      if (fila.value && fila.value.id === doc.id) {
+        fila.value = { ...fila.value, estado: data.estado }
+      }
+      cerrarModal()
+    }
+  } catch (err) {
+    const msg = err?.response?.data?.error || 'Error al aprobar'
+    notyf.error(msg)
+  } finally {
+    loading.value = false
+  }
+}
+
 const imprimirCotizacion = (doc) => window.open(`/cotizaciones/${doc.id}/pdf`, '_blank')
 
 const enviarCotizacionPorEmail = (doc) => {
@@ -248,6 +271,13 @@ const auditoriaForModal = computed(() => {
       >
         <template #actions="{ row }">
           <div class="flex justify-end gap-1.5">
+            <button v-if="['pendiente', 'borrador'].includes(row.estado?.toLowerCase())" @click="aprobarCotizacion(row)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+              title="Aprobar">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
             <button @click="verDetalles(row)"
               class="w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200 bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-900/30"
               title="Ver detalles">
@@ -312,6 +342,7 @@ const auditoriaForModal = computed(() => {
         @close="cerrarModal"
         @editar="editarCotizacion"
         @enviar-a-pedido="enviarAPedido"
+        @aprobar="aprobarCotizacion"
       />
 
       <!-- Modales de Acción (Confirmaciones) -->

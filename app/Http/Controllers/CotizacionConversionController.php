@@ -98,8 +98,52 @@ class CotizacionConversionController extends Controller
     }
 
     /**
+     * Aprobar cotización (pendiente -> aprobada).
+     */
+    public function aprobar($id)
+    {
+        try {
+            $cotizacion = Cotizacion::findOrFail($id);
+
+            if ($cotizacion->estado === EstadoCotizacion::Aprobada) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'La cotización ya está aprobada',
+                    'estado' => $cotizacion->estado->value,
+                ]);
+            }
+
+            if (!in_array($cotizacion->estado, [EstadoCotizacion::Pendiente, EstadoCotizacion::Borrador], true)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Solo cotizaciones en borrador o pendiente pueden aprobarse',
+                    'estado_actual' => $cotizacion->estado->value,
+                ], 422);
+            }
+
+            $cotizacion->update(['estado' => EstadoCotizacion::Aprobada]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cotización aprobada correctamente',
+                'estado' => $cotizacion->estado->value,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al aprobar cotización', [
+                'cotizacion_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al aprobar la cotización',
+                'details' => app()->environment('local') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
+    /**
      * Enviar a Pedido.
-     * (Nota: la unificación completa de pivots se atiende en el paso #8)
+     * (Nota: la unificacion completa de pivots se atiende en el paso #8)
      */
     public function enviarAPedido($id)
     {
