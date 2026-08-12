@@ -455,7 +455,106 @@
           :button-text="form.processing ? 'Actualizando...' : 'Actualizar Orden de Compra'"
           @limpiar="limpiarFormulario"
         />
-      </form>
+      <!-- Botón flotante Recibir Mercancía -->
+      <button
+        v-if="puedeRecibir"
+        @click="abrirRecepcion"
+        type="button"
+        :disabled="loadingRecepcion"
+        class="fixed bottom-20 right-6 bg-emerald-600 text-white p-4 rounded-full shadow-xl hover:bg-emerald-700 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
+        title="Recibir mercancía de esta orden"
+      >
+        <svg v-if="!loadingRecepcion" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+        <svg v-else class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span class="text-sm font-bold uppercase tracking-wide">Recibir Mercancía</span>
+      </button>
+
+      <!-- Modal Recepción de Mercancía -->
+      <Transition name="modal-fade">
+        <div v-if="showRecepcionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" @click.self="cerrarRecepcion">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-bold text-white">Recibir Mercancía</h3>
+                <p class="text-xs text-emerald-100 mt-0.5">Orden {{ previewRecepcion.orden?.numero_orden }} — {{ previewRecepcion.orden?.proveedor }}</p>
+              </div>
+              <button @click="cerrarRecepcion" class="text-white/80 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                  <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Folio Compra</p>
+                  <p class="text-lg font-black text-emerald-900 mt-1">{{ previewRecepcion.numero_compra_preview || '—' }}</p>
+                </div>
+                <div class="p-4 bg-sky-50 rounded-xl border border-sky-200">
+                  <p class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">Total</p>
+                  <p class="text-lg font-black text-sky-900 mt-1">${{ formatCurrency(previewRecepcion.orden?.total || 0) }}</p>
+                </div>
+                <div class="p-4 bg-slate-100 rounded-xl border border-slate-200">
+                  <p class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Productos</p>
+                  <p class="text-lg font-black text-slate-900 mt-1">{{ previewRecepcion.orden?.productos?.length || 0 }}</p>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Almacén de Recepción *</label>
+                <select v-model="almacenRecepcion" class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                  <option :value="null">Seleccionar almacén...</option>
+                  <option v-for="alm in almacenes" :key="alm.id" :value="alm.id">{{ alm.nombre }}</option>
+                </select>
+              </div>
+
+              <div>
+                <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">Productos a Recibir</h4>
+                <div class="border border-slate-200 rounded-xl divide-y divide-slate-100">
+                  <div v-for="prod in previewRecepcion.orden?.productos || []" :key="prod.id" class="p-3 flex items-center justify-between gap-3">
+                    <div class="flex-1">
+                      <p class="text-sm font-bold text-slate-900">{{ prod.nombre }}</p>
+                      <p class="text-xs text-slate-500"><span class="font-mono">{{ prod.codigo }}</span> · Stock actual: {{ prod.stock_actual }}</p>
+                      <span v-if="prod.requiere_serie" class="inline-flex items-center gap-1 px-2 py-0.5 mt-1 bg-amber-100 text-amber-700 text-[10px] font-bold uppercase rounded">Con serie</span>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-2xl font-black text-slate-900">x{{ prod.cantidad }}</p>
+                      <p class="text-xs text-slate-500">${{ formatCurrency(prod.precio) }} c/u</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="previewRecepcion.orden?.requiere_series" class="border-2 border-amber-300 rounded-xl p-4 bg-amber-50">
+                <h4 class="text-sm font-bold text-amber-800 uppercase tracking-wider mb-2">Series Requeridas</h4>
+                <p class="text-xs text-amber-700 mb-3">El sistema solicitará las series al confirmar la recepción.</p>
+                <ol class="text-xs text-amber-700 list-decimal list-inside space-y-1">
+                  <li v-for="p in previewRecepcion.orden.productos_con_serie" :key="p.id">
+                    <strong>{{ p.nombre }}</strong> → {{ p.cantidad }} series
+                  </li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
+              <button @click="cerrarRecepcion" class="px-5 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wide hover:bg-slate-200 rounded-xl transition-all">Cancelar</button>
+              <button @click="confirmarRecepcion" :disabled="!almacenRecepcion || submittingRecepcion" class="px-6 py-3 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl shadow-xl hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                <svg v-if="submittingRecepcion" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                {{ submittingRecepcion ? 'Procesando...' : 'Confirmar Recepción' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
 
       <!-- Atajos de teclado -->
       <button
@@ -496,6 +595,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import { Notyf } from 'notyf';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Header from '@/Components/CreateComponents/Header.vue';
@@ -525,43 +625,68 @@ const showNotification = (message, type = 'success') => {
 defineOptions({ layout: AppLayout });
 
 // Props
-const props = defineProps({
-  ordenCompra: {
-    type: Object,
-    required: true,
-  },
-  proveedores: {
-    type: Array,
-    default: () => [],
-  },
-  productos: {
-    type: Array,
-    default: () => [],
-  },
-  almacenes: {
-    type: Array,
-    default: () => [],
-  },
-  errors: {
-    type: Object,
-    default: () => ({}),
-  },
-  errors: {
-    type: Object,
-    default: () => ({}),
-  },
-  defaults: {
-    type: Object,
-    default: () => ({
-      ivaPorcentaje: 16,
-      enableIsr: false,
-      enableRetencionIva: false,
-      enableRetencionIsr: false,
-      retencionIvaDefault: 10.6667,
-      retencionIsrDefault: 10
-    })
+// Recepción de mercancía
+const showRecepcionModal = ref(false)
+const loadingRecepcion = ref(false)
+const submittingRecepcion = ref(false)
+const previewRecepcion = ref({ orden: null, almacen_sugerido: null, numero_compra_preview: null })
+const almacenRecepcion = ref(null)
+
+const puedeRecibir = computed(() => {
+  const estado = (props.ordenCompra?.estado || '').toLowerCase()
+  return ['enviada_a_proveedor', 'pendiente', 'aprobada'].includes(estado)
+})
+
+const formatCurrency = (num) => new Intl.NumberFormat('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0)
+
+const abrirRecepcion = async () => {
+  loadingRecepcion.value = true
+  try {
+    const { data } = await axios.get(`/ordenescompra/${props.ordenCompra.id}/preview-recepcion`)
+    if (data.success) {
+      previewRecepcion.value = data
+      almacenRecepcion.value = data.almacen_sugerido || (props.almacenes[0]?.id ?? null)
+      showRecepcionModal.value = true
+    } else {
+      notyf.error(data.error || 'No se pudo cargar la previsualización')
+    }
+  } catch (err) {
+    notyf.error(err?.response?.data?.error || 'Error al cargar la previsualización')
+  } finally {
+    loadingRecepcion.value = false
   }
-});
+}
+
+const cerrarRecepcion = () => {
+  showRecepcionModal.value = false
+  previewRecepcion.value = { orden: null, almacen_sugerido: null, numero_compra_preview: null }
+  almacenRecepcion.value = null
+}
+
+const confirmarRecepcion = async () => {
+  if (!almacenRecepcion.value) {
+    notyf.error('Selecciona un almacén')
+    return
+  }
+  submittingRecepcion.value = true
+  try {
+    const { data } = await axios.post(`/ordenescompra/${props.ordenCompra.id}/recibir-mercancia`, {
+      almacen_id: almacenRecepcion.value,
+    })
+    if (data.success) {
+      notyf.success(`Mercancía recibida. Compra: ${data.compra_id}`)
+      cerrarRecepcion()
+      router.visit(route('compras.index'))
+    } else {
+      notyf.error(data.error || 'No se pudo recibir la mercancía')
+    }
+  } catch (err) {
+    const msg = err?.response?.data?.error || 'Error al recibir la mercancía'
+    notyf.error(msg)
+  } finally {
+    submittingRecepcion.value = false
+  }
+}
 
 // Copia reactiva de proveedores para evitar mutación de props
 const proveedoresList = ref([...props.proveedores]);

@@ -823,6 +823,72 @@ class OrdenCompraController extends Controller
     }
 
     /**
+     * Preview de la recepción de mercancía: valida estado, devuelve productos,
+     * series requeridas, almacén sugerido y folio de compra que se generará.
+     */
+    public function previewRecepcion(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $orden = OrdenCompra::with(['productos', 'proveedor'])->findOrFail($id);
+
+            if (!in_array($orden->estado, ['enviada_a_proveedor', 'pendiente', 'aprobada'], true)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Esta orden no puede recibirse en su estado actual',
+                    'estado_actual' => $orden->estado,
+                ], 400);
+            }
+
+            $almacenSugerido = $orden->almacen_id
+                ?? auth()->user()?->almacen_compra_id
+                ?? null;
+
+            $productosConSerie = $orden->productos->filter(fn($p) => $p->requiere_serie);
+
+            return response()->json([
+                'success' => true,
+                'orden' => [
+                    'id' => $orden->id,
+                    'numero_orden' => $orden->numero_orden,
+                    'proveedor' => $orden->proveedor?->nombre_razon_social,
+                    'estado' => $orden->estado,
+                    'subtotal' => (float) $orden->subtotal,
+                    'iva' => (float) $orden->iva,
+                    'total' => (float) $orden->total,
+                    'productos' => $orden->productos->map(fn($p) => [
+                        'id' => $p->id,
+                        'nombre' => $p->nombre,
+                        'codigo' => $p->codigo,
+                        'cantidad' => (int) $p->pivot->cantidad,
+                        'precio' => (float) $p->pivot->precio,
+                        'descuento' => (float) ($p->pivot->descuento ?? 0),
+                        'requiere_serie' => (bool) $p->requiere_serie,
+                        'stock_actual' => (int) ($p->stock ?? 0),
+                    ])->values(),
+                    'requiere_series' => $productosConSerie->isNotEmpty(),
+                    'productos_con_serie' => $productosConSerie->map(fn($p) => [
+                        'id' => $p->id,
+                        'nombre' => $p->nombre,
+                        'cantidad' => (int) $p->pivot->cantidad,
+                    ])->values(),
+                ],
+                'almacen_sugerido' => $almacenSugerido,
+                'numero_compra_preview' => Compra::generarNumero($orden->id, 'inventario'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al previsualizar recepción de orden', [
+                'orden_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'No se pudo preparar la previsualización',
+                'details' => app()->environment('local') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
+    /**
      * Recibir mercancía de una orden de compra
      *
      * @param Request $request
