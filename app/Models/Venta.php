@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Enums\EstadoVenta;
 use App\Models\Casts\TimezoneCast;
+use App\Models\Concerns\RedondeaTotales;
 
 use \OwenIt\Auditing\Auditable;
 
@@ -16,7 +17,7 @@ class Venta extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use BelongsToEmpresa;
 
-    use HasFactory, SoftDeletes, BelongsToEmpresa, Auditable;
+    use HasFactory, SoftDeletes, BelongsToEmpresa, Auditable, RedondeaTotales;
 
     /**
      * Only audit changes to financial/status fields.

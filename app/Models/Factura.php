@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
+use App\Models\Concerns\RedondeaTotales;
 
 class Factura extends Model
 {
     use BelongsToEmpresa;
 
-    use HasFactory, SoftDeletes, BelongsToEmpresa;
+    use HasFactory, SoftDeletes, BelongsToEmpresa, RedondeaTotales;
 
     protected $fillable = [
         'empresa_id',

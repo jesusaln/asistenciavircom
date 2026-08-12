@@ -7,12 +7,13 @@ use App\Enums\EstadoPedido;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Models\Concerns\Blameable;
+use App\Models\Concerns\RedondeaTotales;
 
 class Pedido extends Model
 {
     use BelongsToEmpresa;
 
-    use SoftDeletes, Blameable, BelongsToEmpresa;
+    use SoftDeletes, Blameable, BelongsToEmpresa, RedondeaTotales;
 
     protected $table = 'pedidos';
 

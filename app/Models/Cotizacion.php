@@ -14,12 +14,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Concerns\BelongsToEmpresa;
 use App\Models\Concerns\Blameable;
+use App\Models\Concerns\RedondeaTotales;
 
 class Cotizacion extends Model
 {
     use BelongsToEmpresa;
 
-    use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa;
+    use HasFactory, SoftDeletes, Blameable, BelongsToEmpresa, RedondeaTotales;
 
     protected $table = 'cotizaciones';
 
