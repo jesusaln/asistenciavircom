@@ -182,6 +182,7 @@
           <NavLink v-if="$can('view ventas')" href="/pos" icon="cash-register" target="_blank" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Caja POS' : null">Caja POS</NavLink>
           <NavLink v-if="$can('view ventas')" href="/facturas" icon="file-invoice-dollar" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Facturación' : null">Facturación</NavLink>
           <NavLink v-if="$can('view garantias')" href="/garantias" icon="shield-halved" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Garantías' : null">Garantías</NavLink>
+          <NavLink v-if="$can('view encuestas_satisfaccion') || isAdmin" :href="route('encuestas.satisfaccion.index')" icon="star" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Encuestas de satisfacción' : null">Encuestas de satisfacción</NavLink>
         </SidebarSection>
 
         <!-- 🤝 MercadoLibre -->
@@ -227,9 +228,8 @@
           <NavLink href="/marketing/campanias" icon="paper-plane" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Campañas' : null">Campañas</NavLink>
           <NavLink href="/marketing/audiencias" icon="users" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Audiencias' : null">Audiencias</NavLink>
           <NavLink href="/marketing/plantillas" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Plantillas' : null">Plantillas</NavLink>
-           <NavLink href="/marketing/social-posts" icon="share-nodes" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Redes Sociales' : null">Redes Sociales</NavLink>
-           <NavLink v-if="$can('view encuestas_satisfaccion') || isAdmin" :href="route('encuestas.satisfaccion.index')" icon="star" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Encuestas de satisfacción' : null">Encuestas de satisfacción</NavLink>
-         </SidebarSection>
+            <NavLink href="/marketing/social-posts" icon="share-nodes" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Redes Sociales' : null">Redes Sociales</NavLink>
+          </SidebarSection>
         </div>
 
         <!-- —— Operaciones: soporte, compras, stock, finanzas, campo —— -->
@@ -278,6 +278,7 @@
           <NavLink href="/tecnicos" icon="user-cog" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Técnicos y GPS' : null">Técnicos y GPS</NavLink>
           <NavLink v-if="isSuperAdmin" href="/tracking" icon="map-location-dot" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Tracker en Vivo' : null">Tracker en Vivo</NavLink>
           <NavLink href="/polizas-servicio" icon="file-signature" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Pólizas de Servicio' : null">Pólizas de Servicio</NavLink>
+          <NavLink href="/polizas-calculadora" icon="calculator" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Calculadora y Cotizador TI' : null">Calculadora y Cotizador TI</NavLink>
           <NavLink href="/tecnico/mantenimientos" icon="tools" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Mantenimientos de Pólizas' : null">Mantenimientos de Pólizas</NavLink>
           <NavLink href="/planes-poliza" icon="tags" :collapsed="props.isSidebarCollapsed" :title="props.isSidebarCollapsed ? 'Administrar Planes' : null">Administrar Planes</NavLink>
         </SidebarSection>
@@ -1012,7 +1013,7 @@ function detectSidebarSectionFromPath(path) {
   if (p.startsWith('/mercadolibre')) {
     return 'mercadolibre';
   }
-  if (p.startsWith('/polizas-servicio') || p.startsWith('/planes-poliza') || p.startsWith('/tecnico/mantenimientos') || p.startsWith('/tecnicos')) {
+  if (p.startsWith('/polizas-servicio') || p.startsWith('/polizas-calculadora') || p.startsWith('/planes-poliza') || p.startsWith('/tecnico/mantenimientos') || p.startsWith('/tecnicos')) {
     return 'polizas';
   }
   if (p.startsWith('/soporte') || p.startsWith('/soporte-remoto') || p.startsWith('/credenciales')) {

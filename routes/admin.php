@@ -575,6 +575,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/completar', [\App\Http\Controllers\Admin\PolizaMantenimientoTecnicoController::class, 'completar'])->name('completar');
     });
 
+    Route::get('/polizas-calculadora', function () {
+        return \Inertia\Inertia::render('PolizaServicio/Calculadora', [
+            'clientes' => \App\Models\Cliente::select('id', 'nombre_razon_social', 'email', 'telefono', 'rfc', 'calle', 'colonia', 'municipio')
+                ->orderBy('nombre_razon_social')
+                ->get()
+        ]);
+    })->name('polizas-calculadora');
+
     Route::get('/polizas-servicio/dashboard', [PolizaServicioController::class, 'dashboard'])->name('polizas-servicio.dashboard');
     Route::get('/polizas-servicio/rentabilidad', [PolizaServicioController::class, 'reporteRentabilidad'])->name('polizas-servicio.rentabilidad');
     Route::get('/polizas-servicio/{polizaServicio}/historial', [PolizaServicioController::class, 'historialConsumo'])->name('polizas-servicio.historial');
@@ -582,7 +590,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/polizas-servicio/{polizaServicio}/pdf-contrato', [PolizaServicioPDFController::class, 'contrato'])->name('polizas-servicio.pdf-contrato');
     Route::post('/polizas-servicio/{polizaServicio}/generar-cobro', [PolizaServicioController::class, 'generarCobro'])->name('polizas-servicio.generar-cobro');
     Route::post('/polizas-servicio/{polizaServicio}/enviar-recordatorio', [PolizaServicioController::class, 'enviarRecordatorioRenovacion'])->name('polizas-servicio.enviar-recordatorio');
-    Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin');
+    Route::resource('polizas-servicio', PolizaServicioController::class)->middleware('role:admin|editor|super-admin|ventas');
     Route::post('/polizas-servicio/{poliza}/mantenimientos', [PolizaMantenimientoController::class, 'store'])->name('polizas-servicio.mantenimientos.store');
     Route::put('/polizas-servicio/mantenimientos/{mantenimiento}', [PolizaMantenimientoController::class, 'update'])->name('polizas-servicio.mantenimientos.update');
     Route::delete('/polizas-servicio/mantenimientos/{mantenimiento}', [PolizaMantenimientoController::class, 'destroy'])->name('polizas-servicio.mantenimientos.destroy');

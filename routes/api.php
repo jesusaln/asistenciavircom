@@ -91,8 +91,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
     Route::get('/user', [AuthController::class, 'me'])->name('api.user');
     Route::get('/dashboard/stats', [\App\Http\Controllers\Api\DashboardApiController::class, 'index'])->name('api.dashboard.stats');
-    Route::post('/user/fcm-token', [AuthController::class, 'updateFcmToken'])->name('api.user.fcm-token');
     Route::post('/refresh-token', [AuthController::class, 'refresh'])->name('api.refresh');
+
+    // Calculadora de Pólizas TI (Cotizaciones, envío por correo y guardado ERP)
+    Route::post('/polizas/calculator/send-email', [\App\Http\Controllers\Api\PolizaCalculatorController::class, 'sendEmail'])->name('api.polizas.calculator.send-email');
+    Route::post('/polizas/calculator/guardar-cotizacion', [\App\Http\Controllers\Api\PolizaCalculatorController::class, 'guardarCotizacion'])->name('api.polizas.calculator.guardar-cotizacion');
 
     // Comisiones (Ionic)
     Route::get('/comisiones', [\App\Http\Controllers\Api\ComisionApiController::class, 'index'])->name('api.comisiones.index');
