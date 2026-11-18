@@ -72,74 +72,86 @@
         <!-- COLUMNA IZQUIERDA: CONFIGURADOR DE EQUIPOS (7 COLS) -->
         <div class="lg:col-span-7 space-y-6">
           
-          <!-- 1. Datos del Cliente / Prospecto -->
+          <!-- 1. Datos del Cliente / Prospecto (Idéntico a Módulo de Ventas) -->
           <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-sm">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-sm font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-2">
                 <i class="fas fa-user-tie"></i> 1. Datos del Cliente / Prospecto
               </h3>
-              <span v-if="form.cliente_id" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                Cliente Registrado en ERP
-              </span>
+              <button
+                type="button"
+                @click="modoProspectoLibre = !modoProspectoLibre"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all border cursor-pointer"
+                :class="modoProspectoLibre 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs' 
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-200'"
+              >
+                <i :class="modoProspectoLibre ? 'fas fa-search' : 'fas fa-user-plus'"></i>
+                <span>{{ modoProspectoLibre ? '← Volver a Buscar Cliente' : '+ Capturar Prospecto Nuevo' }}</span>
+              </button>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Seleccionar Cliente Existente (Catálogo Vircom)
-                </label>
-                <div class="relative">
-                  <select 
-                    @change="onSelectCliente($event)" 
-                    :value="form.cliente_id || ''"
-                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                  >
-                    <option value="">-- Cliente Nuevo / Prospecto (Captura Libre) --</option>
-                    <option v-for="c in props.clientes" :key="c.id" :value="c.id">
-                      {{ c.nombre_razon_social }} {{ c.rfc ? `(${c.rfc})` : '' }}
-                    </option>
-                  </select>
+
+            <!-- Buscador de Clientes IDÉNTICO al módulo de Ventas -->
+            <div v-if="!modoProspectoLibre">
+              <BuscarCliente
+                :clientes="props.clientes"
+                :cliente-seleccionado="clienteSeleccionado"
+                @cliente-seleccionado="onClienteSeleccionado"
+                :mostrar-opcion-nuevo-cliente="false"
+                label-busqueda="Buscar Cliente en el Sistema"
+                placeholder-busqueda="Escribe nombre, razón social, RFC, teléfono o correo..."
+                mensaje-vacio="No hay cliente seleccionado"
+                submensaje-vacio="Busca y selecciona un cliente registrado para autocompletar la propuesta"
+              />
+            </div>
+
+            <!-- Captura de Prospecto Nuevo Manual -->
+            <div v-else class="space-y-4">
+              <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                <i class="fas fa-info-circle text-amber-500"></i>
+                <span>Modo Prospecto Nuevo: Ingresa los datos manualmente para generar y enviar la propuesta sin dar de alta al cliente en el catálogo aún.</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre Comercial / Razón Social *</label>
+                  <input 
+                    type="text" 
+                    v-model="form.cliente_nombre" 
+                    placeholder="Ej. Comercializadora del Noroeste SA de CV" 
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                  />
                 </div>
-              </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre Comercial / Razón Social *</label>
-                <input 
-                  type="text" 
-                  v-model="form.cliente_nombre" 
-                  placeholder="Ej. Comercializadora del Noroeste SA de CV" 
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500" 
-                />
-              </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">RFC (Opcional)</label>
+                  <input 
+                    type="text" 
+                    v-model="form.cliente_rfc" 
+                    placeholder="XAXX010101000" 
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 uppercase" 
+                  />
+                </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">RFC (Opcional)</label>
-                <input 
-                  type="text" 
-                  v-model="form.cliente_rfc" 
-                  placeholder="XAXX010101000" 
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 uppercase" 
-                />
-              </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Correo Electrónico *</label>
+                  <input 
+                    type="email" 
+                    v-model="form.cliente_email" 
+                    placeholder="contacto@empresa.com" 
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                  />
+                </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Correo Electrónico *</label>
-                <input 
-                  type="email" 
-                  v-model="form.cliente_email" 
-                  placeholder="contacto@empresa.com" 
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500" 
-                />
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Teléfono / WhatsApp (10 dígitos)</label>
-                <input 
-                  type="tel" 
-                  v-model="form.cliente_telefono" 
-                  placeholder="6621234567" 
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500" 
-                />
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Teléfono / WhatsApp</label>
+                  <input 
+                    type="tel" 
+                    v-model="form.cliente_telefono" 
+                    placeholder="6621234567" 
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -692,6 +704,7 @@
 import { reactive, computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import BuscarCliente from '@/Components/CreateComponents/BuscarCliente.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -703,6 +716,8 @@ const props = defineProps({
 
 const isSending = ref(false);
 const isSavingCotizacion = ref(false);
+const clienteSeleccionado = ref(null);
+const modoProspectoLibre = ref(false);
 
 const form = reactive({
   cliente_id: null,
@@ -726,23 +741,20 @@ const form = reactive({
   notas: '',
 });
 
-const onSelectCliente = (event) => {
-  const id = Number(event.target.value);
-  if (!id) {
+const onClienteSeleccionado = (cliente) => {
+  clienteSeleccionado.value = cliente;
+  if (cliente) {
+    form.cliente_id = cliente.id;
+    form.cliente_nombre = cliente.nombre_razon_social || cliente.nombre || '';
+    form.cliente_rfc = cliente.rfc || '';
+    form.cliente_email = cliente.email || '';
+    form.cliente_telefono = cliente.telefono || '';
+  } else {
     form.cliente_id = null;
     form.cliente_nombre = '';
     form.cliente_rfc = '';
     form.cliente_email = '';
     form.cliente_telefono = '';
-    return;
-  }
-  const c = props.clientes.find(cli => cli.id === id);
-  if (c) {
-    form.cliente_id = c.id;
-    form.cliente_nombre = c.nombre_razon_social || '';
-    form.cliente_rfc = c.rfc || '';
-    form.cliente_email = c.email || '';
-    form.cliente_telefono = c.telefono || '';
   }
 };
 
